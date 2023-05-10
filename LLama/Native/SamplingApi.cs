@@ -148,14 +148,19 @@ namespace LLama.Native
         /// <param name="m">The number of tokens considered in the estimation of `s_hat`. This is an arbitrary value that is used to calculate `s_hat`, which in turn helps to calculate the value of `k`. In the paper, they use `m = 100`, but you can experiment with different values to see how it affects the performance of the algorithm.</param>
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
-        public static llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, int m, float[] mu)
+        public static llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, int m, in float mu)
         {
             var handle = candidates.data.Pin();
             var st = new LLamaTokenDataArrayNative();
             st.data = new IntPtr(handle.Pointer);
             st.size = candidates.size;
             st.sorted = candidates.sorted;
-            return NativeApi.llama_sample_token_mirostat(ctx, new IntPtr(&st), tau, eta, m, mu);
+            llama_token res;
+            fixed(float* pmu = &mu)
+            {
+                res = NativeApi.llama_sample_token_mirostat(ctx, new IntPtr(&st), tau, eta, m, pmu);
+            }
+            return res;
         }
 
         /// <summary>
@@ -167,14 +172,19 @@ namespace LLama.Native
         /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
-        public static llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, float[] mu)
+        public static llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, in float mu)
         {
             var handle = candidates.data.Pin();
             var st = new LLamaTokenDataArrayNative();
             st.data = new IntPtr(handle.Pointer);
             st.size = candidates.size;
             st.sorted = candidates.sorted;
-            return NativeApi.llama_sample_token_mirostat_v2(ctx, new IntPtr(&st), tau, eta, mu);
+            llama_token res;
+            fixed (float* pmu = &mu)
+            {
+                res = NativeApi.llama_sample_token_mirostat_v2(ctx, new IntPtr(&st), tau, eta, pmu);
+            }
+            return res;
         }
 
         /// <summary>

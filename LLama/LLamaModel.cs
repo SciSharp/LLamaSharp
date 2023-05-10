@@ -608,7 +608,7 @@ namespace LLama
                     yield return new CompletionChunk(completionId, "text_completion", created, _model_path, new CompletionChoice[]
                     {
                         new CompletionChoice(text.Substring(returnedCharacters), 0, null, finishReason)
-                    });
+                    }); 
                 }
             }
 
