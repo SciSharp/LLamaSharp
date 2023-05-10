@@ -70,7 +70,7 @@ namespace LLama
         {
             int minLen = 0;
             llama_token[]? minKey = null;
-            var keys = _cacheState.Keys.Select(k => (k, LLamaModel.LongestTokenPrefix(k, key)));
+            var keys = _cacheState.Keys.Select(k => (k, LLamaModelV1.LongestTokenPrefix(k, key)));
             foreach(var (k, prefixLen) in keys)
             {
                 if(prefixLen > minLen)

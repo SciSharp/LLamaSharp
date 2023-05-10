@@ -4,6 +4,11 @@ using System.Text;
 
 namespace LLama.Types
 {
+    public enum ChatRole
+    {
+        Human, 
+        Assistant
+    }
     public record EmbeddingUsage(int PromptTokens, int TotalTokens);
 
     public record EmbeddingData(int Index, string Object, float[] Embedding);
@@ -20,7 +25,7 @@ namespace LLama.Types
 
     public record Completion(string Id, string Object, int Created, string Model, CompletionChoice[] Choices, CompletionUsage Usage);
 
-    public record ChatCompletionMessage(string Role, string Content, string? User);
+    public record ChatCompletionMessage(ChatRole Role, string Content, string? Name = null);
 
     public record ChatCompletionChoice(int Index, ChatCompletionMessage Message, string? FinishReason);
 
@@ -31,4 +36,6 @@ namespace LLama.Types
     public record ChatCompletionChunkChoice(int Index, ChatCompletionChunkDelta Delta, string? FinishReason);
 
     public record ChatCompletionChunk(string Id, string Model, string Object, int Created, ChatCompletionChunkChoice[] Choices);
+
+    public record ChatMessageRecord(ChatCompletionMessage Message, DateTime Time);
 }

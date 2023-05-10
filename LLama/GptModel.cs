@@ -12,9 +12,9 @@ using System.Diagnostics;
 namespace LLama
 {
     using llama_token = Int32;
-    public class GptModel
+    public class LLamaModel: IChatModel
     {
-        GptParams _params;
+        LLamaParams _params;
         SafeLLamaContextHandle _ctx;
         string _path_session;
         List<llama_token> _session_tokens;
@@ -38,7 +38,12 @@ namespace LLama
         int _n_session_consumed;
         List<llama_token> _embed;
 
-        public GptModel(string model_path = "models/lamma-7B/ggml-model.bin", int seed = 0, int n_threads = -1, int n_predict = -1,
+        // params related to chat API only
+        bool _first_time_chat = true;
+
+        public string Name { get; set; }
+
+        public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
             int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
@@ -49,33 +54,18 @@ namespace LLama
             bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
             bool embedding = false, bool interactive_first = false, bool instruct = false, bool penalize_nl = true,
             bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
-            bool verbose_prompt = false)
+            bool verbose_prompt = false) : this(new LLamaParams(seed, n_threads, n_predict, n_parts, n_ctx, n_batch, 
+                n_keep, logit_bias, top_k, top_p, tfs_z, typical_p, temp, repeat_penalty, repeat_last_n, frequency_penalty, 
+                presence_penalty, mirostat, mirostat_tau, mirostat_eta, model_path, prompt, path_session, input_prefix, 
+                input_suffix, antiprompt, lora_adapter, lora_base, memory_f16, random_prompt, use_color, interactive, embedding, 
+                interactive_first, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), model_name, echo_input, verbose)
         {
 
         }
 
-        public GptModel WithPrompt(string prompt)
+        public unsafe LLamaModel(LLamaParams @params, string name = "", bool echo_input = false, bool verbose = false)
         {
-            _params.prompt = prompt;
-            if(!_params.prompt.EndsWith(" "))
-            {
-                _params.prompt.Insert(0, " ");
-            }
-            _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true);
-            if (_embed_inp.Count > _n_ctx - 4)
-            {
-                throw new ArgumentException($"prompt is too long ({_embed_inp.Count} tokens, max {_n_ctx - 4})");
-            }
-            return this;
-        }
-
-        public GptModel WithPromptFile(string promptFileName)
-        {
-            return WithPrompt(File.ReadAllText(promptFileName));
-        }
-
-        public unsafe GptModel(GptParams @params)
-        {
+            Name = name;
             _params = @params;
             _ctx = Utils.llama_init_from_gpt_params(ref _params);
 
@@ -86,7 +76,10 @@ namespace LLama
             _path_session = @params.path_session;
             if (!string.IsNullOrEmpty(_path_session))
             {
-                Logger.Default.Info($"Attempting to load saved session from '{_path_session}'");
+                if (verbose)
+                {
+                    Logger.Default.Info($"Attempting to load saved session from '{_path_session}'");
+                }
 
                 if (!File.Exists(_path_session))
                 {
@@ -100,7 +93,10 @@ namespace LLama
                     throw new RuntimeError($"Failed to load session file {_path_session}");
                 }
                 _session_tokens = session_tokens.Take((int)n_token_count_out).ToList();
-                Logger.Default.Info($"Loaded a session with prompt size of {_session_tokens.Count} tokens");
+                if (verbose)
+                {
+                    Logger.Default.Info($"Loaded a session with prompt size of {_session_tokens.Count} tokens");
+                }
             }
 
             _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true);
@@ -122,7 +118,7 @@ namespace LLama
                     }
                     n_matching_session_tokens++;
                 }
-                if (n_matching_session_tokens >= (ulong)_embed_inp.Count)
+                if (n_matching_session_tokens >= (ulong)_embed_inp.Count && verbose)
                 {
                     Logger.Default.Info("Session file has exact match for prompt!");
                 }
@@ -131,7 +127,7 @@ namespace LLama
                     Logger.Default.Warn($"session file has low similarity to prompt ({n_matching_session_tokens} " +
                         $"/ {_embed_inp.Count} tokens); will mostly be reevaluated.");
                 }
-                else
+                else if(verbose)
                 {
                     Logger.Default.Info($"Session file matches {n_matching_session_tokens} / {_embed_inp.Count} " +
                         $"tokens of prompt.");
@@ -185,35 +181,61 @@ namespace LLama
                 Logger.Default.Info("\n");
             }
 
-            if (_params.interactive)
+            if (_params.interactive && verbose)
             {
                 Logger.Default.Info("interactive mode on.");
             }
-            Logger.Default.Info($"sampling: repeat_last_n = {_params.repeat_last_n}, " +
+            if (verbose)
+            {
+                Logger.Default.Info($"sampling: repeat_last_n = {_params.repeat_last_n}, " +
                 $"repeat_penalty = {_params.repeat_penalty}, presence_penalty = {_params.presence_penalty}, " +
                 $"frequency_penalty = {_params.frequency_penalty}, top_k = {_params.top_k}, tfs_z = {_params.tfs_z}," +
                 $" top_p = {_params.top_p}, typical_p = {_params.typical_p}, temp = {_params.temp}, mirostat = {_params.mirostat}," +
                 $" mirostat_lr = {_params.mirostat_eta}, mirostat_ent = {_params.mirostat_tau}");
-            Logger.Default.Info($"generate: n_ctx = {_n_ctx}, n_batch = {_params.n_batch}, n_predict = {_params.n_predict}, " +
-                $"n_keep = {_params.n_keep}");
-            Logger.Default.Info("\n");
+                Logger.Default.Info($"generate: n_ctx = {_n_ctx}, n_batch = {_params.n_batch}, n_predict = {_params.n_predict}, " +
+                    $"n_keep = {_params.n_keep}");
+                Logger.Default.Info("\n");
+            }
 
             _last_n_tokens = Enumerable.Repeat(0, _n_ctx).ToList();
 
             if (_params.interactive)
             {
-                Logger.Default.Info("== Running in interactive mode. ==");
+                if (verbose)
+                {
+                    Logger.Default.Info("== Running in interactive mode. ==");
+                }
                 _is_interacting = _params.interactive_first;
             }
 
             _is_antiprompt = false;
-            _input_echo = true;
+            _input_echo = echo_input;
             _need_to_save_session = !string.IsNullOrEmpty(_path_session) && n_matching_session_tokens < (ulong)(_embed_inp.Count * 3 / 4);
             _n_past = 0;
             _n_remain = _params.n_predict;
             _n_consumed = 0;
             _n_session_consumed = 0;
             _embed = new List<llama_token>();
+        }
+
+        public LLamaModel WithPrompt(string prompt)
+        {
+            _params.prompt = prompt;
+            if (!_params.prompt.EndsWith(" "))
+            {
+                _params.prompt.Insert(0, " ");
+            }
+            _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true);
+            if (_embed_inp.Count > _n_ctx - 4)
+            {
+                throw new ArgumentException($"prompt is too long ({_embed_inp.Count} tokens, max {_n_ctx - 4})");
+            }
+            return this;
+        }
+
+        public LLamaModel WithPromptFile(string promptFileName)
+        {
+            return WithPrompt(File.ReadAllText(promptFileName));
         }
 
         private string ProcessTextBeforeInfer(string text)
@@ -254,6 +276,27 @@ namespace LLama
                 _n_remain -= line_inp.Count;
             }
             return text;
+        }
+
+        public void InitChatPrompt(string prompt)
+        {
+            WithPrompt(prompt);
+        }
+
+        public void InitChatAntiprompt(string[] antiprompt)
+        {
+            _params.antiprompt = antiprompt.ToList();
+        }
+
+        public IEnumerable<string> Chat(string text, string? prompt = null)
+        {
+            _params.interactive = true;
+            _input_echo = false;
+            if (!string.IsNullOrEmpty(prompt))
+            {
+                WithPrompt(prompt);
+            }
+            return Call(text);
         }
 
         public IEnumerable<string> Call(string text)
@@ -486,11 +529,7 @@ namespace LLama
                 {
                     foreach (var id in _embed)
                     {
-#if NET6_0_OR_GREATER
-                        yield return Marshal.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
-#else
-                        yield return Marshal.PtrToStringAnsi(NativeApi.llama_token_to_str(_ctx, id));
-#endif
+                        yield return Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
                     }
                 }
 
@@ -501,11 +540,7 @@ namespace LLama
                         string last_output = "";
                         foreach (var id in _last_n_tokens)
                         {
-#if NET6_0_OR_GREATER
-                            last_output += Marshal.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
-#else
-                            last_output += Marshal.PtrToStringAnsi(NativeApi.llama_token_to_str(_ctx, id));
-#endif
+                            last_output += Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
                         }
 
                         _is_antiprompt = false;

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LLama
 {
     using llama_token = Int32;
-    public struct GptParams
+    public struct LLamaParams
     {
         public int seed; // RNG seed
         public int n_threads = Math.Max(Environment.ProcessorCount / 2, 1); // number of threads (-1 = autodetect)
@@ -57,7 +55,7 @@ namespace LLama
         public bool mem_test = false; // compute maximum memory usage
         public bool verbose_prompt = false; // print prompt tokens before generation
 
-        public GptParams(int seed = 0, int n_threads = -1, int n_predict = -1,
+        public LLamaParams(int seed = 0, int n_threads = -1, int n_predict = -1,
             int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
@@ -72,7 +70,7 @@ namespace LLama
             bool verbose_prompt = false)
         {
             this.seed = seed;
-            if(n_threads != -1)
+            if (n_threads != -1)
             {
                 this.n_threads = n_threads;
             }

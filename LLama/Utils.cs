@@ -5,13 +5,14 @@ using System.Text;
 using LLama.Exceptions;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace LLama
 {
     using llama_token = Int32;
     internal static class Utils
     {
-        public static SafeLLamaContextHandle llama_init_from_gpt_params(ref GptParams @params)
+        public static SafeLLamaContextHandle llama_init_from_gpt_params(ref LLamaParams @params)
         {
             var lparams = NativeApi.llama_context_default_params();
 
@@ -57,6 +58,29 @@ namespace LLama
         {
             var logits = NativeApi.llama_get_logits(ctx);
             return new Span<float>(logits, length);
+        }
+
+        public static unsafe string PtrToStringUTF8(IntPtr ptr)
+        {
+#if NET6_0_OR_GREATER
+            return Marshal.PtrToStringUTF8(ptr);
+#else
+            byte* tp = (byte*)ptr.ToPointer();
+            List<byte> bytes = new();
+            while (true)
+            {
+                byte c = *tp++;
+                if(c == '\0')
+                {
+                    break;
+                }
+                else
+                {
+                    bytes.Add(c);
+                }
+            }
+            return Encoding.UTF8.GetString(bytes.ToArray());
+#endif
         }
     }
 }
