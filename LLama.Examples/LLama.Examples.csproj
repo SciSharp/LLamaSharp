@@ -12,4 +12,10 @@
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\chat-with-bob.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
