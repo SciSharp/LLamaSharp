@@ -8,7 +8,7 @@ namespace LLama.Native
     using llama_token = Int32;
     internal unsafe partial class NativeApi
     {
-        private const string libraryName = "llama";
+        private const string libraryName = "lib/llama";
 
         [DllImport(libraryName)]
         public static extern LLamaContextParams llama_context_default_params();

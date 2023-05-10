@@ -7,6 +7,27 @@
     <LangVersion>10</LangVersion>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
+    <Version>0.1.0</Version>
+    <Authors>Yaohui Liu, Haiping Chen</Authors>
+    <Company>SciSharp STACK</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+    <RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <PackageTags>LLama, LLM, GPT, ChatGPT, NLP, AI, Chat Bot, SciSharp</PackageTags>
+    <Description>
+      The .NET binding of LLama.cpp, providing APIs to run the model and deploy it on Web.
+    </Description>
+    <PackageReleaseNotes>
+      LLama 0.1.0 provides basic APIs to load and run models.
+    </PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageOutputPath>packages</PackageOutputPath>
+    <Platforms>AnyCPU;x64</Platforms>
+    <PackageId>LLama</PackageId>
+    <Configurations>Debug;Release;GPU</Configurations>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -18,6 +39,24 @@
     <PackageReference Include="Serilog" Version="3.0.0-dev-01998" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.1-dev-00077" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="./lib/llama.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </Content>
+    <Content Include="./lib/libllama.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </Content>
+    <!--<Content Include="llama.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <pack>true</pack>
+    </Content>-->
   </ItemGroup>
 
 </Project>
