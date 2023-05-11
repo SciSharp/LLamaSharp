@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.1.9</Version>
+    <Version>0.1.1</Version>
     <Authors>Yaohui Liu, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -42,10 +42,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="runtimes\*"
-              CopyToOutputDirectory="Always"
-              Pack="true"
-              PackagePath="runtimes\" />
+    <Content Include="*.dll" CopyToOutputDirectory="Always" Pack="true" PackagePath="runtimes\" />
+    <Content Include="*.so" CopyToOutputDirectory="Always" Pack="true" PackagePath="runtimes\" />
     <!--<Content Include="llama.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
