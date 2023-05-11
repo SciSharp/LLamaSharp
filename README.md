@@ -32,7 +32,7 @@ while (true)
     Console.ForegroundColor = ConsoleColor.Green;
     var question = Console.ReadLine();
     Console.ForegroundColor = ConsoleColor.White;
-    var outputs = _model.Call(question);
+    var outputs = session.Chat(question); // It's simple to use the chat API.
     foreach (var output in outputs)
     {
         Console.Write(output);
