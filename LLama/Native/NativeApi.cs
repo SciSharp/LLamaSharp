@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -8,7 +9,11 @@ namespace LLama.Native
     using llama_token = Int32;
     internal unsafe partial class NativeApi
     {
-        private const string libraryName = "lib/libllama";
+        static NativeApi()
+        {
+            
+        }
+        private const string libraryName = "libllama";
 
         [DllImport(libraryName)]
         public static extern LLamaContextParams llama_context_default_params();
