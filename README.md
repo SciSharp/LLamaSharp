@@ -5,6 +5,13 @@
 The C#/.NET binding of llama.cpp. It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It works on 
 both Windows and Linux and does NOT require compiling the library yourself.
 
+- Load and inference LLaMa models
+- Simple APIs for chat session
+- Quantize the model in C#/.NET
+- ASP.NET core integration
+- Native UI integration
+
+
 ## Installation
 
 Just search `LLama` in nuget package manager and install it!
@@ -40,6 +47,22 @@ while (true)
 }
 ```
 
+The following example shows how to quantize the model. With LLamaSharp you needn't to compile c++ project and run scripts to quantize the model, instead, just run it in C#.
+
+```cs
+string srcFilename = "<Your source path>";
+string dstFilename = "<Your destination path>";
+string ftype = "q4_0";
+if(Quantizer.Quantize(srcFileName, dstFilename, ftype))
+{
+    Console.WriteLine("Quantization succeed!");
+}
+else
+{
+    Console.WriteLine("Quantization failed!");
+}
+```
+
 ## Demo
 
 ![demo-console](Assets/console_demo.gif)
@@ -52,7 +75,7 @@ while (true)
 
 ✅ Chat session.
 
-🔳 Quantization
+✅ Quantization
 
 🔳 ASP.NET core Integration
 
