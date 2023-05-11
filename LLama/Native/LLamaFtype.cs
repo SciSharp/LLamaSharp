@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LLama.Native
 {
-    internal enum LLamaFtype
+    public enum LLamaFtype
     {
         LLAMA_FTYPE_ALL_F32 = 0,
         LLAMA_FTYPE_MOSTLY_F16 = 1,  // except 1d tensors
