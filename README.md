@@ -14,10 +14,10 @@ both Windows and Linux and does NOT require compiling the library yourself.
 
 ## Installation
 
-Just search `LLama` in nuget package manager and install it!
+Just search `LLamaSharp` in nuget package manager and install it!
 
 ```
-PM> Install-Package LLama
+PM> Install-Package LLamaSharp
 ```
 
 ## Usages
