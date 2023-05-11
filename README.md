@@ -2,7 +2,7 @@
 
 ![logo](Assets/LLamaSharpLogo.png)
 
-The C#/.NET binding of llama.cpp. It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It works on 
+The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It works on 
 both Windows and Linux and does NOT require compiling the library yourself.
 
 - Load and inference LLaMa models
@@ -19,6 +19,17 @@ Just search `LLamaSharp` in nuget package manager and install it!
 ```
 PM> Install-Package LLamaSharp
 ```
+
+## Simple Benchmark
+
+Currently it's only a simple benchmark to indicate that the performance of `LLamaSharp` is close to `llama.cpp`. Experiments run on a computer 
+with Intel i7-12700, 3060Ti with 7B model. Note that the benchmark uses `LLamaModel` instead of `LLamaModelV1`.
+
+#### Windows
+
+- llama.cpp: 2.98 words / second
+
+- LLamaSharp: 2.94 words / second
 
 ## Usages
 
