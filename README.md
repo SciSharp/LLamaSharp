@@ -1,9 +1,9 @@
-﻿# LLamaSharp - .NET Bindings for llama.cpp
+﻿# LLamaSharp - .NET Binding for llama.cpp
 
 ![logo](Assets/LLamaSharpLogo.png)
 
 The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It works on 
-both Windows and Linux and does NOT require compiling the library yourself.
+both Windows and Linux and does NOT require compiling llama.cpp yourself.
 
 - Load and inference LLaMa models
 - Simple APIs for chat session
@@ -99,6 +99,8 @@ We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since current
 ✅ ASP.NET core Integration
 
 🔳 WPF UI Integration
+
+🔳 Follow up llama.cpp and improve performance
 
 ## Assets
 
