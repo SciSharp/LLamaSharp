@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLama.Native
 {
-    internal class SafeLLamaContextHandle: SafeLLamaHandleBase
+    public class SafeLLamaContextHandle: SafeLLamaHandleBase
     {
         protected SafeLLamaContextHandle()
         {

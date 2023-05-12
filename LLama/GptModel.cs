@@ -42,6 +42,7 @@ namespace LLama
         bool _first_time_chat = true;
 
         public string Name { get; set; }
+        public SafeLLamaContextHandle NativeHandle => _ctx;
 
         public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
             int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0,
@@ -70,7 +71,7 @@ namespace LLama
             _ctx = Utils.llama_init_from_gpt_params(ref _params);
 
             // Add a space in front of the first character to match OG llama tokenizer behavior
-            _params.prompt.Insert(0, " ");
+            _params.prompt = _params.prompt.Insert(0, " ");
             _session_tokens = new List<llama_token>();
 
             _path_session = @params.path_session;
@@ -223,7 +224,7 @@ namespace LLama
             _params.prompt = prompt;
             if (!_params.prompt.EndsWith(" "))
             {
-                _params.prompt.Insert(0, " ");
+                _params.prompt = _params.prompt.Insert(0, " ");
             }
             _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true);
             if (_embed_inp.Count > _n_ctx - 4)

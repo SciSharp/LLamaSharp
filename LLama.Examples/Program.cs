@@ -2,11 +2,11 @@
 using LLama.Examples;
 using LLama.Types;
 
-int choice = 3;
+int choice = 0;
 
 if(choice == 0)
 {
-    ChatSession chat = new(@"C:\Users\haipi\Source\repos\ggml-model-q4_0.bin", @"C:\Users\haipi\Source\repos\SciSharp\LLamaSharp\LLama.Examples\Assets\chat-with-bob.txt", new string[] { "User:" });
+    ChatSession chat = new(@"<Your model file path>", @"<Your prompt file path>", new string[] { "User:" });
     chat.Run();
 }
 else if(choice == 1)
@@ -22,6 +22,11 @@ else if(choice == 2)
 else if (choice == 3) // quantization
 {
     Quantize q = new Quantize();
-    q.Run(@"D:\development\llama\weights\LLaMA\7B\ggml-model-f16.bin",
-        @"D:\development\llama\weights\LLaMA\7B\ggml-model-q4_1.bin", "q4_1");
+    q.Run(@"<Your src model file path>",
+        @"<Your dst model file path>", "q4_1");
+}
+else if (choice == 4) // quantization
+{
+    GetEmbeddings em = new GetEmbeddings(@"<Your model file path>");
+    em.Run("Hello, what is python?");
 }
