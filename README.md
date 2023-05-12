@@ -11,7 +11,6 @@ both Windows and Linux and does NOT require compiling llama.cpp yourself.
 - ASP.NET core integration
 - Native UI integration
 
-
 ## Installation
 
 Just search `LLamaSharp` in nuget package manager and install it!
@@ -19,6 +18,11 @@ Just search `LLamaSharp` in nuget package manager and install it!
 ```
 PM> Install-Package LLamaSharp
 ```
+
+If you want to run it only on CPUs, please install `LLamaSharp.Cpu`. The only difference between them is native library.
+
+If you have GPU on windows but fail to run with the error `failed to load libllama.dll or one of its dependencies`, please try downloading the cublas support dlls [here](https://github.com/ggerganov/llama.cpp/releases). For example, [cudart-llama-bin-win-cu11.7.1-x64.zip
+](https://github.com/ggerganov/llama.cpp/releases/download/master-773ee24/cudart-llama-bin-win-cu11.7.1-x64.zip) is the one for CUDA 11.7.
 
 ## Simple Benchmark
 
