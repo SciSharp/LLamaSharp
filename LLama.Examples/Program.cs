@@ -6,7 +6,7 @@ int choice = 3;
 
 if(choice == 0)
 {
-    ChatSession chat = new(@"D:\development\llama\weights\LLaMA\7B\ggml-model-q4_0.bin", @"D:\development\llama\llama.cpp\prompts\chat-with-bob.txt", new string[] { "User:" });
+    ChatSession chat = new(@"C:\Users\haipi\Source\repos\ggml-model-q4_0.bin", @"C:\Users\haipi\Source\repos\SciSharp\LLamaSharp\LLama.Examples\Assets\chat-with-bob.txt", new string[] { "User:" });
     chat.Run();
 }
 else if(choice == 1)

@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.1.1</Version>
+    <Version>0.2.0</Version>
     <Authors>Yaohui Liu, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -26,7 +26,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
     <Platforms>AnyCPU;x64</Platforms>
-    <PackageId>LLama</PackageId>
+    <PackageId>LLamaSharp</PackageId>
     <Configurations>Debug;Release;GPU</Configurations>
   </PropertyGroup>
 
