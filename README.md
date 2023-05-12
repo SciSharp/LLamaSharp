@@ -33,6 +33,8 @@ with Intel i7-12700, 3060Ti with 7B model. Note that the benchmark uses `LLamaMo
 
 ## Usages
 
+#### Model Inference and Chat Session
+
 Currently, `LLamaSharp` provides two kinds of model, `LLamaModelV1` and `LLamaModel`. Both of them works but `LLamaModel` is more recommended 
 because it provides better alignment with the master branch of [llama.cpp](https://github.com/ggerganov/llama.cpp).
 
@@ -58,6 +60,8 @@ while (true)
 }
 ```
 
+#### Quantization
+
 The following example shows how to quantize the model. With LLamaSharp you needn't to compile c++ project and run scripts to quantize the model, instead, just run it in C#.
 
 ```cs
@@ -74,6 +78,10 @@ else
 }
 ```
 
+#### Web API
+
+We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since currently the API is not stable, please clone the repo and use it. In the future we'll publish it on NuGet.
+
 ## Demo
 
 ![demo-console](Assets/console_demo.gif)
@@ -88,7 +96,7 @@ else
 
 ✅ Quantization
 
-🔳 ASP.NET core Integration
+✅ ASP.NET core Integration
 
 🔳 WPF UI Integration
 
