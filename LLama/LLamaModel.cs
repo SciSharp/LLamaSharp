@@ -17,7 +17,9 @@ namespace LLama
 {
     using llama_token = Int32;
     /// <summary>
-    /// High-level Wrapper of a llama.cpp model for inference.
+    /// High-level Wrapper of a llama.cpp model for inference. Note that it's more recommended to use `LLamaModel`.
+    /// This class may be removed in the future. However, if all you want is to get the embeddings, then using `LLamaModelV1`
+    /// is ok now.
     /// </summary>
     [Obsolete]
     public class LLamaModelV1
