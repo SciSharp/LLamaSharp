@@ -13,9 +13,9 @@ namespace LLama.Examples
 
         }
 
-        public void Run(string srcFileName, string dstFilename, string ftype, int nthread = 0, bool printInfo = true)
+        public void Run(string srcFileName, string dstFilename, string ftype, int nthread = -1)
         {
-            if(Quantizer.Quantize(srcFileName, dstFilename, ftype, nthread, printInfo))
+            if(Quantizer.Quantize(srcFileName, dstFilename, ftype, nthread))
             {
                 Console.WriteLine("Quantization succeed!");
             }

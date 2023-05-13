@@ -25,7 +25,7 @@ else if (choice == 3) // quantization
     q.Run(@"<Your src model file path>",
         @"<Your dst model file path>", "q4_1");
 }
-else if (choice == 4) // quantization
+else if (choice == 4) // get the embeddings only
 {
     GetEmbeddings em = new GetEmbeddings(@"<Your model file path>");
     em.Run("Hello, what is python?");
