@@ -102,13 +102,13 @@ We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since current
 
 ✅ ASP.NET core Integration
 
-🔳 WPF UI Integration
+🔳 UI Integration
 
 🔳 Follow up llama.cpp and improve performance
 
 ## Assets
 
-The model weights is too large to include in the project. However some resources could be found below:
+The model weights are too large to be included in the repository. However some resources could be found below:
 
 - [eachadea/ggml-vicuna-13b-1.1](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main)
 - [TheBloke/wizardLM-7B-GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
@@ -117,9 +117,14 @@ The model weights is too large to include in the project. However some resources
 The weights included in the magnet is exactly the weights from [Facebook LLaMa](https://github.com/facebookresearch/llama).
 
 The prompts could be found below:
+
 - [llama.cpp prompts](https://github.com/ggerganov/llama.cpp/tree/master/prompts) 
 - [ChatGPT_DAN](https://github.com/0xk1h0/ChatGPT_DAN)
 - [awesome-chatgpt-prompts-zh](https://github.com/PlexPt/awesome-chatgpt-prompts-zh)
+
+## Contact us
+
+Join our chat on [Discord](https://discord.gg/quBc2jrz).
 
 ## License
 
