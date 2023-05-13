@@ -13,7 +13,7 @@ both Windows and Linux and does NOT require compiling llama.cpp yourself.
 
 ## Installation
 
-Just search `LLamaSharp` in nuget package manager and install it!
+Just search `LLamaSharp` or `LLamaSharp.Cpu` in nuget package manager and install it!
 
 ```
 PM> Install-Package LLamaSharp
