@@ -6,7 +6,7 @@ using LLama.Exceptions;
 
 namespace LLama
 {
-    public class LLamaEmbedder
+    public class LLamaEmbedder: IDisposable
     {
         SafeLLamaContextHandle _ctx;
 
@@ -59,6 +59,11 @@ namespace LLama
             float[] res = new float[n_embed];
             span.CopyTo(res.AsSpan());
             return res;
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
         }
     }
 }

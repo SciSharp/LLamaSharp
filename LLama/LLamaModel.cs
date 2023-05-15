@@ -22,7 +22,7 @@ namespace LLama
     /// is ok now.
     /// </summary>
     [Obsolete]
-    public class LLamaModelV1
+    public class LLamaModelV1: IDisposable
     {
         private string _model_path;
         LLamaContextParams _params;
@@ -827,6 +827,11 @@ namespace LLama
                 }
             }
             return longestPrefix;
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
         }
     }
 }

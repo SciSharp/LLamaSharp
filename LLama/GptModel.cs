@@ -12,7 +12,7 @@ using System.Diagnostics;
 namespace LLama
 {
     using llama_token = Int32;
-    public class LLamaModel: IChatModel
+    public class LLamaModel: IChatModel, IDisposable
     {
         LLamaParams _params;
         SafeLLamaContextHandle _ctx;
@@ -578,6 +578,11 @@ namespace LLama
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
         }
     }
 }
