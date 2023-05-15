@@ -18,7 +18,14 @@ namespace LLama
 
         public IEnumerable<string> Chat(string text, string? prompt = null)
         {
-            return _model.Chat(text, prompt);
+            History.Add(new ChatMessageRecord(new ChatCompletionMessage(ChatRole.Human, text), DateTime.Now));
+            string totalResponse = "";
+            foreach(var response in _model.Chat(text, prompt))
+            {
+                totalResponse += response;
+                yield return response;
+            }
+            History.Add(new ChatMessageRecord(new ChatCompletionMessage(ChatRole.Assistant, totalResponse), DateTime.Now));
         }
 
         public ChatSession<T> WithPrompt(string prompt)
