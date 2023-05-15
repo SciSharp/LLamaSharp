@@ -1,832 +1,583 @@
-﻿using LLama.Exceptions;
-using LLama.Native;
+﻿using LLama.Native;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
-using LLama.Types;
-using System.Runtime.InteropServices;
+using LLama.Exceptions;
+using System.Linq;
 using System.Text.RegularExpressions;
-using System.Collections;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace LLama
 {
     using llama_token = Int32;
-    /// <summary>
-    /// High-level Wrapper of a llama.cpp model for inference. Note that it's more recommended to use `LLamaModel`.
-    /// This class may be removed in the future. However, if all you want is to get the embeddings, then using `LLamaModelV1`
-    /// is ok now.
-    /// </summary>
-    [Obsolete]
-    public class LLamaModelV1: IDisposable
+    public class LLamaModel: IChatModel, IDisposable
     {
-        private string _model_path;
-        LLamaContextParams _params;
-        private int _n_threads;
-        private int _n_batch;
-        private int _last_n_tokens_size;
-        private string? _lora_base;
-        private string? _lora_path;
-        private bool _verbose;
+        LLamaParams _params;
+        SafeLLamaContextHandle _ctx;
+        string _path_session;
+        List<llama_token> _session_tokens;
+        List<llama_token> _embed_inp;
+        int _n_ctx;
+        List<llama_token> _inp_pfx;
+        List<llama_token> _inp_sfx;
+        List<llama_token> _llama_token_newline;
+        List<llama_token> _last_n_tokens;
+        bool _is_interacting;
+        bool _is_antiprompt;
+        bool _input_echo;
 
-        private Queue<llama_token> _eval_tokens;
-        private Queue<float[]> _eval_logits;
-        private LLamaCache? _cache;
-        private SafeLLamaContextHandle _ctx;
+        // HACK - because session saving incurs a non-negligible delay, for now skip re-saving session
+        // if we loaded a session with at least 75% similarity. It's currently just used to speed up the
+        // initial prompt so it doesn't need to be an exact match.
+        bool _need_to_save_session;
+        int _n_past;
+        int _n_remain;
+        int _n_consumed;
+        int _n_session_consumed;
+        List<llama_token> _embed;
 
-        private static readonly (int, int)[] _numAndPatterns = new (int, int)[] { (2, 192), (3, 224), (4, 240) };
+        // params related to chat API only
+        bool _first_time_chat = true;
 
-    /// <summary>
-    /// Load a llama.cpp model from the path.
-    /// </summary>
-    /// <remarks>Note that the API is still unstable. The order of them is likely to
-    /// be changed in the future. It's recommened to specify the parameter name when
-    ///  building your app. We use the cpp style parameter names here because it introduces
-    ///  convenience for searching the docs.</remarks>
-    /// <param name="model_path">Path to the model.</param>
-    /// <param name="n_ctx">Maximum context size.</param>
-    /// <param name="n_parts">Number of parts to split the model into. If -1, the number of parts is automatically determined.</param>
-    /// <param name="seed">Random seed. 0 for random.</param>
-    /// <param name="f16_kv">Use half-precision for key/value cache.</param>
-    /// <param name="logits_all">Return logits for all tokens, not just the last token.</param>
-    /// <param name="vocab_only">Only load the vocabulary no weights.</param>
-    /// <param name="use_mmap">Use mmap if possible.</param>
-    /// <param name="use_mlock">Force the system to keep the model in RAM.</param>
-    /// <param name="embedding">Embedding mode only.</param>
-    /// <param name="n_threads">Number of threads to use. If is not specified, the number of threads is automatically determined.</param>
-    /// <param name="n_batch">Maximum number of prompt tokens to batch together when calling llama_eval.</param>
-    /// <param name="last_n_tokens_size">Maximum number of tokens to keep in the last_n_tokens deque.</param>
-    /// <param name="lora_base">Optional path to base model, useful if using a quantized base model and you want to apply LoRA to an f16 model.</param>
-    /// <param name="lora_path">Path to a LoRA file to apply to the model.</param>
-    /// <param name="verbose">Print verbose output to stderr.</param>
-    public LLamaModelV1(string model_path, int n_ctx = 512, int n_parts = -1, int seed = 1337, 
-            bool f16_kv = true, bool logits_all = false, bool vocab_only = false, bool use_mmap = true, 
-            bool use_mlock = false, bool embedding = false, int n_threads = -1, int n_batch = 512, 
-            int last_n_tokens_size = 64, string? lora_base = null, string? lora_path = null, bool verbose = true)
+        public string Name { get; set; }
+        public SafeLLamaContextHandle NativeHandle => _ctx;
+
+        public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
+            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0,
+            Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
+            float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
+            int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
+            int mirostat = 0, float mirostat_tau = 5.00f, float mirostat_eta = 0.10f, string prompt = "",
+            string path_session = "", string input_prefix = "", string input_suffix = "",
+            List<string> antiprompt = null, string lora_adapter = "", string lora_base = "",
+            bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
+            bool embedding = false, bool interactive_first = false, bool instruct = false, bool penalize_nl = true,
+            bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
+            bool verbose_prompt = false) : this(new LLamaParams(seed, n_threads, n_predict, n_parts, n_ctx, n_batch, 
+                n_keep, logit_bias, top_k, top_p, tfs_z, typical_p, temp, repeat_penalty, repeat_last_n, frequency_penalty, 
+                presence_penalty, mirostat, mirostat_tau, mirostat_eta, model_path, prompt, path_session, input_prefix, 
+                input_suffix, antiprompt, lora_adapter, lora_base, memory_f16, random_prompt, use_color, interactive, embedding, 
+                interactive_first, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), model_name, echo_input, verbose)
         {
-            _verbose = verbose;
-            _model_path = model_path;
 
-            _params = NativeApi.llama_context_default_params();
-            _params.n_ctx = n_ctx;
-            _params.n_parts = n_parts;
-            _params.seed = seed;
-            _params.f16_kv = f16_kv;
-            _params.logits_all = logits_all;
-            _params.vocab_only = vocab_only;
-            _params.use_mmap = lora_path is null ? use_mmap : false;
-            _params.use_mlock = use_mlock;
-            _params.embedding = embedding;
+        }
 
-            _last_n_tokens_size = last_n_tokens_size;
-            _n_batch = Math.Min(n_ctx, n_batch);
+        public unsafe LLamaModel(LLamaParams @params, string name = "", bool echo_input = false, bool verbose = false)
+        {
+            Name = name;
+            _params = @params;
+            _ctx = Utils.llama_init_from_gpt_params(ref _params);
 
-            _eval_tokens = new Queue<int>(capacity:  n_ctx);
-            _eval_logits = new Queue<float[]>(logits_all ? n_ctx : 1);
+            // Add a space in front of the first character to match OG llama tokenizer behavior
+            _params.prompt = _params.prompt.Insert(0, " ");
+            _session_tokens = new List<llama_token>();
 
-            _cache = null;
-
-            _n_threads = n_threads;
-            if(_n_threads == -1)
+            _path_session = @params.path_session;
+            if (!string.IsNullOrEmpty(_path_session))
             {
-                _n_threads = Math.Max(Environment.ProcessorCount / 2, 1);
-            }
-
-            _lora_base = lora_base;
-            _lora_path = lora_path;
-
-            if(!File.Exists(model_path) && !Directory.Exists(model_path))
-            {
-                throw new FileNotFoundException($"Model path does not exist: {model_path}");
-            }
-
-            // Move from heap to stack to prevent the moving.
-            _ctx = new SafeLLamaContextHandle(NativeApi.llama_init_from_file(Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(model_path)), _params));
-
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-
-            if(_lora_path is not null)
-            {
-                if(NativeApi.llama_apply_lora_from_file(_ctx, lora_path, lora_base, _n_threads) != 0)
+                if (verbose)
                 {
-                    throw new RuntimeError($"Failed to apply LoRA from lora path: {_lora_path} to base path: {_lora_base}");
+                    Logger.Default.Info($"Attempting to load saved session from '{_path_session}'");
+                }
+
+                if (!File.Exists(_path_session))
+                {
+                    Logger.Default.Warn("Session file does not exist, will create.");
+                }
+
+                llama_token[] session_tokens = new llama_token[@params.n_ctx];
+                ulong n_token_count_out = 0;
+                if (!NativeApi.llama_load_session_file(_ctx, _path_session, session_tokens, (ulong)@params.n_ctx, &n_token_count_out))
+                {
+                    throw new RuntimeError($"Failed to load session file {_path_session}");
+                }
+                _session_tokens = session_tokens.Take((int)n_token_count_out).ToList();
+                if (verbose)
+                {
+                    Logger.Default.Info($"Loaded a session with prompt size of {_session_tokens.Count} tokens");
                 }
             }
 
-            if (_verbose)
+            _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true);
+            _n_ctx = NativeApi.llama_n_ctx(_ctx);
+
+            if (_embed_inp.Count > _n_ctx - 4)
             {
-                Logger.Default.Info(Utils.PtrToStringUTF8(NativeApi.llama_print_system_info()));
+                throw new ArgumentException($"prompt is too long ({_embed_inp.Count} tokens, max {_n_ctx - 4})");
             }
-        }
 
-        public LLamaModelV1(LLamaModelV1 other)
-        {
-            _ctx = other._ctx;
-            _model_path = other._model_path;
-            _params = other._params;
-            _last_n_tokens_size = other._last_n_tokens_size;
-            _n_threads = other._n_threads;
-            _n_batch = other._n_batch;
-            _verbose = other._verbose;
-            _lora_base = other._lora_base;
-            _lora_path = other._lora_path;
-            _eval_logits = new Queue<float[]>(other._eval_logits);
-            _eval_tokens = new Queue<llama_token>(other._eval_tokens);
-        }
-
-        /// <summary>
-        /// Tokenize a string.
-        /// </summary>
-        /// <param name="text">The utf-8 encoded string to tokenize.</param>
-        /// <returns>A list of tokens.</returns>
-        /// <exception cref="RuntimeError">If the tokenization failed.</exception>
-        public List<llama_token> Tokenize(string text)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            var n_ctx = NativeApi.llama_n_ctx(_ctx);
-            var tokens = new llama_token[n_ctx];
-            var n_tokens = NativeApi.llama_tokenize(_ctx, text, tokens, n_ctx, true);
-            if(n_tokens < 0)
+            ulong n_matching_session_tokens = 0;
+            if (_session_tokens.Count > 0)
             {
-                throw new RuntimeError($"Failed to tokenize: text=\"{text}\" n_tokens={n_tokens}");
-            }
-            return tokens.Take(n_tokens).ToList();
-        }
-
-        /// <summary>
-        /// Detokenize a list of tokens.
-        /// </summary>
-        /// <param name="tokens">The list of tokens to detokenize.</param>
-        /// <returns>The detokenized string.</returns>
-        public string DeTokenize(IEnumerable<llama_token> tokens)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            string output = "";
-            foreach(var token in tokens)
-            {
-                output += Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, token));
-            }
-            return output;
-        }
-
-        public string DeTokenize(llama_token token)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            return Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, token)) ?? "";
-        }
-
-        /// <summary>
-        /// Set the cache.
-        /// </summary>
-        /// <param name="cache">The cache to set.</param>
-        public void SetCache(LLamaCache? cache)
-        {
-            _cache = cache;
-        }
-
-        /// <summary>
-        /// Reset the model state.
-        /// </summary>
-        public void Reset()
-        {
-            _eval_tokens.Clear();
-            _eval_logits.Clear();
-        }
-
-        /// <summary>
-        /// Evaluate a list of tokens.
-        /// </summary>
-        /// <param name="tokens">The list of tokens to evaluate.</param>
-        /// <exception cref="RuntimeError"></exception>
-        public unsafe void Eval(List<llama_token> tokens)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            var n_ctx = NativeApi.llama_n_ctx(_ctx);
-            for(int i = 0; i < tokens.Count; i += _n_batch)
-            {
-                var batch = tokens.Take(Math.Min(tokens.Count, i + _n_batch)).Skip(i);
-                llama_token n_past = Math.Min(n_ctx - batch.Count(), _eval_tokens.Count);
-                llama_token n_tokens = batch.Count();
-                llama_token return_code = NativeApi.llama_eval(
-                    ctx: _ctx, 
-                    tokens: batch.ToArray(), 
-                    n_tokens: n_tokens,
-                    n_past: n_past,
-                    n_threads: _n_threads
-                );
-                if(return_code != 0)
+                foreach (var id in _session_tokens)
                 {
-                    throw new RuntimeError($"llama_eval returned {return_code}");
-                }
-                foreach(var b in batch)
-                {
-                    _eval_tokens.Enqueue(b);
-                }
-                int rows = _params.logits_all ? n_tokens : 1;
-                llama_token n_vocab = NativeApi.llama_n_vocab(_ctx);
-                var cols = n_vocab;
-                var logits_view = NativeApi.llama_get_logits(_ctx);
-                for(int j = 0; j < rows; j++)
-                {
-                    float[] logit = new float[cols];
-                    for(int k = 0; k < cols; k++)
+                    if (n_matching_session_tokens >= (ulong)_embed_inp.Count || id != _embed_inp[(int)n_matching_session_tokens])
                     {
-                        logit[k] = logits_view[j * cols + k];
+                        break;
                     }
-                    _eval_logits.Enqueue(logit);
+                    n_matching_session_tokens++;
+                }
+                if (n_matching_session_tokens >= (ulong)_embed_inp.Count && verbose)
+                {
+                    Logger.Default.Info("Session file has exact match for prompt!");
+                }
+                else if (n_matching_session_tokens < (ulong)(_embed_inp.Count / 2))
+                {
+                    Logger.Default.Warn($"session file has low similarity to prompt ({n_matching_session_tokens} " +
+                        $"/ {_embed_inp.Count} tokens); will mostly be reevaluated.");
+                }
+                else if(verbose)
+                {
+                    Logger.Default.Info($"Session file matches {n_matching_session_tokens} / {_embed_inp.Count} " +
+                        $"tokens of prompt.");
                 }
             }
-        }
 
-        private llama_token SampleInternal(llama_token[] last_n_tokens_data, int last_n_tokens_size, int top_k, 
-            float top_p, float temp, float repeat_penalty, float frequency_penalty, float presence_penalty)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            Debug.Assert(_eval_logits.Count > 0);
-            llama_token n_vocab = NativeApi.llama_n_vocab(_ctx);
-            var logits = _eval_logits.Last();
-            LLamaTokenData[] data = new LLamaTokenData[n_vocab];
-            for(int i = 0; i < n_vocab; i++)
+            // number of tokens to keep when resetting context
+            if (_params.n_keep < 0 || _params.n_keep > (int)_embed_inp.Count || _params.instruct)
             {
-                data[i] = new LLamaTokenData(i, logits[i], .0f);
+                _params.n_keep = _embed_inp.Count;
             }
-            ulong size = (ulong)n_vocab;
-            bool sorted = false;
-            LLamaTokenDataArray candidates = new(data, size, sorted);
-            SamplingApi.llama_sample_repetition_penalty(_ctx, candidates, last_n_tokens_data, (ulong)last_n_tokens_size,
-                repeat_penalty);
-            //SamplingApi.llama_sample_frequency_and_presence_penalties(_ctx, candidates, last_n_tokens_data, (ulong)last_n_tokens_size,
-            //    frequency_penalty, presence_penalty);
-            if(temp == .0f)
-            {
-                return SamplingApi.llama_sample_token_greedy(_ctx, candidates);
-            }
-            else
-            {
-                SamplingApi.llama_sample_top_k(_ctx, candidates, top_k, 1);
-                SamplingApi.llama_sample_tail_free(_ctx, candidates, 1.0f, 1);
-                SamplingApi.llama_sample_typical(_ctx, candidates, 1.0f, 1);
-                SamplingApi.llama_sample_top_p(_ctx, candidates, top_p, 1);
-                SamplingApi.llama_sample_temperature(_ctx, candidates, temp);
-                return SamplingApi.llama_sample_token(_ctx, candidates);
-            }
-        }
 
-        /// <summary>
-        /// Sample a token from the model.
-        /// </summary>
-        /// <param name="top_k">The top-k sampling parameter.</param>
-        /// <param name="top_p">The top-p sampling parameter.</param>
-        /// <param name="temp">The temperature parameter.</param>
-        /// <param name="repeat_penalty">The repeat penalty parameter.</param>
-        /// <param name="frequency_penalty"></param>
-        /// <param name="presence_penalty"></param>
-        /// <returns>The sampled token.</returns>
-        public llama_token Sample(int top_k, float top_p, float temp, float repeat_penalty, float frequency_penalty = .0f, 
-            float presence_penalty = .0f)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            var last_n_tokens_data = Enumerable.Repeat(0, Math.Max(0, _last_n_tokens_size - _eval_tokens.Count));
-            last_n_tokens_data = last_n_tokens_data.Concat(_eval_tokens.ToList()
-                .Skip(Math.Max(0, _eval_tokens.Count - _last_n_tokens_size)));
-            llama_token[] tokens_data = new llama_token[_last_n_tokens_size];
-            int i = 0;
-            foreach(var data in last_n_tokens_data)
+            // prefix & suffix for instruct mode
+            _inp_pfx = Utils.llama_tokenize(_ctx, "\n\n### Instruction:\n\n", true);
+            _inp_sfx = Utils.llama_tokenize(_ctx, "\n\n### Response:\n\n", false);
+
+            // in instruct mode, we inject a prefix and a suffix to each input by the user
+            if (_params.instruct)
             {
-                if(i < _last_n_tokens_size)
+                _params.interactive_first = true;
+                _params.antiprompt.Add("### Instruction:\n\n");
+            }
+
+            // enable interactive mode if reverse prompt or interactive start is specified
+            if (_params.antiprompt.Count != 0 || _params.interactive_first)
+            {
+                _params.interactive = true;
+            }
+
+            // determine newline token
+            _llama_token_newline = Utils.llama_tokenize(_ctx, "\n", false);
+
+            if (_params.verbose_prompt)
+            {
+                Logger.Default.Info("\n");
+                Logger.Default.Info($"prompt: '{_params.prompt}'");
+                Logger.Default.Info($"number of tokens in prompt = {_embed_inp.Count}");
+                for (int i = 0; i < _embed_inp.Count; i++)
                 {
-                    tokens_data[i++] = data;
+                    Logger.Default.Info($"{_embed_inp[i]} -> '{NativeApi.llama_token_to_str(_ctx, _embed_inp[i])}'");
+                }
+                if (_params.n_keep > 0)
+                {
+                    Logger.Default.Info($"static prompt based on n_keep: '");
+                    for (int i = 0; i < _params.n_keep; i++)
+                    {
+                        Logger.Default.Info($"{NativeApi.llama_token_to_str(_ctx, _embed_inp[i])}");
+                    }
+                    Logger.Default.Info("\n");
+                }
+                Logger.Default.Info("\n");
+            }
+
+            if (_params.interactive && verbose)
+            {
+                Logger.Default.Info("interactive mode on.");
+            }
+            if (verbose)
+            {
+                Logger.Default.Info($"sampling: repeat_last_n = {_params.repeat_last_n}, " +
+                $"repeat_penalty = {_params.repeat_penalty}, presence_penalty = {_params.presence_penalty}, " +
+                $"frequency_penalty = {_params.frequency_penalty}, top_k = {_params.top_k}, tfs_z = {_params.tfs_z}," +
+                $" top_p = {_params.top_p}, typical_p = {_params.typical_p}, temp = {_params.temp}, mirostat = {_params.mirostat}," +
+                $" mirostat_lr = {_params.mirostat_eta}, mirostat_ent = {_params.mirostat_tau}");
+                Logger.Default.Info($"generate: n_ctx = {_n_ctx}, n_batch = {_params.n_batch}, n_predict = {_params.n_predict}, " +
+                    $"n_keep = {_params.n_keep}");
+                Logger.Default.Info("\n");
+            }
+
+            _last_n_tokens = Enumerable.Repeat(0, _n_ctx).ToList();
+
+            if (_params.interactive)
+            {
+                if (verbose)
+                {
+                    Logger.Default.Info("== Running in interactive mode. ==");
+                }
+                _is_interacting = _params.interactive_first;
+            }
+
+            _is_antiprompt = false;
+            _input_echo = echo_input;
+            _need_to_save_session = !string.IsNullOrEmpty(_path_session) && n_matching_session_tokens < (ulong)(_embed_inp.Count * 3 / 4);
+            _n_past = 0;
+            _n_remain = _params.n_predict;
+            _n_consumed = 0;
+            _n_session_consumed = 0;
+            _embed = new List<llama_token>();
+        }
+
+        public LLamaModel WithPrompt(string prompt)
+        {
+            _params.prompt = prompt;
+            if (!_params.prompt.EndsWith(" "))
+            {
+                _params.prompt = _params.prompt.Insert(0, " ");
+            }
+            _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true);
+            if (_embed_inp.Count > _n_ctx - 4)
+            {
+                throw new ArgumentException($"prompt is too long ({_embed_inp.Count} tokens, max {_n_ctx - 4})");
+            }
+            return this;
+        }
+
+        public LLamaModel WithPromptFile(string promptFileName)
+        {
+            return WithPrompt(File.ReadAllText(promptFileName));
+        }
+
+        private string ProcessTextBeforeInfer(string text)
+        {
+            if (!string.IsNullOrEmpty(_params.input_prefix))
+            {
+                text = _params.input_prefix + text;
+            }
+            if (!text.EndsWith("\n"))
+            {
+                text += "\n";
+            }
+            if (text.Length > 1)
+            {
+                // append input suffix if any
+                if (!string.IsNullOrEmpty(_params.input_suffix))
+                {
+                    text += _params.input_suffix;
+                    Console.Write(_params.input_suffix);
+                }
+
+                // instruct mode: insert instruction prefix
+                if (_params.instruct && !_is_antiprompt)
+                {
+                    _n_consumed = _embed_inp.Count;
+                    _embed_inp.AddRange(_inp_pfx);
+                }
+
+                var line_inp = Utils.llama_tokenize(_ctx, text, false);
+                _embed_inp.AddRange(line_inp);
+
+                // instruct mode: insert response suffix
+                if (_params.instruct)
+                {
+                    _embed_inp.AddRange(_inp_sfx);
+                }
+
+                _n_remain -= line_inp.Count;
+            }
+            return text;
+        }
+
+        public void InitChatPrompt(string prompt)
+        {
+            WithPrompt(prompt);
+        }
+
+        public void InitChatAntiprompt(string[] antiprompt)
+        {
+            _params.antiprompt = antiprompt.ToList();
+        }
+
+        public IEnumerable<string> Chat(string text, string? prompt = null)
+        {
+            _params.interactive = true;
+            _input_echo = false;
+            if (!string.IsNullOrEmpty(prompt))
+            {
+                WithPrompt(prompt);
+            }
+            return Call(text);
+        }
+
+        public IEnumerable<string> Call(string text)
+        {
+            _is_interacting = _is_antiprompt = false;
+            ProcessTextBeforeInfer(text);
+            
+            while ((_n_remain != 0 || _params.interactive) && !_is_interacting)
+            {
+                if (_embed.Count > 0)
+                {
+                    // infinite text generation via context swapping
+                    // if we run out of context:
+                    // - take the n_keep first tokens from the original prompt (via n_past)
+                    // - take half of the last (n_ctx - n_keep) tokens and recompute the logits in batches
+                    if (_n_past + _embed.Count > _n_ctx)
+                    {
+                        int n_left = _n_past - _params.n_keep;
+
+                        _n_past = _params.n_keep;
+
+                        // insert n_left/2 tokens at the start of embed from last_n_tokens
+                        _embed.InsertRange(0, _last_n_tokens.GetRange(_n_ctx - n_left / 2 - _embed.Count, _embed.Count));
+
+                        // stop saving session if we run out of context
+                        _path_session = "";
+
+                        // Console.WriteLine("\n---\n");
+                        // Console.Write("resetting: '");
+                        // for (int i = 0; i < embed.Count; i++) {
+                        //     Console.Write(llama_token_to_str(ctx, embed[i]));
+                        // }
+                        // Console.WriteLine("'\n");
+                        // Console.WriteLine("\n---\n");
+                    }
+
+                    // try to reuse a matching prefix from the loaded session instead of re-eval (via n_past)
+                    // REVIEW
+                    if (_n_session_consumed < _session_tokens.Count)
+                    {
+                        int i = 0;
+                        for (; i < _embed.Count; i++)
+                        {
+                            if (!_embed[i].Equals(_session_tokens[_n_session_consumed]))
+                            {
+                                _session_tokens.RemoveRange(_n_session_consumed, _session_tokens.Count - _n_session_consumed);
+                                break;
+                            }
+
+                            _n_past++;
+                            _n_session_consumed++;
+
+                            if (_n_session_consumed >= _session_tokens.Count)
+                            {
+                                i++;
+                                break;
+                            }
+                        }
+
+                        if (i > 0)
+                        {
+                            _embed.RemoveRange(0, i);
+                        }
+                    }
+
+                    // evaluate tokens in batches
+                    // embed is typically prepared beforehand to fit within a batch, but not always
+                    for (int i = 0; i < _embed.Count; i += _params.n_batch)
+                    {
+                        int n_eval = _embed.Count - i;
+
+                        if (n_eval > _params.n_batch)
+                        {
+                            n_eval = _params.n_batch;
+                        }
+
+                        var array = _embed.GetRange(i, n_eval).ToArray();
+                        if (NativeApi.llama_eval(_ctx, array, n_eval, _n_past, _params.n_threads) != 0)
+                        {
+                            Logger.Default.Error($"Failed to eval");
+                            throw new RuntimeError("Failed to eval");
+                        }
+
+                        _n_past += n_eval;
+                    }
+
+                    if (_embed.Count > 0 && !string.IsNullOrEmpty(_path_session))
+                    {
+                        _session_tokens.AddRange(_embed);
+                        _n_session_consumed = _session_tokens.Count;
+                    }
+                }
+
+                _embed.Clear();
+
+                if (_embed_inp.Count <= _n_consumed && !_is_interacting)
+                {
+                    var temp = _params.temp;
+                    var top_k = _params.top_k <= 0 ? NativeApi.llama_n_vocab(_ctx) : _params.top_k;
+                    var top_p = _params.top_p;
+                    var tfs_z = _params.tfs_z;
+                    var typical_p = _params.typical_p;
+                    var repeat_last_n = _params.repeat_last_n < 0 ? _n_ctx : _params.repeat_last_n;
+                    var repeat_penalty = _params.repeat_penalty;
+                    var alpha_presence = _params.presence_penalty;
+                    var alpha_frequency = _params.frequency_penalty;
+                    var mirostat = _params.mirostat;
+                    var mirostat_tau = _params.mirostat_tau;
+                    var mirostat_eta = _params.mirostat_eta;
+                    var penalize_nl = _params.penalize_nl;
+
+                    // optionally save the session on first sample (for faster prompt loading next time)
+                    if (!string.IsNullOrEmpty(_path_session) && _need_to_save_session)
+                    {
+                        _need_to_save_session = false;
+                        NativeApi.llama_save_session_file(_ctx, _path_session, _session_tokens.ToArray(), (ulong)_session_tokens.Count);
+                    }
+
+                    llama_token id = 0;
+
+                    {
+                        var n_vocab = NativeApi.llama_n_vocab(_ctx);
+                        var logits = Utils.llama_get_logits(_ctx, n_vocab);
+
+                        // Apply params.logit_bias map
+                        foreach (KeyValuePair<int, float> it in _params.logit_bias)
+                        {
+                            logits[it.Key] += it.Value;
+                        }
+
+                        var candidates = new List<LLamaTokenData>();
+                        candidates.Capacity = n_vocab;
+                        for (llama_token token_id = 0; token_id < n_vocab; token_id++)
+                        {
+                            candidates.Add(new LLamaTokenData(token_id, logits[token_id], 0.0f));
+                        }
+
+                        LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates.ToArray(), (ulong)candidates.Count, false);
+
+                        // Apply penalties
+                        float nl_logit = logits[NativeApi.llama_token_nl()];
+                        var last_n_repeat = Math.Min(Math.Min(_last_n_tokens.Count, repeat_last_n), _n_ctx);
+                        SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p,
+                            _last_n_tokens.GetRange(_last_n_tokens.Count - last_n_repeat, last_n_repeat).ToArray(),
+                            (ulong)last_n_repeat, repeat_penalty);
+                        SamplingApi.llama_sample_frequency_and_presence_penalties(_ctx, candidates_p,
+                            _last_n_tokens.GetRange(_last_n_tokens.Count - last_n_repeat, last_n_repeat).ToArray(),
+                            (ulong)last_n_repeat, alpha_frequency, alpha_presence);
+                        if (!penalize_nl)
+                        {
+                            logits[NativeApi.llama_token_nl()] = nl_logit;
+                        }
+
+                        if (temp <= 0)
+                        {
+                            // Greedy sampling
+                            id = SamplingApi.llama_sample_token_greedy(_ctx, candidates_p);
+                        }
+                        else
+                        {
+                            if (mirostat == 1)
+                            {
+                                float mirostat_mu = 2.0f * mirostat_tau;
+                                const int mirostat_m = 100;
+                                SamplingApi.llama_sample_temperature(_ctx, candidates_p, temp);
+                                id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates_p, mirostat_tau, mirostat_eta, mirostat_m, mirostat_mu);
+                            }
+                            else if (mirostat == 2)
+                            {
+                                float mirostat_mu = 2.0f * mirostat_tau;
+                                SamplingApi.llama_sample_temperature(_ctx, candidates_p, temp);
+                                id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates_p, mirostat_tau, mirostat_eta, mirostat_mu);
+                            }
+                            else
+                            {
+                                // Temperature sampling
+                                SamplingApi.llama_sample_top_k(_ctx, candidates_p, top_k, 1);
+                                SamplingApi.llama_sample_tail_free(_ctx, candidates_p, tfs_z, 1);
+                                SamplingApi.llama_sample_typical(_ctx, candidates_p, typical_p, 1);
+                                SamplingApi.llama_sample_top_p(_ctx, candidates_p, top_p, 1);
+                                SamplingApi.llama_sample_temperature(_ctx, candidates_p, temp);
+                                id = SamplingApi.llama_sample_token(_ctx, candidates_p);
+                            }
+                        }
+
+                        _last_n_tokens.RemoveAt(0);
+                        _last_n_tokens.Add(id);
+                    }
+
+                    // replace end of text token with newline token when in interactive mode
+                    if (id == NativeApi.llama_token_eos() && _params.interactive && !_params.instruct)
+                    {
+                        id = _llama_token_newline[0];
+                        if (_params.antiprompt.Count != 0)
+                        {
+                            // tokenize and inject first reverse prompt
+                            var first_antiprompt = Utils.llama_tokenize(_ctx, _params.antiprompt[0], false);
+                            _embed_inp.AddRange(first_antiprompt);
+                        }
+                    }
+
+                    // add it to the context
+                    _embed.Add(id);
+
+                    // echo this to console
+                    _input_echo = true;
+
+                    // decrement remaining sampling budget
+                    _n_remain--;
                 }
                 else
                 {
-                    break;
-                }
-            }
-            return SampleInternal(tokens_data, _last_n_tokens_size, top_k, top_p, temp, repeat_penalty, frequency_penalty, presence_penalty);
-        }
+                    // Assuming that the necessary variables have been defined and initialized,
+                    // the C# equivalent code could be:
 
-        /// <summary>
-        /// Create a generator of tokens from a prompt.
-        /// </summary>
-        /// <example>
-        /// Examples:
-        /// var llama = new LlamaModel("models/ggml-7b.bin")
-        /// var tokens = llama.Tokenize(b"Hello, world!")
-        /// foreach(var token in llama.Generate(tokens, top_k:40, top_p:0.95, temp:1.0, repeat_penalty:1.1)){
-        ///     Console.WriteLine(llama.DeTokenize(new []{token}));
-        /// }
-        /// </example>
-        /// <param name="tokens"></param>
-        /// <param name="top_k"></param>
-        /// <param name="top_p"></param>
-        /// <param name="temp"></param>
-        /// <param name="repeat_penalty"></param>
-        /// <param name="frequency_penalty"></param>
-        /// <param name="presence_penalty"></param>
-        /// <param name="reset"></param>
-        /// <returns></returns>
-        public IEnumerable<llama_token> Generate(IEnumerable<llama_token> tokens, int top_k, float top_p, float temp, 
-            float repeat_penalty, float frequency_penalty = .0f, float presence_penalty = .0f, bool reset = true)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            if(reset && _eval_tokens.Count > 0)
-            {
-                int longest_prefix = 0;
-                foreach(var (a, b) in _eval_tokens.ToList().Zip(tokens.Take(tokens.Count() - 1), (x, y) => (x, y)))
-                {
-                    if(a == b)
+                    while (_embed_inp.Count > _n_consumed)
                     {
-                        longest_prefix += 1;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                if(longest_prefix > 0)
-                {
-                    if (_verbose)
-                    {
-                        Logger.Default.Info("Llama.generate: prefix-match hit");
-                    }
-                    reset = false;
-                    tokens = tokens.Skip(longest_prefix);
-                    for(int i = 0; i < _eval_tokens.Count - longest_prefix; i++)
-                    {
-                        _eval_tokens.Dequeue();
-                        if(_eval_logits.Count > 0)
+                        _embed.Add(_embed_inp[_n_consumed]);
+                        _last_n_tokens.RemoveAt(0);
+                        _last_n_tokens.Add(_embed_inp[_n_consumed]);
+                        _n_consumed++;
+                        if (_embed.Count >= _params.n_batch)
                         {
-                            _eval_logits.Dequeue();
-                        }
-                    }
-                }
-            }
-
-            if (reset)
-            {
-                Reset();
-            }
-
-            while (true)
-            {
-                Eval(tokens.ToList());
-                var token = Sample(top_k, top_p, temp, frequency_penalty, presence_penalty, repeat_penalty);
-                yield return token;
-                // TODO(Rinne): verify if the implementation is correct.
-            }
-        }
-
-        /// <summary>
-        /// Embed a string.
-        /// </summary>
-        /// <param name="input">The utf-8 encoded string to embed.</param>
-        /// <returns>An embedding object.</returns>
-        /// <exception cref="RuntimeError"></exception>
-        public unsafe Embedding CreateEmbedding(string input)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            if (!_params.embedding)
-            {
-                throw new RuntimeError("Llama model must be created with embedding=True to call this method");
-            }
-
-            if (_verbose)
-            {
-                NativeApi.llama_reset_timings(_ctx);
-            }
-
-            var tokens = Tokenize(input);
-            Reset();
-            Eval(tokens);
-            int n_tokens = tokens.Count;
-            var embeddingPtr = NativeApi.llama_get_embeddings(_ctx);
-            int cnt = NativeApi.llama_n_embd(_ctx);
-            float[] embedding = new float[cnt];
-            for(int i = 0; i < cnt; i++)
-            {
-                embedding[i] = embeddingPtr[i];
-            }
-
-            if (_verbose)
-            {
-                NativeApi.llama_print_timings(_ctx);
-            }
-
-            return new Embedding("list", _model_path, new[] { new EmbeddingData(0, "embedding", embedding) },
-                new EmbeddingUsage(n_tokens, n_tokens));
-        }
-
-        public float[] Embed(string input)
-        {
-            return CreateEmbedding(input).Data[0].Embedding;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="prompt"></param>
-        /// <param name="suffix"></param>
-        /// <param name="max_tokens"></param>
-        /// <param name="temperature"></param>
-        /// <param name="top_p"></param>
-        /// <param name="logprobs"></param>
-        /// <param name="echo"></param>
-        /// <param name="stop"></param>
-        /// <param name="frequency_penalty"></param>
-        /// <param name="presence_penalty"></param>
-        /// <param name="repeat_penalty"></param>
-        /// <param name="top_k"></param>
-        /// <returns>IEnumerable of Completion and CompletionChunk</returns>
-        /// <exception cref="ArgumentException"></exception>
-        private IEnumerable<CompletionChunk> CreateCompletionInternal(string prompt, string?suffix = null, int max_tokens = 16, float temperature = 0.8f, 
-            float top_p = 0.95f, int logprobs = -1, bool echo = false, string[]? stop = null, float frequency_penalty = .0f, 
-            float presence_penalty = .0f, float repeat_penalty = 1.1f, int top_k = 40)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            string completionId = $"cmpl-{Guid.NewGuid()}";
-            var created = DateTime.Now.Millisecond;
-            List<llama_token> completionTokens = new List<llama_token>();
-
-            var promptTokens = Tokenize($" {prompt}");
-            string text = "";
-            int returnedCharacters = 0;
-            if(stop is null)
-            {
-                stop = new string[0];
-            }
-
-            if (_verbose)
-            {
-                NativeApi.llama_reset_timings(_ctx);
-            }
-
-            if(promptTokens.Count + max_tokens > NativeApi.llama_n_ctx(_ctx))
-            {
-                throw new ArgumentException($"Requested tokens exceed context window of {NativeApi.llama_n_ctx(_ctx)}");
-            }
-            
-            if(logprobs != -1 && !_params.logits_all)
-            {
-                throw new ArgumentException("logprobs is not supported for models created with logits_all=False");
-            }
-
-            if(_cache is not null)
-            {
-                try
-                {
-                    // TODO(Rinne): revise it since it will compare reference instead of elements.
-                    var cacheItem = _cache[promptTokens.ToArray()];
-                    var cachePrefixLen = LongestTokenPrefix(_eval_tokens.AsEnumerable(), promptTokens);
-                    var evalPrefixLen = LongestTokenPrefix(_eval_tokens.AsEnumerable(), promptTokens);
-                    if(cachePrefixLen > evalPrefixLen)
-                    {
-                        LoadState(cacheItem);
-                        if (_verbose)
-                        {
-                            Logger.Default.Info("Llama._create_completion: cache hit");
-                        }
-                    }
-                }
-                catch (KeyNotFoundException)
-                {
-                    if (_verbose)
-                    {
-                        Logger.Default.Warn("Llama._create_completion: cache miss");
-                    }
-                }
-            }
-
-            string finishReason = "length";
-            int multibyteFix = 0;
-            bool reset = true;
-            List<llama_token> tokens = new(promptTokens);
-            if (reset && _eval_tokens.Count > 0)
-            {
-                int longest_prefix = 0;
-                foreach (var (a, b) in _eval_tokens.ToList().Zip(tokens.Take(tokens.Count - 1), (x, y) => (x, y)))
-                {
-                    if (a == b)
-                    {
-                        longest_prefix += 1;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                if (longest_prefix > 0)
-                {
-                    if (_verbose)
-                    {
-                        Logger.Default.Info("Llama.generate: prefix-match hit");
-                    }
-                    reset = false;
-                    tokens = tokens.Skip(longest_prefix).ToList();
-                    for (int i = 0; i < _eval_tokens.Count - longest_prefix; i++)
-                    {
-                        _eval_tokens.Dequeue();
-                        if (_eval_logits.Count > 0)
-                        {
-                            _eval_logits.Dequeue();
-                        }
-                    }
-                }
-            }
-
-            if (reset)
-            {
-                Reset();
-            }
-            //foreach (var token in Generate(promptTokens, top_k, top_p, temperature, frequency_penalty, presence_penalty, repeat_penalty))
-            string allText = "";
-            while (true)
-            {
-                Eval(tokens);
-                var token = Sample(top_k, top_p, temperature, repeat_penalty, frequency_penalty, presence_penalty);
-                tokens.Clear();
-                tokens.Add(token);
-                if (token == NativeApi.llama_token_eos())
-                {
-                    text = DeTokenize(completionTokens);
-                    finishReason = "stop";
-                    break;
-                }
-
-                completionTokens.Add(token);
-
-                allText = DeTokenize(completionTokens);
-
-                int cut = Math.Min(3, allText.Length);
-                for(int i = allText.Length - cut; i < allText.Length; i++)
-                {
-                    var c = (int)allText[i];
-                    int k = cut - i;
-                    foreach(var (num, pattern) in _numAndPatterns)
-                    {
-                        if(num > k && (pattern & c) == pattern)
-                        {
-                            multibyteFix = num - k;
-                        }
-                    }
-                }
-
-                if(multibyteFix > 0)
-                {
-                    multibyteFix--;
-                    continue;
-                }
-
-                var anyStop = stop.Where(s => allText.Contains(s));
-                if(anyStop.Count() > 0)
-                {
-                    var firstStop = anyStop.First();
-                    text = allText.Substring(0, allText.IndexOf(firstStop));
-                    finishReason = "stop";
-                    break;
-                }
-
-                var start = returnedCharacters;
-                int longest = 0;
-                foreach (var s in stop)
-                {
-                    for (int i = s.Length; i > 0; i--)
-                    {
-                        if (allText.EndsWith(s.Substring(0, i)))
-                        {
-                            if (i > longest)
-                            {
-                                longest = i;
-                            }
                             break;
                         }
                     }
                 }
-                text = allText.Substring(0, allText.Length - longest);
-                returnedCharacters += text.Skip(start).Count();
-                yield return new CompletionChunk(completionId, "text_completion", created, _model_path, new CompletionChoice[]
+
+                if (_input_echo)
                 {
-                     new CompletionChoice(text.Substring(start), 0, null, finishReason)
-                });
-            }
-
-            if (_cache is not null)
-            {
-                if (_verbose)
-                {
-                    Logger.Default.Info("Llama._create_completion: cache save");
-                }
-                _cache[promptTokens.Concat(completionTokens).ToArray()] = SaveState();
-            }
-
-            string textStr = text;
-            if (echo)
-            {
-                textStr = prompt + textStr;
-            }
-            if(suffix is not null)
-            {
-                textStr = textStr + suffix;
-            }
-
-            CompletionLogprobs? logProbs = null;
-            if (logprobs != -1)
-            {
-                int textOffset = 0;
-                List<int> textOffsets = new();
-                List<float> tokenLogprobs = new();
-                List<string> tokenStrs = new();
-                List<Dictionary<string, float>> topLogprobs = new();
-
-                var allTokens = promptTokens.Concat(completionTokens).ToArray();
-                var allTokenStrs = allTokens.Select(t => DeTokenize(new[] { t }));
-                var allLogProbs = _eval_logits.Select(row => LogitsToLogprobs(row));
-
-                foreach (var (token, tokenStr, logProbsToken) in allTokens.Zip(allTokenStrs, (x, y) => (x, y))
-                    .Zip(allLogProbs, (x, y) => (x.x, x.y, y)))
-                {
-                    textOffsets.Add(textOffset);
-                    textOffset += tokenStr.Length;
-                    tokenStrs.Add(tokenStr);
-                    var sortedLogprobs = logProbsToken.Zip(Enumerable.Range(0, logProbsToken.Count()), (x, y) => (x, y))
-                        .OrderByDescending(x => x.x).ToList();
-                    tokenLogprobs.Add(sortedLogprobs[token].x);
-                    var topLogprob = sortedLogprobs.Take(logprobs).ToDictionary(t => DeTokenize(new[] { t.y }), t => t.x);
-                    topLogprob[tokenStr] = sortedLogprobs[token].x;
-                    topLogprobs.Add(topLogprob);
+                    foreach (var id in _embed)
+                    {
+                        yield return Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
+                    }
                 }
 
-                logProbs = new(textOffsets.ToArray(), tokenLogprobs.ToArray(), tokenStrs.ToArray(), topLogprobs.ToArray());
-            }
-
-            if (_verbose)
-            {
-                NativeApi.llama_print_timings(_ctx);
-            }
-        }
-
-        /// <summary>
-        /// Generate text from a prompt and yield return the result.
-        /// </summary>
-        /// <param name="prompt">The prompt to generate text from.</param>
-        /// <param name="suffix">A suffix to append to the generated text. If None, no suffix is appended.</param>
-        /// <param name="max_tokens">The maximum number of tokens to generate.</param>
-        /// <param name="temperature">The temperature to use for sampling.</param>
-        /// <param name="top_p">The top-p value to use for sampling.</param>
-        /// <param name="logprobs">The number of logprobs to return. If None, no logprobs are returned.</param>
-        /// <param name="echo">Whether to echo the prompt.</param>
-        /// <param name="stop">A list of strings to stop generation when encountered.</param>
-        /// <param name="frequency_penalty"></param>
-        /// <param name="presence_penalty"></param>
-        /// <param name="repeat_penalty">The penalty to apply to repeated tokens.</param>
-        /// <param name="top_k">The top-k value to use for sampling.</param>
-        /// <returns></returns>
-        public IEnumerable<CompletionChunk> CreateCompletion(string prompt, string? suffix = null, int max_tokens = 128, float temperature = 0.8f,
-            float top_p = 0.95f, int logprobs = -1, bool echo = false, string[]? stop = null, float frequency_penalty = .0f,
-            float presence_penalty = .0f, float repeat_penalty = 1.1f, int top_k = 40)
-        {
-            return CreateCompletionInternal(prompt, suffix, max_tokens, temperature, top_p, logprobs, echo, stop, 
-                frequency_penalty, presence_penalty, repeat_penalty, top_k);
-        }
-
-        /// <summary>
-        /// Generate text from a prompt and yield return the result.
-        /// </summary>
-        /// <param name="prompt">The prompt to generate text from.</param>
-        /// <param name="suffix">A suffix to append to the generated text. If None, no suffix is appended.</param>
-        /// <param name="max_tokens">The maximum number of tokens to generate.</param>
-        /// <param name="temperature">The temperature to use for sampling.</param>
-        /// <param name="top_p">The top-p value to use for sampling.</param>
-        /// <param name="logprobs">The number of logprobs to return. If None, no logprobs are returned.</param>
-        /// <param name="echo">Whether to echo the prompt.</param>
-        /// <param name="stop">A list of strings to stop generation when encountered.</param>
-        /// <param name="frequency_penalty"></param>
-        /// <param name="presence_penalty"></param>
-        /// <param name="repeat_penalty">The penalty to apply to repeated tokens.</param>
-        /// <param name="top_k">The top-k value to use for sampling.</param>
-        /// <returns></returns>
-        public IEnumerable<CompletionChunk> Call(string prompt, string? suffix = null, int max_tokens = 128, float temperature = 0.8f,
-            float top_p = 0.95f, int logprobs = -1, bool echo = false, string[]? stop = null, float frequency_penalty = .0f,
-            float presence_penalty = .0f, float repeat_penalty = 1.1f, int top_k = 40)
-        {
-            return CreateCompletion(prompt, suffix, max_tokens, temperature, top_p, logprobs, echo, stop,
-                frequency_penalty, presence_penalty, repeat_penalty, top_k);
-        }
-
-        private ChatCompletion ConvertTextCompletionToChat(Completion completion)
-        {
-            return new ChatCompletion($"chat{completion.Id}", "chat.completion", completion.Created, completion.Model,
-                new[] { new ChatCompletionChoice(0, new ChatCompletionMessage(ChatRole.Assistant, completion.Choices[0].Text),
-                completion.Choices[0].FinishReason) }, completion.Usage);
-        }
-
-        private IEnumerable<ChatCompletionChunk> ConvertTextCompletionChunksToChat(IEnumerable<CompletionChunk> chunks)
-        {
-            bool isFirst = true;
-            foreach(var chunk in chunks)
-            {
-                if(isFirst)
+                if (_params.interactive && _embed_inp.Count <= _n_consumed)
                 {
-                    yield return new ChatCompletionChunk($"chat{chunk.Id}", chunk.Model, "chat.completion.chunk", chunk.Created, 
-                        new[] { new ChatCompletionChunkChoice(0, new ChatCompletionChunkDelta("assistant", null), null) });
-                    isFirst = false;
-                }
-                yield return new ChatCompletionChunk($"chat{chunk.Id}", chunk.Model, "chat.completion.chunk", chunk.Created,
-                        new[] { new ChatCompletionChunkChoice(0, new ChatCompletionChunkDelta(null, chunk.Choices[0].Text),
-                        chunk.Choices[0].FinishReason) });
-            }
-        }
+                    if (_params.antiprompt.Count > 0)
+                    {
+                        string last_output = "";
+                        foreach (var id in _last_n_tokens)
+                        {
+                            last_output += Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
+                        }
 
-        /// <summary>
-        /// Generate a chat completion from a list of messages and yield return the result.
-        /// </summary>
-        /// <param name="messages">A list of messages to generate a response for.</param>
-        /// <param name="temperature">The temperature to use for sampling.</param>
-        /// <param name="top_p">The top-p value to use for sampling.</param>
-        /// <param name="top_k">The top-k value to use for sampling.</param>
-        /// <param name="stop">A list of strings to stop generation when encountered.</param>
-        /// <param name="max_tokens">The maximum number of tokens to generate.</param>
-        /// <param name="presence_penalty"></param>
-        /// <param name="frequency_penalty"></param>
-        /// <param name="repeat_penalty">The penalty to apply to repeated tokens.</param>
-        /// <returns></returns>
-        public IEnumerable<ChatCompletionChunk> CreateChatCompletion(IEnumerable<ChatCompletionMessage> messages, float temperature = .2f, float top_p = .95f,
-            int top_k = 40, string[]? stop = null, int max_tokens = 256, float presence_penalty = .0f, float frequency_penalty = .0f,
-            float repeat_penalty = 1.1f)
-        {
-            if (stop is null)
-            {
-                stop = new string[0];
-            }
-            string GetRole(ChatCompletionMessage message)
-            {
-                return message.Role == ChatRole.Human ? "Human" : "Assistant";
-            }
-            string chatHistory = string.Join("", messages.Select(m => $"### {GetRole(m)}:{m.Content}"));
-            var prompt = chatHistory + "### Assistant:";
-            prompt = prompt.Substring(Math.Max(0, prompt.Length - max_tokens));
-            var promptStop = new[] { "### Assistant:", "### Human:" }.Concat(stop).ToArray();
-            var completion = Call(prompt, stop: promptStop, temperature: temperature, top_p: top_p, top_k: top_k, max_tokens: max_tokens,
-                repeat_penalty: repeat_penalty, presence_penalty: presence_penalty, frequency_penalty: frequency_penalty);
-            return ConvertTextCompletionChunksToChat(completion);
-        }
+                        _is_antiprompt = false;
+                        foreach (var antiprompt in _params.antiprompt)
+                        {
+                            if (last_output.EndsWith(antiprompt))
+                            {
+                                _is_interacting = true;
+                                _is_antiprompt = true;
+                                break;
+                            }
+                        }
+                    }
 
-        public LLamaState SaveState()
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            ulong stateSize = NativeApi.llama_get_state_size(_ctx);
-            byte[] llamaState = new byte[stateSize];
-            ulong nBytes = NativeApi.llama_copy_state_data(_ctx, llamaState);
-            if(nBytes > stateSize)
-            {
-                throw new RuntimeError("Failed to copy llama state data");
-            }
-            byte[] llamaStateCompact = new byte[nBytes];
-            llamaState.Take((int)nBytes).ToArray().CopyTo(llamaStateCompact, 0);
-            if (_verbose)
-            {
-                Logger.Default.Info($"Llama.save_state: saving {nBytes} bytes of llama state");
-            }
-            return new LLamaState(new Queue<llama_token>(_eval_tokens), new Queue<float[]>(_eval_logits),
-                llamaStateCompact, (int)nBytes);
-        }
+                    if(_n_past > 0 && _is_interacting)
+                    {
+                        _input_echo = false;
+                        break;
+                    }
 
-        public void LoadState(LLamaState state)
-        {
-            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
-            _eval_tokens = new Queue<llama_token>(state.EvalTokens);
-            _eval_logits = new Queue<float[]>(state.EvalLogits);
-            if(NativeApi.llama_set_state_data(_ctx, state.State) != (ulong)state.Size)
-            {
-                throw new RuntimeError($"Failed to set llama state data");
-            }
-        }
+                    if (_embed.Count > 0 && _embed.Last() == NativeApi.llama_token_eos())
+                    {
+                        if (_params.instruct) {
+                            _is_interacting = true;
+                        } else
+                        {
+                            Logger.Default.Info(" [end of text]");
+                        }
+                    }
 
-        private static IEnumerable<float> LogitsToLogprobs(IEnumerable<float> logits)
-        {
-            var exps = logits.Select(x => (float)Math.Exp(x));
-            var sumExps = exps.Sum();
-            return exps.Select(x => (float)Math.Log(x / sumExps));
-        }
-
-        internal static int LongestTokenPrefix(IEnumerable<llama_token> a, IEnumerable<llama_token> b)
-        {
-            int longestPrefix = 0;
-            foreach(var (x, y) in a.Zip(b, (x, y) => (x, y)))
-            {
-                if(x == y)
-                {
-                    longestPrefix++;
-                }
-                else
-                {
-                    break;
+                    if (_params.interactive && _n_remain <= 0 && _params.n_predict != -1) {
+                        _n_remain = _params.n_predict;
+                        _is_interacting = true;
+                    }
                 }
             }
-            return longestPrefix;
         }
 
         public void Dispose()
