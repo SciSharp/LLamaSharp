@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.2.0</Version>
+    <Version>0.2.2</Version>
     <Authors>Yaohui Liu, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

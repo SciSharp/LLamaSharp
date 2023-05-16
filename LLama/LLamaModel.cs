@@ -45,7 +45,7 @@ namespace LLama
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
         public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
-            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0,
+            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = 0,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
@@ -53,13 +53,13 @@ namespace LLama
             string path_session = "", string input_prefix = "", string input_suffix = "",
             List<string> antiprompt = null, string lora_adapter = "", string lora_base = "",
             bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
-            bool embedding = false, bool interactive_first = false, bool instruct = false, bool penalize_nl = true,
+            bool embedding = false, bool interactive_first = false, bool prompt_cache_all = false, bool instruct = false, bool penalize_nl = true,
             bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
             bool verbose_prompt = false) : this(new LLamaParams(seed, n_threads, n_predict, n_parts, n_ctx, n_batch, 
-                n_keep, logit_bias, top_k, top_p, tfs_z, typical_p, temp, repeat_penalty, repeat_last_n, frequency_penalty, 
+                n_keep, n_gpu_layers, logit_bias, top_k, top_p, tfs_z, typical_p, temp, repeat_penalty, repeat_last_n, frequency_penalty, 
                 presence_penalty, mirostat, mirostat_tau, mirostat_eta, model_path, prompt, path_session, input_prefix, 
                 input_suffix, antiprompt, lora_adapter, lora_base, memory_f16, random_prompt, use_color, interactive, embedding, 
-                interactive_first, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), model_name, echo_input, verbose)
+                interactive_first, prompt_cache_all, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), model_name, echo_input, verbose)
         {
 
         }

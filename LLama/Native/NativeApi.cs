@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using LLama.Exceptions;
 
 namespace LLama.Native
 {
@@ -11,9 +12,23 @@ namespace LLama.Native
     {
         static NativeApi()
         {
-            
+            try
+            {
+                llama_empty_call();
+            }
+            catch (DllNotFoundException)
+            {
+                throw new RuntimeError("The native library cannot be found. It could be one of the following reasons: \n" +
+                    "1. No LLamaSharp backend was installed. Please search LLamaSharp.Backend and install one of them. \n" +
+                    "2. You are using a device with only CPU but installed cuda backend. Please install cpu backend instead. \n" +
+                    "3. The backend is not compatible with your system cuda environment. Please check and fix it. If the environment is " +
+                    "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.");
+            }
         }
         private const string libraryName = "libllama";
+
+        [DllImport("libllama", EntryPoint = "llama_mmap_supported")]
+        public static extern bool llama_empty_call();
 
         [DllImport(libraryName)]
         public static extern LLamaContextParams llama_context_default_params();
