@@ -13,21 +13,29 @@ both Windows and Linux and does NOT require compiling llama.cpp yourself.
 
 ## Installation
 
-Just search `LLamaSharp` or `LLamaSharp.Cpu` in nuget package manager and install it!
+Firstly, search `LLamaSharp` in nuget package manager and install it.
 
 ```
 PM> Install-Package LLamaSharp
 ```
 
-If you want to run it only on CPUs, please install `LLamaSharp.Cpu`. The only difference between them is native library.
+Then, search and install one of the following backends:
 
-If you have GPU on windows but fail to run with the error `failed to load libllama.dll or one of its dependencies`, please try downloading the cublas support dlls [here](https://github.com/ggerganov/llama.cpp/releases). For example, [cudart-llama-bin-win-cu11.7.1-x64.zip
-](https://github.com/ggerganov/llama.cpp/releases/download/master-773ee24/cudart-llama-bin-win-cu11.7.1-x64.zip) is the one for CUDA 11.7.
+```
+LLamaSharp.Backend.Cpu
+LLamaSharp.Backend.Cuda11
+LLamaSharp.Backend.Cuda12
+```
+
+Note that version v0.2.1 has a package named `LLamaSharp.Cpu`. After v0.2.2 it will be dropped.
+
+We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
+from source and put the `libllama` under your project's output path. When building from source, please add `-DBUILD_SHARED_LIBS=ON` to enable the library generation.
 
 ## Simple Benchmark
 
 Currently it's only a simple benchmark to indicate that the performance of `LLamaSharp` is close to `llama.cpp`. Experiments run on a computer 
-with Intel i7-12700, 3060Ti with 7B model. Note that the benchmark uses `LLamaModel` instead of `LLamaModelV1`.
+with Intel i7-12700, 3060Ti with 7B model. Note that the benchmark uses `LLamaModel` instead of `LLamaModelV1`. 
 
 #### Windows
 
@@ -81,6 +89,8 @@ else
     Console.WriteLine("Quantization failed!");
 }
 ```
+
+For more usages, please refer to [Examples](./LLama.Examples).
 
 #### Web API
 
