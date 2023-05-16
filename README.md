@@ -130,7 +130,8 @@ The prompts could be found below:
 
 - [llama.cpp prompts](https://github.com/ggerganov/llama.cpp/tree/master/prompts) 
 - [ChatGPT_DAN](https://github.com/0xk1h0/ChatGPT_DAN)
-- [awesome-chatgpt-prompts-zh](https://github.com/PlexPt/awesome-chatgpt-prompts-zh)
+- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts)
+- [awesome-chatgpt-prompts-zh](https://github.com/PlexPt/awesome-chatgpt-prompts-zh) (Chinese)
 
 ## Contact us
 
