@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
     <RootNamespace>LLama</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>10</LangVersion>
@@ -42,13 +42,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="*.dll" CopyToOutputDirectory="Always" Pack="true" PackagePath="runtimes\" />
-    <Content Include="*.so" CopyToOutputDirectory="Always" Pack="true" PackagePath="runtimes\" />
-    <!--<Content Include="llama.so">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-      <pack>true</pack>
-    </Content>-->
+    <None Include="runtimes/libllama.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama.dll</Link>
+    </None>
+    <None Include="runtimes/libllama-cuda11.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama-cuda11.dll</Link>
+    </None>
+    <None Include="runtimes/libllama-cuda12.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama-cuda12.dll</Link>
+    </None>
+    <None Include="runtimes/libllama.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama.so</Link>
+    </None>
+    <None Include="runtimes/libllama-cuda11.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama-cuda11.so</Link>
+    </None>
+    <None Include="runtimes/libllama-cuda12.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama-cuda12.so</Link>
+    </None>
   </ItemGroup>
 
 </Project>
