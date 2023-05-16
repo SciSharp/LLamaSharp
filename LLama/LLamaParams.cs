@@ -13,6 +13,7 @@ namespace LLama
         public int n_ctx = 512; // context size
         public int n_batch = 512; // batch size for prompt processing (must be >=32 to use BLAS)
         public int n_keep = 0; // number of tokens to keep from initial prompt
+        public int n_gpu_layers = 0;   // number of layers to store in VRAM
 
         // sampling parameters
         public Dictionary<llama_token, float> logit_bias; // logit bias for specific tokens
@@ -43,6 +44,7 @@ namespace LLama
         public bool random_prompt = false; // randomize prompt if none provided
         public bool use_color = false; // use color to distinguish generations and inputs
         public bool interactive = false; // interactive mode
+        public bool prompt_cache_all = false; // save user input and generations to prompt cache
 
         public bool embedding = false; // get only sentence embedding
         public bool interactive_first = false; // wait for user input immediately
@@ -56,7 +58,7 @@ namespace LLama
         public bool verbose_prompt = false; // print prompt tokens before generation
 
         public LLamaParams(int seed = 0, int n_threads = -1, int n_predict = -1,
-            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0,
+            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = 0,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
@@ -65,7 +67,8 @@ namespace LLama
             string path_session = "", string input_prefix = "", string input_suffix = "",
             List<string> antiprompt = null, string lora_adapter = "", string lora_base = "",
             bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
-            bool embedding = false, bool interactive_first = false, bool instruct = false, bool penalize_nl = true,
+            bool prompt_cache_all = false, bool embedding = false, bool interactive_first = false, 
+            bool instruct = false, bool penalize_nl = true,
             bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
             bool verbose_prompt = false)
         {
@@ -79,6 +82,7 @@ namespace LLama
             this.n_ctx = n_ctx;
             this.n_batch = n_batch;
             this.n_keep = n_keep;
+            this.n_gpu_layers = n_gpu_layers;
 
             if (logit_bias == null)
             {
@@ -118,8 +122,11 @@ namespace LLama
             this.random_prompt = random_prompt;
             this.use_color = use_color;
             this.interactive = interactive;
+            this.prompt_cache_all = prompt_cache_all;
+
             this.embedding = embedding;
             this.interactive_first = interactive_first;
+
             this.instruct = instruct;
             this.penalize_nl = penalize_nl;
             this.perplexity = perplexity;

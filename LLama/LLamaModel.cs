@@ -578,6 +578,13 @@ namespace LLama
                     }
                 }
             }
+
+            if(!string.IsNullOrEmpty(_path_session) && _params.prompt_cache_all)
+            {
+                Logger.Default.Info($"saving final output to session file {_path_session}");
+                var session_token_array = _session_tokens.ToArray();
+                NativeApi.llama_save_session_file(_ctx, _path_session, session_token_array, (ulong)session_token_array.Length);
+            }
         }
 
         public void Dispose()
