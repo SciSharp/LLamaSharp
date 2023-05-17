@@ -25,7 +25,7 @@ namespace LLama
             _ctx = Utils.llama_init_from_gpt_params(ref @params);
         }
 
-        public unsafe float[] GetEmbeddings(string text, int n_thread = -1, bool add_bos = true)
+        public unsafe float[] GetEmbeddings(string text, int n_thread = -1, bool add_bos = true, string encoding = "UTF-8")
         {
             if(n_thread == -1)
             {
@@ -36,7 +36,7 @@ namespace LLama
             {
                 text = text.Insert(0, " ");
             }
-            var embed_inp = Utils.llama_tokenize(_ctx, text, add_bos);
+            var embed_inp = Utils.llama_tokenize(_ctx, text, add_bos, encoding);
 
             // TODO(Rinne): deal with log of prompt
 

@@ -16,11 +16,11 @@ namespace LLama
             _model = model;
         }
 
-        public IEnumerable<string> Chat(string text, string? prompt = null)
+        public IEnumerable<string> Chat(string text, string? prompt = null, string encoding = "UTF-8")
         {
             History.Add(new ChatMessageRecord(new ChatCompletionMessage(ChatRole.Human, text), DateTime.Now));
             string totalResponse = "";
-            foreach(var response in _model.Chat(text, prompt))
+            foreach(var response in _model.Chat(text, prompt, encoding))
             {
                 totalResponse += response;
                 yield return response;
@@ -28,15 +28,15 @@ namespace LLama
             History.Add(new ChatMessageRecord(new ChatCompletionMessage(ChatRole.Assistant, totalResponse), DateTime.Now));
         }
 
-        public ChatSession<T> WithPrompt(string prompt)
+        public ChatSession<T> WithPrompt(string prompt, string encoding = "UTF-8")
         {
-            _model.InitChatPrompt(prompt);
+            _model.InitChatPrompt(prompt, encoding);
             return this;
         }
 
-        public ChatSession<T> WithPromptFile(string promptFilename)
+        public ChatSession<T> WithPromptFile(string promptFilename, string encoding = "UTF-8")
         {
-            return WithPrompt(File.ReadAllText(promptFilename));
+            return WithPrompt(File.ReadAllText(promptFilename), encoding);
         }
 
         /// <summary>
