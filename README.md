@@ -27,6 +27,9 @@ LLamaSharp.Backend.Cuda11
 LLamaSharp.Backend.Cuda12
 ```
 
+The latest version of `LLamaSharp` and `LLamaSharp.Backend` may not always be the same. `LLamaSharp.Backend` follows up [llama.cpp](https://github.com/ggerganov/llama.cpp) because sometimes the 
+break change of it makes some model weights invalid. If you are not sure which version of backend to install, just install the latest version.
+
 Note that version v0.2.1 has a package named `LLamaSharp.Cpu`. After v0.2.2 it will be dropped.
 
 We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
