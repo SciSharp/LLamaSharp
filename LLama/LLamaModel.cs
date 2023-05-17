@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using LLama.Extensions;
 
 namespace LLama
 {
@@ -182,7 +183,7 @@ namespace LLama
 
         public LLamaModel WithPrompt(string prompt, string encoding = "UTF-8")
         {
-            _params.prompt = _params.prompt.Insert(0, " ");
+            _params.prompt = prompt.Insert(0, " ");
             _embed_inp = Utils.llama_tokenize(_ctx, _params.prompt, true, encoding);
 
             if (_embed_inp.Count > _n_ctx - 4)
@@ -297,7 +298,11 @@ namespace LLama
 
         public IEnumerable<string> Call(string text, string encoding = "UTF-8")
         {
-            _is_interacting = _is_antiprompt = false;
+            _is_antiprompt = false;
+            if(_n_past > 0)
+            {
+                _is_interacting = false;
+            }
             ProcessTextBeforeInfer(text, encoding);
             
             while ((_n_remain != 0 || _params.interactive) && !_is_interacting)
@@ -336,9 +341,9 @@ namespace LLama
                         int i = 0;
                         for (; i < _embed.Count; i++)
                         {
-                            if (!_embed[i].Equals(_session_tokens[_n_session_consumed]))
+                            if (_embed[i] != _session_tokens[_n_session_consumed])
                             {
-                                _session_tokens.RemoveRange(_n_session_consumed, _session_tokens.Count - _n_session_consumed);
+                                _session_tokens = _session_tokens.Take(_n_session_consumed).ToList();
                                 break;
                             }
 
@@ -369,11 +374,11 @@ namespace LLama
                             n_eval = _params.n_batch;
                         }
 
-                        var array = _embed.GetRange(i, n_eval).ToArray();
+                        var array = _embed.Skip(i).ToArray();
                         if (NativeApi.llama_eval(_ctx, array, n_eval, _n_past, _params.n_threads) != 0)
                         {
-                            Logger.Default.Error($"Failed to eval");
-                            throw new RuntimeError("Failed to eval");
+                            Logger.Default.Error($"Failed to eval.");
+                            throw new RuntimeError("Failed to eval.");
                         }
 
                         _n_past += n_eval;
@@ -418,9 +423,9 @@ namespace LLama
                         var logits = Utils.llama_get_logits(_ctx, n_vocab);
 
                         // Apply params.logit_bias map
-                        foreach (KeyValuePair<int, float> it in _params.logit_bias)
+                        foreach (var (key, value) in _params.logit_bias)
                         {
-                            logits[it.Key] += it.Value;
+                            logits[key] += value;
                         }
 
                         var candidates = new List<LLamaTokenData>();
@@ -436,10 +441,10 @@ namespace LLama
                         float nl_logit = logits[NativeApi.llama_token_nl()];
                         var last_n_repeat = Math.Min(Math.Min(_last_n_tokens.Count, repeat_last_n), _n_ctx);
                         SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p,
-                            _last_n_tokens.GetRange(_last_n_tokens.Count - last_n_repeat, last_n_repeat).ToArray(),
+                            _last_n_tokens.Skip(_last_n_tokens.Count - last_n_repeat).ToArray(),
                             (ulong)last_n_repeat, repeat_penalty);
                         SamplingApi.llama_sample_frequency_and_presence_penalties(_ctx, candidates_p,
-                            _last_n_tokens.GetRange(_last_n_tokens.Count - last_n_repeat, last_n_repeat).ToArray(),
+                            _last_n_tokens.Skip(_last_n_tokens.Count - last_n_repeat).ToArray(),
                             (ulong)last_n_repeat, alpha_frequency, alpha_presence);
                         if (!penalize_nl)
                         {
@@ -458,13 +463,13 @@ namespace LLama
                                 float mirostat_mu = 2.0f * mirostat_tau;
                                 const int mirostat_m = 100;
                                 SamplingApi.llama_sample_temperature(_ctx, candidates_p, temp);
-                                id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates_p, mirostat_tau, mirostat_eta, mirostat_m, mirostat_mu);
+                                id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates_p, mirostat_tau, mirostat_eta, mirostat_m, ref mirostat_mu);
                             }
                             else if (mirostat == 2)
                             {
                                 float mirostat_mu = 2.0f * mirostat_tau;
                                 SamplingApi.llama_sample_temperature(_ctx, candidates_p, temp);
-                                id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates_p, mirostat_tau, mirostat_eta, mirostat_mu);
+                                id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates_p, mirostat_tau, mirostat_eta, ref mirostat_mu);
                             }
                             else
                             {
@@ -521,11 +526,12 @@ namespace LLama
                     }
                 }
 
-                if (_input_echo)
+                if (_input_echo && !_is_interacting)
                 {
                     foreach (var id in _embed)
                     {
-                        yield return Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
+                        var res = Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, id));
+                        yield return res;
                     }
                 }
 
@@ -553,6 +559,10 @@ namespace LLama
 
                     if(_n_past > 0 && _is_interacting)
                     {
+                        if (_params.instruct)
+                        {
+                            yield return "\n> ";
+                        }
                         _input_echo = false;
                         break;
                     }
