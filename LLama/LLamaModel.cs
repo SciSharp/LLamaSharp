@@ -317,7 +317,7 @@ namespace LLama
                     {
                         int n_left = _n_past - _params.n_keep;
 
-                        _n_past = _params.n_keep;
+                        _n_past = Math.Max(1, _params.n_keep);
 
                         // insert n_left/2 tokens at the start of embed from last_n_tokens
                         _embed.InsertRange(0, _last_n_tokens.GetRange(_n_ctx - n_left / 2 - _embed.Count, _embed.Count));
