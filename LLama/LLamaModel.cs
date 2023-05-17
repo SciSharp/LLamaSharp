@@ -5,9 +5,6 @@ using System.IO;
 using System.Text;
 using LLama.Exceptions;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using LLama.Extensions;
 
 namespace LLama
@@ -46,7 +43,7 @@ namespace LLama
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
         public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
-            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = 0,
+            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
@@ -62,7 +59,7 @@ namespace LLama
                 input_suffix, antiprompt, lora_adapter, lora_base, memory_f16, random_prompt, use_color, interactive, embedding, 
                 interactive_first, prompt_cache_all, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), model_name, echo_input, verbose)
         {
-
+            
         }
 
         public unsafe LLamaModel(LLamaParams @params, string name = "", bool echo_input = false, bool verbose = false, string encoding = "UTF-8")

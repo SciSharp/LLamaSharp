@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.2.2</Version>
+    <Version>0.2.3</Version>
     <Authors>Yaohui Liu, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -21,7 +21,7 @@
       The .NET binding of LLama.cpp, providing APIs to run the model and deploy it on Web.
     </Description>
     <PackageReleaseNotes>
-      LLama 0.1.0 provides basic APIs to load and run models.
+      LLama 0.2.3 mainly fixed some BUGs of model inference.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>

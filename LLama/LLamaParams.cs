@@ -58,7 +58,7 @@ namespace LLama
         public bool verbose_prompt = false; // print prompt tokens before generation
 
         public LLamaParams(int seed = 0, int n_threads = -1, int n_predict = -1,
-            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = 0,
+            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
@@ -82,7 +82,7 @@ namespace LLama
             this.n_ctx = n_ctx;
             this.n_batch = n_batch;
             this.n_keep = n_keep;
-            this.n_gpu_layers = n_gpu_layers;
+            this.n_gpu_layers = n_gpu_layers == -1 ? int.MaxValue : n_gpu_layers;
 
             if (logit_bias == null)
             {
