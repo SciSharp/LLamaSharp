@@ -6,6 +6,7 @@ using LLama.Exceptions;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace LLama
 {
@@ -25,6 +26,11 @@ namespace LLama
             lparams.use_mlock = @params.use_mlock;
             lparams.logits_all = @params.perplexity;
             lparams.embedding = @params.embedding;
+
+            if (!File.Exists(@params.model))
+            {
+                throw new FileNotFoundException($"The model file does not exist: {@params.model}");
+            }
 
             var ctx_ptr = NativeApi.llama_init_from_file(@params.model, lparams);
 
