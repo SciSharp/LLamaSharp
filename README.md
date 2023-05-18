@@ -42,6 +42,11 @@ Note that version v0.2.1 has a package named `LLamaSharp.Cpu`. After v0.2.2 it w
 We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
 from source and put the `libllama` under your project's output path. When building from source, please add `-DBUILD_SHARED_LIBS=ON` to enable the library generation.
 
+## FAQ
+
+1. GPU out of memory: v0.2.3 put all layers into GPU by default. If the momory use is out of the capacity of your GPU, please set `n_gpu_layers` to a smaller number.
+2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install.
+
 ## Simple Benchmark
 
 Currently it's only a simple benchmark to indicate that the performance of `LLamaSharp` is close to `llama.cpp`. Experiments run on a computer 
