@@ -1,16 +1,15 @@
-﻿using LLama.Native;
+﻿using LLama.Exceptions;
+using LLama.Extensions;
+using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using LLama.Exceptions;
 using System.Linq;
-using LLama.Extensions;
 
 namespace LLama
 {
     using llama_token = Int32;
-    public class LLamaModel: IChatModel, IDisposable
+    public class LLamaModel : IChatModel, IDisposable
     {
         LLamaParams _params;
         SafeLLamaContextHandle _ctx;
@@ -39,8 +38,57 @@ namespace LLama
         public string Name { get; set; }
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
+        /// <summary>
+        /// Please refer `LLamaParams` to find the meanings of each arg.
+        /// </summary>
+        /// <param name="model_path">The model file path.</param>
+        /// <param name="model_name">The model name.</param>
+        /// <param name="echo_input">Whether to print the input messages.</param>
+        /// <param name="verbose">Whether to print details when running the model.</param>
+        /// <param name="seed"></param>
+        /// <param name="n_threads"></param>
+        /// <param name="n_predict"></param>
+        /// <param name="n_ctx"></param>
+        /// <param name="n_batch"></param>
+        /// <param name="n_keep"></param>
+        /// <param name="n_gpu_layers"></param>
+        /// <param name="logit_bias"></param>
+        /// <param name="top_k"></param>
+        /// <param name="top_p"></param>
+        /// <param name="tfs_z"></param>
+        /// <param name="typical_p"></param>
+        /// <param name="temp"></param>
+        /// <param name="repeat_penalty"></param>
+        /// <param name="repeat_last_n"></param>
+        /// <param name="frequency_penalty"></param>
+        /// <param name="presence_penalty"></param>
+        /// <param name="mirostat"></param>
+        /// <param name="mirostat_tau"></param>
+        /// <param name="mirostat_eta"></param>
+        /// <param name="prompt"></param>
+        /// <param name="path_session"></param>
+        /// <param name="input_prefix"></param>
+        /// <param name="input_suffix"></param>
+        /// <param name="antiprompt"></param>
+        /// <param name="lora_adapter"></param>
+        /// <param name="lora_base"></param>
+        /// <param name="memory_f16"></param>
+        /// <param name="random_prompt"></param>
+        /// <param name="use_color"></param>
+        /// <param name="interactive"></param>
+        /// <param name="embedding"></param>
+        /// <param name="interactive_first"></param>
+        /// <param name="prompt_cache_all"></param>
+        /// <param name="instruct"></param>
+        /// <param name="penalize_nl"></param>
+        /// <param name="perplexity"></param>
+        /// <param name="use_mmap"></param>
+        /// <param name="use_mlock"></param>
+        /// <param name="mem_test"></param>
+        /// <param name="verbose_prompt"></param>
+        /// <param name="encoding"></param>
         public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
-            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
+            int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
@@ -91,10 +139,10 @@ namespace LLama
                 use_mmap: use_mmap,
                 use_mlock: use_mlock,
                 mem_test: mem_test,
-                verbose_prompt: verbose_prompt), 
+                verbose_prompt: verbose_prompt),
                 model_name, echo_input, verbose, encoding)
         {
-            
+
         }
 
         public unsafe LLamaModel(LLamaParams @params, string name = "", bool echo_input = false, bool verbose = false, string encoding = "UTF-8")
@@ -213,6 +261,13 @@ namespace LLama
             _embed = new List<llama_token>();
         }
 
+        /// <summary>
+        /// Apply a prompt to the model.
+        /// </summary>
+        /// <param name="prompt"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public LLamaModel WithPrompt(string prompt, string encoding = "UTF-8")
         {
             _params.prompt = prompt.Insert(0, " ");
@@ -262,6 +317,11 @@ namespace LLama
             return this;
         }
 
+        /// <summary>
+        /// Apply the prompt file to the model.
+        /// </summary>
+        /// <param name="promptFileName"></param>
+        /// <returns></returns>
         public LLamaModel WithPromptFile(string promptFileName)
         {
             return WithPrompt(File.ReadAllText(promptFileName));
@@ -317,9 +377,20 @@ namespace LLama
             _params.antiprompt = antiprompt.ToList();
         }
 
+        /// <summary>
+        /// Chat with the LLaMa model under interactive mode.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="prompt"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IEnumerable<string> Chat(string text, string? prompt = null, string encoding = "UTF-8")
         {
-            _params.interactive = true;
+            if (!_params.interactive)
+            {
+                throw new ArgumentException("The chat API could be only used under interactive model.");
+            }
             _input_echo = false;
             if (!string.IsNullOrEmpty(prompt))
             {
@@ -328,6 +399,10 @@ namespace LLama
             return Call(text, encoding);
         }
 
+        /// <summary>
+        /// Save the state to specified path.
+        /// </summary>
+        /// <param name="filename"></param>
         public void SaveState(string filename)
         {
             var stateSize = NativeApi.llama_get_state_size(_ctx);
@@ -336,10 +411,16 @@ namespace LLama
             File.WriteAllBytes(filename, stateMemory.Take(nbytes).ToArray());
         }
 
+        /// <summary>
+        /// Load the state from specified path.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="clearPreviousEmbed">Whether to clear previous footprints of this model.</param>
+        /// <exception cref="RuntimeError"></exception>
         public void LoadState(string filename, bool clearPreviousEmbed = true)
         {
             var stateMemory = File.ReadAllBytes(filename);
-            if(stateMemory.Length != (int)NativeApi.llama_get_state_size(_ctx))
+            if (stateMemory.Length != (int)NativeApi.llama_get_state_size(_ctx))
             {
                 throw new RuntimeError("Failed to validate state size.");
             }
@@ -351,15 +432,22 @@ namespace LLama
             }
         }
 
+        /// <summary>
+        /// Call the model to run inference.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        /// <exception cref="RuntimeError"></exception>
         public IEnumerable<string> Call(string text, string encoding = "UTF-8")
         {
             _is_antiprompt = false;
-            if(_n_past > 0)
+            if (_n_past > 0)
             {
                 _is_interacting = false;
             }
             ProcessTextBeforeInfer(text, encoding);
-            
+
             while ((_n_remain != 0 || _params.interactive) && !_is_interacting)
             {
                 if (_embed.Count > 0)
@@ -609,7 +697,7 @@ namespace LLama
                         }
                     }
 
-                    if(_n_past > 0 && _is_interacting)
+                    if (_n_past > 0 && _is_interacting)
                     {
                         if (_params.instruct)
                         {
@@ -621,22 +709,25 @@ namespace LLama
 
                     if (_embed.Count > 0 && _embed.Last() == NativeApi.llama_token_eos())
                     {
-                        if (_params.instruct) {
+                        if (_params.instruct)
+                        {
                             _is_interacting = true;
-                        } else
+                        }
+                        else
                         {
                             Logger.Default.Info(" [end of text]");
                         }
                     }
 
-                    if (_params.interactive && _n_remain <= 0 && _params.n_predict != -1) {
+                    if (_params.interactive && _n_remain <= 0 && _params.n_predict != -1)
+                    {
                         _n_remain = _params.n_predict;
                         _is_interacting = true;
                     }
                 }
             }
 
-            if(!string.IsNullOrEmpty(_path_session) && _params.prompt_cache_all)
+            if (!string.IsNullOrEmpty(_path_session) && _params.prompt_cache_all)
             {
                 Logger.Default.Info($"saving final output to session file {_path_session}");
                 var session_token_array = _session_tokens.ToArray();
