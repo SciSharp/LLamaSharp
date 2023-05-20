@@ -50,11 +50,48 @@ namespace LLama
             bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
             bool embedding = false, bool interactive_first = false, bool prompt_cache_all = false, bool instruct = false, bool penalize_nl = true,
             bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
-            bool verbose_prompt = false, string encoding = "UTF-8") : this(new LLamaParams(seed, n_threads, n_predict, n_parts, n_ctx, n_batch, 
-                n_keep, n_gpu_layers, logit_bias, top_k, top_p, tfs_z, typical_p, temp, repeat_penalty, repeat_last_n, frequency_penalty, 
-                presence_penalty, mirostat, mirostat_tau, mirostat_eta, model_path, prompt, path_session, input_prefix, 
-                input_suffix, antiprompt, lora_adapter, lora_base, memory_f16, random_prompt, use_color, interactive, embedding, 
-                interactive_first, prompt_cache_all, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), 
+            bool verbose_prompt = false, string encoding = "UTF-8") : this(new LLamaParams(seed: seed,
+                n_threads: n_threads,
+                n_predict: n_predict,
+                n_ctx: n_ctx,
+                n_batch: n_batch,
+                n_keep: n_keep,
+                n_gpu_layers: n_gpu_layers,
+                logit_bias: logit_bias,
+                top_k: top_k,
+                top_p: top_p,
+                tfs_z: tfs_z,
+                typical_p: typical_p,
+                temp: temp,
+                repeat_penalty: repeat_penalty,
+                repeat_last_n: repeat_last_n,
+                frequency_penalty: frequency_penalty,
+                presence_penalty: presence_penalty,
+                mirostat: mirostat,
+                mirostat_tau: mirostat_tau,
+                mirostat_eta: mirostat_eta,
+                model: model_path,
+                prompt: prompt,
+                path_session: path_session,
+                input_prefix: input_prefix,
+                input_suffix: input_suffix,
+                antiprompt: antiprompt,
+                lora_adapter: lora_adapter,
+                lora_base: lora_base,
+                memory_f16: memory_f16,
+                random_prompt: random_prompt,
+                use_color: use_color,
+                interactive: interactive,
+                embedding: embedding,
+                interactive_first: interactive_first,
+                prompt_cache_all: prompt_cache_all,
+                instruct: instruct,
+                penalize_nl: penalize_nl,
+                perplexity: perplexity,
+                use_mmap: use_mmap,
+                use_mlock: use_mlock,
+                mem_test: mem_test,
+                verbose_prompt: verbose_prompt), 
                 model_name, echo_input, verbose, encoding)
         {
             
@@ -295,11 +332,11 @@ namespace LLama
         {
             var stateSize = NativeApi.llama_get_state_size(_ctx);
             byte[] stateMemory = new byte[stateSize];
-            NativeApi.llama_copy_state_data(_ctx, stateMemory);
-            File.WriteAllBytes(filename, stateMemory);
+            int nbytes = (int)NativeApi.llama_copy_state_data(_ctx, stateMemory);
+            File.WriteAllBytes(filename, stateMemory.Take(nbytes).ToArray());
         }
 
-        public void LoadState(string filename)
+        public void LoadState(string filename, bool clearPreviousEmbed = true)
         {
             var stateMemory = File.ReadAllBytes(filename);
             if(stateMemory.Length != (int)NativeApi.llama_get_state_size(_ctx))
@@ -308,6 +345,10 @@ namespace LLama
             }
             NativeApi.llama_set_state_data(_ctx, stateMemory);
 
+            if (clearPreviousEmbed)
+            {
+                WithPrompt(_params.prompt);
+            }
         }
 
         public IEnumerable<string> Call(string text, string encoding = "UTF-8")
