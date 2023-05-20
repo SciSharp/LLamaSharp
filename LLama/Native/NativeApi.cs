@@ -51,6 +51,14 @@ namespace LLama.Native
         public static extern IntPtr llama_init_from_file(string path_model, LLamaContextParams params_);
 
         /// <summary>
+        /// not great API - very likely to change. 
+        /// Initialize the llama + ggml backend
+        /// Call once at the start of the program
+        /// </summary>
+        [DllImport(libraryName)]
+        public static extern void llama_init_backend();
+
+        /// <summary>
         /// Frees all allocated memory
         /// </summary>
         /// <param name="ctx"></param>

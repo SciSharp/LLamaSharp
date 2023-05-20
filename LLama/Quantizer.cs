@@ -24,6 +24,7 @@ namespace LLama
                 throw new ArgumentException($"The type {Enum.GetName(typeof(LLamaFtype), ftype)} is not a valid type " +
                     $"to perform quantization.");
             }
+            NativeApi.llama_init_backend();
             return NativeApi.llama_model_quantize(srcFileName, dstFilename, ftype, nthread) == 0;
         }
 
