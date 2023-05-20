@@ -3,6 +3,7 @@ using LLama.Extensions;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -430,6 +431,41 @@ namespace LLama
             {
                 WithPrompt(_params.prompt);
             }
+        }
+
+        /// <summary>
+        /// Tokenize a string.
+        /// </summary>
+        /// <param name="text">The utf-8 encoded string to tokenize.</param>
+        /// <returns>A list of tokens.</returns>
+        /// <exception cref="RuntimeError">If the tokenization failed.</exception>
+        public List<llama_token> Tokenize(string text)
+        {
+            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
+            var n_ctx = NativeApi.llama_n_ctx(_ctx);
+            var tokens = new llama_token[n_ctx];
+            var n_tokens = NativeApi.llama_tokenize(_ctx, text, tokens, n_ctx, true);
+            if (n_tokens < 0)
+            {
+                throw new RuntimeError($"Failed to tokenize: text=\"{text}\" n_tokens={n_tokens}");
+            }
+            return tokens.Take(n_tokens).ToList();
+        }
+
+        /// <summary>
+        /// Detokenize a list of tokens.
+        /// </summary>
+        /// <param name="tokens">The list of tokens to detokenize.</param>
+        /// <returns>The detokenized string.</returns>
+        public string DeTokenize(IEnumerable<llama_token> tokens)
+        {
+            Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
+            string output = "";
+            foreach (var token in tokens)
+            {
+                output += Utils.PtrToStringUTF8(NativeApi.llama_token_to_str(_ctx, token));
+            }
+            return output;
         }
 
         /// <summary>
