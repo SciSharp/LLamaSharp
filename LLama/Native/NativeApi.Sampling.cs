@@ -6,7 +6,7 @@ using System.Text;
 namespace LLama.Native
 {
     using llama_token = Int32;
-    internal unsafe partial class NativeApi
+    public unsafe partial class NativeApi
     {
         /// <summary>
         /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.

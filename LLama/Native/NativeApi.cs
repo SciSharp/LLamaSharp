@@ -8,7 +8,7 @@ using LLama.Exceptions;
 namespace LLama.Native
 {
     using llama_token = Int32;
-    internal unsafe partial class NativeApi
+    public unsafe partial class NativeApi
     {
         static NativeApi()
         {

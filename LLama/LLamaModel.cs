@@ -36,9 +36,6 @@ namespace LLama
         int _n_session_consumed;
         List<llama_token> _embed;
 
-        // params related to chat API only
-        bool _first_time_chat = true;
-
         public string Name { get; set; }
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
@@ -53,11 +50,12 @@ namespace LLama
             bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
             bool embedding = false, bool interactive_first = false, bool prompt_cache_all = false, bool instruct = false, bool penalize_nl = true,
             bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
-            bool verbose_prompt = false) : this(new LLamaParams(seed, n_threads, n_predict, n_parts, n_ctx, n_batch, 
+            bool verbose_prompt = false, string encoding = "UTF-8") : this(new LLamaParams(seed, n_threads, n_predict, n_parts, n_ctx, n_batch, 
                 n_keep, n_gpu_layers, logit_bias, top_k, top_p, tfs_z, typical_p, temp, repeat_penalty, repeat_last_n, frequency_penalty, 
                 presence_penalty, mirostat, mirostat_tau, mirostat_eta, model_path, prompt, path_session, input_prefix, 
                 input_suffix, antiprompt, lora_adapter, lora_base, memory_f16, random_prompt, use_color, interactive, embedding, 
-                interactive_first, prompt_cache_all, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), model_name, echo_input, verbose)
+                interactive_first, prompt_cache_all, instruct, penalize_nl, perplexity, use_mmap, use_mlock, mem_test, verbose_prompt), 
+                model_name, echo_input, verbose, encoding)
         {
             
         }
@@ -293,6 +291,25 @@ namespace LLama
             return Call(text, encoding);
         }
 
+        public void SaveState(string filename)
+        {
+            var stateSize = NativeApi.llama_get_state_size(_ctx);
+            byte[] stateMemory = new byte[stateSize];
+            NativeApi.llama_copy_state_data(_ctx, stateMemory);
+            File.WriteAllBytes(filename, stateMemory);
+        }
+
+        public void LoadState(string filename)
+        {
+            var stateMemory = File.ReadAllBytes(filename);
+            if(stateMemory.Length != (int)NativeApi.llama_get_state_size(_ctx))
+            {
+                throw new RuntimeError("Failed to validate state size.");
+            }
+            NativeApi.llama_set_state_data(_ctx, stateMemory);
+
+        }
+
         public IEnumerable<string> Call(string text, string encoding = "UTF-8")
         {
             _is_antiprompt = false;
@@ -507,9 +524,6 @@ namespace LLama
                 }
                 else
                 {
-                    // Assuming that the necessary variables have been defined and initialized,
-                    // the C# equivalent code could be:
-
                     while (_embed_inp.Count > _n_consumed)
                     {
                         _embed.Add(_embed_inp[_n_consumed]);

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLama.Native
 {
-    internal partial class NativeApi
+    public partial class NativeApi
     {
         /// <summary>
         /// Returns 0 on success
