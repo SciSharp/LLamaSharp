@@ -1,6 +1,5 @@
 ﻿using LLama;
 using LLama.Examples;
-using LLama.Types;
 
 Console.WriteLine("================LLamaSharp Examples==================\n");
 
