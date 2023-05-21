@@ -6,26 +6,24 @@ using System.Threading.Tasks;
 
 namespace LLama.Examples
 {
-    public class ChatSession
+    public class InstructMode
     {
-        ChatSession<LLamaModel> _session;
-        public ChatSession(string modelPath, string promptFilePath, string[] antiprompt)
+        LLamaModel _model;
+        public InstructMode(string modelPath, string promptFile)
         {
-            LLamaModel model = new(new LLamaParams(model: modelPath, n_ctx: 512, interactive: true, repeat_penalty: 1.0f, verbose_prompt: false));
-            _session = new ChatSession<LLamaModel>(model)
-                .WithPromptFile(promptFilePath)
-                .WithAntiprompt(antiprompt);
+            _model = new LLamaModel(new LLamaParams(model: modelPath, n_ctx: 2048, n_predict: -1, top_k: 10000, instruct: true,
+                repeat_penalty: 1.1f, n_batch: 256, temp: 0.2f)).WithPromptFile(promptFile);
         }
 
         public void Run()
         {
-            Console.Write("\nUser:");
+            Console.WriteLine("\n### Instruction:\n >");
             while (true)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 var question = Console.ReadLine();
                 Console.ForegroundColor = ConsoleColor.White;
-                var outputs = _session.Chat(question, encoding: "UTF-8");
+                var outputs = _model.Call(question);
                 foreach (var output in outputs)
                 {
                     Console.Write(output);

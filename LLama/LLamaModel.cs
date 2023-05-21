@@ -25,6 +25,7 @@ namespace LLama
         bool _is_interacting;
         bool _is_antiprompt;
         bool _input_echo;
+        bool _verbose;
 
         // HACK - because session saving incurs a non-negligible delay, for now skip re-saving session
         // if we loaded a session with at least 75% similarity. It's currently just used to speed up the
@@ -37,6 +38,17 @@ namespace LLama
         List<llama_token> _embed;
 
         public string Name { get; set; }
+        public bool Verbose
+        {
+            get
+            {
+                return _verbose;
+            }
+            set
+            {
+                _verbose = value;
+            }
+        }
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
         /// <summary>
@@ -44,7 +56,6 @@ namespace LLama
         /// </summary>
         /// <param name="model_path">The model file path.</param>
         /// <param name="model_name">The model name.</param>
-        /// <param name="echo_input">Whether to print the input messages.</param>
         /// <param name="verbose">Whether to print details when running the model.</param>
         /// <param name="seed"></param>
         /// <param name="n_threads"></param>
@@ -88,7 +99,7 @@ namespace LLama
         /// <param name="mem_test"></param>
         /// <param name="verbose_prompt"></param>
         /// <param name="encoding"></param>
-        public LLamaModel(string model_path, string model_name, bool echo_input = false, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
+        public LLamaModel(string model_path, string model_name, bool verbose = false, int seed = 0, int n_threads = -1, int n_predict = -1,
             int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
@@ -141,15 +152,24 @@ namespace LLama
                 use_mlock: use_mlock,
                 mem_test: mem_test,
                 verbose_prompt: verbose_prompt),
-                model_name, echo_input, verbose, encoding)
+                model_name, verbose, encoding)
         {
 
         }
 
-        public unsafe LLamaModel(LLamaParams @params, string name = "", bool echo_input = false, bool verbose = false, string encoding = "UTF-8")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="params">The LLamaModel params</param>
+        /// <param name="name">Model name</param>
+        /// <param name="verbose">Whether to output the detailed info.</param>
+        /// <param name="encoding"></param>
+        /// <exception cref="RuntimeError"></exception>
+        public unsafe LLamaModel(LLamaParams @params, string name = "", bool verbose = false, string encoding = "UTF-8")
         {
             Name = name;
             _params = @params;
+            _verbose = verbose;
             _ctx = Utils.llama_init_from_gpt_params(ref _params);
 
             // Add a space in front of the first character to match OG llama tokenizer behavior
@@ -197,7 +217,7 @@ namespace LLama
             }
 
             // enable interactive mode if reverse prompt or interactive start is specified
-            if (_params.antiprompt.Count != 0 || _params.interactive_first)
+            if (_params.interactive_first)
             {
                 _params.interactive = true;
             }
@@ -233,10 +253,10 @@ namespace LLama
             if (verbose)
             {
                 Logger.Default.Info($"sampling: repeat_last_n = {_params.repeat_last_n}, " +
-                $"repeat_penalty = {_params.repeat_penalty}, presence_penalty = {_params.presence_penalty}, " +
-                $"frequency_penalty = {_params.frequency_penalty}, top_k = {_params.top_k}, tfs_z = {_params.tfs_z}," +
-                $" top_p = {_params.top_p}, typical_p = {_params.typical_p}, temp = {_params.temp}, mirostat = {_params.mirostat}," +
-                $" mirostat_lr = {_params.mirostat_eta}, mirostat_ent = {_params.mirostat_tau}");
+                    $"repeat_penalty = {_params.repeat_penalty}, presence_penalty = {_params.presence_penalty}, " +
+                    $"frequency_penalty = {_params.frequency_penalty}, top_k = {_params.top_k}, tfs_z = {_params.tfs_z}," +
+                    $" top_p = {_params.top_p}, typical_p = {_params.typical_p}, temp = {_params.temp}, mirostat = {_params.mirostat}," +
+                    $" mirostat_lr = {_params.mirostat_eta}, mirostat_ent = {_params.mirostat_tau}");
                 Logger.Default.Info($"generate: n_ctx = {_n_ctx}, n_batch = {_params.n_batch}, n_predict = {_params.n_predict}, " +
                     $"n_keep = {_params.n_keep}");
                 Logger.Default.Info("\n");
@@ -254,7 +274,7 @@ namespace LLama
             }
 
             _is_antiprompt = false;
-            _input_echo = echo_input;
+            _input_echo = false;
             _n_past = 0;
             _n_remain = _params.n_predict;
             _n_consumed = 0;
@@ -315,6 +335,7 @@ namespace LLama
                 throw new ArgumentException($"prompt is too long ({_embed_inp.Count} tokens, max {_n_ctx - 4})");
             }
             _need_to_save_session = !string.IsNullOrEmpty(_path_session) && n_matching_session_tokens < (ulong)(_embed_inp.Count * 3 / 4);
+            
             return this;
         }
 
@@ -328,23 +349,23 @@ namespace LLama
             return WithPrompt(File.ReadAllText(promptFileName));
         }
 
-        private string ProcessTextBeforeInfer(string text, string encoding)
+        private void ProcessTextBeforeInfer(string text, string encoding)
         {
             if (!string.IsNullOrEmpty(_params.input_prefix))
             {
                 text = _params.input_prefix + text;
             }
-            if (!text.EndsWith("\n"))
-            {
-                text += "\n";
-            }
+            //if (!text.EndsWith("\n"))
+            //{
+            //    text += "\n";
+            //}
             if (text.Length > 1)
             {
                 // append input suffix if any
                 if (!string.IsNullOrEmpty(_params.input_suffix))
                 {
                     text += _params.input_suffix;
-                    Console.Write(_params.input_suffix);
+                    //yield return _params.input_suffix;
                 }
 
                 // instruct mode: insert instruction prefix
@@ -365,7 +386,6 @@ namespace LLama
 
                 _n_remain -= line_inp.Count;
             }
-            return text;
         }
 
         public void InitChatPrompt(string prompt, string encoding = "UTF-8")
@@ -408,8 +428,8 @@ namespace LLama
         {
             var stateSize = NativeApi.llama_get_state_size(_ctx);
             byte[] stateMemory = new byte[stateSize];
-            int nbytes = (int)NativeApi.llama_copy_state_data(_ctx, stateMemory);
-            File.WriteAllBytes(filename, stateMemory.Take(nbytes).ToArray());
+            NativeApi.llama_copy_state_data(_ctx, stateMemory);
+            File.WriteAllBytes(filename, stateMemory);
         }
 
         /// <summary>
@@ -421,7 +441,8 @@ namespace LLama
         public void LoadState(string filename, bool clearPreviousEmbed = true)
         {
             var stateMemory = File.ReadAllBytes(filename);
-            if (stateMemory.Length != (int)NativeApi.llama_get_state_size(_ctx))
+            int stateSize = (int)NativeApi.llama_get_state_size(_ctx);
+            if (stateMemory.Length != stateSize)
             {
                 throw new RuntimeError("Failed to validate state size.");
             }
@@ -478,8 +499,16 @@ namespace LLama
         public IEnumerable<string> Call(string text, string encoding = "UTF-8")
         {
             _is_antiprompt = false;
-            if (_n_past > 0)
+            if(_n_past > 0)
             {
+                _is_interacting = false;
+            }
+            if (_is_interacting)
+            {
+                if (_verbose)
+                {
+                    Logger.Default.Warn("In interacting when calling the model, automatically changed it.");
+                }
                 _is_interacting = false;
             }
             ProcessTextBeforeInfer(text, encoding);
@@ -503,14 +532,6 @@ namespace LLama
 
                         // stop saving session if we run out of context
                         _path_session = "";
-
-                        // Console.WriteLine("\n---\n");
-                        // Console.Write("resetting: '");
-                        // for (int i = 0; i < embed.Count; i++) {
-                        //     Console.Write(llama_token_to_str(ctx, embed[i]));
-                        // }
-                        // Console.WriteLine("'\n");
-                        // Console.WriteLine("\n---\n");
                     }
 
                     // try to reuse a matching prefix from the loaded session instead of re-eval (via n_past)

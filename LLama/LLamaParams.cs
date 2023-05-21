@@ -9,7 +9,6 @@ namespace LLama
         public int seed; // RNG seed
         public int n_threads = Math.Max(Environment.ProcessorCount / 2, 1); // number of threads (-1 = autodetect)
         public int n_predict = -1; // new tokens to predict
-        public int n_parts = -1; // amount of model parts (-1 = determine from model dimensions)
         public int n_ctx = 512; // context size
         public int n_batch = 512; // batch size for prompt processing (must be >=32 to use BLAS)
         public int n_keep = 0; // number of tokens to keep from initial prompt
@@ -58,7 +57,7 @@ namespace LLama
         public bool verbose_prompt = false; // print prompt tokens before generation
 
         public LLamaParams(int seed = 0, int n_threads = -1, int n_predict = -1,
-            int n_parts = -1, int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
+            int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
             Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
@@ -78,7 +77,6 @@ namespace LLama
                 this.n_threads = n_threads;
             }
             this.n_predict = n_predict;
-            this.n_parts = n_parts;
             this.n_ctx = n_ctx;
             this.n_batch = n_batch;
             this.n_keep = n_keep;

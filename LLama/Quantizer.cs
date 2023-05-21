@@ -24,7 +24,6 @@ namespace LLama
                 throw new ArgumentException($"The type {Enum.GetName(typeof(LLamaFtype), ftype)} is not a valid type " +
                     $"to perform quantization.");
             }
-            NativeApi.llama_init_backend();
             return NativeApi.llama_model_quantize(srcFileName, dstFilename, ftype, nthread) == 0;
         }
 
@@ -44,12 +43,12 @@ namespace LLama
 
         private static bool ValidateFtype(string ftype)
         {
-            return new string[] { "q4_0", "q4_1", "q4_2", "q5_0", "q5_1", "q8_0" }.Contains(ftype);
+            return new string[] { "q4_0", "q4_1", "q5_0", "q5_1", "q8_0" }.Contains(ftype);
         }
 
         private static bool ValidateFtype(LLamaFtype ftype)
         {
-            return ftype is LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_2
+            return ftype is LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1
                 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0;
         }
 
@@ -59,7 +58,6 @@ namespace LLama
             {
                 LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0 => "q4_0",
                 LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1 => "q4_1",
-                LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_2 => "q4_2",
                 LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0 => "q5_0",
                 LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1 => "q5_1",
                 LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0 => "q8_0",
@@ -74,7 +72,6 @@ namespace LLama
             {
                 "q4_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0,
                 "q4_1" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1,
-                "q4_2" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_2,
                 "q5_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0,
                 "q5_1" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1,
                 "q8_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0,

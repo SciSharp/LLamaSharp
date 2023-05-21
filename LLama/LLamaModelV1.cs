@@ -73,7 +73,6 @@ namespace LLama
 
             _params = NativeApi.llama_context_default_params();
             _params.n_ctx = n_ctx;
-            _params.n_parts = n_parts;
             _params.seed = seed;
             _params.f16_kv = f16_kv;
             _params.logits_all = logits_all;

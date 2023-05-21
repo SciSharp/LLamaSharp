@@ -14,10 +14,6 @@ namespace LLama.Native
         /// </summary>
         public int n_ctx;
         /// <summary>
-        /// -1 for default
-        /// </summary>
-        public int n_parts;
-        /// <summary>
         /// number of layers to store in VRAM
         /// </summary>
         public int n_gpu_layers;

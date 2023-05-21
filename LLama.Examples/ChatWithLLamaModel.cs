@@ -12,7 +12,7 @@ namespace LLama.Examples
         public ChatWithLLamaModel(string modelPath, string promptFilePath, string[] antiprompt)
         {
             _model = new LLamaModel(new LLamaParams(model: modelPath, n_ctx: 512, interactive: true, antiprompt: antiprompt.ToList(),
-                repeat_penalty: 1.0f), echo_input: false).WithPromptFile(promptFilePath);
+                repeat_penalty: 1.0f)).WithPromptFile(promptFilePath);
         }
 
         public void Run()
