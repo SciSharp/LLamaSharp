@@ -40,13 +40,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-    <PackageReference Include="Serilog" Version="3.0.0-dev-01998" />
-    <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.1-dev-00077" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="System.Memory" Version="4.5.4" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

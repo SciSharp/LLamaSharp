@@ -1,70 +1,120 @@
 ﻿using System;
-using Microsoft.Extensions.Logging;
-using Serilog;
-public sealed class Logger
+using System.Diagnostics;
+using System.IO;
+
+namespace LLama.Types;
+
+/// <summary>
+/// The logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
+/// </summary>
+public sealed class LLamaLogger
 {
-    private static readonly Lazy<Logger> _instance = new Lazy<Logger>(() => new Logger());
-    private static ILoggerFactory _loggerFactory;
-    private static readonly object _lock = new object();
+    private static readonly Lazy<LLamaLogger> _instance = new Lazy<LLamaLogger>(() => new LLamaLogger());
 
-    public static Logger Default => _instance.Value;
+    private bool _toConsole = true;
+    private bool _toFile = false;
 
-    private Logger()
+    private FileStream? _fileStream = null;
+    private StreamWriter _fileWriter = null;
+
+    public static LLamaLogger Default => _instance.Value;
+
+    private LLamaLogger()
     {
-        var logConfig = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message}{NewLine}{Exception}");
-
-        _loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.AddSerilog(logConfig.CreateLogger(), dispose: true);
-        });
+        
     }
 
-    public void ToConsole()
+    public LLamaLogger EnableConsole()
     {
-        // 不需要处理，Serilog 默认就输出到控制台
+        _toConsole = true;
+        return this;
     }
 
-    public void ToFile(string filename)
+    public LLamaLogger DisableConsole()
     {
-        var logConfig = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message}{NewLine}{Exception}")
-            .WriteTo.File(filename, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level}] {Message}{NewLine}{Exception}");
+        _toConsole = false;
+        return this;
+    }
 
-        lock (_lock)
+    public LLamaLogger EnableFile(string filename, FileMode mode = FileMode.Append)
+    {
+        _fileStream = new FileStream(filename, mode, FileAccess.Write);
+        _fileWriter = new StreamWriter(_fileStream);
+        _toFile = true;
+        return this;
+    }
+
+    public LLamaLogger DisableFile(string filename)
+    {
+        if(_fileWriter is not null)
         {
-            _loggerFactory.Dispose();
-
-            _loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddSerilog(logConfig.CreateLogger(), dispose: true);
-            });
+            _fileWriter.Close();
+            _fileWriter = null;
         }
+        if(_fileStream is not null)
+        {
+            _fileStream.Close();
+            _fileStream = null;
+        }
+        _toFile = false;
+        return this;
     }
 
     public void Info(string message)
     {
-        _loggerFactory.CreateLogger<Logger>().LogInformation(message);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(message);
-        Console.ResetColor();
+        message = MessageFormat("info", message);
+        if (_toConsole)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+        if (_toFile)
+        {
+            Debug.Assert(_fileStream is not null);
+            Debug.Assert(_fileWriter is not null);
+            _fileWriter.WriteLine(message);
+        }
     }
 
     public void Warn(string message)
     {
-        _loggerFactory.CreateLogger<Logger>().LogWarning(message);
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(message);
-        Console.ResetColor();
+        message = MessageFormat("warn", message);
+        if (_toConsole)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+        if (_toFile)
+        {
+            Debug.Assert(_fileStream is not null);
+            Debug.Assert(_fileWriter is not null);
+            _fileWriter.WriteLine(message);
+        }
     }
 
     public void Error(string message)
     {
-        _loggerFactory.CreateLogger<Logger>().LogError(message);
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(message);
-        Console.ResetColor();
+        message = MessageFormat("error", message);
+        if (_toConsole)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+        if (_toFile)
+        {
+            Debug.Assert(_fileStream is not null);
+            Debug.Assert(_fileWriter is not null);
+            _fileWriter.WriteLine(message);
+        }
+    }
+
+    private string MessageFormat(string level, string message)
+    {
+        DateTime now = DateTime.Now;
+        string formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
+        return $"[{formattedDate}][{level}]: {message}";
     }
 }
