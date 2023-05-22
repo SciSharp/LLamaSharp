@@ -53,7 +53,8 @@ namespace LLama
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
         /// <summary>
-        /// Please refer `LLamaParams` to find the meanings of each arg.
+        /// Please refer `LLamaParams` to find the meanings of each arg. Be sure to have set the `n_gpu_layers`, otherwise it will 
+        /// load 20 layers to gpu by default.
         /// </summary>
         /// <param name="model_path">The model file path.</param>
         /// <param name="model_name">The model name.</param>
@@ -159,7 +160,8 @@ namespace LLama
         }
 
         /// <summary>
-        /// 
+        /// Please refer `LLamaParams` to find the meanings of each arg. Be sure to have set the `n_gpu_layers`, otherwise it will 
+        /// load 20 layers to gpu by default.
         /// </summary>
         /// <param name="params">The LLamaModel params</param>
         /// <param name="name">Model name</param>

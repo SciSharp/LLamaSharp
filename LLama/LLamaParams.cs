@@ -12,7 +12,7 @@ namespace LLama
         public int n_ctx = 512; // context size
         public int n_batch = 512; // batch size for prompt processing (must be >=32 to use BLAS)
         public int n_keep = 0; // number of tokens to keep from initial prompt
-        public int n_gpu_layers = 0;   // number of layers to store in VRAM
+        public int n_gpu_layers = -1;   // number of layers to store in VRAM
 
         // sampling parameters
         public Dictionary<llama_token, float> logit_bias; // logit bias for specific tokens
@@ -80,7 +80,7 @@ namespace LLama
             this.n_ctx = n_ctx;
             this.n_batch = n_batch;
             this.n_keep = n_keep;
-            this.n_gpu_layers = n_gpu_layers == -1 ? int.MaxValue : n_gpu_layers;
+            this.n_gpu_layers = n_gpu_layers == -1 ? 20 : n_gpu_layers;
 
             if (logit_bias == null)
             {
