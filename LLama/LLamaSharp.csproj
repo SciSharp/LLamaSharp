@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.2.4</Version>
+    <Version>0.3.0</Version>
     <Authors>Yaohui Liu, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -18,10 +18,10 @@
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
     <PackageTags>LLama, LLM, GPT, ChatGPT, NLP, AI, Chat Bot, SciSharp</PackageTags>
     <Description>
-      The .NET binding of LLama.cpp, providing APIs to run the model and deploy it on Web.
+      The .NET binding of LLama.cpp, providing APIs to run the model and deploy it on Web. For model weights to run, please go to https://github.com/SciSharp/LLamaSharp for more information.
     </Description>
     <PackageReleaseNotes>
-      LLama 0.2.4 mainly supports loading and saving session state.
+      LLamaSharp 0.3.0 supports loading and saving session state, tokenization and detokenization. Besides, since 0.3.0, `LLamaModelV1` is dropped.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
