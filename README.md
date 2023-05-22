@@ -11,13 +11,13 @@
 
 
 The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It works on 
-both Windows and Linux and does NOT require compiling llama.cpp yourself.
+both Windows and Linux and does NOT require compiling llama.cpp yourself. Its performance is close to llama.cpp.
 
-- Load and inference LLaMa models
-- Simple APIs for chat session
-- Quantize the model in C#/.NET
+- LLaMa models inference
+- APIs for chat session
+- Model quantization
+- Embedding generation, tokenization and detokenization
 - ASP.NET core integration
-- Native UI integration
 
 ## Installation
 
@@ -35,18 +35,23 @@ LLamaSharp.Backend.Cuda11
 LLamaSharp.Backend.Cuda12
 ```
 
-The latest version of `LLamaSharp` and `LLamaSharp.Backend` may not always be the same. `LLamaSharp.Backend` follows up [llama.cpp](https://github.com/ggerganov/llama.cpp) because sometimes the 
-break change of it makes some model weights invalid. If you are not sure which version of backend to install, just install the latest version.
+Here's the mapping of them and corresponding model samples provided by `LLamaSharp`. If you're not sure which model is available for a version, please try our sample model.
 
-Note that version v0.2.1 has a package named `LLamaSharp.Cpu`. After v0.2.2 it will be dropped.
+| LLamaSharp.Backend | LLamaSharp | Verified Model Resources | llama.cpp commit id |
+| - | - | -- | - |
+| - | v0.2.0 | This version is not recommended to use. | - |
+| - | v0.2.1 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama), [Vicuna (filenames with "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | - |
+| v0.2.2 | v0.2.2, v0.2.3 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama_ggmlv2), [Vicuna (filenames without "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | 63d2046 |
+| v0.3.0 | v0.3.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | 7e4ea5b |
 
 We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
 from source and put the `libllama` under your project's output path. When building from source, please add `-DBUILD_SHARED_LIBS=ON` to enable the library generation.
 
 ## FAQ
 
-1. GPU out of memory: v0.2.3 put all layers into GPU by default. If the momory use is out of the capacity of your GPU, please set `n_gpu_layers` to a smaller number.
-2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install.
+1. GPU out of memory: Please try setting `n_gpu_layers` to a smaller number.
+2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or use the model we provide [on huggingface](https://huggingface.co/AsakusaRinne/LLamaSharpSamples).
+
 
 ## Simple Benchmark
 
@@ -112,30 +117,35 @@ For more usages, please refer to [Examples](./LLama.Examples).
 
 We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since currently the API is not stable, please clone the repo and use it. In the future we'll publish it on NuGet.
 
+Since we are in short of hands, if you're familiar with ASP.NET core, we'll appreciate it if you would like to help upgrading the Web API integration.
+
 ## Demo
 
 ![demo-console](Assets/console_demo.gif)
 
 ## Roadmap
 
-✅ LLaMa model inference.
+✅ LLaMa model inference
 
-✅ Embeddings generation.
+✅ Embeddings generation, tokenization and detokenization
 
-✅ Chat session.
+✅ Chat session
 
 ✅ Quantization
 
+✅ State saving and loading
+
 ✅ ASP.NET core Integration
 
-🔳 UI Integration
+🔳 MAUI Integration
 
 🔳 Follow up llama.cpp and improve performance
 
 ## Assets
 
-The model weights are too large to be included in the repository. However some resources could be found below:
+Some extra model resources could be found below:
 
+- [Qunatized models provided by LLamaSharp Authors](https://huggingface.co/AsakusaRinne/LLamaSharpSamples)
 - [eachadea/ggml-vicuna-13b-1.1](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main)
 - [TheBloke/wizardLM-7B-GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
 - Magnet: [magnet:?xt=urn:btih:b8287ebfa04f879b048d4d4404108cf3e8014352&dn=LLaMA](magnet:?xt=urn:btih:b8287ebfa04f879b048d4d4404108cf3e8014352&dn=LLaMA)
@@ -148,6 +158,16 @@ The prompts could be found below:
 - [ChatGPT_DAN](https://github.com/0xk1h0/ChatGPT_DAN)
 - [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts)
 - [awesome-chatgpt-prompts-zh](https://github.com/PlexPt/awesome-chatgpt-prompts-zh) (Chinese)
+
+## Contributing
+
+Any contribution is welcomed! You can do one of the followings to help us make `LLamaSharp` better:
+
+- Append a model link that is available for a version. (This is very important!)
+- Star and share `LLamaSharp` to let others know it.
+- Add a feature or fix a BUG.
+- Help to develop Web API and UI integration.
+- Just start an issue about the problem you met!
 
 ## Contact us
 
