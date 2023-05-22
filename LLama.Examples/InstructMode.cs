@@ -22,6 +22,7 @@ namespace LLama.Examples
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 var question = Console.ReadLine();
+                question += "\n";
                 Console.ForegroundColor = ConsoleColor.White;
                 var outputs = _model.Call(question);
                 foreach (var output in outputs)
