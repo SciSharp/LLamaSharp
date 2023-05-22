@@ -18,7 +18,7 @@ namespace LLama
             var lparams = NativeApi.llama_context_default_params();
 
             lparams.n_ctx = @params.n_ctx;
-            lparams.n_gpu_layers = 16;
+            lparams.n_gpu_layers = @params.n_gpu_layers;
             lparams.seed = @params.seed;
             lparams.f16_kv = @params.memory_f16;
             lparams.use_mmap = @params.use_mmap;
