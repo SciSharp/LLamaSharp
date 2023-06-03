@@ -176,8 +176,27 @@ namespace LLama.Native
         /// <param name="n_max_tokens"></param>
         /// <param name="add_bos"></param>
         /// <returns></returns>
-        [DllImport(libraryName)] 
-        public static extern int llama_tokenize(SafeLLamaContextHandle ctx, string text, llama_token[] tokens, int n_max_tokens, bool add_bos);
+        public static int llama_tokenize(SafeLLamaContextHandle ctx, string text, Encoding encoding, llama_token[] tokens, int n_max_tokens, bool add_bos)
+        {
+            var bytes = encoding.GetBytes(text);
+            sbyte[] data = new sbyte[bytes.Length];
+            for(int i = 0; i < bytes.Length; i++)
+            {
+                data[i] = (sbyte)bytes[i];
+                //if (bytes[i] < 128)
+                //{
+                //    data[i] = (sbyte)bytes[i];
+                //}
+                //else
+                //{
+                //    data[i] = (sbyte)(~((sbyte)(~bytes[i] + 1)) + 1);
+                //}
+            }
+            return llama_tokenize_native(ctx, data, tokens, n_max_tokens, add_bos);
+        }
+
+        [DllImport(libraryName, EntryPoint = "llama_tokenize")]
+        public static extern int llama_tokenize_native(SafeLLamaContextHandle ctx, sbyte[] text, llama_token[] tokens, int n_max_tokens, bool add_bos);
 
         [DllImport(libraryName)]
         public static extern int llama_n_vocab(SafeLLamaContextHandle ctx);

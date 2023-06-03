@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace LLama
 {
@@ -463,12 +464,12 @@ namespace LLama
         /// <param name="text">The utf-8 encoded string to tokenize.</param>
         /// <returns>A list of tokens.</returns>
         /// <exception cref="RuntimeError">If the tokenization failed.</exception>
-        public List<llama_token> Tokenize(string text)
+        public List<llama_token> Tokenize(string text, string encoding = "UTF-8")
         {
             Debug.Assert(_ctx.DangerousGetHandle() != IntPtr.Zero);
             var n_ctx = NativeApi.llama_n_ctx(_ctx);
             var tokens = new llama_token[n_ctx];
-            var n_tokens = NativeApi.llama_tokenize(_ctx, text, tokens, n_ctx, true);
+            var n_tokens = NativeApi.llama_tokenize(_ctx, text, Encoding.GetEncoding(encoding), tokens, n_ctx, true);
             if (n_tokens < 0)
             {
                 throw new RuntimeError($"Failed to tokenize: text=\"{text}\" n_tokens={n_tokens}");

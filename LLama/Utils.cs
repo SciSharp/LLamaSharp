@@ -52,11 +52,12 @@ namespace LLama
             return ctx;
         }
 
-        public static List<llama_token> llama_tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, string encoding)
+        public static List<llama_token> llama_tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, string encodingName)
         {
-            var cnt = Encoding.GetEncoding(encoding).GetByteCount(text);
+            var encoding = Encoding.GetEncoding(encodingName);
+            var cnt = encoding.GetByteCount(text);
             llama_token[] res = new llama_token[cnt + (add_bos ? 1 : 0)];
-            int n = NativeApi.llama_tokenize(ctx, text, res, res.Length, add_bos);
+            int n = NativeApi.llama_tokenize(ctx, text, encoding, res, res.Length, add_bos);
             if(n < 0)
             {
                 throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +
