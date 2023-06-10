@@ -1,87 +1,44 @@
 ﻿using LLama;
+using LLama.Abstractions.Params;
 using LLama.Examples;
+using LLama.Examples.Old;
 
-Console.WriteLine("================LLamaSharp Examples==================\n");
+Console.WriteLine("======================================================================================================");
 
-Console.WriteLine("Please input a number to choose an example to run:");
-Console.WriteLine("0: Run a chat session.");
-Console.WriteLine("1: Run a LLamaModel to chat.");
-Console.WriteLine("2: Quantize a model.");
-Console.WriteLine("3: Get the embeddings of a message.");
-Console.WriteLine("4: Run a LLamaModel with instruct mode.");
-Console.WriteLine("5: Load and save state of LLamaModel.");
+Console.WriteLine(" __       __                                       ____     __                                  \r\n/\\ \\     /\\ \\                                     /\\  _`\\  /\\ \\                                 \r\n\\ \\ \\    \\ \\ \\         __       ___ ___       __  \\ \\,\\L\\_\\\\ \\ \\___       __     _ __   _____   \r\n \\ \\ \\  __\\ \\ \\  __  /'__`\\   /' __` __`\\   /'__`\\ \\/_\\__ \\ \\ \\  _ `\\   /'__`\\  /\\`'__\\/\\ '__`\\ \r\n  \\ \\ \\L\\ \\\\ \\ \\L\\ \\/\\ \\L\\.\\_ /\\ \\/\\ \\/\\ \\ /\\ \\L\\.\\_ /\\ \\L\\ \\\\ \\ \\ \\ \\ /\\ \\L\\.\\_\\ \\ \\/ \\ \\ \\L\\ \\\r\n   \\ \\____/ \\ \\____/\\ \\__/.\\_\\\\ \\_\\ \\_\\ \\_\\\\ \\__/.\\_\\\\ `\\____\\\\ \\_\\ \\_\\\\ \\__/.\\_\\\\ \\_\\  \\ \\ ,__/\r\n    \\/___/   \\/___/  \\/__/\\/_/ \\/_/\\/_/\\/_/ \\/__/\\/_/ \\/_____/ \\/_/\\/_/ \\/__/\\/_/ \\/_/   \\ \\ \\/ \r\n                                                                                          \\ \\_\\ \r\n                                                                                           \\/_/ ");
+
+Console.WriteLine("======================================================================================================");
 
 
-while (true)
+
+Console.WriteLine();
+
+Console.WriteLine("Please choose the version you want to test: ");
+Console.WriteLine("0. old version (for v0.3.0 or earlier version)");
+Console.WriteLine("1. new version (for versions after v0.4.0)");
+
+Console.Write("\nYour Choice: ");
+int version = int.Parse(Console.ReadLine());
+Console.WriteLine();
+
+if(version == 1)
 {
-    Console.Write("\nYour choice: ");
-    int choice = int.Parse(Console.ReadLine());
+    Console.WriteLine("The examples for new versions are under working now. We'll soon update the examples." +
+        " Thank you for your support!");
+    string modelPath = "D:\\development\\llama\\weights\\wizard-vicuna-13B.ggmlv3.q4_1.bin";
+    var prompt = File.ReadAllText("Assets/dan.txt").Trim();
+    LLamaInstructExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024)));
 
-    if (choice == 0)
+    while (true)
     {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
-        ChatSession chat = new(modelPath, "Assets/chat-with-bob.txt", new string[] { "User:" });
-        chat.Run();
+        foreach (var text in ex.Infer(prompt, new SessionParams() { Temperature = 0.6f }))
+        {
+            Console.Write(text);
+        }
+        prompt = Console.ReadLine();
     }
-    else if (choice == 1)
-    {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
-        ChatWithLLamaModel chat = new(modelPath, "Assets/chat-with-bob.txt", new string[] { "User:" });
-        chat.Run();
-    }
-    else if (choice == 2) // quantization
-    {
-        Console.Write("Please input your original model path: ");
-        var inputPath = Console.ReadLine();
-        Console.Write("Please input your output model path: ");
-        var outputPath = Console.ReadLine();
-        Console.Write("Please input the quantize type (one of q4_0, q4_1, q5_0, q5_1, q8_0): ");
-        var quantizeType = Console.ReadLine();
-        Quantize q = new Quantize();
-        q.Run(inputPath, outputPath, quantizeType);
-    }
-    else if (choice == 3) // get the embeddings only
-    {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
-        GetEmbeddings em = new GetEmbeddings(modelPath);
-        Console.Write("Please input the text: ");
-        var text = Console.ReadLine();
-        em.Run(text);
-    }
-    else if (choice == 4) // instruct mode
-    {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
-        InstructMode im = new InstructMode(modelPath, "Assets/alpaca.txt");
-        Console.WriteLine("Here's a simple example for using instruct mode. You can input some words and let AI " +
-            "complete it for you. For example: Write a story about a fox that wants to make friend with human. No less than 200 words.");
-        im.Run();
-    }
-    else if (choice == 5) // load and save state
-    {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
-        Console.Write("Please input your state file path: ");
-        var statePath = Console.ReadLine();
-        SaveAndLoadState sals = new(modelPath, File.ReadAllText(@"D:\development\llama\llama.cpp\prompts\alpaca.txt"));
-        sals.Run("Write a story about a fox that wants to make friend with human. No less than 200 words.");
-        sals.SaveState(statePath);
-        sals.Dispose();
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-
-        // create a new model to load the state.
-        SaveAndLoadState sals2 = new(modelPath, "");
-        sals2.LoadState(statePath);
-        sals2.Run("Tell me more things about the fox in the story you told me.");
-    }
-    else
-    {
-        Console.WriteLine("Cannot parse your choice. Please select again.");
-        continue;
-    }
-    break;
+}
+else
+{
+    OldTestRunner.Run();
 }
