@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LLama.Old;
+using LLama.OldVersion;
 
 namespace LLama.Examples.Old
 {
     public class ChatWithLLamaModel
     {
-        LLama.Old.LLamaModel _model;
+        LLama.OldVersion.LLamaModel _model;
         public ChatWithLLamaModel(string modelPath, string promptFilePath, string[] antiprompt)
         {
-            _model = new LLama.Old.LLamaModel(new LLamaParams(model: modelPath, n_ctx: 512, interactive: true, antiprompt: antiprompt.ToList(),
+            _model = new LLama.OldVersion.LLamaModel(new LLamaParams(model: modelPath, n_ctx: 512, interactive: true, antiprompt: antiprompt.ToList(),
                 repeat_penalty: 1.0f)).WithPromptFile(promptFilePath);
         }
 

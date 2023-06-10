@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LLama.Old;
+using LLama.OldVersion;
 
 namespace LLama.Examples
 {
     public class GetEmbeddings
     {
-        LLamaEmbedder _embedder;
+        LLama.OldVersion.LLamaEmbedder _embedder;
         public GetEmbeddings(string modelPath)
         {
-            _embedder = new LLamaEmbedder(new LLamaParams(model: modelPath));
+            _embedder = new LLama.OldVersion.LLamaEmbedder(new LLamaParams(model: modelPath));
         }
 
         public void Run(string text)

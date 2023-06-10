@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
+using LLama.Abstractions.Params;
+using System.Linq;
 
-namespace LLama.Old
+namespace LLama
 {
     public class LLamaEmbedder : IDisposable
     {
@@ -19,31 +21,40 @@ namespace LLama.Old
             _ctx = ctx;
         }
 
-        public LLamaEmbedder(LLamaParams @params)
+        public LLamaEmbedder(ModelParams @params)
         {
-            @params.embedding = true;
-            _ctx = Utils.llama_init_from_gpt_params(ref @params);
+            @params.EmbeddingMode = true;
+            _ctx = Utils.InitLLamaContextFromModelParams(@params);
         }
 
-        public unsafe float[] GetEmbeddings(string text, int n_thread = -1, bool add_bos = true, string encoding = "UTF-8")
+        /// <summary>
+        /// Get the embeddings of the text.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="threads">Threads used for inference.</param>
+        /// <param name="addBos">Add bos to the text.</param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        /// <exception cref="RuntimeError"></exception>
+        public unsafe float[] GetEmbeddings(string text, int threads = -1, bool addBos = true, string encoding = "UTF-8")
         {
-            if (n_thread == -1)
+            if (threads == -1)
             {
-                n_thread = Math.Max(Environment.ProcessorCount / 2, 1);
+                threads = Math.Max(Environment.ProcessorCount / 2, 1);
             }
             int n_past = 0;
-            if (add_bos)
+            if (addBos)
             {
                 text = text.Insert(0, " ");
             }
-            var embed_inp = Utils.llama_tokenize(_ctx, text, add_bos, encoding);
+            var embed_inp = Utils.Tokenize(_ctx, text, addBos, Encoding.GetEncoding(encoding));
 
             // TODO(Rinne): deal with log of prompt
 
-            if (embed_inp.Count > 0)
+            if (embed_inp.Count() > 0)
             {
                 var embed_inp_array = embed_inp.ToArray();
-                if (NativeApi.llama_eval(_ctx, embed_inp_array, embed_inp_array.Length, n_past, n_thread) != 0)
+                if (NativeApi.llama_eval(_ctx, embed_inp_array, embed_inp_array.Length, n_past, threads) != 0)
                 {
                     throw new RuntimeError("Failed to eval.");
                 }

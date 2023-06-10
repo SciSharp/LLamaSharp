@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace LLama.Old
+namespace LLama.OldVersion
 {
     using llama_token = Int32;
     public class LLamaModel : IChatModel, IDisposable

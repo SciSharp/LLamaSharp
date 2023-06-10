@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LLama
 {
@@ -106,6 +109,121 @@ namespace LLama
             }
         }
 
-        public abstract IEnumerable<string> Infer(string text, SessionParams? sessionParams = null, IEnumerable<string>? antiprompts = null);
+        protected abstract bool GetLoopCondition(InferStateArgs args);
+        protected abstract void PreprocessInputs(string text, InferStateArgs args);
+        protected abstract bool PostProcess(SessionParams sessionParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
+        protected abstract void InferInternal(SessionParams sessionParams, InferStateArgs args);
+        public virtual IEnumerable<string> Infer(string text, SessionParams? sessionParams = null)
+        {
+            if (sessionParams is null)
+            {
+                sessionParams = new SessionParams();
+            }
+
+            InferStateArgs args = new InferStateArgs()
+            {
+                Antiprompts = sessionParams.AntiPrompts,
+                RemainedTokens = sessionParams.ResponseTokensCount,
+                ReturnValue = false,
+                WaitForInput = false,
+                NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
+            };
+
+            PreprocessInputs(text, args);
+
+            while (GetLoopCondition(args))
+            {
+                InferInternal(sessionParams, args);
+
+                if (args.ReturnValue)
+                {
+                    foreach (var item in _model.GenerateResult(_embeds))
+                    {
+                        yield return item;
+                    }
+                }
+
+                var breakGeneration = PostProcess(sessionParams, args, out var extraOutputs);
+                if (extraOutputs is not null)
+                {
+                    foreach (var item in extraOutputs)
+                    {
+                        yield return item;
+                    }
+                }
+                if (breakGeneration)
+                {
+                    break;
+                }
+            }
+        }
+        public virtual async IAsyncEnumerable<string> InferAsync(string text, SessionParams? sessionParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            // make this delay only to make the async method consistent with what it's expected to be
+            //await Task.Delay(1);
+
+            if (sessionParams is null)
+            {
+                sessionParams = new SessionParams();
+            }
+
+            InferStateArgs args = new InferStateArgs()
+            {
+                Antiprompts = sessionParams.AntiPrompts,
+                RemainedTokens = sessionParams.ResponseTokensCount,
+                ReturnValue = false,
+                WaitForInput = false,
+                NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
+            };
+
+            PreprocessInputs(text, args);
+
+            while (GetLoopCondition(args))
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                InferInternal(sessionParams, args);
+
+                if (args.ReturnValue)
+                {
+                    foreach (var item in _model.GenerateResult(_embeds))
+                    {
+                        yield return item;
+                    }
+                }
+
+                var breakGeneration = PostProcess(sessionParams, args, out var extraOutputs);
+                if (extraOutputs is not null)
+                {
+                    foreach (var item in extraOutputs)
+                    {
+                        yield return item;
+                    }
+                }
+                if (breakGeneration)
+                {
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// State arguments that are used in single inference
+        /// </summary>
+        protected class InferStateArgs
+        {
+            public IList<string>? Antiprompts { get; set; }
+            /// <summary>
+            /// Tokens count remained to be used. (n_remain)
+            /// </summary>
+            public int RemainedTokens { get; set; }
+            public bool ReturnValue { get; set; }
+            public bool WaitForInput { get; set; }
+            public bool NeedToSaveSession { get; set; }
+        }
     }
 }

@@ -20,6 +20,11 @@ namespace LLama.Abstractions.Params
         /// logit bias for specific tokens
         /// </summary>
         public Dictionary<llama_token, float>? LogitBias { get; set; } = null;
+
+        /// <summary>
+        /// Sequences where the model will stop generating further tokens.
+        /// </summary>
+        public IList<string> AntiPrompts { get; set; } = Array.Empty<string>();
         /// <summary>
         /// path to file for saving/loading model eval state
         /// </summary>

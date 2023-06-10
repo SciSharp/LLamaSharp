@@ -26,12 +26,12 @@ if(version == 1)
     Console.WriteLine("The examples for new versions are under working now. We'll soon update the examples." +
         " Thank you for your support!");
     string modelPath = "D:\\development\\llama\\weights\\wizard-vicuna-13B.ggmlv3.q4_1.bin";
-    var prompt = File.ReadAllText("Assets/dan.txt").Trim();
-    LLamaInstructExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024)));
+    var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+    LLamaInteractExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
 
     while (true)
     {
-        foreach (var text in ex.Infer(prompt, new SessionParams() { Temperature = 0.6f }))
+        await foreach (var text in ex.InferAsync(prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string>{ "user:" } }, default(CancellationToken)))
         {
             Console.Write(text);
         }

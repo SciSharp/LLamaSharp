@@ -1,7 +1,7 @@
 ﻿using LLama.Abstractions.Params;
 using LLama.Exceptions;
 using LLama.Native;
-using LLama.Old;
+using LLama.OldVersion;
 using LLama.Types;
 using LLama.Extensions;
 using System;

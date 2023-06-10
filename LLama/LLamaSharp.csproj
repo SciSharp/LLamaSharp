@@ -8,7 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
     <Authors>Yaohui Liu, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -21,7 +21,7 @@
       The .NET binding of LLama.cpp, providing APIs to run the model and deploy it on Web. For model weights to run, please go to https://github.com/SciSharp/LLamaSharp for more information.
     </Description>
     <PackageReleaseNotes>
-      LLamaSharp 0.3.0 supports loading and saving session state, tokenization and detokenization. Besides, since 0.3.0, `LLamaModelV1` is dropped.
+      LLamaSharp 0.4.0 supports better APIs than v0.3.0. Note that many break changes were made in this version. APIs of v0.3.0 were moved to LLama.Old namespace.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
@@ -41,6 +41,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.5.4" PrivateAssets="all" />
+    <PackageReference Include="System.Linq.Async" VersionOverride="[6.0.1, )" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.IO;
 
-namespace LLama.Old
+namespace LLama.OldVersion
 {
     using llama_token = Int32;
     internal static class Utils

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace LLama.Old
+namespace LLama.OldVersion
 {
     public class ChatSession<T> where T : IChatModel
     {
