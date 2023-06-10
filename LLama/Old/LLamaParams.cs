@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LLama
+namespace LLama.Old
 {
     using llama_token = Int32;
     public struct LLamaParams
@@ -66,7 +66,7 @@ namespace LLama
             string path_session = "", string input_prefix = "", string input_suffix = "",
             List<string> antiprompt = null, string lora_adapter = "", string lora_base = "",
             bool memory_f16 = true, bool random_prompt = false, bool use_color = false, bool interactive = false,
-            bool prompt_cache_all = false, bool embedding = false, bool interactive_first = false, 
+            bool prompt_cache_all = false, bool embedding = false, bool interactive_first = false,
             bool instruct = false, bool penalize_nl = true,
             bool perplexity = false, bool use_mmap = true, bool use_mlock = false, bool mem_test = false,
             bool verbose_prompt = false)

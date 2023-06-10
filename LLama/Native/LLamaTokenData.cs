@@ -6,7 +6,7 @@ using System.Text;
 namespace LLama.Native
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct LLamaTokenData
+    public struct LLamaTokenData
     {
         /// <summary>
         /// token id

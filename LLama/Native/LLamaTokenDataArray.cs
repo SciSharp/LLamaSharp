@@ -7,7 +7,7 @@ using System.Text;
 namespace LLama.Native
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct LLamaTokenDataArray
+    public struct LLamaTokenDataArray
     {
         public Memory<LLamaTokenData> data;
         public ulong size;
@@ -23,7 +23,7 @@ namespace LLama.Native
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct LLamaTokenDataArrayNative
+    public struct LLamaTokenDataArrayNative
     {
         public IntPtr data;
         public ulong size;

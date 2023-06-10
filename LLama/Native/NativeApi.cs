@@ -164,6 +164,9 @@ namespace LLama.Native
         [DllImport(libraryName)]
         public static extern int llama_eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int n_tokens, int n_past, int n_threads);
 
+        [DllImport(libraryName, EntryPoint = "llama_eval")]
+        public static extern int llama_eval_with_pointer(SafeLLamaContextHandle ctx, llama_token* tokens, int n_tokens, int n_past, int n_threads);
+
         /// <summary>
         /// Convert the provided text into tokens.
         /// The tokens pointer must be large enough to hold the resulting tokens.

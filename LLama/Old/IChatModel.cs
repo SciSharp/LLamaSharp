@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LLama
+namespace LLama.Old
 {
     public interface IChatModel
     {

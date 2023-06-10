@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
 
-namespace LLama
+namespace LLama.Old
 {
-    public class LLamaEmbedder: IDisposable
+    public class LLamaEmbedder : IDisposable
     {
         SafeLLamaContextHandle _ctx;
 
@@ -27,7 +27,7 @@ namespace LLama
 
         public unsafe float[] GetEmbeddings(string text, int n_thread = -1, bool add_bos = true, string encoding = "UTF-8")
         {
-            if(n_thread == -1)
+            if (n_thread == -1)
             {
                 n_thread = Math.Max(Environment.ProcessorCount / 2, 1);
             }
@@ -51,7 +51,7 @@ namespace LLama
 
             int n_embed = NativeApi.llama_n_embd(_ctx);
             var embeddings = NativeApi.llama_get_embeddings(_ctx);
-            if(embeddings == null)
+            if (embeddings == null)
             {
                 return new float[0];
             }
