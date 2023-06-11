@@ -12,12 +12,12 @@ using System.Text.Json.Serialization;
 namespace LLama
 {
     using llama_token = Int32;
-    public class LLamaInstructExecutor : LLamaExecutorBase
+    public class InstructExecutor : ChatExecutorBase
     {
         bool _is_prompt_run = true;
         llama_token[] _inp_pfx;
         llama_token[] _inp_sfx;
-        public LLamaInstructExecutor(LLamaModel model, string inputPrefix = "\n\n### Instruction:\n\n",
+        public InstructExecutor(LLamaModel model, string inputPrefix = "\n\n### Instruction:\n\n",
             string inputSuffix = "\n\n### Response:\n\n") : base(model)
         {
             _inp_pfx = _model.Tokenize(inputPrefix, true).ToArray();
@@ -131,9 +131,9 @@ namespace LLama
                 args.WaitForInput = true;
             }
 
-            if (args.RemainedTokens <= 0 && sessionParams.ResponseTokensCount != -1)
+            if (args.RemainedTokens <= 0 && sessionParams.MaxTokens != -1)
             {
-                args.RemainedTokens = sessionParams.ResponseTokensCount;
+                args.RemainedTokens = sessionParams.MaxTokens;
                 args.WaitForInput = true;
             }
             return false;
@@ -145,7 +145,7 @@ namespace LLama
                 _is_prompt_run = false;
                 if (_pastTokensCount + _embeds.Count > _model.ContextSize)
                 {
-                    HandleRunOutOfContext(sessionParams.TokensToKeep);
+                    HandleRunOutOfContext(sessionParams.TokensKeep);
                 }
 
                 TryReuseMathingPrefix();
@@ -162,19 +162,7 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var temp = sessionParams.Temperature;
-                var top_k = sessionParams.TopK <= 0 ? NativeApi.llama_n_vocab(_model.NativeHandle) : sessionParams.TopK;
-                var top_p = sessionParams.TopK;
-                var tfs_z = sessionParams.TfsZ;
-                var typical_p = sessionParams.TypicalP;
                 var repeat_last_n = sessionParams.RepeatLastTokensCount < 0 ? _model.ContextSize : sessionParams.RepeatLastTokensCount;
-                var repeat_penalty = sessionParams.RepeatPenalty;
-                var alpha_presence = sessionParams.PresencePenalty;
-                var alpha_frequency = sessionParams.FrequencyPenalty;
-                var mirostat = sessionParams.Mirostat;
-                var mirostat_tau = sessionParams.MirostatTau;
-                var mirostat_eta = sessionParams.MirostatEta;
-                var penalize_nl = sessionParams.PenalizeNL;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -184,10 +172,10 @@ namespace LLama
                 }
 
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, sessionParams.LogitBias, repeat_last_n,
-                    repeat_penalty, alpha_frequency, alpha_presence, penalize_nl);
+                    sessionParams.RepeatPenalty, sessionParams.FrequencyPenalty, sessionParams.PresencePenalty, sessionParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, temp, mirostat, mirostat_tau, mirostat_eta, top_k, top_p,
-                    tfs_z, typical_p);
+                var id = _model.Sample(tokenDataArray, sessionParams.Temperature, sessionParams.Mirostat, sessionParams.MirostatTau,
+                    sessionParams.MirostatEta, sessionParams.TopK, sessionParams.TopP, sessionParams.TfsZ, sessionParams.TypicalP);
 
                 _last_n_tokens.Enqueue(id);
 

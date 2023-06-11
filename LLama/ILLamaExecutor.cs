@@ -8,6 +8,7 @@ namespace LLama
 {
     public interface ILLamaExecutor
     {
+        public LLamaModel Model { get; }
         IEnumerable<string> Infer(string text, SessionParams? sessionParams = null);
 
         IAsyncEnumerable<string> InferAsync(string text, SessionParams? sessionParams = null, CancellationToken token = default);

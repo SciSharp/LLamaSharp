@@ -15,9 +15,9 @@ using System.Threading.Tasks;
 namespace LLama
 {
     using llama_token = Int32;
-    public abstract class LLamaExecutorBase: ILLamaExecutor
+    public abstract class ChatExecutorBase: ILLamaExecutor
     {
-        protected LLamaModel _model;
+        protected readonly LLamaModel _model;
         protected int _pastTokensCount; // n_past
         protected int _consumedTokensCount; // n_consume
         protected int _n_session_consumed;
@@ -28,7 +28,7 @@ namespace LLama
         protected List<llama_token> _session_tokens = new();
         protected FixedSizeQuene<llama_token> _last_n_tokens;
         public LLamaModel Model => _model;
-        protected LLamaExecutorBase(LLamaModel model)
+        protected ChatExecutorBase(LLamaModel model)
         {
             _model = model;
             _pastTokensCount = 0;
@@ -39,7 +39,7 @@ namespace LLama
             _last_n_tokens = new FixedSizeQuene<llama_token>(_model.ContextSize).FillWith(0);
         }
 
-        public unsafe LLamaExecutorBase WithSessionFile(string filename)
+        public unsafe ChatExecutorBase WithSessionFile(string filename)
         {
             _pathSession = filename;
             if (string.IsNullOrEmpty(filename))
@@ -129,7 +129,7 @@ namespace LLama
             InferStateArgs args = new InferStateArgs()
             {
                 Antiprompts = sessionParams.AntiPrompts.ToList(),
-                RemainedTokens = sessionParams.ResponseTokensCount,
+                RemainedTokens = sessionParams.MaxTokens,
                 ReturnValue = false,
                 WaitForInput = false,
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
@@ -177,7 +177,7 @@ namespace LLama
             InferStateArgs args = new InferStateArgs()
             {
                 Antiprompts = sessionParams.AntiPrompts.ToList(),
-                RemainedTokens = sessionParams.ResponseTokensCount,
+                RemainedTokens = sessionParams.MaxTokens,
                 ReturnValue = false,
                 WaitForInput = false,
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count

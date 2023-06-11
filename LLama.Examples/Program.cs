@@ -26,7 +26,8 @@ if(version == 1)
     Console.WriteLine("The examples for new versions are under working now. We'll soon update the examples." +
         " Thank you for your support!");
     string modelPath = "D:\\development\\llama\\weights\\wizard-vicuna-13B.ggmlv3.q4_1.bin";
-    var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+    //var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+    string prompt = " Qeustion: how to do binary search for an array in C#? Answer: ";
 
     //LLamaInteractExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
 
@@ -39,22 +40,32 @@ if(version == 1)
     //    prompt = Console.ReadLine();
     //}
 
-    LLama.Examples.NewVersion.SaveAndLoadState runner = new(modelPath, prompt);
+    StatelessExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
     while (true)
     {
-        var input = Console.ReadLine();
-        if(input == "save")
+        foreach (var text in ex.Infer(prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" }, MaxTokens = 256 }))
         {
-            Console.Write("Your path to save state: ");
-            input = Console.ReadLine();
-            runner.SaveState("./ex_state.json", input);
-            runner.LoadState("./ex_state.json", input);
+            Console.Write(text);
         }
-        else
-        {
-            runner.Run(input);
-        }
+        prompt = Console.ReadLine();
     }
+
+    //LLama.Examples.NewVersion.SaveAndLoadState runner = new(modelPath, prompt);
+    //while (true)
+    //{
+    //    var input = Console.ReadLine();
+    //    if(input == "save")
+    //    {
+    //        Console.Write("Your path to save state: ");
+    //        input = Console.ReadLine();
+    //        runner.SaveState("./ex_state.json", input);
+    //        runner.LoadState("./ex_state.json", input);
+    //    }
+    //    else
+    //    {
+    //        runner.Run(input);
+    //    }
+    //}
 }
 else
 {

@@ -68,27 +68,45 @@ namespace LLama
         /// <param name="filename"></param>
         public void SaveState(string filename)
         {
+            File.WriteAllBytes(filename, GetStateData());
+        }
+
+        /// <summary>
+        /// Get the state data as a byte array.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetStateData()
+        {
             var stateSize = NativeApi.llama_get_state_size(_ctx);
             byte[] stateMemory = new byte[stateSize];
             NativeApi.llama_copy_state_data(_ctx, stateMemory);
-            File.WriteAllBytes(filename, stateMemory);
+            return stateMemory;
         }
 
         /// <summary>
         /// Load the state from specified path.
         /// </summary>
         /// <param name="filename"></param>
-        /// <param name="clearPreviousEmbed">Whether to clear previous footprints of this model.</param>
         /// <exception cref="RuntimeError"></exception>
-        public void LoadState(string filename, bool clearPreviousEmbed = true)
+        public void LoadState(string filename)
         {
             var stateMemory = File.ReadAllBytes(filename);
+            LoadState(stateMemory);
+        }
+
+        /// <summary>
+        /// Load the state from memory.
+        /// </summary>
+        /// <param name="stateData"></param>
+        /// <exception cref="RuntimeError"></exception>
+        public void LoadState(byte[] stateData)
+        {
             int stateSize = (int)NativeApi.llama_get_state_size(_ctx);
-            if (stateMemory.Length != stateSize)
+            if (stateData.Length != stateSize)
             {
                 throw new RuntimeError("Failed to validate state size.");
             }
-            NativeApi.llama_set_state_data(_ctx, stateMemory);
+            NativeApi.llama_set_state_data(_ctx, stateData);
         }
 
         public llama_token Sample(LLamaTokenDataArray candidates, float temperature = 0.8f, MiroStateType mirostat = MiroStateType.Disable, 
