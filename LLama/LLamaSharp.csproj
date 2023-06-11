@@ -5,7 +5,7 @@
     <RootNamespace>LLama</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>10</LangVersion>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
     <Version>0.4.0</Version>
@@ -25,7 +25,7 @@
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;Arm64</Platforms>
     <PackageId>LLamaSharp</PackageId>
     <Configurations>Debug;Release;GPU</Configurations>
   </PropertyGroup>
@@ -70,6 +70,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>libllama-cuda12.so</Link>
     </None>
-  </ItemGroup>
+      <None Include="runtimes/libllama.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libllama.dylib</Link>
+    </None>
+</ItemGroup>
 
 </Project>
