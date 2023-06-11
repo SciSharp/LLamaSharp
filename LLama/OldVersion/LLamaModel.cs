@@ -1,5 +1,4 @@
 ﻿using LLama.Exceptions;
-using LLama.Types;
 using LLama.Extensions;
 using LLama.Native;
 using System;
@@ -8,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LLama.Common;
 
 namespace LLama.OldVersion
 {
@@ -184,12 +184,12 @@ namespace LLama.OldVersion
             {
                 if (verbose)
                 {
-                    LLamaLogger.Default.Info($"Attempting to load saved session from '{_path_session}'");
+                    LLamaDefaultLogger.Default.Info($"Attempting to load saved session from '{_path_session}'");
                 }
 
                 if (!File.Exists(_path_session))
                 {
-                    LLamaLogger.Default.Warn("Session file does not exist, will create.");
+                    LLamaDefaultLogger.Default.Warn("Session file does not exist, will create.");
                 }
 
                 llama_token[] session_tokens = new llama_token[@params.n_ctx];
@@ -201,7 +201,7 @@ namespace LLama.OldVersion
                 _session_tokens = session_tokens.Take((int)n_token_count_out).ToList();
                 if (verbose)
                 {
-                    LLamaLogger.Default.Info($"Loaded a session with prompt size of {_session_tokens.Count} tokens");
+                    LLamaDefaultLogger.Default.Info($"Loaded a session with prompt size of {_session_tokens.Count} tokens");
                 }
             }
 
@@ -231,39 +231,39 @@ namespace LLama.OldVersion
 
             if (_params.verbose_prompt)
             {
-                LLamaLogger.Default.Info("\n");
-                LLamaLogger.Default.Info($"prompt: '{_params.prompt}'");
-                LLamaLogger.Default.Info($"number of tokens in prompt = {_embed_inp.Count}");
+                LLamaDefaultLogger.Default.Info("\n");
+                LLamaDefaultLogger.Default.Info($"prompt: '{_params.prompt}'");
+                LLamaDefaultLogger.Default.Info($"number of tokens in prompt = {_embed_inp.Count}");
                 for (int i = 0; i < _embed_inp.Count; i++)
                 {
-                    LLamaLogger.Default.Info($"{_embed_inp[i]} -> '{NativeApi.llama_token_to_str(_ctx, _embed_inp[i])}'");
+                    LLamaDefaultLogger.Default.Info($"{_embed_inp[i]} -> '{NativeApi.llama_token_to_str(_ctx, _embed_inp[i])}'");
                 }
                 if (_params.n_keep > 0)
                 {
-                    LLamaLogger.Default.Info($"static prompt based on n_keep: '");
+                    LLamaDefaultLogger.Default.Info($"static prompt based on n_keep: '");
                     for (int i = 0; i < _params.n_keep; i++)
                     {
-                        LLamaLogger.Default.Info($"{NativeApi.llama_token_to_str(_ctx, _embed_inp[i])}");
+                        LLamaDefaultLogger.Default.Info($"{NativeApi.llama_token_to_str(_ctx, _embed_inp[i])}");
                     }
-                    LLamaLogger.Default.Info("\n");
+                    LLamaDefaultLogger.Default.Info("\n");
                 }
-                LLamaLogger.Default.Info("\n");
+                LLamaDefaultLogger.Default.Info("\n");
             }
 
             if (_params.interactive && verbose)
             {
-                LLamaLogger.Default.Info("interactive mode on.");
+                LLamaDefaultLogger.Default.Info("interactive mode on.");
             }
             if (verbose)
             {
-                LLamaLogger.Default.Info($"sampling: repeat_last_n = {_params.repeat_last_n}, " +
+                LLamaDefaultLogger.Default.Info($"sampling: repeat_last_n = {_params.repeat_last_n}, " +
                     $"repeat_penalty = {_params.repeat_penalty}, presence_penalty = {_params.presence_penalty}, " +
                     $"frequency_penalty = {_params.frequency_penalty}, top_k = {_params.top_k}, tfs_z = {_params.tfs_z}," +
                     $" top_p = {_params.top_p}, typical_p = {_params.typical_p}, temp = {_params.temp}, mirostat = {_params.mirostat}," +
                     $" mirostat_lr = {_params.mirostat_eta}, mirostat_ent = {_params.mirostat_tau}");
-                LLamaLogger.Default.Info($"generate: n_ctx = {_n_ctx}, n_batch = {_params.n_batch}, n_predict = {_params.n_predict}, " +
+                LLamaDefaultLogger.Default.Info($"generate: n_ctx = {_n_ctx}, n_batch = {_params.n_batch}, n_predict = {_params.n_predict}, " +
                     $"n_keep = {_params.n_keep}");
-                LLamaLogger.Default.Info("\n");
+                LLamaDefaultLogger.Default.Info("\n");
             }
 
             _last_n_tokens = Enumerable.Repeat(0, _n_ctx).ToList();
@@ -272,7 +272,7 @@ namespace LLama.OldVersion
             {
                 if (verbose)
                 {
-                    LLamaLogger.Default.Info("== Running in interactive mode. ==");
+                    LLamaDefaultLogger.Default.Info("== Running in interactive mode. ==");
                 }
                 _is_interacting = _params.interactive_first;
             }
@@ -316,16 +316,16 @@ namespace LLama.OldVersion
                 }
                 if (n_matching_session_tokens >= (ulong)_embed_inp.Count)
                 {
-                    LLamaLogger.Default.Info("Session file has exact match for prompt!");
+                    LLamaDefaultLogger.Default.Info("Session file has exact match for prompt!");
                 }
                 else if (n_matching_session_tokens < (ulong)(_embed_inp.Count / 2))
                 {
-                    LLamaLogger.Default.Warn($"session file has low similarity to prompt ({n_matching_session_tokens} " +
+                    LLamaDefaultLogger.Default.Warn($"session file has low similarity to prompt ({n_matching_session_tokens} " +
                         $"/ {_embed_inp.Count} tokens); will mostly be reevaluated.");
                 }
                 else
                 {
-                    LLamaLogger.Default.Info($"Session file matches {n_matching_session_tokens} / {_embed_inp.Count} " +
+                    LLamaDefaultLogger.Default.Info($"Session file matches {n_matching_session_tokens} / {_embed_inp.Count} " +
                         $"tokens of prompt.");
                 }
             }
@@ -511,7 +511,7 @@ namespace LLama.OldVersion
             {
                 if (_verbose)
                 {
-                    LLamaLogger.Default.Warn("In interacting when calling the model, automatically changed it.");
+                    LLamaDefaultLogger.Default.Warn("In interacting when calling the model, automatically changed it.");
                 }
                 _is_interacting = false;
             }
@@ -581,7 +581,7 @@ namespace LLama.OldVersion
                         var array = _embed.Skip(i).ToArray();
                         if (NativeApi.llama_eval(_ctx, array, n_eval, _n_past, _params.n_threads) != 0)
                         {
-                            LLamaLogger.Default.Error($"Failed to eval.");
+                            LLamaDefaultLogger.Default.Error($"Failed to eval.");
                             throw new RuntimeError("Failed to eval.");
                         }
 
@@ -776,7 +776,7 @@ namespace LLama.OldVersion
                         }
                         else
                         {
-                            LLamaLogger.Default.Info(" [end of text]");
+                            LLamaDefaultLogger.Default.Info(" [end of text]");
                         }
                     }
 
@@ -790,7 +790,7 @@ namespace LLama.OldVersion
 
             if (!string.IsNullOrEmpty(_path_session) && _params.prompt_cache_all)
             {
-                LLamaLogger.Default.Info($"saving final output to session file {_path_session}");
+                LLamaDefaultLogger.Default.Info($"saving final output to session file {_path_session}");
                 var session_token_array = _session_tokens.ToArray();
                 NativeApi.llama_save_session_file(_ctx, _path_session, session_token_array, (ulong)session_token_array.Length);
             }

@@ -1,15 +1,35 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using static LLama.Common.ILLamaLogger;
 
-namespace LLama.Types;
+namespace LLama.Common;
+
+public interface ILLamaLogger
+{
+    public enum LogLevel
+    {
+        Info,
+        Debug,
+        Warning,
+        Error
+    }
+    /// <summary>
+    /// Write the log in cosutomized way
+    /// </summary>
+    /// <param name="source">The source of the log. It may be a method name or class name.</param>
+    /// <param name="message">The message.</param>
+    /// <param name="level">The log level.</param>
+    void Log(string source, string message, LogLevel level);
+}
 
 /// <summary>
-/// The logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
+/// The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
+/// It's more recommended to inherit `ILLamaLogger` to cosutomize the behavior.
 /// </summary>
-public sealed class LLamaLogger
+public sealed class LLamaDefaultLogger : ILLamaLogger
 {
-    private static readonly Lazy<LLamaLogger> _instance = new Lazy<LLamaLogger>(() => new LLamaLogger());
+    private static readonly Lazy<LLamaDefaultLogger> _instance = new Lazy<LLamaDefaultLogger>(() => new LLamaDefaultLogger());
 
     private bool _toConsole = true;
     private bool _toFile = false;
@@ -17,26 +37,26 @@ public sealed class LLamaLogger
     private FileStream? _fileStream = null;
     private StreamWriter _fileWriter = null;
 
-    public static LLamaLogger Default => _instance.Value;
+    public static LLamaDefaultLogger Default => _instance.Value;
 
-    private LLamaLogger()
+    private LLamaDefaultLogger()
     {
-        
+
     }
 
-    public LLamaLogger EnableConsole()
+    public LLamaDefaultLogger EnableConsole()
     {
         _toConsole = true;
         return this;
     }
 
-    public LLamaLogger DisableConsole()
+    public LLamaDefaultLogger DisableConsole()
     {
         _toConsole = false;
         return this;
     }
 
-    public LLamaLogger EnableFile(string filename, FileMode mode = FileMode.Append)
+    public LLamaDefaultLogger EnableFile(string filename, FileMode mode = FileMode.Append)
     {
         _fileStream = new FileStream(filename, mode, FileAccess.Write);
         _fileWriter = new StreamWriter(_fileStream);
@@ -44,20 +64,40 @@ public sealed class LLamaLogger
         return this;
     }
 
-    public LLamaLogger DisableFile(string filename)
+    public LLamaDefaultLogger DisableFile(string filename)
     {
-        if(_fileWriter is not null)
+        if (_fileWriter is not null)
         {
             _fileWriter.Close();
             _fileWriter = null;
         }
-        if(_fileStream is not null)
+        if (_fileStream is not null)
         {
             _fileStream.Close();
             _fileStream = null;
         }
         _toFile = false;
         return this;
+    }
+
+    public void Log(string source, string message, LogLevel level)
+    {
+        if (level == LogLevel.Info)
+        {
+            Info(message);
+        }
+        else if (level == LogLevel.Debug)
+        {
+
+        }
+        else if (level == LogLevel.Warning)
+        {
+            Warn(message);
+        }
+        else if (level == LogLevel.Error)
+        {
+            Error(message);
+        }
     }
 
     public void Info(string message)
