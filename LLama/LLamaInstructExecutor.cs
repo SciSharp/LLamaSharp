@@ -1,5 +1,4 @@
-﻿using LLama.Abstractions.Params;
-using LLama.Common;
+﻿using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
@@ -96,7 +95,7 @@ namespace LLama
                 args.RemainedTokens -= line_inp.Count();
             }
         }
-        protected override bool PostProcess(SessionParams sessionParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
+        protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
         {
             extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
@@ -131,21 +130,21 @@ namespace LLama
                 args.WaitForInput = true;
             }
 
-            if (args.RemainedTokens <= 0 && sessionParams.MaxTokens != -1)
+            if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
             {
-                args.RemainedTokens = sessionParams.MaxTokens;
+                args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
             return false;
         }
-        protected override void InferInternal(SessionParams sessionParams, InferStateArgs args)
+        protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
                 if (_pastTokensCount + _embeds.Count > _model.ContextSize)
                 {
-                    HandleRunOutOfContext(sessionParams.TokensKeep);
+                    HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
                 TryReuseMathingPrefix();
@@ -162,7 +161,7 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = sessionParams.RepeatLastTokensCount < 0 ? _model.ContextSize : sessionParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -171,11 +170,11 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, sessionParams.LogitBias, repeat_last_n,
-                    sessionParams.RepeatPenalty, sessionParams.FrequencyPenalty, sessionParams.PresencePenalty, sessionParams.PenalizeNL);
+                var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
+                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, sessionParams.Temperature, sessionParams.Mirostat, sessionParams.MirostatTau,
-                    sessionParams.MirostatEta, sessionParams.TopK, sessionParams.TopP, sessionParams.TfsZ, sessionParams.TypicalP);
+                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
 
                 _last_n_tokens.Enqueue(id);
 

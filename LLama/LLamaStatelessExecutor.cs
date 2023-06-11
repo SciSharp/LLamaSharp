@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions.Params;
+﻿using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
@@ -27,14 +27,15 @@ namespace LLama
             Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, tokens.Count(), 0, _model.Params.Threads);
             _originalState = model.GetStateData();
         }
-        public IEnumerable<string> Infer(string text, SessionParams? sessionParams = null)
+        public IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             int n_past = 1;
-            if(sessionParams is null)
+            if(inferenceParams is null)
             {
-                sessionParams = new SessionParams();
+                inferenceParams = new InferenceParams();
             }
-            List<llama_token> lastTokens = new(sessionParams.RepeatLastTokensCount);
+            List<llama_token> lastTokens = new(inferenceParams.RepeatLastTokensCount);
             for(int i = 0; i < lastTokens.Count; i++)
             {
                 lastTokens[i] = 0;
@@ -47,16 +48,21 @@ namespace LLama
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;
 
-            int max_tokens = sessionParams.MaxTokens < 0 ? int.MaxValue : sessionParams.MaxTokens;
+            int max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
             for(int i = 0; i < max_tokens; i++)
             {
-                var repeat_last_n = sessionParams.RepeatLastTokensCount < 0 ? _model.ContextSize : sessionParams.RepeatLastTokensCount;
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    _model.LoadState(_originalState);
+                    break;
+                }
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
 
-                var tokenDataArray = _model.ApplyPenalty(lastTokens, sessionParams.LogitBias, repeat_last_n,
-                    sessionParams.RepeatPenalty, sessionParams.FrequencyPenalty, sessionParams.PresencePenalty, sessionParams.PenalizeNL);
+                var tokenDataArray = _model.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
+                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, sessionParams.Temperature, sessionParams.Mirostat, sessionParams.MirostatTau,
-                    sessionParams.MirostatEta, sessionParams.TopK, sessionParams.TopP, sessionParams.TfsZ, sessionParams.TypicalP);
+                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
 
                 lastTokens.Add(id);
 
@@ -66,7 +72,7 @@ namespace LLama
                 tokens.Clear();
                 tokens.Add(id);
 
-                if (sessionParams.AntiPrompts is not null && sessionParams.AntiPrompts.Count() > 0)
+                if (inferenceParams.AntiPrompts is not null && inferenceParams.AntiPrompts.Count() > 0)
                 {
                     string last_output = "";
                     foreach (var token in lastTokens)
@@ -75,7 +81,7 @@ namespace LLama
                     }
 
                     bool should_break = false;
-                    foreach (var antiprompt in sessionParams.AntiPrompts)
+                    foreach (var antiprompt in inferenceParams.AntiPrompts)
                     {
                         if (last_output.EndsWith(antiprompt))
                         {
@@ -92,9 +98,9 @@ namespace LLama
                 // when run out of context
                 if (n_past + tokens.Count > _model.ContextSize)
                 {
-                    int n_left = n_past - sessionParams.TokensKeep;
+                    int n_left = n_past - inferenceParams.TokensKeep;
 
-                    n_past = Math.Max(1, sessionParams.TokensKeep);
+                    n_past = Math.Max(1, inferenceParams.TokensKeep);
 
                     // insert n_left/2 tokens at the start of embed from last_n_tokens
                     tokens.InsertRange(0, lastTokens.Take(lastTokens.Count - tokens.Count).Skip(_model.ContextSize - n_left / 2 - tokens.Count));
@@ -107,7 +113,7 @@ namespace LLama
         }
 
 
-        public async IAsyncEnumerable<string> InferAsync(string text, SessionParams? sessionParams = null, [EnumeratorCancellation] CancellationToken token = default)
+        public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken token = default)
         {
             yield return "";
             throw new NotImplementedException();

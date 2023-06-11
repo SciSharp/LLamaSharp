@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions.Params;
+﻿using LLama.Common;
 using LLama.OldVersion;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace LLama.Examples.NewVersion
             _prompt = prompt;
             _modelPath = modelPath;
             _executor = new InteractiveExecutor(new LLamaModel(new ModelParams(modelPath: modelPath)));
-            foreach (var text in _executor.Infer(_prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" } }))
+            foreach (var text in _executor.Infer(_prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" } }))
             {
                 Console.Write(text);
             }
@@ -26,7 +26,7 @@ namespace LLama.Examples.NewVersion
 
         public void Run(string prompt)
         {
-            SessionParams sessionParams = new SessionParams() { Temperature = 0.2f, AntiPrompts = new List<string> { "user:" } };
+            InferenceParams sessionParams = new InferenceParams() { Temperature = 0.2f, AntiPrompts = new List<string> { "user:" } };
             foreach (var text in _executor.Infer(prompt, sessionParams))
             {
                 Console.Write(text);

@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
-using LLama.Abstractions.Params;
 using System.Linq;
+using LLama.Common;
 
 namespace LLama
 {

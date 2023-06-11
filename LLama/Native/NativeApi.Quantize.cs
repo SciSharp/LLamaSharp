@@ -16,7 +16,7 @@ namespace LLama.Native
         /// <param name="nthread">how many threads to use. If <=0, will use std::thread::hardware_concurrency(), else the number given</param>
         /// <remarks>not great API - very likely to change</remarks>
         /// <returns>Returns 0 on success</returns>
-        [DllImport(libraryName)]
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_model_quantize(string fname_inp, string fname_out, LLamaFtype ftype, int nthread);
     }
 }

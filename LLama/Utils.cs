@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions.Params;
+﻿using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
 using System;

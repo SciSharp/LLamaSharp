@@ -1,5 +1,4 @@
-﻿using LLama.Abstractions.Params;
-using LLama.Common;
+﻿using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
 using System;
@@ -113,71 +112,24 @@ namespace LLama
 
         protected abstract bool GetLoopCondition(InferStateArgs args);
         protected abstract void PreprocessInputs(string text, InferStateArgs args);
-        protected abstract bool PostProcess(SessionParams sessionParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
-        protected abstract void InferInternal(SessionParams sessionParams, InferStateArgs args);
+        protected abstract bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
+        protected abstract void InferInternal(InferenceParams inferenceParams, InferStateArgs args);
         public abstract void SaveState(string filename);
         public abstract void LoadState(string filename);
 
 
-        public virtual IEnumerable<string> Infer(string text, SessionParams? sessionParams = null)
-        {
-            if (sessionParams is null)
-            {
-                sessionParams = new SessionParams();
-            }
-
-            InferStateArgs args = new InferStateArgs()
-            {
-                Antiprompts = sessionParams.AntiPrompts.ToList(),
-                RemainedTokens = sessionParams.MaxTokens,
-                ReturnValue = false,
-                WaitForInput = false,
-                NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
-            };
-
-            PreprocessInputs(text, args);
-
-            while (GetLoopCondition(args))
-            {
-                InferInternal(sessionParams, args);
-
-                if (args.ReturnValue)
-                {
-                    foreach (var item in _model.GenerateResult(_embeds))
-                    {
-                        yield return item;
-                    }
-                }
-
-                var breakGeneration = PostProcess(sessionParams, args, out var extraOutputs);
-                if (extraOutputs is not null)
-                {
-                    foreach (var item in extraOutputs)
-                    {
-                        yield return item;
-                    }
-                }
-                if (breakGeneration)
-                {
-                    break;
-                }
-            }
-        }
-        public virtual async IAsyncEnumerable<string> InferAsync(string text, SessionParams? sessionParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public virtual IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            // make this delay only to make the async method consistent with what it's expected to be
-            //await Task.Delay(1);
-
-            if (sessionParams is null)
+            if (inferenceParams is null)
             {
-                sessionParams = new SessionParams();
+                inferenceParams = new InferenceParams();
             }
 
             InferStateArgs args = new InferStateArgs()
             {
-                Antiprompts = sessionParams.AntiPrompts.ToList(),
-                RemainedTokens = sessionParams.MaxTokens,
+                Antiprompts = inferenceParams.AntiPrompts.ToList(),
+                RemainedTokens = inferenceParams.MaxTokens,
                 ReturnValue = false,
                 WaitForInput = false,
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
@@ -191,8 +143,7 @@ namespace LLama
                 {
                     break;
                 }
-
-                InferInternal(sessionParams, args);
+                InferInternal(inferenceParams, args);
 
                 if (args.ReturnValue)
                 {
@@ -202,7 +153,7 @@ namespace LLama
                     }
                 }
 
-                var breakGeneration = PostProcess(sessionParams, args, out var extraOutputs);
+                var breakGeneration = PostProcess(inferenceParams, args, out var extraOutputs);
                 if (extraOutputs is not null)
                 {
                     foreach (var item in extraOutputs)
@@ -214,6 +165,13 @@ namespace LLama
                 {
                     break;
                 }
+            }
+        }
+        public virtual async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            foreach(var result in Infer(text, inferenceParams, cancellationToken))
+            {
+                yield return result;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions.Params;
+﻿using LLama.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,8 +9,8 @@ namespace LLama
     public interface ILLamaExecutor
     {
         public LLamaModel Model { get; }
-        IEnumerable<string> Infer(string text, SessionParams? sessionParams = null);
+        IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken token = default);
 
-        IAsyncEnumerable<string> InferAsync(string text, SessionParams? sessionParams = null, CancellationToken token = default);
+        IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, CancellationToken token = default);
     }
 }

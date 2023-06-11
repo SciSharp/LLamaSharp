@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LLama.Abstractions.Params
+namespace LLama.Common
 {
     public class ModelParams
     {
@@ -84,10 +84,10 @@ namespace LLama.Abstractions.Params
         /// <param name="batchSize">Batch size for prompt processing (must be >=32 to use BLAS) (n_batch)</param>
         /// <param name="convertEosToNewLine">Whether to convert eos to newline during the inference.</param>
         /// <param name="embeddingMode">Whether to use embedding mode. (embedding) Note that if this is set to true, The LLamaModel won't produce text response anymore.</param>
-        public ModelParams(string modelPath, int contextSize = 512, int gpuLayerCount = 20, 
+        public ModelParams(string modelPath, int contextSize = 512, int gpuLayerCount = 20,
                    int seed = 1337, bool useFp16Memory = true,
                    bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
-                   string loraAdapter = "", string loraBase = "", int threads = -1, int batchSize = 512, 
+                   string loraAdapter = "", string loraBase = "", int threads = -1, int batchSize = 512,
                    bool convertEosToNewLine = false, bool embeddingMode = false)
         {
             ContextSize = contextSize;

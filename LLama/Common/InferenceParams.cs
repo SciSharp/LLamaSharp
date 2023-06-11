@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LLama.Abstractions.Params
+namespace LLama.Common
 {
     using llama_token = Int32;
-    public class SessionParams
+    public class InferenceParams
     {
         /// <summary>
         /// number of tokens to keep from initial prompt
@@ -97,8 +97,8 @@ namespace LLama.Abstractions.Params
 
     public enum MiroStateType
     {
-        Disable = 0, 
-        MiroState = 1, 
+        Disable = 0,
+        MiroState = 1,
         MiroState2 = 2
     }
 }

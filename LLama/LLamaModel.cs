@@ -1,5 +1,4 @@
-﻿using LLama.Abstractions.Params;
-using LLama.Exceptions;
+﻿using LLama.Exceptions;
 using LLama.Native;
 using LLama.OldVersion;
 using LLama.Types;
@@ -10,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.IO;
+using LLama.Common;
 
 namespace LLama
 {
@@ -230,6 +230,7 @@ namespace LLama
 
         public void Dispose()
         {
+            NativeApi.llama_print_timings(_ctx);
             _ctx.Dispose();
         }
     }

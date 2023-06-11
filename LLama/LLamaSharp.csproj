@@ -72,10 +72,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Abstractions\ChatCompletion\" />
-    <Folder Include="Abstractions\Embeddings\" />
-    <Folder Include="Abstractions\TextCompletion\" />
-  </ItemGroup>
-
 </Project>

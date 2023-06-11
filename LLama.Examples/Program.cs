@@ -1,5 +1,5 @@
 ﻿using LLama;
-using LLama.Abstractions.Params;
+using LLama.Common;
 using LLama.Examples;
 using LLama.Examples.Old;
 
@@ -26,29 +26,31 @@ if(version == 1)
     Console.WriteLine("The examples for new versions are under working now. We'll soon update the examples." +
         " Thank you for your support!");
     string modelPath = "D:\\development\\llama\\weights\\wizard-vicuna-13B.ggmlv3.q4_1.bin";
-    //var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
-    string prompt = " Qeustion: how to do binary search for an array in C#? Answer: ";
+    var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+    //string prompt = " Qeustion: how to do binary search for an array in C#? Answer: ";
 
-    //LLamaInteractExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
+    InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
 
-    //while (true)
-    //{
-    //    await foreach (var text in ex.InferAsync(prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string>{ "user:" } }, default(CancellationToken)))
-    //    {
-    //        Console.Write(text);
-    //    }
-    //    prompt = Console.ReadLine();
-    //}
-
-    StatelessExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
-    while (true)
+    while (prompt != "skip")
     {
-        foreach (var text in ex.Infer(prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" }, MaxTokens = 256 }))
+        await foreach (var text in ex.InferAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }, default(CancellationToken)))
         {
             Console.Write(text);
         }
         prompt = Console.ReadLine();
     }
+
+    ex.Model.Dispose();
+
+    //StatelessExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+    //while (true)
+    //{
+    //    foreach (var text in ex.Infer(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" }, MaxTokens = 256 }))
+    //    {
+    //        Console.Write(text);
+    //    }
+    //    prompt = Console.ReadLine();
+    //}
 
     //LLama.Examples.NewVersion.SaveAndLoadState runner = new(modelPath, prompt);
     //while (true)
