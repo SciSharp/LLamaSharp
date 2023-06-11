@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,6 +27,7 @@ namespace LLama
         protected List<llama_token> _embed_inps = new();
         protected List<llama_token> _session_tokens = new();
         protected FixedSizeQuene<llama_token> _last_n_tokens;
+        public LLamaModel Model => _model;
         protected LLamaExecutorBase(LLamaModel model)
         {
             _model = model;
@@ -113,6 +115,10 @@ namespace LLama
         protected abstract void PreprocessInputs(string text, InferStateArgs args);
         protected abstract bool PostProcess(SessionParams sessionParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
         protected abstract void InferInternal(SessionParams sessionParams, InferStateArgs args);
+        public abstract void SaveState(string filename);
+        public abstract void LoadState(string filename);
+
+
         public virtual IEnumerable<string> Infer(string text, SessionParams? sessionParams = null)
         {
             if (sessionParams is null)
@@ -122,7 +128,7 @@ namespace LLama
 
             InferStateArgs args = new InferStateArgs()
             {
-                Antiprompts = sessionParams.AntiPrompts,
+                Antiprompts = sessionParams.AntiPrompts.ToList(),
                 RemainedTokens = sessionParams.ResponseTokensCount,
                 ReturnValue = false,
                 WaitForInput = false,
@@ -170,7 +176,7 @@ namespace LLama
 
             InferStateArgs args = new InferStateArgs()
             {
-                Antiprompts = sessionParams.AntiPrompts,
+                Antiprompts = sessionParams.AntiPrompts.ToList(),
                 RemainedTokens = sessionParams.ResponseTokensCount,
                 ReturnValue = false,
                 WaitForInput = false,
@@ -224,6 +230,30 @@ namespace LLama
             public bool ReturnValue { get; set; }
             public bool WaitForInput { get; set; }
             public bool NeedToSaveSession { get; set; }
+        }
+
+        public class ExecutorBaseState
+        {
+            [JsonPropertyName("n_past")]
+            public int PastTokensCount { get; set; }
+            [JsonPropertyName("n_consumed")]
+            public int ConsumedTokensCount { get; set; }
+            [JsonPropertyName("n_session_consumed")]
+            public int ConsumedSessionCount { get; set; }
+            [JsonPropertyName("n_matching_session_tokens")]
+            public int MatchingSessionTokensCount { get; set; }
+            [JsonPropertyName("path_session")]
+            public string SessionFilePath { get; set; }
+            [JsonPropertyName("embd")]
+            public List<llama_token> Embeds { get; set; }
+            [JsonPropertyName("embd_inps")]
+            public List<llama_token> EmbedInps { get; set; }
+            [JsonPropertyName("session_tokens")]
+            public List<llama_token> SessionTokens { get; set; }
+            [JsonPropertyName("last_n_tokens")]
+            public llama_token[] LastTokens { get; set; }
+            [JsonPropertyName("last_tokens_maximum_count")]
+            public int LastTokensCapacity { get; set; }
         }
     }
 }

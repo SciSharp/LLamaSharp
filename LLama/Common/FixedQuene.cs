@@ -16,10 +16,26 @@ namespace LLama.Common
         List<T> _storage;
 
         public int Count => _storage.Count;
+        public int Capacity => _maxSize;
         public FixedSizeQuene(int size)
         {
             _maxSize = size;
             _storage = new();
+        }
+
+        /// <summary>
+        /// Fill the quene with the data. Please ensure that data.Count <= size
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="data"></param>
+        public FixedSizeQuene(int size, IEnumerable<T> data)
+        {
+            _maxSize = size;
+            if(data.Count() > size)
+            {
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {data.Count()} initial values.");
+            }
+            _storage = new(data);
         }
 
         public FixedSizeQuene<T> FillWith(T value)

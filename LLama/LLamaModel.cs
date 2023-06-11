@@ -9,11 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.IO;
 
 namespace LLama
 {
     using llama_token = Int32;
-    public class LLamaModel
+    public class LLamaModel: IDisposable
     {
         // TODO: expose more properties.
         LLamaLogger _logger;
@@ -23,11 +24,6 @@ namespace LLama
         public ModelParams Params { get; set; }
         public SafeLLamaContextHandle NativeHandle => _ctx;
         public Encoding Encoding => _encoding;
-
-        public void Dispose()
-        {
-            _ctx.Dispose();
-        }
 
         public LLamaModel(ModelParams Params, string encoding = "UTF-8")
         {
@@ -64,6 +60,35 @@ namespace LLama
                 sb.Append(Utils.PtrToString(NativeApi.llama_token_to_str(_ctx, token), _encoding));
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Save the state to specified path.
+        /// </summary>
+        /// <param name="filename"></param>
+        public void SaveState(string filename)
+        {
+            var stateSize = NativeApi.llama_get_state_size(_ctx);
+            byte[] stateMemory = new byte[stateSize];
+            NativeApi.llama_copy_state_data(_ctx, stateMemory);
+            File.WriteAllBytes(filename, stateMemory);
+        }
+
+        /// <summary>
+        /// Load the state from specified path.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="clearPreviousEmbed">Whether to clear previous footprints of this model.</param>
+        /// <exception cref="RuntimeError"></exception>
+        public void LoadState(string filename, bool clearPreviousEmbed = true)
+        {
+            var stateMemory = File.ReadAllBytes(filename);
+            int stateSize = (int)NativeApi.llama_get_state_size(_ctx);
+            if (stateMemory.Length != stateSize)
+            {
+                throw new RuntimeError("Failed to validate state size.");
+            }
+            NativeApi.llama_set_state_data(_ctx, stateMemory);
         }
 
         public llama_token Sample(LLamaTokenDataArray candidates, float temperature = 0.8f, MiroStateType mirostat = MiroStateType.Disable, 
@@ -183,6 +208,11 @@ namespace LLama
             {
                 yield return Utils.TokenToString(id, _ctx, _encoding);
             }
+        }
+
+        public void Dispose()
+        {
+            _ctx.Dispose();
         }
     }
 }

@@ -1,10 +1,14 @@
 ﻿using LLama.Abstractions.Params;
+using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,15 +17,52 @@ namespace LLama
     using llama_token = Int32;
     public class LLamaInteractExecutor : LLamaExecutorBase
     {
-        bool _prompt_run = true;
-        readonly IEnumerable<llama_token> _llama_token_newline;
-        readonly IEnumerable<llama_token> _inp_pfx;
-        readonly IEnumerable<llama_token> _inp_sfx;
+        bool _is_prompt_run = true;
+        llama_token[] _llama_token_newline;
         public LLamaInteractExecutor(LLamaModel model) : base(model)
         {
-            _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding);
-            _inp_pfx = _model.Tokenize("\n\n### Instruction:\n\n", true);
-            _inp_sfx = _model.Tokenize("\n\n### Response:\n\n", false);
+            _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
+        }
+
+        public override void SaveState(string filename)
+        {
+            InteractiveExecutorState state = new()
+            {
+                ConsumedSessionCount = _n_session_consumed,
+                EmbedInps = _embed_inps,
+                IsPromptRun = _is_prompt_run,
+                ConsumedTokensCount = _consumedTokensCount,
+                Embeds = _embeds,
+                LastTokens = _last_n_tokens.ToArray(),
+                LLamaNewlineTokens = _llama_token_newline,
+                MatchingSessionTokensCount = _n_matching_session_tokens,
+                PastTokensCount = _pastTokensCount,
+                SessionFilePath = _pathSession,
+                SessionTokens = _session_tokens,
+                LastTokensCapacity = _last_n_tokens.Capacity
+            };
+            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
+            }
+        }
+        public override void LoadState(string filename)
+        {
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
+                _n_session_consumed = state.ConsumedSessionCount;
+                _embed_inps = state.EmbedInps;
+                _is_prompt_run = state.IsPromptRun;
+                _consumedTokensCount = state.ConsumedTokensCount;
+                _embeds = state.Embeds;
+                _last_n_tokens = new FixedSizeQuene<llama_token>(state.LastTokensCapacity, state.LastTokens);
+                _llama_token_newline = state.LLamaNewlineTokens;
+                _n_matching_session_tokens = state.MatchingSessionTokensCount;
+                _pastTokensCount = state.PastTokensCount;
+                _pathSession = state.SessionFilePath;
+                _session_tokens = state.SessionTokens;
+            }
         }
 
         /// <summary>
@@ -30,12 +71,12 @@ namespace LLama
         /// <returns></returns>
         protected override bool GetLoopCondition(InferStateArgs args)
         {
-            return args.RemainedTokens != 0 && !args.WaitForInput || _prompt_run;
+            return args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run;
         }
 
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
-            if (_prompt_run)
+            if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
                 text = " " + text;
@@ -105,7 +146,7 @@ namespace LLama
         {
             if (_embeds.Count > 0)
             {
-                _prompt_run = false;
+                _is_prompt_run = false;
                 if (_pastTokensCount + _embeds.Count > _model.ContextSize)
                 {
                     HandleRunOutOfContext(sessionParams.TokensToKeep);
@@ -182,6 +223,14 @@ namespace LLama
                     }
                 }
             }
+        }
+
+        public class InteractiveExecutorState : ExecutorBaseState
+        {
+            [JsonPropertyName("is_prompt_run")]
+            public bool IsPromptRun { get; set; }
+            [JsonPropertyName("llama_token_newline")]
+            public llama_token[] LLamaNewlineTokens { get; set; }
         }
     }
 }

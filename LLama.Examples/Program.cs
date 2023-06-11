@@ -27,15 +27,33 @@ if(version == 1)
         " Thank you for your support!");
     string modelPath = "D:\\development\\llama\\weights\\wizard-vicuna-13B.ggmlv3.q4_1.bin";
     var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
-    LLamaInteractExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
 
+    //LLamaInteractExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
+
+    //while (true)
+    //{
+    //    await foreach (var text in ex.InferAsync(prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string>{ "user:" } }, default(CancellationToken)))
+    //    {
+    //        Console.Write(text);
+    //    }
+    //    prompt = Console.ReadLine();
+    //}
+
+    LLama.Examples.NewVersion.SaveAndLoadState runner = new(modelPath, prompt);
     while (true)
     {
-        await foreach (var text in ex.InferAsync(prompt, new SessionParams() { Temperature = 0.6f, AntiPrompts = new List<string>{ "user:" } }, default(CancellationToken)))
+        var input = Console.ReadLine();
+        if(input == "save")
         {
-            Console.Write(text);
+            Console.Write("Your path to save state: ");
+            input = Console.ReadLine();
+            runner.SaveState("./ex_state.json", input);
+            runner.LoadState("./ex_state.json", input);
         }
-        prompt = Console.ReadLine();
+        else
+        {
+            runner.Run(input);
+        }
     }
 }
 else

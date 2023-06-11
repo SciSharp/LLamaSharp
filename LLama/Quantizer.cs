@@ -75,6 +75,7 @@ namespace LLama
                 "q5_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0,
                 "q5_1" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1,
                 "q8_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0,
+                _ => throw new ArgumentException($"Invalid ftype {str} to quantize.")
             };
         }
     }
