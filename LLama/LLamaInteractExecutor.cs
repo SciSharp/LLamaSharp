@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace LLama
 {
     using llama_token = Int32;
-    public class InteractiveExecutor : ChatExecutorBase
+    public class InteractiveExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
         llama_token[] _llama_token_newline;

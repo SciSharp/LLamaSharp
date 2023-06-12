@@ -28,7 +28,7 @@ if(version == 1)
     var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
     //string prompt = " Qeustion: how to do binary search for an array in C#? Answer: ";
 
-    InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
+    InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
 
     ChatSession session = new ChatSession(ex).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
 
@@ -39,6 +39,17 @@ if(version == 1)
             Console.Write(text);
         }
         prompt = Console.ReadLine();
+        if(prompt == "save")
+        {
+            session.SaveSession("./SessionState");
+            Console.WriteLine("Saved session!");
+            ex.Model.Dispose();
+            ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
+            session = new ChatSession(ex).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
+            session.LoadSession("./SessionState");
+            Console.WriteLine("Loaded session!");
+            prompt = Console.ReadLine();
+        }
     }
 
     ex.Model.Dispose();

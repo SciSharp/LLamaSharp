@@ -12,7 +12,7 @@ using System.Threading;
 namespace LLama
 {
     using llama_token = Int32;
-    public abstract class ChatExecutorBase : ILLamaExecutor
+    public abstract class StatefulExecutorBase : ILLamaExecutor
     {
         protected readonly LLamaModel _model;
         protected ILLamaLogger? _logger;
@@ -26,7 +26,7 @@ namespace LLama
         protected List<llama_token> _session_tokens = new();
         protected FixedSizeQuene<llama_token> _last_n_tokens;
         public LLamaModel Model => _model;
-        protected ChatExecutorBase(LLamaModel model, ILLamaLogger? logger = null)
+        protected StatefulExecutorBase(LLamaModel model, ILLamaLogger? logger = null)
         {
             _model = model;
             _logger = logger;
@@ -38,7 +38,7 @@ namespace LLama
             _last_n_tokens = new FixedSizeQuene<llama_token>(_model.ContextSize).FillWith(0);
         }
 
-        public unsafe ChatExecutorBase WithSessionFile(string filename)
+        public unsafe StatefulExecutorBase WithSessionFile(string filename)
         {
             _pathSession = filename;
             if (string.IsNullOrEmpty(filename))

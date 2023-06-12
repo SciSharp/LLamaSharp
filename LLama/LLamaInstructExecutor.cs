@@ -11,7 +11,7 @@ using System.Text.Json.Serialization;
 namespace LLama
 {
     using llama_token = Int32;
-    public class InstructExecutor : ChatExecutorBase
+    public class InstructExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
         llama_token[] _inp_pfx;

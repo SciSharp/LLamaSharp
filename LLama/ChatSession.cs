@@ -1,5 +1,6 @@
 ﻿using LLama.Common;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -10,6 +11,8 @@ namespace LLama
     {
         private ILLamaExecutor _executor;
         private ChatHistory _history;
+        private static readonly string _executorStateFilename = "ExecutorState.json";
+        private static readonly string _modelStateFilename = "ModelState.st";
         public ILLamaExecutor Executor => _executor;
         public ChatHistory History => _history;
         public SessionParams Params { get; set; }
@@ -40,6 +43,56 @@ namespace LLama
         {
             OutputTransform = transform;
             return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">The directory name to save the session. If the directory does not exist, a new directory will be created.</param>
+        public virtual void SaveSession(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            _executor.Model.SaveState(Path.Combine(path, _modelStateFilename));
+            if(Executor is StatelessExecutor)
+            {
+
+            }
+            else if(Executor is StatefulExecutorBase statefulExecutor)
+            {
+                statefulExecutor.SaveState(Path.Combine(path, _executorStateFilename));
+            }
+            else
+            {
+                throw new System.NotImplementedException("You're using a customized executor. Please inherit ChatSession and rewrite the method.");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">The directory name to load the session.</param>
+        public virtual void LoadSession(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                throw new FileNotFoundException($"Directory {path} does not exist.");
+            }
+            _executor.Model.LoadState(Path.Combine(path, _modelStateFilename));
+            if (Executor is StatelessExecutor)
+            {
+
+            }
+            else if (Executor is StatefulExecutorBase statefulExecutor)
+            {
+                statefulExecutor.LoadState(Path.Combine(path, _executorStateFilename));
+            }
+            else
+            {
+                throw new System.NotImplementedException("You're using a customized executor. Please inherit ChatSession and rewrite the method.");
+            }
         }
 
         /// <summary>
