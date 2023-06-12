@@ -12,11 +12,9 @@ namespace LLama.Examples.NewVersion
     {
         InteractiveExecutor _executor;
         string _prompt;
-        string _modelPath;
         public SaveAndLoadState(string modelPath, string prompt)
         {
             _prompt = prompt;
-            _modelPath = modelPath;
             _executor = new InteractiveExecutor(new LLamaModel(new ModelParams(modelPath: modelPath)));
             foreach (var text in _executor.Infer(_prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" } }))
             {

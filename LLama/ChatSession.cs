@@ -8,15 +8,14 @@ namespace LLama
 {
     public class ChatSession
     {
-        private readonly string defaultUserName = "User";
-        private readonly string defaultAssistantName = "Assistant";
-        private readonly string defaultSystemName = "System";
-        private readonly string defaultUnknownName = "??";
         private ILLamaExecutor _executor;
         private ChatHistory _history;
         public ILLamaExecutor Executor => _executor;
         public ChatHistory History => _history;
         public SessionParams Params { get; set; }
+        public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
+        public List<ITextTransform> InputTransformPipeline { get; set; } = new();
+        public ITextStreamTransform OutputTransform = new LLamaTransforms.EmptyTextOutputStreamTransform();
 
         public ChatSession(ILLamaExecutor executor, SessionParams? sessionParams = null)
         {
@@ -25,49 +24,22 @@ namespace LLama
             Params = sessionParams ?? new SessionParams();
         }
 
-        public virtual string BuildTextFromHistory(ChatHistory history)
+        public ChatSession WithHistoryTransform(IHistoryTransform transform)
         {
-            StringBuilder sb = new();
-            var userName = Params.UserName ?? defaultUserName;
-            var assistantName = Params.AssistantName ?? defaultAssistantName;
-            var systemName = Params.SystemName ?? defaultSystemName;
-            foreach (var message in history.Messages)
-            {
-                if (message.AuthorRole == AuthorRole.User)
-                {
-                    sb.AppendLine($"{userName}: {message.Content}");
-                }
-                else if (message.AuthorRole == AuthorRole.System)
-                {
-                    sb.AppendLine($"{systemName}: {message.Content}");
-                }
-                else if (message.AuthorRole == AuthorRole.Unknown)
-                {
-                    sb.AppendLine($"{defaultUnknownName}: {message.Content}");
-                }
-                else if (message.AuthorRole == AuthorRole.Assistant)
-                {
-                    sb.AppendLine($"{assistantName}: {message.Content}");
-                }
-            }
-            return sb.ToString();
+            HistoryTransform = transform;
+            return this;
         }
 
-        public virtual string CropNameFromText(string text, AuthorRole role)
+        public ChatSession AddInputTransform(ITextTransform transform)
         {
-            if (!string.IsNullOrEmpty(Params.UserName) && role == AuthorRole.User && text.StartsWith($"{Params.UserName}:"))
-            {
-                text = text.Substring($"{Params.UserName}:".Length).TrimStart();
-            }
-            else if (!string.IsNullOrEmpty(Params.AssistantName) && role == AuthorRole.Assistant && text.EndsWith($"{Params.AssistantName}:"))
-            {
-                text = text.Substring(0, text.Length - $"{Params.AssistantName}:".Length).TrimEnd();
-            }
-            if (_executor is InstructExecutor && role == AuthorRole.Assistant && text.EndsWith("\n> "))
-            {
-                text = text.Substring(0, text.Length - "\n> ".Length).TrimEnd();
-            }
-            return text;
+            InputTransformPipeline.Add(transform);
+            return this;
+        }
+
+        public ChatSession WithOutputTransform(ITextStreamTransform transform)
+        {
+            OutputTransform = transform;
+            return this;
         }
 
         /// <summary>
@@ -78,15 +50,15 @@ namespace LLama
         /// <returns></returns>
         public IEnumerable<string> Chat(ChatHistory history, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
-            var prompt = BuildTextFromHistory(history);
-            History.AddMessage(AuthorRole.User, prompt);
+            var prompt = HistoryTransform.HistoryToText(history);
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
             StringBuilder sb = new();
-            foreach (var result in _executor.Infer(prompt, inferenceParams, cancellationToken))
+            foreach (var result in ChatInternal(prompt, inferenceParams, cancellationToken))
             {
                 yield return result;
                 sb.Append(result);
             }
-            History.AddMessage(AuthorRole.Assistant, CropNameFromText(sb.ToString(), AuthorRole.Assistant));
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
         }
 
         /// <summary>
@@ -98,14 +70,18 @@ namespace LLama
         /// <returns></returns>
         public IEnumerable<string> Chat(string prompt, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
-            History.AddMessage(AuthorRole.User, prompt);
+            foreach(var inputTransform in InputTransformPipeline)
+            {
+                prompt = inputTransform.Transform(prompt);
+            }
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
             StringBuilder sb = new();
-            foreach (var result in _executor.Infer(prompt, inferenceParams, cancellationToken))
+            foreach (var result in ChatInternal(prompt, inferenceParams, cancellationToken))
             {
                 yield return result;
                 sb.Append(result);
             }
-            History.AddMessage(AuthorRole.Assistant, CropNameFromText(sb.ToString(), AuthorRole.Assistant));
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
         }
 
         /// <summary>
@@ -116,30 +92,46 @@ namespace LLama
         /// <returns></returns>
         public async IAsyncEnumerable<string> ChatAsync(ChatHistory history, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var prompt = BuildTextFromHistory(history);
-            History.AddMessage(AuthorRole.User, prompt);
+            var prompt = HistoryTransform.HistoryToText(history);
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
             StringBuilder sb = new();
-            await foreach (var result in _executor.InferAsync(prompt, inferenceParams, cancellationToken))
+            await foreach (var result in ChatAsyncInternal(prompt, inferenceParams, cancellationToken))
             {
                 yield return result;
                 sb.Append(result);
             }
-            History.AddMessage(AuthorRole.Assistant, CropNameFromText(sb.ToString(), AuthorRole.Assistant));
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
         }
 
         public async IAsyncEnumerable<string> ChatAsync(string prompt, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            History.AddMessage(AuthorRole.User, prompt);
+            foreach (var inputTransform in InputTransformPipeline)
+            {
+                prompt = inputTransform.Transform(prompt);
+            }
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
             StringBuilder sb = new();
-            await foreach (var result in _executor.InferAsync(prompt, inferenceParams, cancellationToken))
+            await foreach (var result in ChatAsyncInternal(prompt, inferenceParams, cancellationToken))
             {
                 yield return result;
                 sb.Append(result);
             }
-            History.AddMessage(AuthorRole.Assistant, CropNameFromText(sb.ToString(), AuthorRole.Assistant));
+            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
+        }
+
+        private IEnumerable<string> ChatInternal(string prompt, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        {
+            var results = _executor.Infer(prompt, inferenceParams, cancellationToken);
+            return OutputTransform.Transform(results);
+        }
+
+        private async IAsyncEnumerable<string> ChatAsyncInternal(string prompt, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var results = _executor.InferAsync(prompt, inferenceParams, cancellationToken);
+            await foreach (var item in OutputTransform.TransformAsync(results))
+            {
+                yield return item;
+            }
         }
     }
-
-
-
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LLama.OldVersion;
 
-namespace LLama.Examples
+namespace LLama.Examples.Old
 {
     public class GetEmbeddings
     {

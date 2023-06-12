@@ -229,7 +229,6 @@ namespace LLama
 
         public void Dispose()
         {
-            NativeApi.llama_print_timings(_ctx);
             _ctx.Dispose();
         }
     }

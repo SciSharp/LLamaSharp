@@ -1,7 +1,6 @@
 ﻿using LLama;
 using LLama.Common;
 using LLama.Examples;
-using LLama.Examples.Old;
 
 Console.WriteLine("======================================================================================================");
 
@@ -31,9 +30,11 @@ if(version == 1)
 
     InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337)));
 
+    ChatSession session = new ChatSession(ex).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }));
+
     while (prompt != "skip")
     {
-        await foreach (var text in ex.InferAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }, default(CancellationToken)))
+        await foreach (var text in session.ChatAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }, default(CancellationToken)))
         {
             Console.Write(text);
         }
@@ -71,5 +72,5 @@ if(version == 1)
 }
 else
 {
-    OldTestRunner.Run();
+    LLama.Examples.Old.OldTestRunner.Run();
 }
