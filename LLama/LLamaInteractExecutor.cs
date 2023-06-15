@@ -55,7 +55,7 @@ namespace LLama
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
                 _embeds = state.Embeds;
-                _last_n_tokens = new FixedSizeQuene<llama_token>(state.LastTokensCapacity, state.LastTokens);
+                _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
                 _llama_token_newline = state.LLamaNewlineTokens;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;

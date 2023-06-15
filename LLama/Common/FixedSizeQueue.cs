@@ -10,14 +10,14 @@ namespace LLama.Common
     /// A queue with fixed storage size.
     /// Currently it's only a naive implementation and needs to be further optimized in the future.
     /// </summary>
-    public class FixedSizeQuene<T>: IEnumerable<T>
+    public class FixedSizeQueue<T>: IEnumerable<T>
     {
         int _maxSize;
         List<T> _storage;
 
         public int Count => _storage.Count;
         public int Capacity => _maxSize;
-        public FixedSizeQuene(int size)
+        public FixedSizeQueue(int size)
         {
             _maxSize = size;
             _storage = new();
@@ -28,7 +28,7 @@ namespace LLama.Common
         /// </summary>
         /// <param name="size"></param>
         /// <param name="data"></param>
-        public FixedSizeQuene(int size, IEnumerable<T> data)
+        public FixedSizeQueue(int size, IEnumerable<T> data)
         {
             _maxSize = size;
             if(data.Count() > size)
@@ -38,7 +38,7 @@ namespace LLama.Common
             _storage = new(data);
         }
 
-        public FixedSizeQuene<T> FillWith(T value)
+        public FixedSizeQueue<T> FillWith(T value)
         {
             for(int i = 0; i < Count; i++)
             {
