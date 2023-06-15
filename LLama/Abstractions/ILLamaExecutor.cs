@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace LLama
+namespace LLama.Abstractions
 {
     public interface ILLamaExecutor
     {

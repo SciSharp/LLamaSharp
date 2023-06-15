@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace LLama
+namespace LLama.Abstractions
 {
     public interface IHistoryTransform
     {
