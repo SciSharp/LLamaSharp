@@ -13,6 +13,11 @@ namespace LLama
 {
     public class LLamaTransforms
     {
+        /// <summary>
+        /// The default history transform.
+        /// Uses plain text with the following format:
+        /// [Author]: [Message]
+        /// </summary>
         public class DefaultHistoryTransform : IHistoryTransform
         {
             private readonly string defaultUserName = "User";
@@ -94,13 +99,15 @@ namespace LLama
             {
                 
             }
-
+            /// <inheritdoc />
             public string Transform(string text)
             {
                 return text.Trim();
             }
         }
-
+        /// <summary>
+        /// A no-op text input transform.
+        /// </summary>
         public class EmptyTextOutputStreamTransform : ITextStreamTransform
         {
             public IEnumerable<string> Transform(IEnumerable<string> tokens)
@@ -113,7 +120,9 @@ namespace LLama
                 return tokens;
             }
         }
-
+        /// <summary>
+        /// A text output transform that removes the keywords from the response.
+        /// </summary>
         public class KeywordTextOutputStreamTransform : ITextStreamTransform
         {
             HashSet<string> _keywords;
@@ -135,7 +144,7 @@ namespace LLama
                 _maxKeywordLength = keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
             }
-
+            /// <inheritdoc />
             public IEnumerable<string> Transform(IEnumerable<string> tokens)
             {
                 var window = new Queue<string>();
@@ -167,7 +176,7 @@ namespace LLama
                     yield return window.Dequeue();
                 }
             }
-
+            /// <inheritdoc />
             public async IAsyncEnumerable<string> TransformAsync(IAsyncEnumerable<string> tokens)
             {
                 var window = new Queue<string>();
