@@ -24,7 +24,7 @@ namespace LLama
         protected List<llama_token> _embeds = new(); // embd
         protected List<llama_token> _embed_inps = new();
         protected List<llama_token> _session_tokens = new();
-        protected FixedSizeQuene<llama_token> _last_n_tokens;
+        protected FixedSizeQueue<llama_token> _last_n_tokens;
         public LLamaModel Model => _model;
         protected StatefulExecutorBase(LLamaModel model, ILLamaLogger? logger = null)
         {
@@ -35,7 +35,7 @@ namespace LLama
             _n_session_consumed = 0;
             _embeds = new();
             _embed_inps = new();
-            _last_n_tokens = new FixedSizeQuene<llama_token>(_model.ContextSize).FillWith(0);
+            _last_n_tokens = new FixedSizeQueue<llama_token>(_model.ContextSize).FillWith(0);
         }
 
         public unsafe StatefulExecutorBase WithSessionFile(string filename)
