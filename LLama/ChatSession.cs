@@ -16,16 +16,14 @@ namespace LLama
         private static readonly string _modelStateFilename = "ModelState.st";
         public ILLamaExecutor Executor => _executor;
         public ChatHistory History => _history;
-        public SessionParams Params { get; set; }
         public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
         public List<ITextTransform> InputTransformPipeline { get; set; } = new();
         public ITextStreamTransform OutputTransform = new LLamaTransforms.EmptyTextOutputStreamTransform();
 
-        public ChatSession(ILLamaExecutor executor, SessionParams? sessionParams = null)
+        public ChatSession(ILLamaExecutor executor)
         {
             _executor = executor;
             _history = new ChatHistory();
-            Params = sessionParams ?? new SessionParams();
         }
 
         public ChatSession WithHistoryTransform(IHistoryTransform transform)
