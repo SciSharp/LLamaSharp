@@ -21,6 +21,10 @@ namespace LLama
             _ctx = ctx;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="params"></param>
         public LLamaEmbedder(ModelParams @params)
         {
             @params.EmbeddingMode = true;
@@ -72,6 +76,9 @@ namespace LLama
             return res;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             _ctx.Dispose();

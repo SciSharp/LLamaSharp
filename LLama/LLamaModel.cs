@@ -19,11 +19,30 @@ namespace LLama
         ILLamaLogger? _logger;
         Encoding _encoding;
         SafeLLamaContextHandle _ctx;
+        /// <summary>
+        /// The context size.
+        /// </summary>
         public int ContextSize { get; }
+        /// <summary>
+        /// The model params set for this model.
+        /// </summary>
         public ModelParams Params { get; set; }
+        /// <summary>
+        /// The native handle, which is used to be passed to the native APIs. Please avoid using it 
+        /// unless you know what is the usage of the Native API.
+        /// </summary>
         public SafeLLamaContextHandle NativeHandle => _ctx;
+        /// <summary>
+        /// The encoding set for this model to deal with text input.
+        /// </summary>
         public Encoding Encoding => _encoding;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Params">Model params.</param>
+        /// <param name="encoding">Encoding to deal with text input.</param>
+        /// <param name="logger">The logger.</param>
         public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
         {
             _logger = logger;
@@ -108,6 +127,19 @@ namespace LLama
             NativeApi.llama_set_state_data(_ctx, stateData);
         }
 
+        /// <summary>
+        /// Perform the sampling. Please don't use it unless you fully know what it does.
+        /// </summary>
+        /// <param name="candidates"></param>
+        /// <param name="temperature"></param>
+        /// <param name="mirostat"></param>
+        /// <param name="mirostatTau"></param>
+        /// <param name="mirostatEta"></param>
+        /// <param name="topK"></param>
+        /// <param name="topP"></param>
+        /// <param name="tfsZ"></param>
+        /// <param name="typicalP"></param>
+        /// <returns></returns>
         public llama_token Sample(LLamaTokenDataArray candidates, float temperature = 0.8f, MiroStateType mirostat = MiroStateType.Disable, 
             float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
         {
@@ -146,6 +178,17 @@ namespace LLama
             return id;
         }
 
+        /// <summary>
+        /// Apply the penalty for the tokens. Please don't use it unless you fully know what it does.
+        /// </summary>
+        /// <param name="lastTokens"></param>
+        /// <param name="logitBias"></param>
+        /// <param name="repeatLastTokensCount"></param>
+        /// <param name="repeatPenalty"></param>
+        /// <param name="alphaFrequency"></param>
+        /// <param name="alphaPresence"></param>
+        /// <param name="penalizeNL"></param>
+        /// <returns></returns>
         public LLamaTokenDataArray ApplyPenalty(IEnumerable<llama_token> lastTokens, Dictionary<llama_token, float>? logitBias = null, 
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
@@ -227,6 +270,9 @@ namespace LLama
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             _ctx.Dispose();

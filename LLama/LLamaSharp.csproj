@@ -32,6 +32,7 @@
 
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
