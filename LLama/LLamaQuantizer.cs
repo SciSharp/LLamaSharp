@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LLama
 {
-    public class Quantizer
+    public class LLamaQuantizer
     {
         /// <summary>
         /// Quantize the model.
