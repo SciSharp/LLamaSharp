@@ -46,10 +46,4 @@
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="LLamaSharp.Runtime.targets">
-      <Pack>true</Pack>
-      <PackagePath>build</PackagePath>
-    </None>
-  </ItemGroup>
 </Project>
