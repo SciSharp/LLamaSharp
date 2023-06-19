@@ -20,7 +20,14 @@ namespace LLama
     {
         private LLamaModel _model;
         private byte[] _originalState;
+        /// <summary>
+        /// The mode used by the executor when running the inference.
+        /// </summary>
         public LLamaModel Model => _model;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model">The LLama model.</param>
         public StatelessExecutor(LLamaModel model)
         {
             _model = model;
@@ -28,6 +35,8 @@ namespace LLama
             Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, tokens.Count(), 0, _model.Params.Threads);
             _originalState = model.GetStateData();
         }
+
+        /// <inheritdoc />
         public IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -113,7 +122,7 @@ namespace LLama
             _model.LoadState(_originalState);
         }
 
-
+        /// <inheritdoc />
         public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken token = default)
         {
             yield return "";

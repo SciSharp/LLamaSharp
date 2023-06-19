@@ -10,12 +10,23 @@ namespace LLama
     /// </summary>
     public class ResettableLLamaModel : LLamaModel
     {
+        /// <summary>
+        /// The initial state of the model
+        /// </summary>
         public byte[] OriginalState { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Params"></param>
+        /// <param name="encoding"></param>
         public ResettableLLamaModel(ModelParams Params, string encoding = "UTF-8") : base(Params, encoding)
         {
             OriginalState = GetStateData();
         }
 
+        /// <summary>
+        /// Reset the state to the initial state.
+        /// </summary>
         public void Reset()
         {
             LoadState(OriginalState);

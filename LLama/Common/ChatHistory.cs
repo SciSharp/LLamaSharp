@@ -12,6 +12,9 @@ namespace LLama.Common
         Assistant = 2,
     }
     // copy from semantic-kernel
+    /// <summary>
+    /// The chat history class
+    /// </summary>
     public class ChatHistory
     {
 

@@ -13,6 +13,9 @@ using LLama.Common;
 namespace LLama
 {
     using llama_token = Int32;
+    /// <summary>
+    /// The abstraction of a LLama model, which holds the context in the native library.
+    /// </summary>
     public class LLamaModel: IDisposable
     {
         // TODO: expose more properties.

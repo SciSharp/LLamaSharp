@@ -8,36 +8,73 @@ using System.Threading;
 
 namespace LLama
 {
+    /// <summary>
+    /// The main chat session class.
+    /// </summary>
     public class ChatSession
     {
         private ILLamaExecutor _executor;
         private ChatHistory _history;
         private static readonly string _executorStateFilename = "ExecutorState.json";
         private static readonly string _modelStateFilename = "ModelState.st";
+        /// <summary>
+        /// The executor for this session.
+        /// </summary>
         public ILLamaExecutor Executor => _executor;
+        /// <summary>
+        /// The chat history for this session.
+        /// </summary>
         public ChatHistory History => _history;
+        /// <summary>
+        /// The history transform used in this session.
+        /// </summary>
         public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
+        /// <summary>
+        /// The input transform pipeline used in this session.
+        /// </summary>
         public List<ITextTransform> InputTransformPipeline { get; set; } = new();
+        /// <summary>
+        /// The output transform used in this session.
+        /// </summary>
         public ITextStreamTransform OutputTransform = new LLamaTransforms.EmptyTextOutputStreamTransform();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="executor">The executor for this session</param>
         public ChatSession(ILLamaExecutor executor)
         {
             _executor = executor;
             _history = new ChatHistory();
         }
 
+        /// <summary>
+        /// Use a custom history transform.
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public ChatSession WithHistoryTransform(IHistoryTransform transform)
         {
             HistoryTransform = transform;
             return this;
         }
 
+        /// <summary>
+        /// Add a text transform to the input transform pipeline.
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public ChatSession AddInputTransform(ITextTransform transform)
         {
             InputTransformPipeline.Add(transform);
             return this;
         }
 
+        /// <summary>
+        /// Use a custom output transform.
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
         public ChatSession WithOutputTransform(ITextStreamTransform transform)
         {
             OutputTransform = transform;
@@ -155,6 +192,13 @@ namespace LLama
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
         }
 
+        /// <summary>
+        /// Get the response from the LLama model with chat histories asynchronously.
+        /// </summary>
+        /// <param name="prompt"></param>
+        /// <param name="inferenceParams"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<string> ChatAsync(string prompt, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach (var inputTransform in InputTransformPipeline)

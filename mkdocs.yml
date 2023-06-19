@@ -26,4 +26,65 @@ nav:
         - BotSharp: HighLevelApps/bot-sharp.md
     - More:
         - Logger: More/log.md
-theme: readthedocs
+    - API Reference:
+        - index: ./xmldocs/index.md
+        - llama.abstractions.ihistorytransform: ./xmldocs/llama.abstractions.ihistorytransform.md
+        - llama.abstractions.illamaexecutor: ./xmldocs/llama.abstractions.illamaexecutor.md
+        - llama.abstractions.itextstreamtransform: ./xmldocs/llama.abstractions.itextstreamtransform.md
+        - llama.abstractions.itexttransform: ./xmldocs/llama.abstractions.itexttransform.md
+        - llama.chatsession: ./xmldocs/llama.chatsession.md
+        - llama.common.authorrole: ./xmldocs/llama.common.authorrole.md
+        - llama.common.chathistory: ./xmldocs/llama.common.chathistory.md
+        - llama.common.fixedsizequeue-1: ./xmldocs/llama.common.fixedsizequeue-1.md
+        - llama.common.illamalogger: ./xmldocs/llama.common.illamalogger.md
+        - llama.common.inferenceparams: ./xmldocs/llama.common.inferenceparams.md
+        - llama.common.llamadefaultlogger: ./xmldocs/llama.common.llamadefaultlogger.md
+        - llama.common.mirostatetype: ./xmldocs/llama.common.mirostatetype.md
+        - llama.common.modelparams: ./xmldocs/llama.common.modelparams.md
+        - llama.exceptions.runtimeerror: ./xmldocs/llama.exceptions.runtimeerror.md
+        - llama.extensions.dictionaryextension: ./xmldocs/llama.extensions.dictionaryextension.md
+        - llama.instructexecutor: ./xmldocs/llama.instructexecutor.md
+        - llama.interactiveexecutor: ./xmldocs/llama.interactiveexecutor.md
+        - llama.llamaembedder: ./xmldocs/llama.llamaembedder.md
+        - llama.llamamodel: ./xmldocs/llama.llamamodel.md
+        - llama.llamaquantizer: ./xmldocs/llama.llamaquantizer.md
+        - llama.llamatransforms: ./xmldocs/llama.llamatransforms.md
+        - llama.native.llamacontextparams: ./xmldocs/llama.native.llamacontextparams.md
+        - llama.native.llamaftype: ./xmldocs/llama.native.llamaftype.md
+        - llama.native.llamatokendata: ./xmldocs/llama.native.llamatokendata.md
+        - llama.native.llamatokendataarray: ./xmldocs/llama.native.llamatokendataarray.md
+        - llama.native.llamatokendataarraynative: ./xmldocs/llama.native.llamatokendataarraynative.md
+        - llama.native.nativeapi: ./xmldocs/llama.native.nativeapi.md
+        - llama.native.safellamacontexthandle: ./xmldocs/llama.native.safellamacontexthandle.md
+        - llama.native.safellamahandlebase: ./xmldocs/llama.native.safellamahandlebase.md
+        - llama.oldversion.chatcompletion: ./xmldocs/llama.oldversion.chatcompletion.md
+        - llama.oldversion.chatcompletionchoice: ./xmldocs/llama.oldversion.chatcompletionchoice.md
+        - llama.oldversion.chatcompletionchunk: ./xmldocs/llama.oldversion.chatcompletionchunk.md
+        - llama.oldversion.chatcompletionchunkchoice: ./xmldocs/llama.oldversion.chatcompletionchunkchoice.md
+        - llama.oldversion.chatcompletionchunkdelta: ./xmldocs/llama.oldversion.chatcompletionchunkdelta.md
+        - llama.oldversion.chatcompletionmessage: ./xmldocs/llama.oldversion.chatcompletionmessage.md
+        - llama.oldversion.chatmessagerecord: ./xmldocs/llama.oldversion.chatmessagerecord.md
+        - llama.oldversion.chatrole: ./xmldocs/llama.oldversion.chatrole.md
+        - llama.oldversion.chatsession-1: ./xmldocs/llama.oldversion.chatsession-1.md
+        - llama.oldversion.completion: ./xmldocs/llama.oldversion.completion.md
+        - llama.oldversion.completionchoice: ./xmldocs/llama.oldversion.completionchoice.md
+        - llama.oldversion.completionchunk: ./xmldocs/llama.oldversion.completionchunk.md
+        - llama.oldversion.completionlogprobs: ./xmldocs/llama.oldversion.completionlogprobs.md
+        - llama.oldversion.completionusage: ./xmldocs/llama.oldversion.completionusage.md
+        - llama.oldversion.embedding: ./xmldocs/llama.oldversion.embedding.md
+        - llama.oldversion.embeddingdata: ./xmldocs/llama.oldversion.embeddingdata.md
+        - llama.oldversion.embeddingusage: ./xmldocs/llama.oldversion.embeddingusage.md
+        - llama.oldversion.ichatmodel: ./xmldocs/llama.oldversion.ichatmodel.md
+        - llama.oldversion.llamaembedder: ./xmldocs/llama.oldversion.llamaembedder.md
+        - llama.oldversion.llamamodel: ./xmldocs/llama.oldversion.llamamodel.md
+        - llama.oldversion.llamaparams: ./xmldocs/llama.oldversion.llamaparams.md
+        - llama.resettablellamamodel: ./xmldocs/llama.resettablellamamodel.md
+        - llama.statefulexecutorbase: ./xmldocs/llama.statefulexecutorbase.md
+        - llama.statelessexecutor: ./xmldocs/llama.statelessexecutor.md
+
+theme:
+  name: material
+
+extra:
+  version:
+    provider: mike

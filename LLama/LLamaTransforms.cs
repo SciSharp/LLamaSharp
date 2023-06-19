@@ -11,6 +11,9 @@ using System.Text;
 
 namespace LLama
 {
+    /// <summary>
+    /// A class that contains all the transforms provided internally by LLama.
+    /// </summary>
     public class LLamaTransforms
     {
         /// <summary>
@@ -30,6 +33,14 @@ namespace LLama
             string _systemName;
             string _unknownName;
             bool _isInstructMode;
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="userName"></param>
+            /// <param name="assistantName"></param>
+            /// <param name="systemName"></param>
+            /// <param name="unknownName"></param>
+            /// <param name="isInstructMode"></param>
             public DefaultHistoryTransform(string? userName = null, string? assistantName = null, 
                 string? systemName = null, string? unknownName = null, bool isInstructMode = false)
             {
@@ -40,6 +51,7 @@ namespace LLama
                 _isInstructMode = isInstructMode;
             }
 
+            /// <inheritdoc />
             public virtual string HistoryToText(ChatHistory history)
             {
                 StringBuilder sb = new();
@@ -65,6 +77,7 @@ namespace LLama
                 return sb.ToString();
             }
 
+            /// <inheritdoc />
             public virtual ChatHistory TextToHistory(AuthorRole role, string text)
             {
                 ChatHistory history = new ChatHistory();
@@ -72,6 +85,12 @@ namespace LLama
                 return history;
             }
 
+            /// <summary>
+            /// Drop the name at the beginning and the end of the text.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="role"></param>
+            /// <returns></returns>
             public virtual string TrimNamesFromText(string text, AuthorRole role)
             {
                 if (role == AuthorRole.User && text.StartsWith($"{_userName}:"))
@@ -95,6 +114,9 @@ namespace LLama
         /// </summary>
         public class NaiveTextInputTransform : ITextTransform
         {
+            /// <summary>
+            /// 
+            /// </summary>
             public NaiveTextInputTransform()
             {
                 
@@ -110,11 +132,13 @@ namespace LLama
         /// </summary>
         public class EmptyTextOutputStreamTransform : ITextStreamTransform
         {
+            /// <inheritdoc />
             public IEnumerable<string> Transform(IEnumerable<string> tokens)
             {
                 return tokens;
             }
 
+            /// <inheritdoc />
             public IAsyncEnumerable<string> TransformAsync(IAsyncEnumerable<string> tokens)
             {
                 return tokens;

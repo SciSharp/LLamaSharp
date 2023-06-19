@@ -14,15 +14,23 @@ using System.Threading.Tasks;
 namespace LLama
 {
     using llama_token = Int32;
+    /// <summary>
+    /// The LLama executor for interactive mode.
+    /// </summary>
     public class InteractiveExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
         llama_token[] _llama_token_newline;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
         public InteractiveExecutor(LLamaModel model) : base(model)
         {
             _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
         }
 
+        /// <inheritdoc />
         public override ExecutorBaseState GetStateData()
         {
             InteractiveExecutorState state = new()
@@ -42,6 +50,7 @@ namespace LLama
             };
             return state;
         }
+        /// <inheritdoc />
         public override void LoadState(ExecutorBaseState data)
         {
             if (data is InteractiveExecutorState state)
@@ -61,7 +70,7 @@ namespace LLama
             else
                 throw new ArgumentException("Invalid state data type.");
         }
-
+        /// <inheritdoc />
         public override void SaveState(string filename)
         {
             InteractiveExecutorState state = GetStateData() as InteractiveExecutorState;
@@ -70,6 +79,7 @@ namespace LLama
                 JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
             }
         }
+        /// <inheritdoc />
         public override void LoadState(string filename)
         {
             using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
@@ -88,6 +98,7 @@ namespace LLama
             return args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run;
         }
 
+        /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
             if (_is_prompt_run)
@@ -156,6 +167,7 @@ namespace LLama
             return false;
         }
 
+        /// <inheritdoc />
         protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
@@ -227,10 +239,19 @@ namespace LLama
             }
         }
 
+        /// <summary>
+        /// The descriptor of the state of the interactive executor.
+        /// </summary>
         public class InteractiveExecutorState : ExecutorBaseState
         {
+            /// <summary>
+            /// Whether the executor is running for the first time (running the prompt).
+            /// </summary>
             [JsonPropertyName("is_prompt_run")]
             public bool IsPromptRun { get; set; }
+            /// <summary>
+            /// Tokens that represent a new line in with the current model.
+            /// </summary>
             [JsonPropertyName("llama_token_newline")]
             public llama_token[] LLamaNewlineTokens { get; set; }
         }
