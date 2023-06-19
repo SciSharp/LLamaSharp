@@ -128,7 +128,7 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ---
 
-✅: completed. ⚠️: outdated but will be updated. 🔳: not completed
+✅: completed. ⚠️: outdated for latest release but will be updated. 🔳: not completed
 
 ---
 
@@ -142,7 +142,7 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ✅ State saving and loading
 
-✅ BotSharp Integration
+⚠️ BotSharp Integration
 
 ⚠️ ASP.NET core Integration
 
