@@ -30,11 +30,11 @@ namespace LLama.Examples.NewVersion
 
                 if (choice == 0)
                 {
-                    ChatSessionStripRoleName.Run();
+                    ChatSessionWithRoleName.Run();
                 }
                 else if (choice == 1)
                 {
-                    ChatSessionWithRoleName.Run();
+                    ChatSessionStripRoleName.Run();
                 }
                 else if(choice == 2)
                 {

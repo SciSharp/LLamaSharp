@@ -1,0 +1,29 @@
+site_name: LLamaSharp Documentation
+nav:
+    - Overview: index.md
+    - Get Started: GetStarted.md
+    - Architecher: Architecher.md
+    - Tricks for FAQ: Tricks.md
+    - Contributing Guide: ContributingGuide.md
+    - LLamaModel:
+        - Model Parameters: LLamaModel/parameters.md
+        - Tokenization: LLamaModel/tokenization.md
+        - Get Embeddings: LLamaModel/embeddings.md
+        - Quantization: LLamaModel/quantization.md
+        - Save/Load State: LLamaModel/save-load-state.md
+    - LLamaExecutors:
+        - Inference Parameters: LLamaExecutors/parameters.md
+        - Text-to-Text APIs: LLamaExecutors/text-to-text-apis.md
+        - Save/Load State: LLamaExecutors/save-load-state.md
+        - Differences of Executors: LLamaExecutors/differences.md
+    - ChatSession:
+        - Basic Usages: ChatSession/basic-usages.md
+        - Transoforms: ChatSession/transforms.md
+        - Save/Load Session: ChatSession/save-load-session.md
+    - Non-English Usages:
+        - Chinese: NonEnglishUsage/Chinese.md
+    - High-level Applications:
+        - BotSharp: HighLevelApps/bot-sharp.md
+    - More:
+        - Logger: More/log.md
+theme: readthedocs
