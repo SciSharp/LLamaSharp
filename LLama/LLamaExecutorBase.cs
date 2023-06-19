@@ -151,6 +151,8 @@ namespace LLama
         protected abstract bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
         protected abstract void InferInternal(InferenceParams inferenceParams, InferStateArgs args);
         public abstract void SaveState(string filename);
+        public abstract ExecutorBaseState GetStateData();
+        public abstract void LoadState(ExecutorBaseState data);
         public abstract void LoadState(string filename);
 
 

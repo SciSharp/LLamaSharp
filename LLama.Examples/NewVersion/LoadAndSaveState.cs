@@ -1,5 +1,4 @@
 ﻿using LLama.Common;
-using LLama.OldVersion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,48 +7,60 @@ using System.Threading.Tasks;
 
 namespace LLama.Examples.NewVersion
 {
-    public class SaveAndLoadState : IDisposable
+    public class LoadAndSaveState
     {
-        InteractiveExecutor _executor;
-        string _prompt;
-        public SaveAndLoadState(string modelPath, string prompt)
+        public static void Run()
         {
-            _prompt = prompt;
-            _executor = new InteractiveExecutor(new LLamaModel(new ModelParams(modelPath: modelPath)));
-            foreach (var text in _executor.Infer(_prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "user:" } }))
+            Console.Write("Please input your model path: ");
+            string modelPath = Console.ReadLine();
+            var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+
+            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write(prompt);
+
+            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } };
+
+            while (true)
             {
-                Console.Write(text);
+                foreach (var text in ex.Infer(prompt, inferenceParams))
+                {
+                    Console.Write(text);
+                }
+
+                prompt = Console.ReadLine();
+                if (prompt == "save")
+                {
+                    Console.Write("Your path to save model state: ");
+                    string modelStatePath = Console.ReadLine();
+                    ex.Model.SaveState(modelStatePath);
+
+                    Console.Write("Your path to save executor state: ");
+                    string executorStatePath = Console.ReadLine();
+                    ex.SaveState(executorStatePath);
+
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("All states saved!");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    var model = ex.Model;
+                    model.LoadState(modelStatePath);
+                    ex = new InteractiveExecutor(model);
+                    ex.LoadState(executorStatePath);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Loaded state!");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.Write("Now you can continue your session: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    prompt = Console.ReadLine();
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
             }
-        }
-
-        public void Run(string prompt)
-        {
-            InferenceParams sessionParams = new InferenceParams() { Temperature = 0.2f, AntiPrompts = new List<string> { "user:" } };
-            foreach (var text in _executor.Infer(prompt, sessionParams))
-            {
-                Console.Write(text);
-            }
-        }
-
-        public void SaveState(string executorStateFile, string modelStateFile)
-        {
-            _executor.Model.SaveState(modelStateFile);
-            _executor.SaveState(executorStateFile);
-            Console.WriteLine("Saved state!");
-        }
-
-        public void LoadState(string executorStateFile, string modelStateFile)
-        {
-            var model = _executor.Model;
-            model.LoadState(modelStateFile);
-            _executor = new InteractiveExecutor(model);
-            _executor.LoadState(executorStateFile);
-            Console.WriteLine("Loaded state!");
-        }
-
-        public void Dispose()
-        {
-            _executor.Model.Dispose();
         }
     }
 }

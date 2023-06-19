@@ -23,7 +23,7 @@ namespace LLama
             _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
         }
 
-        public override void SaveState(string filename)
+        public override ExecutorBaseState GetStateData()
         {
             InteractiveExecutorState state = new()
             {
@@ -40,16 +40,12 @@ namespace LLama
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity
             };
-            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
-            }
+            return state;
         }
-        public override void LoadState(string filename)
+        public override void LoadState(ExecutorBaseState data)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            if (data is InteractiveExecutorState state)
             {
-                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps;
                 _is_prompt_run = state.IsPromptRun;
@@ -61,6 +57,25 @@ namespace LLama
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens;
+            }
+            else
+                throw new ArgumentException("Invalid state data type.");
+        }
+
+        public override void SaveState(string filename)
+        {
+            InteractiveExecutorState state = GetStateData() as InteractiveExecutorState;
+            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
+            }
+        }
+        public override void LoadState(string filename)
+        {
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
+                LoadState(state);
             }
         }
 

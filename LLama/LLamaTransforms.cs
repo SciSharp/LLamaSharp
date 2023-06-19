@@ -155,18 +155,39 @@ namespace LLama
                     var current = string.Join("", window);
                     if (_keywords.Any(x => current.Contains(x)))
                     {
+                        var matchedKeyword = _keywords.First(x => current.Contains(x));
                         int total = window.Count;
                         for (int i = 0; i < total; i++)
                         {
                             window.Dequeue();
                         }
-                    }
-                    if(current.Length >= _maxKeywordLength)
-                    {
-                        int total = window.Count;
-                        for (int i = 0; i < total; i++)
+                        if (!_removeAllMatchedTokens)
                         {
-                            yield return window.Dequeue();
+                            yield return current.Replace(matchedKeyword, "");
+                        }
+                    }
+                    if (current.Length >= _maxKeywordLength)
+                    {
+                        if (_keywords.Any(x => current.Contains(x)))
+                        {
+                            var matchedKeyword = _keywords.First(x => current.Contains(x));
+                            int total = window.Count;
+                            for (int i = 0; i < total; i++)
+                            {
+                                window.Dequeue();
+                            }
+                            if (!_removeAllMatchedTokens)
+                            {
+                                yield return current.Replace(matchedKeyword, "");
+                            }
+                        }
+                        else
+                        {
+                            int total = window.Count;
+                            for (int i = 0; i < total; i++)
+                            {
+                                yield return window.Dequeue();
+                            }
                         }
                     }
                 }

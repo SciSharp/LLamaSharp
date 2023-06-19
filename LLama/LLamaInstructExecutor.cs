@@ -16,14 +16,14 @@ namespace LLama
         bool _is_prompt_run = true;
         llama_token[] _inp_pfx;
         llama_token[] _inp_sfx;
-        public InstructExecutor(LLamaModel model, string inputPrefix = "\n\n### Instruction:\n\n",
-            string inputSuffix = "\n\n### Response:\n\n") : base(model)
+        public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
+            string instructionSuffix = "\n\n### Response:\n\n") : base(model)
         {
-            _inp_pfx = _model.Tokenize(inputPrefix, true).ToArray();
-            _inp_sfx = _model.Tokenize(inputSuffix, false).ToArray();
+            _inp_pfx = _model.Tokenize(instructionPrefix, true).ToArray();
+            _inp_sfx = _model.Tokenize(instructionSuffix, false).ToArray();
         }
 
-        public override void SaveState(string filename)
+        public override ExecutorBaseState GetStateData()
         {
             InstructExecutorState state = new()
             {
@@ -41,16 +41,12 @@ namespace LLama
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity
             };
-            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                JsonSerializer.Serialize<InstructExecutorState>(fs, state);
-            }
+            return state;
         }
-        public override void LoadState(string filename)
+        public override void LoadState(ExecutorBaseState data)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            if(data is InstructExecutorState state)
             {
-                var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps;
                 _is_prompt_run = state.IsPromptRun;
@@ -63,6 +59,27 @@ namespace LLama
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid state data type.");
+            }
+        }
+
+        public override void SaveState(string filename)
+        {
+            InstructExecutorState state = GetStateData() as InstructExecutorState;
+            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                JsonSerializer.Serialize<InstructExecutorState>(fs, state);
+            }
+        }
+        public override void LoadState(string filename)
+        {
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
+                LoadState(state);
             }
         }
 
