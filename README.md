@@ -10,14 +10,19 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda12?label=LLamaSharp.Backend.Cuda12)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)
 
 
-The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It works on 
-both Windows and Linux and does NOT require compiling llama.cpp yourself. Its performance is close to llama.cpp.
+**The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on local environment. It works on 
+both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Its performance is close to llama.cpp.**
 
-- LLaMa models inference
-- APIs for chat session
-- Model quantization
-- Embedding generation, tokenization and detokenization
-- ASP.NET core integration
+**Furthermore, it provides integrations with other projects such as [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications and UI.**
+
+
+## Documentation
+
+- [Quick start](https://scisharp.github.io/LLamaSharp/0.4/GetStarted/)
+- [Tricks for FAQ](https://scisharp.github.io/LLamaSharp/0.4/Tricks/)
+- [Full documentation](https://scisharp.github.io/LLamaSharp/0.4/)
+- [API reference](https://scisharp.github.io/LLamaSharp/0.4/xmldocs/)
+- [Examples](./LLama.Examples/NewVersion/)
 
 ## Installation
 
@@ -42,7 +47,7 @@ Here's the mapping of them and corresponding model samples provided by `LLamaSha
 | - | v0.2.0 | This version is not recommended to use. | - |
 | - | v0.2.1 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama), [Vicuna (filenames with "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | - |
 | v0.2.2 | v0.2.2, v0.2.3 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama_ggmlv2), [Vicuna (filenames without "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | 63d2046 |
-| v0.3.0 | v0.3.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | 7e4ea5b |
+| v0.3.0, v0.3.1 | v0.3.0, v0.4.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | 7e4ea5b |
 
 We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
 from source and put the `libllama` under your project's output path. When building from source, please add `-DBUILD_SHARED_LIBS=ON` to enable the library generation.
@@ -53,44 +58,40 @@ from source and put the `libllama` under your project's output path. When buildi
 2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or use the model we provide [on huggingface](https://huggingface.co/AsakusaRinne/LLamaSharpSamples).
 
 
-## Simple Benchmark
-
-Currently it's only a simple benchmark to indicate that the performance of `LLamaSharp` is close to `llama.cpp`. Experiments run on a computer 
-with Intel i7-12700, 3060Ti with 7B model. Note that the benchmark uses `LLamaModel` instead of `LLamaModelV1`. 
-
-#### Windows
-
-- llama.cpp: 2.98 words / second
-
-- LLamaSharp: 2.94 words / second
 
 ## Usages
 
 #### Model Inference and Chat Session
 
-Currently, `LLamaSharp` provides two kinds of model, `LLamaModelV1` and `LLamaModel`. Both of them works but `LLamaModel` is more recommended 
-because it provides better alignment with the master branch of [llama.cpp](https://github.com/ggerganov/llama.cpp).
-
-Besides, `ChatSession` makes it easier to wrap your own chat bot. The code below is a simple example. For all examples, please refer to 
-[Examples](./LLama.Examples).
+LLamaSharp provides two ways to run inference: `LLamaExecutor` and `ChatSession`. The chat session is a higher-level wrapping of the executor and the model. Here's a simple example to use chat session.
 
 ```cs
+using LLama.Common;
+using LLama;
 
-var model = new LLamaModel(new LLamaParams(model: "<Your path>", n_ctx: 512, repeat_penalty: 1.0f));
-var session = new ChatSession<LLamaModel>(model).WithPromptFile("<Your prompt file path>")
-                .WithAntiprompt(new string[] { "User:" });
-Console.Write("\nUser:");
-while (true)
+string modelPath = "<Your model path>" // change it to your own model path
+var prompt = "Transcript of a dialog, where the User interacts with an Assistant named Bob. Bob is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.\r\n\r\nUser: Hello, Bob.\r\nBob: Hello. How may I help you today?\r\nUser: Please tell me the largest city in Europe.\r\nBob: Sure. The largest city in Europe is Moscow, the capital of Russia.\r\nUser:"; // use the "chat-with-bob" prompt here.
+
+// Initialize a chat session
+var ex = new InteractiveExecutor(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
+ChatSession session = new ChatSession(ex);
+
+// show the prompt
+Console.WriteLine();
+Console.Write(prompt);
+
+// run the inference in a loop to chat with LLM
+while (prompt != "stop")
 {
-    Console.ForegroundColor = ConsoleColor.Green;
-    var question = Console.ReadLine();
-    Console.ForegroundColor = ConsoleColor.White;
-    var outputs = session.Chat(question); // It's simple to use the chat API.
-    foreach (var output in outputs)
+    foreach (var text in session.Chat(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
     {
-        Console.Write(output);
+        Console.Write(text);
     }
+    prompt = Console.ReadLine();
 }
+
+// save the session
+session.SaveSession("SavedSessionPath");
 ```
 
 #### Quantization
@@ -125,6 +126,12 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ## Roadmap
 
+---
+
+✅: completed. ⚠️: outdated but will be updated. 🔳: not completed
+
+---
+
 ✅ LLaMa model inference
 
 ✅ Embeddings generation, tokenization and detokenization
@@ -135,7 +142,11 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ✅ State saving and loading
 
-✅ ASP.NET core Integration
+✅ BotSharp Integration
+
+⚠️ ASP.NET core Integration
+
+⚠️ Semantic-kernel Integration
 
 🔳 MAUI Integration
 
@@ -161,7 +172,7 @@ The prompts could be found below:
 
 ## Contributing
 
-Any contribution is welcomed! You can do one of the followings to help us make `LLamaSharp` better:
+Any contribution is welcomed! Please read the [contributing guide](https://scisharp.github.io/LLamaSharp/0.4/ContributingGuide/). You can do one of the followings to help us make `LLamaSharp` better:
 
 - Append a model link that is available for a version. (This is very important!)
 - Star and share `LLamaSharp` to let others know it.
