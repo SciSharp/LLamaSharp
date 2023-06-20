@@ -17,6 +17,6 @@ namespace LLama.Native
         /// <remarks>not great API - very likely to change</remarks>
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_model_quantize(string fname_inp, string fname_out, LLamaFtype ftype, int nthread);
+        public unsafe static extern int llama_model_quantize(string fname_inp, string fname_out, LLamaModelQuantizeParams* param);
     }
 }
