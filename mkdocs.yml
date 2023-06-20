@@ -2,7 +2,7 @@ site_name: LLamaSharp Documentation
 nav:
     - Overview: index.md
     - Get Started: GetStarted.md
-    - Architecher: Architecher.md
+    - Architecture: Architecture.md
     - Tricks for FAQ: Tricks.md
     - Contributing Guide: ContributingGuide.md
     - LLamaModel:

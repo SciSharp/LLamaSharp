@@ -1,6 +1,6 @@
-# Architecher
+# Architecture
 
-## Architecher of main functions
+## Architecture of main functions
 
 The figure below shows the core framework structure, which is separated to four levels.
 
