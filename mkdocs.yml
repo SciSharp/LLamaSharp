@@ -26,6 +26,16 @@ nav:
         - BotSharp: HighLevelApps/bot-sharp.md
     - More:
         - Logger: More/log.md
+    - Examples:
+        - Chat session 1: Examples/ChatSessionStripRoleName.md
+        - Chat session 2: Examples/ChatSessionWithRoleName.md
+        - Get embeddings: Examples/GetEmbeddings.md
+        - Instruct executor: Examples/InstructModeExecute.md
+        - Interactive executor: Examples/InteractiveModeExecute.md
+        - Stateless exeutor: Examples/StatelessModeExecute.md
+        - Load/Save session: Examples/LoadAndSaveSession.md
+        - Load/Save state: Examples/LoadAndSaveState.md
+        - Quantize model: Examples/QuantizeModel.md
     - API Reference:
         - index: ./xmldocs/index.md
         - llama.abstractions.ihistorytransform: ./xmldocs/llama.abstractions.ihistorytransform.md
