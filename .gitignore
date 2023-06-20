@@ -339,3 +339,6 @@ test/TensorFlowNET.Examples/mnist
 /redist
 *.xml
 *.xsd
+
+# docs
+site/
