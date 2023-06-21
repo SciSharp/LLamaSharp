@@ -47,7 +47,7 @@ namespace LLama.Examples.NewVersion
 
                     ex.Model.Dispose();
                     ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
-                    session = new ChatSession(ex).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }, redundancyLength: 8));
+                    session = new ChatSession(ex);
                     session.LoadSession(statePath);
 
                     Console.ForegroundColor = ConsoleColor.Yellow;

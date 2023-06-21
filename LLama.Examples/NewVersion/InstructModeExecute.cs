@@ -22,7 +22,7 @@ namespace LLama.Examples.NewVersion
                 "make friend with human, no less than 200 words.\"");
             Console.ForegroundColor = ConsoleColor.White;
 
-            var inferenceParams = new InferenceParams() { Temperature = 0.8f, MaxTokens = 300 };
+            var inferenceParams = new InferenceParams() { Temperature = 0.8f, MaxTokens = 600 };
 
             while (true)
             {

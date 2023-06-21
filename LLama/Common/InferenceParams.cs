@@ -5,6 +5,9 @@ using System.Text;
 namespace LLama.Common
 {
     using llama_token = Int32;
+    /// <summary>
+    /// The paramters used for inference.
+    /// </summary>
     public class InferenceParams
     {
         /// <summary>

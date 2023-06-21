@@ -44,6 +44,9 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_mlock_supported();
 
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_eval_export(SafeLLamaContextHandle ctx, string fname);
+
         /// <summary>
         /// Various functions for loading a ggml llama model.
         /// Allocate (almost) all memory needed for the model.

@@ -18,12 +18,12 @@ namespace LLama.Examples.NewVersion
             InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
+            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 128 and the context size is 256. (an example for small scale usage)");
             Console.ForegroundColor = ConsoleColor.White;
 
             Console.Write(prompt);
 
-            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" }, MaxTokens = 64 };
+            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" }, MaxTokens = 128 };
 
             while (true)
             {

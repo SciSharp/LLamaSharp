@@ -4,13 +4,23 @@ using System.Text;
 
 namespace LLama.Common
 {
+    /// <summary>
+    /// The parameters for initializing a LLama model.
+    /// </summary>
     public class ModelParams
     {
         /// <summary>
         /// Model context size (n_ctx)
         /// </summary>
         public int ContextSize { get; set; } = 512;
-
+        /// <summary>
+        /// the GPU that is used for scratch and small tensors
+        /// </summary>
+        public int MainGpu { get; set; } = 0;
+        /// <summary>
+        /// if true, reduce VRAM usage at the cost of performance
+        /// </summary>
+        public bool LowVram { get; set; } = false;
         /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
         /// </summary>
@@ -40,6 +50,10 @@ namespace LLama.Common
         /// </summary>
         public string ModelPath { get; set; }
         /// <summary>
+        /// model alias
+        /// </summary>
+        public string ModelAlias { get; set; } = "unknown";
+        /// <summary>
         /// lora adapter path (lora_adapter)
         /// </summary>
         public string LoraAdapter { get; set; } = string.Empty;
@@ -66,6 +80,11 @@ namespace LLama.Common
         /// The LLamaModel won't produce text response anymore.
         /// </summary>
         public bool EmbeddingMode { get; set; } = false;
+
+        /// <summary>
+        /// how split tensors should be distributed across GPUs
+        /// </summary>
+        public float[] TensorSplits { get; set; } = new float[] { 0 };
 
         /// <summary>
         /// 

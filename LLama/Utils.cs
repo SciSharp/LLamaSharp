@@ -18,6 +18,8 @@ namespace LLama
             var lparams = NativeApi.llama_context_default_params();
 
             lparams.n_ctx = @params.ContextSize;
+            lparams.n_batch = @params.BatchSize;
+            lparams.main_gpu = @params.MainGpu;
             lparams.n_gpu_layers = @params.GpuLayerCount;
             lparams.seed = @params.Seed;
             lparams.f16_kv = @params.UseFp16Memory;
@@ -25,6 +27,17 @@ namespace LLama
             lparams.use_mlock = @params.UseMemoryLock;
             lparams.logits_all = @params.Perplexity;
             lparams.embedding = @params.EmbeddingMode;
+            lparams.low_vram = @params.LowVram;
+
+            if(@params.TensorSplits.Length != 1)
+            {
+                throw new ArgumentException("Currently multi-gpu support is not supported by " +
+                    "both llama.cpp and LLamaSharp.");
+            }
+            lparams.tensor_split = new TensorSplits()
+            {
+                Item1 = @params.TensorSplits[0]
+            };
 
             if (!File.Exists(@params.ModelPath))
             {

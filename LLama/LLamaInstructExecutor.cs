@@ -17,6 +17,7 @@ namespace LLama
     public class InstructExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
+        string _instructionPrefix;
         llama_token[] _inp_pfx;
         llama_token[] _inp_sfx;
         /// <summary>
@@ -30,6 +31,7 @@ namespace LLama
         {
             _inp_pfx = _model.Tokenize(instructionPrefix, true).ToArray();
             _inp_sfx = _model.Tokenize(instructionSuffix, false).ToArray();
+            _instructionPrefix = instructionPrefix;
         }
 
         /// <inheritdoc />
@@ -104,6 +106,11 @@ namespace LLama
         /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
+            if(args.Antiprompts is null)
+            {
+                args.Antiprompts = new List<string>();
+            }
+            args.Antiprompts.Add(_instructionPrefix);
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
