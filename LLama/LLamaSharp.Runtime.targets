@@ -1,0 +1,35 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <IncludeBuiltInRuntimes Condition="'$(IncludeBuiltInRuntimes)' == ''">true</IncludeBuiltInRuntimes>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(IncludeBuiltInRuntimes)' == 'true'">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama.dll</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama-cuda11.dll</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda12.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama-cuda12.dll</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama.so</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama-cuda11.so</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda12.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama-cuda12.so</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.dylib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama.dylib</Link>
+        </None>
+    </ItemGroup>
+</Project>
