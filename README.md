@@ -48,9 +48,12 @@ Here's the mapping of them and corresponding model samples provided by `LLamaSha
 | - | v0.2.1 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama), [Vicuna (filenames with "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | - |
 | v0.2.2 | v0.2.2, v0.2.3 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama_ggmlv2), [Vicuna (filenames without "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | 63d2046 |
 | v0.3.0, v0.3.1 | v0.3.0, v0.4.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | 7e4ea5b |
+| v0.4.1 | v0.4.1 | [Open llama 3b](https://huggingface.co/SlyEcho/open_llama_3b_ggml), [Open Buddy](https://huggingface.co/OpenBuddy/openbuddy-llama-ggml)| aacdbd4 |
+
+Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 
 We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
-from source and put the `libllama` under your project's output path. When building from source, please add `-DBUILD_SHARED_LIBS=ON` to enable the library generation.
+from source and put the `libllama` under your project's output path ([guide](https://scisharp.github.io/LLamaSharp/0.4/ContributingGuide/)).
 
 ## FAQ
 
@@ -147,6 +150,10 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 ⚠️ ASP.NET core Integration
 
 ⚠️ Semantic-kernel Integration
+
+🔳 Fine-tune
+
+🔳 Local document search
 
 🔳 MAUI Integration
 
