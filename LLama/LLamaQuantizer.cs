@@ -6,7 +6,10 @@ using System.Text;
 
 namespace LLama
 {
-    public class Quantizer
+    /// <summary>
+    /// The quantizer to quantize the model.
+    /// </summary>
+    public static class LLamaQuantizer
     {
         /// <summary>
         /// Quantize the model.
@@ -17,14 +20,22 @@ namespace LLama
         /// <param name="nthread">Thread to be used during the quantization. By default it's the physical core number.</param>
         /// <returns>Whether the quantization is successful.</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1)
+        public static unsafe bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1, bool allowRequantize = true, 
+            bool quantizeOutputTensor = false)
         {
             if (!ValidateFtype(ftype))
             {
                 throw new ArgumentException($"The type {Enum.GetName(typeof(LLamaFtype), ftype)} is not a valid type " +
                     $"to perform quantization.");
             }
-            return NativeApi.llama_model_quantize(srcFileName, dstFilename, ftype, nthread) == 0;
+
+            var quantizeParams = NativeApi.llama_model_quantize_default_params();
+            quantizeParams.ftype = ftype;
+            quantizeParams.nthread = nthread;
+            quantizeParams.allow_requantize = allowRequantize;
+            quantizeParams.quantize_output_tensor = quantizeOutputTensor;
+            LLamaModelQuantizeParams* p = &quantizeParams;
+            return NativeApi.llama_model_quantize(srcFileName, dstFilename, p) == 0;
         }
 
         /// <summary>
@@ -36,9 +47,10 @@ namespace LLama
         /// <param name="nthread">Thread to be used during the quantization. By default it's the physical core number.</param>
         /// <returns>Whether the quantization is successful.</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static bool Quantize(string srcFileName, string dstFilename, string ftype, int nthread = -1)
+        public static bool Quantize(string srcFileName, string dstFilename, string ftype, int nthread = -1, bool allowRequantize = true,
+            bool quantizeOutputTensor = false)
         {
-            return Quantize(srcFileName, dstFilename, StringToFtype(ftype), nthread);
+            return Quantize(srcFileName, dstFilename, StringToFtype(ftype), nthread, allowRequantize, quantizeOutputTensor);
         }
 
         private static bool ValidateFtype(string ftype)

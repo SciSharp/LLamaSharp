@@ -11,19 +11,31 @@ using System.Text.Json.Serialization;
 namespace LLama
 {
     using llama_token = Int32;
+    /// <summary>
+    /// The LLama executor for instruct mode.
+    /// </summary>
     public class InstructExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
+        string _instructionPrefix;
         llama_token[] _inp_pfx;
         llama_token[] _inp_sfx;
-        public InstructExecutor(LLamaModel model, string inputPrefix = "\n\n### Instruction:\n\n",
-            string inputSuffix = "\n\n### Response:\n\n") : base(model)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="instructionPrefix"></param>
+        /// <param name="instructionSuffix"></param>
+        public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
+            string instructionSuffix = "\n\n### Response:\n\n") : base(model)
         {
-            _inp_pfx = _model.Tokenize(inputPrefix, true).ToArray();
-            _inp_sfx = _model.Tokenize(inputSuffix, false).ToArray();
+            _inp_pfx = _model.Tokenize(instructionPrefix, true).ToArray();
+            _inp_sfx = _model.Tokenize(instructionSuffix, false).ToArray();
+            _instructionPrefix = instructionPrefix;
         }
 
-        public override void SaveState(string filename)
+        /// <inheritdoc />
+        public override ExecutorBaseState GetStateData()
         {
             InstructExecutorState state = new()
             {
@@ -41,16 +53,13 @@ namespace LLama
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity
             };
-            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                JsonSerializer.Serialize<InstructExecutorState>(fs, state);
-            }
+            return state;
         }
-        public override void LoadState(string filename)
+        /// <inheritdoc />
+        public override void LoadState(ExecutorBaseState data)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            if(data is InstructExecutorState state)
             {
-                var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps;
                 _is_prompt_run = state.IsPromptRun;
@@ -64,14 +73,44 @@ namespace LLama
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens;
             }
+            else
+            {
+                throw new ArgumentException("Invalid state data type.");
+            }
         }
 
+        /// <inheritdoc />
+        public override void SaveState(string filename)
+        {
+            InstructExecutorState state = GetStateData() as InstructExecutorState;
+            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                JsonSerializer.Serialize<InstructExecutorState>(fs, state);
+            }
+        }
+        /// <inheritdoc />
+        public override void LoadState(string filename)
+        {
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
+                LoadState(state);
+            }
+        }
+
+        /// <inheritdoc />
         protected override bool GetLoopCondition(InferStateArgs args)
         {
             return args.RemainedTokens != 0 || _is_prompt_run;
         }
+        /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
+            if(args.Antiprompts is null)
+            {
+                args.Antiprompts = new List<string>();
+            }
+            args.Antiprompts.Add(_instructionPrefix);
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
@@ -95,6 +134,7 @@ namespace LLama
                 args.RemainedTokens -= line_inp.Count();
             }
         }
+        /// <inheritdoc />
         protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
         {
             extraOutputs = null;
@@ -137,6 +177,7 @@ namespace LLama
             }
             return false;
         }
+        /// <inheritdoc />
         protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
@@ -197,12 +238,24 @@ namespace LLama
                 }
             }
         }
+        /// <summary>
+        /// The desciptor of the state of the instruct executor.
+        /// </summary>
         public class InstructExecutorState : ExecutorBaseState
         {
+            /// <summary>
+            /// Whether the executor is running for the first time (running the prompt).
+            /// </summary>
             [JsonPropertyName("is_prompt_run")]
             public bool IsPromptRun { get; set; }
+            /// <summary>
+            /// Instruction prefix tokens.
+            /// </summary>
             [JsonPropertyName("inp_pfx")]
             public llama_token[] InputPrefixTokens { get; set; }
+            /// <summary>
+            /// Instruction suffix tokens.
+            /// </summary>
             [JsonPropertyName("inp_sfx")]
             public llama_token[] InputSuffixTokens { get; set; }
         }

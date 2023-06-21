@@ -14,16 +14,24 @@ using System.Threading.Tasks;
 namespace LLama
 {
     using llama_token = Int32;
+    /// <summary>
+    /// The LLama executor for interactive mode.
+    /// </summary>
     public class InteractiveExecutor : StatefulExecutorBase
     {
         bool _is_prompt_run = true;
         llama_token[] _llama_token_newline;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
         public InteractiveExecutor(LLamaModel model) : base(model)
         {
             _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
         }
 
-        public override void SaveState(string filename)
+        /// <inheritdoc />
+        public override ExecutorBaseState GetStateData()
         {
             InteractiveExecutorState state = new()
             {
@@ -40,16 +48,13 @@ namespace LLama
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity
             };
-            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
-            }
+            return state;
         }
-        public override void LoadState(string filename)
+        /// <inheritdoc />
+        public override void LoadState(ExecutorBaseState data)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            if (data is InteractiveExecutorState state)
             {
-                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps;
                 _is_prompt_run = state.IsPromptRun;
@@ -62,6 +67,26 @@ namespace LLama
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens;
             }
+            else
+                throw new ArgumentException("Invalid state data type.");
+        }
+        /// <inheritdoc />
+        public override void SaveState(string filename)
+        {
+            InteractiveExecutorState state = GetStateData() as InteractiveExecutorState;
+            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
+            }
+        }
+        /// <inheritdoc />
+        public override void LoadState(string filename)
+        {
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
+                LoadState(state);
+            }
         }
 
         /// <summary>
@@ -73,6 +98,7 @@ namespace LLama
             return args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run;
         }
 
+        /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
             if (_is_prompt_run)
@@ -141,6 +167,7 @@ namespace LLama
             return false;
         }
 
+        /// <inheritdoc />
         protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
@@ -212,10 +239,19 @@ namespace LLama
             }
         }
 
+        /// <summary>
+        /// The descriptor of the state of the interactive executor.
+        /// </summary>
         public class InteractiveExecutorState : ExecutorBaseState
         {
+            /// <summary>
+            /// Whether the executor is running for the first time (running the prompt).
+            /// </summary>
             [JsonPropertyName("is_prompt_run")]
             public bool IsPromptRun { get; set; }
+            /// <summary>
+            /// Tokens that represent a new line in with the current model.
+            /// </summary>
             [JsonPropertyName("llama_token_newline")]
             public llama_token[] LLamaNewlineTokens { get; set; }
         }

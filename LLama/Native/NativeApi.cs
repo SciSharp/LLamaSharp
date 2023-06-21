@@ -10,6 +10,7 @@ namespace LLama.Native
     using llama_token = Int32;
     public unsafe partial class NativeApi
     {
+        public static readonly int LLAMA_MAX_DEVICES = 1;
         static NativeApi()
         {
             try
@@ -35,10 +36,16 @@ namespace LLama.Native
         public static extern LLamaContextParams llama_context_default_params();
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LLamaModelQuantizeParams llama_model_quantize_default_params();
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_mmap_supported();
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_mlock_supported();
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_eval_export(SafeLLamaContextHandle ctx, string fname);
 
         /// <summary>
         /// Various functions for loading a ggml llama model.

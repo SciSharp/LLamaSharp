@@ -8,6 +8,9 @@ using LLama.Common;
 
 namespace LLama
 {
+    /// <summary>
+    /// The embedder for LLama, which supports getting embeddings from text.
+    /// </summary>
     public class LLamaEmbedder : IDisposable
     {
         SafeLLamaContextHandle _ctx;
@@ -21,6 +24,10 @@ namespace LLama
             _ctx = ctx;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="params"></param>
         public LLamaEmbedder(ModelParams @params)
         {
             @params.EmbeddingMode = true;
@@ -72,6 +79,9 @@ namespace LLama
             return res;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             _ctx.Dispose();
