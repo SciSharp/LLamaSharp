@@ -9,7 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ChatService>();
+builder.Services.AddSingleton<StatefulChatService>();
+builder.Services.AddScoped<StatelessChatService>();
 
 var app = builder.Build();
 

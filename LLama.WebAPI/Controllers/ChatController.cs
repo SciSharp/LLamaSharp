@@ -9,11 +9,11 @@ namespace LLama.WebAPI.Controllers
     [Route("[controller]")]
     public class ChatController : ControllerBase
     {
-        private readonly ChatService _service;
+        private readonly StatefulChatService _service;
         private readonly ILogger<ChatController> _logger;
 
         public ChatController(ILogger<ChatController> logger,
-            ChatService service)
+            StatefulChatService service)
         {
             _logger = logger;
             _service = service;
