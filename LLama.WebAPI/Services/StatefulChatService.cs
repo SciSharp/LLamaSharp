@@ -1,6 +1,7 @@
 ﻿
 using LLama.WebAPI.Models;
 using Microsoft;
+using System.Runtime.CompilerServices;
 
 namespace LLama.WebAPI.Services;
 
@@ -51,5 +52,31 @@ public class StatefulChatService : IDisposable
         }
 
         return result;
+    }
+
+    public async IAsyncEnumerable<string> SendStream(SendMessageInput input)
+    {
+        var userInput = input.Text;
+        if (!_continue)
+        {
+            userInput = SystemPrompt + userInput;
+            Console.Write(SystemPrompt);
+            _continue = true;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write(input.Text);
+
+        Console.ForegroundColor = ConsoleColor.White;
+        var outputs = _session.ChatAsync(userInput, new Common.InferenceParams()
+        {
+            RepeatPenalty = 1.0f,
+            AntiPrompts = new string[] { "User:" },
+        });
+        await foreach (var output in outputs)
+        {
+            Console.Write(output);
+            yield return output;
+        }
     }
 }

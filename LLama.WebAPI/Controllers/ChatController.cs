@@ -23,6 +23,21 @@ namespace LLama.WebAPI.Controllers
             return _service.Send(input);
         }
 
+        [HttpPost("Send/Stream")]
+        public async Task SendMessageStream([FromBody] SendMessageInput input, [FromServices] StatefulChatService _service, CancellationToken cancellationToken)
+        {
+
+            Response.ContentType = "text/event-stream";
+
+            await foreach (var r in _service.SendStream(input))
+            {
+                await Response.WriteAsync("data:" + r + "\n\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
+            }
+
+            await Response.CompleteAsync();
+        }
+
         [HttpPost("History")]
         public async Task<string> SendHistory([FromBody] HistoryInput input, [FromServices] StatelessChatService _service)
         {
