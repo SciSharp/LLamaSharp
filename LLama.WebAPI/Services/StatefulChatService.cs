@@ -16,8 +16,7 @@ public class StatefulChatService : IDisposable
     public StatefulChatService(IConfiguration configuration)
     {
         _model = new LLamaModel(new Common.ModelParams(configuration["ModelPath"], contextSize: 512));
-        _session = new ChatSession(new InteractiveExecutor(_model))
-            ;//.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Assistant:" }, redundancyLength: 8));
+        _session = new ChatSession(new InteractiveExecutor(_model));
     }
 
     public void Dispose()
