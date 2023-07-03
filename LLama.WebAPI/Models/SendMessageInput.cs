@@ -4,3 +4,13 @@ public class SendMessageInput
 {
     public string Text { get; set; }
 }
+
+public class HistoryInput
+{
+    public List<HistoryItem> Messages { get; set; }
+    public class HistoryItem
+    {
+        public string Role { get; set; }
+        public string Content { get; set; }
+    }
+}
