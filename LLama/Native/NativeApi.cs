@@ -25,7 +25,7 @@ namespace LLama.Native
                     "3. The backend is not compatible with your system cuda environment. Please check and fix it. If the environment is " +
                     "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.");
             }
-            NativeApi.llama_init_backend();
+            NativeApi.llama_backend_init(false);
         }
         private const string libraryName = "libllama";
 
@@ -64,7 +64,7 @@ namespace LLama.Native
         /// Call once at the start of the program
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_init_backend();
+        public static extern void llama_backend_init(bool numa);
 
         /// <summary>
         /// Frees all allocated memory
