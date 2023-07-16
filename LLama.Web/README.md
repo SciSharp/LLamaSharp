@@ -1,5 +1,5 @@
-﻿﻿# LLama.Web - Basic ASP.NET Core examples of LLamaSharp in action
-**LLama.Web has no heavy dependencies and no extra frameworks ove bootstrap and jquery to keep the examples clean and easy to copy over to your own project**
+﻿## LLama.Web - Basic ASP.NET Core examples of LLamaSharp in action
+LLama.Web has no heavy dependencies and no extra frameworks ove bootstrap and jquery to keep the examples clean and easy to copy over to your own project
 
 ## Websockets
 Using signalr websockets simplifys the streaming of responses and model per connection management
@@ -35,4 +35,7 @@ Example:
 ```
 
 
-## Interative UI
+## Interactive UI
+The interactive UI is a simple example of using LLammaSharp
+![demo-ui](https://i.imgur.com/nQsnWP1.png)
+
