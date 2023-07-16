@@ -2,9 +2,9 @@
 
 namespace LLama.Web.Hubs
 {
-    public interface IInteractiveClient
+    public interface ISessionClient
     {
-        Task OnStatus(string status);
+        Task OnStatus(string status, string data = null);
         Task OnResponse(ResponseFragment fragment);
         Task OnError(string error);
     }

@@ -3,7 +3,7 @@
 @{
 
 }
-
+@Html.AntiForgeryToken()
 <div class="d-flex flex-row h-100 pt-1 pb-1">
 
     <div class="d-flex flex-column h-100 border me-1 w-25 overflow-auto">
@@ -76,7 +76,7 @@
                         <button class="btn btn-outline-secondary input-control w-100" type="button" id="send" disabled="disabled" autocomplete="off">Send Message</button>
                     </div>
                     <div class="d-flex">
-                        <button class="btn btn-outline-secondary w-100" type="button" id="cancel" disabled="disabled"  autocomplete="off">
+                        <button class="btn btn-outline-secondary w-100" type="button" id="cancel"  autocomplete="off">
                             <i class="bi-x-circle"></i>
                         </button>
                         <button class="btn btn-outline-secondary input-control w-100" type="button" id="clear" disabled="disabled" autocomplete="off">
@@ -164,15 +164,17 @@
         const outputBotTemplate = $("#outputBotTemplate").html();
         const sessionDetailsTemplate = $("#sessionDetailsTemplate").html();
 
+        let connectionId;
         const connection = new signalR.HubConnectionBuilder().withUrl("/InteractiveHub").build();
 
         const scrollContainer = $("#scroll-container");
         const outputContainer = $("#output-container");
 
 
-        const onStatus = (status) => {
+        const onStatus = (status, data) => {
             if (status == "Connected") {
                 $("#socket").text("Connected").addClass("text-success");
+                connectionId = data;
             }
             else if (status == "Loaded") {
                 enableControls();
@@ -238,6 +240,17 @@
             //TODO: Need to cancel inference via http as signalr will synchronize requests
             // waiting on ModelSessionService so we can locate an cancel ModelSessions outside the Hub
             //connection.invoke('CancelPrompt');
+
+            $.ajax({
+                url: '?handler=Cancel',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                data: JSON.stringify({ connectionId: connectionId })
+            })
         }
 
         const loadModel = () => {
