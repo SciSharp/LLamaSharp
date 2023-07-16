@@ -1,0 +1,325 @@
+﻿@page
+@model InteractiveModel
+@{
+
+}
+
+<div class="d-flex flex-row h-100 pt-1 pb-1">
+
+    <div class="d-flex flex-column h-100 border me-1 w-25 overflow-auto">
+        <div class="d-flex flex-row justify-content-between border-bottom p-1 align-items-center">
+            <h4>Interactive</h4>
+            <div>
+                <span>Hub: <b id="socket">Disconnected</b></span>
+            </div>
+        </div>
+
+        <div class="m-1">
+            <small>Model</small>
+            <select id="Model" class="form-control  form-select input-control" required="required" autocomplete="off">
+                <option value="" disabled selected hidden>Please Select</option>
+                @foreach (var modelOption in Model.Options.Models)
+                {
+                    <option value="@modelOption.Name">@modelOption.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="m-1">
+            <small>Parameters</small>
+            <select id="Parameter" class="form-control  form-select input-control" required="required" autocomplete="off">
+                <option value="" disabled selected hidden>Please Select</option>
+                @foreach (var parameterOption in Model.Options.Parameters)
+                {
+                    <option value="@parameterOption.Name">@parameterOption.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="m-1">
+            <small>Prompt</small>
+            <select id="Prompt" class="form-control  form-select input-control" required="required" autocomplete="off">
+                <option value="" disabled selected hidden>Please Select</option>
+                @foreach (var promptOption in Model.Options.Prompts)
+                {
+                    <option value="@promptOption.Name" data-prompt="@promptOption.Prompt">@promptOption.Name</option>
+                }
+            </select>
+            <textarea id="PromptText" class="form-control mt-1" rows="12" disabled="disabled" style="font-size:13px;resize:none"></textarea>
+        </div>
+
+        <div class="d-flex flex-grow-1"></div>
+
+        <div id="session-details" class="m-1">
+        </div>
+
+        <div class="m-1">
+            <button class="btn btn-outline-secondary input-control w-100" type="button" id="load">Create Session</button>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column h-100 w-75">
+        <div class="section-head">
+        </div>
+
+        <div id="scroll-container" class="section-content border">
+            <div id="output-container" class="d-flex flex-column gap-1 p-1">
+            </div>
+        </div>
+
+        <div class="section-foot">
+
+            <div class="input-group mt-2">
+                <textarea id="input" type="text" class="form-control" value="what is a tree?" style="resize:none" rows="4">What is an apple?</textarea>
+                <div class="d-flex flex-column">
+                    <div class="d-flex flex-fill">
+                        <button class="btn btn-outline-secondary input-control w-100" type="button" id="send" disabled="disabled" autocomplete="off">Send Message</button>
+                    </div>
+                    <div class="d-flex">
+                        <button class="btn btn-outline-secondary w-100" type="button" id="cancel" disabled="disabled"  autocomplete="off">
+                            <i class="bi-x-circle"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary input-control w-100" type="button" id="clear" disabled="disabled" autocomplete="off">
+                            <i class="bi-trash3"></i>
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+<script id="outputErrorTemplate" type="text/html">
+    <i class="form-control text-danger">{{text}}</i>
+</script>
+
+<script id="outputInfoTemplate" type="text/html">
+    <i class="form-control text-success">{{text}}</i>
+</script>
+
+<script id="outputUserTemplate" type="text/html">
+    <div class="d-flex flex-row form-control bg-light">
+         <div class="m-2 me-4">
+             <img src="~/image/human.png" width="60"/>
+         </div>
+        <div class="d-flex flex-column flex-fill justify-content-between">
+            <span class="w-100" style="resize:none" >{{text}}</span>
+             <div class="d-flex justify-content-end">
+                 <i>{{date}}</i>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="outputBotTemplate" type="text/html">
+     <div class="d-flex flex-row form-control">
+        <div class="m-2 me-4">
+            <img src="~/image/robot.png" width="60"/>
+        </div>
+        <div id="{{id}}" class="d-flex flex-column flex-fill justify-content-between">
+            <span class="content">
+                <img src="~/image/loading.gif" width="30" />
+            </span>
+            <div class="d-flex justify-content-end">
+                <div class="d-flex flex-column align-items-end">
+                    <i class="date"></i>
+                    <i>
+                        <small class="signature"></small>
+                    </i>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="sessionDetailsTemplate" type="text/html">
+    <div>
+        <small>Session Details </small>
+    </div>
+    <div>
+        <i>Model: </i>
+         <span>{{model}}</span>
+    </div>
+    <div>
+        <i>Prompt: </i>
+         <span>{{prompt}}</span>
+    </div>
+    <div>
+        <i>Parameters: </i>
+        <span>{{parameter}}</span>
+    </div>
+</script>
+
+
+@section Scripts {
+
+    <script>
+        const outputErrorTemplate = $("#outputErrorTemplate").html();
+        const outputInfoTemplate = $("#outputInfoTemplate").html();
+        const outputUserTemplate = $("#outputUserTemplate").html();
+        const outputBotTemplate = $("#outputBotTemplate").html();
+        const sessionDetailsTemplate = $("#sessionDetailsTemplate").html();
+
+        const connection = new signalR.HubConnectionBuilder().withUrl("/InteractiveHub").build();
+
+        const scrollContainer = $("#scroll-container");
+        const outputContainer = $("#output-container");
+
+
+        const onStatus = (status) => {
+            if (status == "Connected") {
+                $("#socket").text("Connected").addClass("text-success");
+            }
+            else if (status == "Loaded") {
+                enableControls();
+                $("#session-details").html(Mustache.render(sessionDetailsTemplate, { model: getSelectedModel(), prompt: getSelectedPrompt(), parameter: getSelectedParameter() }));
+                onInfo(`New model session successfully started`)
+            }
+        }
+
+        const onError = (error) => {
+            enableControls();
+            outputContainer.append(Mustache.render(outputErrorTemplate, { text: error, date: getDateTime() }));
+        }
+
+        const onInfo = (message) => {
+            outputContainer.append(Mustache.render(outputInfoTemplate, { text: message, date: getDateTime() }));
+        }
+
+        let responseContent;
+        let responseContainer;
+        let responseFirstFragment;
+
+        const onResponse = (response) => {
+            if (!response)
+                return;
+
+            if (response.isFirst) {
+                outputContainer.append(Mustache.render(outputBotTemplate, response));
+                responseContainer = $(`#${response.id}`);
+                responseContent = responseContainer.find(".content");
+                responseFirstFragment = true;
+                scrollToBottom();
+                return;
+            }
+
+            if (response.isLast) {
+                enableControls();
+                responseContainer.find(".signature").append(response.content);
+                scrollToBottom();
+            }
+            else {
+                if (responseFirstFragment) {
+                    responseContent.empty();
+                    responseFirstFragment = false;
+                    responseContainer.find(".date").append(getDateTime());
+                }
+                responseContent.append(response.content);
+                scrollToBottom();
+            }
+        }
+
+
+        const sendPrompt = () => {
+            const text = $("#input").val();
+            if (text) {
+                disableControls();
+                outputContainer.append(Mustache.render(outputUserTemplate, { text: text, date: getDateTime() }));
+                connection.invoke('SendPrompt', text);
+                $("#input").val(null);
+            }
+        }
+
+        const cancelPrompt = () => {
+            //TODO: Need to cancel inference via http as signalr will synchronize requests
+            // waiting on ModelSessionService so we can locate an cancel ModelSessions outside the Hub
+            //connection.invoke('CancelPrompt');
+        }
+
+        const loadModel = () => {
+            const modelName = getSelectedModel();
+            const promptName = getSelectedPrompt();
+            const parameterName = getSelectedParameter();
+            if (!modelName || !promptName || !parameterName) {
+                onError("Please select a valid Model, Parameter and Prompt");
+                return;
+            }
+
+            disableControls();
+            connection.invoke('LoadModel', modelName, promptName, parameterName);
+        }
+
+
+        const enableControls = () => {
+            $(".input-control").removeAttr("disabled");
+        }
+
+
+        const disableControls = () => {
+            $(".input-control").attr("disabled", "disabled");
+        }
+
+        const clearOutput = () => {
+            outputContainer.empty();
+        }
+
+        const updatePrompt = () => {
+            const customPrompt = $("#PromptText");
+            const selection = $("option:selected", "#Prompt");
+            const selectedValue = selection.data("prompt");
+            customPrompt.text(selectedValue);
+        }
+
+
+        const getSelectedModel = () => {
+            return $("option:selected", "#Model").val();
+        }
+
+
+        const getSelectedParameter = () => {
+            return $("option:selected", "#Parameter").val();
+        }
+
+
+        const getSelectedPrompt = () => {
+            return $("option:selected", "#Prompt").val();
+        }
+
+
+        const getDateTime = () => {
+            const dateTime = new Date();
+            return dateTime.toLocaleString();
+        }
+
+
+        const scrollToBottom = () => {
+            const scrollTop = scrollContainer.scrollTop();
+            const scrollHeight = scrollContainer[0].scrollHeight;
+            if (scrollTop + 70 >= scrollHeight - scrollContainer.innerHeight()) {
+                scrollContainer.scrollTop(scrollContainer[0].scrollHeight)
+            }
+        }
+
+
+
+        // Map UI functions
+        $("#load").on("click", loadModel);
+        $("#send").on("click", sendPrompt);
+        $("#clear").on("click", clearOutput);
+        $("#cancel").on("click", cancelPrompt);
+        $("#Prompt").on("change", updatePrompt);
+
+
+        // Map signalr functions
+        connection.on("OnStatus", onStatus);
+        connection.on("OnError", onError);
+        connection.on("OnResponse", onResponse);
+        connection.start();
+
+    </script>
+
+}
