@@ -1,4 +1,5 @@
-﻿using LLama.Web.Models;
+﻿using LLama.Abstractions;
+using LLama.Web.Models;
 using System.Collections.Concurrent;
 
 namespace LLama.Web.Services
@@ -20,10 +21,10 @@ namespace LLama.Web.Services
             return Task.FromResult(modelSession);
         }
 
-        public Task<ModelSession> CreateAsync(string connectionId, ModelOptions modelOption, PromptOptions promptOption, ParameterOptions parameterOption)
+        public Task<ModelSession> CreateAsync(string connectionId, ILLamaExecutor executor, ModelOptions modelOption, PromptOptions promptOption, ParameterOptions parameterOption)
         {
             //TODO: Max instance etc
-            var modelSession = new ModelSession(connectionId, modelOption, promptOption, parameterOption);
+              var modelSession = new ModelSession( connectionId, executor, modelOption, promptOption, parameterOption);
             if (!_modelSessions.TryAdd(connectionId, modelSession))
             {
                 _logger.Log(LogLevel.Error, "[CreateAsync] - Failed to create model session, Connection: {0}", connectionId);

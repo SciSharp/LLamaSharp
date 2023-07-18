@@ -45,7 +45,8 @@ namespace LLama.Web.Hubs
             var modelOption = _options.Models.First(x => x.Name == modelName);
             var promptOption = _options.Prompts.First(x => x.Name == promptName);
             var parameterOption = _options.Parameters.First(x => x.Name == parameterName);
-            var modelSession = await _modelSessionService.CreateAsync(Context.ConnectionId, modelOption, promptOption, parameterOption);
+            var interactiveExecutor = new InteractiveExecutor(new LLamaModel(modelOption));
+            var modelSession = await _modelSessionService.CreateAsync(Context.ConnectionId, interactiveExecutor,  modelOption, promptOption, parameterOption);
             if (modelSession is null)
             {
                 _logger.Log(LogLevel.Error, "[OnLoadModel] - Failed to add new model session, Connection: {0}", Context.ConnectionId);
@@ -72,15 +73,15 @@ namespace LLama.Web.Hubs
             }
 
             // Create unique response id
-            modelSession.ResponseId = Guid.NewGuid().ToString();
+            var responseId = Guid.NewGuid().ToString();
 
             // Send begin of response
-            await Clients.Caller.OnResponse(new ResponseFragment(modelSession.ResponseId, isFirst: true));
+            await Clients.Caller.OnResponse(new ResponseFragment(responseId, isFirst: true));
 
             // Send content of response
             await foreach (var fragment in modelSession.InferAsync(prompt, CancellationTokenSource.CreateLinkedTokenSource(Context.ConnectionAborted)))
             {
-                await Clients.Caller.OnResponse(new ResponseFragment(modelSession.ResponseId, fragment));
+                await Clients.Caller.OnResponse(new ResponseFragment(responseId, fragment));
             }
 
             // Send end of response
@@ -88,7 +89,7 @@ namespace LLama.Web.Hubs
             var signature = modelSession.IsInferCanceled()
                 ? $"Inference cancelled after {elapsedTime.TotalSeconds:F0} seconds"
                 : $"Inference completed in {elapsedTime.TotalSeconds:F0} seconds";
-            await Clients.Caller.OnResponse(new ResponseFragment(modelSession.ResponseId, signature, isLast: true));
+            await Clients.Caller.OnResponse(new ResponseFragment(responseId, signature, isLast: true));
             _logger.Log(LogLevel.Information, "[OnSendPrompt] - Inference complete, Connection: {0}, Elapsed: {1}, Canceled: {2}", Context.ConnectionId, elapsedTime, modelSession.IsInferCanceled());
         }
       

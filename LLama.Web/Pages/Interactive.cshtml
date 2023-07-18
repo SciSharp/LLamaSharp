@@ -205,7 +205,7 @@
                 responseContainer = $(`#${response.id}`);
                 responseContent = responseContainer.find(".content");
                 responseFirstFragment = true;
-                scrollToBottom();
+                scrollToBottom(true);
                 return;
             }
 
@@ -233,6 +233,7 @@
                 outputContainer.append(Mustache.render(outputUserTemplate, { text: text, date: getDateTime() }));
                 connection.invoke('SendPrompt', text);
                 $("#input").val(null);
+                scrollToBottom(true);
             }
         }
 
@@ -309,9 +310,13 @@
         }
 
 
-        const scrollToBottom = () => {
+        const scrollToBottom = (force) => {
             const scrollTop = scrollContainer.scrollTop();
             const scrollHeight = scrollContainer[0].scrollHeight;
+            if(force){
+                scrollContainer.scrollTop(scrollContainer[0].scrollHeight);
+                return;
+            }
             if (scrollTop + 70 >= scrollHeight - scrollContainer.innerHeight()) {
                 scrollContainer.scrollTop(scrollContainer[0].scrollHeight)
             }
