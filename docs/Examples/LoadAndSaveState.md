@@ -1,4 +1,4 @@
-﻿# Load and save model/exeutor state
+﻿# Load and save model/executor state
 
 ```cs
 using LLama.Common;

@@ -57,7 +57,7 @@ Different from the input transform pipeline, the output transform only supports 
 session.WithOutputTransform(new MyOutputTransform());
 ```
 
-Here's an example of how to implement the interface. In this example, the transform detects wether there's some keywords in the response and removes them.
+Here's an example of how to implement the interface. In this example, the transform detects whether there's some keywords in the response and removes them.
 
 ```cs
 /// <summary>

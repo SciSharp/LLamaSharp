@@ -4,7 +4,7 @@ When initializing a `LLamaModel` object, there're three parameters, `ModelParams
 
 The usage of `logger` will be further introduced in [logger doc](../More/log.md). The `encoding` is the encoding you want to use when dealing with text via this model.
 
-The most improtant of all, is the `ModelParams`, which is defined as below. We'll explain the parameters step by step in this document.
+The most important of all, is the `ModelParams`, which is defined as below. We'll explain the parameters step by step in this document.
 
 ```cs
 public class ModelParams

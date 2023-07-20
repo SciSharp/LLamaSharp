@@ -1,4 +1,4 @@
-﻿# Use stateless exeutor
+﻿# Use stateless executor
 
 ```cs
 using LLama.Common;

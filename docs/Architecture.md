@@ -12,9 +12,9 @@ The figure below shows the core framework structure, which is separated to four 
 
 ![structure_image](media/structure.jpg)
 
-## Recommended usings
+## Recommended Use
 
-Since `LLamaModel` interact with native library, it's not recommended to use the methods of it directly unless you know what you are doing. So does the `NativeApi`, which is not included in the arcitecher figure above.
+Since `LLamaModel` interact with native library, it's not recommended to use the methods of it directly unless you know what you are doing. So does the `NativeApi`, which is not included in the architecture figure above.
 
 `ChatSession` is recommended to be used when you want to build an application similar to ChatGPT, or the ChatBot, because it works best with `InteractiveExecutor`. Though other executors are also allowed to passed as a parameter to initialize a `ChatSession`, it's not encouraged if you are new to LLamaSharp and LLM.
 

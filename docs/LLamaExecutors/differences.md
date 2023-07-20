@@ -37,11 +37,11 @@ Therefore, please modify the prompt correspondingly when switching from one mode
 
 ## Stateful mode and Stateless mode.
 
-Despite the differences between interactive mode and instruct mode, both of them are stateful mode. That is, your previous question/instruction will impact on the current response from LLM. On the contrary, the steteless executor does not have such a "memory". No matter how many times you talk to it, it will only concentrate on what you say in this time.
+Despite the differences between interactive mode and instruct mode, both of them are stateful mode. That is, your previous question/instruction will impact on the current response from LLM. On the contrary, the stateless executor does not have such a "memory". No matter how many times you talk to it, it will only concentrate on what you say in this time.
 
 Since the stateless executor has no memory of conversations before, you need to input your question with the whole prompt into it to get the better answer.
 
-For example, if you feed `Q: Who is Trump? A: ` to the steteless executor, it may give the following answer with the antiprompt `Q: `.
+For example, if you feed `Q: Who is Trump? A: ` to the stateless executor, it may give the following answer with the antiprompt `Q: `.
 
 ```
 Donald J. Trump, born June 14, 1946, is an American businessman, television personality, politician and the 45th President of the United States (2017-2021). # Anexo:Torneo de Hamburgo 2022 (individual masculino)
@@ -65,5 +65,5 @@ Then, I got the following answer with the anti-prompt `Q: `.
 45th president of the United States.
 ```
 
-At this time, by repeating the same mode of `Q: xxx? A: xxx.`, LLM outputs the anti-prompt we want to help to decide where to dtop the generation.
+At this time, by repeating the same mode of `Q: xxx? A: xxx.`, LLM outputs the anti-prompt we want to help to decide where to stop the generation.
 
