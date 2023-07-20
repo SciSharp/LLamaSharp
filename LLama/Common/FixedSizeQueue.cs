@@ -30,14 +30,24 @@ namespace LLama.Common
         /// <param name="data"></param>
         public FixedSizeQueue(int size, IEnumerable<T> data)
         {
+            // Try an early check on the amount of data supplied (if possible)
+            if (data.TryGetNonEnumeratedCount(out var count))
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
+
+            // Size of "data" is unknown, copy it all into a list
             _maxSize = size;
-            if(data.Count() > size)
-            {
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {data.Count()} initial values.");
-            }
-            _storage = new(data);
+            _storage = new List<T>(data);
+
+            // Now check if that list is a valid size
+            if (_storage.Count > _maxSize)
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
         }
 
+        /// <summary>
+        /// Replace every item in the queue with the given value
+        /// </summary>
+        /// <param name="value">The value to replace all items with</param>
+        /// <returns>returns this</returns>
         public FixedSizeQueue<T> FillWith(T value)
         {
             for(int i = 0; i < Count; i++)

@@ -95,7 +95,7 @@ namespace LLama
             _pathSession = filename;
             if (string.IsNullOrEmpty(filename))
             {
-                throw new ArgumentNullException("File name cannot be empty.");
+                throw new ArgumentNullException(nameof(filename), "File name cannot be empty.");
             }
             if (File.Exists(filename))
             {
