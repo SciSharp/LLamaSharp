@@ -65,7 +65,6 @@ namespace LLama.Native
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_backend_init(bool numa);
-
         /// <summary>
         /// Frees all allocated memory
         /// </summary>
