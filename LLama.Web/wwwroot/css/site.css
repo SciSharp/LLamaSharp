@@ -1,0 +1,34 @@
+html, body {
+    font-size: 14px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+}
+
+main {
+    flex: 1;
+    overflow: auto;
+}
+
+footer {
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+
