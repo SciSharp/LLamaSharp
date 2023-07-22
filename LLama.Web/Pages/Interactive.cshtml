@@ -227,35 +227,22 @@
         }
 
 
-        const sendPrompt = () => {
+        const sendPrompt = async () => {
             const text = chatInput.val();
             if (text) {
                 disableControls();
                 outputContainer.append(Mustache.render(outputUserTemplate, { text: text, date: getDateTime() }));
-                connection.invoke('SendPrompt', text);
+                await connection.invoke('SendPrompt', text);
                 chatInput.val(null);
                 scrollToBottom(true);
             }
         }
 
-        const cancelPrompt = () => {
-            //TODO: Need to cancel inference via http as signalr will synchronize requests
-            // waiting on ModelSessionService so we can locate an cancel ModelSessions outside the Hub
-            //connection.invoke('CancelPrompt');
-
-            $.ajax({
-                url: '?handler=Cancel',
-                type: 'POST',
-                contentType: "application/json; charset=utf-8",
-                headers: {
-                    RequestVerificationToken:
-                        $('input:hidden[name="__RequestVerificationToken"]').val()
-                },
-                data: JSON.stringify({ connectionId: connectionId })
-            })
+        const cancelPrompt = async () => {
+            await ajaxPostJsonAsync('?handler=Cancel', { connectionId: connectionId });
         }
 
-        const loadModel = () => {
+        const loadModel = async () => {
             const modelName = getSelectedModel();
             const promptName = getSelectedPrompt();
             const parameterName = getSelectedParameter();
@@ -265,7 +252,7 @@
             }
 
             disableControls();
-            connection.invoke('LoadModel', modelName, promptName, parameterName);
+            await connection.invoke('LoadModel', modelName, promptName, parameterName);
         }
 
 

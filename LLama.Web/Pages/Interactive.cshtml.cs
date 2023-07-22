@@ -24,7 +24,7 @@ namespace LLama.Web.Pages
         {
         }
 
-        public async Task<IActionResult> OnPostCancel([FromBody]CancelModel model)
+        public async Task<IActionResult> OnPostCancel(CancelModel model)
         {
             await _modelSessionService.CancelAsync(model.ConnectionId);
             return new JsonResult(default);
