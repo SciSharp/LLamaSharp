@@ -172,12 +172,12 @@
         const chatInput = $("#input");
 
 
-        const onStatus = (status, data) => {
-            if (status == "Connected") {
+        const onStatus = (connectionId, status) => {
+            connectionId = connectionId;
+            if (status == Enums.SessionConnectionStatus.Connected) {
                 $("#socket").text("Connected").addClass("text-success");
-                connectionId = data;
             }
-            else if (status == "Loaded") {
+            else if (status == Enums.SessionConnectionStatus.Loaded) {
                 enableControls();
                 $("#session-details").html(Mustache.render(sessionDetailsTemplate, { model: getSelectedModel(), prompt: getSelectedPrompt(), parameter: getSelectedParameter() }));
                 onInfo(`New model session successfully started`)

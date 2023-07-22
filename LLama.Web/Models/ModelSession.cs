@@ -1,4 +1,5 @@
 ﻿using LLama.Abstractions;
+using LLama.Web.Common;
 
 namespace LLama.Web.Models
 {

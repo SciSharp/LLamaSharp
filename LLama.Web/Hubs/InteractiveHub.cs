@@ -1,4 +1,5 @@
-﻿using LLama.Web.Models;
+﻿using LLama.Web.Common;
+using LLama.Web.Models;
 using LLama.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -24,7 +25,7 @@ namespace LLama.Web.Hubs
         {
             _logger.Log(LogLevel.Information, "OnConnectedAsync, Id: {0}", Context.ConnectionId);
             await base.OnConnectedAsync();
-            await Clients.Caller.OnStatus("Connected", Context.ConnectionId);
+            await Clients.Caller.OnStatus(Context.ConnectionId, SessionConnectionStatus.Connected);
         }
 
 
@@ -55,7 +56,7 @@ namespace LLama.Web.Hubs
                 
             }
             _logger.Log(LogLevel.Information, "[OnLoadModel] - New model session added, Connection: {0}", Context.ConnectionId);
-            await Clients.Caller.OnStatus("Loaded", Context.ConnectionId);
+            await Clients.Caller.OnStatus(Context.ConnectionId, SessionConnectionStatus.Loaded);
         }
 
 

@@ -1,6 +1,6 @@
 ﻿using LLama.Common;
 
-namespace LLama.Web.Models
+namespace LLama.Web.Common
 {
     public class ModelOptions : ModelParams
     {

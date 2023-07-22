@@ -30,3 +30,22 @@ const ajaxGetJsonAsync = (url, data) => {
 		data: data
 	});
 }
+
+
+
+
+const Enums = {
+	SessionConnectionStatus: Object.freeze({
+		Disconnected: 0,
+		Loaded: 4,
+		Connected: 10
+	}),
+
+	GetName: (enumType, enumKey) => {
+		return Object.keys(enumType)[enumKey]
+	},
+
+	GetValue: (enumType, enumName) => {
+		return enumType[enumName];
+	}
+};
