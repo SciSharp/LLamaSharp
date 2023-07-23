@@ -25,6 +25,11 @@ namespace LLama.Web.Models
                 _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptOptions.OutputFilter, redundancyLength: 5);
         }
 
+        public string ModelName
+        {
+            get { return _modelOptions.Name; }
+        }
+
         public IAsyncEnumerable<string> InferAsync(string message, CancellationTokenSource cancellationTokenSource)
         {
             _cancellationTokenSource = cancellationTokenSource;

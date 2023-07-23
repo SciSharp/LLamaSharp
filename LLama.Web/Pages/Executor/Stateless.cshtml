@@ -1,0 +1,97 @@
+﻿@page
+@model StatelessModel
+@{
+
+}
+@Html.AntiForgeryToken()
+<div class="d-flex flex-row h-100 pt-1 pb-1">
+
+    <div class="d-flex flex-column h-100 border me-1 w-25 overflow-auto">
+        <div class="d-flex flex-row justify-content-between border-bottom p-1 align-items-center">
+            <h4>Stateless</h4>
+            <div>
+                <span>Hub: <b id="socket">Disconnected</b></span>
+            </div>
+        </div>
+
+        <div class="m-1">
+            <small>Model</small>
+            <select id="Model" class="form-control  form-select input-control" required="required" autocomplete="off">
+                <option value="" disabled selected hidden>Please Select</option>
+                @foreach (var modelOption in Model.Options.Models)
+                {
+                    <option value="@modelOption.Name">@modelOption.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="m-1">
+            <small>Parameters</small>
+            <select id="Parameter" class="form-control  form-select input-control" required="required" autocomplete="off">
+                <option value="" disabled selected hidden>Please Select</option>
+                @foreach (var parameterOption in Model.Options.Parameters)
+                {
+                    <option value="@parameterOption.Name">@parameterOption.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="m-1">
+            <small>Prompt</small>
+            <select id="Prompt" class="form-control  form-select input-control" required="required" autocomplete="off">
+                <option value="" disabled selected hidden>Please Select</option>
+                @foreach (var promptOption in Model.Options.Prompts)
+                {
+                    <option value="@promptOption.Name" data-prompt="@promptOption.Prompt">@promptOption.Name</option>
+                }
+            </select>
+            <textarea id="PromptText" class="form-control mt-1" rows="12" disabled="disabled" style="font-size:13px;resize:none"></textarea>
+        </div>
+
+        <div class="d-flex flex-grow-1"></div>
+        <div id="session-details" class="m-1"></div>
+        <div class="m-1">
+            <button class="btn btn-outline-secondary input-control w-100" type="button" id="load">Create Session</button>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column h-100 w-75">
+        <div class="section-head">
+        </div>
+
+        <div id="scroll-container" class="section-content border">
+            <div id="output-container" class="d-flex flex-column gap-1 p-1">
+            </div>
+        </div>
+
+        <div class="section-foot">
+            <div class="input-group mt-2">
+                <textarea id="input" type="text" class="form-control" value="what is a tree?" style="resize:none" rows="4">What is an apple?</textarea>
+                <div class="d-flex flex-column">
+                    <div class="d-flex flex-fill">
+                        <button class="btn btn-outline-secondary input-control w-100" type="button" id="send" disabled="disabled" autocomplete="off">Send Message</button>
+                    </div>
+                    <div class="d-flex">
+                        <button class="btn btn-outline-secondary w-100" type="button" id="cancel" autocomplete="off">
+                            <i class="bi-x-circle"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary input-control w-100" type="button" id="clear" disabled="disabled" autocomplete="off">
+                            <i class="bi-trash3"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@{ await Html.RenderPartialAsync("_ChatTemplates"); }
+
+
+@section Scripts {
+    <script src="~/js/sessionconnectionchat.js"></script>
+    <script>
+        createConnectionSessionChat(Enums.LLamaExecutorType.Stateless);
+    </script>
+}

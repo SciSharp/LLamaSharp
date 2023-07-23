@@ -1,0 +1,60 @@
+﻿<script id="outputErrorTemplate" type="text/html">
+    <i class="form-control text-danger">{{text}}</i>
+</script>
+
+<script id="outputInfoTemplate" type="text/html">
+    <i class="form-control text-success">{{text}}</i>
+</script>
+
+<script id="outputUserTemplate" type="text/html">
+    <div class="d-flex flex-row form-control bg-light">
+         <div class="m-2 me-4">
+             <img src="~/image/human.png" width="60"/>
+         </div>
+        <div class="d-flex flex-column flex-fill justify-content-between">
+            <span class="w-100" style="resize:none" >{{text}}</span>
+             <div class="d-flex justify-content-end">
+                 <i>{{date}}</i>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="outputBotTemplate" type="text/html">
+     <div class="d-flex flex-row form-control">
+        <div class="m-2 me-4">
+            <img src="~/image/robot.png" width="60"/>
+        </div>
+        <div id="{{id}}" class="d-flex flex-column flex-fill justify-content-between">
+            <span class="content">
+                <img src="~/image/loading.gif" width="30" />
+            </span>
+            <div class="d-flex justify-content-end">
+                <div class="d-flex flex-column align-items-end">
+                    <i class="date"></i>
+                    <i>
+                        <small class="signature"></small>
+                    </i>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="sessionDetailsTemplate" type="text/html">
+    <div>
+        <small>Session Details </small>
+    </div>
+    <div>
+        <i>Model: </i>
+         <span>{{model}}</span>
+    </div>
+    <div>
+        <i>Prompt: </i>
+         <span>{{prompt}}</span>
+    </div>
+    <div>
+        <i>Parameters: </i>
+        <span>{{parameter}}</span>
+    </div>
+</script>

@@ -7,12 +7,12 @@ using Microsoft.Extensions.Options;
 
 namespace LLama.Web.Pages
 {
-    public class InteractiveModel : PageModel
+    public class InstructModel : PageModel
     {
-        private readonly ILogger<InteractiveModel> _logger;
-        private readonly IModelSessionService _modelSessionService;
+        private readonly ILogger<InstructModel> _logger;
+        private readonly ConnectionSessionService _modelSessionService;
 
-        public InteractiveModel(ILogger<InteractiveModel> logger, IOptions<LLamaOptions> options, IModelSessionService modelSessionService)
+        public InstructModel(ILogger<InstructModel> logger, IOptions<LLamaOptions> options, ConnectionSessionService modelSessionService)
         {
             _logger = logger;
             Options = options.Value;

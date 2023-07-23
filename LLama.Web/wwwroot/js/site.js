@@ -40,7 +40,11 @@ const Enums = {
 		Loaded: 4,
 		Connected: 10
 	}),
-
+	LLamaExecutorType: Object.freeze({
+		Interactive: 0,
+		Instruct: 1,
+		Stateless: 2
+	}),
 	GetName: (enumType, enumKey) => {
 		return Object.keys(enumType)[enumKey]
 	},
