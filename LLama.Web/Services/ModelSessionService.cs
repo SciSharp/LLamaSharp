@@ -25,7 +25,7 @@ namespace LLama.Web.Services
         public Task<ModelSession> CreateAsync(string connectionId, ILLamaExecutor executor, ModelOptions modelOption, PromptOptions promptOption, ParameterOptions parameterOption)
         {
             //TODO: Max instance etc
-              var modelSession = new ModelSession( connectionId, executor, modelOption, promptOption, parameterOption);
+              var modelSession = new ModelSession(executor, modelOption, promptOption, parameterOption);
             if (!_modelSessions.TryAdd(connectionId, modelSession))
             {
                 _logger.Log(LogLevel.Error, "[CreateAsync] - Failed to create model session, Connection: {0}", connectionId);

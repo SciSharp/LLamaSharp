@@ -13,9 +13,8 @@ namespace LLama.Web.Models
         private ILLamaExecutor _executor;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public ModelSession(string connectionId, ILLamaExecutor executor, ModelOptions modelOptions, PromptOptions promptOptions, ParameterOptions parameterOptions)
+        public ModelSession(ILLamaExecutor executor, ModelOptions modelOptions, PromptOptions promptOptions, ParameterOptions parameterOptions)
         {
-            ConnectionId = connectionId;
             _executor = executor;
             _modelOptions = modelOptions;
             _promptOptions = promptOptions;
@@ -25,8 +24,6 @@ namespace LLama.Web.Models
             if (_promptOptions.OutputFilter?.Count > 0)
                 _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptOptions.OutputFilter, redundancyLength: 5);
         }
-
-        public string ConnectionId { get; }
 
         public IAsyncEnumerable<string> InferAsync(string message, CancellationTokenSource cancellationTokenSource)
         {

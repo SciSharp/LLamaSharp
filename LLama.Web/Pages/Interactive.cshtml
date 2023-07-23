@@ -172,8 +172,8 @@
         const chatInput = $("#input");
 
 
-        const onStatus = (connectionId, status) => {
-            connectionId = connectionId;
+        const onStatus = (connection, status) => {
+            connectionId = connection;
             if (status == Enums.SessionConnectionStatus.Connected) {
                 $("#socket").text("Connected").addClass("text-success");
             }
