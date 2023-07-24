@@ -13,7 +13,7 @@ namespace LLama
         /// <summary>
         /// The initial state of the model
         /// </summary>
-        public byte[] OriginalState { get; set; }
+        public State OriginalState { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -21,7 +21,7 @@ namespace LLama
         /// <param name="encoding"></param>
         public ResettableLLamaModel(ModelParams Params, string encoding = "UTF-8") : base(Params, encoding)
         {
-            OriginalState = GetStateData();
+            OriginalState = GetState();
         }
 
         /// <summary>
@@ -30,6 +30,14 @@ namespace LLama
         public void Reset()
         {
             LoadState(OriginalState);
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            OriginalState.Dispose();
+
+            base.Dispose();
         }
     }
 }

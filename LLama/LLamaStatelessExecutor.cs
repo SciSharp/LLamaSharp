@@ -3,10 +3,8 @@ using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 
 namespace LLama
@@ -19,7 +17,7 @@ namespace LLama
     public class StatelessExecutor : ILLamaExecutor
     {
         private LLamaModel _model;
-        private byte[] _originalState;
+        private LLamaModel.State _originalState;
         /// <summary>
         /// The mode used by the executor when running the inference.
         /// </summary>
@@ -33,7 +31,7 @@ namespace LLama
             _model = model;
             var tokens = model.Tokenize(" ", true);
             Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, tokens.Count(), 0, _model.Params.Threads);
-            _originalState = model.GetStateData();
+            _originalState = model.GetState();
         }
 
         /// <inheritdoc />
