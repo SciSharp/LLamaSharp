@@ -12,8 +12,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="fname_inp"></param>
         /// <param name="fname_out"></param>
-        /// <param name="ftype"></param>
-        /// <param name="nthread">how many threads to use. If <=0, will use std::thread::hardware_concurrency(), else the number given</param>
+        /// <param name="param"></param>
         /// <remarks>not great API - very likely to change</remarks>
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]

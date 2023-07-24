@@ -15,6 +15,7 @@ namespace LLama.Abstractions
         /// The loaded model for this executor.
         /// </summary>
         public LLamaModel Model { get; }
+
         /// <summary>
         /// Infers a response from the model.
         /// </summary>
@@ -24,6 +25,13 @@ namespace LLama.Abstractions
         /// <returns></returns>
         IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken token = default);
 
+        /// <summary>
+        /// Asynchronously infers a response from the model.
+        /// </summary>
+        /// <param name="text">Your prompt</param>
+        /// <param name="inferenceParams">Any additional parameters</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns></returns>
         IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, CancellationToken token = default);
     }
 }

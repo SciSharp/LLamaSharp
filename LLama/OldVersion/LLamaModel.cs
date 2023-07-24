@@ -796,6 +796,7 @@ namespace LLama.OldVersion
             }
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _ctx.Dispose();
