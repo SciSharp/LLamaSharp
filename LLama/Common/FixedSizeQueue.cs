@@ -31,7 +31,7 @@ namespace LLama.Common
         public FixedSizeQueue(int size, IEnumerable<T> data)
         {
             // Try an early check on the amount of data supplied (if possible)
-            if (data.TryGetNonEnumeratedCount(out var count))
+            if (data.TryGetNonEnumeratedCount(out var count) && count > size)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
 
             // Size of "data" is unknown, copy it all into a list
