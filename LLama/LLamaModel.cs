@@ -1,14 +1,15 @@
 ﻿using LLama.Exceptions;
 using LLama.Native;
-using LLama.OldVersion;
-using LLama.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using LLama.Common;
+using System.Runtime.InteropServices;
+using LLama.Extensions;
+using Microsoft.Win32.SafeHandles;
 
 namespace LLama
 {
@@ -89,13 +90,37 @@ namespace LLama
         /// <param name="filename"></param>
         public void SaveState(string filename)
         {
-            File.WriteAllBytes(filename, GetStateData());
+            // Delete that file before overwriting it
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            // Estimate size of state to write to disk, this is always equal to or greater than the actual size
+            var estimatedStateSize = (long)NativeApi.llama_get_state_size(_ctx);
+
+            // Map the file and write the bytes directly to it. This saves copying the bytes into a C# array
+            long writtenBytes;
+            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, estimatedStateSize))
+            using (var view = file.CreateViewAccessor(0, estimatedStateSize))
+            {
+                unsafe
+                {
+                    byte* ptr = null;
+                    view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
+                    writtenBytes = (long)NativeApi.llama_copy_state_data(_ctx, ptr);
+                    view.SafeMemoryMappedViewHandle.ReleasePointer();
+                }
+            }
+
+            // Truncate the file to the actual size of data that was written
+            using (var fileStream = new FileStream(filename, FileMode.Open))
+                fileStream.SetLength(writtenBytes);
         }
 
         /// <summary>
         /// Get the state data as a byte array.
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Use `GetState` instead, this supports larger states (over 2GB)")]
         public byte[] GetStateData()
         {
             var stateSize = NativeApi.llama_get_state_size(_ctx);
@@ -105,14 +130,62 @@ namespace LLama
         }
 
         /// <summary>
+        /// Get the state data as an opaque handle
+        /// </summary>
+        /// <returns></returns>
+        public State GetState()
+        {
+            var stateSize = NativeApi.llama_get_state_size(_ctx);
+
+            unsafe
+            {
+                var bigMemory = Marshal.AllocHGlobal((nint)stateSize);
+                var smallMemory = IntPtr.Zero;
+                try
+                {
+                    // Copy the state data into "big memory", discover the actual size required
+                    var actualSize = NativeApi.llama_copy_state_data(_ctx, (byte*)bigMemory);
+
+                    // Allocate a smaller buffer
+                    smallMemory = Marshal.AllocHGlobal((nint)actualSize);
+
+                    // Copy into the smaller buffer and free the large one to save excess memory usage
+                    Buffer.MemoryCopy(bigMemory.ToPointer(), smallMemory.ToPointer(), actualSize, actualSize);
+                    Marshal.FreeHGlobal(bigMemory);
+                    bigMemory = IntPtr.Zero;
+
+                    return new State(smallMemory);
+                }
+                catch
+                {
+                    if (bigMemory != IntPtr.Zero)
+                        Marshal.FreeHGlobal(bigMemory);
+                    if (smallMemory != IntPtr.Zero)
+                        Marshal.FreeHGlobal(smallMemory);
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
         /// Load the state from specified path.
         /// </summary>
         /// <param name="filename"></param>
         /// <exception cref="RuntimeError"></exception>
         public void LoadState(string filename)
         {
-            var stateMemory = File.ReadAllBytes(filename);
-            LoadState(stateMemory);
+            // Map state file into memory and pass that pointer directly to `llama_set_state_data` to load from
+            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Open, null))
+            using (var view = file.CreateViewAccessor())
+            {
+                unsafe
+                {
+                    byte* ptr = null;
+                    view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
+                    NativeApi.llama_set_state_data(_ctx, ptr);
+                    view.SafeMemoryMappedViewHandle.ReleasePointer();
+                }
+            }
         }
 
         /// <summary>
@@ -123,11 +196,24 @@ namespace LLama
         public void LoadState(byte[] stateData)
         {
             int stateSize = (int)NativeApi.llama_get_state_size(_ctx);
-            if (stateData.Length != stateSize)
+            if (stateData.Length > stateSize)
             {
                 throw new RuntimeError("Failed to validate state size.");
             }
             NativeApi.llama_set_state_data(_ctx, stateData);
+        }
+
+        /// <summary>
+        /// Load the state from memory.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <exception cref="RuntimeError"></exception>
+        public void LoadState(State state)
+        {
+            unsafe
+            {
+                NativeApi.llama_set_state_data(_ctx, (byte*)state.DangerousGetHandle().ToPointer());
+            }
         }
 
         /// <summary>
@@ -273,12 +359,30 @@ namespace LLama
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Dispose()
+        /// <inheritdoc />
+        public virtual void Dispose()
         {
             _ctx.Dispose();
+        }
+
+        /// <summary>
+        /// The state of this model, which can be reloaded later
+        /// </summary>
+        public class State
+            : SafeHandleZeroOrMinusOneIsInvalid
+        {
+            internal State(IntPtr memory)
+                : base(true)
+            {
+                SetHandle(memory);
+            }
+
+            /// <inheritdoc />
+            protected override bool ReleaseHandle()
+            {
+                Marshal.FreeHGlobal(handle);
+                return true;
+            }
         }
     }
 }

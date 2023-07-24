@@ -134,8 +134,9 @@ namespace LLama
         /// <summary>
         /// Get the response from the LLama model with chat histories.
         /// </summary>
-        /// <param name="prompt"></param>
+        /// <param name="history"></param>
         /// <param name="inferenceParams"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public IEnumerable<string> Chat(ChatHistory history, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
@@ -156,6 +157,7 @@ namespace LLama
         /// </summary>
         /// <param name="prompt"></param>
         /// <param name="inferenceParams"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public IEnumerable<string> Chat(string prompt, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
@@ -176,8 +178,9 @@ namespace LLama
         /// <summary>
         /// Get the response from the LLama model with chat histories.
         /// </summary>
-        /// <param name="prompt"></param>
+        /// <param name="history"></param>
         /// <param name="inferenceParams"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async IAsyncEnumerable<string> ChatAsync(ChatHistory history, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {

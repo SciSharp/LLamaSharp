@@ -8,7 +8,7 @@ namespace LLama.Native
     public struct LLamaModelQuantizeParams
     {
         /// <summary>
-        /// number of threads to use for quantizing, if <=0 will use std::thread::hardware_concurrency()
+        /// number of threads to use for quantizing, if &lt;=0 will use std::thread::hardware_concurrency()
         /// </summary>
         public int nthread;
         /// <summary>

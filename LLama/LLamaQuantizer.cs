@@ -18,10 +18,12 @@ namespace LLama
         /// <param name="dstFilename">The path to save the quantized model.</param>
         /// <param name="ftype">The type of quantization.</param>
         /// <param name="nthread">Thread to be used during the quantization. By default it's the physical core number.</param>
+        /// <param name="allowRequantize"></param>
+        /// <param name="quantizeOutputTensor"></param>
         /// <returns>Whether the quantization is successful.</returns>
         /// <exception cref="ArgumentException"></exception>
         public static unsafe bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1, bool allowRequantize = true, 
-            bool quantizeOutputTensor = false)
+                                           bool quantizeOutputTensor = false)
         {
             if (!ValidateFtype(ftype))
             {
@@ -45,10 +47,12 @@ namespace LLama
         /// <param name="dstFilename">The path to save the quantized model.</param>
         /// <param name="ftype">The type of quantization.</param>
         /// <param name="nthread">Thread to be used during the quantization. By default it's the physical core number.</param>
+        /// <param name="allowRequantize"></param>
+        /// <param name="quantizeOutputTensor"></param>
         /// <returns>Whether the quantization is successful.</returns>
         /// <exception cref="ArgumentException"></exception>
         public static bool Quantize(string srcFileName, string dstFilename, string ftype, int nthread = -1, bool allowRequantize = true,
-            bool quantizeOutputTensor = false)
+                                    bool quantizeOutputTensor = false)
         {
             return Quantize(srcFileName, dstFilename, StringToFtype(ftype), nthread, allowRequantize, quantizeOutputTensor);
         }

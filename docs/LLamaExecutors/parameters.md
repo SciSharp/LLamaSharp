@@ -1,6 +1,6 @@
 # Inference Parameters
 
-Different from `LLamaModel`, when using an exeuctor, `InferenceParams` is passed to the `Infer` method instead of constructor. This is because executors only define the ways to run the model, therefore in each run, you can change the settings for this time inference.
+Different from `LLamaModel`, when using an executor, `InferenceParams` is passed to the `Infer` method instead of constructor. This is because executors only define the ways to run the model, therefore in each run, you can change the settings for this time inference.
 
 
 # InferenceParams
@@ -29,7 +29,7 @@ public int TokensKeep { get; set; }
 
 ### **MaxTokens**
 
-how many new tokens to predict (n_predict), set to -1 to inifinitely generate response
+how many new tokens to predict (n_predict), set to -1 to infinitely generate response
  until it complete.
 
 ```csharp

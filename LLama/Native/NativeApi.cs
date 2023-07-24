@@ -25,7 +25,7 @@ namespace LLama.Native
                     "3. The backend is not compatible with your system cuda environment. Please check and fix it. If the environment is " +
                     "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.");
             }
-            NativeApi.llama_init_backend();
+            NativeApi.llama_backend_init(false);
         }
         private const string libraryName = "libllama";
 
@@ -64,8 +64,7 @@ namespace LLama.Native
         /// Call once at the start of the program
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_init_backend();
-
+        public static extern void llama_backend_init(bool numa);
         /// <summary>
         /// Frees all allocated memory
         /// </summary>
@@ -116,23 +115,50 @@ namespace LLama.Native
         /// <summary>
         /// Copies the state to the specified destination address.
         /// Destination needs to have allocated enough memory.
-        /// Returns the number of bytes copied
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="dest"></param>
-        /// <returns></returns>
+        /// <returns>the number of bytes copied</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong llama_copy_state_data(SafeLLamaContextHandle ctx, byte[] dest);
+        public static extern ulong llama_copy_state_data(SafeLLamaContextHandle ctx, byte* dest);
+
+        /// <summary>
+        /// Copies the state to the specified destination address.
+        /// Destination needs to have allocated enough memory (see llama_get_state_size)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="dest"></param>
+        /// <returns>the number of bytes copied</returns>
+        public static ulong llama_copy_state_data(SafeLLamaContextHandle ctx, byte[] dest)
+        {
+            fixed (byte* dstPtr = &dest[0])
+            {
+                return llama_copy_state_data(ctx, dstPtr);
+            }
+        }
 
         /// <summary>
         /// Set the state reading from the specified address
-        /// Returns the number of bytes read
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="src"></param>
-        /// <returns></returns>
+        /// <returns>the number of bytes read</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong llama_set_state_data(SafeLLamaContextHandle ctx, byte[] src);
+        public static extern ulong llama_set_state_data(SafeLLamaContextHandle ctx, byte* src);
+
+        /// <summary>
+        /// Set the state reading from the specified address
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="src"></param>
+        /// <returns>the number of bytes read</returns>
+        public static ulong llama_set_state_data(SafeLLamaContextHandle ctx, byte[] src)
+        {
+            fixed (byte* srcPtr = &src[0])
+            {
+                return llama_set_state_data(ctx, srcPtr);
+            }
+        }
 
         /// <summary>
         /// Load session file

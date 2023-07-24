@@ -26,7 +26,7 @@ The `message` is the log message itself.
 
 The `level` is the level of the information in the log. As shown above, there're four levels, which are `info`, `debug`, `warning` and `error` respectively.
 
-The following is a simple example of theb logger implementation:
+The following is a simple example of the logger implementation:
 
 ```cs
 public sealed class LLamaDefaultLogger : ILLamaLogger

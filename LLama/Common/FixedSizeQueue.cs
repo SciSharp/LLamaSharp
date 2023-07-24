@@ -24,7 +24,7 @@ namespace LLama.Common
         }
 
         /// <summary>
-        /// Fill the quene with the data. Please ensure that data.Count <= size
+        /// Fill the quene with the data. Please ensure that data.Count &lt;= size
         /// </summary>
         /// <param name="size"></param>
         /// <param name="data"></param>

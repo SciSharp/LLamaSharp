@@ -3,10 +3,8 @@ using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 
 namespace LLama
@@ -19,7 +17,7 @@ namespace LLama
     public class StatelessExecutor : ILLamaExecutor
     {
         private LLamaModel _model;
-        private byte[] _originalState;
+        private LLamaModel.State _originalState;
         /// <summary>
         /// The mode used by the executor when running the inference.
         /// </summary>
@@ -31,9 +29,10 @@ namespace LLama
         public StatelessExecutor(LLamaModel model)
         {
             _model = model;
+            
             var tokens = model.Tokenize(" ", true).ToArray();
             Utils.Eval(_model.NativeHandle, tokens, 0, tokens.Length, 0, _model.Params.Threads);
-            _originalState = model.GetStateData();
+            _originalState = model.GetState();
         }
 
         /// <inheritdoc />
@@ -123,10 +122,12 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken token = default)
+        public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            yield return "";
-            throw new NotImplementedException();
+            foreach (var result in Infer(text, inferenceParams, cancellationToken))
+            {
+                yield return result;
+            }
         }
     }
 }

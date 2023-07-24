@@ -39,9 +39,9 @@ namespace LLama.OldVersion
         }
 
         /// <summary>
-        /// Set the keyword to split the return value of chat AI.
+        /// Set the keywords to split the return value of chat AI.
         /// </summary>
-        /// <param name="humanName"></param>
+        /// <param name="antiprompt"></param>
         /// <returns></returns>
         public ChatSession<T> WithAntiprompt(string[] antiprompt)
         {
