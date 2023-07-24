@@ -1,4 +1,4 @@
-﻿namespace LLama.Web.Models
+﻿namespace LLama.Web.Common
 {
     public class LLamaOptions
     {

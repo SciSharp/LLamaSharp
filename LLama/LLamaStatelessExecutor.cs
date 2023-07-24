@@ -121,10 +121,12 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken token = default)
+        public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            yield return "";
-            throw new NotImplementedException();
+            foreach (var result in Infer(text, inferenceParams, cancellationToken))
+            {
+                yield return result;
+            }
         }
     }
 }

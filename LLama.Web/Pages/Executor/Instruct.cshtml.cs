@@ -1,4 +1,5 @@
-﻿using LLama.Web.Models;
+﻿using LLama.Web.Common;
+using LLama.Web.Models;
 using LLama.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -6,12 +7,12 @@ using Microsoft.Extensions.Options;
 
 namespace LLama.Web.Pages
 {
-    public class InteractiveModel : PageModel
+    public class InstructModel : PageModel
     {
-        private readonly ILogger<InteractiveModel> _logger;
-        private readonly IModelSessionService _modelSessionService;
+        private readonly ILogger<InstructModel> _logger;
+        private readonly ConnectionSessionService _modelSessionService;
 
-        public InteractiveModel(ILogger<InteractiveModel> logger, IOptions<LLamaOptions> options, IModelSessionService modelSessionService)
+        public InstructModel(ILogger<InstructModel> logger, IOptions<LLamaOptions> options, ConnectionSessionService modelSessionService)
         {
             _logger = logger;
             Options = options.Value;
@@ -24,7 +25,7 @@ namespace LLama.Web.Pages
         {
         }
 
-        public async Task<IActionResult> OnPostCancel([FromBody]CancelModel model)
+        public async Task<IActionResult> OnPostCancel(CancelModel model)
         {
             await _modelSessionService.CancelAsync(model.ConnectionId);
             return new JsonResult(default);

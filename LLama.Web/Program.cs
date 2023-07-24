@@ -1,5 +1,5 @@
+using LLama.Web.Common;
 using LLama.Web.Hubs;
-using LLama.Web.Models;
 using LLama.Web.Services;
 
 namespace LLama.Web
@@ -20,7 +20,7 @@ namespace LLama.Web
                 .BindConfiguration(nameof(LLamaOptions));
 
             // Services DI
-            builder.Services.AddSingleton<IModelSessionService, ModelSessionService>();
+            builder.Services.AddSingleton<ConnectionSessionService>();
 
             var app = builder.Build();
 
@@ -41,7 +41,7 @@ namespace LLama.Web
 
             app.MapRazorPages();
 
-            app.MapHub<InteractiveHub>(nameof(InteractiveHub));
+            app.MapHub<SessionConnectionHub>(nameof(SessionConnectionHub));
 
             app.Run();
         }

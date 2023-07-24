@@ -1,4 +1,5 @@
 ﻿using LLama.Abstractions;
+using LLama.Web.Common;
 
 namespace LLama.Web.Models
 {
@@ -12,9 +13,8 @@ namespace LLama.Web.Models
         private ILLamaExecutor _executor;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public ModelSession(string connectionId, ILLamaExecutor executor, ModelOptions modelOptions, PromptOptions promptOptions, ParameterOptions parameterOptions)
+        public ModelSession(ILLamaExecutor executor, ModelOptions modelOptions, PromptOptions promptOptions, ParameterOptions parameterOptions)
         {
-            ConnectionId = connectionId;
             _executor = executor;
             _modelOptions = modelOptions;
             _promptOptions = promptOptions;
@@ -25,7 +25,10 @@ namespace LLama.Web.Models
                 _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptOptions.OutputFilter, redundancyLength: 5);
         }
 
-        public string ConnectionId { get; }
+        public string ModelName
+        {
+            get { return _modelOptions.Name; }
+        }
 
         public IAsyncEnumerable<string> InferAsync(string message, CancellationTokenSource cancellationTokenSource)
         {
