@@ -1,13 +1,11 @@
 ﻿using LLama.Exceptions;
 using LLama.Native;
-using LLama.OldVersion;
-using LLama.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using LLama.Common;
 
 namespace LLama
@@ -89,7 +87,30 @@ namespace LLama
         /// <param name="filename"></param>
         public void SaveState(string filename)
         {
-            File.WriteAllBytes(filename, GetStateData());
+            // Delete that file before overwriting it
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            // Estimate size of state to write to disk, this is always equal to or greater than the actual size
+            var estimatedStateSize = (long)NativeApi.llama_get_state_size(_ctx);
+
+            // Map the file and write the bytes directly to it. This saves copying the bytes into a C# array
+            long writtenBytes;
+            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, estimatedStateSize))
+            using (var view = file.CreateViewAccessor(0, estimatedStateSize))
+            {
+                unsafe
+                {
+                    byte* ptr = null;
+                    view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
+                    writtenBytes = (long)NativeApi.llama_copy_state_data(_ctx, ptr);
+                    view.SafeMemoryMappedViewHandle.ReleasePointer();
+                }
+            }
+
+            // Truncate the file to the actual size of data that was written
+            using (var fileStream = new FileStream(filename, FileMode.Open))
+                fileStream.SetLength(writtenBytes);
         }
 
         /// <summary>
@@ -111,8 +132,18 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public void LoadState(string filename)
         {
-            var stateMemory = File.ReadAllBytes(filename);
-            LoadState(stateMemory);
+            // Map state file into memory and pass that pointer directly to `llama_set_state_data` to load from
+            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Open, null))
+            using (var view = file.CreateViewAccessor())
+            {
+                unsafe
+                {
+                    byte* ptr = null;
+                    view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
+                    NativeApi.llama_set_state_data(_ctx, ptr);
+                    view.SafeMemoryMappedViewHandle.ReleasePointer();
+                }
+            }
         }
 
         /// <summary>
@@ -123,7 +154,7 @@ namespace LLama
         public void LoadState(byte[] stateData)
         {
             int stateSize = (int)NativeApi.llama_get_state_size(_ctx);
-            if (stateData.Length != stateSize)
+            if (stateData.Length > stateSize)
             {
                 throw new RuntimeError("Failed to validate state size.");
             }
