@@ -21,10 +21,10 @@ After running `cmake --build . --config Release`, you could find the `llama.dll`
 
 ## Add a new feature to LLamaSharp
 
-After refactoring the framework in `v0.4.0`, LLamaSharp will try to maintain the backward compatibility. However, in the following cases, break change is okay:
+After refactoring the framework in `v0.4.0`, LLamaSharp will try to maintain the backward compatibility. However, in the following cases a breaking change will be required:
 
-1. Due to some break changes in [llama.cpp](https://github.com/ggerganov/llama.cpp), making a break change will help to maintain the good abstraction and friendly user APIs.
-2. A very improtant feature cannot be implemented unless refactoring some parts.
+1. Due to some break changes in [llama.cpp](https://github.com/ggerganov/llama.cpp), making a breaking change will help to maintain the good abstraction and friendly user APIs.
+2. A very important feature cannot be implemented unless refactoring some parts.
 3. After some discussions, an agreement was reached that making the break change is reasonable.
 
 If a new feature could be added without introducing any break change, please **open a PR** rather than open an issue first. We will never refuse the PR but help to improve it, unless it's malicious.
@@ -58,8 +58,8 @@ Besides, for some other integrations, like `ASP.NET core`, `SQL`, `Blazor` and s
 There're mainly two ways to add an example:
 
 1. Add the example to `LLama.Examples` of the repository.
-2. Put the example in another repositpry and add the link to the readme or docs of LLamaSharp.
+2. Put the example in another repository and add the link to the readme or docs of LLamaSharp.
 
 ## Add documents
 
-LLamaSharp uses [mkdocs](https://github.com/mkdocs/mkdocs) to build the documantation, please follow the tutorial of mkdocs to add or modify documents in LLamaSharp.
+LLamaSharp uses [mkdocs](https://github.com/mkdocs/mkdocs) to build the documentation, please follow the tutorial of mkdocs to add or modify documents in LLamaSharp.

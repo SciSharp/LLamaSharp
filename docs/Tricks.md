@@ -29,7 +29,7 @@ $$ len(prompt) + len(response) < len(context) $$
 
 In this inequality, `len(response)` refers to the expected tokens for LLM to generate.
 
-## Try differenct executors with a prompt
+## Try different executors with a prompt
 
 Some prompt works well under interactive mode, such as `chat-with-bob`, some others may work well with instruct mode, such as `alpaca`. Besides, if your input is quite simple and one-time job, such as "Q: what is the satellite of the earth? A: ", stateless mode will be a good choice.
 
@@ -41,4 +41,4 @@ The differences between modes may lead to much different behaviors under the sam
 
 ## Set the layer count you want to offload to GPU
 
-Currently, the `GpuLayerCount` param, which decides the number of layer loaded into GPU, is set to 20 by default. However, if you have some efficient GPUs, setting it as a larger number will attain faster inference.
+Currently, the `GpuLayerCount` parameter, which decides the number of layer loaded into GPU, is set to 20 by default. However, if you have some efficient GPUs, setting it as a larger number will attain faster inference.
