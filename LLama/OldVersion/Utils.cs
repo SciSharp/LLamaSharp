@@ -31,18 +31,12 @@ namespace LLama.OldVersion
                 throw new FileNotFoundException($"The model file does not exist: {@params.model}");
             }
 
-            var ctx_ptr = NativeApi.llama_init_from_file(@params.model, lparams);
-
-            if (ctx_ptr == IntPtr.Zero)
-            {
-                throw new RuntimeError($"Failed to load model {@params.model}.");
-            }
-
-            SafeLLamaContextHandle ctx = new(ctx_ptr);
+            var model = SafeLlamaModelHandle.LoadFromFile(@params.model, lparams);
+            var ctx = SafeLLamaContextHandle.Create(model, lparams);
 
             if (!string.IsNullOrEmpty(@params.lora_adapter))
             {
-                int err = NativeApi.llama_apply_lora_from_file(ctx, @params.lora_adapter,
+                int err = NativeApi.llama_model_apply_lora_from_file(model, @params.lora_adapter,
                     string.IsNullOrEmpty(@params.lora_base) ? null : @params.lora_base, @params.n_threads);
                 if (err != 0)
                 {

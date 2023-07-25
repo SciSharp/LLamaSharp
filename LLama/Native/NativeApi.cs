@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -29,7 +27,7 @@ namespace LLama.Native
         }
         private const string libraryName = "libllama";
 
-        [DllImport("libllama", EntryPoint = "llama_mmap_supported", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(libraryName, EntryPoint = "llama_mmap_supported", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_empty_call();
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -56,7 +54,10 @@ namespace LLama.Native
         /// <param name="params_"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr llama_init_from_file(string path_model, LLamaContextParams params_);
+        public static extern IntPtr llama_load_model_from_file(string path_model, LLamaContextParams params_);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams params_);
 
         /// <summary>
         /// not great API - very likely to change. 
@@ -65,6 +66,7 @@ namespace LLama.Native
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_backend_init(bool numa);
+
         /// <summary>
         /// Frees all allocated memory
         /// </summary>
@@ -73,19 +75,26 @@ namespace LLama.Native
         public static extern void llama_free(IntPtr ctx);
 
         /// <summary>
+        /// Frees all allocated memory associated with a model
+        /// </summary>
+        /// <param name="model"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_free_model(IntPtr model);
+        
+        /// <summary>
         /// Apply a LoRA adapter to a loaded model
         /// path_base_model is the path to a higher quality model to use as a base for
         /// the layers modified by the adapter. Can be NULL to use the current loaded model.
         /// The model needs to be reloaded before applying a new adapter, otherwise the adapter
         /// will be applied on top of the previous one
         /// </summary>
-        /// <param name="ctx"></param>
+        /// <param name="model_ptr"></param>
         /// <param name="path_lora"></param>
         /// <param name="path_base_model"></param>
         /// <param name="n_threads"></param>
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_apply_lora_from_file(SafeLLamaContextHandle ctx, string path_lora, string path_base_model, int n_threads);
+        public static extern int llama_model_apply_lora_from_file(SafeLlamaModelHandle model_ptr, string path_lora, string? path_base_model, int n_threads);
 
         /// <summary>
         /// Returns the number of tokens in the KV cache

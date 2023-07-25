@@ -44,19 +44,18 @@ namespace LLama
                 throw new FileNotFoundException($"The model file does not exist: {@params.ModelPath}");
             }
 
-            var ctx_ptr = NativeApi.llama_init_from_file(@params.ModelPath, lparams);
-
-            if (ctx_ptr == IntPtr.Zero)
-            {
-                throw new RuntimeError($"Failed to load model {@params.ModelPath}.");
-            }
-
-            SafeLLamaContextHandle ctx = new(ctx_ptr);
+            var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+            var ctx = SafeLLamaContextHandle.Create(model, lparams);
 
             if (!string.IsNullOrEmpty(@params.LoraAdapter))
             {
-                int err = NativeApi.llama_apply_lora_from_file(ctx, @params.LoraAdapter,
-                    string.IsNullOrEmpty(@params.LoraBase) ? null : @params.LoraBase, @params.Threads);
+                var err = NativeApi.llama_model_apply_lora_from_file(
+                    model,
+                    @params.LoraAdapter,
+                    string.IsNullOrEmpty(@params.LoraBase) ? null : @params.LoraBase,
+                    @params.Threads
+                );
+
                 if (err != 0)
                 {
                     throw new RuntimeError("Failed to apply lora adapter.");
@@ -78,7 +77,7 @@ namespace LLama
             return res.Take(n);
         }
 
-        public unsafe static Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
+        public static unsafe Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
         {
             var logits = NativeApi.llama_get_logits(ctx);
             return new Span<float>(logits, length);
