@@ -37,5 +37,26 @@ namespace LLama.Native
 
             return new SafeLlamaModelHandle(model_ptr);
         }
+
+        /// <summary>
+        /// Apply a LoRA adapter to a loaded model
+        /// </summary>
+        /// <param name="lora"></param>
+        /// <param name="modelBase">A path to a higher quality model to use as a base for the layers modified by the
+        /// adapter. Can be NULL to use the current loaded model.</param>
+        /// <param name="threads"></param>
+        /// <exception cref="RuntimeError"></exception>
+        public void ApplyLoraFromFile(string lora, string? modelBase = null, int threads = -1)
+        {
+            var err = NativeApi.llama_model_apply_lora_from_file(
+                this,
+                lora,
+                string.IsNullOrEmpty(modelBase) ? null : modelBase,
+                threads
+            );
+
+            if (err != 0)
+                throw new RuntimeError("Failed to apply lora adapter.");
+        }
     }
 }

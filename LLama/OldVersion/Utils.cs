@@ -35,14 +35,8 @@ namespace LLama.OldVersion
             var ctx = SafeLLamaContextHandle.Create(model, lparams);
 
             if (!string.IsNullOrEmpty(@params.lora_adapter))
-            {
-                int err = NativeApi.llama_model_apply_lora_from_file(model, @params.lora_adapter,
-                    string.IsNullOrEmpty(@params.lora_base) ? null : @params.lora_base, @params.n_threads);
-                if (err != 0)
-                {
-                    throw new RuntimeError("Failed to apply lora adapter.");
-                }
-            }
+                model.ApplyLoraFromFile(@params.lora_adapter, @params.lora_base, @params.n_threads);
+
             return ctx;
         }
 
