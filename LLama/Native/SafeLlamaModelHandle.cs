@@ -9,9 +9,21 @@ namespace LLama.Native
     public class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
+        /// <summary>
+        /// Total number of tokens in vocabulary of this model
+        /// </summary>
+        public int VocabCount { get; set; }
+
+        public int ContextSize { get; set; }
+
+        public int EmbeddingCount { get; set; }
+
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)
         {
+            VocabCount = NativeApi.llama_n_vocab_from_model(this);
+            ContextSize = NativeApi.llama_n_ctx_from_model(this);
+            EmbeddingCount = NativeApi.llama_n_embd_from_model(this);
         }
 
         /// <inheritdoc />

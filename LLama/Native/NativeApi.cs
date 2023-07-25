@@ -303,5 +303,14 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr llama_print_system_info();
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_n_vocab_from_model(SafeLlamaModelHandle model);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_n_ctx_from_model(SafeLlamaModelHandle model);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_n_embd_from_model(SafeLlamaModelHandle model);
     }
 }
