@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LLama.Native
 {
-    public abstract class SafeLLamaHandleBase: SafeHandle
+    /// <summary>
+    /// Base class for all llama handles to native resources
+    /// </summary>
+    public abstract class SafeLLamaHandleBase
+        : SafeHandle
     {
         private protected SafeLLamaHandleBase()
             : base(IntPtr.Zero, ownsHandle: true)
@@ -24,8 +26,10 @@ namespace LLama.Native
             SetHandle(handle);
         }
 
+        /// <inheritdoc />
         public override bool IsInvalid => handle == IntPtr.Zero;
 
+        /// <inheritdoc />
         public override string ToString()
             => $"0x{handle.ToString("x16")}";
     }
