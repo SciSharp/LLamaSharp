@@ -25,6 +25,9 @@ namespace LLama.Native
     {
         static NativeApi()
         {
+            // Try to load a preferred library, based on CPU feature detection
+            TryLoadLibrary();
+
             try
             {
                 llama_empty_call();
@@ -35,11 +38,61 @@ namespace LLama.Native
                     "1. No LLamaSharp backend was installed. Please search LLamaSharp.Backend and install one of them. \n" +
                     "2. You are using a device with only CPU but installed cuda backend. Please install cpu backend instead. \n" +
                     "3. The backend is not compatible with your system cuda environment. Please check and fix it. If the environment is " +
-                    "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.\n" + 
+                    "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.\n" +
                     "4. One of the dependency of the native library is missed.\n");
             }
-            NativeApi.llama_backend_init(false);
+            llama_backend_init(false);
         }
+
+        /// <summary>
+        /// Try to load libllama, using CPU feature detection to try and load a more specialised DLL if possible
+        /// </summary>
+        /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
+        private static IntPtr TryLoadLibrary()
+        {
+#if NET6_0_OR_GREATER
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // All of the Windows libraries, in order of preference
+                return TryLoad("win-cuda12/libllama.dll")
+                    ?? TryLoad("win-cuda11/libllama.dll")
+#if NET8_0_OR_GREATER
+                    ?? TryLoad("win-avx512/libllama.dll", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
+#endif
+                    ?? TryLoad("win-avx2/libllama.dll", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
+                    ?? TryLoad("win-avx/libllama.dll", System.Runtime.Intrinsics.X86.Avx.IsSupported)
+                    ?? IntPtr.Zero;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return IntPtr.Zero;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return IntPtr.Zero;
+            }
+#endif
+
+            return IntPtr.Zero;
+
+#if NET6_0_OR_GREATER
+            // Try to load a DLL from the path if supported. Returns null if nothing is loaded.
+            static IntPtr? TryLoad(string path, bool supported = true)
+            {
+                if (!supported)
+                    return null;
+
+                if (NativeLibrary.TryLoad(path, out var handle))
+                    return handle;
+
+                return null;
+            }
+#endif
+        }
+
         private const string libraryName = "libllama";
 
         /// <summary>
