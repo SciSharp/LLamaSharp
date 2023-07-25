@@ -52,6 +52,7 @@ namespace LLama.Native
             return new SafeLlamaModelHandle(model_ptr);
         }
 
+        #region LoRA
         /// <summary>
         /// Apply a LoRA adapter to a loaded model
         /// </summary>
@@ -72,7 +73,9 @@ namespace LLama.Native
             if (err != 0)
                 throw new RuntimeError("Failed to apply lora adapter.");
         }
+        #endregion
 
+        #region tokenize
         /// <summary>
         /// Convert a single llama token into string bytes
         /// </summary>
@@ -109,5 +112,45 @@ namespace LLama.Native
                 }
             }
         }
+
+        /// <summary>
+        /// Convert a string of text into tokens
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="add_bos"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public int[] Tokenize(string text, bool add_bos, Encoding encoding)
+        {
+            // Convert string to bytes, adding one extra byte to the end (null terminator)
+            var bytesCount = encoding.GetByteCount(text);
+            var bytes = new byte[bytesCount + 1];
+            unsafe
+            {
+                fixed (char* charPtr = text)
+                fixed (byte* bytePtr = &bytes[0])
+                {
+                    encoding.GetBytes(charPtr, text.Length, bytePtr, bytes.Length);
+                }
+            }
+
+            unsafe
+            {
+                fixed (byte* bytesPtr = &bytes[0])
+                {
+                    // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
+                    var count = -NativeApi.llama_tokenize_with_model(this, bytesPtr, (int*)IntPtr.Zero, 0, add_bos);
+
+                    // Tokenize again, this time outputting into an array of exactly the right size
+                    var tokens = new int[count];
+                    fixed (int* tokensPtr = &tokens[0])
+                    {
+                        count = NativeApi.llama_tokenize_with_model(this, bytesPtr, tokensPtr, count, add_bos);
+                        return tokens;
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }
