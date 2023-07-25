@@ -312,5 +312,8 @@ namespace LLama.Native
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_n_embd_from_model(SafeLlamaModelHandle model);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern byte* llama_token_to_str_with_model(SafeLlamaModelHandle safeLlamaModelHandle, int llamaToken);
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Text;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -69,6 +71,43 @@ namespace LLama.Native
 
             if (err != 0)
                 throw new RuntimeError("Failed to apply lora adapter.");
+        }
+
+        /// <summary>
+        /// Convert a single llama token into string bytes
+        /// </summary>
+        /// <param name="llama_token"></param>
+        /// <returns></returns>
+        public ReadOnlySpan<byte> TokenToSpan(int llama_token)
+        {
+            unsafe
+            {
+                var bytes = new ReadOnlySpan<byte>(NativeApi.llama_token_to_str_with_model(this, llama_token), int.MaxValue);
+                var terminator = bytes.IndexOf((byte)0);
+                return bytes.Slice(0, terminator);
+            }
+        }
+
+        /// <summary>
+        /// Convert a single llama token into a string
+        /// </summary>
+        /// <param name="llama_token"></param>
+        /// <param name="encoding">Encoding to use to decode the bytes into a string</param>
+        /// <returns></returns>
+        public string TokenToString(int llama_token, Encoding encoding)
+        {
+            var span = TokenToSpan(llama_token);
+
+            if (span.Length == 0)
+                return "";
+
+            unsafe
+            {
+                fixed (byte* ptr = &span[0])
+                {
+                    return encoding.GetString(ptr, span.Length);
+                }
+            }
         }
     }
 }
