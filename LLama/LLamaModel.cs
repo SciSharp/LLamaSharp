@@ -294,14 +294,10 @@ namespace LLama
                 }
             }
 
-            var candidates = new List<LLamaTokenData>();
-            candidates.Capacity = n_vocab;
+            var candidates = new LLamaTokenData[n_vocab];
             for (llama_token token_id = 0; token_id < n_vocab; token_id++)
-            {
-                candidates.Add(new LLamaTokenData(token_id, logits[token_id], 0.0f));
-            }
-
-            LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates.ToArray(), (ulong)candidates.Count, false);
+                candidates[token_id] = new LLamaTokenData(token_id, logits[token_id], 0.0f);
+            LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates);
 
             // Apply penalties
             float nl_logit = logits[NativeApi.llama_token_nl()];

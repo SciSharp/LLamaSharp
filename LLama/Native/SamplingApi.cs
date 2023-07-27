@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LLama.Native
 {
@@ -18,12 +15,8 @@ namespace LLama.Native
         /// <param name="penalty"></param>
         public static void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, llama_token[] last_tokens, ulong last_tokens_size, float penalty)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_repetition_penalty(ctx, new IntPtr(&st), last_tokens, last_tokens_size, penalty);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_repetition_penalty(ctx, ref st, last_tokens, last_tokens_size, penalty);
         }
 
         /// <summary>
@@ -37,12 +30,8 @@ namespace LLama.Native
         /// <param name="alpha_presence"></param>
         public static void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, llama_token[] last_tokens, ulong last_tokens_size, float alpha_frequency, float alpha_presence)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_frequency_and_presence_penalties(ctx, new IntPtr(&st), last_tokens, last_tokens_size, alpha_frequency, alpha_presence);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_frequency_and_presence_penalties(ctx, ref st, last_tokens, last_tokens_size, alpha_frequency, alpha_presence);
         }
 
         /// <summary>
@@ -52,12 +41,8 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         public static void llama_sample_softmax(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_softmax(ctx, new IntPtr(&st));
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_softmax(ctx, ref st);
         }
 
         /// <summary>
@@ -69,12 +54,8 @@ namespace LLama.Native
         /// <param name="min_keep"></param>
         public static void llama_sample_top_k(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, int k, ulong min_keep)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_top_k(ctx, new IntPtr(&st), k, min_keep);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_top_k(ctx, ref st, k, min_keep);
         }
 
         /// <summary>
@@ -86,12 +67,8 @@ namespace LLama.Native
         /// <param name="min_keep"></param>
         public static void llama_sample_top_p(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float p, ulong min_keep)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_top_p(ctx, new IntPtr(&st), p, min_keep);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_top_p(ctx, ref st, p, min_keep);
         }
 
         /// <summary>
@@ -103,12 +80,8 @@ namespace LLama.Native
         /// <param name="min_keep"></param>
         public static void llama_sample_tail_free(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float z, ulong min_keep)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_tail_free(ctx, new IntPtr(&st), z, min_keep);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_tail_free(ctx, ref st, z, min_keep);
         }
 
         /// <summary>
@@ -120,22 +93,14 @@ namespace LLama.Native
         /// <param name="min_keep"></param>
         public static void llama_sample_typical(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float p, ulong min_keep)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_typical(ctx, new IntPtr(&st), p, min_keep);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_typical(ctx, ref st, p, min_keep);
         }
 
         public static void llama_sample_temperature(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float temp)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            NativeApi.llama_sample_temperature(ctx, new IntPtr(&st), temp);
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_temperature(ctx, ref st, temp);
         }
 
         /// <summary>
@@ -150,17 +115,11 @@ namespace LLama.Native
         /// <returns></returns>
         public static llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, int m, ref float mu)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            llama_token res;
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
             fixed(float* pmu = &mu)
             {
-                res = NativeApi.llama_sample_token_mirostat(ctx, new IntPtr(&st), tau, eta, m, pmu);
+                return NativeApi.llama_sample_token_mirostat(ctx, ref st, tau, eta, m, pmu);
             }
-            return res;
         }
 
         /// <summary>
@@ -174,17 +133,11 @@ namespace LLama.Native
         /// <returns></returns>
         public static llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, ref float mu)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            llama_token res;
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
             fixed (float* pmu = &mu)
             {
-                res = NativeApi.llama_sample_token_mirostat_v2(ctx, new IntPtr(&st), tau, eta, pmu);
+                return NativeApi.llama_sample_token_mirostat_v2(ctx, ref st, tau, eta, pmu);
             }
-            return res;
         }
 
         /// <summary>
@@ -195,12 +148,8 @@ namespace LLama.Native
         /// <returns></returns>
         public static llama_token llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            return NativeApi.llama_sample_token_greedy(ctx, new IntPtr(&st));
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            return NativeApi.llama_sample_token_greedy(ctx, ref st);
         }
 
         /// <summary>
@@ -211,12 +160,8 @@ namespace LLama.Native
         /// <returns></returns>
         public static llama_token llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
-            var handle = candidates.data.Pin();
-            var st = new LLamaTokenDataArrayNative();
-            st.data = new IntPtr(handle.Pointer);
-            st.size = candidates.size;
-            st.sorted = candidates.sorted;
-            return NativeApi.llama_sample_token(ctx, new IntPtr(&st));
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            return NativeApi.llama_sample_token(ctx, ref st);
         }
     }
 }
