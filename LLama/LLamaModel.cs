@@ -43,7 +43,7 @@ namespace LLama
             _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {modelParams}", ILLamaLogger.LogLevel.Info);
 
             var contextParams = Utils.CreateContextParams(modelParams);
-            var _model = SafeLlamaModelHandle.LoadFromFile(modelParams.ModelPath, contextParams);
+            _model = SafeLlamaModelHandle.LoadFromFile(modelParams.ModelPath, contextParams);
             if (!string.IsNullOrEmpty(modelParams.LoraAdapter))
                 _model.ApplyLoraFromFile(modelParams.LoraAdapter, modelParams.LoraBase, modelParams.Threads);
         }
