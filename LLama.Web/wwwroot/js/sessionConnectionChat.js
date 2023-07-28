@@ -3,6 +3,7 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
     const outputInfoTemplate = $("#outputInfoTemplate").html();
     const outputUserTemplate = $("#outputUserTemplate").html();
     const outputBotTemplate = $("#outputBotTemplate").html();
+    const signatureTemplate = $("#signatureTemplate").html();
     const sessionDetailsTemplate = $("#sessionDetailsTemplate").html();
 
     let connectionId;
@@ -53,7 +54,7 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
 
         if (response.isLast) {
             enableControls();
-            responseContainer.find(".signature").append(response.content);
+            responseContainer.find(".signature").append(Mustache.render(signatureTemplate, response));
             scrollToBottom();
         }
         else {

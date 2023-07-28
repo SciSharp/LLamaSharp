@@ -3,7 +3,7 @@ using LLama.Web.Common;
 using LLama.Web.Models;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
-using System.Drawing;
+using System.Diagnostics;
 
 namespace LLama.Web.Services
 {
@@ -16,6 +16,7 @@ namespace LLama.Web.Services
         private readonly LLamaOptions _options;
         private readonly ILogger<ConnectionSessionService> _logger;
         private readonly ConcurrentDictionary<string, ModelSession> _modelSessions;
+
 
         public ConnectionSessionService(ILogger<ConnectionSessionService> logger, IOptions<LLamaOptions> options)
         {
@@ -30,25 +31,29 @@ namespace LLama.Web.Services
             return Task.FromResult(modelSession);
         }
 
-        public Task<IServiceResult<ModelSession>> CreateAsync(LLamaExecutorType executorType, string connectionId, string modelName, string promptName, string parameterName)
+        public async Task<IServiceResult<ModelSession>> CreateAsync(LLamaExecutorType executorType, string connectionId, string modelName, string promptName, string parameterName)
         {
+            // Remove existing connections session
+            await RemoveAsync(connectionId);
+
+
             var modelOption = _options.Models.FirstOrDefault(x => x.Name == modelName);
             if (modelOption is null)
-                return Task.FromResult(ServiceResult.FromError<ModelSession>($"Model option '{modelName}' not found"));
+                return ServiceResult.FromError<ModelSession>($"Model option '{modelName}' not found");
 
             var promptOption = _options.Prompts.FirstOrDefault(x => x.Name == promptName);
             if (promptOption is null)
-                return Task.FromResult(ServiceResult.FromError<ModelSession>($"Prompt option '{promptName}' not found"));
+                return ServiceResult.FromError<ModelSession>($"Prompt option '{promptName}' not found");
 
             var parameterOption = _options.Parameters.FirstOrDefault(x => x.Name == parameterName);
             if (parameterOption is null)
-                return Task.FromResult(ServiceResult.FromError<ModelSession>($"Parameter option '{parameterName}' not found"));
+                return ServiceResult.FromError<ModelSession>($"Parameter option '{parameterName}' not found");
 
 
             //Max instance
             var currentInstances = _modelSessions.Count(x => x.Value.ModelName == modelOption.Name);
             if (modelOption.MaxInstances > -1 && currentInstances >= modelOption.MaxInstances)
-                return Task.FromResult(ServiceResult.FromError<ModelSession>("Maximum model instances reached"));
+                return ServiceResult.FromError<ModelSession>("Maximum model instances reached");
 
             // Create model
             var llamaModel = new LLamaModel(modelOption);
@@ -65,10 +70,53 @@ namespace LLama.Web.Services
             // Create session
             var modelSession = new ModelSession(executor, modelOption, promptOption, parameterOption);
             if (!_modelSessions.TryAdd(connectionId, modelSession))
-                return Task.FromResult(ServiceResult.FromError<ModelSession>("Failed to create model session"));
+                return ServiceResult.FromError<ModelSession>("Failed to create model session");
 
-            return Task.FromResult(ServiceResult.FromValue(modelSession));
+            return ServiceResult.FromValue(modelSession);
         }
+
+        public async IAsyncEnumerable<ResponseFragment> InferAsync(string connectionId, string prompt, CancellationTokenSource cancellationTokenSource)
+        {
+            var modelSession = await GetAsync(connectionId);
+            if (modelSession is null)
+                yield break;
+
+            // Create unique response id
+            var responseId = Guid.NewGuid().ToString();
+
+            // Send begin of response
+            var stopwatch = Stopwatch.GetTimestamp();
+            yield return new ResponseFragment
+            {
+                Id = responseId,
+                IsFirst = true
+            };
+
+            // Send content of response
+            await foreach (var fragment in modelSession.InferAsync(prompt, cancellationTokenSource))
+            {
+                yield return new ResponseFragment
+                {
+                    Id = responseId,
+                    Content = fragment
+                };
+            }
+
+            // Send end of response
+            var elapsedTime = Stopwatch.GetElapsedTime(stopwatch);
+            var signature = modelSession.IsInferCanceled()
+                  ? $"Inference cancelled after {elapsedTime.TotalSeconds:F0} seconds"
+                  : $"Inference completed in {elapsedTime.TotalSeconds:F0} seconds";
+            yield return new ResponseFragment
+            {
+                Id = responseId,
+                IsLast = true,
+                Content = signature,
+                IsCancelled = modelSession.IsInferCanceled(),
+                Elapsed = (int)elapsedTime.TotalMilliseconds
+            };
+        }
+
 
         public Task<bool> RemoveAsync(string connectionId)
         {
