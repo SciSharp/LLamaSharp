@@ -28,16 +28,13 @@ namespace LLama
             lparams.logits_all = @params.Perplexity;
             lparams.embedding = @params.EmbeddingMode;
             lparams.low_vram = @params.LowVram;
-
-            if(@params.TensorSplits.Length != 1)
+       
+            if (@params.TensorSplits.Length != 1)
             {
                 throw new ArgumentException("Currently multi-gpu support is not supported by " +
                     "both llama.cpp and LLamaSharp.");
             }
-            lparams.tensor_split = new TensorSplits()
-            {
-                Item1 = @params.TensorSplits[0]
-            };
+            lparams.tensor_split = @params.TensorSplits;
 
             if (!File.Exists(@params.ModelPath))
             {

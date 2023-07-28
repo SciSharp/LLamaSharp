@@ -32,7 +32,7 @@ namespace LLama.Native
         /// <summary>
         /// rms norm epsilon (TEMP - will be moved to model hparams)
         /// </summary>
-        float rms_norm_eps;
+       public float rms_norm_eps;
 
         /// <summary>
         /// number of layers to store in VRAM
@@ -47,19 +47,19 @@ namespace LLama.Native
         /// <summary>
         /// how to split layers across multiple GPUs
         /// </summary>
-        public TensorSplits tensor_split;
+        public float[] tensor_split;
 
         /// <summary>
         /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
         /// RoPE base frequency
         /// </summary>
-        float rope_freq_base;
+        public float rope_freq_base;
 
         /// <summary>
         /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
         /// RoPE frequency scaling factor
         /// </summary>
-        float rope_freq_scale; 
+        public float rope_freq_scale; 
 
         /// <summary>
         /// called with a progress value between 0 and 1, pass NULL to disable
