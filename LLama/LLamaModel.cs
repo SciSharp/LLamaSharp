@@ -10,6 +10,7 @@ using LLama.Common;
 using System.Runtime.InteropServices;
 using LLama.Extensions;
 using Microsoft.Win32.SafeHandles;
+using System.Reflection;
 
 namespace LLama
 {
@@ -40,9 +41,7 @@ namespace LLama
             _logger = logger;
             Params = modelParams;
             _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {modelParams}", ILLamaLogger.LogLevel.Info);
-
-            var contextParams = Utils.CreateContextParams(modelParams);
-            _model =  LLamaModelCache.GetOrCreate(Params.ModelPath, contextParams);
+            _model =  LLamaModelCache.GetOrCreate(Params);
         }
 
        

@@ -1,4 +1,5 @@
-﻿using LLama.Exceptions;
+﻿using LLama.Common;
+using LLama.Exceptions;
 using LLama.Native;
 using System.Collections.Concurrent;
 
@@ -15,18 +16,21 @@ namespace LLama
         /// <summary>
         /// Basic cache by filename to allow multile contexts to use the same model/resources
         /// </summary>
-        /// <param name="modelPath">Path to the model bin</param>
-        /// <param name="contextParams">The models context parameters</param>
+        /// <param name="modelParams">The models parameters</param>
         /// <returns>Exiting model instance if it exists, otherwise a new model is created and returned</returns>
         /// <exception cref="RuntimeError"></exception>
-        public static SafeLlamaModelHandle GetOrCreate(string modelPath, LLamaContextParams contextParams)
+        public static SafeLlamaModelHandle GetOrCreate(ModelParams modelParams)
         {
-            if (_modelInstances.TryGetValue(modelPath, out SafeLlamaModelHandle model))
+            if (_modelInstances.TryGetValue(modelParams.ModelPath, out SafeLlamaModelHandle model))
                 return model;
 
-            var modelInstance = SafeLlamaModelHandle.LoadFromFile(modelPath, contextParams);
-            if (!_modelInstances.TryAdd(modelPath, modelInstance))
-                throw new RuntimeError($"Failed to cache model {modelPath}.");
+            var contextParams = Utils.CreateContextParams(modelParams);
+            var modelInstance = SafeLlamaModelHandle.LoadFromFile(modelParams.ModelPath, contextParams);
+            if (!string.IsNullOrEmpty(modelParams.LoraAdapter))
+                modelInstance.ApplyLoraFromFile(modelParams.LoraAdapter, modelParams.LoraBase, modelParams.Threads);
+
+            if (!_modelInstances.TryAdd(modelParams.ModelPath, modelInstance))
+                throw new RuntimeError($"Failed to cache model {modelParams.ModelPath}.");
 
             return modelInstance;
         }
