@@ -41,8 +41,8 @@ namespace LLama
             Params = modelParams;
             _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {modelParams}", ILLamaLogger.LogLevel.Info);
 
-            var contextParams = LLamaContextFactory.CreateContextParams(modelParams);
-            _model = LLamaContextFactory.CreateModel(this.Params.ModelPath, contextParams);
+            var contextParams = Utils.CreateContextParams(modelParams);
+            _model =  LLamaModelCache.GetOrCreate(Params.ModelPath, contextParams);
         }
 
        

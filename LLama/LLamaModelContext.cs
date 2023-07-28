@@ -54,8 +54,8 @@ namespace LLama
             _encoding = Encoding.GetEncoding(encoding);
             _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {Params}", ILLamaLogger.LogLevel.Info);
 
-            var contextParams = LLamaContextFactory.CreateContextParams(Params);
-            _ctx = LLamaContextFactory.CreateContext(model.NativeHandle, contextParams);
+            var contextParams = Utils.CreateContextParams(Params);
+            _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, contextParams);
             ContextSize = NativeApi.llama_n_ctx(_ctx);
         }
 

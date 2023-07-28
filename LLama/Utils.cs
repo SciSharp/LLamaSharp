@@ -15,32 +15,7 @@ namespace LLama
     {
         public static SafeLLamaContextHandle InitLLamaContextFromModelParams(ModelParams @params)
         {
-            var lparams = NativeApi.llama_context_default_params();
-
-            lparams.n_ctx = @params.ContextSize;
-            lparams.n_batch = @params.BatchSize;
-            lparams.main_gpu = @params.MainGpu;
-            lparams.n_gpu_layers = @params.GpuLayerCount;
-            lparams.seed = @params.Seed;
-            lparams.f16_kv = @params.UseFp16Memory;
-            lparams.use_mmap = @params.UseMemoryLock;
-            lparams.use_mlock = @params.UseMemoryLock;
-            lparams.logits_all = @params.Perplexity;
-            lparams.embedding = @params.EmbeddingMode;
-            lparams.low_vram = @params.LowVram;
-       
-            if (@params.TensorSplits.Length != 1)
-            {
-                throw new ArgumentException("Currently multi-gpu support is not supported by " +
-                    "both llama.cpp and LLamaSharp.");
-            }
-            lparams.tensor_split = @params.TensorSplits;
-
-            if (!File.Exists(@params.ModelPath))
-            {
-                throw new FileNotFoundException($"The model file does not exist: {@params.ModelPath}");
-            }
-
+            var lparams = CreateContextParams(@params);
             var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
             var ctx = SafeLLamaContextHandle.Create(model, lparams);
 
@@ -49,7 +24,37 @@ namespace LLama
 
             return ctx;
         }
-       
+
+        public static LLamaContextParams CreateContextParams(ModelParams modelParams)
+        {
+            var lparams = NativeApi.llama_context_default_params();
+
+            lparams.n_ctx = modelParams.ContextSize;
+            lparams.n_batch = modelParams.BatchSize;
+            lparams.main_gpu = modelParams.MainGpu;
+            lparams.n_gpu_layers = modelParams.GpuLayerCount;
+            lparams.seed = modelParams.Seed;
+            lparams.f16_kv = modelParams.UseFp16Memory;
+            lparams.use_mmap = modelParams.UseMemoryLock;
+            lparams.use_mlock = modelParams.UseMemoryLock;
+            lparams.logits_all = modelParams.Perplexity;
+            lparams.embedding = modelParams.EmbeddingMode;
+            lparams.low_vram = modelParams.LowVram;
+
+            if (modelParams.TensorSplits.Length != 1)
+            {
+                throw new ArgumentException("Currently multi-gpu support is not supported by both llama.cpp and LLamaSharp.");
+            }
+            lparams.tensor_split = modelParams.TensorSplits;
+
+            if (!File.Exists(modelParams.ModelPath))
+            {
+                throw new FileNotFoundException($"The model file does not exist: {modelParams.ModelPath}");
+            }
+
+            return lparams;
+        }
+
         public static IEnumerable<llama_token> Tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, Encoding encoding)
         {
             var cnt = encoding.GetByteCount(text);
