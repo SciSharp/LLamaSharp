@@ -8,7 +8,7 @@ namespace LLama
     /// <summary>
     /// A LLamaModel what could be reset. Note that using this class will consume about 10% more memories.
     /// </summary>
-    public class ResettableLLamaModel : LLamaModel
+    public class ResettableLLamaModel : LLamaModelContext
     {
         /// <summary>
         /// The initial state of the model

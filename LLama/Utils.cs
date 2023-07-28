@@ -49,7 +49,7 @@ namespace LLama
 
             return ctx;
         }
-
+       
         public static IEnumerable<llama_token> Tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, Encoding encoding)
         {
             var cnt = encoding.GetByteCount(text);

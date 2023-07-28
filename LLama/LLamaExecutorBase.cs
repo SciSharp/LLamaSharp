@@ -21,7 +21,7 @@ namespace LLama
         /// <summary>
         /// The loaded model for this executor.
         /// </summary>
-        protected readonly LLamaModel _model;
+        protected readonly LLamaModelContext _model;
         /// <summary>
         /// The logger used by this executor.
         /// </summary>
@@ -65,13 +65,13 @@ namespace LLama
         /// <summary>
         /// The mode used by the executor.
         /// </summary>
-        public LLamaModel Model => _model;
+        public LLamaModelContext Model => _model;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="model"></param>
         /// <param name="logger"></param>
-        protected StatefulExecutorBase(LLamaModel model, ILLamaLogger? logger = null)
+        protected StatefulExecutorBase(LLamaModelContext model, ILLamaLogger? logger = null)
         {
             _model = model;
             _logger = logger;

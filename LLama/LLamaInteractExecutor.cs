@@ -25,7 +25,7 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="model"></param>
-        public InteractiveExecutor(LLamaModel model) : base(model)
+        public InteractiveExecutor(LLamaModelContext model) : base(model)
         {
             _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
         }

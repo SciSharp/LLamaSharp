@@ -14,7 +14,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// The loaded model for this executor.
         /// </summary>
-        public LLamaModel Model { get; }
+        public LLamaModelContext Model { get; }
 
         /// <summary>
         /// Infers a response from the model.

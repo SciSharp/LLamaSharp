@@ -17,7 +17,7 @@ namespace LLama
     /// <summary>
     /// The abstraction of a LLama model, which holds the context in the native library.
     /// </summary>
-    public class LLamaModel: IDisposable
+    public class LLamaModelContext: IDisposable
     {
         // TODO: expose more properties.
         ILLamaLogger? _logger;
@@ -47,12 +47,12 @@ namespace LLama
         /// <param name="Params">Model params.</param>
         /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
-        public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaModelContext(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
         {
             _logger = logger;
             this.Params = Params;
             _encoding = Encoding.GetEncoding(encoding);
-            _logger?.Log(nameof(LLamaModel), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
+            _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
             _ctx = Utils.InitLLamaContextFromModelParams(this.Params);
             ContextSize = NativeApi.llama_n_ctx(_ctx);
         }
@@ -341,7 +341,7 @@ namespace LLama
 
                 if(Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
                 {
-                    _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
+                    _logger?.Log(nameof(LLamaModelContext), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
                 }
 

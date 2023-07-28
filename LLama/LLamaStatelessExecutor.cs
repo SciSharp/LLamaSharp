@@ -16,17 +16,17 @@ namespace LLama
     /// </summary>
     public class StatelessExecutor : ILLamaExecutor
     {
-        private LLamaModel _model;
-        private LLamaModel.State _originalState;
+        private LLamaModelContext _model;
+        private LLamaModelContext.State _originalState;
         /// <summary>
         /// The mode used by the executor when running the inference.
         /// </summary>
-        public LLamaModel Model => _model;
+        public LLamaModelContext Model => _model;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="model">The LLama model.</param>
-        public StatelessExecutor(LLamaModel model)
+        public StatelessExecutor(LLamaModelContext model)
         {
             _model = model;
             var tokens = model.Tokenize(" ", true);

@@ -26,7 +26,7 @@ namespace LLama
         /// <param name="model"></param>
         /// <param name="instructionPrefix"></param>
         /// <param name="instructionSuffix"></param>
-        public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
+        public InstructExecutor(LLamaModelContext model, string instructionPrefix = "\n\n### Instruction:\n\n",
             string instructionSuffix = "\n\n### Response:\n\n") : base(model)
         {
             _inp_pfx = _model.Tokenize(instructionPrefix, true).ToArray();
