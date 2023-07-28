@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using LLama.Extensions;
 using Microsoft.Win32.SafeHandles;
 using System.Reflection;
+using System.Collections.Concurrent;
 
 namespace LLama
 {
@@ -19,7 +20,6 @@ namespace LLama
         // TODO: expose more properties.
         ILLamaLogger? _logger;
         SafeLlamaModelHandle _model;
-
         /// <summary>
         /// The model params set for this model.
         /// </summary>
@@ -41,10 +41,14 @@ namespace LLama
             _logger = logger;
             Params = modelParams;
             _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {modelParams}", ILLamaLogger.LogLevel.Info);
-            _model =  LLamaModelCache.GetOrCreate(Params);
+
+            var contextParams = Utils.CreateContextParams(modelParams);
+            var _model = SafeLlamaModelHandle.LoadFromFile(modelParams.ModelPath, contextParams);
+            if (!string.IsNullOrEmpty(modelParams.LoraAdapter))
+                _model.ApplyLoraFromFile(modelParams.LoraAdapter, modelParams.LoraBase, modelParams.Threads);
         }
 
-       
+
         /// <inheritdoc />
         public virtual void Dispose()
         {
