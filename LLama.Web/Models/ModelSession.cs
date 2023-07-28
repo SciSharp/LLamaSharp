@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using LLama.Web.Common;
+using System.Threading;
 
 namespace LLama.Web.Models
 {
@@ -48,7 +49,7 @@ namespace LLama.Web.Models
 
         public void CancelInfer()
         {
-            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource.Cancel();
         }
 
         public bool IsInferCanceled()

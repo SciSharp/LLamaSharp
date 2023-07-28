@@ -1,8 +1,6 @@
 ﻿using LLama.Web.Common;
-using LLama.Web.Models;
 using LLama.Web.Services;
 using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics;
 
 namespace LLama.Web.Hubs
 {
@@ -41,9 +39,7 @@ namespace LLama.Web.Hubs
         public async Task OnLoadModel(LLamaExecutorType executorType, string modelName, string promptName, string parameterName)
         {
             _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}, Model: {1}, Prompt: {2}, Parameter: {3}", Context.ConnectionId, modelName, promptName, parameterName);
-
-            // Remove existing connections session
-            await _modelSessionService.RemoveAsync(Context.ConnectionId);
+          
 
             // Create model session
             var modelSessionResult = await _modelSessionService.CreateAsync(executorType, Context.ConnectionId, modelName, promptName, parameterName);
@@ -63,35 +59,11 @@ namespace LLama.Web.Hubs
         {
             _logger.Log(LogLevel.Information, "[OnSendPrompt] - New prompt received, Connection: {0}", Context.ConnectionId);
 
-            // Get connections session
-            var modelSession = await _modelSessionService.GetAsync(Context.ConnectionId);
-            if (modelSession is null)
+            // Send Infer response
+            await foreach (var responseFragment in _modelSessionService.InferAsync(Context.ConnectionId, prompt, CancellationTokenSource.CreateLinkedTokenSource(Context.ConnectionAborted)))
             {
-                await Clients.Caller.OnError("No model has been loaded");
-                return;
+                await Clients.Caller.OnResponse(responseFragment);
             }
-
-
-            // Create unique response id
-            var responseId = Guid.NewGuid().ToString();
-
-            // Send begin of response
-            await Clients.Caller.OnResponse(new ResponseFragment(responseId, isFirst: true));
-
-            // Send content of response
-            var stopwatch = Stopwatch.GetTimestamp();
-            await foreach (var fragment in modelSession.InferAsync(prompt, CancellationTokenSource.CreateLinkedTokenSource(Context.ConnectionAborted)))
-            {
-                await Clients.Caller.OnResponse(new ResponseFragment(responseId, fragment));
-            }
-
-            // Send end of response
-            var elapsedTime = Stopwatch.GetElapsedTime(stopwatch);
-            var signature = modelSession.IsInferCanceled()
-                ? $"Inference cancelled after {elapsedTime.TotalSeconds:F0} seconds"
-                : $"Inference completed in {elapsedTime.TotalSeconds:F0} seconds";
-            await Clients.Caller.OnResponse(new ResponseFragment(responseId, signature, isLast: true));
-            _logger.Log(LogLevel.Information, "[OnSendPrompt] - Inference complete, Connection: {0}, Elapsed: {1}, Canceled: {2}", Context.ConnectionId, elapsedTime, modelSession.IsInferCanceled());
         }
 
     }
