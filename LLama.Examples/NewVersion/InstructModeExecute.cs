@@ -15,7 +15,8 @@ namespace LLama.Examples.NewVersion
             string modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/dan.txt").Trim();
 
-            InstructExecutor ex = new(new LLamaModelContext(new ModelParams(modelPath, contextSize: 1024)));
+            LLamaModel model = new LLamaModel(new ModelParams(modelPath, contextSize: 1024));
+            InstructExecutor ex = new(new LLamaModelContext(model));
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions. For example, you can input \"Write a story about a fox who want to " +

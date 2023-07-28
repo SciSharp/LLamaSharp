@@ -17,7 +17,7 @@ namespace LLama
     /// <summary>
     /// The abstraction of a LLama model, which holds the context in the native library.
     /// </summary>
-    public class LLamaModelContext: IDisposable
+    public class LLamaModelContext : IDisposable
     {
         // TODO: expose more properties.
         ILLamaLogger? _logger;
@@ -44,16 +44,18 @@ namespace LLama
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Params">Model params.</param>
+        /// <param name="model">Model instance.</param>
         /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
-        public LLamaModelContext(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaModelContext(LLamaModel model, string encoding = "UTF-8", ILLamaLogger? logger = null)
         {
             _logger = logger;
-            this.Params = Params;
+            Params = model.Params;
             _encoding = Encoding.GetEncoding(encoding);
-            _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
-            _ctx = Utils.InitLLamaContextFromModelParams(this.Params);
+            _logger?.Log(nameof(LLamaModelContext), $"Initializing LLama model with params: {Params}", ILLamaLogger.LogLevel.Info);
+
+            var contextParams = LLamaContextFactory.CreateContextParams(Params);
+            _ctx = LLamaContextFactory.CreateContext(model.NativeHandle, contextParams);
             ContextSize = NativeApi.llama_n_ctx(_ctx);
         }
 

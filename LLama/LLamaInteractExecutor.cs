@@ -27,7 +27,7 @@ namespace LLama
         /// <param name="model"></param>
         public InteractiveExecutor(LLamaModelContext model) : base(model)
         {
-            _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
+            _llama_token_newline = Utils.Tokenize(_context.NativeHandle, "\n", false, _context.Encoding).ToArray();
         }
 
         /// <inheritdoc />
@@ -105,7 +105,7 @@ namespace LLama
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
                 text = " " + text;
-                _embed_inps = _model.Tokenize(text, true).ToList();
+                _embed_inps = _context.Tokenize(text, true).ToList();
             }
             else
             {
@@ -113,7 +113,7 @@ namespace LLama
                 {
                     text += "\n";
                 }
-                var line_inp = _model.Tokenize(text, false);
+                var line_inp = _context.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
                 args.RemainedTokens -= line_inp.Count();
             }
@@ -134,7 +134,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_context.NativeHandle, id), _context.Encoding);
                     }
 
                     foreach (var antiprompt in args.Antiprompts)
@@ -173,13 +173,13 @@ namespace LLama
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
-                if (_pastTokensCount + _embeds.Count > _model.ContextSize)
+                if (_pastTokensCount + _embeds.Count > _context.ContextSize)
                 {
                     HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
                 TryReuseMathingPrefix();
-                _pastTokensCount = _model.Eval(_embeds.ToArray(), _pastTokensCount);
+                _pastTokensCount = _context.Eval(_embeds.ToArray(), _pastTokensCount);
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -192,7 +192,7 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _context.ContextSize : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -201,10 +201,10 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
+                var tokenDataArray = _context.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau, 
+                var id = _context.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau, 
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
 
                 _last_n_tokens.Enqueue(id);
@@ -214,7 +214,7 @@ namespace LLama
                     id = _llama_token_newline.First();
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
-                        var first_antiprompt = _model.Tokenize(args.Antiprompts[0], false);
+                        var first_antiprompt = _context.Tokenize(args.Antiprompts[0], false);
                         _embed_inps.AddRange(first_antiprompt);
                     }
                 }
@@ -231,7 +231,7 @@ namespace LLama
                     _embeds.Add(_embed_inps[_consumedTokensCount]);
                     _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_embeds.Count >= _model.Params.BatchSize)
+                    if (_embeds.Count >= _context.Params.BatchSize)
                     {
                         break;
                     }

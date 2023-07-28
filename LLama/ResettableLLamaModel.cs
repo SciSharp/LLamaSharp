@@ -17,9 +17,9 @@ namespace LLama
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Params"></param>
+        /// <param name="model"></param>
         /// <param name="encoding"></param>
-        public ResettableLLamaModel(ModelParams Params, string encoding = "UTF-8") : base(Params, encoding)
+        public ResettableLLamaModel(LLamaModel model, string encoding = "UTF-8") : base(model, encoding)
         {
             OriginalState = GetState();
         }

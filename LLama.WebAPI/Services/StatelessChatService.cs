@@ -1,5 +1,4 @@
 ﻿using LLama.Common;
-using Microsoft.AspNetCore.Http;
 using System.Text;
 using static LLama.LLamaTransforms;
 
@@ -7,14 +6,16 @@ namespace LLama.WebAPI.Services
 {
     public class StatelessChatService
     {
-        private readonly LLamaModelContext _model;
+        private readonly LLamaModel _model;
+        private readonly LLamaModelContext _context;
         private readonly ChatSession _session;
 
         public StatelessChatService(IConfiguration configuration)
         {
-            _model = new LLamaModelContext(new ModelParams(configuration["ModelPath"], contextSize: 512));
+            _model = new LLamaModel(new ModelParams(configuration["ModelPath"], contextSize: 512));
+            _context = new LLamaModelContext(_model);
             // TODO: replace with a stateless executor
-            _session = new ChatSession(new InteractiveExecutor(_model))
+            _session = new ChatSession(new InteractiveExecutor(_context))
                         .WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Assistant:" }, redundancyLength: 8))
                         .WithHistoryTransform(new HistoryTransform());
         }

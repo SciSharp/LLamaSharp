@@ -19,9 +19,9 @@ namespace LLama
     public abstract class StatefulExecutorBase : ILLamaExecutor
     {
         /// <summary>
-        /// The loaded model for this executor.
+        /// The loaded context for this executor.
         /// </summary>
-        protected readonly LLamaModelContext _model;
+        protected readonly LLamaModelContext _context;
         /// <summary>
         /// The logger used by this executor.
         /// </summary>
@@ -63,24 +63,24 @@ namespace LLama
         /// </summary>
         protected FixedSizeQueue<llama_token> _last_n_tokens;
         /// <summary>
-        /// The mode used by the executor.
+        /// The context used by the executor.
         /// </summary>
-        public LLamaModelContext Model => _model;
+        public LLamaModelContext Context => _context;
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="context"></param>
         /// <param name="logger"></param>
-        protected StatefulExecutorBase(LLamaModelContext model, ILLamaLogger? logger = null)
+        protected StatefulExecutorBase(LLamaModelContext context, ILLamaLogger? logger = null)
         {
-            _model = model;
+            _context = context;
             _logger = logger;
             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;
             _embeds = new();
             _embed_inps = new();
-            _last_n_tokens = new FixedSizeQueue<llama_token>(_model.ContextSize).FillWith(0);
+            _last_n_tokens = new FixedSizeQueue<llama_token>(_context.ContextSize).FillWith(0);
         }
 
         /// <summary>
@@ -100,9 +100,9 @@ namespace LLama
             if (File.Exists(filename))
             {
                 _logger?.Log("LLamaExecutor", $"Attempting to load saved session from {filename}", ILLamaLogger.LogLevel.Info);
-                llama_token[] session_tokens = new llama_token[_model.ContextSize];
+                llama_token[] session_tokens = new llama_token[_context.ContextSize];
                 ulong n_token_count_out = 0;
-                if (!NativeApi.llama_load_session_file(_model.NativeHandle, _pathSession, session_tokens, (ulong)_model.ContextSize, &n_token_count_out))
+                if (!NativeApi.llama_load_session_file(_context.NativeHandle, _pathSession, session_tokens, (ulong)_context.ContextSize, &n_token_count_out))
                 {
                     _logger?.Log("LLamaExecutor", $"Failed to load session file {filename}", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError($"Failed to load session file {_pathSession}");
@@ -152,7 +152,7 @@ namespace LLama
         public void SaveSessionFile(string filename)
         {
             var session_token_array = _session_tokens.ToArray();
-            NativeApi.llama_save_session_file(_model.NativeHandle, filename, session_token_array, (ulong)session_token_array.Length);
+            NativeApi.llama_save_session_file(_context.NativeHandle, filename, session_token_array, (ulong)session_token_array.Length);
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace LLama
             _pastTokensCount = Math.Max(1, tokensToKeep);
 
             // insert n_left/2 tokens at the start of embed from last_n_tokens
-            _embeds.InsertRange(0, _last_n_tokens.Take(_last_n_tokens.Count - _embeds.Count).Skip(_model.ContextSize - n_left / 2 - _embeds.Count));
+            _embeds.InsertRange(0, _last_n_tokens.Take(_last_n_tokens.Count - _embeds.Count).Skip(_context.ContextSize - n_left / 2 - _embeds.Count));
 
             // stop saving session if we run out of context
             _pathSession = string.Empty;
@@ -292,7 +292,7 @@ namespace LLama
 
                 if (args.ReturnValue)
                 {
-                    foreach (var item in _model.GenerateResult(_embeds))
+                    foreach (var item in _context.GenerateResult(_embeds))
                     {
                         yield return item;
                     }

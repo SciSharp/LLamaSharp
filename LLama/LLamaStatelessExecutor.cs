@@ -21,7 +21,7 @@ namespace LLama
         /// <summary>
         /// The mode used by the executor when running the inference.
         /// </summary>
-        public LLamaModelContext Model => _model;
+        public LLamaModelContext Context => _model;
         /// <summary>
         /// 
         /// </summary>
