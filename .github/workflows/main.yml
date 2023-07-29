@@ -39,10 +39,10 @@ jobs:
         dotnet-version: '7.0.x'
     #  workaround for actions/setup-dotnet#155
     - name: Clear package cache
-      run: dotnet clean LlamaSharp.sln && dotnet nuget locals all --clear
+      run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
     - name: Restore packages
-      run: dotnet restore LlamaSharp.sln
+      run: dotnet restore LLamaSharp.sln
     - name: Build
-      run: dotnet build LlamaSharp.sln -c ${{ matrix.config }} --no-restore
+      run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
     - name: Test
-      run: dotnet test LlamaSharp.sln -c ${{ matrix.config }}
+      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }}
