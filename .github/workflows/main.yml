@@ -17,26 +17,32 @@ jobs:
           - build: linux-debug
             os: ubuntu-latest
             config: debug
+            dotnet: 6.0.x
           - build: linux-release
             os: ubuntu-latest
             config: release
+            dotnet: 6.0.x
           - build: macos-debug
             os: macos-latest
             config: debug
+            dotnet: 6.0.x
           - build: macos-release
             os: macos-latest
             config: release
+            dotnet: 6.0.x
           - build: windows-debug
             os: windows-2019
             config: debug
+            dotnet: 6.0.x
           - build: windows-release
             os: windows-2019
             config: release
+            dotnet: 6.0.x
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: ${{ matrix.dotnet }}
     #  workaround for actions/setup-dotnet#155
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
