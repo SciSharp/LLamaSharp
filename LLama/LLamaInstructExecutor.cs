@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -20,6 +19,7 @@ namespace LLama
         string _instructionPrefix;
         llama_token[] _inp_pfx;
         llama_token[] _inp_sfx;
+
         /// <summary>
         /// 
         /// </summary>
@@ -51,7 +51,8 @@ namespace LLama
                 PastTokensCount = _pastTokensCount,
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens,
-                LastTokensCapacity = _last_n_tokens.Capacity
+                LastTokensCapacity = _last_n_tokens.Capacity,
+                MirostateMu = MirostateMu
             };
             return state;
         }
@@ -214,8 +215,12 @@ namespace LLama
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
+                var mu = MirostateMu;
+                var id = _model.Sample(
+                    tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
+                );
+                MirostateMu = mu;
 
                 _last_n_tokens.Enqueue(id);
 
