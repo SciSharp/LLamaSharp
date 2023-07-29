@@ -165,7 +165,7 @@ namespace LLama
             public KeywordTextOutputStreamTransform(IEnumerable<string> keywords, int redundancyLength = 3, bool removeAllMatchedTokens = false)
             {
                 _keywords = new(keywords);
-                _maxKeywordLength = keywords.Select(x => x.Length).Max() + redundancyLength;
+                _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
             }
             /// <inheritdoc />
