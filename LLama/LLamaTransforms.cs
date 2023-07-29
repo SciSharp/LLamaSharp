@@ -161,6 +161,7 @@ namespace LLama
             {
                 _keywords = new(keywords);
                 _maxKeywordLength = _keywords.Max(x => x.Length) + redundancyLength;
+                _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
             }
             /// <inheritdoc />
