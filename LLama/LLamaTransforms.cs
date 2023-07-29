@@ -1,12 +1,7 @@
 ﻿using LLama.Abstractions;
 using LLama.Common;
-using Microsoft.VisualBasic;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace LLama
@@ -165,6 +160,7 @@ namespace LLama
             public KeywordTextOutputStreamTransform(IEnumerable<string> keywords, int redundancyLength = 3, bool removeAllMatchedTokens = false)
             {
                 _keywords = new(keywords);
+                _maxKeywordLength = _keywords.Max(x => x.Length) + redundancyLength;
                 _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
             }
