@@ -23,8 +23,23 @@
     </PackageReference>
   </ItemGroup>
 
+  <Target Name="DownloadContentFiles" BeforeTargets="Build">
+      <DownloadFile SourceUrl="https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q3_K_S.bin" DestinationFolder="Models" DestinationFileName="llama-2-7b-chat.ggmlv3.q3_K_S.bin" SkipUnchangedFiles="true">
+    </DownloadFile>
+  </Target>
+
   <ItemGroup>
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Models\llama-2-7b-chat.ggmlv3.q3_K_S.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
