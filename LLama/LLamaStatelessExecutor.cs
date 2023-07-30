@@ -29,8 +29,9 @@ namespace LLama
         public StatelessExecutor(LLamaModel model)
         {
             _model = model;
-            var tokens = model.Tokenize(" ", true);
-            Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, tokens.Count(), 0, _model.Params.Threads);
+            
+            var tokens = model.Tokenize(" ", true).ToArray();
+            Utils.Eval(_model.NativeHandle, tokens, 0, tokens.Length, 0, _model.Params.Threads);
             _originalState = model.GetState();
         }
 

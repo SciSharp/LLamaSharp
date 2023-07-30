@@ -54,13 +54,13 @@ namespace LLama
             {
                 text = text.Insert(0, " ");
             }
-            var embed_inp = Utils.Tokenize(_ctx, text, addBos, Encoding.GetEncoding(encoding));
+
+            var embed_inp_array = Utils.Tokenize(_ctx, text, addBos, Encoding.GetEncoding(encoding)).ToArray();
 
             // TODO(Rinne): deal with log of prompt
 
-            if (embed_inp.Count() > 0)
+            if (embed_inp_array.Length > 0)
             {
-                var embed_inp_array = embed_inp.ToArray();
                 if (NativeApi.llama_eval(_ctx, embed_inp_array, embed_inp_array.Length, n_past, threads) != 0)
                 {
                     throw new RuntimeError("Failed to eval.");
@@ -71,7 +71,7 @@ namespace LLama
             var embeddings = NativeApi.llama_get_embeddings(_ctx);
             if (embeddings == null)
             {
-                return new float[0];
+                return Array.Empty<float>();
             }
             var span = new Span<float>(embeddings, n_embed);
             float[] res = new float[n_embed];
