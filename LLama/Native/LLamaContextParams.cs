@@ -47,6 +47,7 @@ namespace LLama.Native
         /// <summary>
         /// how to split layers across multiple GPUs
         /// </summary>
+        [MarshalAs(UnmanagedType.LPArray)]
         public float[] tensor_split;
 
         /// <summary>
