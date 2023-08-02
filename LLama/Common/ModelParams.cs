@@ -87,6 +87,26 @@ namespace LLama.Common
         public float[] TensorSplits { get; set; } = new float[] { 0 };
 
         /// <summary>
+        /// Grouped-Query Attention
+        /// </summary>
+        public int GroupedQueryAttention { get; set; } = 1;
+
+        /// <summary>
+        /// RMS Norm Epsilon
+        /// </summary>
+        public float RmsNormEpsilon { get; set; } = 5e-6f;
+
+        /// <summary>
+        /// RoPE base frequency
+        /// </summary>
+        public float RopeFrequencyBase { get; set; } = 10000.0f;
+
+        /// <summary>
+        /// RoPE frequency scaling factor
+        /// </summary>
+        public float RopeFrequencyScale { get; set; } = 1.0f;
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="modelPath">The model path.</param>
