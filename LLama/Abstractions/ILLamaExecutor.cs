@@ -1,5 +1,4 @@
-﻿using LLama.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -23,7 +22,7 @@ namespace LLama.Abstractions
         /// <param name="inferenceParams">Any additional parameters</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns></returns>
-        IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken token = default);
+        IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken token = default);
 
         /// <summary>
         /// Asynchronously infers a response from the model.
@@ -32,6 +31,6 @@ namespace LLama.Abstractions
         /// <param name="inferenceParams">Any additional parameters</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns></returns>
-        IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, CancellationToken token = default);
+        IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, CancellationToken token = default);
     }
 }

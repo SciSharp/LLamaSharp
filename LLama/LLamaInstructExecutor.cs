@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
+using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
@@ -135,7 +136,7 @@ namespace LLama
             }
         }
         /// <inheritdoc />
-        protected override bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
+        protected override bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
         {
             extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
@@ -178,7 +179,7 @@ namespace LLama
             return false;
         }
         /// <inheritdoc />
-        protected override void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
+        protected override void InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
             {

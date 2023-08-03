@@ -5,6 +5,7 @@ using System.Text;
 using LLama.Exceptions;
 using System.Linq;
 using LLama.Common;
+using LLama.Abstractions;
 
 namespace LLama
 {
@@ -28,7 +29,7 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="params"></param>
-        public LLamaEmbedder(ModelParams @params)
+        public LLamaEmbedder(IModelParams @params)
         {
             @params.EmbeddingMode = true;
             _ctx = Utils.InitLLamaContextFromModelParams(@params);

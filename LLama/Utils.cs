@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
+using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
 using System;
@@ -13,7 +14,7 @@ namespace LLama
     using llama_token = Int32;
     internal static class Utils
     {
-        public static SafeLLamaContextHandle InitLLamaContextFromModelParams(ModelParams @params)
+        public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
         {
             var lparams = CreateContextParams(@params);
             var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
@@ -25,7 +26,7 @@ namespace LLama
             return ctx;
         }
 
-        public static LLamaContextParams CreateContextParams(ModelParams modelParams)
+        public static LLamaContextParams CreateContextParams(IModelParams modelParams)
         {
             var lparams = NativeApi.llama_context_default_params();
 

@@ -227,13 +227,13 @@ namespace LLama
         /// <param name="args"></param>
         /// <param name="extraOutputs"></param>
         /// <returns></returns>
-        protected abstract bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
+        protected abstract bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
         /// <summary>
         /// The core inference logic.
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
-        protected abstract void InferInternal(InferenceParams inferenceParams, InferStateArgs args);
+        protected abstract void InferInternal(IInferenceParams inferenceParams, InferStateArgs args);
         /// <summary>
         /// Save the current state to a file.
         /// </summary>
@@ -263,7 +263,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public virtual IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (inferenceParams is null)
@@ -320,7 +320,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach (var result in Infer(text, inferenceParams, cancellationToken))
             {

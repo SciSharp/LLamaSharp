@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using LLama.Abstractions;
 
 namespace LLama.Common
 {
     /// <summary>
     /// The parameters for initializing a LLama model.
     /// </summary>
-    public class ModelParams
+    public class ModelParams : IModelParams
     {
         /// <summary>
         /// Model context size (n_ctx)
@@ -50,9 +51,9 @@ namespace LLama.Common
         /// </summary>
         public string ModelPath { get; set; }
         /// <summary>
-        /// model alias
+        /// model name
         /// </summary>
-        public string ModelAlias { get; set; } = "unknown";
+        public string Name { get; set; } = "unknown";
         /// <summary>
         /// lora adapter path (lora_adapter)
         /// </summary>

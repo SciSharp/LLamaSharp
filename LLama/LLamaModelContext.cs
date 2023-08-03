@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
+using LLama.Common;
 using LLama.Exceptions;
 using LLama.Extensions;
 using LLama.Native;
@@ -30,7 +31,7 @@ namespace LLama
         /// <summary>
         /// The model params set for this model.
         /// </summary>
-        public ModelParams Params { get; set; }
+        public IModelParams Params { get; set; }
         /// <summary>
         /// The native handle, which is used to be passed to the native APIs. Please avoid using it 
         /// unless you know what is the usage of the Native API.

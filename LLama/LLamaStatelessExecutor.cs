@@ -36,7 +36,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> Infer(string text, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             int n_past = 1;
@@ -122,7 +122,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public async IAsyncEnumerable<string> InferAsync(string text, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach (var result in Infer(text, inferenceParams, cancellationToken))
             {

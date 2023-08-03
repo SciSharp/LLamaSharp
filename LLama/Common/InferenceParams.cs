@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using LLama.Abstractions;
 
 namespace LLama.Common
 {
@@ -8,7 +9,7 @@ namespace LLama.Common
     /// <summary>
     /// The paramters used for inference.
     /// </summary>
-    public class InferenceParams
+    public class InferenceParams : IInferenceParams
     {
         /// <summary>
         /// number of tokens to keep from initial prompt

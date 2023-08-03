@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
+using LLama.Common;
 using LLama.Native;
 using System;
 using System.Collections.Concurrent;
@@ -18,7 +19,7 @@ namespace LLama
         /// <summary>
         /// The model params set for this model.
         /// </summary>
-        public ModelParams Params { get; set; }
+        public IModelParams Params { get; set; }
         /// <summary>
         /// The native handle, which is used to be passed to the native APIs. Please avoid using it 
         /// unless you know what is the usage of the Native API.
@@ -31,7 +32,7 @@ namespace LLama
         /// </summary>
         /// <param name="modelParams">Model params.</param>
         /// <param name="logger">The logger.</param>
-        public LLamaModel(ModelParams modelParams, ILLamaLogger? logger = null)
+        public LLamaModel(IModelParams modelParams, ILLamaLogger? logger = null)
         {
             _logger = logger;
             _contexts = new ConcurrentDictionary<string, LLamaModelContext>();
