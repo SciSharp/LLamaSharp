@@ -20,6 +20,7 @@ namespace LLama.Web
                 .BindConfiguration(nameof(LLamaOptions));
 
             // Services DI
+            builder.Services.AddSingleton<IModelCacheService, ModelCacheService>();
             builder.Services.AddSingleton<ConnectionSessionService>();
 
             var app = builder.Build();

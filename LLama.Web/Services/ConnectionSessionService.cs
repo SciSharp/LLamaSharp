@@ -15,13 +15,15 @@ namespace LLama.Web.Services
     {
         private readonly LLamaOptions _options;
         private readonly ILogger<ConnectionSessionService> _logger;
+        private readonly IModelCacheService _modelCacheService;
         private readonly ConcurrentDictionary<string, ModelSession> _modelSessions;
 
 
-        public ConnectionSessionService(ILogger<ConnectionSessionService> logger, IOptions<LLamaOptions> options)
+        public ConnectionSessionService(ILogger<ConnectionSessionService> logger, IOptions<LLamaOptions> options, IModelCacheService modelCacheService)
         {
             _logger = logger;
             _options = options.Value;
+            _modelCacheService = modelCacheService;
             _modelSessions = new ConcurrentDictionary<string, ModelSession>();
         }
 
@@ -56,7 +58,7 @@ namespace LLama.Web.Services
                 return ServiceResult.FromError<ModelSession>("Maximum model instances reached");
 
             // Create model
-            var llamaModel = LLamaModelCache.GetOrCreate(modelOption);
+            var llamaModel = _modelCacheService.GetOrCreate(modelOption);
 
             //Create context
             var llamaModelContext =  new LLamaModelContext(llamaModel);

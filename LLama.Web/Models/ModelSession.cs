@@ -49,12 +49,12 @@ namespace LLama.Web.Models
 
         public void CancelInfer()
         {
-            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource?.Cancel();
         }
 
         public bool IsInferCanceled()
         {
-            return _cancellationTokenSource.IsCancellationRequested;
+            return _cancellationTokenSource?.IsCancellationRequested ?? false;
         }
 
         public void Dispose()
