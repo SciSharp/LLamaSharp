@@ -42,7 +42,7 @@ namespace LLama.Web.Hubs
           
 
             // Create model session
-            var modelSessionResult = await _modelSessionService.CreateAsync(executorType, Context.ConnectionId, modelName, promptName, parameterName);
+            var modelSessionResult = await _modelSessionService.CreateAsync(Context.ConnectionId, executorType, modelName, promptName, parameterName);
             if (modelSessionResult.HasError)
             {
                 await Clients.Caller.OnError(modelSessionResult.Error);
