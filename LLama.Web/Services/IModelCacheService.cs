@@ -4,7 +4,8 @@ namespace LLama.Web.Services
 {
     public interface IModelCacheService
     {
-        LLamaModel GetOrCreate(ModelOptions modelOptions);
-        bool Remove(string modelName);
+        Task<LLamaModel> Create(ModelOptions modelOptions);
+        Task<LLamaModel> Get(string modelName);
+        Task<bool> Remove(string modelName);
     }
 }

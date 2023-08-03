@@ -57,11 +57,8 @@ namespace LLama.Web.Services
             if (modelOption.MaxInstances > -1 && currentInstances >= modelOption.MaxInstances)
                 return ServiceResult.FromError<ModelSession>("Maximum model instances reached");
 
-            // Create model
-            var llamaModel = _modelCacheService.GetOrCreate(modelOption);
-
-            //Create context
-            var llamaModelContext =  new LLamaModelContext(llamaModel);
+            // Create Model/Context
+            var llamaModelContext = await CreateModelContext(modelOption, connectionId);
 
             // Create executor
             ILLamaExecutor executor = executorType switch
@@ -79,6 +76,7 @@ namespace LLama.Web.Services
 
             return ServiceResult.FromValue(modelSession);
         }
+
 
         public async IAsyncEnumerable<ResponseFragment> InferAsync(string connectionId, string prompt, CancellationTokenSource cancellationTokenSource)
         {
@@ -142,6 +140,23 @@ namespace LLama.Web.Services
                 return Task.FromResult(true);
             }
             return Task.FromResult(false);
+        }
+
+        private async Task<LLamaModelContext> CreateModelContext(ModelOptions modelOption, string connectionId)
+        {
+            // Create model
+            var llamaModel = await _modelCacheService.Get(modelOption.Name)
+                          ?? await _modelCacheService.Create(modelOption);
+            if (llamaModel is null)
+                throw new Exception($"Failed to create model, modelName: {modelOption.Name}");
+
+            //Create context
+            var llamaModelContext = await llamaModel.GetContext(connectionId)
+                                 ?? await llamaModel.CreateContext(connectionId);
+            if (llamaModelContext is null)
+                throw new Exception($"Failed to create model, connectionId: {connectionId}");
+
+            return llamaModelContext;
         }
     }
 }
