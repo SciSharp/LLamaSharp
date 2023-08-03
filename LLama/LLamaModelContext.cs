@@ -1,21 +1,21 @@
-﻿using LLama.Exceptions;
+﻿using LLama.Common;
+using LLama.Exceptions;
+using LLama.Extensions;
 using LLama.Native;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using LLama.Common;
+using System.Linq;
 using System.Runtime.InteropServices;
-using LLama.Extensions;
-using Microsoft.Win32.SafeHandles;
+using System.Text;
 
 namespace LLama
 {
     using llama_token = Int32;
     /// <summary>
-    /// The abstraction of a LLama model, which holds the context in the native library.
+    /// The abstraction of a context over a LLama model
     /// </summary>
     public class LLamaModelContext : IDisposable
     {
