@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace LLama
 {
+    /// <summary>
+    /// The abstraction of a LLama model, which holds the context in the native library.
+    /// </summary>
     public class LLamaModel : IDisposable
     {
         // TODO: expose more properties.
@@ -69,7 +72,7 @@ namespace LLama
         {
             if (_contexts.TryGetValue(contextId, out var context))
                 return Task.FromResult(context);
-         
+
             return Task.FromResult<LLamaModelContext>(null);
         }
 
