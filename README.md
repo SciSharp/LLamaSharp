@@ -124,9 +124,24 @@ We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since current
 
 Since we are in short of hands, if you're familiar with ASP.NET core, we'll appreciate it if you would like to help upgrading the Web API integration.
 
-## Demo
+## Console Demo
 
 ![demo-console](Assets/console_demo.gif)
+
+
+
+
+
+## Web Demo
+
+Model Parameters
+![demo-ui](https://i.imgur.com/FG0YEzw.png)
+
+
+Inference Parameters
+![demo-ui2](https://i.imgur.com/fZEQTQ5.png)
+
+
 
 ## Roadmap
 
