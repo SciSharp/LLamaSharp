@@ -1,10 +1,9 @@
-const createConnectionSessionChat = (LLamaExecutorType) => {
+const createConnectionSessionChat = () => {
     const outputErrorTemplate = $("#outputErrorTemplate").html();
     const outputInfoTemplate = $("#outputInfoTemplate").html();
     const outputUserTemplate = $("#outputUserTemplate").html();
     const outputBotTemplate = $("#outputBotTemplate").html();
     const signatureTemplate = $("#signatureTemplate").html();
-    const sessionDetailsTemplate = $("#sessionDetailsTemplate").html();
 
     let connectionId;
     const connection = new signalR.HubConnectionBuilder().withUrl("/SessionConnectionHub").build();
@@ -21,7 +20,6 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
         }
         else if (status == Enums.SessionConnectionStatus.Loaded) {
             enableControls();
-            $("#session-details").html(Mustache.render(sessionDetailsTemplate, { model: getSelectedModel(), prompt: getSelectedPrompt(), parameter: getSelectedParameter() }));
             onInfo(`New model session successfully started`)
         }
     }
@@ -72,10 +70,10 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
     const sendPrompt = async () => {
         const text = chatInput.val();
         if (text) {
+            chatInput.val(null);
             disableControls();
             outputContainer.append(Mustache.render(outputUserTemplate, { text: text, date: getDateTime() }));
             await connection.invoke('SendPrompt', text);
-            chatInput.val(null);
             scrollToBottom(true);
         }
     }
@@ -85,16 +83,32 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
     }
 
     const loadModel = async () => {
-        const modelName = getSelectedModel();
-        const promptName = getSelectedPrompt();
-        const parameterName = getSelectedParameter();
-        if (!modelName || !promptName || !parameterName) {
-            onError("Please select a valid Model, Parameter and Prompt");
-            return;
-        }
-
         disableControls();
-        await connection.invoke('LoadModel', LLamaExecutorType, modelName, promptName, parameterName);
+        await connection.invoke('LoadModel', serializeFormToJson('SessionParameters'));
+    }
+
+
+    const serializeFormToJson = (form) => {
+        const formDataJson = {};
+        const formData = new FormData(document.getElementById(form));
+        formData.forEach((value, key) => {
+
+            if (key.includes("."))
+                key = key.split(".")[1];
+
+            // Convert number strings to numbers
+            if (!isNaN(value) && value.trim() !== "") {
+                formDataJson[key] = parseFloat(value);
+            }
+            // Convert boolean strings to booleans
+            else if (value === "true" || value === "false") {
+                formDataJson[key] = (value === "true");
+            }
+            else {
+                formDataJson[key] = value;
+            }
+        });
+        return formDataJson;
     }
 
 
@@ -116,21 +130,6 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
         const selection = $("option:selected", "#Prompt");
         const selectedValue = selection.data("prompt");
         customPrompt.text(selectedValue);
-    }
-
-
-    const getSelectedModel = () => {
-        return $("option:selected", "#Model").val();
-    }
-
-
-    const getSelectedParameter = () => {
-        return $("option:selected", "#Parameter").val();
-    }
-
-
-    const getSelectedPrompt = () => {
-        return $("option:selected", "#Prompt").val();
     }
 
 
@@ -166,7 +165,10 @@ const createConnectionSessionChat = (LLamaExecutorType) => {
             sendPrompt();
         }
     });
-
+    $(".slider").on("input", function (e) {
+        const slider = $(this);
+        slider.next().text(slider.val());
+    }).trigger("input");
 
 
     // Map signalr functions

@@ -4,31 +4,31 @@ using System.Threading;
 
 namespace LLama.Web.Models
 {
-    public class ModelSession : IDisposable
+    public class ModelSession
     {
         private bool _isFirstInteraction = true;
-        private ModelOptions _modelOptions;
+        private IModelParams _modelParams;
         private PromptOptions _promptOptions;
-        private ParameterOptions _inferenceOptions;
+        private IInferenceParams _inferenceParams;
         private ITextStreamTransform _outputTransform;
         private ILLamaExecutor _executor;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public ModelSession(ILLamaExecutor executor, ModelOptions modelOptions, PromptOptions promptOptions, ParameterOptions parameterOptions)
+        public ModelSession(ILLamaExecutor executor, IModelParams modelOptions, PromptOptions promptOptions, IInferenceParams inferenceParams)
         {
             _executor = executor;
-            _modelOptions = modelOptions;
+            _modelParams = modelOptions;
             _promptOptions = promptOptions;
-            _inferenceOptions = parameterOptions;
+            _inferenceParams = inferenceParams;
             
-            _inferenceOptions.AntiPrompts = _promptOptions.AntiPrompt?.Concat(_inferenceOptions.AntiPrompts ?? Enumerable.Empty<string>()).Distinct() ?? _inferenceOptions.AntiPrompts;
+            _inferenceParams.AntiPrompts = _promptOptions.AntiPrompt?.Concat(_inferenceParams.AntiPrompts ?? Enumerable.Empty<string>()).Distinct() ?? _inferenceParams.AntiPrompts;
             if (_promptOptions.OutputFilter?.Count > 0)
                 _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptOptions.OutputFilter, redundancyLength: 5);
         }
 
         public string ModelName
         {
-            get { return _modelOptions.Name; }
+            get { return _modelParams.Name; }
         }
 
         public IAsyncEnumerable<string> InferAsync(string message, CancellationTokenSource cancellationTokenSource)
@@ -37,13 +37,13 @@ namespace LLama.Web.Models
             if (_isFirstInteraction)
             {
                 _isFirstInteraction = false;
-                message = _promptOptions.Prompt + message;
+                message = string.Join(" ", _promptOptions.Prompt , message);
             }
 
             if (_outputTransform is not null)
-                return _outputTransform.TransformAsync(_executor.InferAsync(message, _inferenceOptions, _cancellationTokenSource.Token));
+                return _outputTransform.TransformAsync(_executor.InferAsync(message, _inferenceParams, _cancellationTokenSource.Token));
 
-            return _executor.InferAsync(message, _inferenceOptions, _cancellationTokenSource.Token);
+            return _executor.InferAsync(message, _inferenceParams, _cancellationTokenSource.Token);
         }
 
 
@@ -57,12 +57,7 @@ namespace LLama.Web.Models
             return _cancellationTokenSource?.IsCancellationRequested ?? false;
         }
 
-        public void Dispose()
-        {
-            _inferenceOptions = null;
-            _outputTransform = null;
-            _executor.Context?.Dispose();
-            _executor = null;
-        }
+
+
     }
 }

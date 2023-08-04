@@ -1,4 +1,5 @@
 ﻿using LLama.Web.Common;
+using LLama.Web.Models;
 using LLama.Web.Services;
 using Microsoft.AspNetCore.SignalR;
 
@@ -36,13 +37,13 @@ namespace LLama.Web.Hubs
 
 
         [HubMethodName("LoadModel")]
-        public async Task OnLoadModel(LLamaExecutorType executorType, string modelName, string promptName, string parameterName)
+        public async Task OnLoadModel(CreateSessionModel sessionModel)
         {
-            _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}, Model: {1}, Prompt: {2}, Parameter: {3}", Context.ConnectionId, modelName, promptName, parameterName);
+            _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}", Context.ConnectionId);
           
 
             // Create model session
-            var modelSessionResult = await _modelSessionService.CreateAsync(Context.ConnectionId, executorType, modelName, promptName, parameterName);
+            var modelSessionResult = await _modelSessionService.CreateAsync(Context.ConnectionId, sessionModel);
             if (modelSessionResult.HasError)
             {
                 await Clients.Caller.OnError(modelSessionResult.Error);

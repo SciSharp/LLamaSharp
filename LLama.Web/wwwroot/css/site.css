@@ -1,4 +1,4 @@
-html, body {
+﻿html, body {
     font-size: 14px;
     height: 100%;
     display: flex;
@@ -31,6 +31,21 @@ footer {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+#scroll-container {
+    flex: 1;
+    overflow-y: scroll;
+}
+
 #output-container .content {
     white-space: break-spaces;
+}
+
+
+.slider-container > .slider {
+    width: 100%;
+}
+
+.slider-container > label {
+    width: 50px;
+    text-align: center;
 }

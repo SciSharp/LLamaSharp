@@ -33,29 +33,17 @@ namespace LLama.Web.Services
             return Task.FromResult(modelSession);
         }
 
-        public async Task<IServiceResult<ModelSession>> CreateAsync(string sessionId, LLamaExecutorType executorType, string modelName, string promptName, string parameterName)
-        {
-            var modelOption = _options.Models.FirstOrDefault(x => x.Name == modelName);
-            if (modelOption is null)
-                return ServiceResult.FromError<ModelSession>($"Model option '{modelName}' not found");
 
-            var promptOption = _options.Prompts.FirstOrDefault(x => x.Name == promptName);
-            if (promptOption is null)
-                return ServiceResult.FromError<ModelSession>($"Prompt option '{promptName}' not found");
-
-            var parameterOption = _options.Parameters.FirstOrDefault(x => x.Name == parameterName);
-            if (parameterOption is null)
-                return ServiceResult.FromError<ModelSession>($"Parameter option '{parameterName}' not found");
-
-            return await CreateAsync(sessionId, executorType, modelOption, promptOption, parameterOption);
-        }
-
-
-        public async Task<IServiceResult<ModelSession>> CreateAsync(string sessionId, LLamaExecutorType executorType, ModelOptions modelOption, PromptOptions promptOption, ParameterOptions parameterOption)
+        public async Task<IServiceResult<ModelSession>> CreateAsync(string sessionId, CreateSessionModel sessionModel)
         {
             // Remove existing connections session
             await RemoveAsync(sessionId);
-         
+
+            var modelOption = _options.Models.FirstOrDefault(x => x.Name == sessionModel.Model);
+            if (modelOption is null)
+                return ServiceResult.FromError<ModelSession>($"Model option '{sessionModel.Model}' not found");
+
+
             //Max instance
             var currentInstances = _modelSessions.Count(x => x.Value.ModelName == modelOption.Name);
             if (modelOption.MaxInstances > -1 && currentInstances >= modelOption.MaxInstances)
@@ -65,7 +53,7 @@ namespace LLama.Web.Services
             var llamaModelContext = await CreateModelContext(sessionId, modelOption);
 
             // Create executor
-            ILLamaExecutor executor = executorType switch
+            ILLamaExecutor executor = sessionModel.ExecutorType switch
             {
                 LLamaExecutorType.Interactive => new InteractiveExecutor(llamaModelContext),
                 LLamaExecutorType.Instruct => new InstructExecutor(llamaModelContext),
@@ -73,13 +61,23 @@ namespace LLama.Web.Services
                 _ => default
             };
 
+            // Create Prompt
+            var promptOption = new PromptOptions
+            {
+                Name = "Custom",
+                Prompt = sessionModel.Prompt,
+                AntiPrompt = CreateListFromCSV(sessionModel.AntiPrompt),
+                OutputFilter = CreateListFromCSV(sessionModel.OutputFilter),
+            };
+
             // Create session
-            var modelSession = new ModelSession(executor, modelOption, promptOption, parameterOption);
+            var modelSession = new ModelSession(executor, modelOption, promptOption, sessionModel);
             if (!_modelSessions.TryAdd(sessionId, modelSession))
                 return ServiceResult.FromError<ModelSession>("Failed to create model session");
 
-            return ServiceResult.FromValue(modelSession);
+            return ServiceResult.FromValue<ModelSession>(default);
         }
+
 
         public async IAsyncEnumerable<ResponseFragment> InferAsync(string sessionId, string prompt, CancellationTokenSource cancellationTokenSource)
         {
@@ -124,15 +122,18 @@ namespace LLama.Web.Services
         }
 
 
-        public Task<bool> RemoveAsync(string sessionId)
+        public async Task<bool> RemoveAsync(string sessionId)
         {
             if (_modelSessions.TryRemove(sessionId, out var modelSession))
             {
                 modelSession.CancelInfer();
-                modelSession.Dispose();
-                return Task.FromResult(true);
+                var llamaModel = await _modelCacheService.Get(modelSession.ModelName);
+                if (llamaModel is null)
+                    return false;
+
+                return await llamaModel.RemoveContext(sessionId);
             }
-            return Task.FromResult(false);
+            return false;
         }
 
         public Task<bool> CancelAsync(string sessionId)
@@ -160,6 +161,16 @@ namespace LLama.Web.Services
                 throw new Exception($"Failed to create model, connectionId: {sessionId}");
 
             return llamaModelContext;
+        }
+
+        private List<string> CreateListFromCSV(string csv)
+        {
+            if(string.IsNullOrEmpty(csv))
+                return null;
+
+           return csv.Split(",")
+                .Select(x => x.Trim())
+                .ToList();
         }
     }
 }
