@@ -29,7 +29,6 @@ namespace LLama.Web.Common
 
         public Task<bool> Remove(string modelName)
         {
-            // This is pretty brutal as there could be multiple contexts, revisit this ASAP
             if (_modelInstances.TryRemove(modelName, out LLamaModel model))
             {
                 model?.Dispose();

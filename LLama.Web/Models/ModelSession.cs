@@ -1,6 +1,5 @@
 ﻿using LLama.Abstractions;
 using LLama.Web.Common;
-using System.Threading;
 
 namespace LLama.Web.Models
 {
@@ -56,8 +55,5 @@ namespace LLama.Web.Models
         {
             return _cancellationTokenSource?.IsCancellationRequested ?? false;
         }
-
-
-
     }
 }

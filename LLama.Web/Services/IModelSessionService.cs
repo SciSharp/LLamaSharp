@@ -12,5 +12,4 @@ namespace LLama.Web.Services
         Task<bool> CancelAsync(string sessionId);
     }
 
-
 }
