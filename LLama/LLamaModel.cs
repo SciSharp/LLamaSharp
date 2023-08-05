@@ -220,6 +220,7 @@ namespace LLama
         /// Perform the sampling. Please don't use it unless you fully know what it does.
         /// </summary>
         /// <param name="candidates"></param>
+        /// <param name="mirostat_mu"></param>
         /// <param name="temperature"></param>
         /// <param name="mirostat"></param>
         /// <param name="mirostatTau"></param>
@@ -229,10 +230,10 @@ namespace LLama
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
-            float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
+        public llama_token Sample(LLamaTokenDataArray candidates, ref float mirostat_mu, float temperature = 0.8f, MiroStatType mirostat = MiroStatType.Disable, 
+                                  float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
         {
-            llama_token id = 0;
+            llama_token id;
             if (temperature <= 0)
             {
                 // Greedy sampling
@@ -240,16 +241,17 @@ namespace LLama
             }
             else
             {
-                if (mirostat == MirostatType.Mirostat)
+                if (float.IsNaN(mirostat_mu))
+                    mirostat_mu = 2 * mirostatTau;
+
+                if (mirostat == MiroStatType.MiroStat)
                 {
-                    float mirostat_mu = 2.0f * mirostatTau;
                     const int mirostat_m = 100;
                     SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
                     id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mirostat_mu);
                 }
                 else if (mirostat == MirostatType.Mirostat2)
                 {
-                    float mirostat_mu = 2.0f * mirostatTau;
                     SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
                     id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mirostat_mu);
                 }

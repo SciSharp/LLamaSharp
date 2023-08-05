@@ -66,6 +66,12 @@ namespace LLama
         /// The mode used by the executor.
         /// </summary>
         public LLamaModel Model => _model;
+
+        /// <summary>
+        /// Current "mu" value for mirostate sampling
+        /// </summary>
+        protected float MirostateMu { get; set; } = float.NaN;
+
         /// <summary>
         /// 
         /// </summary>
@@ -78,8 +84,6 @@ namespace LLama
             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;
-            _embeds = new();
-            _embed_inps = new();
             _last_n_tokens = new FixedSizeQueue<llama_token>(_model.ContextSize).FillWith(0);
         }
 
@@ -359,24 +363,36 @@ namespace LLama
         {
             [JsonPropertyName("n_past")]
             public int PastTokensCount { get; set; }
+
             [JsonPropertyName("n_consumed")]
             public int ConsumedTokensCount { get; set; }
+
             [JsonPropertyName("n_session_consumed")]
             public int ConsumedSessionCount { get; set; }
+
             [JsonPropertyName("n_matching_session_tokens")]
             public int MatchingSessionTokensCount { get; set; }
+
             [JsonPropertyName("path_session")]
             public string SessionFilePath { get; set; }
+
             [JsonPropertyName("embd")]
             public List<llama_token> Embeds { get; set; }
+
             [JsonPropertyName("embd_inps")]
             public List<llama_token> EmbedInps { get; set; }
+
             [JsonPropertyName("session_tokens")]
             public List<llama_token> SessionTokens { get; set; }
+
             [JsonPropertyName("last_n_tokens")]
             public llama_token[] LastTokens { get; set; }
+
             [JsonPropertyName("last_tokens_maximum_count")]
             public int LastTokensCapacity { get; set; }
+
+            [JsonPropertyName("mirostate_mu")]
+            public float MirostateMu { get; set; }
         }
     }
 }
