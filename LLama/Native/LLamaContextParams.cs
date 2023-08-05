@@ -47,7 +47,7 @@ namespace LLama.Native
         /// <summary>
         /// how to split layers across multiple GPUs
         /// </summary>
-        public float[] tensor_split;
+        public IntPtr tensor_split;
 
         /// <summary>
         /// ref: https://github.com/ggerganov/llama.cpp/pull/2054

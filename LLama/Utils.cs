@@ -46,7 +46,10 @@ namespace LLama
             {
                 throw new ArgumentException("Currently multi-gpu support is not supported by both llama.cpp and LLamaSharp.");
             }
-            lparams.tensor_split = modelParams.TensorSplits;
+
+            // Allocate memory for the 'tensor_split' array in C++,
+            lparams.tensor_split = Marshal.AllocHGlobal(modelParams.TensorSplits.Length * sizeof(float));
+            Marshal.Copy(modelParams.TensorSplits, 0, lparams.tensor_split, modelParams.TensorSplits.Length);
 
             if (!File.Exists(modelParams.ModelPath))
             {
