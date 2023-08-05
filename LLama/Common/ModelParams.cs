@@ -84,7 +84,7 @@ namespace LLama.Common
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        public float[] TensorSplits { get; set; } = new float[] { 0 };
+        public nint TensorSplits { get; set; }
 
         /// <summary>
         /// 

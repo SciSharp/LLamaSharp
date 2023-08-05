@@ -230,7 +230,7 @@ namespace LLama
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, ref float mirostat_mu, float temperature = 0.8f, MiroStatType mirostat = MiroStatType.Disable, 
+        public llama_token Sample(LLamaTokenDataArray candidates, ref float mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
                                   float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
         {
             llama_token id;
@@ -244,7 +244,7 @@ namespace LLama
                 if (float.IsNaN(mirostat_mu))
                     mirostat_mu = 2 * mirostatTau;
 
-                if (mirostat == MiroStatType.MiroStat)
+                if (mirostat == MirostatType.Mirostat)
                 {
                     const int mirostat_m = 100;
                     SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
