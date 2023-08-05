@@ -342,4 +342,6 @@ test/TensorFlowNET.Examples/mnist
 
 # docs
 site/
+
 /LLama.Unittest/Models/*.bin
+
