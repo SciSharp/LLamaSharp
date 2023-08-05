@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace LLama.Common
 {
@@ -83,7 +82,7 @@ namespace LLama.Common
         /// algorithm described in the paper https://arxiv.org/abs/2007.14966.
         /// 0 = disabled, 1 = mirostat, 2 = mirostat 2.0
         /// </summary>
-        public MiroStateType Mirostat { get; set; } = MiroStateType.Disable;
+        public MirostatType Mirostat { get; set; } = MirostatType.Disable;
         /// <summary>
         /// target entropy
         /// </summary>
@@ -98,10 +97,25 @@ namespace LLama.Common
         public bool PenalizeNL { get; set; } = true;
     }
 
-    public enum MiroStateType
+    /// <summary>
+    /// Type of "mirostat" sampling to use.
+    /// https://github.com/basusourya/mirostat
+    /// </summary>
+    public enum MirostatType
     {
+        /// <summary>
+        /// Disable Mirostat sampling
+        /// </summary>
         Disable = 0,
-        MiroState = 1,
-        MiroState2 = 2
+
+        /// <summary>
+        /// Original mirostat algorithm
+        /// </summary>
+        Mirostat = 1,
+
+        /// <summary>
+        /// Mirostat 2.0 algorithm
+        /// </summary>
+        Mirostat2 = 2
     }
 }

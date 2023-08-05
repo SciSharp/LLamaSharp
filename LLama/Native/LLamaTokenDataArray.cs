@@ -1,32 +1,80 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LLama.Native
 {
-    [StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// Contains an array of LLamaTokenData, potentially sorted.
+    /// </summary>
     public struct LLamaTokenDataArray
     {
-        public Memory<LLamaTokenData> data;
-        public ulong size;
-        [MarshalAs(UnmanagedType.I1)]
-        public bool sorted;
+        /// <summary>
+        /// The LLamaTokenData
+        /// </summary>
+        public readonly Memory<LLamaTokenData> data;
 
-        public LLamaTokenDataArray(LLamaTokenData[] data, ulong size, bool sorted)
+        /// <summary>
+        /// Indicates if `data` is sorted
+        /// </summary>
+        public readonly bool sorted;
+
+        /// <summary>
+        /// Create a new LLamaTokenDataArray
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="isSorted"></param>
+        public LLamaTokenDataArray(Memory<LLamaTokenData> tokens, bool isSorted = false)
         {
-            this.data = data;
-            this.size = size;
-            this.sorted = sorted;
+            data = tokens;
+            sorted = isSorted;
         }
     }
 
+    /// <summary>
+    /// Contains a pointer to an array of LLamaTokenData which is pinned in memory.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaTokenDataArrayNative
     {
+        /// <summary>
+        /// A pointer to an array of LlamaTokenData
+        /// </summary>
+        /// <remarks>Memory must be pinned in place for all the time this LLamaTokenDataArrayNative is in use</remarks>
         public IntPtr data;
+
+        /// <summary>
+        /// Number of LLamaTokenData in the array
+        /// </summary>
         public ulong size;
+
+        /// <summary>
+        /// Indicates if the items in the array are sorted
+        /// </summary>
+        [MarshalAs(UnmanagedType.I1)]
         public bool sorted;
+
+        /// <summary>
+        /// Create a new LLamaTokenDataArrayNative around the data in the LLamaTokenDataArray 
+        /// </summary>
+        /// <param name="array">Data source</param>
+        /// <param name="native">Created native array</param>
+        /// <returns>A memory handle, pinning the data in place until disposed</returns>
+        public static MemoryHandle Create(LLamaTokenDataArray array, out LLamaTokenDataArrayNative native)
+        {
+            var handle = array.data.Pin();
+
+            unsafe
+            {
+                native = new LLamaTokenDataArrayNative
+                {
+                    data = new IntPtr(handle.Pointer),
+                    size = (ulong)array.data.Length,
+                    sorted = array.sorted
+                };
+            }
+
+            return handle;
+        }
     }
 }
