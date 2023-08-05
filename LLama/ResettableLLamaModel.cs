@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,7 +19,7 @@ namespace LLama
         /// </summary>
         /// <param name="Params"></param>
         /// <param name="encoding"></param>
-        public ResettableLLamaModel(ModelParams Params, string encoding = "UTF-8") : base(Params, encoding)
+        public ResettableLLamaModel(IModelParams Params, string encoding = "UTF-8") : base(Params, encoding)
         {
             OriginalState = GetState();
         }

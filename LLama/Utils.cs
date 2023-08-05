@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+﻿using LLama.Abstractions;
 using LLama.Exceptions;
 using LLama.Native;
 using System;
@@ -13,7 +13,7 @@ namespace LLama
     using llama_token = Int32;
     internal static class Utils
     {
-        public static SafeLLamaContextHandle InitLLamaContextFromModelParams(ModelParams @params)
+        public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
         {
             var lparams = NativeApi.llama_context_default_params();
 
@@ -28,6 +28,11 @@ namespace LLama
             lparams.logits_all = @params.Perplexity;
             lparams.embedding = @params.EmbeddingMode;
             lparams.low_vram = @params.LowVram;
+            lparams.n_gqa = @params.GroupedQueryAttention;
+            lparams.rms_norm_eps = @params.RmsNormEpsilon;
+            lparams.rope_freq_base = @params.RopeFrequencyBase;
+            lparams.rope_freq_scale = @params.RopeFrequencyScale;
+            lparams.mul_mat_q = @params.MulMatQ;
 
             /*
             if (@params.TensorSplits.Length != 1)
