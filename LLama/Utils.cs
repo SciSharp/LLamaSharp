@@ -28,40 +28,25 @@ namespace LLama
             lparams.logits_all = @params.Perplexity;
             lparams.embedding = @params.EmbeddingMode;
             lparams.low_vram = @params.LowVram;
-
-            if(@params.TensorSplits.Length != 1)
+       
+            if (@params.TensorSplits.Length != 1)
             {
                 throw new ArgumentException("Currently multi-gpu support is not supported by " +
                     "both llama.cpp and LLamaSharp.");
             }
-            lparams.tensor_split = new TensorSplits()
-            {
-                Item1 = @params.TensorSplits[0]
-            };
+            lparams.tensor_split = @params.TensorSplits;
 
             if (!File.Exists(@params.ModelPath))
             {
                 throw new FileNotFoundException($"The model file does not exist: {@params.ModelPath}");
             }
 
-            var ctx_ptr = NativeApi.llama_init_from_file(@params.ModelPath, lparams);
-
-            if (ctx_ptr == IntPtr.Zero)
-            {
-                throw new RuntimeError($"Failed to load model {@params.ModelPath}.");
-            }
-
-            SafeLLamaContextHandle ctx = new(ctx_ptr);
+            var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+            var ctx = SafeLLamaContextHandle.Create(model, lparams);
 
             if (!string.IsNullOrEmpty(@params.LoraAdapter))
-            {
-                int err = NativeApi.llama_apply_lora_from_file(ctx, @params.LoraAdapter,
-                    string.IsNullOrEmpty(@params.LoraBase) ? null : @params.LoraBase, @params.Threads);
-                if (err != 0)
-                {
-                    throw new RuntimeError("Failed to apply lora adapter.");
-                }
-            }
+                model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
+
             return ctx;
         }
 
@@ -78,7 +63,7 @@ namespace LLama
             return res.Take(n);
         }
 
-        public unsafe static Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
+        public static unsafe Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
         {
             var logits = NativeApi.llama_get_logits(ctx);
             return new Span<float>(logits, length);
