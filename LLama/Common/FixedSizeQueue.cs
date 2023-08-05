@@ -30,12 +30,12 @@ namespace LLama.Common
         /// <param name="data"></param>
         public FixedSizeQueue(int size, IEnumerable<T> data)
         {
-
 #if NETCOREAPP3_0_OR_GREATER
             // Try an early check on the amount of data supplied (if possible)
             if (data.TryGetNonEnumeratedCount(out var count) && count > size)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
 #endif
+
             // Size of "data" is unknown, copy it all into a list
             _maxSize = size;
             _storage = new List<T>(data);

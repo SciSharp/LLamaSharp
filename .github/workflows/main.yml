@@ -1,0 +1,55 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [linux-debug, linux-release, macos-debug, macos-release, windows-debug, windows-release]
+        include:
+          - build: linux-debug
+            os: ubuntu-latest
+            config: debug
+          - build: linux-release
+            os: ubuntu-latest
+            config: release
+          - build: macos-debug
+            os: macos-latest
+            config: debug
+          - build: macos-release
+            os: macos-latest
+            config: release
+          - build: windows-debug
+            os: windows-2019
+            config: debug
+          - build: windows-release
+            os: windows-2019
+            config: release
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: | 
+          6.0.x
+          7.0.x
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        key: "unit_test_models"
+        path: LLama.Unittest/Models
+    #  workaround for actions/setup-dotnet#155
+    - name: Clear package cache
+      run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
+    - name: Restore packages
+      run: dotnet restore LLamaSharp.sln
+    - name: Build
+      run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
+    - name: Test
+      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }}
