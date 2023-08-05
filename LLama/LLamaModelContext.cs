@@ -59,7 +59,6 @@ namespace LLama
             _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, contextParams);
             ContextSize = NativeApi.llama_n_ctx(_ctx);
         }
-
         /// <summary>
         /// Tokenize a string.
         /// </summary>
@@ -80,7 +79,7 @@ namespace LLama
         public string DeTokenize(IEnumerable<llama_token> tokens)
         {
             StringBuilder sb = new();
-            foreach(var token in tokens)
+            foreach (var token in tokens)
             {
                 sb.Append(Utils.PtrToString(NativeApi.llama_token_to_str(_ctx, token), _encoding));
             }
@@ -223,6 +222,7 @@ namespace LLama
         /// Perform the sampling. Please don't use it unless you fully know what it does.
         /// </summary>
         /// <param name="candidates"></param>
+        /// <param name="mirostat_mu"></param>
         /// <param name="temperature"></param>
         /// <param name="mirostat"></param>
         /// <param name="mirostatTau"></param>
@@ -232,10 +232,10 @@ namespace LLama
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, float temperature = 0.8f, MiroStateType mirostat = MiroStateType.Disable, 
-            float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
+        public llama_token Sample(LLamaTokenDataArray candidates, ref float mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable,
+                                  float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
         {
-            llama_token id = 0;
+            llama_token id;
             if (temperature <= 0)
             {
                 // Greedy sampling
@@ -243,16 +243,17 @@ namespace LLama
             }
             else
             {
-                if (mirostat == MiroStateType.MiroState)
+                if (float.IsNaN(mirostat_mu))
+                    mirostat_mu = 2 * mirostatTau;
+
+                if (mirostat == MirostatType.Mirostat)
                 {
-                    float mirostat_mu = 2.0f * mirostatTau;
                     const int mirostat_m = 100;
                     SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
                     id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mirostat_mu);
                 }
-                else if (mirostat == MiroStateType.MiroState2)
+                else if (mirostat == MirostatType.Mirostat2)
                 {
-                    float mirostat_mu = 2.0f * mirostatTau;
                     SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
                     id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mirostat_mu);
                 }
@@ -281,15 +282,15 @@ namespace LLama
         /// <param name="alphaPresence"></param>
         /// <param name="penalizeNL"></param>
         /// <returns></returns>
-        public LLamaTokenDataArray ApplyPenalty(IEnumerable<llama_token> lastTokens, Dictionary<llama_token, float>? logitBias = null, 
-            int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
+        public LLamaTokenDataArray ApplyPenalty(IEnumerable<llama_token> lastTokens, Dictionary<llama_token, float>? logitBias = null,
+            int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f,
             bool penalizeNL = true)
         {
             var n_vocab = NativeApi.llama_n_vocab(_ctx);
             var logits = Utils.GetLogits(_ctx, n_vocab);
 
             // Apply params.logit_bias map
-            if(logitBias is not null)
+            if (logitBias is not null)
             {
                 foreach (var (key, value) in logitBias)
                 {
@@ -297,14 +298,10 @@ namespace LLama
                 }
             }
 
-            var candidates = new List<LLamaTokenData>();
-            candidates.Capacity = n_vocab;
+            var candidates = new LLamaTokenData[n_vocab];
             for (llama_token token_id = 0; token_id < n_vocab; token_id++)
-            {
-                candidates.Add(new LLamaTokenData(token_id, logits[token_id], 0.0f));
-            }
-
-            LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates.ToArray(), (ulong)candidates.Count, false);
+                candidates[token_id] = new LLamaTokenData(token_id, logits[token_id], 0.0f);
+            LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates);
 
             // Apply penalties
             float nl_logit = logits[NativeApi.llama_token_nl()];
@@ -334,17 +331,17 @@ namespace LLama
         public llama_token Eval(llama_token[] tokens, llama_token pastTokensCount)
         {
             int total = tokens.Length;
-            for(int i = 0; i < total; i += Params.BatchSize)
+            for (int i = 0; i < total; i += Params.BatchSize)
             {
                 int n_eval = total - i;
-                if(n_eval > Params.BatchSize)
+                if (n_eval > Params.BatchSize)
                 {
                     n_eval = Params.BatchSize;
                 }
 
-                if(Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
+                if (Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
                 {
-                    _logger?.Log(nameof(LLamaModelContext), "Failed to eval.", ILLamaLogger.LogLevel.Error);
+                    _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
                 }
 
@@ -356,7 +353,7 @@ namespace LLama
         // TODO: add comment
         internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
         {
-            foreach(var id in ids)
+            foreach (var id in ids)
             {
                 yield return Utils.TokenToString(id, _ctx, _encoding);
             }

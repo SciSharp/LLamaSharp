@@ -11,7 +11,7 @@ namespace LLama.Abstractions
         string InputSuffix { get; set; }
         Dictionary<int, float>? LogitBias { get; set; }
         int MaxTokens { get; set; }
-        MiroStateType Mirostat { get; set; }
+        MirostatType Mirostat { get; set; }
         float MirostatEta { get; set; }
         float MirostatTau { get; set; }
         string PathSession { get; set; }

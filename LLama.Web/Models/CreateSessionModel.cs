@@ -26,7 +26,7 @@ namespace LLama.Web.Models
         public int RepeatLastTokensCount { get; set; } = 64;
         public float FrequencyPenalty { get; set; } = .0f;
         public float PresencePenalty { get; set; } = .0f;
-        public MiroStateType Mirostat { get; set; } = MiroStateType.Disable;
+        public MirostatType Mirostat { get; set; } = MirostatType.Disable;
         public float MirostatTau { get; set; } = 5.0f;
         public float MirostatEta { get; set; } = 0.1f;
         public bool PenalizeNL { get; set; } = true;
