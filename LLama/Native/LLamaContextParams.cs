@@ -47,7 +47,8 @@ namespace LLama.Native
         /// <summary>
         /// how to split layers across multiple GPUs
         /// </summary>
-        public float[] tensor_split;
+        public nint tensor_split;
+
 
         /// <summary>
         /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
@@ -77,6 +78,11 @@ namespace LLama.Native
         /// </summary>
         [MarshalAs(UnmanagedType.I1)]
         public bool low_vram;
+
+        /// <summary>
+        /// if true, use experimental mul_mat_q kernels
+        /// </summary>
+        [MarshalAs(UnmanagedType.I1)] public bool mul_mat_q;
 
         /// <summary>
         /// use fp16 for KV cache
@@ -114,9 +120,5 @@ namespace LLama.Native
         [MarshalAs(UnmanagedType.I1)] 
         public bool embedding;
     }
-
-    public struct TensorSplits
-    {
-        public float Item1;
-    }
 }
+
