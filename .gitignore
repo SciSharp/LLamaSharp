@@ -342,3 +342,4 @@ test/TensorFlowNET.Examples/mnist
 
 # docs
 site/
+*.bin
