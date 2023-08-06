@@ -148,7 +148,7 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ⚠️ BotSharp Integration
 
-⚠️ ASP.NET core Integration
+✅ ASP.NET core Integration
 
 ⚠️ Semantic-kernel Integration
 
