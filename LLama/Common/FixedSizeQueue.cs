@@ -30,8 +30,11 @@ namespace LLama.Common
         /// <param name="data"></param>
         public FixedSizeQueue(int size, IEnumerable<T> data)
         {
-#if NETCOREAPP3_0_OR_GREATER
-            // Try an early check on the amount of data supplied (if possible)
+#if NETSTANDARD2_0
+            var dataCount = data.Count();
+            if (data.Count() > size)
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {dataCount} initial values.");
+#else
             if (data.TryGetNonEnumeratedCount(out var count) && count > size)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
 #endif
@@ -42,9 +45,12 @@ namespace LLama.Common
 
             // Now check if that list is a valid size
             if (_storage.Count > _maxSize)
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {_storage.Count} initial values.");
+#if NETSTANDARD2_0
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {dataCount} initial values.");
+#else
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
+#endif
         }
-
         /// <summary>
         /// Replace every item in the queue with the given value
         /// </summary>
