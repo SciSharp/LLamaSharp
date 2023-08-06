@@ -21,7 +21,8 @@ namespace LLama.Native
                     "1. No LLamaSharp backend was installed. Please search LLamaSharp.Backend and install one of them. \n" +
                     "2. You are using a device with only CPU but installed cuda backend. Please install cpu backend instead. \n" +
                     "3. The backend is not compatible with your system cuda environment. Please check and fix it. If the environment is " +
-                    "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.");
+                    "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.\n" + 
+                    "4. One of the dependency of the native library is missed.\n");
             }
             NativeApi.llama_backend_init(false);
         }

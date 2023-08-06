@@ -31,6 +31,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>libllama.dylib</Link>
         </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-metal.dylib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libllama-metal.dylib</Link>
+        </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/ggml-metal.metal">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>ggml-metal.metal</Link>
