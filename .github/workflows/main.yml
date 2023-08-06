@@ -52,4 +52,4 @@ jobs:
     - name: Build
       run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
     - name: Test
-      run: ls ./LLama.Unittest/bin/Debug/net6.0; ldd -r libllama.so; dotnet test LLamaSharp.sln -c ${{ matrix.config }}
+      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }}
