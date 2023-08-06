@@ -1,14 +1,13 @@
 ﻿using LLama.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LLama.Common
 {
     /// <summary>
     /// The parameters for initializing a LLama model.
     /// </summary>
-    public class ModelParams : IModelParams
+    public class ModelParams
+        : IModelParams
     {
         /// <summary>
         /// Model context size (n_ctx)
@@ -85,7 +84,7 @@ namespace LLama.Common
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        public nint TensorSplits { get; set; }
+        public float[]? TensorSplits { get; set; }
 
 		/// <summary>
 		/// Grouped-Query Attention

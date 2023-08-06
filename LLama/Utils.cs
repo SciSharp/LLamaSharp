@@ -15,8 +15,13 @@ namespace LLama
     {
         public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
         {
-            var lparams = NativeApi.llama_context_default_params();
+            if (!File.Exists(@params.ModelPath))
+                throw new FileNotFoundException($"The model file does not exist: {@params.ModelPath}");
 
+            if (@params.TensorSplits != null && @params.TensorSplits.Length != 1)
+                throw new ArgumentException("Currently multi-gpu support is not supported by both llama.cpp and LLamaSharp.");
+
+            var lparams = NativeApi.llama_context_default_params();
             lparams.n_ctx = @params.ContextSize;
             lparams.n_batch = @params.BatchSize;
             lparams.main_gpu = @params.MainGpu;
@@ -34,27 +39,21 @@ namespace LLama
             lparams.rope_freq_scale = @params.RopeFrequencyScale;
             lparams.mul_mat_q = @params.MulMatQ;
 
-            /*
-            if (@params.TensorSplits.Length != 1)
+            unsafe
             {
-                throw new ArgumentException("Currently multi-gpu support is not supported by " +
-                    "both llama.cpp and LLamaSharp.");
-            }*/
+                fixed (float* splits = @params.TensorSplits)
+                {
+                    lparams.tensor_split = (nint)splits;
 
-            lparams.tensor_split = @params.TensorSplits;
+                    var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+                    var ctx = SafeLLamaContextHandle.Create(model, lparams);
 
-            if (!File.Exists(@params.ModelPath))
-            {
-                throw new FileNotFoundException($"The model file does not exist: {@params.ModelPath}");
+                    if (!string.IsNullOrEmpty(@params.LoraAdapter))
+                        model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
+
+                    return ctx;
+                }
             }
-
-            var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
-            var ctx = SafeLLamaContextHandle.Create(model, lparams);
-
-            if (!string.IsNullOrEmpty(@params.LoraAdapter))
-                model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
-
-            return ctx;
         }
 
         public static IEnumerable<llama_token> Tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, Encoding encoding)
