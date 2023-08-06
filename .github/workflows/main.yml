@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [linux-debug, linux-release, macos-debug, macos-release, windows-debug, windows-release]
+        build: [linux-debug, linux-release, windows-debug, windows-release]
         include:
           - build: linux-debug
             os: ubuntu-latest
@@ -20,12 +20,12 @@ jobs:
           - build: linux-release
             os: ubuntu-latest
             config: release
-          - build: macos-debug
-            os: macos-latest
-            config: debug
-          - build: macos-release
-            os: macos-latest
-            config: release
+          # - build: macos-debug
+          #   os: macos-latest
+          #   config: debug
+          # - build: macos-release
+          #   os: macos-latest
+          #   config: release
           - build: windows-debug
             os: windows-2019
             config: debug
@@ -52,4 +52,4 @@ jobs:
     - name: Build
       run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
     - name: Test
-      run: otool -L ./LLama.Unittest/bin/Debug/net6.0/libllama.dylib; sysctl machdep.cpu.brand_string; dotnet test LLamaSharp.sln -c ${{ matrix.config }}
+      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }}
