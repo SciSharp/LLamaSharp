@@ -11,7 +11,7 @@ using System.Text;
 namespace LLama
 {
     using llama_token = Int32;
-    internal static class Utils
+    public static class Utils
     {
         public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
         {
