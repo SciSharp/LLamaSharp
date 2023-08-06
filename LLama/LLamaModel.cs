@@ -10,6 +10,7 @@ using LLama.Common;
 using System.Runtime.InteropServices;
 using LLama.Extensions;
 using Microsoft.Win32.SafeHandles;
+using LLama.Abstractions;
 
 namespace LLama
 {
@@ -30,7 +31,7 @@ namespace LLama
         /// <summary>
         /// The model params set for this model.
         /// </summary>
-        public ModelParams Params { get; set; }
+        public IModelParams Params { get; set; }
         /// <summary>
         /// The native handle, which is used to be passed to the native APIs. Please avoid using it 
         /// unless you know what is the usage of the Native API.
@@ -47,7 +48,7 @@ namespace LLama
         /// <param name="Params">Model params.</param>
         /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
-        public LLamaModel(ModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaModel(IModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
         {
             _logger = logger;
             this.Params = Params;
