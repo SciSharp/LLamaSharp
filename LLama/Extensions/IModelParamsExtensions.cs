@@ -6,7 +6,7 @@ using LLama.Native;
 
 namespace LLama.Extensions
 {
-    internal static class IModelParamsExtensions
+    public static class IModelParamsExtensions
     {
         /// <summary>
         /// Convert the given `IModelParams` into a `LLamaContextParams`
