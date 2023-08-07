@@ -30,8 +30,8 @@ namespace LLama
         public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
             string instructionSuffix = "\n\n### Response:\n\n") : base(model)
         {
-            _inp_pfx = _model.Tokenize(instructionPrefix, true).ToArray();
-            _inp_sfx = _model.Tokenize(instructionSuffix, false).ToArray();
+            _inp_pfx = _model.Tokenize(instructionPrefix, true);
+            _inp_sfx = _model.Tokenize(instructionSuffix, false);
             _instructionPrefix = instructionPrefix;
         }
 
@@ -133,7 +133,7 @@ namespace LLama
 
                 _embed_inps.AddRange(_inp_sfx);
 
-                args.RemainedTokens -= line_inp.Count();
+                args.RemainedTokens -= line_inp.Length;
             }
         }
         /// <inheritdoc />
@@ -146,9 +146,7 @@ namespace LLama
                 {
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
-                    {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
-                    }
+                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
 
                     foreach (var antiprompt in args.Antiprompts)
                     {

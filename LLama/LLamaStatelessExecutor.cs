@@ -31,7 +31,7 @@ namespace LLama
             _model = model;
             
             var tokens = model.Tokenize(" ", true).ToArray();
-            Utils.Eval(_model.NativeHandle, tokens, 0, tokens.Length, 0, _model.Params.Threads);
+            _model.NativeHandle.Eval(tokens.AsMemory(0, tokens.Length), 0, _model.Params.Threads);
             _originalState = model.GetState();
         }
 
@@ -52,7 +52,7 @@ namespace LLama
             List<llama_token> tokens = _model.Tokenize(text, true).ToList();
             int n_prompt_tokens = tokens.Count;
 
-            Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, n_prompt_tokens, n_past, _model.Params.Threads);
+            _model.NativeHandle.Eval(tokens.ToArray().AsMemory(0, n_prompt_tokens), n_past, _model.Params.Threads);
 
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;
@@ -76,7 +76,7 @@ namespace LLama
 
                 lastTokens.Add(id);
 
-                string response = Utils.TokenToString(id, _model.NativeHandle, _model.Encoding);
+                string response = _model.NativeHandle.TokenToString(id, _model.Encoding);
                 yield return response;
 
                 tokens.Clear();
@@ -87,7 +87,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var token in lastTokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, token), _model.Encoding);
+                        last_output += _model.NativeHandle.TokenToString(token, _model.Encoding);
                     }
 
                     bool should_break = false;

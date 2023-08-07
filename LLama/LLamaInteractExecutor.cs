@@ -25,7 +25,7 @@ namespace LLama
         /// <param name="model"></param>
         public InteractiveExecutor(LLamaModel model) : base(model)
         {
-            _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
+            _llama_token_newline = _model.NativeHandle.Tokenize("\n", false, _model.Encoding);
         }
 
         /// <inheritdoc />
@@ -114,7 +114,7 @@ namespace LLama
                 }
                 var line_inp = _model.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
-                args.RemainedTokens -= line_inp.Count();
+                args.RemainedTokens -= line_inp.Length;
             }
         }
 
@@ -133,7 +133,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
                     }
 
                     foreach (var antiprompt in args.Antiprompts)

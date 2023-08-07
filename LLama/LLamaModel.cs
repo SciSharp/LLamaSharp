@@ -64,10 +64,9 @@ namespace LLama
         /// <param name="text"></param>
         /// <param name="addBos">Whether to add a bos to the text.</param>
         /// <returns></returns>
-        public IEnumerable<llama_token> Tokenize(string text, bool addBos = true)
+        public llama_token[] Tokenize(string text, bool addBos = true)
         {
-            // TODO: reconsider whether to convert to array here.
-            return Utils.Tokenize(_ctx, text, addBos, _encoding);
+            return _ctx.Tokenize(text, addBos, _encoding);
         }
 
         /// <summary>
@@ -79,9 +78,7 @@ namespace LLama
         {
             StringBuilder sb = new();
             foreach(var token in tokens)
-            {
-                sb.Append(Utils.PtrToString(NativeApi.llama_token_to_str(_ctx, token), _encoding));
-            }
+                sb.Append(_ctx.TokenToString(token, _encoding));
             return sb.ToString();
         }
 
@@ -285,8 +282,8 @@ namespace LLama
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
         {
-            var n_vocab = NativeApi.llama_n_vocab(_ctx);
-            var logits = Utils.GetLogits(_ctx, n_vocab);
+            var n_vocab = _ctx.VocabCount;
+            var logits = _ctx.GetLogits();
 
             // Apply params.logit_bias map
             if(logitBias is not null)
@@ -338,7 +335,7 @@ namespace LLama
                     n_eval = Params.BatchSize;
                 }
 
-                if(Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
+                if (!_ctx.Eval(tokens.AsMemory(i, n_eval), pastTokensCount, Params.Threads))
                 {
                     _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
@@ -353,9 +350,7 @@ namespace LLama
         internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
         {
             foreach(var id in ids)
-            {
-                yield return Utils.TokenToString(id, _ctx, _encoding);
-            }
+                yield return _ctx.TokenToString(id, _encoding);
         }
 
         /// <inheritdoc />

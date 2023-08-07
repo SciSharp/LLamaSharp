@@ -55,7 +55,7 @@ namespace LLama
                 text = text.Insert(0, " ");
             }
 
-            var embed_inp_array = Utils.Tokenize(_ctx, text, addBos, Encoding.GetEncoding(encoding)).ToArray();
+            var embed_inp_array = _ctx.Tokenize(text, addBos, Encoding.GetEncoding(encoding));
 
             // TODO(Rinne): deal with log of prompt
 
