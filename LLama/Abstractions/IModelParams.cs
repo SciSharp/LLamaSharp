@@ -93,7 +93,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        nint TensorSplits { get; set; }
+        float[]? TensorSplits { get; set; }
 
         /// <summary>
         /// Grouped-Query Attention
