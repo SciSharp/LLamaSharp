@@ -87,7 +87,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var token in lastTokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, token), _model.Encoding);
                     }
 
                     bool should_break = false;
