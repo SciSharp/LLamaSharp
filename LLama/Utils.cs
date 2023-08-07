@@ -33,10 +33,13 @@ namespace LLama
             return ctx.Tokenize(text, add_bos, encoding);
         }
 
-        public static unsafe Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
+        [Obsolete("Use SafeLLamaContextHandle GetLogits method instead")]
+        public static Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
         {
-            var logits = NativeApi.llama_get_logits(ctx);
-            return new Span<float>(logits, length);
+            if (length != ctx.VocabCount)
+                throw new ArgumentException("length must be the VocabSize");
+
+            return ctx.GetLogits();
         }
 
         public static unsafe int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)

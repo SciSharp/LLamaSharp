@@ -13,17 +13,17 @@ namespace LLama.Native
         /// <summary>
         /// Total number of tokens in vocabulary of this model
         /// </summary>
-        public int VocabCount { get; set; }
+        public int VocabCount { get; }
 
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize { get; set; }
+        public int ContextSize { get; }
 
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingCount { get; set; }
+        public int EmbeddingCount { get; }
 
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)

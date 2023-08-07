@@ -257,8 +257,8 @@ namespace LLama.Native
         /// <summary>
         /// Token logits obtained from the last call to llama_eval()
         /// The logits for the last token are stored in the last row
-        /// Can be mutated in order to change the probabilities of the next token
-        /// Rows: n_tokens
+        /// Can be mutated in order to change the probabilities of the next token.<br />
+        /// Rows: n_tokens<br />
         /// Cols: n_vocab
         /// </summary>
         /// <param name="ctx"></param>

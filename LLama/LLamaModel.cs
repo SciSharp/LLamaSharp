@@ -284,8 +284,8 @@ namespace LLama
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
         {
-            var n_vocab = NativeApi.llama_n_vocab(_ctx);
-            var logits = Utils.GetLogits(_ctx, n_vocab);
+            var n_vocab = _ctx.VocabCount;
+            var logits = _ctx.GetLogits();
 
             // Apply params.logit_bias map
             if(logitBias is not null)
