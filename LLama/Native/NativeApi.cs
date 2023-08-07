@@ -218,6 +218,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="text"></param>
+        /// <param name="encoding"></param>
         /// <param name="tokens"></param>
         /// <param name="n_max_tokens"></param>
         /// <param name="add_bos"></param>

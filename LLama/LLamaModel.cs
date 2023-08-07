@@ -64,10 +64,9 @@ namespace LLama
         /// <param name="text"></param>
         /// <param name="addBos">Whether to add a bos to the text.</param>
         /// <returns></returns>
-        public IEnumerable<llama_token> Tokenize(string text, bool addBos = true)
+        public llama_token[] Tokenize(string text, bool addBos = true)
         {
-            // TODO: reconsider whether to convert to array here.
-            return Utils.Tokenize(_ctx, text, addBos, _encoding);
+            return _ctx.Tokenize(text, addBos, _encoding);
         }
 
         /// <summary>

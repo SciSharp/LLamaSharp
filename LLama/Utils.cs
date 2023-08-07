@@ -27,17 +27,10 @@ namespace LLama
             }
         }
 
+        [Obsolete("Use SafeLLamaContextHandle Tokenize method instead")]
         public static IEnumerable<llama_token> Tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, Encoding encoding)
         {
-            var cnt = encoding.GetByteCount(text);
-            llama_token[] res = new llama_token[cnt + (add_bos ? 1 : 0)];
-            int n = NativeApi.llama_tokenize(ctx, text, encoding, res, res.Length, add_bos);
-            if (n < 0)
-            {
-                throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +
-                    "specify the encoding.");
-            }
-            return res.Take(n);
+            return ctx.Tokenize(text, add_bos, encoding);
         }
 
         public static unsafe Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
