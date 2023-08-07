@@ -133,7 +133,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
                     }
 
                     foreach (var antiprompt in args.Antiprompts)

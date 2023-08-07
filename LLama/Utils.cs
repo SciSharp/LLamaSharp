@@ -3,6 +3,7 @@ using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -52,12 +53,14 @@ namespace LLama
             return result;
         }
 
+        [Obsolete("Use SafeLLamaContextHandle TokenToString method instead")]
         public static string TokenToString(llama_token token, SafeLLamaContextHandle ctx, Encoding encoding)
         {
-            return PtrToString(NativeApi.llama_token_to_str(ctx, token), encoding);
+            return ctx.TokenToString(token, encoding);
         }
 
-        public static unsafe string PtrToString(IntPtr ptr, Encoding encoding)
+        [Obsolete("No longer used internally by LlamaSharp")]
+        public static string PtrToString(IntPtr ptr, Encoding encoding)
         {
 #if NET6_0_OR_GREATER
             if(encoding == Encoding.UTF8)
@@ -73,21 +76,24 @@ namespace LLama
                 return Marshal.PtrToStringAuto(ptr);
             }
 #else
-            byte* tp = (byte*)ptr.ToPointer();
-            List<byte> bytes = new();
-            while (true)
+            unsafe
             {
-                byte c = *tp++;
-                if (c == '\0')
+                byte* tp = (byte*)ptr.ToPointer();
+                List<byte> bytes = new();
+                while (true)
                 {
-                    break;
+                    byte c = *tp++;
+                    if (c == '\0')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        bytes.Add(c);
+                    }
                 }
-                else
-                {
-                    bytes.Add(c);
-                }
+                return encoding.GetString(bytes.ToArray());
             }
-            return encoding.GetString(bytes.ToArray());
 #endif
         }
     }

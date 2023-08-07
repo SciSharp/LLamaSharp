@@ -148,5 +148,26 @@ namespace LLama.Native
                 return new Span<float>(logits, model.VocabCount);
             }
         }
+
+        /// <summary>
+        /// Convert a token into a string
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public string TokenToString(int token, Encoding encoding)
+        {
+            return ThrowIfDisposed().TokenToString(token, encoding);
+        }
+
+        /// <summary>
+        /// Convert a token into a span of bytes that could be decoded into a string
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public ReadOnlySpan<byte> TokenToSpan(int token)
+        {
+            return ThrowIfDisposed().TokenToSpan(token);
+        }
     }
 }

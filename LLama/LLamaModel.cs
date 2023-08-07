@@ -78,9 +78,7 @@ namespace LLama
         {
             StringBuilder sb = new();
             foreach(var token in tokens)
-            {
-                sb.Append(Utils.PtrToString(NativeApi.llama_token_to_str(_ctx, token), _encoding));
-            }
+                sb.Append(_ctx.TokenToString(token, _encoding));
             return sb.ToString();
         }
 
@@ -352,9 +350,7 @@ namespace LLama
         internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
         {
             foreach(var id in ids)
-            {
-                yield return Utils.TokenToString(id, _ctx, _encoding);
-            }
+                yield return _ctx.TokenToString(id, _encoding);
         }
 
         /// <inheritdoc />
