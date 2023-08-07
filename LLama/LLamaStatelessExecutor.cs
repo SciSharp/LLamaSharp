@@ -76,7 +76,7 @@ namespace LLama
 
                 lastTokens.Add(id);
 
-                string response = Utils.TokenToString(id, _model.NativeHandle, _model.Encoding);
+                string response = _model.NativeHandle.TokenToString(id, _model.Encoding);
                 yield return response;
 
                 tokens.Clear();
