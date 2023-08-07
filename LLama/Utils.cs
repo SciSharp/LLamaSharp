@@ -39,21 +39,19 @@ namespace LLama
             lparams.rope_freq_scale = @params.RopeFrequencyScale;
             lparams.mul_mat_q = @params.MulMatQ;
 
+            using var pin = @params.TensorSplits.AsMemory().Pin();
             unsafe
             {
-                fixed (float* splits = @params.TensorSplits)
-                {
-                    lparams.tensor_split = (nint)splits;
-
-                    var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
-                    var ctx = SafeLLamaContextHandle.Create(model, lparams);
-
-                    if (!string.IsNullOrEmpty(@params.LoraAdapter))
-                        model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
-
-                    return ctx;
-                }
+                lparams.tensor_split = (nint)pin.Pointer;
             }
+
+            var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+            var ctx = SafeLLamaContextHandle.Create(model, lparams);
+
+            if (!string.IsNullOrEmpty(@params.LoraAdapter))
+                model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
+
+            return ctx;
         }
 
         public static IEnumerable<llama_token> Tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, Encoding encoding)
