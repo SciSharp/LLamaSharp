@@ -70,7 +70,7 @@ namespace LLama
         /// <summary>
         /// Current "mu" value for mirostate sampling
         /// </summary>
-        protected float MirostateMu { get; set; } = float.NaN;
+        protected float? MirostateMu { get; set; }
 
         /// <summary>
         /// 
@@ -392,7 +392,7 @@ namespace LLama
             public int LastTokensCapacity { get; set; }
 
             [JsonPropertyName("mirostate_mu")]
-            public float MirostateMu { get; set; }
+            public float? MirostateMu { get; set; }
         }
     }
 }
