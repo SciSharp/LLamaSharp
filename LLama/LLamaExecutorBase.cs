@@ -68,9 +68,9 @@ namespace LLama
         public LLamaModel Model => _model;
 
         /// <summary>
-        /// Current "mu" value for mirostate sampling
+        /// Current "mu" value for mirostat sampling
         /// </summary>
-        protected float? MirostateMu { get; set; }
+        protected float? MirostatMu { get; set; }
 
         /// <summary>
         /// 
@@ -391,8 +391,8 @@ namespace LLama
             [JsonPropertyName("last_tokens_maximum_count")]
             public int LastTokensCapacity { get; set; }
 
-            [JsonPropertyName("mirostate_mu")]
-            public float? MirostateMu { get; set; }
+            [JsonPropertyName("mirostat_mu")]
+            public float? MirostatMu { get; set; }
         }
     }
 }
