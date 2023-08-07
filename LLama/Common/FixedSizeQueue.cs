@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace LLama.Common
 {
@@ -10,13 +9,15 @@ namespace LLama.Common
     /// A queue with fixed storage size.
     /// Currently it's only a naive implementation and needs to be further optimized in the future.
     /// </summary>
-    public class FixedSizeQueue<T>: IEnumerable<T>
+    public class FixedSizeQueue<T>
+        : IEnumerable<T>
     {
-        int _maxSize;
-        List<T> _storage;
+        private readonly int _maxSize;
+        private readonly List<T> _storage;
 
         public int Count => _storage.Count;
         public int Capacity => _maxSize;
+
         public FixedSizeQueue(int size)
         {
             _maxSize = size;
@@ -30,26 +31,20 @@ namespace LLama.Common
         /// <param name="data"></param>
         public FixedSizeQueue(int size, IEnumerable<T> data)
         {
-#if NETSTANDARD2_0
-            var dataCount = data.Count();
-            if (data.Count() > size)
+#if !NETSTANDARD2_0 
+            // Try to check the size without enumerating the entire IEnumerable. This may not be able to get the count,
+            // in which case we'll have to check later
+            if (data.TryGetNonEnumeratedCount(out var dataCount) && dataCount > size)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {dataCount} initial values.");
-#else
-            if (data.TryGetNonEnumeratedCount(out var count) && count > size)
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
 #endif
 
             // Size of "data" is unknown, copy it all into a list
             _maxSize = size;
             _storage = new List<T>(data);
 
-            // Now check if that list is a valid size
+            // Now check if that list is a valid size.
             if (_storage.Count > _maxSize)
-#if NETSTANDARD2_0
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {dataCount} initial values.");
-#else
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {count} initial values.");
-#endif
+                throw new ArgumentException($"The max size set for the quene is {size}, but got {_storage.Count} initial values.");
         }
         /// <summary>
         /// Replace every item in the queue with the given value
@@ -58,7 +53,7 @@ namespace LLama.Common
         /// <returns>returns this</returns>
         public FixedSizeQueue<T> FillWith(T value)
         {
-            for(int i = 0; i < Count; i++)
+            for(var i = 0; i < Count; i++)
             {
                 _storage[i] = value;
             }
@@ -78,16 +73,13 @@ namespace LLama.Common
             }
         }
 
-        public T[] ToArray()
-        {
-            return _storage.ToArray();
-        }
-
+        /// <inheritdoc />
         public IEnumerator<T> GetEnumerator()
         {
             return _storage.GetEnumerator();
         }
 
+        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
