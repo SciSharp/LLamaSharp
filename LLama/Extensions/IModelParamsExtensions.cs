@@ -31,7 +31,7 @@ namespace LLama.Extensions
             result.n_gpu_layers = @params.GpuLayerCount;
             result.seed = @params.Seed;
             result.f16_kv = @params.UseFp16Memory;
-            result.use_mmap = @params.UseMemoryLock;
+            result.use_mmap = @params.UseMemorymap;
             result.use_mlock = @params.UseMemoryLock;
             result.logits_all = @params.Perplexity;
             result.embedding = @params.EmbeddingMode;
