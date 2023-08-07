@@ -87,7 +87,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var token in lastTokens)
                     {
-                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
+                        last_output += _model.NativeHandle.TokenToString(token, _model.Encoding);
                     }
 
                     bool should_break = false;
