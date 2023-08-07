@@ -1,99 +1,117 @@
-﻿using LLama.Common;
-using LLama.Abstractions;
+﻿using System.Collections.Generic;
+using LLama.Common;
 
-namespace LLama.Web.Common
-{
-    public class ParameterOptions : IInferenceParams
-	{
-        public string Name { get; set; }
-
-
-
+namespace LLama.Abstractions
+{  
+	 /// <summary>
+	 /// The paramters used for inference.
+	 /// </summary>
+	public interface IInferenceParams
+    {
 		/// <summary>
 		/// number of tokens to keep from initial prompt
 		/// </summary>
-		public int TokensKeep { get; set; } = 0;
+		public int TokensKeep { get; set; }
+
 		/// <summary>
 		/// how many new tokens to predict (n_predict), set to -1 to inifinitely generate response
 		/// until it complete.
 		/// </summary>
-		public int MaxTokens { get; set; } = -1;
+		public int MaxTokens { get; set; }
+
 		/// <summary>
 		/// logit bias for specific tokens
 		/// </summary>
-		public Dictionary<int, float>? LogitBias { get; set; } = null;
+		public Dictionary<int, float>? LogitBias { get; set; }
+
 
 		/// <summary>
 		/// Sequences where the model will stop generating further tokens.
 		/// </summary>
-		public IEnumerable<string> AntiPrompts { get; set; } = Array.Empty<string>();
+		public IEnumerable<string> AntiPrompts { get; set; }
+
 		/// <summary>
 		/// path to file for saving/loading model eval state
 		/// </summary>
-		public string PathSession { get; set; } = string.Empty;
+		public string PathSession { get; set; }
+
 		/// <summary>
 		/// string to suffix user inputs with
 		/// </summary>
-		public string InputSuffix { get; set; } = string.Empty;
+		public string InputSuffix { get; set; }
+
 		/// <summary>
 		/// string to prefix user inputs with
 		/// </summary>
-		public string InputPrefix { get; set; } = string.Empty;
+		public string InputPrefix { get; set; }
+
 		/// <summary>
 		///  0 or lower to use vocab size
 		/// </summary>
-		public int TopK { get; set; } = 40;
+		public int TopK { get; set; }
+
 		/// <summary>
 		/// 1.0 = disabled
 		/// </summary>
-		public float TopP { get; set; } = 0.95f;
+		public float TopP { get; set; }
+
 		/// <summary>
 		/// 1.0 = disabled
 		/// </summary>
-		public float TfsZ { get; set; } = 1.0f;
+		public float TfsZ { get; set; }
+
 		/// <summary>
 		/// 1.0 = disabled
 		/// </summary>
-		public float TypicalP { get; set; } = 1.0f;
+		public float TypicalP { get; set; }
+
 		/// <summary>
 		/// 1.0 = disabled
 		/// </summary>
-		public float Temperature { get; set; } = 0.8f;
+		public float Temperature { get; set; }
+
 		/// <summary>
 		/// 1.0 = disabled
 		/// </summary>
-		public float RepeatPenalty { get; set; } = 1.1f;
+		public float RepeatPenalty { get; set; }
+
 		/// <summary>
 		/// last n tokens to penalize (0 = disable penalty, -1 = context size) (repeat_last_n)
 		/// </summary>
-		public int RepeatLastTokensCount { get; set; } = 64;
+		public int RepeatLastTokensCount { get; set; }
+
 		/// <summary>
 		/// frequency penalty coefficient
 		/// 0.0 = disabled
 		/// </summary>
-		public float FrequencyPenalty { get; set; } = .0f;
+		public float FrequencyPenalty { get; set; }
+
 		/// <summary>
 		/// presence penalty coefficient
 		/// 0.0 = disabled
 		/// </summary>
-		public float PresencePenalty { get; set; } = .0f;
+		public float PresencePenalty { get; set; }
+
 		/// <summary>
 		/// Mirostat uses tokens instead of words.
 		/// algorithm described in the paper https://arxiv.org/abs/2007.14966.
 		/// 0 = disabled, 1 = mirostat, 2 = mirostat 2.0
 		/// </summary>
-		public MirostatType Mirostat { get; set; } = MirostatType.Disable;
+		public MirostatType Mirostat { get; set; }
+
 		/// <summary>
 		/// target entropy
 		/// </summary>
-		public float MirostatTau { get; set; } = 5.0f;
+		public float MirostatTau { get; set; }
+
 		/// <summary>
 		/// learning rate
 		/// </summary>
-		public float MirostatEta { get; set; } = 0.1f;
+		public float MirostatEta { get; set; }
+
 		/// <summary>
 		/// consider newlines as a repeatable token (penalize_nl)
 		/// </summary>
-		public bool PenalizeNL { get; set; } = true;
+		public bool PenalizeNL { get; set; }
 	}
 }

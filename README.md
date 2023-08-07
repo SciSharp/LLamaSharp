@@ -49,7 +49,7 @@ Here's the mapping of them and corresponding model samples provided by `LLamaSha
 | v0.2.2 | v0.2.2, v0.2.3 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama_ggmlv2), [Vicuna (filenames without "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | 63d2046 |
 | v0.3.0, v0.3.1 | v0.3.0, v0.4.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | 7e4ea5b |
 | v0.4.1-preview (cpu only) | v0.4.1-preview | [Open llama 3b](https://huggingface.co/SlyEcho/open_llama_3b_ggml), [Open Buddy](https://huggingface.co/OpenBuddy/openbuddy-llama-ggml)| aacdbd4 |
-| v0.4.2-preview (cpu,cuda11) |v0.4.2-preview | [Llama2 7b](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGML)| - |
+| v0.4.2-preview (cpu,cuda11) |v0.4.2-preview | [Llama2 7b](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGML)| 332311234a0aa2974b2450710e22e09d90dd6b0b |
 
 Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 
@@ -148,7 +148,7 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ⚠️ BotSharp Integration
 
-⚠️ ASP.NET core Integration
+✅ ASP.NET core Integration
 
 ⚠️ Semantic-kernel Integration
 

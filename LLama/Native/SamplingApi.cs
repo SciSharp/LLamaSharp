@@ -3,7 +3,7 @@
 namespace LLama.Native
 {
     using llama_token = Int32;
-    internal unsafe class SamplingApi
+    public unsafe class SamplingApi
     {
         /// <summary>
         /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.

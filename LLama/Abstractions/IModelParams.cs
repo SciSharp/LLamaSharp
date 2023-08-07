@@ -1,0 +1,123 @@
+﻿using System;
+
+namespace LLama.Abstractions
+{
+    public interface IModelParams
+    {
+        /// <summary>
+        /// Model context size (n_ctx)
+        /// </summary>
+        int ContextSize { get; set; }
+
+        /// <summary>
+        /// the GPU that is used for scratch and small tensors
+        /// </summary>
+        int MainGpu { get; set; }
+
+        /// <summary>
+        /// if true, reduce VRAM usage at the cost of performance
+        /// </summary>
+        bool LowVram { get; set; }
+
+        /// <summary>
+        /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
+        /// </summary>
+        int GpuLayerCount { get; set; }
+
+        /// <summary>
+        /// Seed for the random number generator (seed)
+        /// </summary>
+        int Seed { get; set; }
+
+        /// <summary>
+        /// Use f16 instead of f32 for memory kv (memory_f16)
+        /// </summary>
+        bool UseFp16Memory { get; set; }
+
+        /// <summary>
+        /// Use mmap for faster loads (use_mmap)
+        /// </summary>
+        bool UseMemorymap { get; set; }
+
+        /// <summary>
+        /// Use mlock to keep model in memory (use_mlock)
+        /// </summary>
+        bool UseMemoryLock { get; set; }
+
+        /// <summary>
+        /// Compute perplexity over the prompt (perplexity)
+        /// </summary>
+        bool Perplexity { get; set; }
+
+        /// <summary>
+        /// Model path (model)
+        /// </summary>
+        string ModelPath { get; set; }
+
+        /// <summary>
+        /// model alias
+        /// </summary>
+        string ModelAlias { get; set; }
+
+        /// <summary>
+        /// lora adapter path (lora_adapter)
+        /// </summary>
+        string LoraAdapter { get; set; }
+
+        /// <summary>
+        /// base model path for the lora adapter (lora_base)
+        /// </summary>
+        string LoraBase { get; set; }
+
+        /// <summary>
+        /// Number of threads (-1 = autodetect) (n_threads)
+        /// </summary>
+        int Threads { get; set; }
+
+        /// <summary>
+        /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
+        /// </summary>
+        int BatchSize { get; set; }
+
+        /// <summary>
+        /// Whether to convert eos to newline during the inference.
+        /// </summary>
+        bool ConvertEosToNewLine { get; set; }
+
+        /// <summary>
+        /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
+        /// The LLamaModel won't produce text response anymore.
+        /// </summary>
+        bool EmbeddingMode { get; set; }
+
+        /// <summary>
+        /// how split tensors should be distributed across GPUs
+        /// </summary>
+        float[]? TensorSplits { get; set; }
+
+        /// <summary>
+        /// Grouped-Query Attention
+        /// </summary>
+        int GroupedQueryAttention { get; set; }
+
+        /// <summary>
+        /// RMS Norm Epsilon
+        /// </summary>
+        float RmsNormEpsilon { get; set; }
+
+        /// <summary>
+        /// RoPE base frequency
+        /// </summary>
+        float RopeFrequencyBase { get; set; }
+
+        /// <summary>
+        /// RoPE frequency scaling factor
+        /// </summary>
+        float RopeFrequencyScale { get; set; }
+
+        /// <summary>
+        /// Use experimental mul_mat_q kernels
+        /// </summary>
+        bool MulMatQ { get; set; }
+    }
+}

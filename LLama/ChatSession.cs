@@ -138,7 +138,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public IEnumerable<string> Chat(ChatHistory history, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public IEnumerable<string> Chat(ChatHistory history, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             var prompt = HistoryTransform.HistoryToText(history);
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
@@ -159,7 +159,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public IEnumerable<string> Chat(string prompt, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public IEnumerable<string> Chat(string prompt, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             foreach(var inputTransform in InputTransformPipeline)
             {
@@ -182,7 +182,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async IAsyncEnumerable<string> ChatAsync(ChatHistory history, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> ChatAsync(ChatHistory history, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var prompt = HistoryTransform.HistoryToText(history);
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
@@ -202,7 +202,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async IAsyncEnumerable<string> ChatAsync(string prompt, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> ChatAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach (var inputTransform in InputTransformPipeline)
             {
@@ -218,13 +218,13 @@ namespace LLama
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
         }
 
-        private IEnumerable<string> ChatInternal(string prompt, InferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        private IEnumerable<string> ChatInternal(string prompt, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             var results = _executor.Infer(prompt, inferenceParams, cancellationToken);
             return OutputTransform.Transform(results);
         }
 
-        private async IAsyncEnumerable<string> ChatAsyncInternal(string prompt, InferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        private async IAsyncEnumerable<string> ChatAsyncInternal(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var results = _executor.InferAsync(prompt, inferenceParams, cancellationToken);
             await foreach (var item in OutputTransform.TransformAsync(results))
