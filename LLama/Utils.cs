@@ -43,14 +43,11 @@ namespace LLama
             return ctx.GetLogits();
         }
 
-        public static unsafe int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)
+        [Obsolete("Use SafeLLamaContextHandle Eval method instead")]
+        public static int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)
         {
-            int result;
-            fixed(llama_token* p = tokens)
-            {
-                result = NativeApi.llama_eval_with_pointer(ctx, p + startIndex, n_tokens, n_past, n_threads);
-            }
-            return result;
+            var slice = tokens.AsMemory().Slice(startIndex, n_tokens);
+            return ctx.Eval(slice, n_past, n_threads) ? 0 : 1;
         }
 
         [Obsolete("Use SafeLLamaContextHandle TokenToString method instead")]

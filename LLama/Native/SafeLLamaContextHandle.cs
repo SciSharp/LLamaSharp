@@ -169,5 +169,21 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token);
         }
+
+        /// <summary>
+        /// Run the llama inference to obtain the logits and probabilities for the next token.
+        /// </summary>
+        /// <param name="tokens">The provided batch of new tokens to process</param>
+        /// <param name="n_past">the number of tokens to use from previous eval calls</param>
+        /// <param name="n_threads"></param>
+        /// <returns>Returns true on success</returns>
+        public bool Eval(Memory<int> tokens, int n_past, int n_threads)
+        {
+            using var pin = tokens.Pin();
+            unsafe
+            {
+                return NativeApi.llama_eval_with_pointer(this, (int*)pin.Pointer, tokens.Length, n_past, n_threads) == 0;
+            }
+        }
     }
 }

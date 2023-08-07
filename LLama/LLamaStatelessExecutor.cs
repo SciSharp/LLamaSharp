@@ -31,7 +31,7 @@ namespace LLama
             _model = model;
             
             var tokens = model.Tokenize(" ", true).ToArray();
-            Utils.Eval(_model.NativeHandle, tokens, 0, tokens.Length, 0, _model.Params.Threads);
+            _model.NativeHandle.Eval(tokens.AsMemory(0, tokens.Length), 0, _model.Params.Threads);
             _originalState = model.GetState();
         }
 
@@ -52,7 +52,7 @@ namespace LLama
             List<llama_token> tokens = _model.Tokenize(text, true).ToList();
             int n_prompt_tokens = tokens.Count;
 
-            Utils.Eval(_model.NativeHandle, tokens.ToArray(), 0, n_prompt_tokens, n_past, _model.Params.Threads);
+            _model.NativeHandle.Eval(tokens.ToArray().AsMemory(0, n_prompt_tokens), n_past, _model.Params.Threads);
 
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;

@@ -207,6 +207,17 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int n_tokens, int n_past, int n_threads);
 
+        /// <summary>
+        /// Run the llama inference to obtain the logits and probabilities for the next token.
+        /// tokens + n_tokens is the provided batch of new tokens to process
+        /// n_past is the number of tokens to use from previous eval calls
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="tokens"></param>
+        /// <param name="n_tokens"></param>
+        /// <param name="n_past"></param>
+        /// <param name="n_threads"></param>
+        /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, EntryPoint = "llama_eval", CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_eval_with_pointer(SafeLLamaContextHandle ctx, llama_token* tokens, int n_tokens, int n_past, int n_threads);
 

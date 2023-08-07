@@ -335,7 +335,7 @@ namespace LLama
                     n_eval = Params.BatchSize;
                 }
 
-                if(Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
+                if (!_ctx.Eval(tokens.AsMemory(i, n_eval), pastTokensCount, Params.Threads))
                 {
                     _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
