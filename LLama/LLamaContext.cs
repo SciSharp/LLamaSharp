@@ -63,6 +63,7 @@ namespace LLama
         /// <param name="params">Model params.</param>
         /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
+        [Obsolete("Use the LLamaWeights.CreateContext instead")]
         public LLamaContext(IModelParams @params, string encoding = "UTF-8", ILLamaLogger? logger = null)
         {
             Params = @params;
@@ -83,6 +84,14 @@ namespace LLama
             _ctx = nativeContext;
         }
 
+        /// <summary>
+        /// Create a new LLamaContext for the given LLamaWeights
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="params"></param>
+        /// <param name="encoding"></param>
+        /// <param name="logger"></param>
+        /// <exception cref="ObjectDisposedException"></exception>
         public LLamaContext(LLamaWeights model, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
         {
             if (model.NativeHandle.IsClosed)
