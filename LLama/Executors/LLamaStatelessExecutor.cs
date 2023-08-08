@@ -1,13 +1,12 @@
 ﻿using LLama.Abstractions;
 using LLama.Common;
-using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace LLama
+namespace LLama.Executors
 {
     using llama_token = Int32;
     /// <summary>
@@ -29,7 +28,7 @@ namespace LLama
         public StatelessExecutor(LLamaModel model)
         {
             _model = model;
-            
+
             var tokens = model.Tokenize(" ", true).ToArray();
             _model.NativeHandle.Eval(tokens.AsMemory(0, tokens.Length), 0, _model.Params.Threads);
             _originalState = model.GetState();
@@ -40,12 +39,12 @@ namespace LLama
         {
             cancellationToken.ThrowIfCancellationRequested();
             int n_past = 1;
-            if(inferenceParams is null)
+            if (inferenceParams is null)
             {
                 inferenceParams = new InferenceParams();
             }
             List<llama_token> lastTokens = new(inferenceParams.RepeatLastTokensCount);
-            for(int i = 0; i < lastTokens.Count; i++)
+            for (int i = 0; i < lastTokens.Count; i++)
             {
                 lastTokens[i] = 0;
             }
@@ -59,7 +58,7 @@ namespace LLama
 
             var mu = float.NaN;
             int max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
-            for(int i = 0; i < max_tokens; i++)
+            for (int i = 0; i < max_tokens; i++)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {

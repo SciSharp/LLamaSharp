@@ -6,15 +6,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace LLama
+namespace LLama.Executors
 {
     using llama_token = Int32;
     /// <summary>
     /// The LLama executor for instruct mode.
     /// </summary>
-    public class InstructExecutor : StatefulExecutorBase
+    public class InstructExecutor : StatefulExecutorBase<InstructExecutorState>
     {
         bool _is_prompt_run = true;
         string _instructionPrefix;
@@ -25,10 +24,11 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="model"></param>
+        /// <param name="stateFile"></param>
         /// <param name="instructionPrefix"></param>
         /// <param name="instructionSuffix"></param>
-        public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
-            string instructionSuffix = "\n\n### Response:\n\n") : base(model)
+        public InstructExecutor(LLamaModel model, string stateFile = "ExecutorState.json", string instructionPrefix = "\n\n### Instruction:\n\n", string instructionSuffix = "\n\n### Response:\n\n")
+            : base(model, stateFile)
         {
             _inp_pfx = _model.Tokenize(instructionPrefix, true);
             _inp_sfx = _model.Tokenize(instructionSuffix, false);
@@ -36,9 +36,9 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public override ExecutorBaseState GetStateData()
+        public override InstructExecutorState GetStateData()
         {
-            InstructExecutorState state = new()
+            return new()
             {
                 ConsumedSessionCount = _n_session_consumed,
                 EmbedInps = _embed_inps,
@@ -55,31 +55,27 @@ namespace LLama
                 LastTokensCapacity = _last_n_tokens.Capacity,
                 MirostateMu = MirostateMu
             };
-            return state;
         }
         /// <inheritdoc />
-        public override void LoadState(ExecutorBaseState data)
+        public override void LoadState(InstructExecutorState state)
         {
-            if(data is InstructExecutorState state)
-            {
-                _n_session_consumed = state.ConsumedSessionCount;
-                _embed_inps = state.EmbedInps;
-                _is_prompt_run = state.IsPromptRun;
-                _consumedTokensCount = state.ConsumedTokensCount;
-                _embeds = state.Embeds;
-                _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
-                _inp_pfx = state.InputPrefixTokens;
-                _inp_sfx = state.InputSuffixTokens;
-                _n_matching_session_tokens = state.MatchingSessionTokensCount;
-                _pastTokensCount = state.PastTokensCount;
-                _pathSession = state.SessionFilePath;
-                _session_tokens = state.SessionTokens;
-            }
-            else
-            {
+            if (state is null)
                 throw new ArgumentException("Invalid state data type.");
-            }
+
+            _n_session_consumed = state.ConsumedSessionCount;
+            _embed_inps = state.EmbedInps;
+            _is_prompt_run = state.IsPromptRun;
+            _consumedTokensCount = state.ConsumedTokensCount;
+            _embeds = state.Embeds;
+            _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
+            _inp_pfx = state.InputPrefixTokens;
+            _inp_sfx = state.InputSuffixTokens;
+            _n_matching_session_tokens = state.MatchingSessionTokensCount;
+            _pastTokensCount = state.PastTokensCount;
+            _pathSession = state.SessionFilePath;
+            _session_tokens = state.SessionTokens;
         }
+
 
         /// <inheritdoc />
         public override void SaveState(string filename)
@@ -105,10 +101,11 @@ namespace LLama
         {
             return args.RemainedTokens != 0 || _is_prompt_run;
         }
+
         /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
-            if(args.Antiprompts is null)
+            if (args.Antiprompts is null)
             {
                 args.Antiprompts = new List<string>();
             }
@@ -242,26 +239,6 @@ namespace LLama
                 }
             }
         }
-        /// <summary>
-        /// The desciptor of the state of the instruct executor.
-        /// </summary>
-        public class InstructExecutorState : ExecutorBaseState
-        {
-            /// <summary>
-            /// Whether the executor is running for the first time (running the prompt).
-            /// </summary>
-            [JsonPropertyName("is_prompt_run")]
-            public bool IsPromptRun { get; set; }
-            /// <summary>
-            /// Instruction prefix tokens.
-            /// </summary>
-            [JsonPropertyName("inp_pfx")]
-            public llama_token[] InputPrefixTokens { get; set; }
-            /// <summary>
-            /// Instruction suffix tokens.
-            /// </summary>
-            [JsonPropertyName("inp_sfx")]
-            public llama_token[] InputSuffixTokens { get; set; }
-        }
+
     }
 }

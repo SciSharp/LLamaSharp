@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Executors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,14 @@ namespace LLama.Examples.NewVersion
             string modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
 
-            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+            Console.Write("Your path to save model state: ");
+            string modelStatePath = Console.ReadLine();
+          
+            Console.Write("Your path to save executor state: ");
+            string executorStatePath = Console.ReadLine();
+
+
+            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)), executorStatePath);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
@@ -35,13 +43,11 @@ namespace LLama.Examples.NewVersion
                 prompt = Console.ReadLine();
                 if (prompt == "save")
                 {
-                    Console.Write("Your path to save model state: ");
-                    string modelStatePath = Console.ReadLine();
+                    // Save Model State
                     ex.Model.SaveState(modelStatePath);
 
-                    Console.Write("Your path to save executor state: ");
-                    string executorStatePath = Console.ReadLine();
-                    ex.SaveState(executorStatePath);
+                    // Save Executor state
+                    ex.SaveState();
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("All states saved!");
@@ -49,8 +55,8 @@ namespace LLama.Examples.NewVersion
 
                     var model = ex.Model;
                     model.LoadState(modelStatePath);
-                    ex = new InteractiveExecutor(model);
-                    ex.LoadState(executorStatePath);
+                    ex = new InteractiveExecutor(model, executorStatePath);
+                    ex.LoadState();
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("Loaded state!");
                     Console.ForegroundColor = ConsoleColor.White;

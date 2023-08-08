@@ -6,15 +6,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace LLama
+namespace LLama.Executors
 {
     using llama_token = Int32;
     /// <summary>
     /// The LLama executor for interactive mode.
     /// </summary>
-    public class InteractiveExecutor : StatefulExecutorBase
+    public class InteractiveExecutor : StatefulExecutorBase<InteractiveExecutorState>
     {
         bool _is_prompt_run = true;
         llama_token[] _llama_token_newline;
@@ -23,15 +22,17 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="model"></param>
-        public InteractiveExecutor(LLamaModel model) : base(model)
+        /// <param name="stateFile"></param>
+        public InteractiveExecutor(LLamaModel model, string stateFile = "ExecutorState.json")
+            : base(model, stateFile)
         {
             _llama_token_newline = _model.NativeHandle.Tokenize("\n", false, _model.Encoding);
         }
 
         /// <inheritdoc />
-        public override ExecutorBaseState GetStateData()
+        public override InteractiveExecutorState GetStateData()
         {
-            InteractiveExecutorState state = new()
+            return new()
             {
                 ConsumedSessionCount = _n_session_consumed,
                 EmbedInps = _embed_inps,
@@ -47,33 +48,31 @@ namespace LLama
                 LastTokensCapacity = _last_n_tokens.Capacity,
                 MirostateMu = MirostateMu
             };
-            return state;
         }
         /// <inheritdoc />
-        public override void LoadState(ExecutorBaseState data)
+        public override void LoadState(InteractiveExecutorState state)
         {
-            if (data is InteractiveExecutorState state)
-            {
-                _n_session_consumed = state.ConsumedSessionCount;
-                _embed_inps = state.EmbedInps;
-                _is_prompt_run = state.IsPromptRun;
-                _consumedTokensCount = state.ConsumedTokensCount;
-                _embeds = state.Embeds;
-                _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
-                _llama_token_newline = state.LLamaNewlineTokens;
-                _n_matching_session_tokens = state.MatchingSessionTokensCount;
-                _pastTokensCount = state.PastTokensCount;
-                _pathSession = state.SessionFilePath;
-                _session_tokens = state.SessionTokens;
-            }
-            else
+            if (state is null)
                 throw new ArgumentException("Invalid state data type.");
+
+            _n_session_consumed = state.ConsumedSessionCount;
+            _embed_inps = state.EmbedInps;
+            _is_prompt_run = state.IsPromptRun;
+            _consumedTokensCount = state.ConsumedTokensCount;
+            _embeds = state.Embeds;
+            _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
+            _llama_token_newline = state.LLamaNewlineTokens;
+            _n_matching_session_tokens = state.MatchingSessionTokensCount;
+            _pastTokensCount = state.PastTokensCount;
+            _pathSession = state.SessionFilePath;
+            _session_tokens = state.SessionTokens;
         }
+
         /// <inheritdoc />
         public override void SaveState(string filename)
         {
             InteractiveExecutorState state = GetStateData() as InteractiveExecutorState;
-            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
             }
@@ -205,7 +204,7 @@ namespace LLama
 
                 var mu = MirostateMu;
                 var id = _model.Sample(
-                    tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau, 
+                    tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
                 );
                 MirostateMu = mu;
@@ -242,21 +241,6 @@ namespace LLama
             }
         }
 
-        /// <summary>
-        /// The descriptor of the state of the interactive executor.
-        /// </summary>
-        public class InteractiveExecutorState : ExecutorBaseState
-        {
-            /// <summary>
-            /// Whether the executor is running for the first time (running the prompt).
-            /// </summary>
-            [JsonPropertyName("is_prompt_run")]
-            public bool IsPromptRun { get; set; }
-            /// <summary>
-            /// Tokens that represent a new line in with the current model.
-            /// </summary>
-            [JsonPropertyName("llama_token_newline")]
-            public llama_token[] LLamaNewlineTokens { get; set; }
-        }
+
     }
 }

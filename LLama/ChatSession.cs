@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using LLama.Common;
+using LLama.Executors;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -96,9 +97,9 @@ namespace LLama
             {
 
             }
-            else if(Executor is StatefulExecutorBase statefulExecutor)
+            else if(Executor is ILLamaStatefulExecutor statefulExecutor)
             {
-                statefulExecutor.SaveState(Path.Combine(path, _executorStateFilename));
+                statefulExecutor.SaveState();
             }
             else
             {
@@ -121,9 +122,9 @@ namespace LLama
             {
 
             }
-            else if (Executor is StatefulExecutorBase statefulExecutor)
+            else if (Executor is ILLamaStatefulExecutor statefulExecutor)
             {
-                statefulExecutor.LoadState(Path.Combine(path, _executorStateFilename));
+                statefulExecutor.LoadState();
             }
             else
             {
