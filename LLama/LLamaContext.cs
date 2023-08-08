@@ -74,8 +74,7 @@ namespace LLama
             _ctx = Utils.InitLLamaContextFromModelParams(Params);
         }
 
-        //todo make this internal
-        public LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
         {
             Params = @params;
 
@@ -86,6 +85,9 @@ namespace LLama
 
         public LLamaContext(LLamaWeights model, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
         {
+            if (model.NativeHandle.IsClosed)
+                throw new ObjectDisposedException("Cannot create context, model weights have been disposed");
+
             Params = @params;
 
             _logger = logger;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using LLama.Common;
+using LLama.Abstractions;
 using LLama.Extensions;
 using LLama.Native;
 
@@ -30,10 +30,14 @@ namespace LLama
         /// </summary>
         /// <param name="params"></param>
         /// <returns></returns>
-        public static LLamaWeights LoadFromFile(ModelParams @params)
+        public static LLamaWeights LoadFromFile(IModelParams @params)
         {
             using var pin = @params.ToLlamaContextParams(out var lparams);
             var weights = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+
+            if (!string.IsNullOrEmpty(@params.LoraAdapter))
+                weights.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
+
             return new LLamaWeights(weights);
         }
 
@@ -47,11 +51,11 @@ namespace LLama
         /// Create a llama_context using this model
         /// </summary>
         /// <param name="params"></param>
-        /// <param name="utf8"></param>
+        /// <param name="encoding"></param>
         /// <returns></returns>
-        public LLamaContext CreateContext(ModelParams @params, Encoding utf8)
+        public LLamaContext CreateContext(IModelParams @params, Encoding encoding)
         {
-            return new LLamaContext(this, @params, Encoding.UTF8);
+            return new LLamaContext(this, @params, encoding);
         }
     }
 }
