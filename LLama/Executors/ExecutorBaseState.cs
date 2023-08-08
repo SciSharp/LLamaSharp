@@ -38,7 +38,7 @@ namespace LLama.Executors
         [JsonPropertyName("last_tokens_maximum_count")]
         public int LastTokensCapacity { get; set; }
 
-        [JsonPropertyName("mirostate_mu")]
-        public float MirostateMu { get; set; }
+        [JsonPropertyName("mirostat_mu")]
+        public float? MirostatMu { get; set; }
     }
 }

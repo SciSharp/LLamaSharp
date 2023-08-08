@@ -423,9 +423,6 @@ namespace LLama.Executors
             /// </summary>
             public bool NeedToSaveSession { get; set; }
         }
-
-
-            [JsonPropertyName("mirostat_mu")]
-            public float? MirostatMu { get; set; }
+     
     }
 }
