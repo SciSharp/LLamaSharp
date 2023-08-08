@@ -39,7 +39,7 @@ namespace LLama
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingCount => _ctx.EmbeddingCount;
+        public int EmbeddingCount => _ctx.EmbeddingSize;
 
         /// <summary>
         /// The model params set for this model.

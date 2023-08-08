@@ -25,7 +25,7 @@ namespace LLama.Native
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingCount => ThrowIfDisposed().EmbeddingCount;
+        public int EmbeddingSize => ThrowIfDisposed().EmbeddingSize;
 
         /// <summary>
         /// Get the model which this context is using
