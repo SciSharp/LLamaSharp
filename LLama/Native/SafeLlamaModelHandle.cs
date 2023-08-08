@@ -7,7 +7,7 @@ namespace LLama.Native
     /// <summary>
     /// A reference to a set of llama model weights
     /// </summary>
-    public class SafeLlamaModelHandle
+    public sealed class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
         /// <summary>

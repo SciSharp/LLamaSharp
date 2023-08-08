@@ -9,7 +9,7 @@ namespace LLama
     /// <summary>
     /// A set of model weights, loaded into memory.
     /// </summary>
-    public class LLamaWeights
+    public sealed class LLamaWeights
         : IDisposable
     {
         private readonly SafeLlamaModelHandle _weights;

@@ -422,6 +422,8 @@ namespace LLama
         /// <inheritdoc />
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
+
             _ctx.Dispose();
         }
 
@@ -429,12 +431,11 @@ namespace LLama
         /// The state of this model, which can be reloaded later
         /// </summary>
         public class State
-            : SafeHandleZeroOrMinusOneIsInvalid
+            : SafeLLamaHandleBase
         {
             internal State(IntPtr memory)
-                : base(true)
+                : base(memory)
             {
-                SetHandle(memory);
             }
 
             /// <inheritdoc />

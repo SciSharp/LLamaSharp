@@ -8,7 +8,7 @@ namespace LLama.Native
     /// <summary>
     /// A safe wrapper around a llama_context
     /// </summary>
-    public class SafeLLamaContextHandle
+    public sealed class SafeLLamaContextHandle
         : SafeLLamaHandleBase
     {
         #region properties and fields
