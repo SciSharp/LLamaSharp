@@ -56,7 +56,7 @@ namespace LLama.Executors
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;
 
-            var mu = float.NaN;
+            var mu = (float?)null;
             int max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
             for (int i = 0; i < max_tokens; i++)
             {

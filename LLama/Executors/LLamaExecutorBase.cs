@@ -75,9 +75,9 @@ namespace LLama.Executors
         public LLamaModel Model => _model;
 
         /// <summary>
-        /// Current "mu" value for mirostate sampling
+        /// Current "mu" value for mirostat sampling
         /// </summary>
-        protected float MirostateMu { get; set; } = float.NaN;
+        protected float? MirostatMu { get; set; }
 
 
         /// <summary>
@@ -425,5 +425,7 @@ namespace LLama.Executors
         }
 
 
+            [JsonPropertyName("mirostat_mu")]
+            public float? MirostatMu { get; set; }
     }
 }

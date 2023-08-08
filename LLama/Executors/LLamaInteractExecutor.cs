@@ -46,7 +46,7 @@ namespace LLama.Executors
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity,
-                MirostateMu = MirostateMu
+                MirostatMu = MirostatMu
             };
         }
         /// <inheritdoc />
@@ -202,12 +202,12 @@ namespace LLama.Executors
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var mu = MirostateMu;
+                var mu = MirostatMu;
                 var id = _model.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
                 );
-                MirostateMu = mu;
+                MirostatMu = mu;
 
                 _last_n_tokens.Enqueue(id);
 
