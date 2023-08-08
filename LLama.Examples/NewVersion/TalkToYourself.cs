@@ -39,13 +39,13 @@ namespace LLama.Examples.NewVersion
 
             // Initial bob prompt
             var bobPrompt = $"Transcript of a dialog, where the Bob interacts a person named Alice. Bob is smart, intellectual and good at writing.\nAlice: Hello{aliceResponse}";
-            var bobResponse = await Prompt(alice, ConsoleColor.Red, bobPrompt, true, true);
+            var bobResponse = await Prompt(bob, ConsoleColor.Red, bobPrompt, true, true);
 
             // swap back and forth from Alice to Bob
             while (true)
             {
                 aliceResponse = await Prompt(alice, ConsoleColor.Green, bobResponse, false, true);
-                bobResponse = await Prompt(alice, ConsoleColor.Red, aliceResponse, false, true);
+                bobResponse = await Prompt(bob, ConsoleColor.Red, aliceResponse, false, true);
                 Thread.Sleep(1000);
             }
         }
