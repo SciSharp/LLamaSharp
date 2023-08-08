@@ -24,14 +24,14 @@ namespace LLama
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="context"></param>
         /// <param name="instructionPrefix"></param>
         /// <param name="instructionSuffix"></param>
-        public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
-            string instructionSuffix = "\n\n### Response:\n\n") : base(model)
+        public InstructExecutor(LLamaContext context, string instructionPrefix = "\n\n### Instruction:\n\n",
+            string instructionSuffix = "\n\n### Response:\n\n") : base(context)
         {
-            _inp_pfx = _model.Tokenize(instructionPrefix, true);
-            _inp_sfx = _model.Tokenize(instructionSuffix, false);
+            _inp_pfx = Context.Tokenize(instructionPrefix, true);
+            _inp_sfx = Context.Tokenize(instructionSuffix, false);
             _instructionPrefix = instructionPrefix;
         }
 
@@ -117,7 +117,7 @@ namespace LLama
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
                 text = " " + text;
-                _embed_inps = _model.Tokenize(text, true).ToList();
+                _embed_inps = Context.Tokenize(text, true).ToList();
             }
             else
             {
@@ -128,7 +128,7 @@ namespace LLama
                 _consumedTokensCount = _embed_inps.Count;
                 _embed_inps.AddRange(_inp_pfx);
 
-                var line_inp = _model.Tokenize(text, false);
+                var line_inp = Context.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
 
                 _embed_inps.AddRange(_inp_sfx);
@@ -146,7 +146,7 @@ namespace LLama
                 {
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
-                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
+                        last_output += Context.NativeHandle.TokenToString(id, Context.Encoding);
 
                     foreach (var antiprompt in args.Antiprompts)
                     {
@@ -183,13 +183,13 @@ namespace LLama
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
-                if (_pastTokensCount + _embeds.Count > _model.ContextSize)
+                if (_pastTokensCount + _embeds.Count > Context.ContextSize)
                 {
                     HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
                 TryReuseMathingPrefix();
-                _pastTokensCount = _model.Eval(_embeds.ToArray(), _pastTokensCount);
+                _pastTokensCount = Context.Eval(_embeds.ToArray(), _pastTokensCount);
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -202,7 +202,7 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? Context.ContextSize : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -211,11 +211,11 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
+                var tokenDataArray = Context.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
                 var mu = MirostatMu;
-                var id = _model.Sample(
+                var id = Context.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
                 );
@@ -235,7 +235,7 @@ namespace LLama
                     _embeds.Add(_embed_inps[_consumedTokensCount]);
                     _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_embeds.Count >= _model.Params.BatchSize)
+                    if (_embeds.Count >= Context.Params.BatchSize)
                     {
                         break;
                     }

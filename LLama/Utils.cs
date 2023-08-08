@@ -17,7 +17,7 @@ namespace LLama
             {
                 var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
                 var ctx = SafeLLamaContextHandle.Create(model, lparams);
-
+                
                 if (!string.IsNullOrEmpty(@params.LoraAdapter))
                     model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
 

@@ -12,9 +12,9 @@ namespace LLama.Abstractions
     public interface ILLamaExecutor
     {
         /// <summary>
-        /// The loaded model for this executor.
+        /// The loaded context for this executor.
         /// </summary>
-        public LLamaModel Model { get; }
+        public LLamaContext Context { get; }
 
         /// <summary>
         /// Infers a response from the model.

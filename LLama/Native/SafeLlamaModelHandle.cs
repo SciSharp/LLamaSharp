@@ -157,5 +157,17 @@ namespace LLama.Native
             }
         }
         #endregion
+
+        #region context
+        /// <summary>
+        /// Create a new context for this model
+        /// </summary>
+        /// <param name="params"></param>
+        /// <returns></returns>
+        public SafeLLamaContextHandle CreateContext(LLamaContextParams @params)
+        {
+            return SafeLLamaContextHandle.Create(this, @params);
+        }
+        #endregion
     }
 }

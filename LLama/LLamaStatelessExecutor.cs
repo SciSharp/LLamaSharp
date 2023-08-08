@@ -16,23 +16,23 @@ namespace LLama
     /// </summary>
     public class StatelessExecutor : ILLamaExecutor
     {
-        private LLamaModel _model;
-        private LLamaModel.State _originalState;
+        private LLamaContext _context;
+        private LLamaContext.State _originalState;
         /// <summary>
-        /// The mode used by the executor when running the inference.
+        /// The context used by the executor when running the inference.
         /// </summary>
-        public LLamaModel Model => _model;
+        public LLamaContext Context => _context;
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="model">The LLama model.</param>
-        public StatelessExecutor(LLamaModel model)
+        /// <param name="context">The LLama model.</param>
+        public StatelessExecutor(LLamaContext context)
         {
-            _model = model;
+            _context = context;
             
-            var tokens = model.Tokenize(" ", true).ToArray();
-            _model.NativeHandle.Eval(tokens.AsMemory(0, tokens.Length), 0, _model.Params.Threads);
-            _originalState = model.GetState();
+            var tokens = context.Tokenize(" ", true).ToArray();
+            _context.NativeHandle.Eval(tokens.AsMemory(0, tokens.Length), 0, _context.Params.Threads);
+            _originalState = context.GetState();
         }
 
         /// <inheritdoc />
@@ -49,10 +49,10 @@ namespace LLama
             {
                 lastTokens[i] = 0;
             }
-            List<llama_token> tokens = _model.Tokenize(text, true).ToList();
+            List<llama_token> tokens = _context.Tokenize(text, true).ToList();
             int n_prompt_tokens = tokens.Count;
 
-            _model.NativeHandle.Eval(tokens.ToArray().AsMemory(0, n_prompt_tokens), n_past, _model.Params.Threads);
+            _context.NativeHandle.Eval(tokens.ToArray().AsMemory(0, n_prompt_tokens), n_past, _context.Params.Threads);
 
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;
@@ -63,20 +63,20 @@ namespace LLama
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    _model.LoadState(_originalState);
+                    _context.LoadState(_originalState);
                     break;
                 }
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _context.ContextSize : inferenceParams.RepeatLastTokensCount;
 
-                var tokenDataArray = _model.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
+                var tokenDataArray = _context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var id = _model.Sample(tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                var id = _context.Sample(tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
 
                 lastTokens.Add(id);
 
-                string response = _model.NativeHandle.TokenToString(id, _model.Encoding);
+                string response = _context.NativeHandle.TokenToString(id, _context.Encoding);
                 yield return response;
 
                 tokens.Clear();
@@ -87,7 +87,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var token in lastTokens)
                     {
-                        last_output += _model.NativeHandle.TokenToString(token, _model.Encoding);
+                        last_output += _context.NativeHandle.TokenToString(token, _context.Encoding);
                     }
 
                     bool should_break = false;
@@ -106,20 +106,20 @@ namespace LLama
                 }
 
                 // when run out of context
-                if (n_past + tokens.Count > _model.ContextSize)
+                if (n_past + tokens.Count > _context.ContextSize)
                 {
                     int n_left = n_past - inferenceParams.TokensKeep;
 
                     n_past = Math.Max(1, inferenceParams.TokensKeep);
 
                     // insert n_left/2 tokens at the start of embed from last_n_tokens
-                    tokens.InsertRange(0, lastTokens.Take(lastTokens.Count - tokens.Count).Skip(_model.ContextSize - n_left / 2 - tokens.Count));
+                    tokens.InsertRange(0, lastTokens.Take(lastTokens.Count - tokens.Count).Skip(_context.ContextSize - n_left / 2 - tokens.Count));
                 }
 
-                n_past = _model.Eval(tokens.ToArray(), n_past);
+                n_past = _context.Eval(tokens.ToArray(), n_past);
             }
 
-            _model.LoadState(_originalState);
+            _context.LoadState(_originalState);
         }
 
         /// <inheritdoc />

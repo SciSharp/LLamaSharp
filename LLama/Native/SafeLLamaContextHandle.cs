@@ -28,8 +28,10 @@ namespace LLama.Native
         public int EmbeddingCount => ThrowIfDisposed().EmbeddingCount;
 
         /// <summary>
-        /// This field guarantees that a reference to the model is held for as long as this handle is held
+        /// Get the model which this context is using
         /// </summary>
+        public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();
+
         private SafeLlamaModelHandle? _model;
         #endregion
 
@@ -55,7 +57,7 @@ namespace LLama.Native
         {
             // Decrement refcount on model
             _model?.DangerousRelease();
-            _model = null;
+            _model = null!;
 
             NativeApi.llama_free(handle);
             SetHandle(IntPtr.Zero);
@@ -69,7 +71,7 @@ namespace LLama.Native
             if (_model == null || _model.IsClosed)
                 throw new ObjectDisposedException("Cannot use this `SafeLLamaContextHandle` - `SafeLlamaModelHandle` has been disposed");
 
-            return _model;
+            return _model!;
         }
 
         /// <summary>

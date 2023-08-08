@@ -15,7 +15,7 @@ namespace LLama.Examples.NewVersion
             string modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
 
-            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+            InteractiveExecutor ex = new(new LLamaContext(new ModelParams(modelPath, contextSize: 256)));
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 128 and the context size is 256. (an example for small scale usage)");

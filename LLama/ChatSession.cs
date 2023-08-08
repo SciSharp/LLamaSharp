@@ -91,7 +91,7 @@ namespace LLama
             {
                 Directory.CreateDirectory(path);
             }
-            _executor.Model.SaveState(Path.Combine(path, _modelStateFilename));
+            _executor.Context.SaveState(Path.Combine(path, _modelStateFilename));
             if(Executor is StatelessExecutor)
             {
 
@@ -116,7 +116,7 @@ namespace LLama
             {
                 throw new FileNotFoundException($"Directory {path} does not exist.");
             }
-            _executor.Model.LoadState(Path.Combine(path, _modelStateFilename));
+            _executor.Context.LoadState(Path.Combine(path, _modelStateFilename));
             if (Executor is StatelessExecutor)
             {
 

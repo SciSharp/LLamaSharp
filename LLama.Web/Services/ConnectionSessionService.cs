@@ -51,7 +51,7 @@ namespace LLama.Web.Services
                 return Task.FromResult(ServiceResult.FromError<ModelSession>("Maximum model instances reached"));
 
             // Create model
-            var llamaModel = new LLamaModel(modelOption);
+            var llamaModel = new LLamaContext(modelOption);
 
             // Create executor
             ILLamaExecutor executor = executorType switch

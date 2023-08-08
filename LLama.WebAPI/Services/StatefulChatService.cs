@@ -8,7 +8,7 @@ namespace LLama.WebAPI.Services;
 public class StatefulChatService : IDisposable
 {
     private readonly ChatSession _session;
-    private readonly LLamaModel _model;
+    private readonly LLamaContext _context;
     private bool _continue = false;
 
     private const string SystemPrompt = "Transcript of a dialog, where the User interacts with an Assistant. Assistant is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.\n\n"
@@ -16,13 +16,13 @@ public class StatefulChatService : IDisposable
 
     public StatefulChatService(IConfiguration configuration)
     {
-        _model = new LLamaModel(new Common.ModelParams(configuration["ModelPath"], contextSize: 512));
-        _session = new ChatSession(new InteractiveExecutor(_model));
+        _context = new LLamaContext(new Common.ModelParams(configuration["ModelPath"], contextSize: 512));
+        _session = new ChatSession(new InteractiveExecutor(_context));
     }
 
     public void Dispose()
     {
-        _model?.Dispose();
+        _context?.Dispose();
     }
 
     public string Send(SendMessageInput input)
