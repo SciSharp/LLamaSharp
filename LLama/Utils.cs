@@ -2,10 +2,8 @@
 using LLama.Native;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using LLama.Exceptions;
 using LLama.Extensions;
 
 namespace LLama
@@ -27,41 +25,36 @@ namespace LLama
             }
         }
 
+        [Obsolete("Use SafeLLamaContextHandle Tokenize method instead")]
         public static IEnumerable<llama_token> Tokenize(SafeLLamaContextHandle ctx, string text, bool add_bos, Encoding encoding)
         {
-            var cnt = encoding.GetByteCount(text);
-            llama_token[] res = new llama_token[cnt + (add_bos ? 1 : 0)];
-            int n = NativeApi.llama_tokenize(ctx, text, encoding, res, res.Length, add_bos);
-            if (n < 0)
-            {
-                throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +
-                    "specify the encoding.");
-            }
-            return res.Take(n);
+            return ctx.Tokenize(text, add_bos, encoding);
         }
 
-        public static unsafe Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
+        [Obsolete("Use SafeLLamaContextHandle GetLogits method instead")]
+        public static Span<float> GetLogits(SafeLLamaContextHandle ctx, int length)
         {
-            var logits = NativeApi.llama_get_logits(ctx);
-            return new Span<float>(logits, length);
+            if (length != ctx.VocabCount)
+                throw new ArgumentException("length must be the VocabSize");
+
+            return ctx.GetLogits();
         }
 
-        public static unsafe int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)
+        [Obsolete("Use SafeLLamaContextHandle Eval method instead")]
+        public static int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)
         {
-            int result;
-            fixed(llama_token* p = tokens)
-            {
-                result = NativeApi.llama_eval_with_pointer(ctx, p + startIndex, n_tokens, n_past, n_threads);
-            }
-            return result;
+            var slice = tokens.AsMemory().Slice(startIndex, n_tokens);
+            return ctx.Eval(slice, n_past, n_threads) ? 0 : 1;
         }
 
+        [Obsolete("Use SafeLLamaContextHandle TokenToString method instead")]
         public static string TokenToString(llama_token token, SafeLLamaContextHandle ctx, Encoding encoding)
         {
-            return PtrToString(NativeApi.llama_token_to_str(ctx, token), encoding);
+            return ctx.TokenToString(token, encoding);
         }
 
-        public static unsafe string PtrToString(IntPtr ptr, Encoding encoding)
+        [Obsolete("No longer used internally by LlamaSharp")]
+        public static string PtrToString(IntPtr ptr, Encoding encoding)
         {
 #if NET6_0_OR_GREATER
             if(encoding == Encoding.UTF8)
@@ -77,21 +70,24 @@ namespace LLama
                 return Marshal.PtrToStringAuto(ptr);
             }
 #else
-            byte* tp = (byte*)ptr.ToPointer();
-            List<byte> bytes = new();
-            while (true)
+            unsafe
             {
-                byte c = *tp++;
-                if (c == '\0')
+                byte* tp = (byte*)ptr.ToPointer();
+                List<byte> bytes = new();
+                while (true)
                 {
-                    break;
+                    byte c = *tp++;
+                    if (c == '\0')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        bytes.Add(c);
+                    }
                 }
-                else
-                {
-                    bytes.Add(c);
-                }
+                return encoding.GetString(bytes.ToArray());
             }
-            return encoding.GetString(bytes.ToArray());
 #endif
         }
     }

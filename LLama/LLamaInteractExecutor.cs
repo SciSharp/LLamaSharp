@@ -25,7 +25,7 @@ namespace LLama
         /// <param name="model"></param>
         public InteractiveExecutor(LLamaModel model) : base(model)
         {
-            _llama_token_newline = Utils.Tokenize(_model.NativeHandle, "\n", false, _model.Encoding).ToArray();
+            _llama_token_newline = _model.NativeHandle.Tokenize("\n", false, _model.Encoding);
         }
 
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace LLama
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity,
-                MirostateMu = MirostateMu
+                MirostatMu = MirostatMu
             };
             return state;
         }
@@ -114,7 +114,7 @@ namespace LLama
                 }
                 var line_inp = _model.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
-                args.RemainedTokens -= line_inp.Count();
+                args.RemainedTokens -= line_inp.Length;
             }
         }
 
@@ -133,7 +133,7 @@ namespace LLama
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
                     {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
+                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
                     }
 
                     foreach (var antiprompt in args.Antiprompts)
@@ -203,12 +203,12 @@ namespace LLama
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var mu = MirostateMu;
+                var mu = MirostatMu;
                 var id = _model.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau, 
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
                 );
-                MirostateMu = mu;
+                MirostatMu = mu;
 
                 _last_n_tokens.Enqueue(id);
 

@@ -30,8 +30,8 @@ namespace LLama
         public InstructExecutor(LLamaModel model, string instructionPrefix = "\n\n### Instruction:\n\n",
             string instructionSuffix = "\n\n### Response:\n\n") : base(model)
         {
-            _inp_pfx = _model.Tokenize(instructionPrefix, true).ToArray();
-            _inp_sfx = _model.Tokenize(instructionSuffix, false).ToArray();
+            _inp_pfx = _model.Tokenize(instructionPrefix, true);
+            _inp_sfx = _model.Tokenize(instructionSuffix, false);
             _instructionPrefix = instructionPrefix;
         }
 
@@ -53,7 +53,7 @@ namespace LLama
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens,
                 LastTokensCapacity = _last_n_tokens.Capacity,
-                MirostateMu = MirostateMu
+                MirostatMu = MirostatMu
             };
             return state;
         }
@@ -133,7 +133,7 @@ namespace LLama
 
                 _embed_inps.AddRange(_inp_sfx);
 
-                args.RemainedTokens -= line_inp.Count();
+                args.RemainedTokens -= line_inp.Length;
             }
         }
         /// <inheritdoc />
@@ -146,9 +146,7 @@ namespace LLama
                 {
                     string last_output = "";
                     foreach (var id in _last_n_tokens)
-                    {
-                        last_output += Utils.PtrToString(NativeApi.llama_token_to_str(_model.NativeHandle, id), _model.Encoding);
-                    }
+                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
 
                     foreach (var antiprompt in args.Antiprompts)
                     {
@@ -216,12 +214,12 @@ namespace LLama
                 var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var mu = MirostateMu;
+                var mu = MirostatMu;
                 var id = _model.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
                 );
-                MirostateMu = mu;
+                MirostatMu = mu;
 
                 _last_n_tokens.Enqueue(id);
 

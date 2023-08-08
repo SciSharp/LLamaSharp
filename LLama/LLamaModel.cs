@@ -78,10 +78,9 @@ namespace LLama
         /// <param name="text"></param>
         /// <param name="addBos">Whether to add a bos to the text.</param>
         /// <returns></returns>
-        public IEnumerable<llama_token> Tokenize(string text, bool addBos = true)
+        public llama_token[] Tokenize(string text, bool addBos = true)
         {
-            // TODO: reconsider whether to convert to array here.
-            return Utils.Tokenize(_ctx, text, addBos, _encoding);
+            return _ctx.Tokenize(text, addBos, _encoding);
         }
 
         /// <summary>
@@ -93,9 +92,7 @@ namespace LLama
         {
             StringBuilder sb = new();
             foreach(var token in tokens)
-            {
-                sb.Append(Utils.PtrToString(NativeApi.llama_token_to_str(_ctx, token), _encoding));
-            }
+                sb.Append(_ctx.TokenToString(token, _encoding));
             return sb.ToString();
         }
 
@@ -245,7 +242,7 @@ namespace LLama
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, ref float mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
+        public llama_token Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
                                   float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
         {
             llama_token id;
@@ -256,30 +253,31 @@ namespace LLama
             }
             else
             {
-                if (float.IsNaN(mirostat_mu))
-                    mirostat_mu = 2 * mirostatTau;
-
-                if (mirostat == MirostatType.Mirostat)
+                var mu = mirostat_mu ?? (2 * mirostatTau);
                 {
-                    const int mirostat_m = 100;
-                    SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                    id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mirostat_mu);
+                    if (mirostat == MirostatType.Mirostat)
+                    {
+                        const int mirostat_m = 100;
+                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
+                        id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mu);
+                    }
+                    else if (mirostat == MirostatType.Mirostat2)
+                    {
+                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
+                        id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mu);
+                    }
+                    else
+                    {
+                        // Temperature sampling
+                        SamplingApi.llama_sample_top_k(_ctx, candidates, topK, 1);
+                        SamplingApi.llama_sample_tail_free(_ctx, candidates, tfsZ, 1);
+                        SamplingApi.llama_sample_typical(_ctx, candidates, typicalP, 1);
+                        SamplingApi.llama_sample_top_p(_ctx, candidates, topP, 1);
+                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
+                        id = SamplingApi.llama_sample_token(_ctx, candidates);
+                    }
                 }
-                else if (mirostat == MirostatType.Mirostat2)
-                {
-                    SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                    id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mirostat_mu);
-                }
-                else
-                {
-                    // Temperature sampling
-                    SamplingApi.llama_sample_top_k(_ctx, candidates, topK, 1);
-                    SamplingApi.llama_sample_tail_free(_ctx, candidates, tfsZ, 1);
-                    SamplingApi.llama_sample_typical(_ctx, candidates, typicalP, 1);
-                    SamplingApi.llama_sample_top_p(_ctx, candidates, topP, 1);
-                    SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                    id = SamplingApi.llama_sample_token(_ctx, candidates);
-                }
+                mirostat_mu = mu;
             }
             return id;
         }
@@ -299,8 +297,8 @@ namespace LLama
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
         {
-            var n_vocab = NativeApi.llama_n_vocab(_ctx);
-            var logits = Utils.GetLogits(_ctx, n_vocab);
+            var n_vocab = _ctx.VocabCount;
+            var logits = _ctx.GetLogits();
 
             // Apply params.logit_bias map
             if(logitBias is not null)
@@ -352,7 +350,7 @@ namespace LLama
                     n_eval = Params.BatchSize;
                 }
 
-                if(Utils.Eval(_ctx, tokens, i, n_eval, pastTokensCount, Params.Threads) != 0)
+                if (!_ctx.Eval(tokens.AsMemory(i, n_eval), pastTokensCount, Params.Threads))
                 {
                     _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
@@ -367,9 +365,7 @@ namespace LLama
         internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
         {
             foreach(var id in ids)
-            {
-                yield return Utils.TokenToString(id, _ctx, _encoding);
-            }
+                yield return _ctx.TokenToString(id, _encoding);
         }
 
         /// <inheritdoc />
