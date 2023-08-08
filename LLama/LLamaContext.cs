@@ -84,6 +84,17 @@ namespace LLama
             _ctx = nativeContext;
         }
 
+        public LLamaContext(LLamaWeights model, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        {
+            Params = @params;
+
+            _logger = logger;
+            _encoding = encoding;
+
+            using var pin = @params.ToLlamaContextParams(out var lparams);
+            _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
+        }
+
         /// <summary>
         /// Create a copy of the current state of this context
         /// </summary>

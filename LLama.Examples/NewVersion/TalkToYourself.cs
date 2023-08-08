@@ -2,8 +2,6 @@
 using System.Text;
 using LLama.Abstractions;
 using LLama.Common;
-using LLama.Extensions;
-using LLama.Native;
 
 namespace LLama.Examples.NewVersion
 {
@@ -12,26 +10,20 @@ namespace LLama.Examples.NewVersion
         public static async Task Run()
         {
             Console.Write("Please input your model path: ");
-            string modelPath = "C:\\Users\\Martin\\Documents\\Python\\oobabooga_windows\\text-generation-webui\\models\\llama-2-7b-chat.ggmlv3.q6_K.bin";
+            var modelPath = Console.ReadLine();
 
-            // todo: model path is passed here, but isn't needed
+            // Load weights into memory
             var @params = new ModelParams(modelPath)
             {
                 Seed = RandomNumberGenerator.GetInt32(int.MaxValue)
             };
+            using var weights = LLamaWeights.LoadFromFile(@params);
 
-            // todo: all this pin stuff is ugly and should be hidden in the higher level wrapper
-            using var pin = @params.ToLlamaContextParams(out var lparams);
-
-            // todo: we need a higher level wrapper around the model weights (LLamaWeights??)
-            var weights = SafeLlamaModelHandle.LoadFromFile(modelPath, lparams);
-
-            // todo: need a method on the LLamaWeights which does this
-            var ctx1 = new LLamaContext(weights.CreateContext(lparams), @params, Encoding.UTF8);
-            var ctx2 = new LLamaContext(weights.CreateContext(lparams), @params, Encoding.UTF8);
-
-            var alice = new InteractiveExecutor(ctx1);
-            var bob = new InteractiveExecutor(ctx2);
+            // Create 2 contexts sharing the same weights
+            using var aliceCtx = weights.CreateContext(@params, Encoding.UTF8);
+            var alice = new InteractiveExecutor(aliceCtx);
+            using var bobCtx = weights.CreateContext(@params, Encoding.UTF8);
+            var bob = new InteractiveExecutor(bobCtx);
 
             // Initial alice prompt
             var alicePrompt = "Transcript of a dialog, where the Alice interacts a person named Bob. Alice is friendly, kind, honest and good at writing.\nAlice: Hello";
@@ -46,7 +38,9 @@ namespace LLama.Examples.NewVersion
             {
                 aliceResponse = await Prompt(alice, ConsoleColor.Green, bobResponse, false, true);
                 bobResponse = await Prompt(bob, ConsoleColor.Red, aliceResponse, false, true);
-                Thread.Sleep(1000);
+
+                if (Console.KeyAvailable)
+                    break;
             }
         }
 
