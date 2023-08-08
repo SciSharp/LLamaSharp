@@ -228,7 +228,7 @@ namespace LLama
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, ref float mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
+        public llama_token Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
                                   float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
         {
             llama_token id;
@@ -239,30 +239,31 @@ namespace LLama
             }
             else
             {
-                if (float.IsNaN(mirostat_mu))
-                    mirostat_mu = 2 * mirostatTau;
-
-                if (mirostat == MirostatType.Mirostat)
+                var mu = mirostat_mu ?? (2 * mirostatTau);
                 {
-                    const int mirostat_m = 100;
-                    SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                    id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mirostat_mu);
+                    if (mirostat == MirostatType.Mirostat)
+                    {
+                        const int mirostat_m = 100;
+                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
+                        id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mu);
+                    }
+                    else if (mirostat == MirostatType.Mirostat2)
+                    {
+                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
+                        id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mu);
+                    }
+                    else
+                    {
+                        // Temperature sampling
+                        SamplingApi.llama_sample_top_k(_ctx, candidates, topK, 1);
+                        SamplingApi.llama_sample_tail_free(_ctx, candidates, tfsZ, 1);
+                        SamplingApi.llama_sample_typical(_ctx, candidates, typicalP, 1);
+                        SamplingApi.llama_sample_top_p(_ctx, candidates, topP, 1);
+                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
+                        id = SamplingApi.llama_sample_token(_ctx, candidates);
+                    }
                 }
-                else if (mirostat == MirostatType.Mirostat2)
-                {
-                    SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                    id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mirostat_mu);
-                }
-                else
-                {
-                    // Temperature sampling
-                    SamplingApi.llama_sample_top_k(_ctx, candidates, topK, 1);
-                    SamplingApi.llama_sample_tail_free(_ctx, candidates, tfsZ, 1);
-                    SamplingApi.llama_sample_typical(_ctx, candidates, typicalP, 1);
-                    SamplingApi.llama_sample_top_p(_ctx, candidates, topP, 1);
-                    SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                    id = SamplingApi.llama_sample_token(_ctx, candidates);
-                }
+                mirostat_mu = mu;
             }
             return id;
         }
