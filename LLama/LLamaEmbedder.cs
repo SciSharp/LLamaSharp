@@ -53,7 +53,7 @@ namespace LLama
             {
                 threads = Math.Max(Environment.ProcessorCount / 2, 1);
             }
-            int n_past = 0;
+
             if (addBos)
             {
                 text = text.Insert(0, " ");
@@ -65,7 +65,7 @@ namespace LLama
 
             if (embed_inp_array.Length > 0)
             {
-                if (NativeApi.llama_eval(_ctx, embed_inp_array, embed_inp_array.Length, n_past, threads) != 0)
+                if (NativeApi.llama_eval(_ctx, embed_inp_array, embed_inp_array.Length, 0, threads) != 0)
                 {
                     throw new RuntimeError("Failed to eval.");
                 }

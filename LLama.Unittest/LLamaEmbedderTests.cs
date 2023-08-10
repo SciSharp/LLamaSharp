@@ -35,6 +35,8 @@ namespace LLama.Unittest
             var kitten = _embedder.GetEmbeddings("kitten");
             var spoon = _embedder.GetEmbeddings("spoon");
 
+            Console.WriteLine(string.Join(",", cat));
+
             var close = Dot(cat, kitten);
             var far = Dot(cat, spoon);
 
