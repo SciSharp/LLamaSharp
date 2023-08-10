@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LLama.Native;
+using System;
 using System.Diagnostics;
 using System.IO;
 using static LLama.Common.ILLamaLogger;
@@ -9,13 +10,13 @@ public interface ILLamaLogger
 {
     public enum LogLevel
     {
-        Info,
-        Debug,
-        Warning,
-        Error
+        Debug = 1,
+        Error = 2,
+        Warning = 3,
+        Info = 4
     }
     /// <summary>
-    /// Write the log in cosutomized way
+    /// Write the log in customized way
     /// </summary>
     /// <param name="source">The source of the log. It may be a method name or class name.</param>
     /// <param name="message">The message.</param>
@@ -25,7 +26,7 @@ public interface ILLamaLogger
 
 /// <summary>
 /// The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
-/// It's more recommended to inherit `ILLamaLogger` to cosutomize the behavior.
+/// It's more recommended to inherit `ILLamaLogger` to customize the behavior.
 /// </summary>
 public sealed class LLamaDefaultLogger : ILLamaLogger
 {
@@ -42,6 +43,16 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
     private LLamaDefaultLogger()
     {
 
+    }
+
+    /// <summary>
+    /// Enable logging output from llama.cpp
+    /// </summary>
+    /// <returns></returns>
+    public LLamaDefaultLogger EnableNative()
+    {
+        EnableNativeLogCallback();
+        return this;
     }
 
     public LLamaDefaultLogger EnableConsole()
@@ -157,4 +168,31 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         string formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
         return $"[{formattedDate}][{level}]: {message}";
     }
+
+    /// <summary>
+    /// Register native logging callback
+    /// </summary>
+	private void EnableNativeLogCallback()
+    {
+        // TODO: Move to a more appropriate place once we have a intitialize method
+        NativeApi.llama_log_set(NativeLogCallback);
+    }
+
+    /// <summary>
+    /// Callback for native logging function
+    /// </summary>
+    /// <param name="level">The log level</param>
+    /// <param name="message">The log message</param>
+    private void NativeLogCallback(LogLevel level, string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return;
+
+        // Note that text includes the new line character at the end for most events.
+        // If your logging mechanism cannot handle that, check if the last character is '\n' and strip it
+        // if it exists.
+        // It might not exist for progress report where '.' is output repeatedly.
+        Log(default!, message.TrimEnd('\n'), level);
+    }
+
 }

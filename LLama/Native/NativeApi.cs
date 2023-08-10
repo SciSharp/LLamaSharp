@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using LLama.Common;
 using LLama.Exceptions;
 
 namespace LLama.Native
 {
     using llama_token = Int32;
-    public unsafe partial class NativeApi
+
+	public delegate void LLamaLogCallback(ILLamaLogger.LogLevel level, string message);
+
+	public unsafe partial class NativeApi
     {
         public static readonly int LLAMA_MAX_DEVICES = 1;
         static NativeApi()
@@ -331,5 +335,8 @@ namespace LLama.Native
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_tokenize_with_model(SafeLlamaModelHandle model, byte* text, int* tokens, int n_max_tokens, bool add_bos);
-    }
+
+		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void llama_log_set(LLamaLogCallback logCallback);
+	}
 }
