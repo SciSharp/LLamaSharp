@@ -1,8 +1,6 @@
 ﻿using LLama.Native;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace LLama
 {
@@ -36,8 +34,7 @@ namespace LLama
             quantizeParams.nthread = nthread;
             quantizeParams.allow_requantize = allowRequantize;
             quantizeParams.quantize_output_tensor = quantizeOutputTensor;
-            LLamaModelQuantizeParams* p = &quantizeParams;
-            return NativeApi.llama_model_quantize(srcFileName, dstFilename, p) == 0;
+            return NativeApi.llama_model_quantize(srcFileName, dstFilename, &quantizeParams) == 0;
         }
 
         /// <summary>
@@ -57,42 +54,71 @@ namespace LLama
             return Quantize(srcFileName, dstFilename, StringToFtype(ftype), nthread, allowRequantize, quantizeOutputTensor);
         }
 
-        private static bool ValidateFtype(string ftype)
-        {
-            return new string[] { "q4_0", "q4_1", "q5_0", "q5_1", "q8_0" }.Contains(ftype);
-        }
-
         private static bool ValidateFtype(LLamaFtype ftype)
         {
-            return ftype is LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1
-                or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1 or LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0;
-        }
+            // Validation copies from here:
+            // https://github.com/ggerganov/llama.cpp/blob/e59fcb2bc129881f4a269fee748fb38bce0a64de/llama.cpp#L2960
 
-        private static string FtypeToString(LLamaFtype ftype)
-        {
-            return ftype switch
+            switch (ftype)
             {
-                LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0 => "q4_0",
-                LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1 => "q4_1",
-                LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0 => "q5_0",
-                LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1 => "q5_1",
-                LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0 => "q8_0",
-                _ => throw new ArgumentException($"The type {Enum.GetName(typeof(LLamaFtype), ftype)} is not a valid type " +
-                    $"to perform quantization.")
-            };
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_F16:
+                case LLamaFtype.LLAMA_FTYPE_ALL_F32:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q2_K:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_S:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_M:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_L:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_K_S:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_K_M:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_K_S:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_K_M:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q6_K:
+                    return true;
+
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1_SOME_F16:
+                default:
+                    return false;
+            }
         }
 
+        /// <summary>
+        /// Parse a string into a LLamaFtype. This is a "relaxed" parsing, which allows any string which is contained within
+        /// the enum name to be used.
+        ///
+        /// For example "Q5_K_M" will convert to "LLAMA_FTYPE_MOSTLY_Q5_K_M"
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         private static LLamaFtype StringToFtype(string str)
         {
-            return str switch
+            // Find all variants which contain the input string
+            var matches = new List<LLamaFtype>();
+            foreach (LLamaFtype ftype in Enum.GetValues(typeof(LLamaFtype)))
             {
-                "q4_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0,
-                "q4_1" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1,
-                "q5_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0,
-                "q5_1" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1,
-                "q8_0" => LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0,
-                _ => throw new ArgumentException($"Invalid ftype {str} to quantize.")
-            };
+                var name = Enum.GetName(typeof(LLamaFtype), ftype);
+                
+                // Note: this is using "IndexOf" instead of "Contains" to be compatible with netstandard2.0
+#pragma warning disable CA2249
+                if (name != null && name.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0)
+                    matches.Add(ftype);
+#pragma warning restore CA2249
+            }
+
+            // If there was just one match, success!
+            if (matches.Count == 1)
+                return matches[0];
+
+            // If none matched throw a generic error
+            if (matches.Count == 0)
+                throw new ArgumentException($"Unknown ftype \"{str}\" for quantization.");
+
+            // There were several matches, throw an error asking the user to be more specific
+            throw new ArgumentException($"\"{str}\" matches multiple potential ftypes: {string.Join(",", matches)}");
         }
     }
 }
