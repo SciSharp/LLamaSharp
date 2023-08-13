@@ -6,15 +6,37 @@ using static LLama.Common.ILLamaLogger;
 
 namespace LLama.Common;
 
+/// <summary>
+/// receives log messages from LLamaSharp
+/// </summary>
 public interface ILLamaLogger
 {
+    /// <summary>
+    /// Severity level of a log message
+    /// </summary>
     public enum LogLevel
     {
+        /// <summary>
+        /// Logs that are used for interactive investigation during development.
+        /// </summary>
         Debug = 1,
+
+        /// <summary>
+        /// Logs that highlight when the current flow of execution is stopped due to a failure.
+        /// </summary>
         Error = 2,
+
+        /// <summary>
+        /// Logs that highlight an abnormal or unexpected event in the application flow, but do not otherwise cause the application execution to stop.
+        /// </summary>
         Warning = 3,
+
+        /// <summary>
+        /// Logs that track the general flow of the application.
+        /// </summary>
         Info = 4
     }
+
     /// <summary>
     /// Write the log in customized way
     /// </summary>
@@ -25,19 +47,23 @@ public interface ILLamaLogger
 }
 
 /// <summary>
-/// The default logger of LLamaSharp. On default it write to console. User methods of `LLamaLogger.Default` to change the behavior.
-/// It's more recommended to inherit `ILLamaLogger` to customize the behavior.
+/// The default logger of LLamaSharp. On default it write to console. Use methods of `LLamaLogger.Default` to change the behavior.
+/// It's recommended to inherit `ILLamaLogger` to customize the behavior.
 /// </summary>
-public sealed class LLamaDefaultLogger : ILLamaLogger
+public sealed class LLamaDefaultLogger
+    : ILLamaLogger
 {
     private static readonly Lazy<LLamaDefaultLogger> _instance = new Lazy<LLamaDefaultLogger>(() => new LLamaDefaultLogger());
 
     private bool _toConsole = true;
-    private bool _toFile = false;
+    private bool _toFile;
 
-    private FileStream? _fileStream = null;
-    private StreamWriter _fileWriter = null;
+    private FileStream? _fileStream;
+    private StreamWriter? _fileWriter;
 
+    /// <summary>
+    /// Get the default logger instance
+    /// </summary>
     public static LLamaDefaultLogger Default => _instance.Value;
 
     private LLamaDefaultLogger()
@@ -55,18 +81,32 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         return this;
     }
 
+    /// <summary>
+    /// Enable writing log messages to console
+    /// </summary>
+    /// <returns></returns>
     public LLamaDefaultLogger EnableConsole()
     {
         _toConsole = true;
         return this;
     }
 
+    /// <summary>
+    /// Disable writing messages to console
+    /// </summary>
+    /// <returns></returns>
     public LLamaDefaultLogger DisableConsole()
     {
         _toConsole = false;
         return this;
     }
 
+    /// <summary>
+    /// Enable writing log messages to file
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <param name="mode"></param>
+    /// <returns></returns>
     public LLamaDefaultLogger EnableFile(string filename, FileMode mode = FileMode.Append)
     {
         _fileStream = new FileStream(filename, mode, FileAccess.Write);
@@ -75,7 +115,22 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         return this;
     }
 
+    /// <summary>
+    /// Disable writing log messages to file
+    /// </summary>
+    /// <param name="filename">unused!</param>
+    /// <returns></returns>
+    [Obsolete("Use DisableFile method without 'filename' parameter")]
     public LLamaDefaultLogger DisableFile(string filename)
+    {
+        return DisableFile();
+    }
+
+    /// <summary>
+    /// Disable writing log messages to file
+    /// </summary>
+    /// <returns></returns>
+    public LLamaDefaultLogger DisableFile()
     {
         if (_fileWriter is not null)
         {
@@ -91,6 +146,12 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         return this;
     }
 
+    /// <summary>
+    /// Log a message
+    /// </summary>
+    /// <param name="source">The source of this message (e.g. class name)</param>
+    /// <param name="message">The message to log</param>
+    /// <param name="level">Severity level of this message</param>
     public void Log(string source, string message, LogLevel level)
     {
         if (level == LogLevel.Info)
@@ -111,6 +172,10 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         }
     }
 
+    /// <summary>
+    /// Write a log message with "Info" severity
+    /// </summary>
+    /// <param name="message"></param>
     public void Info(string message)
     {
         message = MessageFormat("info", message);
@@ -128,6 +193,10 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         }
     }
 
+    /// <summary>
+    /// Write a log message with "Warn" severity
+    /// </summary>
+    /// <param name="message"></param>
     public void Warn(string message)
     {
         message = MessageFormat("warn", message);
@@ -145,6 +214,10 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         }
     }
 
+    /// <summary>
+    /// Write a log message with "Error" severity
+    /// </summary>
+    /// <param name="message"></param>
     public void Error(string message)
     {
         message = MessageFormat("error", message);
@@ -162,11 +235,10 @@ public sealed class LLamaDefaultLogger : ILLamaLogger
         }
     }
 
-    private string MessageFormat(string level, string message)
+    private static string MessageFormat(string level, string message)
     {
-        DateTime now = DateTime.Now;
-        string formattedDate = now.ToString("yyyy.MM.dd HH:mm:ss");
-        return $"[{formattedDate}][{level}]: {message}";
+        var now = DateTime.Now;
+        return $"[{now:yyyy.MM.dd HH:mm:ss}][{level}]: {message}";
     }
 
     /// <summary>
