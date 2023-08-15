@@ -13,6 +13,7 @@ namespace LLama.OldVersion
     using llama_token = Int32;
     internal static class Utils
     {
+        private static readonly sbyte[] SbyteBoolArray = new sbyte[2] { 0, 1 };
         public static SafeLLamaContextHandle llama_init_from_gpt_params(ref LLamaParams @params)
         {
             var lparams = NativeApi.llama_context_default_params();
@@ -20,11 +21,11 @@ namespace LLama.OldVersion
             lparams.n_ctx = @params.n_ctx;
             lparams.n_gpu_layers = @params.n_gpu_layers;
             lparams.seed = @params.seed;
-            lparams.f16_kv = @params.memory_f16;
-            lparams.use_mmap = @params.use_mmap;
-            lparams.use_mlock = @params.use_mlock;
-            lparams.logits_all = @params.perplexity;
-            lparams.embedding = @params.embedding;
+            lparams.f16_kv = BoolToSignedByte(@params.memory_f16);
+            lparams.use_mmap = BoolToSignedByte(@params.use_mmap);
+            lparams.use_mlock = BoolToSignedByte(@params.use_mlock);
+            lparams.logits_all = BoolToSignedByte(@params.perplexity);
+            lparams.embedding = BoolToSignedByte(@params.embedding);
 
             if (!File.Exists(@params.model))
             {
@@ -82,5 +83,16 @@ namespace LLama.OldVersion
             return Encoding.UTF8.GetString(bytes.ToArray());
 #endif
         }
+
+        /// <summary>
+        /// Converts a bool "value" to a signed byte of "1" for true and "0" for false to be compatible with a 1 byte C-style bool.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static sbyte BoolToSignedByte(bool value)
+        {
+            return value ? SbyteBoolArray[1] : SbyteBoolArray[0];
+        }
+
     }
 }
