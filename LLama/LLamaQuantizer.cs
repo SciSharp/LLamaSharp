@@ -32,8 +32,8 @@ namespace LLama
             var quantizeParams = NativeApi.llama_model_quantize_default_params();
             quantizeParams.ftype = ftype;
             quantizeParams.nthread = nthread;
-            quantizeParams.allow_requantize = Utils.BoolToSignedByte(allowRequantize);
-            quantizeParams.quantize_output_tensor = Utils.BoolToSignedByte(quantizeOutputTensor);
+            quantizeParams.allow_requantize = allowRequantize;
+            quantizeParams.quantize_output_tensor = quantizeOutputTensor;
             return NativeApi.llama_model_quantize(srcFileName, dstFilename, &quantizeParams) == 0;
         }
 

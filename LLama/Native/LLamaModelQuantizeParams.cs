@@ -20,11 +20,21 @@ namespace LLama.Native
         /// <summary>
         /// allow quantizing non-f32/f16 tensors
         /// </summary>
-        public sbyte allow_requantize;
+        public bool allow_requantize
+        {
+            get => Utils.SignedByteToBool(_allow_requantize);
+            set => _allow_requantize = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _allow_requantize;
 
         /// <summary>
         /// quantize output.weight
         /// </summary>
-        public sbyte quantize_output_tensor;
+        public bool quantize_output_tensor
+        {
+            get => Utils.SignedByteToBool(_quantize_output_tensor);
+            set => _quantize_output_tensor = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _quantize_output_tensor;
     }
 }
