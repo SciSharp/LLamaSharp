@@ -11,7 +11,6 @@ namespace LLama
     using llama_token = Int32;
     public static class Utils
     {
-        private static readonly sbyte[] SbyteBoolArray = new sbyte[2] { 0, 1 };
         public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
         {
             using (@params.ToLlamaContextParams(out var lparams))
@@ -99,7 +98,17 @@ namespace LLama
         /// <returns></returns>
         public static sbyte BoolToSignedByte(bool value)
         {
-            return value ? SbyteBoolArray[1] : SbyteBoolArray[0];
+            return value ? (sbyte)1 : (sbyte)0;
+        }
+
+        /// <summary>
+        /// Converts a sbyte "value" to a C# bool.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool SignedByteToBool(sbyte value)
+        {
+            return value > 0 ? true : false;
         }
 
     }
