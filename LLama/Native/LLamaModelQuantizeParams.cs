@@ -20,13 +20,11 @@ namespace LLama.Native
         /// <summary>
         /// allow quantizing non-f32/f16 tensors
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool allow_requantize;
+        public sbyte allow_requantize;
 
         /// <summary>
         /// quantize output.weight
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool quantize_output_tensor;
+        public sbyte quantize_output_tensor;
     }
 }

@@ -33,17 +33,17 @@ namespace LLama.Extensions
             result.main_gpu = @params.MainGpu;
             result.n_gpu_layers = @params.GpuLayerCount;
             result.seed = @params.Seed;
-            result.f16_kv = @params.UseFp16Memory;
-            result.use_mmap = @params.UseMemorymap;
-            result.use_mlock = @params.UseMemoryLock;
-            result.logits_all = @params.Perplexity;
-            result.embedding = @params.EmbeddingMode;
-            result.low_vram = @params.LowVram;
+            result.f16_kv = Utils.BoolToSignedByte(@params.UseFp16Memory);
+            result.use_mmap = Utils.BoolToSignedByte(@params.UseMemorymap);
+            result.use_mlock = Utils.BoolToSignedByte(@params.UseMemoryLock);
+            result.logits_all = Utils.BoolToSignedByte(@params.Perplexity);
+            result.embedding = Utils.BoolToSignedByte(@params.EmbeddingMode);
+            result.low_vram = Utils.BoolToSignedByte(@params.LowVram);
             result.n_gqa = @params.GroupedQueryAttention;
             result.rms_norm_eps = @params.RmsNormEpsilon;
             result.rope_freq_base = @params.RopeFrequencyBase;
             result.rope_freq_scale = @params.RopeFrequencyScale;
-            result.mul_mat_q = @params.MulMatQ;
+            result.mul_mat_q = Utils.BoolToSignedByte(@params.MulMatQ);
 
             var pin = @params.TensorSplits.AsMemory().Pin();
             unsafe

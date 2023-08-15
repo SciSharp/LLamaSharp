@@ -76,49 +76,42 @@ namespace LLama.Native
         /// <summary>
         /// if true, reduce VRAM usage at the cost of performance
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool low_vram;
+        public sbyte low_vram;
 
         /// <summary>
         /// if true, use experimental mul_mat_q kernels
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] public bool mul_mat_q;
+        public sbyte mul_mat_q;
 
         /// <summary>
         /// use fp16 for KV cache
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool f16_kv;
+        public sbyte f16_kv;
 
         /// <summary>
         /// the llama_eval() call computes all logits, not just the last one
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool logits_all;
+        public sbyte logits_all;
 
         /// <summary>
         /// only load the vocabulary, no weights
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool vocab_only;
+        public sbyte vocab_only;
 
         /// <summary>
         /// use mmap if possible
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool use_mmap;
+        public sbyte use_mmap;
 
         /// <summary>
         /// force system to keep model in RAM
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool use_mlock;
+        public sbyte use_mlock;
 
         /// <summary>
         /// embedding mode only
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool embedding;
+        public sbyte embedding;
     }
 }
 
