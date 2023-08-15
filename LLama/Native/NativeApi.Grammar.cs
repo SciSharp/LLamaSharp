@@ -7,13 +7,21 @@ namespace LLama.Native
 
 	public unsafe partial class NativeApi
     {
-		//todo: LLAMA_API struct llama_grammar * llama_grammar_init(const llama_grammar_element** rules, size_t n_rules,size_t start_rule_index);
-
 		/// <summary>
-		/// Free all memory from the given SafeLLamaGrammarHandle
+		/// Create a new grammar from the given set of grammar rules
 		/// </summary>
-		/// <param name="grammar"></param>
-		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+		/// <param name="rules"></param>
+		/// <param name="n_rules"></param>
+		/// <param name="start_rule_index"></param>
+		/// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
+
+        /// <summary>
+        /// Free all memory from the given SafeLLamaGrammarHandle
+        /// </summary>
+        /// <param name="grammar"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void llama_grammar_free(IntPtr grammar);
 
 		/// <summary>

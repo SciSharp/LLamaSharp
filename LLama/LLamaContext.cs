@@ -293,11 +293,19 @@ namespace LLama
         /// <param name="topP"></param>
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
+        /// <param name="grammar"></param>
         /// <returns></returns>
         public llama_token Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
-                                  float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f)
+                                  float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f,
+                                  SafeLLamaGrammarHandle? grammar = null)
         {
             llama_token id;
+
+            if (grammar != null)
+            {
+                SamplingApi.llama_sample_grammar(_ctx, candidates, grammar);
+            }
+
             if (temperature <= 0)
             {
                 // Greedy sampling
@@ -331,6 +339,12 @@ namespace LLama
                 }
                 mirostat_mu = mu;
             }
+
+            if (grammar != null)
+            {
+                NativeApi.llama_grammar_accept_token(_ctx, grammar, id);
+            }
+
             return id;
         }
 

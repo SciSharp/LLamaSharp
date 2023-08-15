@@ -33,14 +33,14 @@ namespace LLama.Native
         CHAR_NOT = 4,
 
         /// <summary>
-        /// modifies a preceding LLAMA_GRETYPE_CHAR or LLAMA_GRETYPE_CHAR_ALT to
+        /// modifies a preceding CHAR or CHAR_ALT to
         /// be an inclusive range ([a-z])
         /// </summary>
         CHAR_RNG_UPPER = 5,
 
         /// <summary>
-        /// modifies a preceding LLAMA_GRETYPE_CHAR or
-        /// LLAMA_GRETYPE_CHAR_RNG_UPPER to add an alternate char to match ([ab], [a-zA])
+        /// modifies a preceding CHAR or
+        /// CHAR_RNG_UPPER to add an alternate char to match ([ab], [a-zA])
         /// </summary>
         CHAR_ALT = 6,
     };
@@ -60,5 +60,16 @@ namespace LLama.Native
         /// Unicode code point or rule ID
         /// </summary>
         public uint Value;
+
+        /// <summary>
+        /// Construct a new LLamaGrammarElement
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="value"></param>
+        public LLamaGrammarElement(LLamaGrammarElementType type, uint value)
+        {
+            Type = type;
+            Value = value;
+        }
     }
 }
