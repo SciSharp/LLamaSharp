@@ -51,8 +51,12 @@ namespace LLama.Native
         /// <summary>
         /// Indicates if the items in the array are sorted
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool sorted;
+        public bool sorted
+        {
+            get => Utils.SignedByteToBool(_sorted);
+            set => _sorted = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _sorted;
 
         /// <summary>
         /// Create a new LLamaTokenDataArrayNative around the data in the LLamaTokenDataArray 

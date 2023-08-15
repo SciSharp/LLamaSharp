@@ -32,7 +32,7 @@ namespace LLama.Native
         /// <summary>
         /// rms norm epsilon (TEMP - will be moved to model hparams)
         /// </summary>
-       public float rms_norm_eps;
+        public float rms_norm_eps;
 
         /// <summary>
         /// number of layers to store in VRAM
@@ -76,49 +76,82 @@ namespace LLama.Native
         /// <summary>
         /// if true, reduce VRAM usage at the cost of performance
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool low_vram;
+        public bool low_vram
+        {
+            get => Utils.SignedByteToBool(_low_vram);
+            set => _low_vram = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _low_vram;
 
         /// <summary>
         /// if true, use experimental mul_mat_q kernels
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] public bool mul_mat_q;
+        public bool mul_mat_q
+        {
+            get => Utils.SignedByteToBool(_mul_mat_q);
+            set => _mul_mat_q = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _mul_mat_q;
 
         /// <summary>
         /// use fp16 for KV cache
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool f16_kv;
+        public bool f16_kv
+        {
+            get => Utils.SignedByteToBool(_f16_kv);
+            set => _f16_kv = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _f16_kv;
 
         /// <summary>
         /// the llama_eval() call computes all logits, not just the last one
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool logits_all;
+        public bool logits_all
+        {
+            get => Utils.SignedByteToBool(_logits_all);
+            set => _logits_all = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _logits_all;
 
         /// <summary>
         /// only load the vocabulary, no weights
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool vocab_only;
+        public bool vocab_only
+        {
+            get => Utils.SignedByteToBool(_vocab_only);
+            set => _vocab_only = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _vocab_only;
 
         /// <summary>
         /// use mmap if possible
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool use_mmap;
+        public bool use_mmap
+        {
+            get => Utils.SignedByteToBool(_use_mmap);
+            set => _use_mmap = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _use_mmap;
 
         /// <summary>
         /// force system to keep model in RAM
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool use_mlock;
+        public bool use_mlock
+        {
+            get => Utils.SignedByteToBool(_use_mlock);
+            set => _use_mlock = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _use_mlock;
 
         /// <summary>
         /// embedding mode only
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool embedding;
+        public bool embedding
+        {
+            get => Utils.SignedByteToBool(_embedding);
+            set => _embedding = Utils.BoolToSignedByte(value);
+        }
+        private sbyte _embedding;
     }
 }
 
