@@ -73,7 +73,7 @@ LLamaSharp provides two ways to run inference: `LLamaExecutor` and `ChatSession`
 using LLama.Common;
 using LLama;
 
-string modelPath = "<Your model path>" // change it to your own model path
+string modelPath = "<Your model path>"; // change it to your own model path
 var prompt = "Transcript of a dialog, where the User interacts with an Assistant named Bob. Bob is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.\r\n\r\nUser: Hello, Bob.\r\nBob: Hello. How may I help you today?\r\nUser: Please tell me the largest city in Europe.\r\nBob: Sure. The largest city in Europe is Moscow, the capital of Russia.\r\nUser:"; // use the "chat-with-bob" prompt here.
 
 // Initialize a chat session
