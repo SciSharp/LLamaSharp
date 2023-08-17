@@ -29,7 +29,7 @@ namespace LLama.Examples.NewVersion
                 Console.Write("\nQuestion: ");
                 Console.ForegroundColor = ConsoleColor.Green;
                 string prompt = Console.ReadLine();
-                Console.ForegroundColor = ConsoleColor.White; 
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
                 prompt = $"Question: {prompt.Trim()} Answer: ";
                 foreach (var text in ex.Infer(prompt, inferenceParams))
