@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+﻿using System.Text;
+using LLama.Common;
 using LLama.Native;
 
 namespace LLama.Unittest
@@ -6,7 +7,14 @@ namespace LLama.Unittest
     public sealed class GrammarTest
         : IDisposable
     {
-        private readonly LLamaModel _model = new(new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin", contextSize: 2048));
+        private readonly ModelParams _params;
+        private readonly LLamaWeights _model;
+
+        public GrammarTest()
+        {
+            _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin", contextSize: 2048);
+            _model = LLamaWeights.LoadFromFile(_params);
+        }
 
         public void Dispose()
         {
@@ -46,7 +54,8 @@ namespace LLama.Unittest
 
             using var grammar = SafeLLamaGrammarHandle.Create(rules, 0);
 
-            var executor = new StatelessExecutor(_model);
+            using var ctx = _model.CreateContext(_params, Encoding.UTF8);
+            var executor = new StatelessExecutor(ctx);
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = 3,
