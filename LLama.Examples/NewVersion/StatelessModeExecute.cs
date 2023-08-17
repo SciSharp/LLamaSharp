@@ -1,9 +1,5 @@
 ﻿using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LLama.Examples.NewVersion
 {
@@ -12,9 +8,12 @@ namespace LLama.Examples.NewVersion
         public static void Run()
         {
             Console.Write("Please input your model path: ");
-            string modelPath = Console.ReadLine();
+            var modelPath = Console.ReadLine();
 
-            StatelessExecutor ex = new(new LLamaContext(new ModelParams(modelPath, contextSize: 256)));
+            var parameters = new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5);
+            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var context = model.CreateContext(parameters, Encoding.UTF8);
+            var ex = new StatelessExecutor(context);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the inference is an one-time job. That says, the previous input and response has " +

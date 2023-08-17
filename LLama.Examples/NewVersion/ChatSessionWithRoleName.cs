@@ -1,9 +1,5 @@
 ﻿using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LLama.Examples.NewVersion
 {
@@ -12,10 +8,15 @@ namespace LLama.Examples.NewVersion
         public static void Run()
         {
             Console.Write("Please input your model path: ");
-            string modelPath = Console.ReadLine();
+            var modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
-            InteractiveExecutor ex = new(new LLamaContext(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
-            ChatSession session = new ChatSession(ex); // The only change is to remove the transform for the output text stream.
+
+            var parameters = new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5);
+            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var context = model.CreateContext(parameters, Encoding.UTF8);
+            var executor = new InteractiveExecutor(context);
+
+            var session = new ChatSession(executor);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The chat session has started. In this example, the prompt is printed for better visual result.");
