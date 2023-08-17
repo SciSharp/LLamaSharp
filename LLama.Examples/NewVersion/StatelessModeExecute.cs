@@ -14,7 +14,7 @@ namespace LLama.Examples.NewVersion
             Console.Write("Please input your model path: ");
             string modelPath = Console.ReadLine();
 
-            StatelessExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+            StatelessExecutor ex = new(new LLamaContext(new ModelParams(modelPath, contextSize: 256)));
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the inference is an one-time job. That says, the previous input and response has " +

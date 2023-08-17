@@ -7,7 +7,7 @@ namespace LLama.Native
     /// <summary>
     /// A reference to a set of llama model weights
     /// </summary>
-    public class SafeLlamaModelHandle
+    public sealed class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
         /// <summary>
@@ -23,14 +23,14 @@ namespace LLama.Native
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingCount { get; }
+        public int EmbeddingSize { get; }
 
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)
         {
             VocabCount = NativeApi.llama_n_vocab_from_model(this);
             ContextSize = NativeApi.llama_n_ctx_from_model(this);
-            EmbeddingCount = NativeApi.llama_n_embd_from_model(this);
+            EmbeddingSize = NativeApi.llama_n_embd_from_model(this);
         }
 
         /// <inheritdoc />
@@ -155,6 +155,18 @@ namespace LLama.Native
                     }
                 }
             }
+        }
+        #endregion
+
+        #region context
+        /// <summary>
+        /// Create a new context for this model
+        /// </summary>
+        /// <param name="params"></param>
+        /// <returns></returns>
+        public SafeLLamaContextHandle CreateContext(LLamaContextParams @params)
+        {
+            return SafeLLamaContextHandle.Create(this, @params);
         }
         #endregion
     }

@@ -60,7 +60,8 @@ namespace LLama.Web.Models
         {
             _inferenceOptions = null;
             _outputTransform = null;
-            _executor.Model?.Dispose();
+
+            _executor?.Context.Dispose();
             _executor = null;
         }
     }

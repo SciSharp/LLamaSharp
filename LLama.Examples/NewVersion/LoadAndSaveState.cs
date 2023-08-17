@@ -15,7 +15,7 @@ namespace LLama.Examples.NewVersion
             string modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
 
-            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+            InteractiveExecutor ex = new(new LLamaContext(new ModelParams(modelPath, contextSize: 256)));
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
@@ -37,7 +37,7 @@ namespace LLama.Examples.NewVersion
                 {
                     Console.Write("Your path to save model state: ");
                     string modelStatePath = Console.ReadLine();
-                    ex.Model.SaveState(modelStatePath);
+                    ex.Context.SaveState(modelStatePath);
 
                     Console.Write("Your path to save executor state: ");
                     string executorStatePath = Console.ReadLine();
@@ -47,7 +47,7 @@ namespace LLama.Examples.NewVersion
                     Console.WriteLine("All states saved!");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    var model = ex.Model;
+                    var model = ex.Context;
                     model.LoadState(modelStatePath);
                     ex = new InteractiveExecutor(model);
                     ex.LoadState(executorStatePath);

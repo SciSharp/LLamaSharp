@@ -13,16 +13,10 @@ namespace LLama
     {
         public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
         {
+            using var weights = LLamaWeights.LoadFromFile(@params);
+
             using (@params.ToLlamaContextParams(out var lparams))
-            {
-                var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
-                var ctx = SafeLLamaContextHandle.Create(model, lparams);
-
-                if (!string.IsNullOrEmpty(@params.LoraAdapter))
-                    model.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
-
-                return ctx;
-            }
+                return SafeLLamaContextHandle.Create(weights.NativeHandle, lparams);
         }
 
         [Obsolete("Use SafeLLamaContextHandle Tokenize method instead")]

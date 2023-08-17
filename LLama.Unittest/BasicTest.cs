@@ -1,4 +1,3 @@
-using LLama;
 using LLama.Common;
 
 namespace LLama.Unittest
@@ -8,7 +7,7 @@ namespace LLama.Unittest
         [Fact]
         public void LoadModel()
         {
-            var model = new LLamaModel(new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin", contextSize: 256));
+            var model = new LLamaContext(new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin", contextSize: 256));
             model.Dispose();
         }
     }

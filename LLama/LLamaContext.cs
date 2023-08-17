@@ -15,28 +15,43 @@ using LLama.Abstractions;
 namespace LLama
 {
     using llama_token = Int32;
+
     /// <summary>
-    /// The abstraction of a LLama model, which holds the context in the native library.
+    /// A llama_context, which holds all the context required to interact with a model
     /// </summary>
-    public class LLamaModel: IDisposable
+    public class LLamaContext
+        : IDisposable
     {
-        // TODO: expose more properties.
-        ILLamaLogger? _logger;
-        Encoding _encoding;
-        SafeLLamaContextHandle _ctx;
+        private readonly ILLamaLogger? _logger;
+        private readonly Encoding _encoding;
+        private readonly SafeLLamaContextHandle _ctx;
+
         /// <summary>
-        /// The context size.
+        /// Total number of tokens in vocabulary of this model
         /// </summary>
-        public int ContextSize { get; }
+        public int VocabCount => _ctx.VocabCount;
+
+        /// <summary>
+        /// Total number of tokens in the context
+        /// </summary>
+        public int ContextSize => _ctx.ContextSize;
+
+        /// <summary>
+        /// Dimension of embedding vectors
+        /// </summary>
+        public int EmbeddingSize => _ctx.EmbeddingSize;
+
         /// <summary>
         /// The model params set for this model.
         /// </summary>
         public IModelParams Params { get; set; }
+
         /// <summary>
-        /// The native handle, which is used to be passed to the native APIs. Please avoid using it 
-        /// unless you know what is the usage of the Native API.
+        /// The native handle, which is used to be passed to the native APIs
         /// </summary>
+        /// <remarks>Be careful how you use this!</remarks>
         public SafeLLamaContextHandle NativeHandle => _ctx;
+
         /// <summary>
         /// The encoding set for this model to deal with text input.
         /// </summary>
@@ -45,17 +60,68 @@ namespace LLama
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Params">Model params.</param>
+        /// <param name="params">Model params.</param>
         /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
-        public LLamaModel(IModelParams Params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        [Obsolete("Use the LLamaWeights.CreateContext instead")]
+        public LLamaContext(IModelParams @params, string encoding = "UTF-8", ILLamaLogger? logger = null)
         {
+            Params = @params;
+
             _logger = logger;
-            this.Params = Params;
             _encoding = Encoding.GetEncoding(encoding);
-            _logger?.Log(nameof(LLamaModel), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
-            _ctx = Utils.InitLLamaContextFromModelParams(this.Params);
-            ContextSize = NativeApi.llama_n_ctx(_ctx);
+
+            _logger?.Log(nameof(LLamaContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
+            _ctx = Utils.InitLLamaContextFromModelParams(Params);
+        }
+
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        {
+            Params = @params;
+
+            _logger = logger;
+            _encoding = encoding;
+            _ctx = nativeContext;
+        }
+
+        /// <summary>
+        /// Create a new LLamaContext for the given LLamaWeights
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="params"></param>
+        /// <param name="encoding"></param>
+        /// <param name="logger"></param>
+        /// <exception cref="ObjectDisposedException"></exception>
+        public LLamaContext(LLamaWeights model, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        {
+            if (model.NativeHandle.IsClosed)
+                throw new ObjectDisposedException("Cannot create context, model weights have been disposed");
+
+            Params = @params;
+
+            _logger = logger;
+            _encoding = encoding;
+
+            using var pin = @params.ToLlamaContextParams(out var lparams);
+            _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
+        }
+
+        /// <summary>
+        /// Create a copy of the current state of this context
+        /// </summary>
+        /// <returns></returns>
+        public LLamaContext Clone()
+        {
+            using var pin = Params.ToLlamaContextParams(out var lparams);
+
+            // Create a blank new context for the model
+            var ctx = new LLamaContext(SafeLLamaContextHandle.Create(NativeHandle.ModelHandle, lparams), Params, _encoding);
+
+            // Copy across the state
+            using var state = GetState();
+            ctx.LoadState(state);
+
+            return ctx;
         }
 
         /// <summary>
@@ -338,7 +404,7 @@ namespace LLama
 
                 if (!_ctx.Eval(tokens.AsMemory(i, n_eval), pastTokensCount, Params.Threads))
                 {
-                    _logger?.Log(nameof(LLamaModel), "Failed to eval.", ILLamaLogger.LogLevel.Error);
+                    _logger?.Log(nameof(LLamaContext), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
                 }
 
@@ -347,7 +413,6 @@ namespace LLama
             return pastTokensCount;
         }
 
-        // TODO: add comment
         internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
         {
             foreach(var id in ids)
@@ -357,6 +422,8 @@ namespace LLama
         /// <inheritdoc />
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
+
             _ctx.Dispose();
         }
 
@@ -364,12 +431,11 @@ namespace LLama
         /// The state of this model, which can be reloaded later
         /// </summary>
         public class State
-            : SafeHandleZeroOrMinusOneIsInvalid
+            : SafeLLamaHandleBase
         {
             internal State(IntPtr memory)
-                : base(true)
+                : base(memory)
             {
-                SetHandle(memory);
             }
 
             /// <inheritdoc />

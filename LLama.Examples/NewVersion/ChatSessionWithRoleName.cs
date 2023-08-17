@@ -14,7 +14,7 @@ namespace LLama.Examples.NewVersion
             Console.Write("Please input your model path: ");
             string modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
-            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
+            InteractiveExecutor ex = new(new LLamaContext(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
             ChatSession session = new ChatSession(ex); // The only change is to remove the transform for the output text stream.
 
             Console.ForegroundColor = ConsoleColor.Yellow;

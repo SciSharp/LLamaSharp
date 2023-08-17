@@ -22,6 +22,7 @@ namespace LLama.Examples.NewVersion
             Console.WriteLine("6: Load and save state of model and executor.");
             Console.WriteLine("7: Get embeddings from LLama model.");
             Console.WriteLine("8: Quantize the model.");
+            Console.WriteLine("9: Automatic conversation.");
 
             while (true)
             {
@@ -63,6 +64,10 @@ namespace LLama.Examples.NewVersion
                 else if(choice == 8)
                 {
                     QuantizeModel.Run();
+                }
+                else if (choice == 9)
+                {
+                    await TalkToYourself.Run();
                 }
                 else
                 {
