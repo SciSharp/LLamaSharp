@@ -411,7 +411,7 @@ namespace LLama
             var span = CollectionsMarshal.AsSpan(tokens);
             return Eval(span, pastTokensCount);
 #else
-            // on netstandard2.0 we can't use collections marshal to get directly at the internal memory of
+            // on netstandard2.0 we can't use CollectionsMarshal to get directly at the internal memory of
             // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
             // avoid the copying.
 
@@ -449,11 +449,11 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public int Eval(ReadOnlySpan<llama_token> tokens, llama_token pastTokensCount)
         {
-            int total = tokens.Length;
-            for(int i = 0; i < total; i += Params.BatchSize)
+            var total = tokens.Length;
+            for(var i = 0; i < total; i += Params.BatchSize)
             {
-                int n_eval = total - i;
-                if(n_eval > Params.BatchSize)
+                var n_eval = total - i;
+                if (n_eval > Params.BatchSize)
                 {
                     n_eval = Params.BatchSize;
                 }

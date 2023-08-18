@@ -13,7 +13,7 @@ namespace LLama.Unittest
         {
             _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin")
             {
-                ContextSize = 64,
+                ContextSize = 40,
                 Seed = 1754
             };
             _weights = LLamaWeights.LoadFromFile(_params);
@@ -48,12 +48,17 @@ namespace LLama.Unittest
             var executor = new StatelessExecutor(_weights.CreateContext(_params, Encoding.UTF8));
 
             const string question = "Question. why is a cat the best pet?\nAnswer: ";
+            const string answer = "";
+
             var @params = new InferenceParams()
             {
-                MaxTokens = 128,
+                MaxTokens = 50,
+                TokensKeep = question.Length,
             };
 
-            var result1 = string.Join("", executor.Infer(question, @params));
+            var result = string.Join("", executor.Infer(question, @params));
+
+            Assert.Equal(answer, result);
         }
     }
 }
