@@ -13,7 +13,7 @@ namespace LLama.Unittest
         {
             _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin")
             {
-                ContextSize = 40,
+                ContextSize = 60,
                 Seed = 1754
             };
             _weights = LLamaWeights.LoadFromFile(_params);
@@ -47,12 +47,18 @@ namespace LLama.Unittest
         {
             var executor = new StatelessExecutor(_weights.CreateContext(_params, Encoding.UTF8));
 
-            const string question = "Question. why is a cat the best pet?\nAnswer: ";
-            const string answer = "";
+            const string question = " Question. why is a cat the best pet?\nAnswer: ";
+            const string answer = " there are many reasons why cats make excellent pets! here are just a few of them:\n" +
+                                  "1)Loyalty: Cats are known for their loyalty to their owners, and they will often follow " +
+                                  "you around the house if you call them. They will always come running when called, and they’ll " +
+                                  "nuzzle and purr with delight when you walk into the room! they adore being close to their human " +
+                                  "family members and can form very close bonds.\n";
 
+            // The context size is set to 60. Generate more than that, forcing it to generate a coherent response
+            // with a modified context
             var @params = new InferenceParams()
             {
-                MaxTokens = 50,
+                MaxTokens = 100,
                 TokensKeep = question.Length,
             };
 

@@ -10,11 +10,13 @@ using System.Threading;
 namespace LLama
 {
     using llama_token = Int32;
+
     /// <summary>
     /// This executor infer the input as one-time job. Previous inputs won't impact on the 
     /// response to current input.
     /// </summary>
-    public class StatelessExecutor : ILLamaExecutor
+    public class StatelessExecutor
+        : ILLamaExecutor
     {
         private readonly LLamaContext _context;
         private readonly LLamaContext.State _originalState;
@@ -40,6 +42,12 @@ namespace LLama
         /// <inheritdoc />
         public IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
+            if (inferenceParams != null)
+            {
+                if (inferenceParams.TokensKeep > Context.ContextSize)
+                    throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
+            }
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var antiprompts = inferenceParams?.AntiPrompts.ToArray() ?? Array.Empty<string>();
@@ -86,17 +94,16 @@ namespace LLama
                 if (EndsWithAntiprompt(lastTokens, antiprompts))
                     break;
 
-                // todo: this seems to be based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L433
-                // todo: but it's broken!
                 // when run out of context
+                // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L433
                 if (n_past + tokens.Count > _context.ContextSize)
                 {
-                    int n_left = n_past - inferenceParams.TokensKeep;
+                    var n_left = n_past - inferenceParams.TokensKeep;
 
                     n_past = Math.Max(1, inferenceParams.TokensKeep);
 
-                    // insert n_left/2 tokens at the start of embed from last_n_tokens
-                    tokens.InsertRange(0, lastTokens.Take(lastTokens.Count - tokens.Count).Skip(_context.ContextSize - n_left / 2 - tokens.Count));
+                    tokens.Clear();
+                    tokens.AddRange(lastTokens.Skip(lastTokens.Count - n_left / 2).Take(n_left / 2));
                 }
 
                 n_past = _context.Eval(tokens, n_past);
