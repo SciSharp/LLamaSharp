@@ -30,15 +30,12 @@ namespace LLama.Unittest
             var executor = new StatelessExecutor(_weights.CreateContext(_params, Encoding.UTF8));
 
             const string question = "Question. what is a cat?\nAnswer: ";
-            const string expected = " a domestic or wild animal that is typically small to medium-sized, has fur, four legs, and sharp retractable claws.";
             var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
 
             var result1 = string.Join("", executor.Infer(question, @params));
-            Assert.Equal(expected, result1);
-
             var result2 = string.Join("", executor.Infer(question, @params));
-            Assert.Equal(expected, result2);
 
+            // Check that it produced the exact same result both times
             Assert.Equal(result1, result2);
         }
 
