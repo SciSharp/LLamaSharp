@@ -30,24 +30,23 @@ public class LLamaEmbedderTests
         return a.Zip(b, (x, y) => x * y).Sum();
     }
 
-    private static void AssertApproxStartsWith(float[] array, float[] start, float epsilon = 0.00001f)
+    private static void AssertApproxStartsWith(float[] expected, float[] actual, float epsilon = 0.00001f)
     {
-        for (int i = 0; i < start.Length; i++)
-            Assert.Equal(array[i], start[i], epsilon);
+        for (int i = 0; i < expected.Length; i++)
+            Assert.Equal(expected[i], actual[i], epsilon);
     }
 
     [Fact]
     public void EmbedBasic()
     {
-        var hello = _embedder.GetEmbeddings("cat");
+        var cat = _embedder.GetEmbeddings("cat");
 
-        Assert.NotNull(hello);
-        Assert.NotEmpty(hello);
-        //Assert.Equal(_embedder.EmbeddingSize, hello.Length);
+        Assert.NotNull(cat);
+        Assert.NotEmpty(cat);
 
         // Expected value generate with llama.cpp embedding.exe
         var expected = new float[] { -0.127304f, -0.678057f, -0.085244f, -0.956915f, -0.638633f };
-        AssertApproxStartsWith(hello, expected);
+        AssertApproxStartsWith(expected, cat);
     }
 
     [Fact]
