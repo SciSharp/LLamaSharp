@@ -12,10 +12,22 @@ public class LLamaEmbedderTests
         _embedder.Dispose();
     }
 
+    private static float Magnitude(float[] a)
+    {
+        return MathF.Sqrt(a.Zip(a, (x, y) => x * y).Sum());
+    }
+
+    private static void Normalize(float[] a)
+    {
+        var mag = Magnitude(a);
+        for (var i = 0; i < a.Length; i++)
+            a[i] /= mag;
+    }
+
     private static float Dot(float[] a, float[] b)
     {
         Assert.Equal(a.Length, b.Length);
-        return a.Zip(b, (x, y) => x + y).Sum();
+        return a.Zip(b, (x, y) => x * y).Sum();
     }
 
     private static void AssertApproxStartsWith(float[] array, float[] start, float epsilon = 0.00001f)
@@ -45,11 +57,15 @@ public class LLamaEmbedderTests
         var kitten = _embedder.GetEmbeddings("kitten");
         var spoon = _embedder.GetEmbeddings("spoon");
 
-        Console.WriteLine(string.Join(",", cat));
+        Normalize(cat);
+        Normalize(kitten);
+        Normalize(spoon);
 
         var close = Dot(cat, kitten);
         var far = Dot(cat, spoon);
 
-        Assert.True(close < far);
+        // This comparison seems backwards, but remember that with a
+        // dot product 1.0 means **identical** and 0.0 means **completely opposite**!
+        Assert.True(close > far);
     }
 }
