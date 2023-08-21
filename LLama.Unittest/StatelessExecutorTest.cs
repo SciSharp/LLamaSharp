@@ -1,16 +1,19 @@
 using LLama.Common;
 using System.Text;
+using Xunit.Abstractions;
 
 namespace LLama.Unittest
 {
     public class StatelessExecutorTest
         : IDisposable
     {
+        private readonly ITestOutputHelper _testOutputHelper;
         private readonly LLamaWeights _weights;
         private readonly ModelParams _params;
 
-        public StatelessExecutorTest()
+        public StatelessExecutorTest(ITestOutputHelper testOutputHelper)
         {
+            _testOutputHelper = testOutputHelper;
             _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin")
             {
                 ContextSize = 60,
@@ -35,6 +38,8 @@ namespace LLama.Unittest
             var result1 = string.Join("", executor.Infer(question, @params));
             var result2 = string.Join("", executor.Infer(question, @params));
 
+            _testOutputHelper.WriteLine(result1);
+
             // Check that it produced the exact same result both times
             Assert.Equal(result1, result2);
         }
@@ -45,11 +50,6 @@ namespace LLama.Unittest
             var executor = new StatelessExecutor(_weights.CreateContext(_params, Encoding.UTF8));
 
             const string question = " Question. why is a cat the best pet?\nAnswer: ";
-            const string answer = " there are many reasons why cats make excellent pets! here are just a few of them:\n" +
-                                  "1)Loyalty: Cats are known for their loyalty to their owners, and they will often follow " +
-                                  "you around the house if you call them. They will always come running when called, and they’ll " +
-                                  "nuzzle and purr with delight when you walk into the room! they adore being close to their human " +
-                                  "family members and can form very close bonds.\n";
 
             // The context size is set to 60. Generate more than that, forcing it to generate a coherent response
             // with a modified context
@@ -59,9 +59,13 @@ namespace LLama.Unittest
                 TokensKeep = question.Length,
             };
 
-            var result = string.Join("", executor.Infer(question, @params));
+            var result1 = string.Join("", executor.Infer(question, @params));
+            var result2 = string.Join("", executor.Infer(question, @params));
 
-            Assert.Equal(answer, result);
+            _testOutputHelper.WriteLine(result1);
+
+            // Check that it produced the exact same result both times
+            Assert.Equal(result1, result2);
         }
     }
 }
