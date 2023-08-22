@@ -25,6 +25,21 @@ namespace LLama
         /// </summary>
         public Encoding Encoding { get; }
 
+        /// <summary>
+        /// Total number of tokens in vocabulary of this model
+        /// </summary>
+        public int VocabCount => NativeHandle.VocabCount;
+
+        /// <summary>
+        /// Total number of tokens in the context
+        /// </summary>
+        public int ContextSize => NativeHandle.ContextSize;
+
+        /// <summary>
+        /// Dimension of embedding vectors
+        /// </summary>
+        public int EmbeddingSize => NativeHandle.EmbeddingSize;
+
         internal LLamaWeights(SafeLlamaModelHandle weights, Encoding encoding)
         {
             _weights = weights;
