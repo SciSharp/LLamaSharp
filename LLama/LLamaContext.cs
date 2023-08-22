@@ -1,6 +1,7 @@
 ﻿using LLama.Exceptions;
 using LLama.Native;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,6 @@ using System.IO.MemoryMappedFiles;
 using LLama.Common;
 using System.Runtime.InteropServices;
 using LLama.Extensions;
-using Microsoft.Win32.SafeHandles;
 using LLama.Abstractions;
 
 namespace LLama
@@ -61,26 +61,25 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="params">Model params.</param>
-        /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
         [Obsolete("Use the LLamaWeights.CreateContext instead")]
-        public LLamaContext(IModelParams @params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaContext(IModelParams @params, ILLamaLogger? logger = null)
         {
             Params = @params;
 
             _logger = logger;
-            _encoding = Encoding.GetEncoding(encoding);
+            _encoding = Encoding.GetEncoding(@params.Encoding);
 
             _logger?.Log(nameof(LLamaContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
             _ctx = Utils.InitLLamaContextFromModelParams(Params);
         }
 
-        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILLamaLogger? logger = null)
         {
             Params = @params;
 
             _logger = logger;
-            _encoding = encoding;
+            _encoding = Encoding.GetEncoding(@params.Encoding);
             _ctx = nativeContext;
         }
 
@@ -89,10 +88,9 @@ namespace LLama
         /// </summary>
         /// <param name="model"></param>
         /// <param name="params"></param>
-        /// <param name="encoding"></param>
         /// <param name="logger"></param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public LLamaContext(LLamaWeights model, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        public LLamaContext(LLamaWeights model, IModelParams @params, ILLamaLogger? logger = null)
         {
             if (model.NativeHandle.IsClosed)
                 throw new ObjectDisposedException("Cannot create context, model weights have been disposed");
@@ -100,7 +98,7 @@ namespace LLama
             Params = @params;
 
             _logger = logger;
-            _encoding = encoding;
+            _encoding = Encoding.GetEncoding(@params.Encoding);
 
             using var pin = @params.ToLlamaContextParams(out var lparams);
             _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
@@ -115,7 +113,7 @@ namespace LLama
             using var pin = Params.ToLlamaContextParams(out var lparams);
 
             // Create a blank new context for the model
-            var ctx = new LLamaContext(SafeLLamaContextHandle.Create(NativeHandle.ModelHandle, lparams), Params, _encoding);
+            var ctx = new LLamaContext(SafeLLamaContextHandle.Create(NativeHandle.ModelHandle, lparams), Params);
 
             // Copy across the state
             using var state = GetState();
@@ -384,6 +382,7 @@ namespace LLama
             return candidates_p;
         }
 
+        #region eval overloads
         /// <summary>
         /// 
         /// </summary>
@@ -391,18 +390,72 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        public llama_token Eval(llama_token[] tokens, llama_token pastTokensCount)
+        public int Eval(llama_token[] tokens, llama_token pastTokensCount)
         {
-            int total = tokens.Length;
-            for(int i = 0; i < total; i += Params.BatchSize)
+            return Eval(tokens.AsSpan(), pastTokensCount);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="pastTokensCount"></param>
+        /// <returns>The updated `pastTokensCount`.</returns>
+        /// <exception cref="RuntimeError"></exception>
+        public int Eval(List<llama_token> tokens, llama_token pastTokensCount)
+        {
+#if NET5_0_OR_GREATER
+            var span = CollectionsMarshal.AsSpan(tokens);
+            return Eval(span, pastTokensCount);
+#else
+            // on netstandard2.0 we can't use CollectionsMarshal to get directly at the internal memory of
+            // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
+            // avoid the copying.
+
+            var rented = ArrayPool<llama_token>.Shared.Rent(tokens.Count);
+            try
             {
-                int n_eval = total - i;
-                if(n_eval > Params.BatchSize)
+                tokens.CopyTo(rented, 0);
+                return Eval(rented, pastTokensCount);
+            }
+            finally
+            {
+                ArrayPool<llama_token>.Shared.Return(rented);
+            }
+#endif
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="pastTokensCount"></param>
+        /// <returns>The updated `pastTokensCount`.</returns>
+        /// <exception cref="RuntimeError"></exception>
+        public int Eval(ReadOnlyMemory<llama_token> tokens, llama_token pastTokensCount)
+        {
+            return Eval(tokens.Span, pastTokensCount);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="pastTokensCount"></param>
+        /// <returns>The updated `pastTokensCount`.</returns>
+        /// <exception cref="RuntimeError"></exception>
+        public int Eval(ReadOnlySpan<llama_token> tokens, llama_token pastTokensCount)
+        {
+            var total = tokens.Length;
+            for(var i = 0; i < total; i += Params.BatchSize)
+            {
+                var n_eval = total - i;
+                if (n_eval > Params.BatchSize)
                 {
                     n_eval = Params.BatchSize;
                 }
 
-                if (!_ctx.Eval(tokens.AsMemory(i, n_eval), pastTokensCount, Params.Threads))
+                if (!_ctx.Eval(tokens.Slice(i, n_eval), pastTokensCount, Params.Threads))
                 {
                     _logger?.Log(nameof(LLamaContext), "Failed to eval.", ILLamaLogger.LogLevel.Error);
                     throw new RuntimeError("Failed to eval.");
@@ -412,11 +465,22 @@ namespace LLama
             }
             return pastTokensCount;
         }
+#endregion
 
         internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
         {
             foreach(var id in ids)
                 yield return _ctx.TokenToString(id, _encoding);
+        }
+
+        /// <summary>
+        /// Convert a token into a string
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public string TokenToString(llama_token token)
+        {
+            return NativeHandle.TokenToString(token, Encoding);
         }
 
         /// <inheritdoc />
