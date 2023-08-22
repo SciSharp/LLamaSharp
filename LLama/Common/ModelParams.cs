@@ -135,17 +135,17 @@ namespace LLama.Common
         /// <param name="convertEosToNewLine">Whether to convert eos to newline during the inference.</param>
         /// <param name="embeddingMode">Whether to use embedding mode. (embedding) Note that if this is set to true, The LLamaModel won't produce text response anymore.</param>
         /// <param name="groupedQueryAttention">Grouped-Query Attention</param>
-        /// <param name="rmsNormEps">RMS Norm Epsilon</param>
-        /// <param name="ropeFreqBase">RoPE base frequency.</param>
-        /// <param name="ropeFreqScale">RoPE frequency scaling factor</param>
-        /// <param name="muMatQ">Use experimental mul_mat_q kernels</param>
+        /// <param name="rmsNormEpsilon">RMS Norm Epsilon</param>
+        /// <param name="ropeFrequencyBase">RoPE base frequency.</param>
+        /// <param name="ropeFrequencyScale">RoPE frequency scaling factor</param>
+        /// <param name="mulMatQ">Use experimental mul_mat_q kernels</param>
         /// <param name="encoding">The encoding to use to convert text for the model</param>
         public ModelParams(string modelPath, int contextSize = 512, int gpuLayerCount = 20,
                            int seed = 1337, bool useFp16Memory = true,
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
                            string loraAdapter = "", string loraBase = "", int threads = -1, int batchSize = 512,
                            bool convertEosToNewLine = false, bool embeddingMode = false,
-                           int groupedQueryAttention = 1, float rmsNormEps = 5e-6f, float ropeFreqBase = 10000.0f, float ropeFreqScale = 1f, bool muMatQ = false,
+                           int groupedQueryAttention = 1, float rmsNormEpsilon = 5e-6f, float ropeFrequencyBase = 10000.0f, float ropeFrequencyScale = 1f, bool mulMatQ = false,
                            string encoding = "UTF-8")
         {
             ContextSize = contextSize;
@@ -163,10 +163,10 @@ namespace LLama.Common
             ConvertEosToNewLine = convertEosToNewLine;
             EmbeddingMode = embeddingMode;
             GroupedQueryAttention  = groupedQueryAttention;
-            RmsNormEpsilon = rmsNormEps;
-            RopeFrequencyBase  = ropeFreqBase;
-            RopeFrequencyScale  = ropeFreqScale;
-            MulMatQ = muMatQ;
+            RmsNormEpsilon = rmsNormEpsilon;
+            RopeFrequencyBase  = ropeFrequencyBase;
+            RopeFrequencyScale  = ropeFrequencyScale;
+            MulMatQ = mulMatQ;
             Encoding = encoding;
         }
     }
