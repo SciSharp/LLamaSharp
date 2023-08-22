@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LLama.Common;
+﻿using LLama.Common;
 
 namespace LLama.Unittest
 {

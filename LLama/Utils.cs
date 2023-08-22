@@ -102,7 +102,7 @@ namespace LLama
         /// <returns></returns>
         public static bool SignedByteToBool(sbyte value)
         {
-            return value > 0 ? true : false;
+            return value > 0;
         }
 
     }
