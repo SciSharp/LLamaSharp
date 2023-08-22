@@ -9,7 +9,12 @@ namespace LLama.Examples.NewVersion
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
 
-            var parameters = new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5);
+            var parameters = new ModelParams(modelPath)
+            {
+                ContextSize = 1024,
+                Seed = 1337,
+                GpuLayerCount = 5
+            };
             using var model = LLamaWeights.LoadFromFile(parameters);
             var ex = new StatelessExecutor(model, parameters);
 

@@ -6,7 +6,7 @@ namespace LLama.Common
     /// <summary>
     /// The parameters for initializing a LLama model.
     /// </summary>
-    public class ModelParams
+    public record ModelParams
         : IModelParams
     {
         /// <summary>
@@ -120,6 +120,22 @@ namespace LLama.Common
         /// 
         /// </summary>
         /// <param name="modelPath">The model path.</param>
+        [System.Text.Json.Serialization.JsonConstructor]
+        public ModelParams(string modelPath)
+        {
+            ModelPath = modelPath;
+        }
+
+        private ModelParams()
+        {
+            // This constructor (default parameterless constructor) is used by Newtonsoft to deserialize!
+            ModelPath = "";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelPath">The model path.</param>
         /// <param name="contextSize">Model context size (n_ctx)</param>
         /// <param name="gpuLayerCount">Number of layers to run in VRAM / GPU memory (n_gpu_layers)</param>
         /// <param name="seed">Seed for the random number generator (seed)</param>
@@ -139,6 +155,7 @@ namespace LLama.Common
         /// <param name="ropeFrequencyScale">RoPE frequency scaling factor</param>
         /// <param name="mulMatQ">Use experimental mul_mat_q kernels</param>
         /// <param name="encoding">The encoding to use to convert text for the model</param>
+        [Obsolete("Use object initializer to set all optional parameters")]
         public ModelParams(string modelPath, int contextSize = 512, int gpuLayerCount = 20,
                            int seed = 1337, bool useFp16Memory = true,
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
@@ -161,10 +178,10 @@ namespace LLama.Common
             BatchSize = batchSize;
             ConvertEosToNewLine = convertEosToNewLine;
             EmbeddingMode = embeddingMode;
-            GroupedQueryAttention  = groupedQueryAttention;
+            GroupedQueryAttention = groupedQueryAttention;
             RmsNormEpsilon = rmsNormEpsilon;
-            RopeFrequencyBase  = ropeFrequencyBase;
-            RopeFrequencyScale  = ropeFrequencyScale;
+            RopeFrequencyBase = ropeFrequencyBase;
+            RopeFrequencyScale = ropeFrequencyScale;
             MulMatQ = mulMatQ;
             Encoding = encoding;
         }

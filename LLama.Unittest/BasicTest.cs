@@ -10,7 +10,10 @@ namespace LLama.Unittest
 
         public BasicTest()
         {
-            _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin", contextSize: 2048);
+            _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin")
+            {
+                ContextSize = 2048
+            };
             _model = LLamaWeights.LoadFromFile(_params);
         }
 
