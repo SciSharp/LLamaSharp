@@ -21,10 +21,11 @@ namespace LLama.Unittest
         }
 
         [Fact]
-        public void LoadModel()
+        public void BasicModelProperties()
         {
-            var model = _model.CreateContext(_params, Encoding.UTF8);
-            model.Dispose();
+            Assert.Equal(32000, _model.VocabCount);
+            Assert.Equal(2048, _model.ContextSize);
+            Assert.Equal(4096, _model.EmbeddingSize);
         }
     }
 }

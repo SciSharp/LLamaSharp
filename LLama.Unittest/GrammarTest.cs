@@ -40,22 +40,22 @@ namespace LLama.Unittest
         [Fact]
         public void SampleWithTrivialGrammar()
         {
-            // Create a grammar that constrains the output to be "one" and nothing else
+            // Create a grammar that constrains the output to be "cat" and nothing else. This is a nonsense answer, so
+            // we can be confident it's not what the LLM would say if not constrained by the grammar!
             var rules = new List<List<LLamaGrammarElement>>
             {
                 new()
                 {
-                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'o'),
-                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'n'),
-                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'e'),
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'c'),
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'a'),
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 't'),
                     new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
                 },
             };
 
             using var grammar = SafeLLamaGrammarHandle.Create(rules, 0);
 
-            using var ctx = _model.CreateContext(_params, Encoding.UTF8);
-            var executor = new StatelessExecutor(ctx);
+            var executor = new StatelessExecutor(_model, _params);
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = 3,
@@ -65,7 +65,7 @@ namespace LLama.Unittest
 
             var result = executor.Infer("Question: What is your favourite number?\nAnswer: ", inferenceParams).ToList();
 
-            Assert.Equal("one", result[0]);
+            Assert.Equal("cat", result[0]);
         }
     }
 }
