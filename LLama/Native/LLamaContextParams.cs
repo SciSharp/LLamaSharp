@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LLama.Native
 {
     public delegate void LlamaProgressCallback(float progress, IntPtr ctx);
+
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaContextParams
     {

@@ -266,10 +266,7 @@ namespace LLama
         public virtual IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (inferenceParams is null)
-            {
-                inferenceParams = new InferenceParams();
-            }
+            inferenceParams ??= new InferenceParams();
 
             InferStateArgs args = new InferStateArgs()
             {

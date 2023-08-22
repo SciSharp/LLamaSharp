@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LLama.Abstractions
+﻿namespace LLama.Abstractions
 {
     /// <summary>
     /// An interface for text transformations.
