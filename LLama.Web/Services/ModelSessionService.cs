@@ -46,11 +46,15 @@ namespace LLama.Web.Services
             if (_modelSessions.TryGetValue(sessionId, out var existingSession))
                 return existingSession;
 
+            var model = await _modelService.GetModel(sessionConfig.Model);
+            if (model is null)
+                throw new Exception($"Unable to locate model");
+
             // Create context
             var context = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId.ToString());
 
             // Create session
-            var modelSession = new ModelSession(context, sessionConfig, inferenceParams);
+            var modelSession = new ModelSession(model, context, sessionConfig, inferenceParams);
             if (!_modelSessions.TryAdd(sessionId, modelSession))
                 throw new Exception($"Failed to create model session");
 

@@ -178,7 +178,7 @@ namespace LLama
                 }
 
                 TryReuseMathingPrefix();
-                _pastTokensCount = Context.Eval(_embeds.ToArray(), _pastTokensCount);
+                _pastTokensCount = Context.Eval(_embeds, _pastTokensCount);
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -206,7 +206,8 @@ namespace LLama
                 var mu = MirostatMu;
                 var id = Context.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau, 
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP,
+                    inferenceParams.Grammar
                 );
                 MirostatMu = mu;
 

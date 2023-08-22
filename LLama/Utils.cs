@@ -37,7 +37,7 @@ namespace LLama
         [Obsolete("Use SafeLLamaContextHandle Eval method instead")]
         public static int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)
         {
-            var slice = tokens.AsMemory().Slice(startIndex, n_tokens);
+            var slice = tokens.AsSpan().Slice(startIndex, n_tokens);
             return ctx.Eval(slice, n_past, n_threads) ? 0 : 1;
         }
 

@@ -23,7 +23,7 @@ namespace LLama.Web.Models
         /// <param name="sessionId">The session identifier.</param>
         /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceParams">The inference parameters.</param>
-        public ModelSession(LLamaContext context, SessionConfig sessionConfig, IInferenceParams inferenceParams = null)
+        public ModelSession(LLamaWeights  weights, LLamaContext context, SessionConfig sessionConfig, IInferenceParams inferenceParams = null)
         {
             _context = context;
             _sessionParams = sessionConfig;
@@ -34,7 +34,7 @@ namespace LLama.Web.Models
             {
                 LLamaExecutorType.Interactive => new InteractiveExecutor(_context),
                 LLamaExecutorType.Instruct => new InstructExecutor(_context),
-                LLamaExecutorType.Stateless => new StatelessExecutor(_context),
+                LLamaExecutorType.Stateless => new StatelessExecutor(weights, _context.Params),
                 _ => default
             };
 

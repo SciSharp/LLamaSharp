@@ -1,12 +1,13 @@
 ﻿using LLama.Common;
 using LLama.Abstractions;
+using LLama.Native;
+using System.Text.Json.Serialization;
 
 namespace LLama.Web.Common
 {
     public class InferenceOptions : IInferenceParams
     {
         public string Name { get; set; }
-
 
 
         /// <summary>
@@ -95,5 +96,8 @@ namespace LLama.Web.Common
         /// consider newlines as a repeatable token (penalize_nl)
         /// </summary>
         public bool PenalizeNL { get; set; } = true;
+
+        [JsonIgnore]
+        public SafeLLamaGrammarHandle Grammar { get; set; }
     }
 }

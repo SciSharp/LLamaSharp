@@ -6,6 +6,18 @@ namespace LLama.Native
     public unsafe class SamplingApi
     {
         /// <summary>
+        /// Apply grammar rules to candidate tokens
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="candidates"></param>
+        /// <param name="grammar"></param>
+        public static void llama_sample_grammar(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, SafeLLamaGrammarHandle grammar)
+        {
+            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
+            NativeApi.llama_sample_grammar(ctx, ref st, grammar);
+        }
+
+        /// <summary>
         /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
         /// </summary>
         /// <param name="ctx"></param>

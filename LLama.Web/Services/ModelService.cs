@@ -161,7 +161,7 @@ namespace LLama.Web.Services
                 return Task.FromException<LLamaContext>(new Exception("Model not found"));
 
             var modelConfig = _configuration.Models.FirstOrDefault(x => x.Name == modelName);
-            var context = model.CreateContext(modelConfig, Encoding.UTF8);
+            var context = model.CreateContext(modelConfig);
             if (!_contextInstances.TryAdd(ContextKey(modelName, key), context))
                 return Task.FromException<LLamaContext>(new Exception("Failed to add context"));
 

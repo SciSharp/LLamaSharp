@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LLama.Abstractions
+﻿namespace LLama.Abstractions
 {
     public interface IModelParams
     {
@@ -119,5 +117,10 @@ namespace LLama.Abstractions
         /// Use experimental mul_mat_q kernels
         /// </summary>
         bool MulMatQ { get; set; }
+
+        /// <summary>
+        /// The encoding to use for models
+        /// </summary>
+        string Encoding { get; set; }
     }
 }
