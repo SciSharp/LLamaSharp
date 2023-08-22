@@ -1,68 +1,154 @@
 ﻿using LLama.Abstractions;
+using LLama.Common;
 using LLama.Web.Common;
 
 namespace LLama.Web.Models
 {
-    public class ModelSession : IDisposable
+    public class ModelSession
     {
-        private bool _isFirstInteraction = true;
-        private ModelOptions _modelOptions;
-        private PromptOptions _promptOptions;
-        private ParameterOptions _inferenceOptions;
-        private ITextStreamTransform _outputTransform;
-        private ILLamaExecutor _executor;
+        private readonly LLamaContext _context;
+        private readonly ILLamaExecutor _executor;
+        private readonly SessionConfig _sessionParams;
+        private readonly PromptConfig _promptParams;
+        private readonly ITextStreamTransform _outputTransform;
+
+        private IInferenceParams _inferenceParams;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public ModelSession(ILLamaExecutor executor, ModelOptions modelOptions, PromptOptions promptOptions, ParameterOptions parameterOptions)
-        {
-            _executor = executor;
-            _modelOptions = modelOptions;
-            _promptOptions = promptOptions;
-            _inferenceOptions = parameterOptions;
-            
-            _inferenceOptions.AntiPrompts = _promptOptions.AntiPrompt?.Concat(_inferenceOptions.AntiPrompts ?? Enumerable.Empty<string>()).Distinct() ?? _inferenceOptions.AntiPrompts;
-            if (_promptOptions.OutputFilter?.Count > 0)
-                _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptOptions.OutputFilter, redundancyLength: 5);
-        }
 
-        public string ModelName
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModelSession"/> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="sessionId">The session identifier.</param>
+        /// <param name="sessionConfig">The session configuration.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        public ModelSession(LLamaContext context, SessionConfig sessionConfig, IInferenceParams inferenceParams = null)
         {
-            get { return _modelOptions.Name; }
-        }
+            _context = context;
+            _sessionParams = sessionConfig;
+            _inferenceParams = inferenceParams;
 
-        public IAsyncEnumerable<string> InferAsync(string message, CancellationTokenSource cancellationTokenSource)
-        {
-            _cancellationTokenSource = cancellationTokenSource;
-            if (_isFirstInteraction)
+            // Executor
+            _executor = sessionConfig.ExecutorType switch
             {
-                _isFirstInteraction = false;
-                message = _promptOptions.Prompt + message;
-            }
+                LLamaExecutorType.Interactive => new InteractiveExecutor(_context),
+                LLamaExecutorType.Instruct => new InstructExecutor(_context),
+                LLamaExecutorType.Stateless => new StatelessExecutor(_context),
+                _ => default
+            };
 
-            if (_outputTransform is not null)
-                return _outputTransform.TransformAsync(_executor.InferAsync(message, _inferenceOptions, _cancellationTokenSource.Token));
+            // Initial Prompt
+            _promptParams = new PromptConfig
+            {
+                Prompt = _sessionParams.Prompt,
+                AntiPrompt = CommaSeperatedToList(_sessionParams.AntiPrompt),
+                OutputFilter = CommaSeperatedToList(_sessionParams.OutputFilter),
+            };
 
-            return _executor.InferAsync(message, _inferenceOptions, _cancellationTokenSource.Token);
+            //Output Filter
+            if (_promptParams.OutputFilter?.Count > 0)
+                _outputTransform = new LLamaTransforms.KeywordTextOutputStreamTransform(_promptParams.OutputFilter, redundancyLength: 8);
         }
 
 
+        /// <summary>
+        /// Gets the name of the model.
+        /// </summary>
+        public string ModelName => _sessionParams.Model;
+
+
+        /// <summary>
+        /// Initializes the prompt.
+        /// </summary>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public async Task InitializePrompt(IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        {
+            ConfigureInferenceParams(inferenceParams);
+
+            if (_executor is StatelessExecutor)
+                return;
+
+            // Run Initial prompt
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            await foreach (var _ in _executor.InferAsync(_sessionParams.Prompt, inferenceParams, _cancellationTokenSource.Token))
+            {
+                // We dont really need the response of the initial prompt, so exit on first token
+                break;
+            };
+        }
+
+
+        /// <summary>
+        /// Runs inference on the model context
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public IAsyncEnumerable<string> InferAsync(string message, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
+        {
+            ConfigureInferenceParams(inferenceParams);
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            if (_outputTransform is not null)
+                return _outputTransform.TransformAsync(_executor.InferAsync(message, inferenceParams, _cancellationTokenSource.Token));
+
+            return _executor.InferAsync(message, inferenceParams, _cancellationTokenSource.Token);
+        }
+
+
+        /// <summary>
+        /// Cancels the current inference.
+        /// </summary>
         public void CancelInfer()
         {
             _cancellationTokenSource?.Cancel();
         }
 
+
+        /// <summary>
+        /// Determines whether inference is canceled.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if inference is canceled; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsInferCanceled()
         {
-            return _cancellationTokenSource.IsCancellationRequested;
+            return _cancellationTokenSource?.IsCancellationRequested ?? false;
         }
 
-        public void Dispose()
+ 
+        /// <summary>
+        /// Configures the inference parameters.
+        /// </summary>
+        /// <param name="inferenceParams">The inference parameters.</param>
+        private void ConfigureInferenceParams(IInferenceParams inferenceParams)
         {
-            _inferenceOptions = null;
-            _outputTransform = null;
+            // If not null set as default
+            if (inferenceParams is not null)
+                _inferenceParams = inferenceParams;
 
-            _executor?.Context.Dispose();
-            _executor = null;
+            // If null set to new
+            if (_inferenceParams is null)
+                _inferenceParams = new InferenceParams();
+
+            // Merge Antiprompts
+            var antiPrompts = new List<string>();
+            antiPrompts.AddRange(_promptParams.AntiPrompt ?? Enumerable.Empty<string>());
+            antiPrompts.AddRange(_inferenceParams.AntiPrompts ?? Enumerable.Empty<string>());
+            _inferenceParams.AntiPrompts = antiPrompts.Distinct();
+        }
+
+
+        private static List<string> CommaSeperatedToList(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return null;
+
+            return value.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                 .Select(x => x.Trim())
+                 .ToList();
         }
     }
 }

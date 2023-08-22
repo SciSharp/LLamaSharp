@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaSharp", "LLama\LLamaSh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.WebAPI", "LLama.WebAPI\LLama.WebAPI.csproj", "{D3CEC57A-9027-4DA4-AAAC-612A1EB50ADF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLama.Web", "LLama.Web\LLama.Web.csproj", "{C3531DB2-1B2B-433C-8DE6-3541E3620DB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.Web", "LLama.Web\LLama.Web.csproj", "{C3531DB2-1B2B-433C-8DE6-3541E3620DB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

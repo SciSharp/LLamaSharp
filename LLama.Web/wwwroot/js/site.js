@@ -32,8 +32,6 @@ const ajaxGetJsonAsync = (url, data) => {
 }
 
 
-
-
 const Enums = {
 	SessionConnectionStatus: Object.freeze({
 		Disconnected: 0,
@@ -44,6 +42,12 @@ const Enums = {
 		Interactive: 0,
 		Instruct: 1,
 		Stateless: 2
+	}),
+	InferTokenType: Object.freeze({
+		Begin: 0,
+		Content: 2,
+		End: 4,
+		Cancel: 10
 	}),
 	GetName: (enumType, enumKey) => {
 		return Object.keys(enumType)[enumKey]
