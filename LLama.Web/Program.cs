@@ -20,6 +20,7 @@ namespace LLama.Web
                 .BindConfiguration(nameof(LLamaOptions));
 
             // Services DI
+            builder.Services.AddHostedService<LoaderService>();
             builder.Services.AddSingleton<IModelService, ModelService>();
             builder.Services.AddSingleton<IModelSessionService, ModelSessionService>();
 

@@ -1,17 +1,10 @@
 ﻿using LLama.Web.Common;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text;
 
 namespace LLama.Web.Services
 {
-    public enum ModelCacheType
-    {
-        Single = 0,
-        Multiple = 1
-    }
 
     public class ModelService : IModelService
     {
@@ -54,7 +47,8 @@ namespace LLama.Web.Services
                 if (_modelInstances.TryGetValue(modelConfig.Name, out LLamaWeights model))
                     return existingModel;
 
-                if (_configuration.ModelCacheType == ModelCacheType.Single)
+                // If in single mode unload any other models
+                if (_configuration.ModelCacheType == ModelCacheType.Single || _configuration.ModelCacheType == ModelCacheType.PreloadSingle)
                     await UnloadModels();
 
                 model = LLamaWeights.LoadFromFile(modelConfig);
@@ -66,6 +60,26 @@ namespace LLama.Web.Services
             finally
             {
                 _modelLock.Release();
+            }
+        }
+
+
+        /// <summary>
+        /// Loads the models.
+        /// </summary>
+        public async Task LoadModels()
+        {
+            if (_configuration.ModelCacheType == ModelCacheType.Single 
+             || _configuration.ModelCacheType == ModelCacheType.Multiple)
+                return;
+
+            foreach (var modelConfig in _configuration.Models)
+            {
+                await LoadModel(modelConfig);
+
+                //Only preload first model if in SinglePreload mode
+                if (_configuration.ModelCacheType == ModelCacheType.PreloadSingle)
+                    break;
             }
         }
 
