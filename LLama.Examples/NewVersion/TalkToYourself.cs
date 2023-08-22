@@ -20,9 +20,9 @@ namespace LLama.Examples.NewVersion
             using var weights = LLamaWeights.LoadFromFile(@params);
 
             // Create 2 contexts sharing the same weights
-            using var aliceCtx = weights.CreateContext(@params, Encoding.UTF8);
+            using var aliceCtx = weights.CreateContext(@params);
             var alice = new InteractiveExecutor(aliceCtx);
-            using var bobCtx = weights.CreateContext(@params, Encoding.UTF8);
+            using var bobCtx = weights.CreateContext(@params);
             var bob = new InteractiveExecutor(bobCtx);
 
             // Initial alice prompt

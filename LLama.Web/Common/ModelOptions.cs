@@ -2,7 +2,8 @@
 
 namespace LLama.Web.Common
 {
-    public class ModelOptions : IModelParams
+    public class ModelOptions
+        : IModelParams
     {
       
         public string Name { get; set; }
@@ -111,5 +112,9 @@ namespace LLama.Web.Common
 		/// </summary>
 		public bool MulMatQ { get; set; }
 
-	}
+        /// <summary>
+        /// The encoding to use for models
+        /// </summary>
+        public string Encoding { get; set; } = "UTF-8";
+    }
 }
