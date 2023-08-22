@@ -10,7 +10,6 @@ using System.IO.MemoryMappedFiles;
 using LLama.Common;
 using System.Runtime.InteropServices;
 using LLama.Extensions;
-using Microsoft.Win32.SafeHandles;
 using LLama.Abstractions;
 
 namespace LLama
@@ -62,26 +61,25 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="params">Model params.</param>
-        /// <param name="encoding">Encoding to deal with text input.</param>
         /// <param name="logger">The logger.</param>
         [Obsolete("Use the LLamaWeights.CreateContext instead")]
-        public LLamaContext(IModelParams @params, string encoding = "UTF-8", ILLamaLogger? logger = null)
+        public LLamaContext(IModelParams @params, ILLamaLogger? logger = null)
         {
             Params = @params;
 
             _logger = logger;
-            _encoding = Encoding.GetEncoding(encoding);
+            _encoding = Encoding.GetEncoding(@params.Encoding);
 
             _logger?.Log(nameof(LLamaContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
             _ctx = Utils.InitLLamaContextFromModelParams(Params);
         }
 
-        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILLamaLogger? logger = null)
         {
             Params = @params;
 
             _logger = logger;
-            _encoding = encoding;
+            _encoding = Encoding.GetEncoding(@params.Encoding);
             _ctx = nativeContext;
         }
 
@@ -90,10 +88,9 @@ namespace LLama
         /// </summary>
         /// <param name="model"></param>
         /// <param name="params"></param>
-        /// <param name="encoding"></param>
         /// <param name="logger"></param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public LLamaContext(LLamaWeights model, IModelParams @params, Encoding encoding, ILLamaLogger? logger = null)
+        public LLamaContext(LLamaWeights model, IModelParams @params, ILLamaLogger? logger = null)
         {
             if (model.NativeHandle.IsClosed)
                 throw new ObjectDisposedException("Cannot create context, model weights have been disposed");
@@ -101,7 +98,7 @@ namespace LLama
             Params = @params;
 
             _logger = logger;
-            _encoding = encoding;
+            _encoding = Encoding.GetEncoding(@params.Encoding);
 
             using var pin = @params.ToLlamaContextParams(out var lparams);
             _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
@@ -116,7 +113,7 @@ namespace LLama
             using var pin = Params.ToLlamaContextParams(out var lparams);
 
             // Create a blank new context for the model
-            var ctx = new LLamaContext(SafeLLamaContextHandle.Create(NativeHandle.ModelHandle, lparams), Params, _encoding);
+            var ctx = new LLamaContext(SafeLLamaContextHandle.Create(NativeHandle.ModelHandle, lparams), Params);
 
             // Copy across the state
             using var state = GetState();

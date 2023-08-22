@@ -18,30 +18,52 @@ namespace LLama
     public class StatelessExecutor
         : ILLamaExecutor
     {
-        private readonly LLamaContext _context;
-        private readonly LLamaContext.State _originalState;
+        private readonly LLamaWeights _weights;
+        private readonly IModelParams _params;
 
         /// <summary>
         /// The context used by the executor when running the inference.
         /// </summary>
-        public LLamaContext Context => _context;
+        public LLamaContext Context { get; private set; }
 
         /// <summary>
-        /// 
+        /// Create a new stateless executor which will use the given model
         /// </summary>
-        /// <param name="context">The LLama model.</param>
+        /// <param name="weights"></param>
+        /// <param name="params"></param>
+        public StatelessExecutor(LLamaWeights weights, IModelParams @params)
+        {
+            _weights = weights;
+            _params = @params;
+
+            Context = _weights.CreateContext(_params);
+            Context.Dispose();
+        }
+
+        /// <summary>
+        /// Create a new stateless executor which will use the model used to create the given context
+        /// </summary>
+        /// <param name="context"></param>
+        [Obsolete("Use the constructor which automatically creates contexts using the LLamaWeights")]
         public StatelessExecutor(LLamaContext context)
         {
-            _context = context;
-            
-            var tokens = context.Tokenize(" ", true).ToArray();
-            _context.NativeHandle.Eval(tokens.AsSpan(0, tokens.Length), 0, _context.Params.Threads);
-            _originalState = context.GetState();
+            _weights = new LLamaWeights(context.NativeHandle.ModelHandle, Encoding.GetEncoding(context.Params.Encoding));
+            _params = context.Params;
+
+            Context = _weights.CreateContext(_params);
+            Context.Dispose();
         }
 
         /// <inheritdoc />
         public IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
+            using var context = _weights.CreateContext(_params);
+            Context = context;
+
+            if (!Context.NativeHandle.IsClosed)
+                Context.Dispose();
+            Context = _weights.CreateContext(Context.Params);
+
             if (inferenceParams != null)
             {
                 if (inferenceParams.TokensKeep > Context.ContextSize)
@@ -58,10 +80,10 @@ namespace LLama
             for (var i = 0; i < inferenceParams.RepeatLastTokensCount; i++)
                 lastTokens.Add(0);
 
-            var tokens = _context.Tokenize(text).ToList();
+            var tokens = Context.Tokenize(text).ToList();
             var n_prompt_tokens = tokens.Count;
 
-            _context.Eval(tokens, n_past);
+            Context.Eval(tokens, n_past);
 
             lastTokens.AddRange(tokens);
             n_past += n_prompt_tokens;
@@ -71,21 +93,19 @@ namespace LLama
             for(var i = 0; i < max_tokens; i++)
             {
                 if (cancellationToken.IsCancellationRequested)
-                {
-                    _context.LoadState(_originalState);
                     break;
-                }
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _context.ContextSize : inferenceParams.RepeatLastTokensCount;
 
-                var tokenDataArray = _context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? Context.ContextSize : inferenceParams.RepeatLastTokensCount;
+
+                var tokenDataArray = Context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var id = _context.Sample(tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                var id = Context.Sample(tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP);
 
                 lastTokens.Add(id);
 
-                var response = _context.TokenToString(id);
+                var response = Context.TokenToString(id);
                 yield return response;
 
                 tokens.Clear();
@@ -96,7 +116,7 @@ namespace LLama
 
                 // when run out of context
                 // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L433
-                if (n_past + tokens.Count > _context.ContextSize)
+                if (n_past + tokens.Count > Context.ContextSize)
                 {
                     var n_left = n_past - inferenceParams.TokensKeep;
 
@@ -106,10 +126,8 @@ namespace LLama
                     tokens.AddRange(lastTokens.Skip(lastTokens.Count - n_left / 2).Take(n_left / 2));
                 }
 
-                n_past = _context.Eval(tokens, n_past);
+                n_past = Context.Eval(tokens, n_past);
             }
-
-            _context.LoadState(_originalState);
         }
 
         /// <summary>
@@ -125,7 +143,7 @@ namespace LLama
 
             var builder = new StringBuilder();
             foreach (var token in tokens)
-                builder.Append(_context.TokenToString(token));
+                builder.Append(Context.TokenToString(token));
 
             var last_output = builder.ToString();
 

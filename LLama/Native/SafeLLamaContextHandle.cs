@@ -138,7 +138,6 @@ namespace LLama.Native
         /// Rows: n_tokens<br />
         /// Cols: n_vocab
         /// </summary>
-        /// <param name="ctx"></param>
         /// <returns></returns>
         public Span<float> GetLogits()
         {

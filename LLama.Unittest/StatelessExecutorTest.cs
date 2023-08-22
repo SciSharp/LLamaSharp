@@ -1,5 +1,4 @@
 using LLama.Common;
-using System.Text;
 using Xunit.Abstractions;
 
 namespace LLama.Unittest
@@ -30,7 +29,7 @@ namespace LLama.Unittest
         [Fact]
         public void Stateless()
         {
-            var executor = new StatelessExecutor(_weights.CreateContext(_params, Encoding.UTF8));
+            var executor = new StatelessExecutor(_weights, _params);
 
             const string question = "Question. what is a cat?\nAnswer: ";
             var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
@@ -47,7 +46,7 @@ namespace LLama.Unittest
         [Fact]
         public void OutOfContext()
         {
-            var executor = new StatelessExecutor(_weights.CreateContext(_params, Encoding.UTF8));
+            var executor = new StatelessExecutor(_weights, _params);
 
             const string question = " Question. why is a cat the best pet?\nAnswer: ";
 

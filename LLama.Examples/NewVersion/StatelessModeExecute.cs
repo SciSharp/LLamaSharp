@@ -1,5 +1,4 @@
 ﻿using LLama.Common;
-using System.Text;
 
 namespace LLama.Examples.NewVersion
 {
@@ -12,8 +11,7 @@ namespace LLama.Examples.NewVersion
 
             var parameters = new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5);
             using var model = LLamaWeights.LoadFromFile(parameters);
-            using var context = model.CreateContext(parameters, Encoding.UTF8);
-            var ex = new StatelessExecutor(context);
+            var ex = new StatelessExecutor(model, parameters);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the inference is an one-time job. That says, the previous input and response has " +
@@ -28,10 +26,10 @@ namespace LLama.Examples.NewVersion
             {
                 Console.Write("\nQuestion: ");
                 Console.ForegroundColor = ConsoleColor.Green;
-                string prompt = Console.ReadLine();
+                var prompt = Console.ReadLine();
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
-                prompt = $"Question: {prompt.Trim()} Answer: ";
+                prompt = $"Question: {prompt?.Trim()} Answer: ";
                 foreach (var text in ex.Infer(prompt, inferenceParams))
                 {
                     Console.Write(text);
