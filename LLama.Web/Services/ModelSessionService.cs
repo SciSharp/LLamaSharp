@@ -43,8 +43,8 @@ namespace LLama.Web.Services
         /// </exception>
         public async Task<ModelSession> CreateAsync(string sessionId, SessionConfig sessionConfig, IInferenceParams inferenceParams = null, CancellationToken cancellationToken = default)
         {
-            if (_modelSessions.TryGetValue(sessionId, out _))
-                throw new Exception($"Session with id {sessionId} already exists");
+            if (_modelSessions.TryGetValue(sessionId, out var existingSession))
+                return existingSession;
 
             // Create context
             var context = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId.ToString());

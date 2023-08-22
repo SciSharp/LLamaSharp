@@ -102,6 +102,7 @@ const createConnectionSessionChat = () => {
     }
 
     const unloadModel = async () => {
+        await cancelPrompt();
         disableControls();
         enablePromptControls();
         $("#load").removeAttr("disabled");

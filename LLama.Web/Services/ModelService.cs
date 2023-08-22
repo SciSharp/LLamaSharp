@@ -1,10 +1,18 @@
 ﻿using LLama.Web.Common;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text;
 
 namespace LLama.Web.Services
 {
+    public enum ModelCacheType
+    {
+        Single = 0,
+        Multiple = 1
+    }
+
     public class ModelService : IModelService
     {
         private readonly LLamaOptions _configuration;
@@ -46,15 +54,53 @@ namespace LLama.Web.Services
                 if (_modelInstances.TryGetValue(modelConfig.Name, out LLamaWeights model))
                     return existingModel;
 
+                if (_configuration.ModelCacheType == ModelCacheType.Single)
+                    await UnloadModels();
+
                 model = LLamaWeights.LoadFromFile(modelConfig);
                 if (!_modelInstances.TryAdd(modelConfig.Name, model))
-                   throw new Exception("Failed to add model");
+                    throw new Exception("Failed to add model");
 
                 return model;
             }
             finally
             {
                 _modelLock.Release();
+            }
+        }
+
+
+        /// <summary>
+        /// Unloads the model.
+        /// </summary>
+        /// <param name="modelName">Name of the model.</param>
+        /// <returns></returns>
+        public Task<bool> UnloadModel(string modelName)
+        {
+            if (_modelInstances.TryRemove(modelName, out LLamaWeights model))
+            {
+                foreach (var contextKey in ContextKeys(modelName))
+                {
+                    if (!_contextInstances.TryRemove(contextKey, out var context))
+                        continue;
+
+                    context?.Dispose();
+                }
+                model?.Dispose();
+                return Task.FromResult(true);
+            }
+            return Task.FromResult(false);
+        }
+
+
+        /// <summary>
+        /// Unloads all models.
+        /// </summary>
+        public async Task UnloadModels()
+        {
+            foreach (var modelName in _modelInstances.Keys)
+            {
+                await UnloadModel(modelName);
             }
         }
 
@@ -119,7 +165,7 @@ namespace LLama.Web.Services
         public Task<bool> RemoveContext(string modelName, string key)
         {
             if (!_modelInstances.TryGetValue(modelName, out LLamaWeights model))
-                return Task.FromException<bool>(new Exception("Model not found"));
+                return Task.FromResult(false);
 
             if (_contextInstances.TryRemove(ContextKey(modelName, key), out LLamaContext context))
             {
@@ -161,10 +207,20 @@ namespace LLama.Web.Services
 
 
         /// <summary>
+        /// Gets a list of context keys for the model name provided.
+        /// </summary>
+        /// <param name="modelName">Name of the model.</param>
+        /// <returns></returns>
+        private IEnumerable<string> ContextKeys(string modelName)
+        {
+            return _contextInstances.Keys.Where(x => x.StartsWith($"{modelName}:"));
+        }
+
+        /// <summary>
         /// Create a key for the context collection using the model and key provided.
         /// </summary>
         /// <param name="modelName">Name of the model.</param>
         /// <param name="contextKey">The context key.</param>
-        private static string ContextKey(string modelName, string contextKey) => $"{modelName}-{contextKey}";
+        private string ContextKey(string modelName, string contextKey) => $"{modelName}:{contextKey}";
     }
 }

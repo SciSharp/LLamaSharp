@@ -42,6 +42,7 @@ namespace LLama.Web.Hubs
             _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}", Context.ConnectionId);
 
             // Create model session
+            await _modelSessionService.CloseAsync(Context.ConnectionId);
             var modelSession = await _modelSessionService.CreateAsync(Context.ConnectionId, sessionConfig, inferenceConfig);
             if (modelSession is null)
             {
