@@ -84,26 +84,6 @@ namespace LLama
             }
 #endif
         }
-            
-        /// <summary>
-        /// Converts a bool "value" to a signed byte of "1" for true and "0" for false to be compatible with a 1 byte C-style bool.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static sbyte BoolToSignedByte(bool value)
-        {
-            return value ? (sbyte)1 : (sbyte)0;
-        }
-
-        /// <summary>
-        /// Converts a sbyte "value" to a C# bool.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static bool SignedByteToBool(sbyte value)
-        {
-            return value > 0;
-        }
-
+           
     }
 }
