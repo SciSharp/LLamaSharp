@@ -84,7 +84,7 @@ namespace LLama
         /// <inheritdoc />
         public override void SaveState(string filename)
         {
-            InstructExecutorState state = GetStateData() as InstructExecutorState;
+            InstructExecutorState state = (InstructExecutorState)GetStateData();
             using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 JsonSerializer.Serialize<InstructExecutorState>(fs, state);

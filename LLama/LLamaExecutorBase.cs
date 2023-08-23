@@ -367,7 +367,7 @@ namespace LLama
             public int MatchingSessionTokensCount { get; set; }
 
             [JsonPropertyName("path_session")]
-            public string SessionFilePath { get; set; }
+            public string? SessionFilePath { get; set; }
 
             [JsonPropertyName("embd")]
             public List<llama_token> Embeds { get; set; }
