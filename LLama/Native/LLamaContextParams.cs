@@ -77,8 +77,8 @@ namespace LLama.Native
         /// </summary>
         public bool low_vram
         {
-            get => Utils.SignedByteToBool(_low_vram);
-            set => _low_vram = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_low_vram);
+            set => _low_vram = Convert.ToSByte(value);
         }
         private sbyte _low_vram;
 
@@ -87,8 +87,8 @@ namespace LLama.Native
         /// </summary>
         public bool mul_mat_q
         {
-            get => Utils.SignedByteToBool(_mul_mat_q);
-            set => _mul_mat_q = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_mul_mat_q);
+            set => _mul_mat_q = Convert.ToSByte(value);
         }
         private sbyte _mul_mat_q;
 
@@ -97,8 +97,8 @@ namespace LLama.Native
         /// </summary>
         public bool f16_kv
         {
-            get => Utils.SignedByteToBool(_f16_kv);
-            set => _f16_kv = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_f16_kv);
+            set => _f16_kv = Convert.ToSByte(value);
         }
         private sbyte _f16_kv;
 
@@ -107,8 +107,8 @@ namespace LLama.Native
         /// </summary>
         public bool logits_all
         {
-            get => Utils.SignedByteToBool(_logits_all);
-            set => _logits_all = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_logits_all);
+            set => _logits_all = Convert.ToSByte(value);
         }
         private sbyte _logits_all;
 
@@ -117,8 +117,8 @@ namespace LLama.Native
         /// </summary>
         public bool vocab_only
         {
-            get => Utils.SignedByteToBool(_vocab_only);
-            set => _vocab_only = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_vocab_only);
+            set => _vocab_only = Convert.ToSByte(value);
         }
         private sbyte _vocab_only;
 
@@ -127,8 +127,8 @@ namespace LLama.Native
         /// </summary>
         public bool use_mmap
         {
-            get => Utils.SignedByteToBool(_use_mmap);
-            set => _use_mmap = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_use_mmap);
+            set => _use_mmap = Convert.ToSByte(value);
         }
         private sbyte _use_mmap;
 
@@ -137,8 +137,8 @@ namespace LLama.Native
         /// </summary>
         public bool use_mlock
         {
-            get => Utils.SignedByteToBool(_use_mlock);
-            set => _use_mlock = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_use_mlock);
+            set => _use_mlock = Convert.ToSByte(value);
         }
         private sbyte _use_mlock;
 
@@ -147,8 +147,8 @@ namespace LLama.Native
         /// </summary>
         public bool embedding
         {
-            get => Utils.SignedByteToBool(_embedding);
-            set => _embedding = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_embedding);
+            set => _embedding = Convert.ToSByte(value);
         }
         private sbyte _embedding;
     }
