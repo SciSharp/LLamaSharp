@@ -108,10 +108,7 @@ namespace LLama
         /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
-            if(args.Antiprompts is null)
-            {
-                args.Antiprompts = new List<string>();
-            }
+            args.Antiprompts ??= new List<string>();
             args.Antiprompts.Add(_instructionPrefix);
             if (_is_prompt_run)
             {
@@ -160,7 +157,7 @@ namespace LLama
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    extraOutputs = new string[] { "\n> " };
+                    extraOutputs = new[] { "\n> " };
                     return true;
                 }
             }

@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace LLama.Native
+﻿namespace LLama.Native
 {
     /// <summary>
     /// Quantizer parameters used in the native API

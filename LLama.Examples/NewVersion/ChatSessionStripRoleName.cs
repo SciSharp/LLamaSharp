@@ -1,5 +1,4 @@
 ﻿using LLama.Common;
-using System.Text;
 
 namespace LLama.Examples.NewVersion
 {

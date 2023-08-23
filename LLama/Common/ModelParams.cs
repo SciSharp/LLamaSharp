@@ -1,6 +1,5 @@
 ﻿using LLama.Abstractions;
 using System;
-using System.Text;
 
 namespace LLama.Common
 {

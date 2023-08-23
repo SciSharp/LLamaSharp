@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace LLama.Abstractions
 {
@@ -15,6 +13,7 @@ namespace LLama.Abstractions
         /// <param name="tokens"></param>
         /// <returns></returns>
         IEnumerable<string> Transform(IEnumerable<string> tokens);
+
         /// <summary>
         /// Takes a stream of tokens and transforms them, returning a new stream of tokens asynchronously.
         /// </summary>
