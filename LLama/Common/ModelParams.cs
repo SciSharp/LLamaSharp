@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using System;
+using System.Text;
 
 namespace LLama.Common
 {
@@ -114,7 +115,7 @@ namespace LLama.Common
         /// <summary>
         /// The encoding to use to convert text for the model
         /// </summary>
-        public string Encoding { get; set; } = "UTF-8";
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         /// <summary>
         /// 
@@ -183,7 +184,7 @@ namespace LLama.Common
             RopeFrequencyBase = ropeFrequencyBase;
             RopeFrequencyScale = ropeFrequencyScale;
             MulMatQ = mulMatQ;
-            Encoding = encoding;
+            Encoding = Encoding.GetEncoding(encoding);
         }
     }
 }

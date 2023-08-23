@@ -68,7 +68,7 @@ namespace LLama
             Params = @params;
 
             _logger = logger;
-            _encoding = Encoding.GetEncoding(@params.Encoding);
+            _encoding = @params.Encoding;
 
             _logger?.Log(nameof(LLamaContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
             _ctx = Utils.InitLLamaContextFromModelParams(Params);
@@ -79,7 +79,7 @@ namespace LLama
             Params = @params;
 
             _logger = logger;
-            _encoding = Encoding.GetEncoding(@params.Encoding);
+            _encoding = @params.Encoding;
             _ctx = nativeContext;
         }
 
@@ -98,7 +98,7 @@ namespace LLama
             Params = @params;
 
             _logger = logger;
-            _encoding = Encoding.GetEncoding(@params.Encoding);
+            _encoding = @params.Encoding;
 
             using var pin = @params.ToLlamaContextParams(out var lparams);
             _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);

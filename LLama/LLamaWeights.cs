@@ -59,7 +59,7 @@ namespace LLama
             if (!string.IsNullOrEmpty(@params.LoraAdapter))
                 weights.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
 
-            return new LLamaWeights(weights, Encoding.GetEncoding(@params.Encoding));
+            return new LLamaWeights(weights, @params.Encoding);
         }
 
         /// <inheritdoc />
