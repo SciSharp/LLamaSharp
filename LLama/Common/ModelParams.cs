@@ -1,6 +1,7 @@
 ﻿using LLama.Abstractions;
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace LLama.Common
 {
@@ -121,7 +122,7 @@ namespace LLama.Common
         /// 
         /// </summary>
         /// <param name="modelPath">The model path.</param>
-        [System.Text.Json.Serialization.JsonConstructor]
+        [JsonConstructor]
         public ModelParams(string modelPath)
         {
             ModelPath = modelPath;
