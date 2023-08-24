@@ -493,10 +493,8 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public virtual void Dispose()
+        public void Dispose()
         {
-            GC.SuppressFinalize(this);
-
             _ctx.Dispose();
         }
 
