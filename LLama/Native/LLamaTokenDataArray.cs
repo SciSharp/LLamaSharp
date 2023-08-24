@@ -53,8 +53,8 @@ namespace LLama.Native
         /// </summary>
         public bool sorted
         {
-            get => Utils.SignedByteToBool(_sorted);
-            set => _sorted = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_sorted);
+            set => _sorted = Convert.ToSByte(value);
         }
         private sbyte _sorted;
 

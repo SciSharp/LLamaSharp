@@ -34,11 +34,11 @@ namespace LLama.Examples.NewVersion
                 if (prompt == "save")
                 {
                     Console.Write("Your path to save model state: ");
-                    string modelStatePath = Console.ReadLine();
+                    var modelStatePath = Console.ReadLine();
                     ex.Context.SaveState(modelStatePath);
 
                     Console.Write("Your path to save executor state: ");
-                    string executorStatePath = Console.ReadLine();
+                    var executorStatePath = Console.ReadLine();
                     ex.SaveState(executorStatePath);
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
