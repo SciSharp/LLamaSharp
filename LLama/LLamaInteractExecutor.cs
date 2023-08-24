@@ -72,10 +72,10 @@ namespace LLama
         /// <inheritdoc />
         public override void SaveState(string filename)
         {
-            InteractiveExecutorState state = GetStateData() as InteractiveExecutorState;
+            InteractiveExecutorState state = (InteractiveExecutorState)GetStateData();
             using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
-                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
+                JsonSerializer.Serialize(fs, state);
             }
         }
         /// <inheritdoc />
@@ -121,7 +121,9 @@ namespace LLama
         /// <summary>
         /// Return whether to break the generation.
         /// </summary>
+        /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
+        /// <param name="extraOutputs"></param>
         /// <returns></returns>
         protected override bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
         {

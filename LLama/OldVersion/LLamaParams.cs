@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#pragma warning disable
+
 namespace LLama.OldVersion
 {
     using llama_token = Int32;
+
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
     public struct LLamaParams
     {
         public int seed; // RNG seed
