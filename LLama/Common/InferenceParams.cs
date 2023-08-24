@@ -1,6 +1,7 @@
 ﻿using LLama.Abstractions;
 using System;
 using System.Collections.Generic;
+using LLama.Native;
 
 namespace LLama.Common
 {
@@ -96,6 +97,11 @@ namespace LLama.Common
         /// consider newlines as a repeatable token (penalize_nl)
         /// </summary>
         public bool PenalizeNL { get; set; } = true;
+
+        /// <summary>
+        /// A grammar to constrain the possible tokens
+        /// </summary>
+        public SafeLLamaGrammarHandle? Grammar { get; set; }
     }
 
     /// <summary>

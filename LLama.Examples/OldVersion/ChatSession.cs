@@ -7,6 +7,7 @@ using LLama.OldVersion;
 
 namespace LLama.Examples.Old
 {
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
     public class ChatSession
     {
         LLama.OldVersion.ChatSession<LLama.OldVersion.LLamaModel> _session;

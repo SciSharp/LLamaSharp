@@ -9,10 +9,15 @@ using System.Linq;
 using System.Text;
 using LLama.Common;
 
+#pragma warning disable
+
 namespace LLama.OldVersion
 {
     using llama_token = Int32;
-    public class LLamaModel : IChatModel, IDisposable
+
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
+    public class LLamaModel
+        : IChatModel, IDisposable
     {
         LLamaParams _params;
         SafeLLamaContextHandle _ctx;

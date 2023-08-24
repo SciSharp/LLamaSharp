@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LLama.Common;
+﻿using LLama.Common;
 
 namespace LLama.Unittest
 {
@@ -16,7 +15,7 @@ namespace LLama.Unittest
                 ContextSize = 768,
             };
             _weights = LLamaWeights.LoadFromFile(@params);
-            _context = _weights.CreateContext(@params, Encoding.UTF8);
+            _context = _weights.CreateContext(@params);
         }
 
         public void Dispose()

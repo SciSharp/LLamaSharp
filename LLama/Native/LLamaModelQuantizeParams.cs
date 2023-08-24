@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
 
 namespace LLama.Native
 {
@@ -22,8 +22,8 @@ namespace LLama.Native
         /// </summary>
         public bool allow_requantize
         {
-            get => Utils.SignedByteToBool(_allow_requantize);
-            set => _allow_requantize = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_allow_requantize);
+            set => _allow_requantize = Convert.ToSByte(value);
         }
         private sbyte _allow_requantize;
 
@@ -32,8 +32,8 @@ namespace LLama.Native
         /// </summary>
         public bool quantize_output_tensor
         {
-            get => Utils.SignedByteToBool(_quantize_output_tensor);
-            set => _quantize_output_tensor = Utils.BoolToSignedByte(value);
+            get => Convert.ToBoolean(_quantize_output_tensor);
+            set => _quantize_output_tensor = Convert.ToSByte(value);
         }
         private sbyte _quantize_output_tensor;
     }

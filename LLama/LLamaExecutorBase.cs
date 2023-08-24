@@ -266,10 +266,7 @@ namespace LLama
         public virtual IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (inferenceParams is null)
-            {
-                inferenceParams = new InferenceParams();
-            }
+            inferenceParams ??= new InferenceParams();
 
             InferStateArgs args = new InferStateArgs()
             {
@@ -370,7 +367,7 @@ namespace LLama
             public int MatchingSessionTokensCount { get; set; }
 
             [JsonPropertyName("path_session")]
-            public string SessionFilePath { get; set; }
+            public string? SessionFilePath { get; set; }
 
             [JsonPropertyName("embd")]
             public List<llama_token> Embeds { get; set; }

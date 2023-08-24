@@ -64,7 +64,7 @@ namespace LLama.Native
         /// Return NULL on failure
         /// </summary>
         /// <param name="path_model"></param>
-        /// <param name="params_"></param>
+        /// <param name="params"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr llama_load_model_from_file(string path_model, LLamaContextParams @params);

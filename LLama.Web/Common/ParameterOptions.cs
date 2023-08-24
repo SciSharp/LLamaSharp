@@ -1,5 +1,6 @@
 ﻿using LLama.Common;
 using LLama.Abstractions;
+using LLama.Native;
 
 namespace LLama.Web.Common
 {
@@ -95,5 +96,10 @@ namespace LLama.Web.Common
 		/// consider newlines as a repeatable token (penalize_nl)
 		/// </summary>
 		public bool PenalizeNL { get; set; } = true;
-	}
+
+		/// <summary>
+		/// A grammar to constrain possible tokens
+		/// </summary>
+        public SafeLLamaGrammarHandle Grammar { get; set; } = null;
+    }
 }

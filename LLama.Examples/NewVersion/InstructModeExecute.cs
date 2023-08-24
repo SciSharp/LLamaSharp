@@ -1,5 +1,4 @@
 ﻿using LLama.Common;
-using System.Text;
 
 namespace LLama.Examples.NewVersion
 {
@@ -13,7 +12,7 @@ namespace LLama.Examples.NewVersion
 
             var parameters = new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5);
             using var model = LLamaWeights.LoadFromFile(parameters);
-            using var context = model.CreateContext(parameters, Encoding.UTF8);
+            using var context = model.CreateContext(parameters);
             var executor = new InstructExecutor(context);
 
             Console.ForegroundColor = ConsoleColor.Yellow;

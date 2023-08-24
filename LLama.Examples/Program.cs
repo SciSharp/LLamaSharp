@@ -1,7 +1,4 @@
-﻿using LLama;
-using LLama.Common;
-using LLama.Examples;
-using LLama.Examples.NewVersion;
+﻿using LLama.Examples.NewVersion;
 using LLama.Examples.Old;
 
 Console.WriteLine("======================================================================================================");

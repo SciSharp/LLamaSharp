@@ -84,7 +84,7 @@ namespace LLama
         /// <inheritdoc />
         public override void SaveState(string filename)
         {
-            InstructExecutorState state = GetStateData() as InstructExecutorState;
+            InstructExecutorState state = (InstructExecutorState)GetStateData();
             using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 JsonSerializer.Serialize<InstructExecutorState>(fs, state);
@@ -108,10 +108,7 @@ namespace LLama
         /// <inheritdoc />
         protected override void PreprocessInputs(string text, InferStateArgs args)
         {
-            if(args.Antiprompts is null)
-            {
-                args.Antiprompts = new List<string>();
-            }
+            args.Antiprompts ??= new List<string>();
             args.Antiprompts.Add(_instructionPrefix);
             if (_is_prompt_run)
             {
@@ -160,7 +157,7 @@ namespace LLama
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    extraOutputs = new string[] { "\n> " };
+                    extraOutputs = new[] { "\n> " };
                     return true;
                 }
             }
@@ -189,7 +186,7 @@ namespace LLama
                 }
 
                 TryReuseMathingPrefix();
-                _pastTokensCount = Context.Eval(_embeds.ToArray(), _pastTokensCount);
+                _pastTokensCount = Context.Eval(_embeds, _pastTokensCount);
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -217,7 +214,8 @@ namespace LLama
                 var mu = MirostatMu;
                 var id = Context.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP,
+                    inferenceParams.Grammar
                 );
                 MirostatMu = mu;
 

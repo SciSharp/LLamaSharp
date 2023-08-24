@@ -3,14 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.IO;
 
+#pragma warning disable
+
 namespace LLama.OldVersion
 {
     using llama_token = Int32;
+
     internal static class Utils
     {
         public static SafeLLamaContextHandle llama_init_from_gpt_params(ref LLamaParams @params)

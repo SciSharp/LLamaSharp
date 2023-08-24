@@ -20,9 +20,30 @@ namespace LLama
         /// <remarks>Be careful how you use this!</remarks>
         public SafeLlamaModelHandle NativeHandle => _weights;
 
-        private LLamaWeights(SafeLlamaModelHandle weights)
+        /// <summary>
+        /// Encoding to use to convert text into bytes for the model
+        /// </summary>
+        public Encoding Encoding { get; }
+
+        /// <summary>
+        /// Total number of tokens in vocabulary of this model
+        /// </summary>
+        public int VocabCount => NativeHandle.VocabCount;
+
+        /// <summary>
+        /// Total number of tokens in the context
+        /// </summary>
+        public int ContextSize => NativeHandle.ContextSize;
+
+        /// <summary>
+        /// Dimension of embedding vectors
+        /// </summary>
+        public int EmbeddingSize => NativeHandle.EmbeddingSize;
+
+        internal LLamaWeights(SafeLlamaModelHandle weights, Encoding encoding)
         {
             _weights = weights;
+            Encoding = encoding;
         }
 
         /// <summary>
@@ -38,7 +59,7 @@ namespace LLama
             if (!string.IsNullOrEmpty(@params.LoraAdapter))
                 weights.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
 
-            return new LLamaWeights(weights);
+            return new LLamaWeights(weights, Encoding.GetEncoding(@params.Encoding));
         }
 
         /// <inheritdoc />
@@ -51,11 +72,10 @@ namespace LLama
         /// Create a llama_context using this model
         /// </summary>
         /// <param name="params"></param>
-        /// <param name="encoding"></param>
         /// <returns></returns>
-        public LLamaContext CreateContext(IModelParams @params, Encoding encoding)
+        public LLamaContext CreateContext(IModelParams @params)
         {
-            return new LLamaContext(this, @params, encoding);
+            return new LLamaContext(this, @params);
         }
     }
 }
