@@ -47,7 +47,7 @@ namespace LLama
         [Obsolete("Use the constructor which automatically creates contexts using the LLamaWeights")]
         public StatelessExecutor(LLamaContext context)
         {
-            _weights = new LLamaWeights(context.NativeHandle.ModelHandle, Encoding.GetEncoding(context.Params.Encoding));
+            _weights = new LLamaWeights(context.NativeHandle.ModelHandle, context.Params.Encoding);
             _params = context.Params;
 
             Context = _weights.CreateContext(_params);

@@ -16,7 +16,10 @@ public class StatefulChatService : IDisposable
 
     public StatefulChatService(IConfiguration configuration)
     {
-        _context = new LLamaContext(new Common.ModelParams(configuration["ModelPath"], contextSize: 512));
+        _context = new LLamaContext(new Common.ModelParams(configuration["ModelPath"])
+        {
+            ContextSize = 512
+        });
         _session = new ChatSession(new InteractiveExecutor(_context));
     }
 

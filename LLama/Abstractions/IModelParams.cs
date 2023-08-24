@@ -1,4 +1,6 @@
-﻿namespace LLama.Abstractions
+﻿using System.Text;
+
+namespace LLama.Abstractions
 {
     public interface IModelParams
     {
@@ -121,6 +123,6 @@
         /// <summary>
         /// The encoding to use for models
         /// </summary>
-        string Encoding { get; set; }
+        Encoding Encoding { get; set; }
     }
 }

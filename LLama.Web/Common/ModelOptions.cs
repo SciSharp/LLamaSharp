@@ -1,4 +1,5 @@
-﻿using LLama.Abstractions;
+﻿using System.Text;
+using LLama.Abstractions;
 
 namespace LLama.Web.Common
 {
@@ -115,6 +116,6 @@ namespace LLama.Web.Common
         /// <summary>
         /// The encoding to use for models
         /// </summary>
-        public string Encoding { get; set; } = "UTF-8";
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
     }
 }
