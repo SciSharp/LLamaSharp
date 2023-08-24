@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 
 #pragma warning disable
+// ReSharper disable all
 
 namespace LLama.OldVersion
 {
@@ -56,7 +57,7 @@ namespace LLama.OldVersion
             return res.Take(n).ToList();
         }
 
-        public unsafe static Span<float> llama_get_logits(SafeLLamaContextHandle ctx, int length)
+        public static unsafe Span<float> llama_get_logits(SafeLLamaContextHandle ctx, int length)
         {
             var logits = NativeApi.llama_get_logits(ctx);
             return new Span<float>(logits, length);
@@ -67,21 +68,24 @@ namespace LLama.OldVersion
 #if NET6_0_OR_GREATER
             return Marshal.PtrToStringUTF8(ptr);
 #else
-            byte* tp = (byte*)ptr.ToPointer();
-            List<byte> bytes = new();
-            while (true)
+            unsafe
             {
-                byte c = *tp++;
-                if (c == '\0')
+                byte* tp = (byte*)ptr.ToPointer();
+                List<byte> bytes = new();
+                while (true)
                 {
-                    break;
+                    byte c = *tp++;
+                    if (c == '\0')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        bytes.Add(c);
+                    }
                 }
-                else
-                {
-                    bytes.Add(c);
-                }
+                return Encoding.UTF8.GetString(bytes.ToArray());
             }
-            return Encoding.UTF8.GetString(bytes.ToArray());
 #endif
         }
 

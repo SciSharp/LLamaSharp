@@ -2,6 +2,9 @@
 
 namespace LLama.Abstractions
 {
+    /// <summary>
+    /// The parameters for initializing a LLama model.
+    /// </summary>
     public interface IModelParams
     {
         /// <summary>
