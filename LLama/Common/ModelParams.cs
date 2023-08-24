@@ -1,6 +1,7 @@
 ﻿using LLama.Abstractions;
 using System;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LLama.Common
@@ -116,6 +117,7 @@ namespace LLama.Common
         /// <summary>
         /// The encoding to use to convert text for the model
         /// </summary>
+        [JsonConverter(typeof(EncodingConverter))]
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         /// <summary>
@@ -186,6 +188,23 @@ namespace LLama.Common
             RopeFrequencyScale = ropeFrequencyScale;
             MulMatQ = mulMatQ;
             Encoding = Encoding.GetEncoding(encoding);
+        }
+    }
+
+    internal class EncodingConverter
+        : JsonConverter<Encoding>
+    {
+        public override Encoding? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var name = reader.GetString();
+            if (name == null)
+                return null;
+            return Encoding.GetEncoding(name);
+        }
+
+        public override void Write(Utf8JsonWriter writer, Encoding value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.WebName);
         }
     }
 }

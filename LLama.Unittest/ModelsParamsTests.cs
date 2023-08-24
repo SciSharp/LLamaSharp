@@ -19,31 +19,10 @@ namespace LLama.Unittest
                 GpuLayerCount = 111
             };
 
-            var options = new System.Text.Json.JsonSerializerOptions();
-            options.Converters.Add(new SystemTextJsonEncodingConverter());
-
-            var json = System.Text.Json.JsonSerializer.Serialize(expected, options);
-            var actual = System.Text.Json.JsonSerializer.Deserialize<ModelParams>(json, options);
+            var json = System.Text.Json.JsonSerializer.Serialize(expected);
+            var actual = System.Text.Json.JsonSerializer.Deserialize<ModelParams>(json);
 
             Assert.Equal(expected, actual);
-        }
-
-        private class SystemTextJsonEncodingConverter
-            : System.Text.Json.Serialization.JsonConverter<Encoding>
-
-        {
-            public override Encoding? Read(ref System.Text.Json.Utf8JsonReader reader, Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
-            {
-                var name = reader.GetString();
-                if (name == null)
-                    return null;
-                return Encoding.GetEncoding(name);
-            }
-
-            public override void Write(System.Text.Json.Utf8JsonWriter writer, Encoding value, System.Text.Json.JsonSerializerOptions options)
-            {
-                writer.WriteStringValue(value.WebName);
-            }
         }
 
         [Fact]
