@@ -10,9 +10,15 @@ namespace LLama
 {
     using llama_token = Int32;
 
+    /// <summary>
+    /// Assorted llama utilities
+    /// </summary>
     public static class Utils
     {
+        [Obsolete("Use LLamaWeights.LoadFromFile and LLamaWeights.CreateContext instead")]
+        #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static SafeLLamaContextHandle InitLLamaContextFromModelParams(IModelParams @params)
+        #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             using var weights = LLamaWeights.LoadFromFile(@params);
 

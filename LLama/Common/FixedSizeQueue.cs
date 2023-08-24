@@ -15,9 +15,20 @@ namespace LLama.Common
         private readonly int _maxSize;
         private readonly List<T> _storage;
 
+        /// <summary>
+        /// Number of items in this queue
+        /// </summary>
         public int Count => _storage.Count;
+
+        /// <summary>
+        /// Maximum number of items allowed in this queue
+        /// </summary>
         public int Capacity => _maxSize;
 
+        /// <summary>
+        /// Create a new queue
+        /// </summary>
+        /// <param name="size">the maximum number of items to store in this queue</param>
         public FixedSizeQueue(int size)
         {
             _maxSize = size;

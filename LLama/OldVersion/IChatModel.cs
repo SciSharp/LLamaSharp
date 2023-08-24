@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 #pragma warning disable
+// ReSharper disable all
 
 namespace LLama.OldVersion
 {

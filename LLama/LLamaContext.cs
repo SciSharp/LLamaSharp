@@ -1,7 +1,6 @@
 ﻿using LLama.Exceptions;
 using LLama.Native;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -421,7 +420,7 @@ namespace LLama
             // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
             // avoid the copying.
 
-            var rented = ArrayPool<llama_token>.Shared.Rent(tokens.Count);
+            var rented = System.Buffers.ArrayPool<llama_token>.Shared.Rent(tokens.Count);
             try
             {
                 tokens.CopyTo(rented, 0);
@@ -429,7 +428,7 @@ namespace LLama
             }
             finally
             {
-                ArrayPool<llama_token>.Shared.Return(rented);
+                System.Buffers.ArrayPool<llama_token>.Shared.Return(rented);
             }
 #endif
         }

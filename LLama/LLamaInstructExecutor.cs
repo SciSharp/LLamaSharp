@@ -84,16 +84,16 @@ namespace LLama
         /// <inheritdoc />
         public override void SaveState(string filename)
         {
-            InstructExecutorState state = (InstructExecutorState)GetStateData();
-            using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            var state = (InstructExecutorState)GetStateData();
+            using (var fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
-                JsonSerializer.Serialize<InstructExecutorState>(fs, state);
+                JsonSerializer.Serialize(fs, state);
             }
         }
         /// <inheritdoc />
         public override void LoadState(string filename)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
                 LoadState(state);
