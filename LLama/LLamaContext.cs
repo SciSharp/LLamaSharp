@@ -19,7 +19,7 @@ namespace LLama
     /// <summary>
     /// A llama_context, which holds all the context required to interact with a model
     /// </summary>
-    public class LLamaContext
+    public sealed class LLamaContext
         : IDisposable
     {
         private readonly ILLamaLogger? _logger;
@@ -111,15 +111,8 @@ namespace LLama
         public LLamaContext Clone()
         {
             using var pin = Params.ToLlamaContextParams(out var lparams);
-
-            // Create a blank new context for the model
-            var ctx = new LLamaContext(SafeLLamaContextHandle.Create(NativeHandle.ModelHandle, lparams), Params);
-
-            // Copy across the state
-            using var state = GetState();
-            ctx.LoadState(state);
-
-            return ctx;
+            var clone = _ctx.Clone(lparams);
+            return  new LLamaContext(clone, Params);
         }
 
         /// <summary>
@@ -197,7 +190,7 @@ namespace LLama
         /// <returns></returns>
         public State GetState()
         {
-            var stateSize = NativeApi.llama_get_state_size(_ctx);
+            var stateSize = _ctx.GetStateSize();
 
             unsafe
             {
@@ -206,15 +199,17 @@ namespace LLama
                 try
                 {
                     // Copy the state data into "big memory", discover the actual size required
-                    var actualSize = NativeApi.llama_copy_state_data(_ctx, (byte*)bigMemory);
+                    var actualSize = _ctx.GetState(bigMemory, stateSize);
 
-                    // Allocate a smaller buffer
+                    // if big memory is nearly completely full (within 1MB) early exit and skip the extra copying
+                    if (actualSize >= stateSize - 1_000_000)
+                        return new State(bigMemory);
+
+                    // Allocate a smaller buffer which is exactly the right size
                     smallMemory = Marshal.AllocHGlobal((nint)actualSize);
 
                     // Copy into the smaller buffer and free the large one to save excess memory usage
                     Buffer.MemoryCopy(bigMemory.ToPointer(), smallMemory.ToPointer(), actualSize, actualSize);
-                    Marshal.FreeHGlobal(bigMemory);
-                    bigMemory = IntPtr.Zero;
 
                     return new State(smallMemory);
                 }
@@ -274,7 +269,7 @@ namespace LLama
         {
             unsafe
             {
-                NativeApi.llama_set_state_data(_ctx, (byte*)state.DangerousGetHandle().ToPointer());
+                _ctx.SetState((byte*)state.DangerousGetHandle().ToPointer());
             }
         }
 

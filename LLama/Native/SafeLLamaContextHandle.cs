@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 
@@ -88,6 +89,35 @@ namespace LLama.Native
                 throw new RuntimeError("Failed to create context from model");
 
             return new(ctx_ptr, model);
+        }
+
+        /// <summary>
+        /// Create a new llama context with a clone of the current llama context state
+        /// </summary>
+        /// <param name="lparams"></param>
+        /// <returns></returns>
+        public SafeLLamaContextHandle Clone(LLamaContextParams lparams)
+        {
+            // Allocate space to read the state of the current context
+            var stateSize = GetStateSize();
+            var stateMemory = Marshal.AllocHGlobal((nint)stateSize);
+            try
+            {
+                // Copy state from this context into memory
+                GetState(stateMemory, stateSize);
+
+                // Create a new context
+                var newCtx = Create(ModelHandle, lparams);
+
+                // Copy state into new context
+                newCtx.SetState(stateMemory);
+
+                return newCtx;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(stateMemory);
+            }
         }
         #endregion
 
@@ -188,5 +218,69 @@ namespace LLama.Native
                 }
             }
         }
+
+        #region state
+        /// <summary>
+        /// Get the size of the state, when saved as bytes
+        /// </summary>
+        public ulong GetStateSize()
+        {
+            return NativeApi.llama_get_state_size(this);
+        }
+
+        /// <summary>
+        /// Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
+        /// </summary>
+        /// <param name="dest">Destination to write to</param>
+        /// <param name="size">Number of bytes available to write to in dest (check required size with `GetStateSize()`)</param>
+        /// <returns>The number of bytes written to dest</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if dest is too small</exception>
+        public unsafe ulong GetState(byte* dest, ulong size)
+        {
+            return GetState(new IntPtr(dest), size);
+        }
+
+        /// <summary>
+        /// Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
+        /// </summary>
+        /// <param name="dest">Destination to write to</param>
+        /// <param name="size">Number of bytes available to write to in dest (check required size with `GetStateSize()`)</param>
+        /// <returns>The number of bytes written to dest</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if dest is too small</exception>
+        public ulong GetState(IntPtr dest, ulong size)
+        {
+            var required = GetStateSize();
+            if (size < required)
+                throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
+
+            unsafe
+            {
+                return NativeApi.llama_copy_state_data(this, (byte*)dest.ToPointer());
+            }
+        }
+
+        /// <summary>
+        /// Set the raw state of this context
+        /// </summary>
+        /// <param name="src">The pointer to read the state from</param>
+        /// <returns>Number of bytes read from the src pointer</returns>
+        public unsafe ulong SetState(byte* src)
+        {
+            return SetState(new IntPtr(src));
+        }
+
+        /// <summary>
+        /// Set the raw state of this context
+        /// </summary>
+        /// <param name="src">The pointer to read the state from</param>
+        /// <returns>Number of bytes read from the src pointer</returns>
+        public ulong SetState(IntPtr src)
+        {
+            unsafe
+            {
+                return NativeApi.llama_set_state_data(this, (byte*)src.ToPointer());
+            }
+        }
+        #endregion
     }
 }

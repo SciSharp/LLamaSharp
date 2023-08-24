@@ -8,7 +8,7 @@ namespace LLama
     /// <summary>
     /// The embedder for LLama, which supports getting embeddings from text.
     /// </summary>
-    public class LLamaEmbedder
+    public sealed class LLamaEmbedder
         : IDisposable
     {
         private readonly LLamaContext _ctx;
