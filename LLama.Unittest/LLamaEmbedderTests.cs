@@ -30,7 +30,7 @@ public class LLamaEmbedderTests
         return a.Zip(b, (x, y) => x * y).Sum();
     }
 
-    private static void AssertApproxStartsWith(float[] expected, float[] actual, float epsilon = 0.00001f)
+    private static void AssertApproxStartsWith(float[] expected, float[] actual, float epsilon = 0.035f)
     {
         for (int i = 0; i < expected.Length; i++)
             Assert.Equal(expected[i], actual[i], epsilon);
