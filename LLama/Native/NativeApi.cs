@@ -15,8 +15,6 @@ namespace LLama.Native
 
 	public unsafe partial class NativeApi
     {
-        public static readonly int LLAMA_MAX_DEVICES = 1;
-
         static NativeApi()
         {
             try
@@ -341,12 +339,24 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr llama_token_to_str(SafeLLamaContextHandle ctx, llama_token token);
 
+        /// <summary>
+        /// Get the "Beginning of string" token
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern llama_token llama_token_bos();
 
+        /// <summary>
+        /// Get the "End of string" token
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern llama_token llama_token_eos();
 
+        /// <summary>
+        /// Get the "new line" token
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern llama_token llama_token_nl();
 
