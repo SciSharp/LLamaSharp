@@ -377,7 +377,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_vocab_from_model(SafeLlamaModelHandle model);
+        public static extern int llama_model_n_vocab(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the size of the context window for the model
@@ -385,7 +385,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_ctx_from_model(SafeLlamaModelHandle model);
+        public static extern int llama_model_n_ctx(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the dimension of embedding vectors from this model
@@ -393,7 +393,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_embd_from_model(SafeLlamaModelHandle model);
+        public static extern int llama_model_n_embd(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Convert a single token into text

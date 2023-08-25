@@ -105,5 +105,10 @@
         /// </summary>
         /// <remarks>Benchmark@7B: 5.15GB, +0.0044 ppl</remarks>
         LLAMA_FTYPE_MOSTLY_Q6_K = 18,
+
+        /// <summary>
+        /// File type was not specified
+        /// </summary>
+        LLAMA_FTYPE_GUESSED = 1024
     }
 }

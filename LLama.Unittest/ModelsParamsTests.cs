@@ -14,7 +14,6 @@ namespace LLama.Unittest
                 BatchSize = 17,
                 ContextSize = 42,
                 LoraAdapter = "adapter",
-                GroupedQueryAttention = 7,
                 Seed = 42,
                 GpuLayerCount = 111
             };
@@ -33,7 +32,6 @@ namespace LLama.Unittest
                 BatchSize = 17,
                 ContextSize = 42,
                 LoraAdapter = "adapter",
-                GroupedQueryAttention = 7,
                 Seed = 42,
                 GpuLayerCount = 111
             };

@@ -28,9 +28,9 @@ namespace LLama.Native
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)
         {
-            VocabCount = NativeApi.llama_n_vocab_from_model(this);
-            ContextSize = NativeApi.llama_n_ctx_from_model(this);
-            EmbeddingSize = NativeApi.llama_n_embd_from_model(this);
+            VocabCount = NativeApi.llama_model_n_vocab(this);
+            ContextSize = NativeApi.llama_model_n_ctx(this);
+            EmbeddingSize = NativeApi.llama_model_n_embd(this);
         }
 
         /// <inheritdoc />
