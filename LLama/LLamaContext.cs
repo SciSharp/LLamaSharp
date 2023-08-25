@@ -132,9 +132,10 @@ namespace LLama
         /// <returns></returns>
         public string DeTokenize(IEnumerable<llama_token> tokens)
         {
-            StringBuilder sb = new();
-            foreach(var token in tokens)
-                sb.Append(_ctx.TokenToString(token, _encoding));
+            var sb = new StringBuilder();
+            foreach (var token in tokens)
+                _ctx.TokenToString(token, _encoding, sb);
+
             return sb.ToString();
         }
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -141,9 +142,10 @@ namespace LLama
             {
                 if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                 {
-                    string last_output = "";
-                    foreach (var id in _last_n_tokens)
-                        last_output += Context.NativeHandle.TokenToString(id, Context.Encoding);
+                    var last_output_builder = new StringBuilder();
+                    foreach (var token in _last_n_tokens)
+                        Context.NativeHandle.TokenToString(token, Context.Encoding, last_output_builder);
+                    var last_output = last_output_builder.ToString();
 
                     foreach (var antiprompt in args.Antiprompts)
                     {
