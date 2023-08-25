@@ -1,12 +1,15 @@
 ﻿using LLama.Abstractions;
 using System;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LLama.Common
 {
     /// <summary>
     /// The parameters for initializing a LLama model.
     /// </summary>
-    public class ModelParams
+    public record ModelParams
         : IModelParams
     {
         /// <summary>
@@ -114,7 +117,24 @@ namespace LLama.Common
         /// <summary>
         /// The encoding to use to convert text for the model
         /// </summary>
-        public string Encoding { get; set; } = "UTF-8";
+        [JsonConverter(typeof(EncodingConverter))]
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelPath">The model path.</param>
+        [JsonConstructor]
+        public ModelParams(string modelPath)
+        {
+            ModelPath = modelPath;
+        }
+
+        private ModelParams()
+        {
+            // This constructor (default parameterless constructor) is used by Newtonsoft to deserialize!
+            ModelPath = "";
+        }
 
         /// <summary>
         /// 
@@ -139,6 +159,7 @@ namespace LLama.Common
         /// <param name="ropeFrequencyScale">RoPE frequency scaling factor</param>
         /// <param name="mulMatQ">Use experimental mul_mat_q kernels</param>
         /// <param name="encoding">The encoding to use to convert text for the model</param>
+        [Obsolete("Use object initializer to set all optional parameters")]
         public ModelParams(string modelPath, int contextSize = 512, int gpuLayerCount = 20,
                            int seed = 1337, bool useFp16Memory = true,
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
@@ -161,12 +182,29 @@ namespace LLama.Common
             BatchSize = batchSize;
             ConvertEosToNewLine = convertEosToNewLine;
             EmbeddingMode = embeddingMode;
-            GroupedQueryAttention  = groupedQueryAttention;
+            GroupedQueryAttention = groupedQueryAttention;
             RmsNormEpsilon = rmsNormEpsilon;
-            RopeFrequencyBase  = ropeFrequencyBase;
-            RopeFrequencyScale  = ropeFrequencyScale;
+            RopeFrequencyBase = ropeFrequencyBase;
+            RopeFrequencyScale = ropeFrequencyScale;
             MulMatQ = mulMatQ;
-            Encoding = encoding;
+            Encoding = Encoding.GetEncoding(encoding);
+        }
+    }
+
+    internal class EncodingConverter
+        : JsonConverter<Encoding>
+    {
+        public override Encoding? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var name = reader.GetString();
+            if (name == null)
+                return null;
+            return Encoding.GetEncoding(name);
+        }
+
+        public override void Write(Utf8JsonWriter writer, Encoding value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.WebName);
         }
     }
 }

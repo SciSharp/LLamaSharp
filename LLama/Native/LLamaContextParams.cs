@@ -3,8 +3,16 @@ using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
+    /// <summary>
+    /// Called by llama.cpp with a progress value between 0 and 1
+    /// </summary>
+    /// <param name="progress"></param>
+    /// <param name="ctx"></param>
     public delegate void LlamaProgressCallback(float progress, IntPtr ctx);
 
+    /// <summary>
+    /// A C# representation of the llama.cpp `llama_context_params` struct
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaContextParams
     {
@@ -48,7 +56,6 @@ namespace LLama.Native
         /// </summary>
         public nint tensor_split;
 
-
         /// <summary>
         /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
         /// RoPE base frequency
@@ -70,7 +77,6 @@ namespace LLama.Native
         /// context pointer passed to the progress callback
         /// </summary>
         public IntPtr progress_callback_user_data;
-
 
         /// <summary>
         /// if true, reduce VRAM usage at the cost of performance

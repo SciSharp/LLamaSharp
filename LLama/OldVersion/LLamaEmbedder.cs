@@ -3,6 +3,7 @@ using System;
 using LLama.Exceptions;
 
 #pragma warning disable
+// ReSharper disable all
 
 namespace LLama.OldVersion
 {
