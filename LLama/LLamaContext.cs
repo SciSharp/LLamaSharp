@@ -365,7 +365,7 @@ namespace LLama
             }
 
             // Save the newline logit value
-            var nl_token = NativeApi.llama_token_nl();
+            var nl_token = NativeApi.llama_token_nl(_ctx);
             var nl_logit = logits[nl_token];
 
             // Convert logits into token candidates

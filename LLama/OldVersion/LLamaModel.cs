@@ -634,7 +634,7 @@ namespace LLama.OldVersion
                         LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates);
 
                         // Apply penalties
-                        float nl_logit = logits[NativeApi.llama_token_nl()];
+                        float nl_logit = logits[NativeApi.llama_token_nl(_ctx)];
                         var last_n_repeat = Math.Min(Math.Min(_last_n_tokens.Count, repeat_last_n), _n_ctx);
                         SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p,
                             _last_n_tokens.Skip(_last_n_tokens.Count - last_n_repeat).ToArray(),
@@ -644,7 +644,7 @@ namespace LLama.OldVersion
                             (ulong)last_n_repeat, alpha_frequency, alpha_presence);
                         if (!penalize_nl)
                         {
-                            logits[NativeApi.llama_token_nl()] = nl_logit;
+                            logits[NativeApi.llama_token_nl(_ctx)] = nl_logit;
                         }
 
                         if (temp <= 0)
@@ -684,7 +684,7 @@ namespace LLama.OldVersion
                     }
 
                     // replace end of text token with newline token when in interactive mode
-                    if (id == NativeApi.llama_token_eos() && _params.interactive && !_params.instruct)
+                    if (id == NativeApi.llama_token_eos(_ctx) && _params.interactive && !_params.instruct)
                     {
                         id = _llama_token_newline[0];
                         if (_params.antiprompt.Count != 0)
@@ -760,7 +760,7 @@ namespace LLama.OldVersion
                         break;
                     }
 
-                    if (_embed.Count > 0 && _embed.Last() == NativeApi.llama_token_eos())
+                    if (_embed.Count > 0 && _embed.Last() == NativeApi.llama_token_eos(_ctx))
                     {
                         if (_params.instruct)
                         {

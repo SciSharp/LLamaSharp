@@ -154,7 +154,7 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos())
+            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle))
             {
                 extraOutputs = new[] { " [end of text]\n" };
                 return true;
@@ -215,7 +215,7 @@ namespace LLama
 
                 _last_n_tokens.Enqueue(id);
 
-                if (id == NativeApi.llama_token_eos())
+                if (id == NativeApi.llama_token_eos(Context.NativeHandle))
                 {
                     id = _llama_token_newline.First();
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)

@@ -340,25 +340,25 @@ namespace LLama.Native
         public static extern IntPtr llama_token_to_str(SafeLLamaContextHandle ctx, llama_token token);
 
         /// <summary>
-        /// Get the "Beginning of string" token
+        /// Get the "Beginning of sentence" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_bos();
+        public static extern llama_token llama_token_bos(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Get the "End of string" token
+        /// Get the "End of sentence" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_eos();
+        public static extern llama_token llama_token_eos(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Get the "new line" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_nl();
+        public static extern llama_token llama_token_nl(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Print out timing information for this context
@@ -410,9 +410,11 @@ namespace LLama.Native
         /// </summary>
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
-        /// <returns></returns>
+        /// <param name="buffer">buffer to write string into</param>
+        /// <param name="length">size of the buffer</param>
+        /// <returns>The length writte, or if the buffer is too small a negative that indicates the length required</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte* llama_token_to_str_with_model(SafeLlamaModelHandle model, int llamaToken);
+        public static extern int llama_token_to_str_with_model(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
 
         /// <summary>
         /// Convert text into tokens

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using LLama.Exceptions;
 
@@ -90,9 +91,16 @@ namespace LLama.Native
         {
             unsafe
             {
-                var bytes = new ReadOnlySpan<byte>(NativeApi.llama_token_to_str_with_model(this, llama_token), int.MaxValue);
-                var terminator = bytes.IndexOf((byte)0);
-                return bytes.Slice(0, terminator);
+                var length = NativeApi.llama_token_to_str_with_model(this, llama_token, null, 0);
+                var bytes = new byte[-length];
+
+                fixed (byte* bytePtr = bytes)
+                {
+                    var written = NativeApi.llama_token_to_str_with_model(this, llama_token, bytePtr, bytes.Length);
+                    Debug.Assert(written == bytes.Length);
+                }
+
+                return new ReadOnlySpan<byte>(bytes);
             }
         }
 
@@ -104,16 +112,20 @@ namespace LLama.Native
         /// <returns></returns>
         public string TokenToString(int llama_token, Encoding encoding)
         {
-            var span = TokenToSpan(llama_token);
-
-            if (span.Length == 0)
-                return "";
-
             unsafe
             {
-                fixed (byte* ptr = &span[0])
+                var length = NativeApi.llama_token_to_str_with_model(this, llama_token, null, 0);
+                if (length == 0)
+                    return "";
+
+                Span<byte> bytes = stackalloc byte[-length];
+
+                fixed (byte* bytePtr = bytes)
                 {
-                    return encoding.GetString(ptr, span.Length);
+                    var written = NativeApi.llama_token_to_str_with_model(this, llama_token, bytePtr, bytes.Length);
+                    Debug.Assert(written == bytes.Length);
+
+                    return encoding.GetString(bytePtr, bytes.Length);
                 }
             }
         }

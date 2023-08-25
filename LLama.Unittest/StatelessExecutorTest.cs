@@ -13,7 +13,7 @@ namespace LLama.Unittest
         public StatelessExecutorTest(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin")
+            _params = new ModelParams(Constants.ModelPath)
             {
                 ContextSize = 60,
                 Seed = 1754

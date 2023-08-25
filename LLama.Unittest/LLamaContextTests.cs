@@ -10,7 +10,7 @@ namespace LLama.Unittest
 
         public LLamaContextTests()
         {
-            var @params = new ModelParams("Models/llama-2-7b-chat.ggmlv3.q3_K_S.bin")
+            var @params = new ModelParams(Constants.ModelPath)
             {
                 ContextSize = 768,
             };
