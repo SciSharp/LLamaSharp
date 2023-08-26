@@ -355,36 +355,41 @@ namespace LLama
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
         {
-            var n_vocab = _ctx.VocabCount;
             var logits = _ctx.GetLogits();
 
             // Apply params.logit_bias map
-            if(logitBias is not null)
+            if (logitBias is not null)
             {
                 foreach (var (key, value) in logitBias)
-                {
                     logits[key] += value;
-                }
             }
 
-            var candidates = new LLamaTokenData[n_vocab];
-            for (llama_token token_id = 0; token_id < n_vocab; token_id++)
-                candidates[token_id] = new LLamaTokenData(token_id, logits[token_id], 0.0f);
-            LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates);
+            // Save the newline logit value
+            var nl_token = NativeApi.llama_token_nl();
+            var nl_logit = logits[nl_token];
 
-            // Apply penalties
-            float nl_logit = logits[NativeApi.llama_token_nl()];
-            int lastTokensCount = lastTokens.Count();
-            var last_n_repeat = Math.Min(Math.Min(lastTokensCount, repeatLastTokensCount), ContextSize);
-            SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p,
-                lastTokens.Skip(lastTokensCount - last_n_repeat).ToArray(),
-                (ulong)last_n_repeat, repeatPenalty);
-            SamplingApi.llama_sample_frequency_and_presence_penalties(_ctx, candidates_p,
-                lastTokens.Skip(lastTokensCount - last_n_repeat).ToArray(),
-                (ulong)last_n_repeat, alphaFrequency, alphaPresence);
+            // Convert logits into token candidates
+            var candidates_p = LLamaTokenDataArray.Create(logits);
+
+            // Extract most recently returned tokens
+            var last_n_repeat = Math.Min(ContextSize, repeatLastTokensCount);
+            var last_n_array = lastTokens.TakeLast(last_n_repeat).ToArray();
+
+            // Apply penalties to candidates
+            SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p, last_n_array, repeatPenalty);
+            SamplingApi.llama_sample_frequency_and_presence_penalties(_ctx, candidates_p, last_n_array, alphaFrequency, alphaPresence);
+
+            // Restore newline token logit value if necessary
             if (!penalizeNL)
             {
-                logits[NativeApi.llama_token_nl()] = nl_logit;
+                var candidatesSpan = candidates_p.data.Span;
+                for (var i = 0; i < candidates_p.data.Length; i++)
+                {
+                    ref var item = ref candidatesSpan[i];
+                    if (item.id == nl_token)
+                        item.logit = nl_logit;
+                }
+                candidates_p.sorted = false;
             }
 
             return candidates_p;
