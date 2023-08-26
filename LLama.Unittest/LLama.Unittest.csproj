@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <Target Name="DownloadContentFiles" BeforeTargets="Build">
-      <DownloadFile SourceUrl="https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q3_K_S.bin" DestinationFolder="Models" DestinationFileName="llama-2-7b-chat.ggmlv3.q3_K_S.bin" SkipUnchangedFiles="true">
+      <DownloadFile SourceUrl="https://huggingface.co/TheBloke/CodeLlama-7B-GGUF/resolve/main/codellama-7b.Q3_K_S.gguf" DestinationFolder="Models" DestinationFileName="codellama-7b.Q3_K_S.gguf" SkipUnchangedFiles="true">
     </DownloadFile>
   </Target>
 
@@ -37,29 +37,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/ggml-metal.metal">
+    <None Update="../runtimes/ggml-metal.metal">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda11.dll">
+    <None Update="../runtimes/libllama-cuda11.dll">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda11.so">
+    <None Update="../runtimes/libllama-cuda11.so">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda12.dll">
+    <None Update="../runtimes/libllama-cuda12.dll">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda12.so">
+    <None Update="../runtimes/libllama-cuda12.so">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-metal.dylib">
+    <None Update="../runtimes/libllama-metal.dylib">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama.dylib">
+    <None Update="../runtimes/libllama.dylib">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama.so">
+    <None Update="../runtimes/libllama.so">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\codellama-7b.Q3_K_S.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\llama-2-7b-chat.ggmlv3.q3_K_S.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
