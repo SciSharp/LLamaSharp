@@ -29,7 +29,7 @@ jobs:
         - name: "make"
           run: |
             cd llama.cpp
-            make
+            make libllama.so
         - name: "list"
           run: |
             cd llama.cpp
