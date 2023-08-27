@@ -148,16 +148,16 @@ jobs:
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/linux/avx2/libllama.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/linux/avx512/libllama.so
 
-          cp artifacts/llama-bin-win-noavx-x64.dll/libllama.dll deps/win/avx/libllama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/libllama.dll deps/win/avx/libllama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/libllama.dll deps/win/avx2/libllama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/libllama.dll deps/win/avx512/libllama.dll
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/win/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/win/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/win/avx2/libllama.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
 
       - name: Rearrange CUDA files
         if: github.env.compile_cuda
         run: |
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama-bin-win-cublas-cu11.7.1-x64.dll cu11.7.1/libllama.dll
-          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama-bin-win-cublas-cu12.1.0-x64.dll cu12.1.0/libllama.dll
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
