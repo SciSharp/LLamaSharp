@@ -1,29 +1,96 @@
 name: Update Binaries
 
 on:
-    workflow_dispatch:
-    push:
-        branches: [cron_job]
-    schedule:
-        - cron: "22 22 * * 2"
+  workflow_dispatch:
+  push:
+    branches: [cron_job]
+  schedule:
+    - cron: "22 22 * * 2"
 
 jobs:
-    compile-linux:
-        name: Compile (Linux)
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v2
-        - name: "checkout llama.cpp"
-          run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
-        - name: "make"
-          run: |
-            cd llama.cpp
-            make libllama.so
-        - name: "list"
-          run: |
-            cd llama.cpp
-            ls -la
-        - uses: actions/upload-artifact@v3
-          with:
-            name: libllama.so
-            path: llama.cpp/libllama.so
+  compile-linux:
+    name: Compile (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "checkout llama.cpp"
+        run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
+      - name: "make"
+        run: |
+          cd llama.cpp
+          make libllama.so
+      - name: "List"
+        run: |
+          cd llama.cpp
+          ls -la
+      - uses: actions/upload-artifact@v3
+        with:
+          name: libllama.so
+          path: llama.cpp/libllama.so
+
+  compile-windows:
+    name: Compile (Windows)
+    strategy:
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+          - build: 'avx2'
+            defines: '-DLLAMA_BUILD_SERVER=ON'
+          - build: 'avx'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF'
+          - build: 'avx512'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+          - build: 'clblast'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"'
+          - build: 'openblas'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DBLAS_INCLUDE_DIRS="$env:RUNNER_TEMP/openblas/include" -DBLAS_LIBRARIES="$env:RUNNER_TEMP/openblas/lib/openblas.lib"'
+    runs-on: windows-latest
+    steps:
+      - name: "checkout llama.cpp"
+        id: checkout
+        run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
+
+      - name: Build
+        id: cmake_build
+        run: |
+          cd llama.cpp
+          mkdir build
+          cd build
+          cmake .. ${{ matrix.defines }}
+          cmake --build . --config Release
+
+      - name: Check AVX512F support
+        id: check_avx512f
+        if: ${{ matrix.build == 'avx512' }}
+        continue-on-error: true
+        run: |
+          cd build
+          $vcdir = $(vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath)
+          $msvc = $(join-path $vcdir $('VC\Tools\MSVC\'+$(gc -raw $(join-path $vcdir 'VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt')).Trim()))
+          $cl =  $(join-path $msvc 'bin\Hostx64\x64\cl.exe')
+          echo 'int main(void){unsigned int a[4];__cpuid(a,7);return !(a[1]&65536);}' >> avx512f.c
+          & $cl /O2 /GS- /kernel avx512f.c /link /nodefaultlib /entry:main
+          .\avx512f.exe && echo "AVX512F: YES" && ( echo HAS_AVX512F=1 >> $env:GITHUB_ENV ) || echo "AVX512F: NO"
+
+      - name: Determine tag name
+        id: tag
+        shell: bash
+        run: |
+          BUILD_NUMBER="$(git rev-list --count HEAD)"
+          SHORT_HASH="$(git rev-parse --short=7 HEAD)"
+          echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        run: |
+          Copy-Item LICENSE .\build\bin\Release\llama.cpp.txt
+          7z a llama-${{ steps.tag.outputs.name }}-bin-win-${{ matrix.build }}-x64.zip .\build\bin\Release\*
+
+      - name: Upload artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            llama-${{ steps.tag.outputs.name }}-bin-win-${{ matrix.build }}-x64.zip
