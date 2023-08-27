@@ -25,4 +25,4 @@ jobs:
         steps:
         - uses: actions/checkout@v2
         - name: "checkout llama.cpp"
-          run: git clone -–depth 1 https://github.com/ggerganov/llama.cpp.git
+          run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
