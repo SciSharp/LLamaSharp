@@ -10,21 +10,34 @@ on:
 jobs:
   compile-linux:
     name: Compile (Linux)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx2'
+            defines: '-DBUILD_SHARED_LIBS=ON'
+          - build: 'avx'
+            defines: '-DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx512'
+            defines: '-DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
-      - name: "make"
+      - name: Build
+        id: cmake_build
         run: |
-          make libllama.so
-      - name: "List"
-        run: |
-          ls -la
+          mkdir build
+          cd build
+          cmake .. ${{ matrix.defines }}
+          cmake --build . --config Release
       - uses: actions/upload-artifact@v3
         with:
-          name: libllama.so
-          path: libllama.so
+          name: .\build\bin\Release\libllama.so
+          path: llama-bin-linux-${{ matrix.build }}-x64.so
 
   compile-windows:
     name: Compile (Windows)
@@ -66,7 +79,6 @@ jobs:
     strategy:
       matrix:
         cuda: ['12.1.0', '11.7.1']
-        build: ['cublas']
 
     steps:
       - name: Clone
@@ -88,13 +100,8 @@ jobs:
           cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
           cmake --build . --config Release
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          7z a llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip .\build\bin\Release\*
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip
-          name: llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip
+          path: .\build\bin\Release\llama.dll
+          name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
