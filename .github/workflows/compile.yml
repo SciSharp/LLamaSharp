@@ -134,8 +134,7 @@ jobs:
       
       - uses: actions/download-artifact@v3
         with:
-          name: Download Artifacts
-          with: artifacts
+          path: artifacts
 
       - name: Rearrange Files
         # todo: macos!
