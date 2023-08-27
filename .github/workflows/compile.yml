@@ -90,12 +90,10 @@ jobs:
 
       - name: Pack artifacts
         id: pack_artifacts
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
         run: |
           7z a llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip .\build\bin\Release\*
 
       - name: Upload artifacts
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
         uses: actions/upload-artifact@v3
         with:
           path: llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip
