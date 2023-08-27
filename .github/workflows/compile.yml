@@ -110,7 +110,7 @@ jobs:
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
     
   compile-macos:
-    if: github.env.compile_macos
+    #if: github.env.compile_macos
     name: Compile (MacOS)
     runs-on: macos-latest
 
