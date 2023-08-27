@@ -77,7 +77,7 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-windows-cublas:
-    if: env.compile_cuda
+    if: false
     name: Compile (cublas)
     runs-on: windows-latest
     strategy:
@@ -110,7 +110,6 @@ jobs:
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
     
   compile-macos:
-    if: env.compile_macos
     name: Compile (MacOS)
     runs-on: macos-latest
 
