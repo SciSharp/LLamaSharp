@@ -198,5 +198,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: cu11.7.1
-          name: cu11.7.1
+          path: cu11.7.1.zip
+          name: cu11.7.1.zip
