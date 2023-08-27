@@ -103,3 +103,100 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+  
+  build-deps:
+    runs-on: ubuntu-latest
+    name: "Gather Binaries"
+    needs: [
+      "compile-linux",
+      # todo: "compile-macos",
+      "compile-windows",
+      "compile-windows-cublas"
+    ]
+    steps:
+      - name: Make Directories
+        run: |
+          mkdir deps
+          mkdir deps/linux
+          mkdir deps/linux/avx
+          mkdir deps/linux/avx2
+          mkdir deps/linux/avx512
+          mkdir deps/linux/noavx
+          mkdir deps/win
+          mkdir deps/win/avx
+          mkdir deps/win/avx2
+          mkdir deps/win/avx512
+          mkdir deps/win/noavx
+          mkdir deps/win/cu12.1.0
+          mkdir deps/win/cu11.7.1
+      
+      # Linux
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-linux-avx-x64.so
+          path: deps-linux/avx/libllama.so
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-linux-avx2-x64.so
+          path: deps/linux/avx2/libllama.so
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-linux-avx512-x64.so 
+          path: deps/linux/avx512/libllama.so
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-linux-noavx-x64.so 
+          path: deps/linux/noavx/libllama.so
+
+      # Windows
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-win-avx-x64.dll
+          path: deps/win/avx/libllama.dll
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-win-avx2-x64.dll
+          path: deps/win/avx2/libllama.dll
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-win-avx512-x64.dll 
+          path: deps/win/avx512/libllama.dll
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-win-noavx-x64.dll 
+          path: deps/win/noavx/libllama.dll
+
+      # todo: macos
+
+      # Windows (CUDA)
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-win-cublas-cu12.1.0-x64.dll
+          path: cu12.1.0/win/cu12.1.0/llama.dll
+      - uses: actions/download-artifact@v3
+        with:
+          name: llama-bin-win-cublas-cu11.7.1-x64.dll
+          path: cu11.7.1/win/cu11.7.1/llama.dll
+
+      # Package and upload
+      - name: Package
+        run: |
+          7z a deps.zip deps
+          7z a cu12.1.0.zip cu12.1.0
+          7z a cu11.7.1.zip cu11.7.1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: deps.zip
+          name: deps.zip
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: cu12.1.0.zip
+          name: cu12.1.0.zip
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: cu11.7.1
+          name: cu11.7.1
