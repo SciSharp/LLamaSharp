@@ -130,73 +130,41 @@ jobs:
           mkdir deps/win/cu12.1.0
           mkdir deps/win/cu11.7.1
       
-      # Linux
       - uses: actions/download-artifact@v3
         with:
-          name: llama-bin-linux-avx-x64.so
-          path: deps-linux/avx/libllama.so
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-linux-avx2-x64.so
-          path: deps/linux/avx2/libllama.so
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-linux-avx512-x64.so 
-          path: deps/linux/avx512/libllama.so
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-linux-noavx-x64.so 
-          path: deps/linux/noavx/libllama.so
+          name: Download Artifacts
+          with: artifacts
 
-      # Windows
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-win-avx-x64.dll
-          path: deps/win/avx/libllama.dll
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-win-avx2-x64.dll
-          path: deps/win/avx2/libllama.dll
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-win-avx512-x64.dll 
-          path: deps/win/avx512/libllama.dll
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-win-noavx-x64.dll 
-          path: deps/win/noavx/libllama.dll
-
-      # todo: macos
-
-      # Windows (CUDA)
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-win-cublas-cu12.1.0-x64.dll
-          path: cu12.1.0/win/cu12.1.0/llama.dll
-      - uses: actions/download-artifact@v3
-        with:
-          name: llama-bin-win-cublas-cu11.7.1-x64.dll
-          path: cu11.7.1/win/cu11.7.1/llama.dll
-
-      # Package and upload
-      - name: Package
+      - name: Rearrange Files
+        # todo: macos!
         run: |
-          7z a deps.zip deps
-          7z a cu12.1.0.zip cu12.1.0
-          7z a cu11.7.1.zip cu11.7.1
+          ls -R
+
+          cp artifacts/llama-bin-linux-noavx-x64.so/llama-bin-linux-noavx-x64.so deps/linux/noavx/libllama.so
+          cp artifacts/llama-bin-linux-avx-x64.so/llama-bin-linux-avx-x64.so deps/linux/avx/libllama.so
+          cp artifacts/llama-bin-linux-avx2-x64.so/llama-bin-linux-avx2-x64.so deps/linux/avx2/libllama.so
+          cp artifacts/llama-bin-linux-avx512-x64.so/llama-bin-linux-avx512-x64.so deps/linux/avx512/libllama.so
+
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama-bin-win-noavx-x64.dll deps/win/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama-bin-win-avx-x64.dll deps/win/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama-bin-win-avx2-x64.dll deps/win/avx2/libllama.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama-bin-win-avx512-x64.dll deps/win/avx512/libllama.dll
+
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama-bin-win-cublas-cu11.7.1-x64.dll cu11.7.1/libllama.dll
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama-bin-win-cublas-cu12.1.0-x64.dll cu12.1.0/libllama.dll
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: deps.zip
-          name: deps.zip
+          path: deps/
+          name: deps
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: cu12.1.0.zip
-          name: cu12.1.0.zip
+          path: cu12.1.0/
+          name: cu12.1.0
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: cu11.7.1.zip
-          name: cu11.7.1.zip
+          path: cu11.7.1/
+          name: cu11.7.1
