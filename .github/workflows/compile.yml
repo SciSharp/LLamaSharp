@@ -34,17 +34,9 @@ jobs:
           cd build
           cmake .. ${{ matrix.defines }}
           cmake --build . --config Release
-      - name: "List"
-        run: |
-          cd build
-          ls -la
-      - name: "List2"
-        run: |
-          cd ./build/bin/Release
-          ls -la
       - uses: actions/upload-artifact@v3
         with:
-          path: ./build/bin/Release/libllama.so
+          path: ./build/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
 
   compile-windows:
