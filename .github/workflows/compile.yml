@@ -33,11 +33,11 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx2'
-            defines: '-DLLAMA_BUILD_SERVER=ON'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
           - build: 'avx'
-            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF'
+            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx512'
             defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
     runs-on: windows-latest
@@ -62,14 +62,8 @@ jobs:
           SHORT_HASH="$(git rev-parse --short=7 HEAD)"
           echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        run: |
-          Copy-Item LICENSE .\build\bin\Release\llama.cpp.txt
-          7z a llama-bin-win-${{ matrix.build }}-x64.zip .\build\bin\Release\*
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: llama-bin-win-${{ matrix.build }}-x64.zip
-          name: llama-bin-win-${{ matrix.build }}-x64.zip
+          path: .\build\bin\Release\llama.dll
+          name: llama-bin-win-${{ matrix.build }}-x64.dll
