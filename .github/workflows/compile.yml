@@ -1,7 +1,6 @@
 name: Update Binaries
 env:
   compile_cuda: false
-  compile_macos: true
 
 on:
   workflow_dispatch: {}
@@ -112,6 +111,14 @@ jobs:
   compile-macos:
     name: Compile (MacOS)
     runs-on: macos-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build: 'arm64'
+            arch: 'arm64'
+          - build: 'x86_64'
+            arch: 'x86_64'
 
     steps:
       - uses: actions/checkout@v3
@@ -128,11 +135,14 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 ..
+          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} ..
           cmake --build . --config Release
 
-      - name: List
-        run: ls -R
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/libllama.dylib
+          name: llama-bin-macos-${{ matrix.arch }}.dylib
   
   build-deps:
     runs-on: ubuntu-latest
@@ -166,7 +176,6 @@ jobs:
           path: artifacts
 
       - name: Rearrange Files
-        # todo: macos!
         run: |
           ls -R
 
@@ -181,12 +190,9 @@ jobs:
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
 
       - name: Rearrange MacOS files
-        if: github.env.compile_macos
-        run: ls
-        # todo what is the dylib called?
-        #run: |
-        #  cp artifacts/llama-bin-macos-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
-        #  cp something deps/macos/libllama.dylib
+        run: |
+          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
 
       - name: Rearrange CUDA files
         if: github.env.compile_cuda
