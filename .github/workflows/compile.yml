@@ -8,20 +8,9 @@ on:
         - cron: "22 22 * * 2"
 
 jobs:
-    compile:
-        name: Compile
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: false
-            matrix:
-              build: [linux, windows, macos]
-              include:
-              - build: linux
-                os: ubuntu-latest
-              - build: macos
-                os: macos-latest
-              - build: windows
-                os: windows-2019
+    compile-linux:
+        name: Compile (Linux)
+        runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v2
         - name: "checkout llama.cpp"
