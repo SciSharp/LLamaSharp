@@ -49,6 +49,7 @@ jobs:
 
   compile-windows:
     name: Compile (Windows)
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -82,12 +83,11 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-windows-cublas:
+    if: false
     runs-on: windows-latest
-
     strategy:
       matrix:
         cuda: ['12.1.0', '11.7.1']
-
     steps:
       - name: Clone
         id: checkout
