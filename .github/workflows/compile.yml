@@ -2,14 +2,9 @@ name: Update Binaries
 env:
 
 on:
-  workflow_dispatch:
-    inputs:
-      cuda:
-        description: should cuda be compiled?
-        type: boolean
-        required: true
-  #push:
-  #  branches: [cron_job]
+  workflow_dispatch: {}
+  push:
+    branches: [cron_job]
   #schedule:
   #  - cron: "22 22 * * 2"
 
@@ -80,6 +75,7 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-windows-cublas:
+    if: false
     runs-on: windows-latest
     strategy:
       matrix:
