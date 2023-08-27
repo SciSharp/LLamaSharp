@@ -176,3 +176,9 @@ jobs:
         with:
           path: cu11.7.1/
           name: cu11.7.1
+
+      - name: Remove Artifacts
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: |
+            llama-*
