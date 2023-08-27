@@ -36,8 +36,8 @@ jobs:
           cmake --build . --config Release
       - uses: actions/upload-artifact@v3
         with:
-          name: .\build\bin\Release\libllama.so
-          path: llama-bin-linux-${{ matrix.build }}-x64.so
+          path: .\build\bin\Release\libllama.so
+          name: llama-bin-linux-${{ matrix.build }}-x64.so
 
   compile-windows:
     name: Compile (Windows)
