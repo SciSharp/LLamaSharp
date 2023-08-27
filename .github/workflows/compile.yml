@@ -59,3 +59,42 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
+
+  compile-windows-cublas:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        cuda: ['12.1.0', '11.7.1']
+        build: ['cublas']
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v1
+
+      - uses: Jimver/cuda-toolkit@v0.2.10
+        id: cuda-toolkit
+        with:
+          cuda: ${{ matrix.cuda }}
+
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
+          cmake --build . --config Release
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        run: |
+          7z a llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip .\build\bin\Release\*
+
+      - name: Upload artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip
+          name: llama-bin-win-${{ matrix.build }}-cu${{ matrix.cuda }}-x64.zip
