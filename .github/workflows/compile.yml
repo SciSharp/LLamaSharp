@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [cron_job]
-  schedule:
-    - cron: "22 22 * * 2"
+  #schedule:
+  #  - cron: "22 22 * * 2"
 
 jobs:
   compile-linux:
@@ -41,7 +41,6 @@ jobs:
 
   compile-windows:
     name: Compile (Windows)
-    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -75,7 +74,6 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-windows-cublas:
-    if: false
     runs-on: windows-latest
     strategy:
       matrix:
