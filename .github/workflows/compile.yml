@@ -33,13 +33,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx2'
-            defines: '-DLLAMA_BUILD_SERVER=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DBUILD_SHARED_LIBS=ON'
           - build: 'avx'
-            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx512'
-            defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,14 +53,6 @@ jobs:
           cd build
           cmake .. ${{ matrix.defines }}
           cmake --build . --config Release
-
-      - name: Determine tag name
-        id: tag
-        shell: bash
-        run: |
-          BUILD_NUMBER="$(git rev-list --count HEAD)"
-          SHORT_HASH="$(git rev-parse --short=7 HEAD)"
-          echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
