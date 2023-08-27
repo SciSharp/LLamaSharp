@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: ggerganov/llama.cpp.git
+          repository: ggerganov/llama.cpp
       - name: "make"
         run: |
           make libllama.so
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: ggerganov/llama.cpp.git
+          repository: ggerganov/llama.cpp
 
       - name: Build
         id: cmake_build
