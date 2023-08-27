@@ -77,7 +77,7 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-windows-cublas:
-    if: github.env.compile_cuda
+    if: ${{ github.env.compile_cuda }}
     name: Compile (cublas)
     runs-on: windows-latest
     strategy:
@@ -110,7 +110,7 @@ jobs:
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
     
   compile-macos:
-    #if: github.env.compile_macos
+    if: ${{ github.env.compile_macos }}
     name: Compile (MacOS)
     runs-on: macos-latest
 
@@ -127,10 +127,9 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          sysctl -a
           mkdir build
           cd build
-          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64,x86_64 ..
+          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64 ..
           cmake --build . --config Release
 
       - name: List
