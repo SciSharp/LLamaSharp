@@ -71,7 +71,9 @@ jobs:
     steps:
       - name: Clone
         id: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp
 
       - uses: Jimver/cuda-toolkit@v0.2.10
         id: cuda-toolkit
