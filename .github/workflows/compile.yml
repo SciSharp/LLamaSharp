@@ -66,7 +66,7 @@ jobs:
         id: pack_artifacts
         run: |
           Copy-Item LICENSE .\build\bin\Release\llama.cpp.txt
-          7z a llama-${{ steps.tag.outputs.name }}-bin-win-${{ matrix.build }}-x64.zip .\build\bin\Release\*
+          7z a llama-bin-win-${{ matrix.build }}-x64.zip .\build\bin\Release\*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
