@@ -1,0 +1,8 @@
+on:
+    schedule:
+        - cron: "22 22 * * 2"
+
+jobs:
+    nothing:
+        runs-on: ubuntu-latest
+        steps: []
