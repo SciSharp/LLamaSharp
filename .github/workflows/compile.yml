@@ -30,9 +30,11 @@ jobs:
           run: |
             cd llama.cpp
             make
-        - name: "ls"
-          run: ls -la
+        - name: "list"
+          run: |
+            cd llama.cpp
+            ls -la
         - uses: actions/upload-artifact@v3
           with:
             name: libllama.so
-            path: libllama.so
+            path: llama.cpp/libllama.so
