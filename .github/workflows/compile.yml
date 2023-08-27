@@ -148,7 +148,7 @@ jobs:
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/linux/avx2/libllama.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/linux/avx512/libllama.so
 
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/win/avx/libllama.dll
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/win/noavx/libllama.dll
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/win/avx/libllama.dll
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/win/avx2/libllama.dll
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
@@ -164,13 +164,13 @@ jobs:
         with:
           path: deps/
           name: deps
-      - name: Upload artifacts
+      - name: Upload artifacts (CUDA12)
         if: github.env.compile_cuda
         uses: actions/upload-artifact@v3
         with:
           path: cu12.1.0/
           name: cu12.1.0
-      - name: Upload artifacts
+      - name: Upload artifacts (CUDA11)
         if: github.env.compile_cuda
         uses: actions/upload-artifact@v3
         with:
