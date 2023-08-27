@@ -154,23 +154,7 @@ jobs:
       "compile-windows",
       "compile-windows-cublas"
     ]
-    steps:
-      - name: Make Directories
-        run: |
-          mkdir deps
-          mkdir deps/linux
-          mkdir deps/linux/avx
-          mkdir deps/linux/avx2
-          mkdir deps/linux/avx512
-          mkdir deps/linux/noavx
-          mkdir deps/win
-          mkdir deps/win/avx
-          mkdir deps/win/avx2
-          mkdir deps/win/avx512
-          mkdir deps/win/noavx
-          mkdir deps/win/cu12.1.0
-          mkdir deps/win/cu11.7.1
-      
+    steps:      
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -179,24 +163,40 @@ jobs:
         run: |
           ls -R
 
+          mkdir deps
+
+          mkdir deps/linux
+          mkdir deps/linux/noavx
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/linux/noavx/libllama.so
+          mkdir deps/linux/avx
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/linux/avx/libllama.so
+          mkdir deps/linux/avx2
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/linux/avx2/libllama.so
+          mkdir deps/linux/avx512
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/linux/avx512/libllama.so
 
+          mkdir deps/win
+          mkdir deps/win/noavx
           cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/win/noavx/libllama.dll
+          mkdir deps/win/avx
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/win/avx/libllama.dll
+          mkdir deps/win/avx2
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/win/avx2/libllama.dll
+          mkdir deps/win/avx512
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
 
       - name: Rearrange MacOS files
         run: |
+          mkdir deps/macos-arm64
+          mkdir deps/macos-x86_64
           cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
           cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
 
       - name: Rearrange CUDA files
         if: github.env.compile_cuda
         run: |
+          mkdir deps/win/cu12.1.0
+          mkdir deps/win/cu11.7.1
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
 
