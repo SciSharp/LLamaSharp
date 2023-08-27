@@ -13,7 +13,7 @@ jobs:
   compile-linux:
     name: Compile (Linux)
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - build: 'noavx'
@@ -44,7 +44,7 @@ jobs:
   compile-windows:
     name: Compile (Windows)
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - build: 'noavx'
