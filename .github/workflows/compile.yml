@@ -78,6 +78,7 @@ jobs:
 
   compile-windows-cublas:
     if: github.env.compile_cuda
+    name: Compile (cublas)
     runs-on: windows-latest
     strategy:
       matrix:
@@ -110,6 +111,7 @@ jobs:
     
   compile-macos:
     if: github.env.compile_macos
+    name: Compile (MacOS)
     runs-on: macos-latest
 
     steps:
