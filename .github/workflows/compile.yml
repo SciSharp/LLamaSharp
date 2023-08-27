@@ -1,6 +1,7 @@
 name: Update Binaries
 env:
   compile_cuda: false
+  compile_macos: true
 
 on:
   workflow_dispatch: {}
@@ -106,6 +107,32 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+    
+  compile-macos:
+    if: github.env.compile_macos
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp
+
+      - name: Dependencies
+        continue-on-error: true
+        run: |
+          brew update
+
+      - name: Build
+        id: cmake_build
+        run: |
+          sysctl -a
+          mkdir build
+          cd build
+          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64,x86_64 ..
+          cmake --build . --config Release
+
+      - name: List
+        run: ls -R
   
   build-deps:
     runs-on: ubuntu-latest
@@ -113,7 +140,7 @@ jobs:
     if: ${{ always() }}
     needs: [
       "compile-linux",
-      # todo: "compile-macos",
+      "compile-macos",
       "compile-windows",
       "compile-windows-cublas"
     ]
@@ -152,6 +179,14 @@ jobs:
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/win/avx/libllama.dll
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/win/avx2/libllama.dll
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
+
+      - name: Rearrange MacOS files
+        if: github.env.compile_macos
+        run: ls
+        # todo what is the dylib called?
+        #run: |
+        #  cp artifacts/llama-bin-macos-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
+        #  cp something deps/macos/libllama.dylib
 
       - name: Rearrange CUDA files
         if: github.env.compile_cuda
