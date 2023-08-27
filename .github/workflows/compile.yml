@@ -1,5 +1,4 @@
 name: Update Binaries
-env:
 
 on:
   workflow_dispatch: {}
