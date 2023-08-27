@@ -13,20 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: "checkout llama.cpp"
-        run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
+        with:
+          repository: ggerganov/llama.cpp.git
       - name: "make"
         run: |
-          cd llama.cpp
           make libllama.so
       - name: "List"
         run: |
-          cd llama.cpp
           ls -la
       - uses: actions/upload-artifact@v3
         with:
           name: libllama.so
-          path: llama.cpp/libllama.so
+          path: libllama.so
 
   compile-windows:
     name: Compile (Windows)
@@ -44,14 +42,13 @@ jobs:
             defines: '-DLLAMA_BUILD_SERVER=ON -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
     runs-on: windows-latest
     steps:
-      - name: "checkout llama.cpp"
-        id: checkout
-        run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
+      - uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp.git
 
       - name: Build
         id: cmake_build
         run: |
-          cd llama.cpp
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
