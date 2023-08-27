@@ -26,3 +26,11 @@ jobs:
         - uses: actions/checkout@v2
         - name: "checkout llama.cpp"
           run: git clone --depth 1 https://github.com/ggerganov/llama.cpp.git
+        - name: "make"
+          run: |
+            cd llama.cpp
+            make
+        - uses: actions/upload-artifact@v3
+          with:
+            name: main
+            path: main
