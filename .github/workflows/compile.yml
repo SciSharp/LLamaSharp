@@ -83,10 +83,12 @@ jobs:
   compile-windows-cublas:
     if: ${{ github.event.inputs.cublas }}
     name: Compile (cublas)
-    runs-on: windows-latest
     strategy:
+      fail-fast: true
       matrix:
+        os: [ubuntu-latest, windows-latest]
         cuda: ['12.1.0', '11.7.1']
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Clone
         id: checkout
@@ -106,12 +108,20 @@ jobs:
           cd build
           cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
           cmake --build . --config Release
+          ls -R
 
-      - name: Upload artifacts
+      - name: Upload artifacts (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v3
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+      - name: Upload artifacts (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: .\build\bin\Release\llama.so
+          name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
     
   compile-macos:
     if: ${{ github.event.inputs.macos }}
