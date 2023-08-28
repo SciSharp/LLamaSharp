@@ -1,0 +1,232 @@
+name: Update Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      cublas:
+        type: boolean
+        description: Build CUBLAS binaries
+      macos:
+        type: boolean
+        description: Build MacOS binaries
+  push:
+    branches: [cron_job]
+  #schedule:
+  #  - cron: "22 22 * * 2"
+
+jobs:
+  compile-linux:
+    name: Compile (Linux)
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx2'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx512'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ matrix.defines }}
+          cmake --build . --config Release
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./build/libllama.so
+          name: llama-bin-linux-${{ matrix.build }}-x64.so
+
+  compile-windows:
+    name: Compile (Windows)
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx2'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+          - build: 'avx512'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp
+
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ matrix.defines }}
+          cmake --build . --config Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: .\build\bin\Release\llama.dll
+          name: llama-bin-win-${{ matrix.build }}-x64.dll
+
+  compile-windows-cublas:
+    if: ${{ github.event.inputs.cublas }}
+    name: Compile (cublas)
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        cuda: ['12.1.0', '11.7.1']
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp
+
+      - uses: Jimver/cuda-toolkit@v0.2.10
+        id: cuda-toolkit
+        with:
+          cuda: ${{ matrix.cuda }}
+
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
+          cmake --build . --config Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: .\build\bin\Release\llama.dll
+          name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+    
+  compile-macos:
+    if: ${{ github.event.inputs.macos }}
+    name: Compile (MacOS)
+    runs-on: macos-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build: 'arm64'
+            arch: 'arm64'
+          - build: 'x86_64'
+            arch: 'x86_64'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ggerganov/llama.cpp
+
+      - name: Dependencies
+        continue-on-error: true
+        run: |
+          brew update
+
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} ..
+          cmake --build . --config Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/libllama.dylib
+          name: llama-bin-macos-${{ matrix.arch }}.dylib
+  
+  build-deps:
+    runs-on: ubuntu-latest
+    name: "Gather Binaries"
+    if: ${{ always() }}
+    needs: [
+      "compile-linux",
+      "compile-macos",
+      "compile-windows",
+      "compile-windows-cublas"
+    ]
+    steps:      
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Rearrange Files
+        run: |
+          ls -R
+
+          mkdir deps
+
+          mkdir deps/linux
+          mkdir deps/linux/noavx
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/linux/noavx/libllama.so
+          mkdir deps/linux/avx
+          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/linux/avx/libllama.so
+          mkdir deps/linux/avx2
+          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/linux/avx2/libllama.so
+          mkdir deps/linux/avx512
+          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/linux/avx512/libllama.so
+
+          mkdir deps/win
+          mkdir deps/win/noavx
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/win/noavx/libllama.dll
+          mkdir deps/win/avx
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/win/avx/libllama.dll
+          mkdir deps/win/avx2
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/win/avx2/libllama.dll
+          mkdir deps/win/avx512
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
+
+      - name: Rearrange MacOS files
+        if: ${{ github.event.inputs.macos }}
+        run: |
+          mkdir deps/macos-arm64
+          mkdir deps/macos-x86_64
+          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
+
+      - name: Rearrange CUDA files
+        if: ${{ github.event.inputs.cublas }}
+        run: |
+          mkdir deps/win/cu12.1.0
+          mkdir deps/win/cu11.7.1
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: deps/
+          name: deps
+      - name: Upload artifacts (CUDA12)
+        if: ${{ github.event.inputs.cublas }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: cu12.1.0/
+          name: cu12.1.0
+      - name: Upload artifacts (CUDA11)
+        if: ${{ github.event.inputs.cublas }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: cu11.7.1/
+          name: cu11.7.1
+
+      - name: Remove Artifacts
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: |
+            llama-*
