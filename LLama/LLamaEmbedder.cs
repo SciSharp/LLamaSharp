@@ -65,10 +65,6 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public float[] GetEmbeddings(string text, bool addBos)
         {
-            if (addBos)
-            {
-                text = text.Insert(0, " ");
-            }
 
             var embed_inp_array = _ctx.Tokenize(text, addBos);
 

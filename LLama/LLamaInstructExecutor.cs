@@ -114,7 +114,6 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                text = " " + text;
                 _embed_inps = Context.Tokenize(text, true).ToList();
             }
             else

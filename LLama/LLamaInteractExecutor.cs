@@ -26,7 +26,7 @@ namespace LLama
         /// <param name="context"></param>
         public InteractiveExecutor(LLamaContext context) : base(context)
         {
-            _llama_token_newline = Context.NativeHandle.Tokenize("\n", false, Context.Encoding);
+            _llama_token_newline = new [] { NativeApi.llama_token_nl(Context.NativeHandle) };
         }
 
         /// <inheritdoc />
@@ -104,7 +104,6 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                text = " " + text;
                 _embed_inps = Context.Tokenize(text, true).ToList();
             }
             else
