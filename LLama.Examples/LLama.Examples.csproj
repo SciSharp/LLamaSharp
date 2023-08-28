@@ -52,18 +52,6 @@
     <None Update="Assets\reason-act.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/ggml-metal.metal">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda11.so">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda12.so">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-metal.dylib">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

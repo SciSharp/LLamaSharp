@@ -16,15 +16,15 @@
             <Link>libllama-cuda12.dll</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.so">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>None</CopyToOutputDirectory>
             <Link>libllama.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.so">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>None</CopyToOutputDirectory>
             <Link>libllama-cuda11.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda12.so">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>None</CopyToOutputDirectory>
             <Link>libllama-cuda12.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.dylib">
@@ -32,11 +32,11 @@
             <Link>libllama.dylib</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-metal.dylib">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>None</CopyToOutputDirectory>
             <Link>libllama-metal.dylib</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/ggml-metal.metal">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>None</CopyToOutputDirectory>
             <Link>ggml-metal.metal</Link>
         </None>    
     </ItemGroup>
