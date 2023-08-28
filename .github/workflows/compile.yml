@@ -131,8 +131,7 @@ jobs:
       fail-fast: true
       matrix:
         arch: [
-          "arm64",
-          #"x86_64"
+          "arm64"
         ]
 
     steps:
@@ -205,8 +204,6 @@ jobs:
         run: |
           mkdir deps/macos-arm64
           cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
-          mkdir deps/macos-x86_64
-          cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
