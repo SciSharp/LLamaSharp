@@ -94,7 +94,7 @@ namespace LLama.Native
             {
                 fixed (byte* destPtr = dest)
                 {
-                    var length = NativeApi.llama_token_to_str_with_model(this, llama_token, destPtr, dest.Length);
+                    var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, destPtr, dest.Length);
                     return Math.Abs(length);
                 }
             }
@@ -110,7 +110,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                var length = NativeApi.llama_token_to_str_with_model(this, llama_token, null, 0);
+                var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, null, 0);
                 if (length == 0)
                     return "";
 
@@ -118,7 +118,7 @@ namespace LLama.Native
 
                 fixed (byte* bytePtr = bytes)
                 {
-                    var written = NativeApi.llama_token_to_str_with_model(this, llama_token, bytePtr, bytes.Length);
+                    var written = NativeApi.llama_token_to_piece_with_model(this, llama_token, bytePtr, bytes.Length);
                     Debug.Assert(written == bytes.Length);
 
                     return encoding.GetString(bytePtr, bytes.Length);
@@ -136,7 +136,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                var length = NativeApi.llama_token_to_str_with_model(this, llama_token, null, 0);
+                var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, null, 0);
                 if (length == 0)
                     return;
 
@@ -144,7 +144,7 @@ namespace LLama.Native
                 fixed (byte* bytePtr = bytes)
                 {
                     // Decode into bytes
-                    var written = NativeApi.llama_token_to_str_with_model(this, llama_token, bytePtr, bytes.Length);
+                    var written = NativeApi.llama_token_to_piece_with_model(this, llama_token, bytePtr, bytes.Length);
                     Debug.Assert(written == bytes.Length);
 
                     // Decode into chars

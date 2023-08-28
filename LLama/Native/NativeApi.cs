@@ -414,7 +414,7 @@ namespace LLama.Native
         /// <param name="length">size of the buffer</param>
         /// <returns>The length writte, or if the buffer is too small a negative that indicates the length required</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_token_to_str_with_model(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
+        public static extern int llama_token_to_piece_with_model(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
 
         /// <summary>
         /// Convert text into tokens

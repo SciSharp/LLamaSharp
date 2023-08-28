@@ -37,34 +37,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="../runtimes/ggml-metal.metal">
+    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/ggml-metal.metal">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="../runtimes/libllama-cuda11.dll">
+    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda11.so">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="../runtimes/libllama-cuda11.so">
+    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-cuda12.so">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="../runtimes/libllama-cuda12.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="../runtimes/libllama-cuda12.so">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="../runtimes/libllama-metal.dylib">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="../runtimes/libllama.dylib">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="../runtimes/libllama.so">
+    <None Update="C:\Users\Martin\Documents\dotnet\LLamaSharp\LLama\runtimes/libllama-metal.dylib">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Models\codellama-7b.Q3_K_S.gguf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Models\llama-2-7b-chat.ggmlv3.q3_K_S.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
