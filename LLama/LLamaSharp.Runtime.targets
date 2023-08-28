@@ -16,7 +16,7 @@
             <Link>libllama-cuda12.dll</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.so">
-            <CopyToOutputDirectory>None</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>libllama.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.so">
