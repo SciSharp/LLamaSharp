@@ -202,10 +202,10 @@ jobs:
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
         run: |
-          mkdir deps/win/cu11.7.1
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll deps/win/cu11.7.1/libllama.dll
-          mkdir deps/win/cu12.1.0
-          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll deps/win/cu12.1.0/libllama.dll
+          mkdir cu11.7.1
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
+          mkdir cu12.1.0
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
