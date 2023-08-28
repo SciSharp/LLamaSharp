@@ -1,9 +1,14 @@
 name: Update Binaries
-env:
-  compile_cuda: false
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      cublas:
+        type: boolean
+        description: Build CUBLAS binaries
+      macos:
+        type: boolean
+        description: Build MacOS binaries
   push:
     branches: [cron_job]
   #schedule:
@@ -76,7 +81,7 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-windows-cublas:
-    if: false
+    if: ${{ github.event.inputs.cublas }}
     name: Compile (cublas)
     runs-on: windows-latest
     strategy:
@@ -109,6 +114,7 @@ jobs:
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
     
   compile-macos:
+    if: ${{ github.event.inputs.macos }}
     name: Compile (MacOS)
     runs-on: macos-latest
     strategy:
@@ -186,6 +192,7 @@ jobs:
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
 
       - name: Rearrange MacOS files
+        if: ${{ github.event.inputs.macos }}
         run: |
           mkdir deps/macos-arm64
           mkdir deps/macos-x86_64
@@ -193,7 +200,7 @@ jobs:
           cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
 
       - name: Rearrange CUDA files
-        if: github.env.compile_cuda
+        if: ${{ github.event.inputs.cublas }}
         run: |
           mkdir deps/win/cu12.1.0
           mkdir deps/win/cu11.7.1
@@ -206,13 +213,13 @@ jobs:
           path: deps/
           name: deps
       - name: Upload artifacts (CUDA12)
-        if: github.env.compile_cuda
+        if: ${{ github.event.inputs.cublas }}
         uses: actions/upload-artifact@v3
         with:
           path: cu12.1.0/
           name: cu12.1.0
       - name: Upload artifacts (CUDA11)
-        if: github.env.compile_cuda
+        if: ${{ github.event.inputs.cublas }}
         uses: actions/upload-artifact@v3
         with:
           path: cu11.7.1/
