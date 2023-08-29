@@ -80,13 +80,15 @@ jobs:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
-  compile-windows-cublas:
+  compile-cublas:
     if: ${{ github.event.inputs.cublas }}
     name: Compile (cublas)
-    runs-on: windows-latest
     strategy:
+      fail-fast: true
       matrix:
+        os: [ubuntu-latest, windows-latest]
         cuda: ['12.1.0', '11.7.1']
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Clone
         id: checkout
@@ -104,14 +106,22 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
+          cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
           cmake --build . --config Release
+          ls -R
 
-      - name: Upload artifacts
+      - name: Upload artifacts (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v3
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+      - name: Upload artifacts (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/libllama.so
+          name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
     
   compile-macos:
     if: ${{ github.event.inputs.macos }}
@@ -120,11 +130,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - build: 'arm64'
-            arch: 'arm64'
-          - build: 'x86_64'
-            arch: 'x86_64'
+        arch: [
+          "arm64"
+        ]
 
     steps:
       - uses: actions/checkout@v3
@@ -158,7 +166,7 @@ jobs:
       "compile-linux",
       "compile-macos",
       "compile-windows",
-      "compile-windows-cublas"
+      "compile-cublas"
     ]
     steps:      
       - uses: actions/download-artifact@v3
@@ -196,16 +204,16 @@ jobs:
         run: |
           mkdir deps/macos-arm64
           cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
-          mkdir deps/macos-x86_64
-          cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
         run: |
           mkdir cu11.7.1
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
           mkdir cu12.1.0
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/libllama.so cu12.1.0/libllama.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
