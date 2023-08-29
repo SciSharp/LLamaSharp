@@ -84,7 +84,7 @@ jobs:
     if: ${{ github.event.inputs.cublas }}
     name: Compile (cublas)
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         cuda: ['12.1.0', '11.7.1']
@@ -210,10 +210,10 @@ jobs:
         run: |
           mkdir cu11.7.1
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
+          cp artifacts/llama-linux-win-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
           mkdir cu12.1.0
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
-          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/libllama.so cu12.1.0/libllama.so
+          cp artifacts/llama-linux-win-cublas-cu12.1.0-x64.dll/libllama.so cu12.1.0/libllama.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
