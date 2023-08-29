@@ -210,10 +210,10 @@ jobs:
         run: |
           mkdir cu11.7.1
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
-          cp artifacts/llama-linux-win-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
+          cp artifacts/llama-linux-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
           mkdir cu12.1.0
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
-          cp artifacts/llama-linux-win-cublas-cu12.1.0-x64.dll/libllama.so cu12.1.0/libllama.so
+          cp artifacts/llama-linux-cublas-cu12.1.0-x64.dll/libllama.so cu12.1.0/libllama.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
