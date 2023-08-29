@@ -20,11 +20,11 @@
             <Link>libllama.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.so">
-            <CopyToOutputDirectory>None</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>libllama-cuda11.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda12.so">
-            <CopyToOutputDirectory>None</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>libllama-cuda12.so</Link>
         </None>
         <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.dylib">
