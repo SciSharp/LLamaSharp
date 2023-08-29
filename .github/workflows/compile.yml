@@ -213,7 +213,7 @@ jobs:
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
           mkdir cu12.1.0
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
-          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.dll/libllama.so cu12.1.0/libllama.so
+          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so cu12.1.0/libllama.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
