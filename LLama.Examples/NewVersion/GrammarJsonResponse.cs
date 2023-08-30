@@ -1,6 +1,5 @@
 ﻿using LLama.Common;
-using LLama.Grammar;
-using LLama.Native;
+using LLama.Grammars;
 
 namespace LLama.Examples.NewVersion
 {
@@ -8,8 +7,8 @@ namespace LLama.Examples.NewVersion
     {
         public static void Run()
         {
-            var grammarBytes = File.ReadAllText("Assets/json.gbnf").Trim();
-            var parsedGrammar = new GrammarParser();
+            var gbnf = File.ReadAllText("Assets/json.gbnf").Trim();
+            var grammar = Grammar.Parse(gbnf, "root");
 
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
@@ -22,19 +21,18 @@ namespace LLama.Examples.NewVersion
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             var ex = new StatelessExecutor(model, parameters);
-            ParseState state = parsedGrammar.Parse(grammarBytes);
-            using var grammar = SafeLLamaGrammarHandle.Create(state.Rules, 0);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions and always respond in a JSON format. For example, you can input \"Tell me the attributes of a good dish\"");
             Console.ForegroundColor = ConsoleColor.White;
 
+            using var grammarInstance = grammar.CreateInstance();
             var inferenceParams = new InferenceParams() 
             { 
                 Temperature = 0.6f, 
                 AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" }, 
                 MaxTokens = 50,
-                Grammar = grammar
+                Grammar = grammarInstance
             };
 
             while (true)

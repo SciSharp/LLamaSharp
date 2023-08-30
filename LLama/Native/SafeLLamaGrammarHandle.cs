@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using LLama.Exceptions;
+using LLama.Grammars;
 
 namespace LLama.Native
 {
@@ -38,11 +39,11 @@ namespace LLama.Native
         /// <param name="start_rule_index">The index (in the outer list) of the start rule</param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public static SafeLLamaGrammarHandle Create(IReadOnlyList<IReadOnlyList<LLamaGrammarElement>> rules, ulong start_rule_index)
+        public static SafeLLamaGrammarHandle Create(IReadOnlyList<GrammarRule> rules, ulong start_rule_index)
         {
             unsafe
             {
-                var totalElements = rules.Sum(a => a.Count);
+                var totalElements = rules.Sum(a => a.Elements.Count);
                 var nrules = (ulong)rules.Count;
 
                 // Borrow an array large enough to hold every single element
@@ -61,7 +62,7 @@ namespace LLama.Native
                             pointers[pointerIndex++] = (IntPtr)(allElementsPtr + elementIndex);
 
                             // Copy all of the rule elements into the flat array
-                            foreach (var element in rule)
+                            foreach (var element in rule.Elements)
                                 allElementsPtr[elementIndex++] = element;
                         }
 

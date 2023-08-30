@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Grammars;
 using LLama.Native;
 
 namespace LLama.Unittest
@@ -26,14 +27,14 @@ namespace LLama.Unittest
         [Fact]
         public void CreateBasicGrammar()
         {
-            var rules = new List<List<LLamaGrammarElement>>
+            var rules = new List<GrammarRule>
             {
-                new()
+                new GrammarRule("alpha", new[]
                 {
                     new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'a'),
                     new LLamaGrammarElement(LLamaGrammarElementType.CHAR_RNG_UPPER, 'z'),
                     new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
-                },
+                }),
             };
 
             using var handle = SafeLLamaGrammarHandle.Create(rules, 0);
@@ -44,15 +45,15 @@ namespace LLama.Unittest
         {
             // Create a grammar that constrains the output to be "cat" and nothing else. This is a nonsense answer, so
             // we can be confident it's not what the LLM would say if not constrained by the grammar!
-            var rules = new List<List<LLamaGrammarElement>>
+            var rules = new List<GrammarRule>
             {
-                new()
+                new GrammarRule("feline", new []
                 {
                     new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'c'),
                     new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'a'),
                     new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 't'),
                     new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
-                },
+                }),
             };
 
             using var grammar = SafeLLamaGrammarHandle.Create(rules, 0);
