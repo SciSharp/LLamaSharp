@@ -17,6 +17,7 @@
             Console.WriteLine("7: Get embeddings from LLama model.");
             Console.WriteLine("8: Quantize the model.");
             Console.WriteLine("9: Automatic conversation.");
+            Console.WriteLine("10: Constrain response to json format using grammar.");
 
             while (true)
             {
@@ -62,6 +63,10 @@
                 else if (choice == 9)
                 {
                     await TalkToYourself.Run();
+                }
+                else if (choice == 10)
+                {
+                    GrammarJsonResponse.Run();
                 }
                 else
                 {
