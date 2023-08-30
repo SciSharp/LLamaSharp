@@ -32,16 +32,6 @@ namespace LLama.Native
         public int n_batch;
 
         /// <summary>
-        /// grouped-query attention (TEMP - will be moved to model hparams)
-        /// </summary>
-        public int n_gqa;
-
-        /// <summary>
-        /// rms norm epsilon (TEMP - will be moved to model hparams)
-        /// </summary>
-        public float rms_norm_eps;
-
-        /// <summary>
         /// number of layers to store in VRAM
         /// </summary>
         public int n_gpu_layers;
@@ -82,8 +72,8 @@ namespace LLama.Native
         /// if true, reduce VRAM usage at the cost of performance
         /// </summary>
         public bool low_vram
-        {
-            get => Convert.ToBoolean(_low_vram);
+        { 
+            readonly get => Convert.ToBoolean(_low_vram);
             set => _low_vram = Convert.ToSByte(value);
         }
         private sbyte _low_vram;
@@ -92,8 +82,8 @@ namespace LLama.Native
         /// if true, use experimental mul_mat_q kernels
         /// </summary>
         public bool mul_mat_q
-        {
-            get => Convert.ToBoolean(_mul_mat_q);
+        { 
+            readonly get => Convert.ToBoolean(_mul_mat_q);
             set => _mul_mat_q = Convert.ToSByte(value);
         }
         private sbyte _mul_mat_q;
@@ -102,8 +92,8 @@ namespace LLama.Native
         /// use fp16 for KV cache
         /// </summary>
         public bool f16_kv
-        {
-            get => Convert.ToBoolean(_f16_kv);
+        { 
+            readonly get => Convert.ToBoolean(_f16_kv);
             set => _f16_kv = Convert.ToSByte(value);
         }
         private sbyte _f16_kv;
@@ -112,8 +102,8 @@ namespace LLama.Native
         /// the llama_eval() call computes all logits, not just the last one
         /// </summary>
         public bool logits_all
-        {
-            get => Convert.ToBoolean(_logits_all);
+        { 
+            readonly get => Convert.ToBoolean(_logits_all);
             set => _logits_all = Convert.ToSByte(value);
         }
         private sbyte _logits_all;
@@ -122,8 +112,8 @@ namespace LLama.Native
         /// only load the vocabulary, no weights
         /// </summary>
         public bool vocab_only
-        {
-            get => Convert.ToBoolean(_vocab_only);
+        { 
+            readonly get => Convert.ToBoolean(_vocab_only);
             set => _vocab_only = Convert.ToSByte(value);
         }
         private sbyte _vocab_only;
@@ -132,8 +122,8 @@ namespace LLama.Native
         /// use mmap if possible
         /// </summary>
         public bool use_mmap
-        {
-            get => Convert.ToBoolean(_use_mmap);
+        { 
+            readonly get => Convert.ToBoolean(_use_mmap);
             set => _use_mmap = Convert.ToSByte(value);
         }
         private sbyte _use_mmap;
@@ -142,8 +132,8 @@ namespace LLama.Native
         /// force system to keep model in RAM
         /// </summary>
         public bool use_mlock
-        {
-            get => Convert.ToBoolean(_use_mlock);
+        { 
+            readonly get => Convert.ToBoolean(_use_mlock);
             set => _use_mlock = Convert.ToSByte(value);
         }
         private sbyte _use_mlock;
@@ -152,8 +142,8 @@ namespace LLama.Native
         /// embedding mode only
         /// </summary>
         public bool embedding
-        {
-            get => Convert.ToBoolean(_embedding);
+        { 
+            readonly get => Convert.ToBoolean(_embedding);
             set => _embedding = Convert.ToSByte(value);
         }
         private sbyte _embedding;

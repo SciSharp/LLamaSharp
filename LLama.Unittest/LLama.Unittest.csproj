@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <Target Name="DownloadContentFiles" BeforeTargets="Build">
-      <DownloadFile SourceUrl="https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q3_K_S.bin" DestinationFolder="Models" DestinationFileName="llama-2-7b-chat.ggmlv3.q3_K_S.bin" SkipUnchangedFiles="true">
+      <DownloadFile SourceUrl="https://huggingface.co/narrative-bi/Llama-2-7B-GGUF/resolve/main/llama-2-7b.q4_0.gguf" DestinationFolder="Models" DestinationFileName="llama-2-7b.q4_0.gguf" SkipUnchangedFiles="true">
     </DownloadFile>
   </Target>
 
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Models\llama-2-7b-chat.ggmlv3.q3_K_S.bin">
+    <None Update="Models\llama-2-7b.q4_0.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

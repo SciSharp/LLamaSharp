@@ -183,7 +183,7 @@ namespace LLama.Native
         /// <summary>
         /// Convert a token into a string
         /// </summary>
-        /// <param name="token"></param>
+        /// <param name="token">Token to decode into a string</param>
         /// <param name="encoding"></param>
         /// <returns></returns>
         public string TokenToString(int token, Encoding encoding)
@@ -192,13 +192,25 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Convert a token into a span of bytes that could be decoded into a string
+        /// Append a single llama token to a string builder
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public ReadOnlySpan<byte> TokenToSpan(int token)
+        /// <param name="token">Token to decode</param>
+        /// <param name="encoding"></param>
+        /// <param name="dest">string builder to append the result to</param>
+        public void TokenToString(int token, Encoding encoding, StringBuilder dest)
         {
-            return ThrowIfDisposed().TokenToSpan(token);
+            ThrowIfDisposed().TokenToString(token, encoding, dest);
+        }
+
+        /// <summary>
+        /// Convert a single llama token into bytes
+        /// </summary>
+        /// <param name="token">Token to decode</param>
+        /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
+        /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
+        public int TokenToSpan(int token, Span<byte> dest)
+        {
+            return ThrowIfDisposed().TokenToSpan(token, dest);
         }
 
         /// <summary>

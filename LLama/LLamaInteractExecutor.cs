@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text;
 
 namespace LLama
 {
@@ -25,7 +26,7 @@ namespace LLama
         /// <param name="context"></param>
         public InteractiveExecutor(LLamaContext context) : base(context)
         {
-            _llama_token_newline = Context.NativeHandle.Tokenize("\n", false, Context.Encoding);
+            _llama_token_newline = new [] { NativeApi.llama_token_nl(Context.NativeHandle) };
         }
 
         /// <inheritdoc />
@@ -103,7 +104,6 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                text = " " + text;
                 _embed_inps = Context.Tokenize(text, true).ToList();
             }
             else
@@ -132,11 +132,10 @@ namespace LLama
             {
                 if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                 {
-                    string last_output = "";
-                    foreach (var id in _last_n_tokens)
-                    {
-                        last_output += Context.NativeHandle.TokenToString(id, Context.Encoding);
-                    }
+                    var last_output_builder = new StringBuilder();
+                    foreach (var token in _last_n_tokens)
+                        Context.NativeHandle.TokenToString(token, Context.Encoding, last_output_builder);
+                    var last_output = last_output_builder.ToString();
 
                     foreach (var antiprompt in args.Antiprompts)
                     {
@@ -154,7 +153,7 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos())
+            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle))
             {
                 extraOutputs = new[] { " [end of text]\n" };
                 return true;
@@ -215,7 +214,7 @@ namespace LLama
 
                 _last_n_tokens.Enqueue(id);
 
-                if (id == NativeApi.llama_token_eos())
+                if (id == NativeApi.llama_token_eos(Context.NativeHandle))
                 {
                     id = _llama_token_newline.First();
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
