@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
@@ -49,6 +50,7 @@ namespace LLama.Native
     /// An element of a grammar
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [DebuggerDisplay("{Type} {Value}")]
     public struct LLamaGrammarElement
     {
         /// <summary>
