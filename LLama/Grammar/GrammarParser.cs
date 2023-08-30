@@ -372,25 +372,17 @@ namespace LLama.Grammar
 
         public ParseState Parse(string input)
         {
-            try
-            {
-                byte[] byteArray = Encoding.UTF8.GetBytes(input);
-                ReadOnlySpan<byte> src = new ReadOnlySpan<byte>(byteArray);
-                ParseState state = new ParseState();
-                ReadOnlySpan<byte> pos = ParseSpace(src, true);
+            byte[] byteArray = Encoding.UTF8.GetBytes(input);
+            ReadOnlySpan<byte> src = new ReadOnlySpan<byte>(byteArray);
+            ParseState state = new ParseState();
+            ReadOnlySpan<byte> pos = ParseSpace(src, true);
 
-                while (!pos.IsEmpty)
-                {
-                    pos = ParseRule(state, pos);
-                }
-
-                return state;
-            }
-            catch(Exception err)
+            while (!pos.IsEmpty)
             {
-                Console.Error.WriteLine($"{nameof(Parse)}: error parsing grammar: {err.Message}");
-                throw;
+                pos = ParseRule(state, pos);
             }
+
+            return state;
         }
     }
 }
