@@ -2,6 +2,8 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 
+using llama_token = System.Int32;
+
 namespace LLama.Native
 {
     /// <summary>
@@ -15,9 +17,9 @@ namespace LLama.Native
         public readonly Memory<LLamaTokenData> data;
 
         /// <summary>
-        /// Indicates if `data` is sorted
+        /// Indicates if `data` is sorted by logits in descending order. If this is false the token data is in _no particular order_.
         /// </summary>
-        public readonly bool sorted;
+        public bool sorted;
 
         /// <summary>
         /// Create a new LLamaTokenDataArray
@@ -28,6 +30,20 @@ namespace LLama.Native
         {
             data = tokens;
             sorted = isSorted;
+        }
+
+        /// <summary>
+        /// Create a new LLamaTokenDataArray, copying the data from the given logits
+        /// </summary>
+        /// <param name="logits"></param>
+        /// <returns></returns>
+        public static LLamaTokenDataArray Create(ReadOnlySpan<float> logits)
+        {
+            var candidates = new LLamaTokenData[logits.Length];
+            for (var token_id = 0; token_id < logits.Length; token_id++)
+                candidates[token_id] = new LLamaTokenData(token_id, logits[token_id], 0.0f);
+
+            return new LLamaTokenDataArray(candidates);
         }
     }
 
