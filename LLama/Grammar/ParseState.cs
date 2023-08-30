@@ -10,7 +10,7 @@ namespace LLama.Grammar
     /// 
     /// The commit hash from URL is the actual commit hash that reflects current C# code.
     /// </summary>
-    internal class ParseState
+    public class ParseState
     {
         public Dictionary<string, uint> SymbolIds { get; } = new Dictionary<string, uint>();
         public List<List<LLamaGrammarElement>> Rules { get; } = new List<List<LLamaGrammarElement>>();

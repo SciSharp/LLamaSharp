@@ -12,11 +12,11 @@ namespace LLama.Grammar
     /// 
     /// The commit hash from URL is the actual commit hash that reflects current C# code.
     /// </summary>
-    internal class GrammarParser
+    public class GrammarParser
     {
         // NOTE: assumes valid utf8 (but checks for overrun)
         // copied from llama.cpp
-        public uint DecodeUTF8(ref ReadOnlySpan<byte> src)
+        private uint DecodeUTF8(ref ReadOnlySpan<byte> src)
         {
             int[] lookup = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
 
@@ -39,7 +39,7 @@ namespace LLama.Grammar
             return value;
         }
 
-        public uint GetSymbolId(ParseState state, ReadOnlySpan<byte> src, int len)
+        private uint GetSymbolId(ParseState state, ReadOnlySpan<byte> src, int len)
         {
             uint nextId = (uint)state.SymbolIds.Count;
             string key = Encoding.UTF8.GetString(src.Slice(0, len).ToArray());
@@ -55,7 +55,7 @@ namespace LLama.Grammar
             }
         }
 
-        public uint GenerateSymbolId(ParseState state, string baseName)
+        private uint GenerateSymbolId(ParseState state, string baseName)
         {
             uint nextId = (uint)state.SymbolIds.Count;
             string key = $"{baseName}_{nextId}";
@@ -63,7 +63,7 @@ namespace LLama.Grammar
             return nextId;
         }
 
-        public void AddRule(ParseState state, uint ruleId, List<LLamaGrammarElement> rule)
+        private void AddRule(ParseState state, uint ruleId, List<LLamaGrammarElement> rule)
         {
             while (state.Rules.Count <= ruleId)
             {
@@ -73,12 +73,12 @@ namespace LLama.Grammar
             state.Rules[(int)ruleId] = rule;
         }
 
-        public bool IsWordChar(byte c)
+        private bool IsWordChar(byte c)
         {
             return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '-' || ('0' <= c && c <= '9');
         }
 
-        public uint ParseHex(ref ReadOnlySpan<byte> src, int size)
+        private uint ParseHex(ref ReadOnlySpan<byte> src, int size)
         {
             int pos = 0;
             int end = size;
@@ -114,7 +114,7 @@ namespace LLama.Grammar
             return value;
         }
 
-        public ReadOnlySpan<byte> ParseSpace(ReadOnlySpan<byte> src, bool newlineOk)
+        private ReadOnlySpan<byte> ParseSpace(ReadOnlySpan<byte> src, bool newlineOk)
         {
             int pos = 0;
             while (pos < src.Length &&
@@ -136,7 +136,7 @@ namespace LLama.Grammar
             return src.Slice(pos);
         }
 
-        public ReadOnlySpan<byte> ParseName(ReadOnlySpan<byte> src)
+        private ReadOnlySpan<byte> ParseName(ReadOnlySpan<byte> src)
         {
             int pos = 0;
             while (pos < src.Length && IsWordChar(src[pos]))
@@ -150,30 +150,31 @@ namespace LLama.Grammar
             return src.Slice(pos);
         }
 
-        public uint ParseChar(ref ReadOnlySpan<byte> src)
+        private uint ParseChar(ref ReadOnlySpan<byte> src)
         {
             if (src[0] == '\\')
             {
+                var chr = src[1];
                 src = src.Slice(2);
-                switch ((char)src[1])
+                switch (chr)
                 {
-                    case 'x':
+                    case (byte)'x':
                         return ParseHex(ref src, 2);
-                    case 'u':
+                    case (byte)'u':
                         return ParseHex(ref src, 4);
-                    case 'U':
+                    case (byte)'U':
                         return ParseHex(ref src, 8);
-                    case 't':
+                    case (byte)'t':
                         return '\t';
-                    case 'r':
+                    case (byte)'r':
                         return '\r';
-                    case 'n':
+                    case (byte)'n':
                         return '\n';
-                    case '\\':
-                    case '"':
-                    case '[':
-                    case ']':
-                        return src[1];
+                    case (byte)'\\':
+                    case (byte)'"':
+                    case (byte)'[':
+                    case (byte)']':
+                        return chr;
                     default:
                         throw new Exception("Unknown escape at " + Encoding.UTF8.GetString(src.ToArray()));
                 }
@@ -186,7 +187,7 @@ namespace LLama.Grammar
             throw new Exception("Unexpected end of input");
         }
 
-        public ReadOnlySpan<byte> ParseSequence(
+        private ReadOnlySpan<byte> ParseSequence(
             ParseState state,
             ReadOnlySpan<byte> pos,
             string ruleName,
@@ -202,7 +203,7 @@ namespace LLama.Grammar
                     pos = pos.Slice(1);
                     lastSymStart = outElements.Count;
 
-                    while (pos[0] != '"')
+                    while (!pos.IsEmpty && pos[0] != '"')
                     {
                         var charPair = ParseChar(ref pos);
                         outElements.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.CHAR, Value = charPair });
@@ -222,7 +223,7 @@ namespace LLama.Grammar
 
                     lastSymStart = outElements.Count;
 
-                    while (pos[0] != ']')
+                    while (!pos.IsEmpty && pos[0] != ']')
                     {
                         var charPair = ParseChar(ref pos);
                         var type = lastSymStart < outElements.Count ? LLamaGrammarElementType.CHAR_ALT : startType;
@@ -315,7 +316,7 @@ namespace LLama.Grammar
             return pos;
         }
 
-        public ReadOnlySpan<byte> ParseAlternates(
+        private ReadOnlySpan<byte> ParseAlternates(
             ParseState state,
             ReadOnlySpan<byte> src,
             string ruleName,
@@ -325,7 +326,7 @@ namespace LLama.Grammar
             var rule = new List<LLamaGrammarElement>();
             ReadOnlySpan<byte> pos = ParseSequence(state, src, ruleName, rule, isNested);
 
-            while (pos[0] == '|')
+            while (!pos.IsEmpty && pos[0] == '|')
             {
                 rule.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.ALT, Value = 0 });
                 pos = ParseSpace(pos.Slice(1), true);
@@ -338,11 +339,11 @@ namespace LLama.Grammar
             return pos;
         }
 
-        public ReadOnlySpan<byte> ParseRule(ParseState state, ReadOnlySpan<byte> src)
+        private ReadOnlySpan<byte> ParseRule(ParseState state, ReadOnlySpan<byte> src)
         {
             ReadOnlySpan<byte> nameEnd = ParseName(src);
             ReadOnlySpan<byte> pos = ParseSpace(nameEnd, false);
-            int nameLen = nameEnd.Length - src.Length;
+            int nameLen = src.Length - nameEnd.Length;
             uint ruleId = GetSymbolId(state, src.Slice(0, nameLen), nameLen);
             string name = Encoding.UTF8.GetString(src.Slice(0, nameLen).ToArray());
 
@@ -354,25 +355,27 @@ namespace LLama.Grammar
 
             pos = ParseAlternates(state, pos, name, ruleId, false);
 
-            if (pos[0] == '\r')
+            if (!pos.IsEmpty && pos[0] == '\r')
             {
                 pos = pos.Slice(pos[1] == '\n' ? 2 : 1);
             }
-            else if (pos[0] == '\n')
+            else if (!pos.IsEmpty && pos[0] == '\n')
             {
                 pos = pos.Slice(1);
             }
-            else if (pos.Length > 0)
+            else if (!pos.IsEmpty)
             {
                 throw new Exception($"Expecting newline or end at {Encoding.UTF8.GetString(pos.ToArray())}");
             }
             return ParseSpace(pos, true);
         }
 
-        public ParseState Parse(ReadOnlySpan<byte> src)
+        public ParseState Parse(string input)
         {
             try
             {
+                byte[] byteArray = Encoding.UTF8.GetBytes(input);
+                ReadOnlySpan<byte> src = new ReadOnlySpan<byte>(byteArray);
                 ParseState state = new ParseState();
                 ReadOnlySpan<byte> pos = ParseSpace(src, true);
 
@@ -390,7 +393,7 @@ namespace LLama.Grammar
             }
         }
 
-        public void PrintGrammarChar(StreamWriter file, uint c)
+        private void PrintGrammarChar(StreamWriter file, uint c)
         {
             if (c >= 0x20 && c <= 0x7F)
             {
@@ -403,7 +406,7 @@ namespace LLama.Grammar
             }
         }
 
-        public bool IsCharElement(LLamaGrammarElement elem)
+        private bool IsCharElement(LLamaGrammarElement elem)
         {
             switch (elem.Type)
             {
@@ -451,7 +454,7 @@ namespace LLama.Grammar
             file.WriteLine();
         }
 
-        public void PrintRule(
+        private void PrintRule(
             StreamWriter file,
             uint ruleId,
             List<LLamaGrammarElement> rule,
