@@ -42,7 +42,7 @@ namespace LLama.Grammar
         private uint GetSymbolId(ParseState state, ReadOnlySpan<byte> src, int len)
         {
             uint nextId = (uint)state.SymbolIds.Count;
-            string key = Encoding.UTF8.GetString(src.Slice(0, len).ToArray());
+            string key = Encoding.UTF8.GetString(src.Slice(0, src.Length - len).ToArray());
 
             if (state.SymbolIds.TryGetValue(key, out uint existingId))
             {
@@ -344,7 +344,7 @@ namespace LLama.Grammar
             ReadOnlySpan<byte> nameEnd = ParseName(src);
             ReadOnlySpan<byte> pos = ParseSpace(nameEnd, false);
             int nameLen = src.Length - nameEnd.Length;
-            uint ruleId = GetSymbolId(state, src.Slice(0, nameLen), nameLen);
+            uint ruleId = GetSymbolId(state, src.Slice(0, nameLen), 0);
             string name = Encoding.UTF8.GetString(src.Slice(0, nameLen).ToArray());
 
             if (!(pos[0] == ':' && pos[1] == ':' && pos[2] == '='))

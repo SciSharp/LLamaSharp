@@ -68,7 +68,7 @@ namespace LLama.Unittest
                 new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
                 new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, 1),
                 new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, 4),
-                new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
+                new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0),
                 new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, 1),
                 new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
                 new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 45),

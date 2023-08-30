@@ -12,7 +12,7 @@ namespace LLama.Grammar
     /// </summary>
     public class ParseState
     {
-        public Dictionary<string, uint> SymbolIds { get; } = new Dictionary<string, uint>();
+        public SortedDictionary<string, uint> SymbolIds { get; } = new SortedDictionary<string, uint>();
         public List<List<LLamaGrammarElement>> Rules { get; } = new List<List<LLamaGrammarElement>>();
 
         public IEnumerable<List<LLamaGrammarElement>> CRules()
