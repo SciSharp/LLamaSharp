@@ -29,9 +29,9 @@ namespace LLama
             _ctx = weights.CreateContext(@params);
         }
 
-        public LLamaEmbedder(LLamaContext ctx)
+        public LLamaEmbedder(LLamaWeights weights, IModelParams @params)
         {
-            _ctx = ctx;
+            _ctx = weights.CreateContext(@params);
         }
 
         /// <summary>
