@@ -54,6 +54,7 @@ namespace LLama.OldVersion
 
             int n_embed = NativeApi.llama_n_embd(_ctx);
             var embeddings = NativeApi.llama_get_embeddings(_ctx);
+
             if (embeddings == null)
             {
                 return new float[0];

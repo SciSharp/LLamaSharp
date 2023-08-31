@@ -29,6 +29,11 @@ namespace LLama
             _ctx = weights.CreateContext(@params);
         }
 
+        public LLamaEmbedder(LLamaContext ctx)
+        {
+            _ctx = ctx;
+        }
+
         /// <summary>
         /// Get the embeddings of the text.
         /// </summary>
