@@ -20,7 +20,6 @@
             Console.WriteLine("10: Constrain response to json format using grammar.");
             Console.WriteLine("11: Semantic Kernel Prompt.");
             Console.WriteLine("12: Semantic Kernel Chat.");
-            Console.WriteLine("13: Semantic Kernel Memory Skill.");
 
             while (true)
             {
@@ -78,10 +77,6 @@
                 else if (choice == 12)
                 {
                     await SemanticKernelChat.Run();
-                }
-                else if (choice == 13)
-                {
-                    await SemanticKernelMemorySkill.Run();
                 }
                 else
                 {
