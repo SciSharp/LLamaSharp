@@ -1,6 +1,6 @@
 ﻿using static LLama.LLamaTransforms;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama.ChatCompletion;
+namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
 /// <summary>
 /// Default HistoryTransform Patch

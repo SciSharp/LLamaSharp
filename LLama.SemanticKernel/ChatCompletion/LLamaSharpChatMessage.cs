@@ -1,6 +1,6 @@
 ﻿using Microsoft.SemanticKernel.AI.ChatCompletion;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama.ChatCompletion;
+namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
 /// <summary>
 /// LLamaSharp Chat Message

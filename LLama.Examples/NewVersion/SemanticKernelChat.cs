@@ -6,8 +6,8 @@ using LLama.Common;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.AI.TextCompletion;
-using Microsoft.SemanticKernel.Connectors.AI.LLama.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.AI.LLama.TextCompletion;
+using LLamaSharp.SemanticKernel.ChatCompletion;
+using LLamaSharp.SemanticKernel.TextCompletion;
 
 namespace LLama.Examples.NewVersion
 {

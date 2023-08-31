@@ -3,7 +3,7 @@ using Microsoft.SemanticKernel.Orchestration;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama.TextCompletion;
+namespace LLamaSharp.SemanticKernel.TextCompletion;
 
 internal sealed class LLamaTextResult : ITextStreamingResult
 {

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama.ChatCompletion;
+namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
 internal sealed class LLamaSharpChatResult : IChatStreamingResult
 {

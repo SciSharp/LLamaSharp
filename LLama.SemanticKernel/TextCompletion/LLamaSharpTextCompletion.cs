@@ -2,7 +2,7 @@
 using LLama.Abstractions;
 using Microsoft.SemanticKernel.AI.TextCompletion;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama.TextCompletion;
+namespace LLamaSharp.SemanticKernel.TextCompletion;
 
 public sealed class LLamaSharpTextCompletion : ITextCompletion
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.AI.TextCompletion;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama;
+namespace LLamaSharp.SemanticKernel;
 
 internal static class ExtensionMethods
 {

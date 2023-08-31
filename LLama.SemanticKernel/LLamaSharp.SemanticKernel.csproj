@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
-		<RootNamespace>Microsoft.SemanticKernel.Connectors.AI.LLama</RootNamespace>
+		<RootNamespace>LLamaSharp.SemanticKernel</RootNamespace>
 		<Nullable>enable</Nullable>
 		<LangVersion>10</LangVersion>
 		<Platforms>AnyCPU;x64;Arm64</Platforms>

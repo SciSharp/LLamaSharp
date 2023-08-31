@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.SemanticKernel.Connectors.AI.LLama.ChatCompletion;
+namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
 /// <summary>
 /// LLamaSharp ChatCompletion
