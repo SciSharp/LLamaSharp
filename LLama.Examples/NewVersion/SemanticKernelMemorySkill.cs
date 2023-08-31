@@ -22,6 +22,7 @@ namespace LLama.Examples.NewVersion
 
         public static async Task Run()
         {
+            var loggerFactory = ConsoleLogger.LoggerFactory;
             Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example15_MemorySkill.cs");
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
@@ -30,16 +31,18 @@ namespace LLama.Examples.NewVersion
             var parameters = new ModelParams(modelPath)
             {
                 Seed = RandomNumberGenerator.GetInt32(int.MaxValue),
+                EmbeddingMode = true
+                , GpuLayerCount = 50
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
-            var ex = new InteractiveExecutor(context);
-            var ex2 = new StatelessExecutor(model, parameters);
+            //var ex = new InteractiveExecutor(context);
+            var ex = new InstructExecutor(context);
             var builder = new KernelBuilder();
-
+            builder.WithLoggerFactory(loggerFactory);
             var embedding = new LLamaEmbedder(context);
 
-            builder.WithAIService<IChatCompletion>("local-llama", new LLamaSharpChatCompletion(ex), true);
+            //builder.WithAIService<IChatCompletion>("local-llama", new LLamaSharpChatCompletion(ex), true);
             builder.WithAIService<ITextCompletion>("local-llama-text", new LLamaSharpTextCompletion(ex), true);
             builder.WithAIService<ITextEmbeddingGeneration>("local-llama-embed", new LLamaSharpEmbeddingGeneration(embedding), true);
             builder.WithMemoryStorage(new VolatileMemoryStore());
@@ -71,12 +74,20 @@ namespace LLama.Examples.NewVersion
             // ========= Test memory remember =========
             Console.WriteLine("========= Example: Recalling a Memory =========");
 
-            var answer = await memorySkill.RetrieveAsync(MemoryCollectionName, "info1", null);
+            var answer = await memorySkill.RetrieveAsync(MemoryCollectionName, "info1", loggerFactory);
             Console.WriteLine("Memory associated with 'info1': {0}", answer);
-            /*
-            Output:
-            "Memory associated with 'info1': My name is Andrea
-            */
+
+            answer = await memorySkill.RetrieveAsync(MemoryCollectionName, "info2", loggerFactory);
+            Console.WriteLine("Memory associated with 'info2': {0}", answer);
+
+            answer = await memorySkill.RetrieveAsync(MemoryCollectionName, "info3", loggerFactory);
+            Console.WriteLine("Memory associated with 'info3': {0}", answer);
+
+            answer = await memorySkill.RetrieveAsync(MemoryCollectionName, "info4", loggerFactory);
+            Console.WriteLine("Memory associated with 'info4': {0}", answer);
+
+            answer = await memorySkill.RetrieveAsync(MemoryCollectionName, "info5", loggerFactory);
+            Console.WriteLine("Memory associated with 'info5': {0}", answer);
 
             // ========= Test memory recall =========
             Console.WriteLine("========= Example: Recalling an Idea =========");
@@ -155,7 +166,7 @@ Answer:
                 My name is Andrea and my family is from New York. I work as a tourist operator.
             */
 
-            await memorySkill.RemoveAsync(MemoryCollectionName, "info1", null);
+            await memorySkill.RemoveAsync(MemoryCollectionName, "info1", loggerFactory);
 
             result = await kernel.RunAsync(aboutMeOracle, new("Tell me a bit about myself"));
 
