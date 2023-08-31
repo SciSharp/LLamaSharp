@@ -1,10 +1,11 @@
-﻿using LLama.Exceptions;
-using LLama.Native;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using LLama.Exceptions;
+using LLama.Native;
 
-namespace LLama.Grammar
+namespace LLama.Grammars
 {
     /// <summary>
     /// Source:
@@ -12,7 +13,7 @@ namespace LLama.Grammar
     /// 
     /// The commit hash from URL is the actual commit hash that reflects current C# code.
     /// </summary>
-    public class GrammarParser
+    internal sealed class GBNFGrammarParser
     {
         // NOTE: assumes valid utf8 (but checks for overrun)
         // copied from llama.cpp
@@ -206,7 +207,7 @@ namespace LLama.Grammar
                     while (!pos.IsEmpty && pos[0] != '"')
                     {
                         var charPair = ParseChar(ref pos);
-                        outElements.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.CHAR, Value = charPair });
+                        outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.CHAR, charPair));
                     }
                     pos = ParseSpace(pos.Slice(1), isNested);
                 }
@@ -228,13 +229,13 @@ namespace LLama.Grammar
                         var charPair = ParseChar(ref pos);
                         var type = lastSymStart < outElements.Count ? LLamaGrammarElementType.CHAR_ALT : startType;
 
-                        outElements.Add(new LLamaGrammarElement { Type = type, Value = charPair });
+                        outElements.Add(new LLamaGrammarElement(type, charPair));
 
                         if (pos[0] == '-' && pos[1] != ']')
                         {
                             pos = pos.Slice(1);
                             var endCharPair = ParseChar(ref pos);
-                            outElements.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.CHAR_RNG_UPPER, Value = endCharPair });
+                            outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.CHAR_RNG_UPPER, endCharPair));
                         }
                     }
                     pos = ParseSpace(pos.Slice(1), isNested);
@@ -245,7 +246,7 @@ namespace LLama.Grammar
                     uint refRuleId = GetSymbolId(state, pos, nameEnd.Length);
                     pos = ParseSpace(nameEnd, isNested);
                     lastSymStart = outElements.Count;
-                    outElements.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.RULE_REF, Value = refRuleId });
+                    outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, refRuleId));
                 }
                 else if (pos[0] == '(')  // grouping
                 {
@@ -255,7 +256,7 @@ namespace LLama.Grammar
                     pos = ParseAlternates(state, pos, ruleName, subRuleId, true);
                     lastSymStart = outElements.Count;
                     // output reference to synthesized rule
-                    outElements.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.RULE_REF, Value = subRuleId });
+                    outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, subRuleId));
                     if (pos[0] != ')')
                     {
                         throw new GrammarFormatException($"Expecting ')' at {Encoding.UTF8.GetString(pos.ToArray())}");
@@ -284,11 +285,11 @@ namespace LLama.Grammar
                     if (pos[0] == '*' || pos[0] == '+')
                     {
                         // cause generated rule to recurse
-                        subRule.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.RULE_REF, Value = subRuleId });
+                        subRule.Add(new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, subRuleId));
                     }
 
                     // mark start of alternate def
-                    subRule.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.ALT, Value = 0 });
+                    subRule.Add(new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0));
 
                     if (pos[0] == '+')
                     {
@@ -296,13 +297,13 @@ namespace LLama.Grammar
                         subRule.AddRange(outElements.GetRange(lastSymStart, outElements.Count - lastSymStart));
                     }
 
-                    subRule.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.END, Value = 0 });
+                    subRule.Add(new LLamaGrammarElement(LLamaGrammarElementType.END, 0));
 
                     AddRule(state, subRuleId, subRule);
 
                     // in original rule, replace previous symbol with reference to generated rule
                     outElements.RemoveRange(lastSymStart, outElements.Count - lastSymStart);
-                    outElements.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.RULE_REF, Value = subRuleId });
+                    outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, subRuleId));
 
                     pos = ParseSpace(pos.Slice(1), isNested);
 
@@ -328,12 +329,12 @@ namespace LLama.Grammar
 
             while (!pos.IsEmpty && pos[0] == '|')
             {
-                rule.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.ALT, Value = 0 });
+                rule.Add(new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0));
                 pos = ParseSpace(pos.Slice(1), true);
                 pos = ParseSequence(state, pos, ruleName, rule, isNested);
             }
 
-            rule.Add(new LLamaGrammarElement { Type = LLamaGrammarElementType.END, Value = 0 });
+            rule.Add(new LLamaGrammarElement(LLamaGrammarElementType.END, 0));
             AddRule(state, ruleId, rule);
 
             return pos;
@@ -370,19 +371,41 @@ namespace LLama.Grammar
             return ParseSpace(pos, true);
         }
 
-        public ParseState Parse(string input)
+        /// <summary>
+        /// Parse a string of <a href="https://github.com/ggerganov/llama.cpp/tree/master/grammars">GGML BNF</a>
+        /// </summary>
+        /// <param name="input">The string to parse</param>
+        /// <param name="startRule">The name of the root rule of this grammar</param>
+        /// <exception cref="GrammarFormatException">Thrown if input is malformed</exception>
+        /// <returns>A ParseState that can be converted into a grammar for sampling</returns>
+        public Grammar Parse(string input, string startRule)
         {
-            byte[] byteArray = Encoding.UTF8.GetBytes(input);
-            ReadOnlySpan<byte> src = new ReadOnlySpan<byte>(byteArray);
-            ParseState state = new ParseState();
-            ReadOnlySpan<byte> pos = ParseSpace(src, true);
+            var byteArray = Encoding.UTF8.GetBytes(input);
+            var state = new ParseState();
+            var pos = ParseSpace(byteArray, true);
 
             while (!pos.IsEmpty)
             {
                 pos = ParseRule(state, pos);
             }
 
-            return state;
+            var names = state.SymbolIds.ToDictionary(a => a.Value, a => a.Key);
+            var rules = new List<GrammarRule>();
+            for (var i = 0; i < state.Rules.Count; i++)
+            {
+                var elements = state.Rules[i];
+                var name = names[(uint)i];
+                rules.Add(new GrammarRule(name, elements));
+            }
+
+            var startRuleIndex = state.SymbolIds[startRule];
+            return new Grammar(rules, startRuleIndex);
+        }
+
+        private record ParseState
+        {
+            public SortedDictionary<string, uint> SymbolIds { get; } = new();
+            public List<List<LLamaGrammarElement>> Rules { get; } = new();
         }
     }
 }

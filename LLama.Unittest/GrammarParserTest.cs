@@ -1,8 +1,5 @@
-﻿using LLama.Common;
-using LLama.Native;
-using System.Diagnostics;
-using LLama.Grammar;
-using Newtonsoft.Json.Linq;
+﻿using LLama.Native;
+using LLama.Grammars;
 
 namespace LLama.Unittest
 {
@@ -17,14 +14,15 @@ namespace LLama.Unittest
         [Fact]
         public void ParseComplexGrammar()
         {
-            GrammarParser parsedGrammar = new GrammarParser();
+            GBNFGrammarParser parsedGrammar = new GBNFGrammarParser();
             string grammarBytes = @"root  ::= (expr ""="" term ""\n"")+
                 expr  ::= term ([-+*/] term)*
                 term  ::= [0-9]+";
 
-            ParseState state = parsedGrammar.Parse(grammarBytes);
+            var state = parsedGrammar.Parse(grammarBytes, "root");
+            Assert.Equal(0ul, state.StartRuleIndex);
 
-            List<KeyValuePair<string, uint>> expected = new List<KeyValuePair<string, uint>>
+            var expected = new List<KeyValuePair<string, uint>>
             {
                 new KeyValuePair<string, uint>("expr", 2),
                 new KeyValuePair<string, uint>("expr_5", 5),
@@ -36,27 +34,11 @@ namespace LLama.Unittest
                 new KeyValuePair<string, uint>("term_7", 7),
             };
 
-            uint index = 0;
-            foreach (var it in state.SymbolIds)
+            foreach (var symbol in expected)
             {
-                string key = it.Key;
-                uint value = it.Value;
-                var expectedPair = expected[(int)index];
-
-                // pretty print error message before asserting
-                if (expectedPair.Key != key || expectedPair.Value != value)
-                {
-                    Console.Error.WriteLine($"expectedPair: {expectedPair.Key}, {expectedPair.Value}");
-                    Console.Error.WriteLine($"actualPair: {key}, {value}");
-                    Console.Error.WriteLine("expectedPair != actualPair");
-                }
-                Assert.Equal(expectedPair.Key, key);
-                Assert.Equal(expectedPair.Value, value);
-
-                index++;
+                var rule = state.Rules[(int)symbol.Value];
+                Assert.Equal(symbol.Key, rule.Name);
             }
-            Assert.NotEmpty(state.SymbolIds);
-
 
             var expectedRules = new List<LLamaGrammarElement>
             {
@@ -96,13 +78,13 @@ namespace LLama.Unittest
                 new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
             };
 
-            index = 0;
+            uint index = 0;
             foreach (var rule in state.Rules)
             {
                 // compare rule to expected rule
-                for (uint i = 0; i < rule.Count; i++)
+                for (uint i = 0; i < rule.Elements.Count; i++)
                 {
-                    var element = rule[(int)i];
+                    var element = rule.Elements[(int)i];
                     var expectedElement = expectedRules[(int)index];
 
                     // Pretty print error message before asserting
@@ -124,7 +106,7 @@ namespace LLama.Unittest
         [Fact]
         public void ParseExtraComplexGrammar()
         {
-            GrammarParser parsedGrammar = new GrammarParser();
+            GBNFGrammarParser parsedGrammar = new GBNFGrammarParser();
             string grammarBytes = @"
                 root  ::= (expr ""="" ws term ""\n"")+
                 expr  ::= term ([-+*/] term)*
@@ -134,9 +116,10 @@ namespace LLama.Unittest
                 ws    ::= [ \t\n]*
             ";
 
-            ParseState state = parsedGrammar.Parse(grammarBytes);
+            var state = parsedGrammar.Parse(grammarBytes, "root");
+            Assert.Equal(0ul, state.StartRuleIndex);
 
-            List<KeyValuePair<string, uint>> expected = new List<KeyValuePair<string, uint>>
+            var expected = new List<KeyValuePair<string, uint>>
             {
                 new KeyValuePair<string, uint>("expr", 2),
                 new KeyValuePair<string, uint>("expr_6", 6),
@@ -153,27 +136,11 @@ namespace LLama.Unittest
                 new KeyValuePair<string, uint>("ws_12", 12),
             };
 
-            uint index = 0;
-            foreach (var it in state.SymbolIds)
+            foreach (var symbol in expected)
             {
-                string key = it.Key;
-                uint value = it.Value;
-                var expectedPair = expected[(int)index];
-
-                // pretty print error message before asserting
-                if (expectedPair.Key != key || expectedPair.Value != value)
-                {
-                    Console.Error.WriteLine($"expectedPair: {expectedPair.Key}, {expectedPair.Value}");
-                    Console.Error.WriteLine($"actualPair: {key}, {value}");
-                    Console.Error.WriteLine("expectedPair != actualPair");
-                }
-                Assert.Equal(expectedPair.Key, key);
-                Assert.Equal(expectedPair.Value, value);
-
-                index++;
+                var rule = state.Rules[(int)symbol.Value];
+                Assert.Equal(symbol.Key, rule.Name);
             }
-            Assert.NotEmpty(state.SymbolIds);
-
 
             var expectedRules = new List<LLamaGrammarElement>
             {
@@ -246,13 +213,13 @@ namespace LLama.Unittest
                 new LLamaGrammarElement(LLamaGrammarElementType.END, 0)
             };
 
-            index = 0;
+            uint index = 0;
             foreach (var rule in state.Rules)
             {
                 // compare rule to expected rule
-                for (uint i = 0; i < rule.Count; i++)
+                for (uint i = 0; i < rule.Elements.Count; i++)
                 {
-                    var element = rule[(int)i];
+                    var element = rule.Elements[(int)i];
                     var expectedElement = expectedRules[(int)index];
 
                     // Pretty print error message before asserting

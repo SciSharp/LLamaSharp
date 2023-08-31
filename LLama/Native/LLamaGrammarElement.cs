@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
@@ -51,17 +52,18 @@ namespace LLama.Native
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     [DebuggerDisplay("{Type} {Value}")]
-    public struct LLamaGrammarElement
+    public readonly struct LLamaGrammarElement
+        : IEquatable<LLamaGrammarElement>
     {
         /// <summary>
         /// The type of this element
         /// </summary>
-        public LLamaGrammarElementType Type;
+        public readonly LLamaGrammarElementType Type;
 
         /// <summary>
         /// Unicode code point or rule ID
         /// </summary>
-        public uint Value;
+        public readonly uint Value;
 
         /// <summary>
         /// Construct a new LLamaGrammarElement
@@ -72,6 +74,51 @@ namespace LLama.Native
         {
             Type = type;
             Value = value;
+        }
+
+        /// <inheritdoc />
+        public bool Equals(LLamaGrammarElement other)
+        {
+            if (Type != other.Type)
+                return false;
+
+            // No need to compare values for the END rule
+            if (Type == LLamaGrammarElementType.END)
+                return true;
+
+            return Value == other.Value;
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is LLamaGrammarElement other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = 2999;
+                hash = hash * 7723 + (int)Type;
+                hash = hash * 7723 + (int)Value;
+                return hash;
+            }
+        }
+
+        internal bool IsCharElement()
+        {
+            switch (Type)
+            {
+                case LLamaGrammarElementType.CHAR:
+                case LLamaGrammarElementType.CHAR_NOT:
+                case LLamaGrammarElementType.CHAR_ALT:
+                case LLamaGrammarElementType.CHAR_RNG_UPPER:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }
