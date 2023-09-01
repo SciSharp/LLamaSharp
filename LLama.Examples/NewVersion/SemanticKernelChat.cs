@@ -27,9 +27,6 @@ namespace LLama.Examples.NewVersion
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
             var ex = new InteractiveExecutor(context);
-            //var builder = new KernelBuilder();
-            //builder.WithAIService<IChatCompletion>("local-llama", new LLamaSharpChatCompletion(ex), true);
-            //var kernel = builder.Build();
 
             var chatGPT = new LLamaSharpChatCompletion(ex);
 
