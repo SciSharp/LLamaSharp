@@ -8,7 +8,7 @@
 
             Console.WriteLine("Please input a number to choose an example to run:");
             Console.WriteLine("0: Run a chat session without stripping the role names.");
-            Console.WriteLine("1: Run a chat session with the role names strippped.");
+            Console.WriteLine("1: Run a chat session with the role names stripped.");
             Console.WriteLine("2: Interactive mode chat by using executor.");
             Console.WriteLine("3: Instruct mode chat by using executor.");
             Console.WriteLine("4: Stateless mode chat by using executor.");
@@ -18,6 +18,8 @@
             Console.WriteLine("8: Quantize the model.");
             Console.WriteLine("9: Automatic conversation.");
             Console.WriteLine("10: Constrain response to json format using grammar.");
+            Console.WriteLine("11: Semantic Kernel Prompt.");
+            Console.WriteLine("12: Semantic Kernel Chat.");
 
             while (true)
             {
@@ -67,6 +69,14 @@
                 else if (choice == 10)
                 {
                     GrammarJsonResponse.Run();
+                }
+                else if (choice == 11)
+                {
+                    await SemanticKernelPrompt.Run();
+                }
+                else if (choice == 12)
+                {
+                    await SemanticKernelChat.Run();
                 }
                 else
                 {
