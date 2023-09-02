@@ -2,6 +2,12 @@
 
 Namespace: LLama.OldVersion
 
+#### Caution
+
+The entire LLama.OldVersion namespace will be removed
+
+---
+
 ```csharp
 public class ChatSession<T>
 ```
@@ -78,7 +84,7 @@ public ChatSession<T> WithPromptFile(string promptFilename, string encoding)
 
 ### **WithAntiprompt(String[])**
 
-Set the keyword to split the return value of chat AI.
+Set the keywords to split the return value of chat AI.
 
 ```csharp
 public ChatSession<T> WithAntiprompt(String[] antiprompt)

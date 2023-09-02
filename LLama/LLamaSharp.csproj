@@ -7,8 +7,8 @@
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.4.2</Version>
-    <Authors>Yaohui Liu, Haiping Chen</Authors>
+    <Version>0.5.0</Version>
+    <Authors>Yaohui Liu, Martin Devans, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
@@ -21,7 +21,7 @@
       weights to run, please go to https://github.com/SciSharp/LLamaSharp for more information.
     </Description>
     <PackageReleaseNotes>
-      LLamaSharp 0.4.1 followed up the master branch of llama.cpp. (commit id: aacdbd4)
+      LLamaSharp 0.5.0 adds support for GGUF, grammar and integration with semantic-kernel.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>

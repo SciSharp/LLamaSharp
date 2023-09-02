@@ -2,11 +2,14 @@
 
 Namespace: LLama.Common
 
+The parameters for initializing a LLama model.
+
 ```csharp
-public class ModelParams
+public class ModelParams : LLama.Abstractions.IModelParams, System.IEquatable`1[[LLama.Common.ModelParams, LLamaSharp, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ModelParams](./llama.common.modelparams.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ModelParams](./llama.common.modelparams.md)<br>
+Implements [IModelParams](./llama.abstractions.imodelparams.md), [IEquatable&lt;ModelParams&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
 
 ## Properties
 
@@ -21,6 +24,30 @@ public int ContextSize { get; set; }
 #### Property Value
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **MainGpu**
+
+the GPU that is used for scratch and small tensors
+
+```csharp
+public int MainGpu { get; set; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **LowVram**
+
+if true, reduce VRAM usage at the cost of performance
+
+```csharp
+public bool LowVram { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **GpuLayerCount**
 
@@ -106,6 +133,18 @@ public string ModelPath { get; set; }
 
 [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
+### **ModelAlias**
+
+model alias
+
+```csharp
+public string ModelAlias { get; set; }
+```
+
+#### Property Value
+
+[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
 ### **LoraAdapter**
 
 lora adapter path (lora_adapter)
@@ -179,14 +218,93 @@ public bool EmbeddingMode { get; set; }
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
+### **TensorSplits**
+
+how split tensors should be distributed across GPUs
+
+```csharp
+public Single[] TensorSplits { get; set; }
+```
+
+#### Property Value
+
+[Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **RopeFrequencyBase**
+
+RoPE base frequency
+
+```csharp
+public float RopeFrequencyBase { get; set; }
+```
+
+#### Property Value
+
+[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **RopeFrequencyScale**
+
+RoPE frequency scaling factor
+
+```csharp
+public float RopeFrequencyScale { get; set; }
+```
+
+#### Property Value
+
+[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **MulMatQ**
+
+Use experimental mul_mat_q kernels
+
+```csharp
+public bool MulMatQ { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Encoding**
+
+The encoding to use to convert text for the model
+
+```csharp
+public Encoding Encoding { get; set; }
+```
+
+#### Property Value
+
+[Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+
 ## Constructors
 
-### **ModelParams(String, Int32, Int32, Int32, Boolean, Boolean, Boolean, Boolean, String, String, Int32, Int32, Boolean, Boolean)**
+### **ModelParams(String)**
 
 
 
 ```csharp
-public ModelParams(string modelPath, int contextSize, int gpuLayerCount, int seed, bool useFp16Memory, bool useMemorymap, bool useMemoryLock, bool perplexity, string loraAdapter, string loraBase, int threads, int batchSize, bool convertEosToNewLine, bool embeddingMode)
+public ModelParams(string modelPath)
+```
+
+#### Parameters
+
+`modelPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+The model path.
+
+### **ModelParams(String, Int32, Int32, Int32, Boolean, Boolean, Boolean, Boolean, String, String, Int32, Int32, Boolean, Boolean, Single, Single, Boolean, String)**
+
+#### Caution
+
+Use object initializer to set all optional parameters
+
+---
+
+
+
+```csharp
+public ModelParams(string modelPath, int contextSize, int gpuLayerCount, int seed, bool useFp16Memory, bool useMemorymap, bool useMemoryLock, bool perplexity, string loraAdapter, string loraBase, int threads, int batchSize, bool convertEosToNewLine, bool embeddingMode, float ropeFrequencyBase, float ropeFrequencyScale, bool mulMatQ, string encoding)
 ```
 
 #### Parameters
@@ -232,3 +350,89 @@ Whether to convert eos to newline during the inference.
 
 `embeddingMode` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether to use embedding mode. (embedding) Note that if this is set to true, The LLamaModel won't produce text response anymore.
+
+`ropeFrequencyBase` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+RoPE base frequency.
+
+`ropeFrequencyScale` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+RoPE frequency scaling factor
+
+`mulMatQ` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Use experimental mul_mat_q kernels
+
+`encoding` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+The encoding to use to convert text for the model
+
+## Methods
+
+### **ToString()**
+
+```csharp
+public string ToString()
+```
+
+#### Returns
+
+[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **PrintMembers(StringBuilder)**
+
+```csharp
+protected bool PrintMembers(StringBuilder builder)
+```
+
+#### Parameters
+
+`builder` [StringBuilder](https://docs.microsoft.com/en-us/dotnet/api/system.text.stringbuilder)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **GetHashCode()**
+
+```csharp
+public int GetHashCode()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **Equals(Object)**
+
+```csharp
+public bool Equals(object obj)
+```
+
+#### Parameters
+
+`obj` [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Equals(ModelParams)**
+
+```csharp
+public bool Equals(ModelParams other)
+```
+
+#### Parameters
+
+`other` [ModelParams](./llama.common.modelparams.md)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **&lt;Clone&gt;$()**
+
+```csharp
+public ModelParams <Clone>$()
+```
+
+#### Returns
+
+[ModelParams](./llama.common.modelparams.md)<br>
