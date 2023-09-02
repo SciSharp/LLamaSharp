@@ -126,7 +126,6 @@ jobs:
   compile-macos:
     if: ${{ github.event.inputs.macos }}
     name: Compile (MacOS)
-    runs-on: macos-latest
     strategy:
       fail-fast: true
       matrix:
@@ -134,18 +133,17 @@ jobs:
           - build: 'cpu'
             defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}'
           - build: 'metal'
+            arch[
             defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=ON -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}'
-    
+    runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
-
       - name: Dependencies
         continue-on-error: true
         run: |
           brew update
-
       - name: Build
         id: cmake_build
         run: |
@@ -158,7 +156,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.dylib
-          name: llama-bin-macos-${{ matrix.arch }}.dylib
+          name: llama-bin-macos-${{ matrix.build }}.dylib
+          path: ./build/bin/ggml-metal.metal
+          name: ggml-metal.metal
   
   build-deps:
     runs-on: ubuntu-latest
@@ -204,8 +204,11 @@ jobs:
       - name: Rearrange MacOS files
         if: ${{ github.event.inputs.macos }}
         run: |
-          mkdir deps/macos-arm64
-          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          mkdir deps/macos-cpu
+          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          mkdir deps/macos-metal
+          cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-arm64/libllama-metal.dylib
+          cp artifacts/llama-bin-macos-metal.dylib/ggml-metal.metal deps/macos-arm64/ggml-metal.metal
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
