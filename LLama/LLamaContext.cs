@@ -55,20 +55,6 @@ namespace LLama
         /// The encoding set for this model to deal with text input.
         /// </summary>
         public Encoding Encoding => _encoding;
-        /// <summary>
-        /// The embedding length of the model, also known as `n_embed`
-        /// </summary>
-        public int EmbeddingLength
-        {
-            get
-            {
-                if(_ctx is null)
-                {
-                    throw new NullReferenceException("The native context has not been created in this model.");
-                }
-                return NativeApi.llama_n_embd(_ctx);
-            }
-        }
 
         /// <summary>
         /// 
