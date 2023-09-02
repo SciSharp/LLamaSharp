@@ -1,8 +1,14 @@
 ﻿using System;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 namespace LLama.Native
 {
     using llama_token = Int32;
+
+    /// <summary>
+    /// Direct translation of the llama.cpp sampling API
+    /// </summary>
     public unsafe class SamplingApi
     {
         /// <summary>
@@ -140,6 +146,13 @@ namespace LLama.Native
             NativeApi.llama_sample_typical(ctx, ref st, p, min_keep);
         }
 
+        /// <summary>
+        /// Sample with temperature.
+        /// As temperature increases, the prediction becomes diverse but also vulnerable to hallucinations -- generating tokens that are sensible but not factual
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="candidates"></param>
+        /// <param name="temp"></param>
         public static void llama_sample_temperature(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float temp)
         {
             using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);

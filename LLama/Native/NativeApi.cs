@@ -11,12 +11,18 @@ namespace LLama.Native
 {
     using llama_token = Int32;
 
+    /// <summary>
+    /// Callback from llama.cpp with log messages
+    /// </summary>
+    /// <param name="level"></param>
+    /// <param name="message"></param>
 	public delegate void LLamaLogCallback(ILLamaLogger.LogLevel level, string message);
 
+    /// <summary>
+    /// Direct translation of the llama.cpp API
+    /// </summary>
 	public unsafe partial class NativeApi
     {
-        public static readonly int LLAMA_MAX_DEVICES = 1;
-
         static NativeApi()
         {
             try
@@ -43,18 +49,43 @@ namespace LLama.Native
         [DllImport(libraryName, EntryPoint = "llama_mmap_supported", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_empty_call();
 
+        /// <summary>
+        /// Create a LLamaContextParams with default values
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern LLamaContextParams llama_context_default_params();
 
+        /// <summary>
+        /// Create a LLamaModelQuantizeParams with default values
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern LLamaModelQuantizeParams llama_model_quantize_default_params();
 
+        /// <summary>
+        /// Check if memory mapping is supported
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_mmap_supported();
 
+        /// <summary>
+        /// Check if memory lockingis supported
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_mlock_supported();
 
+        /// <summary>
+        /// Export a static computation graph for context of 511 and batch size of 1
+        /// NOTE: since this functionality is mostly for debugging and demonstration purposes, we hardcode these
+        ///       parameters here to keep things simple
+        /// IMPORTANT: do not use for anything else other than debugging and testing!
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="fname"></param>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_eval_export(SafeLLamaContextHandle ctx, string fname);
 
@@ -69,6 +100,13 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr llama_load_model_from_file(string path_model, LLamaContextParams @params);
 
+        /// <summary>
+        /// Create a new llama_context with the given model.
+        /// Return value should always be wrapped in SafeLLamaContextHandle!
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="params"></param>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams @params);
 
@@ -81,7 +119,7 @@ namespace LLama.Native
         public static extern void llama_backend_init(bool numa);
 
         /// <summary>
-        /// Frees all allocated memory
+        /// Frees all allocated memory in the given llama_context
         /// </summary>
         /// <param name="ctx"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -341,14 +379,26 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr llama_token_to_str(SafeLLamaContextHandle ctx, llama_token token);
 
+        /// <summary>
+        /// Get the "Beginning of sentence" token
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_bos();
+        public static extern llama_token llama_token_bos(SafeLLamaContextHandle ctx);
 
+        /// <summary>
+        /// Get the "End of sentence" token
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_eos();
+        public static extern llama_token llama_token_eos(SafeLLamaContextHandle ctx);
 
+        /// <summary>
+        /// Get the "new line" token
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_nl();
+        public static extern llama_token llama_token_nl(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Print out timing information for this context
@@ -377,7 +427,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_vocab_from_model(SafeLlamaModelHandle model);
+        public static extern int llama_model_n_vocab(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the size of the context window for the model
@@ -385,7 +435,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_ctx_from_model(SafeLlamaModelHandle model);
+        public static extern int llama_model_n_ctx(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the dimension of embedding vectors from this model
@@ -393,16 +443,18 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_embd_from_model(SafeLlamaModelHandle model);
+        public static extern int llama_model_n_embd(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Convert a single token into text
         /// </summary>
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
-        /// <returns></returns>
+        /// <param name="buffer">buffer to write string into</param>
+        /// <param name="length">size of the buffer</param>
+        /// <returns>The length writte, or if the buffer is too small a negative that indicates the length required</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte* llama_token_to_str_with_model(SafeLlamaModelHandle model, int llamaToken);
+        public static extern int llama_token_to_piece_with_model(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
 
         /// <summary>
         /// Convert text into tokens

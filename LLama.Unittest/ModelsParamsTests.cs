@@ -14,7 +14,6 @@ namespace LLama.Unittest
                 BatchSize = 17,
                 ContextSize = 42,
                 LoraAdapter = "adapter",
-                GroupedQueryAttention = 7,
                 Seed = 42,
                 GpuLayerCount = 111
             };
@@ -33,7 +32,6 @@ namespace LLama.Unittest
                 BatchSize = 17,
                 ContextSize = 42,
                 LoraAdapter = "adapter",
-                GroupedQueryAttention = 7,
                 Seed = 42,
                 GpuLayerCount = 111
             };
@@ -47,21 +45,26 @@ namespace LLama.Unittest
             Assert.Equal(expected, actual);
         }
 
-        private class NewtsonsoftEncodingConverter
-            : Newtonsoft.Json.JsonConverter<Encoding>
+
+
+        public class NewtsonsoftEncodingConverter : JsonConverter
         {
-            public override void WriteJson(JsonWriter writer, Encoding? value, JsonSerializer serializer)
+            public override bool CanConvert(Type objectType)
             {
-                writer.WriteValue((string?)value?.WebName);
+                return typeof(Encoding).IsAssignableFrom(objectType);
             }
 
-            public override Encoding? ReadJson(JsonReader reader, Type objectType, Encoding? existingValue, bool hasExistingValue, JsonSerializer serializer)
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
             {
-                var name = (string?)reader.Value;
-                if (name == null)
-                    return null;
-                return Encoding.GetEncoding(name);
+                writer.WriteValue(((Encoding)value).WebName);
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                return Encoding.GetEncoding((string)reader.Value);
             }
         }
+
+
     }
 }

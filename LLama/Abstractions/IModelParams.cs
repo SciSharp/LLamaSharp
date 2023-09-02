@@ -99,16 +99,6 @@ namespace LLama.Abstractions
         float[]? TensorSplits { get; set; }
 
         /// <summary>
-        /// Grouped-Query Attention
-        /// </summary>
-        int GroupedQueryAttention { get; set; }
-
-        /// <summary>
-        /// RMS Norm Epsilon
-        /// </summary>
-        float RmsNormEpsilon { get; set; }
-
-        /// <summary>
         /// RoPE base frequency
         /// </summary>
         float RopeFrequencyBase { get; set; }

@@ -90,16 +90,6 @@ namespace LLama.Common
         public float[]? TensorSplits { get; set; }
 
 		/// <summary>
-		/// Grouped-Query Attention
-		/// </summary>
-		public int GroupedQueryAttention { get; set; } = 1;
-
-		/// <summary>
-		/// RMS Norm Epsilon
-		/// </summary>
-		public float RmsNormEpsilon { get; set; } = 5e-6f;
-
-		/// <summary>
 		/// RoPE base frequency
 		/// </summary>
 		public float RopeFrequencyBase { get; set; } = 10000.0f;
@@ -153,8 +143,6 @@ namespace LLama.Common
         /// <param name="batchSize">Batch size for prompt processing (must be >=32 to use BLAS) (n_batch)</param>
         /// <param name="convertEosToNewLine">Whether to convert eos to newline during the inference.</param>
         /// <param name="embeddingMode">Whether to use embedding mode. (embedding) Note that if this is set to true, The LLamaModel won't produce text response anymore.</param>
-        /// <param name="groupedQueryAttention">Grouped-Query Attention</param>
-        /// <param name="rmsNormEpsilon">RMS Norm Epsilon</param>
         /// <param name="ropeFrequencyBase">RoPE base frequency.</param>
         /// <param name="ropeFrequencyScale">RoPE frequency scaling factor</param>
         /// <param name="mulMatQ">Use experimental mul_mat_q kernels</param>
@@ -165,7 +153,7 @@ namespace LLama.Common
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
                            string loraAdapter = "", string loraBase = "", int threads = -1, int batchSize = 512,
                            bool convertEosToNewLine = false, bool embeddingMode = false,
-                           int groupedQueryAttention = 1, float rmsNormEpsilon = 5e-6f, float ropeFrequencyBase = 10000.0f, float ropeFrequencyScale = 1f, bool mulMatQ = false,
+                           float ropeFrequencyBase = 10000.0f, float ropeFrequencyScale = 1f, bool mulMatQ = false,
                            string encoding = "UTF-8")
         {
             ContextSize = contextSize;
@@ -182,8 +170,6 @@ namespace LLama.Common
             BatchSize = batchSize;
             ConvertEosToNewLine = convertEosToNewLine;
             EmbeddingMode = embeddingMode;
-            GroupedQueryAttention = groupedQueryAttention;
-            RmsNormEpsilon = rmsNormEpsilon;
             RopeFrequencyBase = ropeFrequencyBase;
             RopeFrequencyScale = ropeFrequencyScale;
             MulMatQ = mulMatQ;
