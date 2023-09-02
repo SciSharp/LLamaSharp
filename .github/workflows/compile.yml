@@ -175,7 +175,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
-
       - name: Rearrange Files
         run: |
           ls -R
@@ -206,7 +205,7 @@ jobs:
         if: ${{ github.event.inputs.macos }}
         run: |
           mkdir deps/macos-cpu
-          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-arm64/libllama-cpu.dylib
           mkdir deps/macos-metal
           cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-arm64/libllama-metal.dylib
           cp artifacts/llama-bin-macos-metal.dylib/ggml-metal.metal deps/macos-arm64/ggml-metal.metal
