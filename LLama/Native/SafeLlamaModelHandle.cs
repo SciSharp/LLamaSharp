@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using LLama.Exceptions;
 
@@ -7,7 +8,7 @@ namespace LLama.Native
     /// <summary>
     /// A reference to a set of llama model weights
     /// </summary>
-    public class SafeLlamaModelHandle
+    public sealed class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
         /// <summary>
@@ -23,14 +24,14 @@ namespace LLama.Native
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingCount { get; }
+        public int EmbeddingSize { get; }
 
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)
         {
-            VocabCount = NativeApi.llama_n_vocab_from_model(this);
-            ContextSize = NativeApi.llama_n_ctx_from_model(this);
-            EmbeddingCount = NativeApi.llama_n_embd_from_model(this);
+            VocabCount = NativeApi.llama_model_n_vocab(this);
+            ContextSize = NativeApi.llama_model_n_ctx(this);
+            EmbeddingSize = NativeApi.llama_model_n_embd(this);
         }
 
         /// <inheritdoc />
@@ -82,17 +83,20 @@ namespace LLama.Native
 
         #region tokenize
         /// <summary>
-        /// Convert a single llama token into string bytes
+        /// Convert a single llama token into bytes
         /// </summary>
-        /// <param name="llama_token"></param>
-        /// <returns></returns>
-        public ReadOnlySpan<byte> TokenToSpan(int llama_token)
+        /// <param name="llama_token">Token to decode</param>
+        /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
+        /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
+        public int TokenToSpan(int llama_token, Span<byte> dest)
         {
             unsafe
             {
-                var bytes = new ReadOnlySpan<byte>(NativeApi.llama_token_to_str_with_model(this, llama_token), int.MaxValue);
-                var terminator = bytes.IndexOf((byte)0);
-                return bytes.Slice(0, terminator);
+                fixed (byte* destPtr = dest)
+                {
+                    var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, destPtr, dest.Length);
+                    return Math.Abs(length);
+                }
             }
         }
 
@@ -104,16 +108,54 @@ namespace LLama.Native
         /// <returns></returns>
         public string TokenToString(int llama_token, Encoding encoding)
         {
-            var span = TokenToSpan(llama_token);
-
-            if (span.Length == 0)
-                return "";
-
             unsafe
             {
-                fixed (byte* ptr = &span[0])
+                var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, null, 0);
+                if (length == 0)
+                    return "";
+
+                Span<byte> bytes = stackalloc byte[-length];
+
+                fixed (byte* bytePtr = bytes)
                 {
-                    return encoding.GetString(ptr, span.Length);
+                    var written = NativeApi.llama_token_to_piece_with_model(this, llama_token, bytePtr, bytes.Length);
+                    Debug.Assert(written == bytes.Length);
+
+                    return encoding.GetString(bytePtr, bytes.Length);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Append a single llama token to a string builder
+        /// </summary>
+        /// <param name="llama_token">Token to decode</param>
+        /// <param name="encoding"></param>
+        /// <param name="dest">string builder to append the result to</param>
+        public void TokenToString(int llama_token, Encoding encoding, StringBuilder dest)
+        {
+            unsafe
+            {
+                var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, null, 0);
+                if (length == 0)
+                    return;
+
+                Span<byte> bytes = stackalloc byte[-length];
+                fixed (byte* bytePtr = bytes)
+                {
+                    // Decode into bytes
+                    var written = NativeApi.llama_token_to_piece_with_model(this, llama_token, bytePtr, bytes.Length);
+                    Debug.Assert(written == bytes.Length);
+
+                    // Decode into chars
+                    var charCount = encoding.GetCharCount(bytePtr, bytes.Length);
+                    Span<char> chars = stackalloc char[charCount];
+                    fixed (char* charPtr = chars)
+                        encoding.GetChars(bytePtr, bytes.Length, charPtr, chars.Length);
+
+                    // Write it to the output
+                    for (var i = 0; i < chars.Length; i++)
+                        dest.Append(chars[i]);
                 }
             }
         }
@@ -150,11 +192,23 @@ namespace LLama.Native
                     var tokens = new int[count];
                     fixed (int* tokensPtr = &tokens[0])
                     {
-                        count = NativeApi.llama_tokenize_with_model(this, bytesPtr, tokensPtr, count, add_bos);
+                        NativeApi.llama_tokenize_with_model(this, bytesPtr, tokensPtr, count, add_bos);
                         return tokens;
                     }
                 }
             }
+        }
+        #endregion
+
+        #region context
+        /// <summary>
+        /// Create a new context for this model
+        /// </summary>
+        /// <param name="params"></param>
+        /// <returns></returns>
+        public SafeLLamaContextHandle CreateContext(LLamaContextParams @params)
+        {
+            return SafeLLamaContextHandle.Create(this, @params);
         }
         #endregion
     }

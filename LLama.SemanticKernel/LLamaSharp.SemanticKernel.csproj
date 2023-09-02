@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+		<RootNamespace>LLamaSharp.SemanticKernel</RootNamespace>
+		<Nullable>enable</Nullable>
+		<LangVersion>10</LangVersion>
+		<Platforms>AnyCPU;x64;Arm64</Platforms>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="0.21.230828.2-preview" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+	</ItemGroup>
+
+</Project>

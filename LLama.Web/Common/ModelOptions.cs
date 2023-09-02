@@ -1,8 +1,10 @@
-﻿using LLama.Abstractions;
+﻿using System.Text;
+using LLama.Abstractions;
 
 namespace LLama.Web.Common
 {
-    public class ModelOptions : IModelParams
+    public class ModelOptions
+        : IModelParams
     {
       
         public string Name { get; set; }
@@ -87,16 +89,6 @@ namespace LLama.Web.Common
 		public float[] TensorSplits { get; set; }
 
 		/// <summary>
-		/// Grouped-Query Attention
-		/// </summary>
-		public int GroupedQueryAttention { get; set; } = 1;
-
-		/// <summary>
-		/// RMS Norm Epsilon
-		/// </summary>
-		public float RmsNormEpsilon { get; set; } = 5e-6f;
-
-		/// <summary>
 		/// RoPE base frequency
 		/// </summary>
 		public float RopeFrequencyBase { get; set; } = 10000.0f;
@@ -111,5 +103,9 @@ namespace LLama.Web.Common
 		/// </summary>
 		public bool MulMatQ { get; set; }
 
-	}
+        /// <summary>
+        /// The encoding to use for models
+        /// </summary>
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
+    }
 }

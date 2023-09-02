@@ -1,21 +1,24 @@
 ﻿using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LLama.Examples.NewVersion
 {
     public class InteractiveModeExecute
     {
-        public async static Task Run()
+        public static async Task Run()
         {
             Console.Write("Please input your model path: ");
-            string modelPath = Console.ReadLine();
-            var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+            var modelPath = Console.ReadLine();
+            var prompt = (await File.ReadAllTextAsync("Assets/chat-with-bob.txt")).Trim();
 
-            InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 256)));
+            var parameters = new ModelParams(modelPath)
+            {
+                ContextSize = 1024,
+                Seed = 1337,
+                GpuLayerCount = 5
+            };
+            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var context = model.CreateContext(parameters);
+            var ex = new InteractiveExecutor(context);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 128 and the context size is 256. (an example for small scale usage)");

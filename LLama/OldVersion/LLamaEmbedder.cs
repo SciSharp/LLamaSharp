@@ -1,12 +1,15 @@
 ﻿using LLama.Native;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using LLama.Exceptions;
+
+#pragma warning disable
+// ReSharper disable all
 
 namespace LLama.OldVersion
 {
-    public class LLamaEmbedder : IDisposable
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
+    public class LLamaEmbedder
+        : IDisposable
     {
         SafeLLamaContextHandle _ctx;
 

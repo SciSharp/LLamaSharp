@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+
+#pragma warning disable
+// ReSharper disable all
 
 namespace LLama.OldVersion
 {
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
     public class ChatSession<T> where T : IChatModel
     {
         IChatModel _model;

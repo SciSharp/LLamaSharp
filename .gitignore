@@ -344,4 +344,5 @@ test/TensorFlowNET.Examples/mnist
 site/
 
 /LLama.Unittest/Models/*.bin
+/LLama.Unittest/Models/*.gguf
 

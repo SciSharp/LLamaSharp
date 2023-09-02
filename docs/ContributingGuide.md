@@ -33,11 +33,11 @@ When adding the feature, please take care of the namespace and the naming conven
 
 ## Find the problem and fix the BUG
 
-If the issue is related to the LLM internal behaviors, such as endless generating the response, the best way to find the problem is to do comparison test between llama.cpp and LLamaSharp.
+If the issue is related to the LLM internal behaviour, such as endless generating the response, the best way to find the problem is to do comparison test between llama.cpp and LLamaSharp.
 
 You could use exactly the same prompt, the same model and the same parameters to run the inference in llama.cpp and LLamaSharp respectively to see if it's really a problem caused by the implementation in LLamaSharp.
 
-If the experiment showed that it worked well in llama.cpp but didn't in LLamaSharp, a the search for the problem could be started. While the reason of the problem could be various, the best way I think is to add log-print in the code of llama.cpp and use it in LLamaSharp after compilation. Thus, when running LLamaSharp, you could see what happened in the native library.
+If the experiment showed that it worked well in llama.cpp but didn't in LLamaSharp, a search for the problem could be started. While the reason of the problem could be various, the best way I think is to add log-print in the code of llama.cpp and use it in LLamaSharp after compilation. Thus, when running LLamaSharp, you could see what happened in the native library.
 
 After finding out the reason, a painful but happy process comes. When working on the BUG fix, there's only one rule to follow, that is keeping the examples working well. If the modification fixed the BUG but impact on other functions, it would not be a good fix.
 

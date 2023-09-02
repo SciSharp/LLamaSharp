@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#pragma warning disable
+// ReSharper disable all
+
 namespace LLama.OldVersion
 {
     using llama_token = Int32;
+
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
     public struct LLamaParams
     {
         public int seed; // RNG seed
@@ -58,7 +63,7 @@ namespace LLama.OldVersion
 
         public LLamaParams(int seed = 0, int n_threads = -1, int n_predict = -1,
             int n_ctx = 512, int n_batch = 512, int n_keep = 0, int n_gpu_layers = -1,
-            Dictionary<llama_token, float> logit_bias = null, int top_k = 40, float top_p = 0.95f,
+            Dictionary<llama_token, float>? logit_bias = null, int top_k = 40, float top_p = 0.95f,
             float tfs_z = 1.00f, float typical_p = 1.00f, float temp = 0.80f, float repeat_penalty = 1.10f,
             int repeat_last_n = 64, float frequency_penalty = 0.00f, float presence_penalty = 0.00f,
             int mirostat = 0, float mirostat_tau = 5.00f, float mirostat_eta = 0.10f,

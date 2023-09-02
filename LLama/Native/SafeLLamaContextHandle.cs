@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 
@@ -8,7 +9,7 @@ namespace LLama.Native
     /// <summary>
     /// A safe wrapper around a llama_context
     /// </summary>
-    public class SafeLLamaContextHandle
+    public sealed class SafeLLamaContextHandle
         : SafeLLamaHandleBase
     {
         #region properties and fields
@@ -25,11 +26,13 @@ namespace LLama.Native
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingCount => ThrowIfDisposed().EmbeddingCount;
+        public int EmbeddingSize => ThrowIfDisposed().EmbeddingSize;
 
         /// <summary>
-        /// This field guarantees that a reference to the model is held for as long as this handle is held
+        /// Get the model which this context is using
         /// </summary>
+        public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();
+
         private SafeLlamaModelHandle? _model;
         #endregion
 
@@ -55,7 +58,7 @@ namespace LLama.Native
         {
             // Decrement refcount on model
             _model?.DangerousRelease();
-            _model = null;
+            _model = null!;
 
             NativeApi.llama_free(handle);
             SetHandle(IntPtr.Zero);
@@ -69,7 +72,7 @@ namespace LLama.Native
             if (_model == null || _model.IsClosed)
                 throw new ObjectDisposedException("Cannot use this `SafeLLamaContextHandle` - `SafeLlamaModelHandle` has been disposed");
 
-            return _model;
+            return _model!;
         }
 
         /// <summary>
@@ -86,6 +89,35 @@ namespace LLama.Native
                 throw new RuntimeError("Failed to create context from model");
 
             return new(ctx_ptr, model);
+        }
+
+        /// <summary>
+        /// Create a new llama context with a clone of the current llama context state
+        /// </summary>
+        /// <param name="lparams"></param>
+        /// <returns></returns>
+        public SafeLLamaContextHandle Clone(LLamaContextParams lparams)
+        {
+            // Allocate space to read the state of the current context
+            var stateSize = GetStateSize();
+            var stateMemory = Marshal.AllocHGlobal((nint)stateSize);
+            try
+            {
+                // Copy state from this context into memory
+                GetState(stateMemory, stateSize);
+
+                // Create a new context
+                var newCtx = Create(ModelHandle, lparams);
+
+                // Copy state into new context
+                newCtx.SetState(stateMemory);
+
+                return newCtx;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(stateMemory);
+            }
         }
         #endregion
 
@@ -136,7 +168,6 @@ namespace LLama.Native
         /// Rows: n_tokens<br />
         /// Cols: n_vocab
         /// </summary>
-        /// <param name="ctx"></param>
         /// <returns></returns>
         public Span<float> GetLogits()
         {
@@ -152,7 +183,7 @@ namespace LLama.Native
         /// <summary>
         /// Convert a token into a string
         /// </summary>
-        /// <param name="token"></param>
+        /// <param name="token">Token to decode into a string</param>
         /// <param name="encoding"></param>
         /// <returns></returns>
         public string TokenToString(int token, Encoding encoding)
@@ -161,13 +192,25 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Convert a token into a span of bytes that could be decoded into a string
+        /// Append a single llama token to a string builder
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public ReadOnlySpan<byte> TokenToSpan(int token)
+        /// <param name="token">Token to decode</param>
+        /// <param name="encoding"></param>
+        /// <param name="dest">string builder to append the result to</param>
+        public void TokenToString(int token, Encoding encoding, StringBuilder dest)
         {
-            return ThrowIfDisposed().TokenToSpan(token);
+            ThrowIfDisposed().TokenToString(token, encoding, dest);
+        }
+
+        /// <summary>
+        /// Convert a single llama token into bytes
+        /// </summary>
+        /// <param name="token">Token to decode</param>
+        /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
+        /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
+        public int TokenToSpan(int token, Span<byte> dest)
+        {
+            return ThrowIfDisposed().TokenToSpan(token, dest);
         }
 
         /// <summary>
@@ -177,13 +220,79 @@ namespace LLama.Native
         /// <param name="n_past">the number of tokens to use from previous eval calls</param>
         /// <param name="n_threads"></param>
         /// <returns>Returns true on success</returns>
-        public bool Eval(Memory<int> tokens, int n_past, int n_threads)
+        public bool Eval(ReadOnlySpan<int> tokens, int n_past, int n_threads)
         {
-            using var pin = tokens.Pin();
             unsafe
             {
-                return NativeApi.llama_eval_with_pointer(this, (int*)pin.Pointer, tokens.Length, n_past, n_threads) == 0;
+                fixed (int* pinned = tokens)
+                {
+                    return NativeApi.llama_eval_with_pointer(this, pinned, tokens.Length, n_past, n_threads) == 0;
+                }
             }
         }
+
+        #region state
+        /// <summary>
+        /// Get the size of the state, when saved as bytes
+        /// </summary>
+        public ulong GetStateSize()
+        {
+            return NativeApi.llama_get_state_size(this);
+        }
+
+        /// <summary>
+        /// Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
+        /// </summary>
+        /// <param name="dest">Destination to write to</param>
+        /// <param name="size">Number of bytes available to write to in dest (check required size with `GetStateSize()`)</param>
+        /// <returns>The number of bytes written to dest</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if dest is too small</exception>
+        public unsafe ulong GetState(byte* dest, ulong size)
+        {
+            return GetState(new IntPtr(dest), size);
+        }
+
+        /// <summary>
+        /// Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
+        /// </summary>
+        /// <param name="dest">Destination to write to</param>
+        /// <param name="size">Number of bytes available to write to in dest (check required size with `GetStateSize()`)</param>
+        /// <returns>The number of bytes written to dest</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if dest is too small</exception>
+        public ulong GetState(IntPtr dest, ulong size)
+        {
+            var required = GetStateSize();
+            if (size < required)
+                throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
+
+            unsafe
+            {
+                return NativeApi.llama_copy_state_data(this, (byte*)dest.ToPointer());
+            }
+        }
+
+        /// <summary>
+        /// Set the raw state of this context
+        /// </summary>
+        /// <param name="src">The pointer to read the state from</param>
+        /// <returns>Number of bytes read from the src pointer</returns>
+        public unsafe ulong SetState(byte* src)
+        {
+            return SetState(new IntPtr(src));
+        }
+
+        /// <summary>
+        /// Set the raw state of this context
+        /// </summary>
+        /// <param name="src">The pointer to read the state from</param>
+        /// <returns>Number of bytes read from the src pointer</returns>
+        public ulong SetState(IntPtr src)
+        {
+            unsafe
+            {
+                return NativeApi.llama_set_state_data(this, (byte*)src.ToPointer());
+            }
+        }
+        #endregion
     }
 }

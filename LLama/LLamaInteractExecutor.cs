@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text;
 
 namespace LLama
 {
@@ -22,10 +23,10 @@ namespace LLama
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="model"></param>
-        public InteractiveExecutor(LLamaModel model) : base(model)
+        /// <param name="context"></param>
+        public InteractiveExecutor(LLamaContext context) : base(context)
         {
-            _llama_token_newline = _model.NativeHandle.Tokenize("\n", false, _model.Encoding);
+            _llama_token_newline = new [] { NativeApi.llama_token_nl(Context.NativeHandle) };
         }
 
         /// <inheritdoc />
@@ -72,10 +73,10 @@ namespace LLama
         /// <inheritdoc />
         public override void SaveState(string filename)
         {
-            InteractiveExecutorState state = GetStateData() as InteractiveExecutorState;
+            InteractiveExecutorState state = (InteractiveExecutorState)GetStateData();
             using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
             {
-                JsonSerializer.Serialize<InteractiveExecutorState>(fs, state);
+                JsonSerializer.Serialize(fs, state);
             }
         }
         /// <inheritdoc />
@@ -103,8 +104,7 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                text = " " + text;
-                _embed_inps = _model.Tokenize(text, true).ToList();
+                _embed_inps = Context.Tokenize(text, true).ToList();
             }
             else
             {
@@ -112,7 +112,7 @@ namespace LLama
                 {
                     text += "\n";
                 }
-                var line_inp = _model.Tokenize(text, false);
+                var line_inp = Context.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
                 args.RemainedTokens -= line_inp.Length;
             }
@@ -121,7 +121,9 @@ namespace LLama
         /// <summary>
         /// Return whether to break the generation.
         /// </summary>
+        /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
+        /// <param name="extraOutputs"></param>
         /// <returns></returns>
         protected override bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
         {
@@ -130,11 +132,10 @@ namespace LLama
             {
                 if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                 {
-                    string last_output = "";
-                    foreach (var id in _last_n_tokens)
-                    {
-                        last_output += _model.NativeHandle.TokenToString(id, _model.Encoding);
-                    }
+                    var last_output_builder = new StringBuilder();
+                    foreach (var token in _last_n_tokens)
+                        Context.NativeHandle.TokenToString(token, Context.Encoding, last_output_builder);
+                    var last_output = last_output_builder.ToString();
 
                     foreach (var antiprompt in args.Antiprompts)
                     {
@@ -152,9 +153,9 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos())
+            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle))
             {
-                extraOutputs = new string[] { " [end of text]\n" };
+                extraOutputs = new[] { " [end of text]\n" };
                 return true;
             }
 
@@ -172,13 +173,13 @@ namespace LLama
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
-                if (_pastTokensCount + _embeds.Count > _model.ContextSize)
+                if (_pastTokensCount + _embeds.Count > Context.ContextSize)
                 {
                     HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
                 TryReuseMathingPrefix();
-                _pastTokensCount = _model.Eval(_embeds.ToArray(), _pastTokensCount);
+                _pastTokensCount = Context.Eval(_embeds, _pastTokensCount);
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -191,7 +192,7 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? _model.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? Context.ContextSize : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
@@ -200,24 +201,25 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                var tokenDataArray = _model.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
+                var tokenDataArray = Context.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
                 var mu = MirostatMu;
-                var id = _model.Sample(
+                var id = Context.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau, 
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP,
+                    inferenceParams.Grammar
                 );
                 MirostatMu = mu;
 
                 _last_n_tokens.Enqueue(id);
 
-                if (id == NativeApi.llama_token_eos())
+                if (id == NativeApi.llama_token_eos(Context.NativeHandle))
                 {
                     id = _llama_token_newline.First();
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
-                        var first_antiprompt = _model.Tokenize(args.Antiprompts[0], false);
+                        var first_antiprompt = Context.Tokenize(args.Antiprompts[0], false);
                         _embed_inps.AddRange(first_antiprompt);
                     }
                 }
@@ -234,7 +236,7 @@ namespace LLama
                     _embeds.Add(_embed_inps[_consumedTokensCount]);
                     _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_embeds.Count >= _model.Params.BatchSize)
+                    if (_embeds.Count >= Context.Params.BatchSize)
                     {
                         break;
                     }

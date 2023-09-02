@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+
+#pragma warning disable
+// ReSharper disable all
 
 namespace LLama.OldVersion
 {
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
     public interface IChatModel
     {
         string Name { get; }

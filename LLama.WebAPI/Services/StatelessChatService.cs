@@ -7,14 +7,17 @@ namespace LLama.WebAPI.Services
 {
     public class StatelessChatService
     {
-        private readonly LLamaModel _model;
+        private readonly LLamaContext _context;
         private readonly ChatSession _session;
 
         public StatelessChatService(IConfiguration configuration)
         {
-            _model = new LLamaModel(new ModelParams(configuration["ModelPath"], contextSize: 512));
+            _context = new LLamaContext(new ModelParams(configuration["ModelPath"])
+            {
+                ContextSize = 512,
+            });
             // TODO: replace with a stateless executor
-            _session = new ChatSession(new InteractiveExecutor(_model))
+            _session = new ChatSession(new InteractiveExecutor(_context))
                         .WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Assistant:" }, redundancyLength: 8))
                         .WithHistoryTransform(new HistoryTransform());
         }

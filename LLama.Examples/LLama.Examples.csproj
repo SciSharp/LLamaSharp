@@ -27,6 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.SemanticKernel" Version="0.21.230828.2-preview" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 
@@ -47,6 +52,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\dan.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\json.gbnf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\reason-act.txt">

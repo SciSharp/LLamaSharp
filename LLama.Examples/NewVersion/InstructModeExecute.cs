@@ -1,9 +1,4 @@
 ﻿using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LLama.Examples.NewVersion
 {
@@ -12,10 +7,18 @@ namespace LLama.Examples.NewVersion
         public static void Run()
         {
             Console.Write("Please input your model path: ");
-            string modelPath = Console.ReadLine();
+            var modelPath = Console.ReadLine();
             var prompt = File.ReadAllText("Assets/dan.txt").Trim();
 
-            InstructExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024)));
+            var parameters = new ModelParams(modelPath)
+            {
+                ContextSize = 1024,
+                Seed = 1337,
+                GpuLayerCount = 5
+            };
+            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var context = model.CreateContext(parameters);
+            var executor = new InstructExecutor(context);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions. For example, you can input \"Write a story about a fox who want to " +
@@ -26,7 +29,7 @@ namespace LLama.Examples.NewVersion
 
             while (true)
             {
-                foreach (var text in ex.Infer(prompt, inferenceParams))
+                foreach (var text in executor.Infer(prompt, inferenceParams))
                 {
                     Console.Write(text);
                 }

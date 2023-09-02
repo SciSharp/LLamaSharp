@@ -1,11 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LLama.Native
 {
+    /// <summary>
+    /// Called by llama.cpp with a progress value between 0 and 1
+    /// </summary>
+    /// <param name="progress"></param>
+    /// <param name="ctx"></param>
     public delegate void LlamaProgressCallback(float progress, IntPtr ctx);
+
+    /// <summary>
+    /// A C# representation of the llama.cpp `llama_context_params` struct
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaContextParams
     {
@@ -25,16 +32,6 @@ namespace LLama.Native
         public int n_batch;
 
         /// <summary>
-        /// grouped-query attention (TEMP - will be moved to model hparams)
-        /// </summary>
-        public int n_gqa;
-
-        /// <summary>
-        /// rms norm epsilon (TEMP - will be moved to model hparams)
-        /// </summary>
-       public float rms_norm_eps;
-
-        /// <summary>
         /// number of layers to store in VRAM
         /// </summary>
         public int n_gpu_layers;
@@ -48,7 +45,6 @@ namespace LLama.Native
         /// how to split layers across multiple GPUs
         /// </summary>
         public nint tensor_split;
-
 
         /// <summary>
         /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
@@ -72,53 +68,85 @@ namespace LLama.Native
         /// </summary>
         public IntPtr progress_callback_user_data;
 
-
         /// <summary>
         /// if true, reduce VRAM usage at the cost of performance
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool low_vram;
+        public bool low_vram
+        { 
+            readonly get => Convert.ToBoolean(_low_vram);
+            set => _low_vram = Convert.ToSByte(value);
+        }
+        private sbyte _low_vram;
 
         /// <summary>
         /// if true, use experimental mul_mat_q kernels
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] public bool mul_mat_q;
+        public bool mul_mat_q
+        { 
+            readonly get => Convert.ToBoolean(_mul_mat_q);
+            set => _mul_mat_q = Convert.ToSByte(value);
+        }
+        private sbyte _mul_mat_q;
 
         /// <summary>
         /// use fp16 for KV cache
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool f16_kv;
+        public bool f16_kv
+        { 
+            readonly get => Convert.ToBoolean(_f16_kv);
+            set => _f16_kv = Convert.ToSByte(value);
+        }
+        private sbyte _f16_kv;
 
         /// <summary>
         /// the llama_eval() call computes all logits, not just the last one
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)]
-        public bool logits_all;
+        public bool logits_all
+        { 
+            readonly get => Convert.ToBoolean(_logits_all);
+            set => _logits_all = Convert.ToSByte(value);
+        }
+        private sbyte _logits_all;
 
         /// <summary>
         /// only load the vocabulary, no weights
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool vocab_only;
+        public bool vocab_only
+        { 
+            readonly get => Convert.ToBoolean(_vocab_only);
+            set => _vocab_only = Convert.ToSByte(value);
+        }
+        private sbyte _vocab_only;
 
         /// <summary>
         /// use mmap if possible
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool use_mmap;
+        public bool use_mmap
+        { 
+            readonly get => Convert.ToBoolean(_use_mmap);
+            set => _use_mmap = Convert.ToSByte(value);
+        }
+        private sbyte _use_mmap;
 
         /// <summary>
         /// force system to keep model in RAM
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool use_mlock;
+        public bool use_mlock
+        { 
+            readonly get => Convert.ToBoolean(_use_mlock);
+            set => _use_mlock = Convert.ToSByte(value);
+        }
+        private sbyte _use_mlock;
 
         /// <summary>
         /// embedding mode only
         /// </summary>
-        [MarshalAs(UnmanagedType.I1)] 
-        public bool embedding;
+        public bool embedding
+        { 
+            readonly get => Convert.ToBoolean(_embedding);
+            set => _embedding = Convert.ToSByte(value);
+        }
+        private sbyte _embedding;
     }
 }
 

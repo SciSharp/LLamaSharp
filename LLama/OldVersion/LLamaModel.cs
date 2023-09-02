@@ -9,10 +9,16 @@ using System.Linq;
 using System.Text;
 using LLama.Common;
 
+#pragma warning disable
+// ReSharper disable all
+
 namespace LLama.OldVersion
 {
     using llama_token = Int32;
-    public class LLamaModel : IChatModel, IDisposable
+
+    [Obsolete("The entire LLama.OldVersion namespace will be removed")]
+    public class LLamaModel
+        : IChatModel, IDisposable
     {
         LLamaParams _params;
         SafeLLamaContextHandle _ctx;
@@ -27,7 +33,6 @@ namespace LLama.OldVersion
         bool _is_interacting;
         bool _is_antiprompt;
         bool _input_echo;
-        bool _verbose;
 
         // HACK - because session saving incurs a non-negligible delay, for now skip re-saving session
         // if we loaded a session with at least 75% similarity. It's currently just used to speed up the
@@ -40,17 +45,8 @@ namespace LLama.OldVersion
         List<llama_token> _embed;
 
         public string Name { get; set; }
-        public bool Verbose
-        {
-            get
-            {
-                return _verbose;
-            }
-            set
-            {
-                _verbose = value;
-            }
-        }
+        public bool Verbose { get; set; }
+
         public SafeLLamaContextHandle NativeHandle => _ctx;
 
         /// <summary>
@@ -173,7 +169,7 @@ namespace LLama.OldVersion
         {
             Name = name;
             _params = @params;
-            _verbose = verbose;
+            Verbose = verbose;
             _ctx = Utils.llama_init_from_gpt_params(ref _params);
 
             // Add a space in front of the first character to match OG llama tokenizer behavior
@@ -509,7 +505,7 @@ namespace LLama.OldVersion
             }
             if (_is_interacting)
             {
-                if (_verbose)
+                if (Verbose)
                 {
                     LLamaDefaultLogger.Default.Warn("In interacting when calling the model, automatically changed it.");
                 }
@@ -620,7 +616,7 @@ namespace LLama.OldVersion
                         NativeApi.llama_save_session_file(_ctx, _path_session, _session_tokens.ToArray(), (ulong)_session_tokens.Count);
                     }
 
-                    llama_token id = 0;
+                    llama_token id;
 
                     {
                         var n_vocab = NativeApi.llama_n_vocab(_ctx);
@@ -638,7 +634,7 @@ namespace LLama.OldVersion
                         LLamaTokenDataArray candidates_p = new LLamaTokenDataArray(candidates);
 
                         // Apply penalties
-                        float nl_logit = logits[NativeApi.llama_token_nl()];
+                        float nl_logit = logits[NativeApi.llama_token_nl(_ctx)];
                         var last_n_repeat = Math.Min(Math.Min(_last_n_tokens.Count, repeat_last_n), _n_ctx);
                         SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p,
                             _last_n_tokens.Skip(_last_n_tokens.Count - last_n_repeat).ToArray(),
@@ -648,7 +644,7 @@ namespace LLama.OldVersion
                             (ulong)last_n_repeat, alpha_frequency, alpha_presence);
                         if (!penalize_nl)
                         {
-                            logits[NativeApi.llama_token_nl()] = nl_logit;
+                            logits[NativeApi.llama_token_nl(_ctx)] = nl_logit;
                         }
 
                         if (temp <= 0)
@@ -688,7 +684,7 @@ namespace LLama.OldVersion
                     }
 
                     // replace end of text token with newline token when in interactive mode
-                    if (id == NativeApi.llama_token_eos() && _params.interactive && !_params.instruct)
+                    if (id == NativeApi.llama_token_eos(_ctx) && _params.interactive && !_params.instruct)
                     {
                         id = _llama_token_newline[0];
                         if (_params.antiprompt.Count != 0)
@@ -764,7 +760,7 @@ namespace LLama.OldVersion
                         break;
                     }
 
-                    if (_embed.Count > 0 && _embed.Last() == NativeApi.llama_token_eos())
+                    if (_embed.Count > 0 && _embed.Last() == NativeApi.llama_token_eos(_ctx))
                     {
                         if (_params.instruct)
                         {

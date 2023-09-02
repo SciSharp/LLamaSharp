@@ -1,7 +1,4 @@
-﻿using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 
 namespace LLama.Abstractions
@@ -12,9 +9,9 @@ namespace LLama.Abstractions
     public interface ILLamaExecutor
     {
         /// <summary>
-        /// The loaded model for this executor.
+        /// The loaded context for this executor.
         /// </summary>
-        public LLamaModel Model { get; }
+        public LLamaContext Context { get; }
 
         /// <summary>
         /// Infers a response from the model.

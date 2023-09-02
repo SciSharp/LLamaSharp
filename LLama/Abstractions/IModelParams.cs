@@ -1,7 +1,10 @@
-﻿using System;
+﻿using System.Text;
 
 namespace LLama.Abstractions
 {
+    /// <summary>
+    /// The parameters for initializing a LLama model.
+    /// </summary>
     public interface IModelParams
     {
         /// <summary>
@@ -96,16 +99,6 @@ namespace LLama.Abstractions
         float[]? TensorSplits { get; set; }
 
         /// <summary>
-        /// Grouped-Query Attention
-        /// </summary>
-        int GroupedQueryAttention { get; set; }
-
-        /// <summary>
-        /// RMS Norm Epsilon
-        /// </summary>
-        float RmsNormEpsilon { get; set; }
-
-        /// <summary>
         /// RoPE base frequency
         /// </summary>
         float RopeFrequencyBase { get; set; }
@@ -119,5 +112,10 @@ namespace LLama.Abstractions
         /// Use experimental mul_mat_q kernels
         /// </summary>
         bool MulMatQ { get; set; }
+
+        /// <summary>
+        /// The encoding to use for models
+        /// </summary>
+        Encoding Encoding { get; set; }
     }
 }

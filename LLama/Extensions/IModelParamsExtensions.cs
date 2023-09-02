@@ -39,8 +39,6 @@ namespace LLama.Extensions
             result.logits_all = @params.Perplexity;
             result.embedding = @params.EmbeddingMode;
             result.low_vram = @params.LowVram;
-            result.n_gqa = @params.GroupedQueryAttention;
-            result.rms_norm_eps = @params.RmsNormEpsilon;
             result.rope_freq_base = @params.RopeFrequencyBase;
             result.rope_freq_scale = @params.RopeFrequencyScale;
             result.mul_mat_q = @params.MulMatQ;

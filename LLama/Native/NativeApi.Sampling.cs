@@ -8,6 +8,16 @@ namespace LLama.Native
     public unsafe partial class NativeApi
     {
         /// <summary>
+        /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="candidates">A vector of `llama_token_data` containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.</param>
+        /// <param name="guidanceCtx">A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</param>
+        /// <param name="scale">Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.</param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative candidates, SafeLLamaContextHandle guidanceCtx, float scale);
+
+        /// <summary>
         /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
         /// </summary>
         /// <param name="ctx"></param>
@@ -16,7 +26,7 @@ namespace LLama.Native
         /// <param name="last_tokens_size"></param>
         /// <param name="penalty"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, llama_token[] last_tokens, ulong last_tokens_size, float penalty);
+        public static extern void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, llama_token* last_tokens, ulong last_tokens_size, float penalty);
 
         /// <summary>
         /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
@@ -28,7 +38,17 @@ namespace LLama.Native
         /// <param name="alpha_frequency"></param>
         /// <param name="alpha_presence"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, llama_token[] last_tokens, ulong last_tokens_size, float alpha_frequency, float alpha_presence);
+        public static extern void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, llama_token* last_tokens, ulong last_tokens_size, float alpha_frequency, float alpha_presence);
+
+        /// <summary>
+        /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="candidates">A vector of `llama_token_data` containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.</param>
+        /// <param name="guidance_ctx">A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</param>
+        /// <param name="scale">Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.</param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, SafeLLamaContextHandle guidance_ctx, float scale);
 
         /// <summary>
         /// Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
@@ -98,7 +118,7 @@ namespace LLama.Native
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, int m, float* mu);
+        public static extern llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, int m, ref float mu);
 
         /// <summary>
         /// Mirostat 2.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
@@ -110,7 +130,7 @@ namespace LLama.Native
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, float* mu);
+        public static extern llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, ref float mu);
 
         /// <summary>
         /// Selects the token with the highest probability.

@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace LLama
 {
@@ -13,10 +14,12 @@ namespace LLama
     /// </summary>
     public class ChatSession
     {
-        private ILLamaExecutor _executor;
-        private ChatHistory _history;
-        private static readonly string _executorStateFilename = "ExecutorState.json";
-        private static readonly string _modelStateFilename = "ModelState.st";
+        private readonly ILLamaExecutor _executor;
+        private readonly ChatHistory _history;
+
+        private const string _executorStateFilename = "ExecutorState.json";
+        private const string _modelStateFilename = "ModelState.st";
+
         /// <summary>
         /// The executor for this session.
         /// </summary>
@@ -91,7 +94,7 @@ namespace LLama
             {
                 Directory.CreateDirectory(path);
             }
-            _executor.Model.SaveState(Path.Combine(path, _modelStateFilename));
+            _executor.Context.SaveState(Path.Combine(path, _modelStateFilename));
             if(Executor is StatelessExecutor)
             {
 
@@ -116,7 +119,7 @@ namespace LLama
             {
                 throw new FileNotFoundException($"Directory {path} does not exist.");
             }
-            _executor.Model.LoadState(Path.Combine(path, _modelStateFilename));
+            _executor.Context.LoadState(Path.Combine(path, _modelStateFilename));
             if (Executor is StatelessExecutor)
             {
 
@@ -227,7 +230,7 @@ namespace LLama
         private async IAsyncEnumerable<string> ChatAsyncInternal(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var results = _executor.InferAsync(prompt, inferenceParams, cancellationToken);
-            await foreach (var item in OutputTransform.TransformAsync(results))
+            await foreach (var item in OutputTransform.TransformAsync(results).WithCancellation(cancellationToken))
             {
                 yield return item;
             }
