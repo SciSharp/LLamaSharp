@@ -109,7 +109,7 @@ namespace LLama.Grammars
 
             if (pos != end)
             {
-                throw new GrammarFormatException($"Expecting {size} hex chars at {Encoding.UTF8.GetString(src.ToArray())}");
+                throw new GrammarUnexpectedHexCharsCount(size, Encoding.UTF8.GetString(src.ToArray()));
             }
             src = src.Slice(pos);
             return value;
@@ -146,7 +146,7 @@ namespace LLama.Grammars
             }
             if (pos == 0)
             {
-                throw new GrammarFormatException($"Expecting name at {Encoding.UTF8.GetString(src.ToArray())}");
+                throw new GrammarExpectedName(Encoding.UTF8.GetString(src.ToArray()));
             }
             return src.Slice(pos);
         }
@@ -177,7 +177,7 @@ namespace LLama.Grammars
                     case (byte)']':
                         return chr;
                     default:
-                        throw new GrammarFormatException("Unknown escape at " + Encoding.UTF8.GetString(src.ToArray()));
+                        throw new GrammarUnknownEscapeCharacter(Encoding.UTF8.GetString(src.ToArray()));
                 }
             }
             else if (!src.IsEmpty)
@@ -185,7 +185,7 @@ namespace LLama.Grammars
                 return DecodeUTF8(ref src);
             }
 
-            throw new GrammarFormatException("Unexpected end of input");
+            throw new GrammarUnexpectedEndOfInput();
         }
 
         private ReadOnlySpan<byte> ParseSequence(
@@ -258,17 +258,13 @@ namespace LLama.Grammars
                     // output reference to synthesized rule
                     outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, subRuleId));
                     if (pos[0] != ')')
-                    {
-                        throw new GrammarFormatException($"Expecting ')' at {Encoding.UTF8.GetString(pos.ToArray())}");
-                    }
+                        throw new GrammarExpectedNext(")", Encoding.UTF8.GetString(pos.ToArray()));
                     pos = ParseSpace(pos.Slice(1), isNested);
                 }
                 else if (pos[0] == '*' || pos[0] == '+' || pos[0] == '?') // repetition operator
                 {
                     if (lastSymStart == outElements.Count)
-                    {
-                        throw new GrammarFormatException($"Expecting preceding item to */+/? at {Encoding.UTF8.GetString(pos.ToArray())}");
-                    }
+                        throw new GrammarExpectedPrevious("*/+/?", Encoding.UTF8.GetString(pos.ToArray()));
 
                     // apply transformation to previous symbol (lastSymStart to end) according to
                     // rewrite rules:
@@ -349,9 +345,8 @@ namespace LLama.Grammars
             string name = Encoding.UTF8.GetString(src.Slice(0, nameLen).ToArray());
 
             if (!(pos[0] == ':' && pos[1] == ':' && pos[2] == '='))
-            {
-                throw new GrammarFormatException($"Expecting ::= at {Encoding.UTF8.GetString(pos.ToArray())}");
-            }
+                throw new GrammarExpectedNext("::=", Encoding.UTF8.GetString(pos.ToArray()));
+
             pos = ParseSpace(pos.Slice(3), true);
 
             pos = ParseAlternates(state, pos, name, ruleId, false);
@@ -366,7 +361,7 @@ namespace LLama.Grammars
             }
             else if (!pos.IsEmpty)
             {
-                throw new GrammarFormatException($"Expecting newline or end at {Encoding.UTF8.GetString(pos.ToArray())}");
+                throw new GrammarExpectedNext("newline or EOF", Encoding.UTF8.GetString(pos.ToArray()));
             }
             return ParseSpace(pos, true);
         }
