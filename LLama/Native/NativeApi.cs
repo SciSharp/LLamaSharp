@@ -55,19 +55,27 @@ namespace LLama.Native
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // All of the Windows libraries, in order of preference
-                return TryLoad("win/cu12.1.0/libllama.dll")
-                    ?? TryLoad("win/cu11.7.1/libllama.dll")
+                return TryLoad("cu12.1.0/libllama.dll")
+                    ?? TryLoad("cu11.7.1/libllama.dll")
 #if NET8_0_OR_GREATER
-                    ?? TryLoad("win/avx512/libllama.dll", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
+                    ?? TryLoad("avx512/libllama.dll", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
 #endif
-                    ?? TryLoad("win/avx2/libllama.dll", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
-                    ?? TryLoad("win/avx/libllama.dll", System.Runtime.Intrinsics.X86.Avx.IsSupported)
+                    ?? TryLoad("avx2/libllama.dll", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
+                    ?? TryLoad("avx/libllama.dll", System.Runtime.Intrinsics.X86.Avx.IsSupported)
                     ?? IntPtr.Zero;
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return IntPtr.Zero;
+                // All of the Linux libraries, in order of preference
+                return TryLoad("cu12.1.0/libllama.so")
+                    ?? TryLoad("cu11.7.1/libllama.so")
+#if NET8_0_OR_GREATER
+                    ?? TryLoad("avx512/libllama.so", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
+#endif
+                    ?? TryLoad("avx2/libllama.so", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
+                    ?? TryLoad("avx/libllama.so", System.Runtime.Intrinsics.X86.Avx.IsSupported)
+                    ?? IntPtr.Zero;
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
