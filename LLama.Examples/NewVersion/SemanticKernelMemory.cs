@@ -97,6 +97,8 @@ namespace LLama.Examples.NewVersion
             await SearchMemoryAsync(kernel, "Jupyter notebook");
 
             await SearchMemoryAsync(kernel, "README: README associated with a sample chat summary react-based webapp");
+
+            await SearchMemoryAsync(kernel, "Jupyter notebook describing how to pass prompts from a file to a semantic skill or function");
         }
 
         private static async Task SearchMemoryAsync(IKernel kernel, string query)
