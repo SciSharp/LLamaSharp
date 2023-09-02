@@ -179,41 +179,39 @@ jobs:
 
           mkdir deps
 
-          mkdir deps/linux
-          mkdir deps/linux/noavx
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/linux/noavx/libllama.so
-          mkdir deps/linux/avx
-          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/linux/avx/libllama.so
-          mkdir deps/linux/avx2
-          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/linux/avx2/libllama.so
-          mkdir deps/linux/avx512
-          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/linux/avx512/libllama.so
+          mkdir deps/noavx
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/noavx/libllama.so
+          mkdir deps/avx
+          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/avx/libllama.so
+          mkdir deps/avx2
+          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/avx2/libllama.so
+          mkdir deps/avx512
+          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
 
-          mkdir deps/win
-          mkdir deps/win/noavx
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/win/noavx/libllama.dll
+          mkdir deps/noavx
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/noavx/libllama.dll
           mkdir deps/win/avx
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/win/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/avx/libllama.dll
           mkdir deps/win/avx2
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/win/avx2/libllama.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/avx2/libllama.dll
           mkdir deps/win/avx512
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/win/avx512/libllama.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
 
       - name: Rearrange MacOS files
         if: ${{ github.event.inputs.macos }}
         run: |
-          mkdir deps/macos-arm64
-          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/libllama.dylib
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
         run: |
-          mkdir cu11.7.1
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cu11.7.1/libllama.dll
-          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so cu11.7.1/libllama.so
-          mkdir cu12.1.0
-          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cu12.1.0/libllama.dll
-          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so cu12.1.0/libllama.so
+          mkdir cuda_deps
+          mkdir cuda_deps/cu11.7.1
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cuda_deps/cu11.7.1/libllama.dll
+          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so cuda_deps/cu11.7.1/libllama.so
+          mkdir cuda_deps/cu12.1.0
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cuda_deps/cu12.1.0/libllama.dll
+          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so cuda_deps/cu12.1.0/libllama.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -224,13 +222,13 @@ jobs:
         if: ${{ github.event.inputs.cublas }}
         uses: actions/upload-artifact@v3
         with:
-          path: cu12.1.0/
+          path: cuda_deps/cu12.1.0/
           name: cu12.1.0
       - name: Upload artifacts (CUDA11)
         if: ${{ github.event.inputs.cublas }}
         uses: actions/upload-artifact@v3
         with:
-          path: cu11.7.1/
+          path: cuda_deps/cu11.7.1/
           name: cu11.7.1
 
       - name: Remove Artifacts
