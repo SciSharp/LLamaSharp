@@ -1,0 +1,5736 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../llama.native.llamatokendataarraynative/">
+      
+      
+        <link rel="next" href="../llama.native.safellamacontexthandle/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+    
+    
+      
+        <title>llama.native.nativeapi - LLamaSharp Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.26e3688c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nativeapi" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="LLamaSharp Documentation" class="md-header__button md-logo" aria-label="LLamaSharp Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLamaSharp Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              llama.native.nativeapi
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="LLamaSharp Documentation" class="md-nav__button md-logo" aria-label="LLamaSharp Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    LLamaSharp Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GetStarted/" class="md-nav__link">
+        Get Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Architecture/" class="md-nav__link">
+        Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tricks/" class="md-nav__link">
+        Tricks for FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ContributingGuide/" class="md-nav__link">
+        Contributing Guide
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          LLamaContext
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          LLamaContext
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaContext/parameters.md" class="md-nav__link">
+        Context Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaContext/tokenization.md" class="md-nav__link">
+        Tokenization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaContext/embeddings.md" class="md-nav__link">
+        Get Embeddings
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaContext/quantization.md" class="md-nav__link">
+        Quantization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaContext/save-load-state.md" class="md-nav__link">
+        Save/Load State
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          LLamaExecutors
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          LLamaExecutors
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaExecutors/parameters/" class="md-nav__link">
+        Inference Parameters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaExecutors/text-to-text-apis/" class="md-nav__link">
+        Text-to-Text APIs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaExecutors/save-load-state/" class="md-nav__link">
+        Save/Load State
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../LLamaExecutors/differences/" class="md-nav__link">
+        Differences of Executors
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          ChatSession
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          ChatSession
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ChatSession/basic-usages/" class="md-nav__link">
+        Basic Usages
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ChatSession/transforms/" class="md-nav__link">
+        Transoforms
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ChatSession/save-load-session/" class="md-nav__link">
+        Save/Load Session
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Non-English Usages
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Non-English Usages
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../NonEnglishUsage/Chinese/" class="md-nav__link">
+        Chinese
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          High-level Applications
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          High-level Applications
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HighLevelApps/bot-sharp/" class="md-nav__link">
+        BotSharp
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HighLevelApps/semantic-kernel/" class="md-nav__link">
+        semantic-kernel
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+          More
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          More
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../More/log/" class="md-nav__link">
+        Logger
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatSessionStripRoleName/" class="md-nav__link">
+        Chat session 1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatSessionWithRoleName/" class="md-nav__link">
+        Chat session 2
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/GetEmbeddings/" class="md-nav__link">
+        Get embeddings
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/InstructModeExecute/" class="md-nav__link">
+        Instruct executor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/InteractiveModeExecute/" class="md-nav__link">
+        Interactive executor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/StatelessModeExecute/" class="md-nav__link">
+        Stateless exeutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/LoadAndSaveSession/" class="md-nav__link">
+        Load/Save session
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/LoadAndSaveState/" class="md-nav__link">
+        Load/Save state
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/QuantizeModel/" class="md-nav__link">
+        Quantize model
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.ihistorytransform/" class="md-nav__link">
+        llama.abstractions.ihistorytransform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.iinferenceparams/" class="md-nav__link">
+        llama.abstractions.iinferenceparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.illamaexecutor/" class="md-nav__link">
+        llama.abstractions.illamaexecutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.imodelparams/" class="md-nav__link">
+        llama.abstractions.imodelparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.itextstreamtransform/" class="md-nav__link">
+        llama.abstractions.itextstreamtransform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.itexttransform/" class="md-nav__link">
+        llama.abstractions.itexttransform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.chatsession/" class="md-nav__link">
+        llama.chatsession
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.authorrole/" class="md-nav__link">
+        llama.common.authorrole
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.chathistory/" class="md-nav__link">
+        llama.common.chathistory
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.fixedsizequeue-1/" class="md-nav__link">
+        llama.common.fixedsizequeue-1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.illamalogger/" class="md-nav__link">
+        llama.common.illamalogger
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.inferenceparams/" class="md-nav__link">
+        llama.common.inferenceparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.llamadefaultlogger/" class="md-nav__link">
+        llama.common.llamadefaultlogger
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.mirostattype/" class="md-nav__link">
+        llama.common.mirostattype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.modelparams/" class="md-nav__link">
+        llama.common.modelparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarexpectedname/" class="md-nav__link">
+        llama.exceptions.grammarexpectedname
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarexpectednext/" class="md-nav__link">
+        llama.exceptions.grammarexpectednext
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarexpectedprevious/" class="md-nav__link">
+        llama.exceptions.grammarexpectedprevious
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarformatexception/" class="md-nav__link">
+        llama.exceptions.grammarformatexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedcharaltelement/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedcharaltelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedcharrngelement/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedcharrngelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedendelement/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedendelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedendofinput/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedendofinput
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedhexcharscount/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedhexcharscount
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunknownescapecharacter/" class="md-nav__link">
+        llama.exceptions.grammarunknownescapecharacter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.runtimeerror/" class="md-nav__link">
+        llama.exceptions.runtimeerror
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.extensions.imodelparamsextensions/" class="md-nav__link">
+        llama.extensions.imodelparamsextensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.extensions.keyvaluepairextensions/" class="md-nav__link">
+        llama.extensions.keyvaluepairextensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.grammars.grammar/" class="md-nav__link">
+        llama.grammars.grammar
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.grammars.grammarrule/" class="md-nav__link">
+        llama.grammars.grammarrule
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.instructexecutor/" class="md-nav__link">
+        llama.instructexecutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.interactiveexecutor/" class="md-nav__link">
+        llama.interactiveexecutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamacontext/" class="md-nav__link">
+        llama.llamacontext
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamaembedder/" class="md-nav__link">
+        llama.llamaembedder
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamaquantizer/" class="md-nav__link">
+        llama.llamaquantizer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamatransforms/" class="md-nav__link">
+        llama.llamatransforms
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamaweights/" class="md-nav__link">
+        llama.llamaweights
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamacontextparams/" class="md-nav__link">
+        llama.native.llamacontextparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamaftype/" class="md-nav__link">
+        llama.native.llamaftype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamagrammarelement/" class="md-nav__link">
+        llama.native.llamagrammarelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamagrammarelementtype/" class="md-nav__link">
+        llama.native.llamagrammarelementtype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamamodelquantizeparams/" class="md-nav__link">
+        llama.native.llamamodelquantizeparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokendata/" class="md-nav__link">
+        llama.native.llamatokendata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokendataarray/" class="md-nav__link">
+        llama.native.llamatokendataarray
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokendataarraynative/" class="md-nav__link">
+        llama.native.llamatokendataarraynative
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          llama.native.nativeapi
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        llama.native.nativeapi
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructors" class="md-nav__link">
+    Constructors
+  </a>
+  
+    <nav class="md-nav" aria-label="Constructors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nativeapi_1" class="md-nav__link">
+    NativeApi()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_token_mirostatsafellamacontexthandle-llamatokendataarraynative-single-single-int32-single" class="md-nav__link">
+    llama_sample_token_mirostat(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, Single, Int32, Single&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token_mirostat(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, Single, Int32, Single&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_token_mirostat_v2safellamacontexthandle-llamatokendataarraynative-single-single-single" class="md-nav__link">
+    llama_sample_token_mirostat_v2(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, Single, Single&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token_mirostat_v2(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, Single, Single&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_1" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_token_greedysafellamacontexthandle-llamatokendataarraynative" class="md-nav__link">
+    llama_sample_token_greedy(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token_greedy(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_2" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_tokensafellamacontexthandle-llamatokendataarraynative" class="md-nav__link">
+    llama_sample_token(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_3" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_to_strsafellamacontexthandle-int32" class="md-nav__link">
+    llama_token_to_str(SafeLLamaContextHandle, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_to_str(SafeLLamaContextHandle, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_4" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_bossafellamacontexthandle" class="md-nav__link">
+    llama_token_bos(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_bos(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_5" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_eossafellamacontexthandle" class="md-nav__link">
+    llama_token_eos(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_eos(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_6" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_6" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_nlsafellamacontexthandle" class="md-nav__link">
+    llama_token_nl(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_nl(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_7" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_print_timingssafellamacontexthandle" class="md-nav__link">
+    llama_print_timings(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_print_timings(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_reset_timingssafellamacontexthandle" class="md-nav__link">
+    llama_reset_timings(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_reset_timings(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_9" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_print_system_info" class="md-nav__link">
+    llama_print_system_info()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_print_system_info()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_8" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_n_vocabsafellamamodelhandle" class="md-nav__link">
+    llama_model_n_vocab(SafeLlamaModelHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_n_vocab(SafeLlamaModelHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_9" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_n_ctxsafellamamodelhandle" class="md-nav__link">
+    llama_model_n_ctx(SafeLlamaModelHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_n_ctx(SafeLlamaModelHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_11" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_10" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_n_embdsafellamamodelhandle" class="md-nav__link">
+    llama_model_n_embd(SafeLlamaModelHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_n_embd(SafeLlamaModelHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_12" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_11" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_to_piece_with_modelsafellamamodelhandle-int32-byte-int32" class="md-nav__link">
+    llama_token_to_piece_with_model(SafeLlamaModelHandle, Int32, Byte*, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_to_piece_with_model(SafeLlamaModelHandle, Int32, Byte*, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_13" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_12" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_tokenize_with_modelsafellamamodelhandle-byte-int32-int32-boolean" class="md-nav__link">
+    llama_tokenize_with_model(SafeLlamaModelHandle, Byte, Int32, Int32, Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_tokenize_with_model(SafeLlamaModelHandle, Byte, Int32, Int32, Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_14" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_13" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_log_setllamalogcallback" class="md-nav__link">
+    llama_log_set(LLamaLogCallback)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_log_set(LLamaLogCallback)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_15" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_grammar_initllamagrammarelement-uint64-uint64" class="md-nav__link">
+    llama_grammar_init(LLamaGrammarElement, UInt64, UInt64)**
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_grammar_init(LLamaGrammarElement, UInt64, UInt64)**">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_16" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_14" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_grammar_freeintptr" class="md-nav__link">
+    llama_grammar_free(IntPtr)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_grammar_free(IntPtr)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_17" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_grammarsafellamacontexthandle-llamatokendataarraynative-safellamagrammarhandle" class="md-nav__link">
+    llama_sample_grammar(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, SafeLLamaGrammarHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_grammar(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, SafeLLamaGrammarHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_18" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_grammar_accept_tokensafellamacontexthandle-safellamagrammarhandle-int32" class="md-nav__link">
+    llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_19" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_quantizestring-string-llamamodelquantizeparams" class="md-nav__link">
+    llama_model_quantize(String, String, LLamaModelQuantizeParams*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_quantize(String, String, LLamaModelQuantizeParams*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_20" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_15" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_classifier_free_guidancesafellamacontexthandle-llamatokendataarraynative-safellamacontexthandle-single" class="md-nav__link">
+    llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative, SafeLLamaContextHandle, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative, SafeLLamaContextHandle, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_21" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_repetition_penaltysafellamacontexthandle-llamatokendataarraynative-int32-uint64-single" class="md-nav__link">
+    llama_sample_repetition_penalty(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32*, UInt64, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_repetition_penalty(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32*, UInt64, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_22" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_frequency_and_presence_penaltiessafellamacontexthandle-llamatokendataarraynative-int32-uint64-single-single" class="md-nav__link">
+    llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32*, UInt64, Single, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32*, UInt64, Single, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_23" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_classifier_free_guidancesafellamacontexthandle-llamatokendataarraynative-safellamacontexthandle-single_1" class="md-nav__link">
+    llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, SafeLLamaContextHandle, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, SafeLLamaContextHandle, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_24" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_softmaxsafellamacontexthandle-llamatokendataarraynative" class="md-nav__link">
+    llama_sample_softmax(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_softmax(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_25" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_top_ksafellamacontexthandle-llamatokendataarraynative-int32-uint64" class="md-nav__link">
+    llama_sample_top_k(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_top_k(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_26" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_top_psafellamacontexthandle-llamatokendataarraynative-single-uint64" class="md-nav__link">
+    llama_sample_top_p(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_top_p(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_27" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_tail_freesafellamacontexthandle-llamatokendataarraynative-single-uint64" class="md-nav__link">
+    llama_sample_tail_free(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_tail_free(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_28" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_typicalsafellamacontexthandle-llamatokendataarraynative-single-uint64" class="md-nav__link">
+    llama_sample_typical(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_typical(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_29" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_temperaturesafellamacontexthandle-llamatokendataarraynative-single" class="md-nav__link">
+    llama_sample_temperature(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_temperature(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_30" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_empty_call" class="md-nav__link">
+    llama_empty_call()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_empty_call()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_16" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_context_default_params" class="md-nav__link">
+    llama_context_default_params()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_context_default_params()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_17" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_quantize_default_params" class="md-nav__link">
+    llama_model_quantize_default_params()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_quantize_default_params()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_18" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_mmap_supported" class="md-nav__link">
+    llama_mmap_supported()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_mmap_supported()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_19" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_mlock_supported" class="md-nav__link">
+    llama_mlock_supported()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_mlock_supported()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_20" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_eval_exportsafellamacontexthandle-string" class="md-nav__link">
+    llama_eval_export(SafeLLamaContextHandle, String)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_eval_export(SafeLLamaContextHandle, String)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_31" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_21" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_load_model_from_filestring-llamacontextparams" class="md-nav__link">
+    llama_load_model_from_file(String, LLamaContextParams)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_load_model_from_file(String, LLamaContextParams)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_32" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_22" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_new_context_with_modelsafellamamodelhandle-llamacontextparams" class="md-nav__link">
+    llama_new_context_with_model(SafeLlamaModelHandle, LLamaContextParams)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_new_context_with_model(SafeLlamaModelHandle, LLamaContextParams)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_33" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_23" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_backend_initboolean" class="md-nav__link">
+    llama_backend_init(Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_backend_init(Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_34" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_freeintptr" class="md-nav__link">
+    llama_free(IntPtr)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_free(IntPtr)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_35" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_free_modelintptr" class="md-nav__link">
+    llama_free_model(IntPtr)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_free_model(IntPtr)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_36" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_apply_lora_from_filesafellamamodelhandle-string-string-int32" class="md-nav__link">
+    llama_model_apply_lora_from_file(SafeLlamaModelHandle, String, String, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_apply_lora_from_file(SafeLlamaModelHandle, String, String, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_37" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_24" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_kv_cache_token_countsafellamacontexthandle" class="md-nav__link">
+    llama_get_kv_cache_token_count(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_kv_cache_token_count(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_38" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_25" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_set_rng_seedsafellamacontexthandle-int32" class="md-nav__link">
+    llama_set_rng_seed(SafeLLamaContextHandle, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_set_rng_seed(SafeLLamaContextHandle, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_39" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_state_sizesafellamacontexthandle" class="md-nav__link">
+    llama_get_state_size(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_state_size(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_40" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_26" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_copy_state_datasafellamacontexthandle-byte" class="md-nav__link">
+    llama_copy_state_data(SafeLLamaContextHandle, Byte*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_copy_state_data(SafeLLamaContextHandle, Byte*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_41" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_27" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_copy_state_datasafellamacontexthandle-byte_1" class="md-nav__link">
+    llama_copy_state_data(SafeLLamaContextHandle, Byte[])
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_copy_state_data(SafeLLamaContextHandle, Byte[])">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_42" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_28" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_set_state_datasafellamacontexthandle-byte" class="md-nav__link">
+    llama_set_state_data(SafeLLamaContextHandle, Byte*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_set_state_data(SafeLLamaContextHandle, Byte*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_43" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_29" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_set_state_datasafellamacontexthandle-byte_1" class="md-nav__link">
+    llama_set_state_data(SafeLLamaContextHandle, Byte[])
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_set_state_data(SafeLLamaContextHandle, Byte[])">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_44" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_30" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_load_session_filesafellamacontexthandle-string-int32-uint64-uint64" class="md-nav__link">
+    llama_load_session_file(SafeLLamaContextHandle, String, Int32[], UInt64, UInt64*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_load_session_file(SafeLLamaContextHandle, String, Int32[], UInt64, UInt64*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_45" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_31" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_save_session_filesafellamacontexthandle-string-int32-uint64" class="md-nav__link">
+    llama_save_session_file(SafeLLamaContextHandle, String, Int32[], UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_save_session_file(SafeLLamaContextHandle, String, Int32[], UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_46" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_32" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_evalsafellamacontexthandle-int32-int32-int32-int32" class="md-nav__link">
+    llama_eval(SafeLLamaContextHandle, Int32[], Int32, Int32, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_eval(SafeLLamaContextHandle, Int32[], Int32, Int32, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_47" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_33" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_eval_with_pointersafellamacontexthandle-int32-int32-int32-int32" class="md-nav__link">
+    llama_eval_with_pointer(SafeLLamaContextHandle, Int32*, Int32, Int32, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_eval_with_pointer(SafeLLamaContextHandle, Int32*, Int32, Int32, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_48" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_34" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_tokenizesafellamacontexthandle-string-encoding-int32-int32-boolean" class="md-nav__link">
+    llama_tokenize(SafeLLamaContextHandle, String, Encoding, Int32[], Int32, Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_tokenize(SafeLLamaContextHandle, String, Encoding, Int32[], Int32, Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_49" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_35" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_tokenize_nativesafellamacontexthandle-byte-int32-int32-boolean" class="md-nav__link">
+    llama_tokenize_native(SafeLLamaContextHandle, Byte, Int32, Int32, Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_tokenize_native(SafeLLamaContextHandle, Byte, Int32, Int32, Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_50" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_36" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_n_vocabsafellamacontexthandle" class="md-nav__link">
+    llama_n_vocab(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_n_vocab(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_51" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_37" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_n_ctxsafellamacontexthandle" class="md-nav__link">
+    llama_n_ctx(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_n_ctx(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_52" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_38" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_n_embdsafellamacontexthandle" class="md-nav__link">
+    llama_n_embd(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_n_embd(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_53" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_39" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_logitssafellamacontexthandle" class="md-nav__link">
+    llama_get_logits(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_logits(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_54" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_40" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_embeddingssafellamacontexthandle" class="md-nav__link">
+    llama_get_embeddings(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_embeddings(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_55" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_41" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamacontexthandle/" class="md-nav__link">
+        llama.native.safellamacontexthandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamagrammarhandle/" class="md-nav__link">
+        llama.native.safellamagrammarhandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamahandlebase/" class="md-nav__link">
+        llama.native.safellamahandlebase
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamamodelhandle/" class="md-nav__link">
+        llama.native.safellamamodelhandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.samplingapi/" class="md-nav__link">
+        llama.native.samplingapi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatcompletion/" class="md-nav__link">
+        llama.oldversion.chatcompletion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatcompletionchoice/" class="md-nav__link">
+        llama.oldversion.chatcompletionchoice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatcompletionchunk/" class="md-nav__link">
+        llama.oldversion.chatcompletionchunk
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatcompletionchunkchoice/" class="md-nav__link">
+        llama.oldversion.chatcompletionchunkchoice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatcompletionchunkdelta/" class="md-nav__link">
+        llama.oldversion.chatcompletionchunkdelta
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatcompletionmessage/" class="md-nav__link">
+        llama.oldversion.chatcompletionmessage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatmessagerecord/" class="md-nav__link">
+        llama.oldversion.chatmessagerecord
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatrole/" class="md-nav__link">
+        llama.oldversion.chatrole
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.chatsession-1/" class="md-nav__link">
+        llama.oldversion.chatsession-1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.completion/" class="md-nav__link">
+        llama.oldversion.completion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.completionchoice/" class="md-nav__link">
+        llama.oldversion.completionchoice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.completionchunk/" class="md-nav__link">
+        llama.oldversion.completionchunk
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.completionlogprobs/" class="md-nav__link">
+        llama.oldversion.completionlogprobs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.completionusage/" class="md-nav__link">
+        llama.oldversion.completionusage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.embedding/" class="md-nav__link">
+        llama.oldversion.embedding
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.embeddingdata/" class="md-nav__link">
+        llama.oldversion.embeddingdata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.embeddingusage/" class="md-nav__link">
+        llama.oldversion.embeddingusage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.ichatmodel/" class="md-nav__link">
+        llama.oldversion.ichatmodel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.llamaembedder/" class="md-nav__link">
+        llama.oldversion.llamaembedder
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.llamamodel/" class="md-nav__link">
+        llama.oldversion.llamamodel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.oldversion.llamaparams/" class="md-nav__link">
+        llama.oldversion.llamaparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.statefulexecutorbase/" class="md-nav__link">
+        llama.statefulexecutorbase
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.statelessexecutor/" class="md-nav__link">
+        llama.statelessexecutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.utils/" class="md-nav__link">
+        llama.utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructors" class="md-nav__link">
+    Constructors
+  </a>
+  
+    <nav class="md-nav" aria-label="Constructors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nativeapi_1" class="md-nav__link">
+    NativeApi()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_token_mirostatsafellamacontexthandle-llamatokendataarraynative-single-single-int32-single" class="md-nav__link">
+    llama_sample_token_mirostat(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, Single, Int32, Single&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token_mirostat(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, Single, Int32, Single&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_token_mirostat_v2safellamacontexthandle-llamatokendataarraynative-single-single-single" class="md-nav__link">
+    llama_sample_token_mirostat_v2(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, Single, Single&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token_mirostat_v2(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, Single, Single&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_1" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_token_greedysafellamacontexthandle-llamatokendataarraynative" class="md-nav__link">
+    llama_sample_token_greedy(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token_greedy(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_2" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_tokensafellamacontexthandle-llamatokendataarraynative" class="md-nav__link">
+    llama_sample_token(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_token(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_3" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_to_strsafellamacontexthandle-int32" class="md-nav__link">
+    llama_token_to_str(SafeLLamaContextHandle, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_to_str(SafeLLamaContextHandle, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_4" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_bossafellamacontexthandle" class="md-nav__link">
+    llama_token_bos(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_bos(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_5" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_5" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_eossafellamacontexthandle" class="md-nav__link">
+    llama_token_eos(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_eos(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_6" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_6" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_nlsafellamacontexthandle" class="md-nav__link">
+    llama_token_nl(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_nl(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_7" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_print_timingssafellamacontexthandle" class="md-nav__link">
+    llama_print_timings(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_print_timings(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_8" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_reset_timingssafellamacontexthandle" class="md-nav__link">
+    llama_reset_timings(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_reset_timings(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_9" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_print_system_info" class="md-nav__link">
+    llama_print_system_info()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_print_system_info()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_8" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_n_vocabsafellamamodelhandle" class="md-nav__link">
+    llama_model_n_vocab(SafeLlamaModelHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_n_vocab(SafeLlamaModelHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_10" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_9" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_n_ctxsafellamamodelhandle" class="md-nav__link">
+    llama_model_n_ctx(SafeLlamaModelHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_n_ctx(SafeLlamaModelHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_11" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_10" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_n_embdsafellamamodelhandle" class="md-nav__link">
+    llama_model_n_embd(SafeLlamaModelHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_n_embd(SafeLlamaModelHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_12" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_11" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_token_to_piece_with_modelsafellamamodelhandle-int32-byte-int32" class="md-nav__link">
+    llama_token_to_piece_with_model(SafeLlamaModelHandle, Int32, Byte*, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_token_to_piece_with_model(SafeLlamaModelHandle, Int32, Byte*, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_13" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_12" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_tokenize_with_modelsafellamamodelhandle-byte-int32-int32-boolean" class="md-nav__link">
+    llama_tokenize_with_model(SafeLlamaModelHandle, Byte, Int32, Int32, Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_tokenize_with_model(SafeLlamaModelHandle, Byte, Int32, Int32, Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_14" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_13" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_log_setllamalogcallback" class="md-nav__link">
+    llama_log_set(LLamaLogCallback)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_log_set(LLamaLogCallback)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_15" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_grammar_initllamagrammarelement-uint64-uint64" class="md-nav__link">
+    llama_grammar_init(LLamaGrammarElement, UInt64, UInt64)**
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_grammar_init(LLamaGrammarElement, UInt64, UInt64)**">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_16" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_14" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_grammar_freeintptr" class="md-nav__link">
+    llama_grammar_free(IntPtr)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_grammar_free(IntPtr)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_17" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_grammarsafellamacontexthandle-llamatokendataarraynative-safellamagrammarhandle" class="md-nav__link">
+    llama_sample_grammar(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, SafeLLamaGrammarHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_grammar(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, SafeLLamaGrammarHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_18" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_grammar_accept_tokensafellamacontexthandle-safellamagrammarhandle-int32" class="md-nav__link">
+    llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_19" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_quantizestring-string-llamamodelquantizeparams" class="md-nav__link">
+    llama_model_quantize(String, String, LLamaModelQuantizeParams*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_quantize(String, String, LLamaModelQuantizeParams*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_20" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_15" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_classifier_free_guidancesafellamacontexthandle-llamatokendataarraynative-safellamacontexthandle-single" class="md-nav__link">
+    llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative, SafeLLamaContextHandle, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative, SafeLLamaContextHandle, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_21" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_repetition_penaltysafellamacontexthandle-llamatokendataarraynative-int32-uint64-single" class="md-nav__link">
+    llama_sample_repetition_penalty(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32*, UInt64, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_repetition_penalty(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32*, UInt64, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_22" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_frequency_and_presence_penaltiessafellamacontexthandle-llamatokendataarraynative-int32-uint64-single-single" class="md-nav__link">
+    llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32*, UInt64, Single, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32*, UInt64, Single, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_23" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_classifier_free_guidancesafellamacontexthandle-llamatokendataarraynative-safellamacontexthandle-single_1" class="md-nav__link">
+    llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, SafeLLamaContextHandle, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, SafeLLamaContextHandle, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_24" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_softmaxsafellamacontexthandle-llamatokendataarraynative" class="md-nav__link">
+    llama_sample_softmax(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_softmax(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_25" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_top_ksafellamacontexthandle-llamatokendataarraynative-int32-uint64" class="md-nav__link">
+    llama_sample_top_k(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_top_k(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_26" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_top_psafellamacontexthandle-llamatokendataarraynative-single-uint64" class="md-nav__link">
+    llama_sample_top_p(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_top_p(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_27" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_tail_freesafellamacontexthandle-llamatokendataarraynative-single-uint64" class="md-nav__link">
+    llama_sample_tail_free(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_tail_free(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_28" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_typicalsafellamacontexthandle-llamatokendataarraynative-single-uint64" class="md-nav__link">
+    llama_sample_typical(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_typical(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_29" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_sample_temperaturesafellamacontexthandle-llamatokendataarraynative-single" class="md-nav__link">
+    llama_sample_temperature(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_sample_temperature(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_30" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_empty_call" class="md-nav__link">
+    llama_empty_call()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_empty_call()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_16" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_context_default_params" class="md-nav__link">
+    llama_context_default_params()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_context_default_params()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_17" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_quantize_default_params" class="md-nav__link">
+    llama_model_quantize_default_params()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_quantize_default_params()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_18" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_mmap_supported" class="md-nav__link">
+    llama_mmap_supported()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_mmap_supported()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_19" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_mlock_supported" class="md-nav__link">
+    llama_mlock_supported()
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_mlock_supported()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_20" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_eval_exportsafellamacontexthandle-string" class="md-nav__link">
+    llama_eval_export(SafeLLamaContextHandle, String)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_eval_export(SafeLLamaContextHandle, String)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_31" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_21" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_load_model_from_filestring-llamacontextparams" class="md-nav__link">
+    llama_load_model_from_file(String, LLamaContextParams)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_load_model_from_file(String, LLamaContextParams)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_32" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_22" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_new_context_with_modelsafellamamodelhandle-llamacontextparams" class="md-nav__link">
+    llama_new_context_with_model(SafeLlamaModelHandle, LLamaContextParams)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_new_context_with_model(SafeLlamaModelHandle, LLamaContextParams)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_33" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_23" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_backend_initboolean" class="md-nav__link">
+    llama_backend_init(Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_backend_init(Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_34" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_freeintptr" class="md-nav__link">
+    llama_free(IntPtr)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_free(IntPtr)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_35" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_free_modelintptr" class="md-nav__link">
+    llama_free_model(IntPtr)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_free_model(IntPtr)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_36" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_model_apply_lora_from_filesafellamamodelhandle-string-string-int32" class="md-nav__link">
+    llama_model_apply_lora_from_file(SafeLlamaModelHandle, String, String, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_model_apply_lora_from_file(SafeLlamaModelHandle, String, String, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_37" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_24" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_kv_cache_token_countsafellamacontexthandle" class="md-nav__link">
+    llama_get_kv_cache_token_count(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_kv_cache_token_count(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_38" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_25" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_set_rng_seedsafellamacontexthandle-int32" class="md-nav__link">
+    llama_set_rng_seed(SafeLLamaContextHandle, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_set_rng_seed(SafeLLamaContextHandle, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_39" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_state_sizesafellamacontexthandle" class="md-nav__link">
+    llama_get_state_size(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_state_size(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_40" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_26" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_copy_state_datasafellamacontexthandle-byte" class="md-nav__link">
+    llama_copy_state_data(SafeLLamaContextHandle, Byte*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_copy_state_data(SafeLLamaContextHandle, Byte*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_41" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_27" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_copy_state_datasafellamacontexthandle-byte_1" class="md-nav__link">
+    llama_copy_state_data(SafeLLamaContextHandle, Byte[])
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_copy_state_data(SafeLLamaContextHandle, Byte[])">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_42" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_28" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_set_state_datasafellamacontexthandle-byte" class="md-nav__link">
+    llama_set_state_data(SafeLLamaContextHandle, Byte*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_set_state_data(SafeLLamaContextHandle, Byte*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_43" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_29" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_set_state_datasafellamacontexthandle-byte_1" class="md-nav__link">
+    llama_set_state_data(SafeLLamaContextHandle, Byte[])
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_set_state_data(SafeLLamaContextHandle, Byte[])">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_44" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_30" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_load_session_filesafellamacontexthandle-string-int32-uint64-uint64" class="md-nav__link">
+    llama_load_session_file(SafeLLamaContextHandle, String, Int32[], UInt64, UInt64*)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_load_session_file(SafeLLamaContextHandle, String, Int32[], UInt64, UInt64*)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_45" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_31" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_save_session_filesafellamacontexthandle-string-int32-uint64" class="md-nav__link">
+    llama_save_session_file(SafeLLamaContextHandle, String, Int32[], UInt64)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_save_session_file(SafeLLamaContextHandle, String, Int32[], UInt64)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_46" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_32" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_evalsafellamacontexthandle-int32-int32-int32-int32" class="md-nav__link">
+    llama_eval(SafeLLamaContextHandle, Int32[], Int32, Int32, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_eval(SafeLLamaContextHandle, Int32[], Int32, Int32, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_47" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_33" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_eval_with_pointersafellamacontexthandle-int32-int32-int32-int32" class="md-nav__link">
+    llama_eval_with_pointer(SafeLLamaContextHandle, Int32*, Int32, Int32, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_eval_with_pointer(SafeLLamaContextHandle, Int32*, Int32, Int32, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_48" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_34" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_tokenizesafellamacontexthandle-string-encoding-int32-int32-boolean" class="md-nav__link">
+    llama_tokenize(SafeLLamaContextHandle, String, Encoding, Int32[], Int32, Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_tokenize(SafeLLamaContextHandle, String, Encoding, Int32[], Int32, Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_49" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_35" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_tokenize_nativesafellamacontexthandle-byte-int32-int32-boolean" class="md-nav__link">
+    llama_tokenize_native(SafeLLamaContextHandle, Byte, Int32, Int32, Boolean)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_tokenize_native(SafeLLamaContextHandle, Byte, Int32, Int32, Boolean)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_50" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_36" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_n_vocabsafellamacontexthandle" class="md-nav__link">
+    llama_n_vocab(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_n_vocab(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_51" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_37" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_n_ctxsafellamacontexthandle" class="md-nav__link">
+    llama_n_ctx(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_n_ctx(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_52" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_38" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_n_embdsafellamacontexthandle" class="md-nav__link">
+    llama_n_embd(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_n_embd(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_53" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_39" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_logitssafellamacontexthandle" class="md-nav__link">
+    llama_get_logits(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_logits(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_54" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_40" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llama_get_embeddingssafellamacontexthandle" class="md-nav__link">
+    llama_get_embeddings(SafeLLamaContextHandle)
+  </a>
+  
+    <nav class="md-nav" aria-label="llama_get_embeddings(SafeLLamaContextHandle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_55" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_41" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="nativeapi">NativeApi</h1>
+<p>Namespace: LLama.Native</p>
+<p>Direct translation of the llama.cpp API</p>
+<pre><code class="language-csharp">public class NativeApi
+</code></pre>
+<p>Inheritance <a href="https://docs.microsoft.com/en-us/dotnet/api/system.object">Object</a> → <a href="./">NativeApi</a></p>
+<h2 id="constructors">Constructors</h2>
+<h3 id="nativeapi_1"><strong>NativeApi()</strong></h3>
+<pre><code class="language-csharp">public NativeApi()
+</code></pre>
+<h2 id="methods">Methods</h2>
+<h3 id="llama_sample_token_mirostatsafellamacontexthandle-llamatokendataarraynative-single-single-int32-single"><strong>llama_sample_token_mirostat(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, Single, Int32, Single&amp;)</strong></h3>
+<p>Mirostat 1.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.</p>
+<pre><code class="language-csharp">public static int llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, float tau, float eta, int m, Single&amp; mu)
+</code></pre>
+<h4 id="parameters">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+A vector of <code>llama_token_data</code> containing the candidate tokens, their probabilities (p), and log-odds (logit) for the current position in the generated text.</p>
+<p><code>tau</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br>
+The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</p>
+<p><code>eta</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br>
+The learning rate used to update <code>mu</code> based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause <code>mu</code> to be updated more quickly, while a smaller learning rate will result in slower updates.</p>
+<p><code>m</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+The number of tokens considered in the estimation of <code>s_hat</code>. This is an arbitrary value that is used to calculate <code>s_hat</code>, which in turn helps to calculate the value of <code>k</code>. In the paper, they use <code>m = 100</code>, but you can experiment with different values to see how it affects the performance of the algorithm.</p>
+<p><code>mu</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single&amp;">Single&amp;</a><br>
+Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (<code>2 * tau</code>) and is updated in the algorithm based on the error between the target and observed surprisal.</p>
+<h4 id="returns">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_sample_token_mirostat_v2safellamacontexthandle-llamatokendataarraynative-single-single-single"><strong>llama_sample_token_mirostat_v2(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, Single, Single&amp;)</strong></h3>
+<p>Mirostat 2.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.</p>
+<pre><code class="language-csharp">public static int llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, float tau, float eta, Single&amp; mu)
+</code></pre>
+<h4 id="parameters_1">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+A vector of <code>llama_token_data</code> containing the candidate tokens, their probabilities (p), and log-odds (logit) for the current position in the generated text.</p>
+<p><code>tau</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br>
+The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</p>
+<p><code>eta</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br>
+The learning rate used to update <code>mu</code> based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause <code>mu</code> to be updated more quickly, while a smaller learning rate will result in slower updates.</p>
+<p><code>mu</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single&amp;">Single&amp;</a><br>
+Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (<code>2 * tau</code>) and is updated in the algorithm based on the error between the target and observed surprisal.</p>
+<h4 id="returns_1">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_sample_token_greedysafellamacontexthandle-llamatokendataarraynative"><strong>llama_sample_token_greedy(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)</strong></h3>
+<p>Selects the token with the highest probability.</p>
+<pre><code class="language-csharp">public static int llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates)
+</code></pre>
+<h4 id="parameters_2">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<h4 id="returns_2">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_sample_tokensafellamacontexthandle-llamatokendataarraynative"><strong>llama_sample_token(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)</strong></h3>
+<p>Randomly selects a token from the candidates based on their probabilities.</p>
+<pre><code class="language-csharp">public static int llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates)
+</code></pre>
+<h4 id="parameters_3">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<h4 id="returns_3">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_token_to_strsafellamacontexthandle-int32"><strong>llama_token_to_str(SafeLLamaContextHandle, Int32)</strong></h3>
+<p>Token Id -&gt; String. Uses the vocabulary in the provided context</p>
+<pre><code class="language-csharp">public static IntPtr llama_token_to_str(SafeLLamaContextHandle ctx, int token)
+</code></pre>
+<h4 id="parameters_4">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>token</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h4 id="returns_4">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br>
+Pointer to a string.</p>
+<h3 id="llama_token_bossafellamacontexthandle"><strong>llama_token_bos(SafeLLamaContextHandle)</strong></h3>
+<p>Get the "Beginning of sentence" token</p>
+<pre><code class="language-csharp">public static int llama_token_bos(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_5">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_5">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_token_eossafellamacontexthandle"><strong>llama_token_eos(SafeLLamaContextHandle)</strong></h3>
+<p>Get the "End of sentence" token</p>
+<pre><code class="language-csharp">public static int llama_token_eos(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_6">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_6">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_token_nlsafellamacontexthandle"><strong>llama_token_nl(SafeLLamaContextHandle)</strong></h3>
+<p>Get the "new line" token</p>
+<pre><code class="language-csharp">public static int llama_token_nl(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_7">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_7">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_print_timingssafellamacontexthandle"><strong>llama_print_timings(SafeLLamaContextHandle)</strong></h3>
+<p>Print out timing information for this context</p>
+<pre><code class="language-csharp">public static void llama_print_timings(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_8">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h3 id="llama_reset_timingssafellamacontexthandle"><strong>llama_reset_timings(SafeLLamaContextHandle)</strong></h3>
+<p>Reset all collected timing information for this context</p>
+<pre><code class="language-csharp">public static void llama_reset_timings(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_9">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h3 id="llama_print_system_info"><strong>llama_print_system_info()</strong></h3>
+<p>Print system information</p>
+<pre><code class="language-csharp">public static IntPtr llama_print_system_info()
+</code></pre>
+<h4 id="returns_8">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_model_n_vocabsafellamamodelhandle"><strong>llama_model_n_vocab(SafeLlamaModelHandle)</strong></h3>
+<p>Get the number of tokens in the model vocabulary</p>
+<pre><code class="language-csharp">public static int llama_model_n_vocab(SafeLlamaModelHandle model)
+</code></pre>
+<h4 id="parameters_10">Parameters</h4>
+<p><code>model</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<h4 id="returns_9">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_model_n_ctxsafellamamodelhandle"><strong>llama_model_n_ctx(SafeLlamaModelHandle)</strong></h3>
+<p>Get the size of the context window for the model</p>
+<pre><code class="language-csharp">public static int llama_model_n_ctx(SafeLlamaModelHandle model)
+</code></pre>
+<h4 id="parameters_11">Parameters</h4>
+<p><code>model</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<h4 id="returns_10">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_model_n_embdsafellamamodelhandle"><strong>llama_model_n_embd(SafeLlamaModelHandle)</strong></h3>
+<p>Get the dimension of embedding vectors from this model</p>
+<pre><code class="language-csharp">public static int llama_model_n_embd(SafeLlamaModelHandle model)
+</code></pre>
+<h4 id="parameters_12">Parameters</h4>
+<p><code>model</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<h4 id="returns_11">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_token_to_piece_with_modelsafellamamodelhandle-int32-byte-int32"><strong>llama_token_to_piece_with_model(SafeLlamaModelHandle, Int32, Byte*, Int32)</strong></h3>
+<p>Convert a single token into text</p>
+<pre><code class="language-csharp">public static int llama_token_to_piece_with_model(SafeLlamaModelHandle model, int llamaToken, Byte* buffer, int length)
+</code></pre>
+<h4 id="parameters_13">Parameters</h4>
+<p><code>model</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<p><code>llamaToken</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>buffer</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte*">Byte*</a><br>
+buffer to write string into</p>
+<p><code>length</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+size of the buffer</p>
+<h4 id="returns_12">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+The length writte, or if the buffer is too small a negative that indicates the length required</p>
+<h3 id="llama_tokenize_with_modelsafellamamodelhandle-byte-int32-int32-boolean"><strong>llama_tokenize_with_model(SafeLlamaModelHandle, Byte<em>, Int32</em>, Int32, Boolean)</strong></h3>
+<p>Convert text into tokens</p>
+<pre><code class="language-csharp">public static int llama_tokenize_with_model(SafeLlamaModelHandle model, Byte* text, Int32* tokens, int n_max_tokens, bool add_bos)
+</code></pre>
+<h4 id="parameters_14">Parameters</h4>
+<p><code>model</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<p><code>text</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte*">Byte*</a><br></p>
+<p><code>tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32*">Int32*</a><br></p>
+<p><code>n_max_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>add_bos</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h4 id="returns_13">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns the number of tokens on success, no more than n_max_tokens.
+ Returns a negative number on failure - the number of tokens that would have been returned</p>
+<h3 id="llama_log_setllamalogcallback"><strong>llama_log_set(LLamaLogCallback)</strong></h3>
+<p>Register a callback to receive llama log messages</p>
+<pre><code class="language-csharp">public static void llama_log_set(LLamaLogCallback logCallback)
+</code></pre>
+<h4 id="parameters_15">Parameters</h4>
+<p><code>logCallback</code> <a href="./llama.native.llamalogcallback.md">LLamaLogCallback</a><br></p>
+<h3 id="llama_grammar_initllamagrammarelement-uint64-uint64"><strong>llama_grammar_init(LLamaGrammarElement</strong>, UInt64, UInt64)**</h3>
+<p>Create a new grammar from the given set of grammar rules</p>
+<pre><code class="language-csharp">public static IntPtr llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index)
+</code></pre>
+<h4 id="parameters_16">Parameters</h4>
+<p><code>rules</code> <a href="./llama.native.llamagrammarelement**.md">LLamaGrammarElement**</a><br></p>
+<p><code>n_rules</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<p><code>start_rule_index</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h4 id="returns_14">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_grammar_freeintptr"><strong>llama_grammar_free(IntPtr)</strong></h3>
+<p>Free all memory from the given SafeLLamaGrammarHandle</p>
+<pre><code class="language-csharp">public static void llama_grammar_free(IntPtr grammar)
+</code></pre>
+<h4 id="parameters_17">Parameters</h4>
+<p><code>grammar</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_sample_grammarsafellamacontexthandle-llamatokendataarraynative-safellamagrammarhandle"><strong>llama_sample_grammar(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, SafeLLamaGrammarHandle)</strong></h3>
+<p>Apply constraints from grammar</p>
+<pre><code class="language-csharp">public static void llama_sample_grammar(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, SafeLLamaGrammarHandle grammar)
+</code></pre>
+<h4 id="parameters_18">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br></p>
+<p><code>grammar</code> <a href="../llama.native.safellamagrammarhandle/">SafeLLamaGrammarHandle</a><br></p>
+<h3 id="llama_grammar_accept_tokensafellamacontexthandle-safellamagrammarhandle-int32"><strong>llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, Int32)</strong></h3>
+<p>Accepts the sampled token into the grammar</p>
+<pre><code class="language-csharp">public static void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, int token)
+</code></pre>
+<h4 id="parameters_19">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>grammar</code> <a href="../llama.native.safellamagrammarhandle/">SafeLLamaGrammarHandle</a><br></p>
+<p><code>token</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_model_quantizestring-string-llamamodelquantizeparams"><strong>llama_model_quantize(String, String, LLamaModelQuantizeParams*)</strong></h3>
+<p>Returns 0 on success</p>
+<pre><code class="language-csharp">public static int llama_model_quantize(string fname_inp, string fname_out, LLamaModelQuantizeParams* param)
+</code></pre>
+<h4 id="parameters_20">Parameters</h4>
+<p><code>fname_inp</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>fname_out</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>param</code> <a href="./llama.native.llamamodelquantizeparams*.md">LLamaModelQuantizeParams*</a><br></p>
+<h4 id="returns_15">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns 0 on success</p>
+<p><strong>Remarks:</strong></p>
+<p>not great API - very likely to change</p>
+<h3 id="llama_sample_classifier_free_guidancesafellamacontexthandle-llamatokendataarraynative-safellamacontexthandle-single"><strong>llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative, SafeLLamaContextHandle, Single)</strong></h3>
+<p>Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806</p>
+<pre><code class="language-csharp">public static void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative candidates, SafeLLamaContextHandle guidanceCtx, float scale)
+</code></pre>
+<h4 id="parameters_21">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="../llama.native.llamatokendataarraynative/">LLamaTokenDataArrayNative</a><br>
+A vector of <code>llama_token_data</code> containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.</p>
+<p><code>guidanceCtx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br>
+A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</p>
+<p><code>scale</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br>
+Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.</p>
+<h3 id="llama_sample_repetition_penaltysafellamacontexthandle-llamatokendataarraynative-int32-uint64-single"><strong>llama_sample_repetition_penalty(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32*, UInt64, Single)</strong></h3>
+<p>Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.</p>
+<pre><code class="language-csharp">public static void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, Int32* last_tokens, ulong last_tokens_size, float penalty)
+</code></pre>
+<h4 id="parameters_22">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<p><code>last_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32*">Int32*</a><br></p>
+<p><code>last_tokens_size</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<p><code>penalty</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<h3 id="llama_sample_frequency_and_presence_penaltiessafellamacontexthandle-llamatokendataarraynative-int32-uint64-single-single"><strong>llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32*, UInt64, Single, Single)</strong></h3>
+<p>Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</p>
+<pre><code class="language-csharp">public static void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, Int32* last_tokens, ulong last_tokens_size, float alpha_frequency, float alpha_presence)
+</code></pre>
+<h4 id="parameters_23">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<p><code>last_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32*">Int32*</a><br></p>
+<p><code>last_tokens_size</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<p><code>alpha_frequency</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<p><code>alpha_presence</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<h3 id="llama_sample_classifier_free_guidancesafellamacontexthandle-llamatokendataarraynative-safellamacontexthandle-single_1"><strong>llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, SafeLLamaContextHandle, Single)</strong></h3>
+<p>Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806</p>
+<pre><code class="language-csharp">public static void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, SafeLLamaContextHandle guidance_ctx, float scale)
+</code></pre>
+<h4 id="parameters_24">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+A vector of <code>llama_token_data</code> containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.</p>
+<p><code>guidance_ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br>
+A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</p>
+<p><code>scale</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br>
+Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.</p>
+<h3 id="llama_sample_softmaxsafellamacontexthandle-llamatokendataarraynative"><strong>llama_sample_softmax(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;)</strong></h3>
+<p>Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.</p>
+<pre><code class="language-csharp">public static void llama_sample_softmax(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates)
+</code></pre>
+<h4 id="parameters_25">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<h3 id="llama_sample_top_ksafellamacontexthandle-llamatokendataarraynative-int32-uint64"><strong>llama_sample_top_k(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Int32, UInt64)</strong></h3>
+<p>Top-K sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751</p>
+<pre><code class="language-csharp">public static void llama_sample_top_k(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, int k, ulong min_keep)
+</code></pre>
+<h4 id="parameters_26">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<p><code>k</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>min_keep</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h3 id="llama_sample_top_psafellamacontexthandle-llamatokendataarraynative-single-uint64"><strong>llama_sample_top_p(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)</strong></h3>
+<p>Nucleus sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751</p>
+<pre><code class="language-csharp">public static void llama_sample_top_p(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, float p, ulong min_keep)
+</code></pre>
+<h4 id="parameters_27">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<p><code>p</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<p><code>min_keep</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h3 id="llama_sample_tail_freesafellamacontexthandle-llamatokendataarraynative-single-uint64"><strong>llama_sample_tail_free(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)</strong></h3>
+<p>Tail Free Sampling described in https://www.trentonbricken.com/Tail-Free-Sampling/.</p>
+<pre><code class="language-csharp">public static void llama_sample_tail_free(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, float z, ulong min_keep)
+</code></pre>
+<h4 id="parameters_28">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<p><code>z</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<p><code>min_keep</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h3 id="llama_sample_typicalsafellamacontexthandle-llamatokendataarraynative-single-uint64"><strong>llama_sample_typical(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single, UInt64)</strong></h3>
+<p>Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.</p>
+<pre><code class="language-csharp">public static void llama_sample_typical(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, float p, ulong min_keep)
+</code></pre>
+<h4 id="parameters_29">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br>
+Pointer to LLamaTokenDataArray</p>
+<p><code>p</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<p><code>min_keep</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h3 id="llama_sample_temperaturesafellamacontexthandle-llamatokendataarraynative-single"><strong>llama_sample_temperature(SafeLLamaContextHandle, LLamaTokenDataArrayNative&amp;, Single)</strong></h3>
+<p>Modify logits by temperature</p>
+<pre><code class="language-csharp">public static void llama_sample_temperature(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative&amp; candidates, float temp)
+</code></pre>
+<h4 id="parameters_30">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>candidates</code> <a href="./llama.native.llamatokendataarraynative&amp;.md">LLamaTokenDataArrayNative&amp;</a><br></p>
+<p><code>temp</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.single">Single</a><br></p>
+<h3 id="llama_empty_call"><strong>llama_empty_call()</strong></h3>
+<p>A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.</p>
+<pre><code class="language-csharp">public static bool llama_empty_call()
+</code></pre>
+<h4 id="returns_16">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="llama_context_default_params"><strong>llama_context_default_params()</strong></h3>
+<p>Create a LLamaContextParams with default values</p>
+<pre><code class="language-csharp">public static LLamaContextParams llama_context_default_params()
+</code></pre>
+<h4 id="returns_17">Returns</h4>
+<p><a href="../llama.native.llamacontextparams/">LLamaContextParams</a><br></p>
+<h3 id="llama_model_quantize_default_params"><strong>llama_model_quantize_default_params()</strong></h3>
+<p>Create a LLamaModelQuantizeParams with default values</p>
+<pre><code class="language-csharp">public static LLamaModelQuantizeParams llama_model_quantize_default_params()
+</code></pre>
+<h4 id="returns_18">Returns</h4>
+<p><a href="../llama.native.llamamodelquantizeparams/">LLamaModelQuantizeParams</a><br></p>
+<h3 id="llama_mmap_supported"><strong>llama_mmap_supported()</strong></h3>
+<p>Check if memory mapping is supported</p>
+<pre><code class="language-csharp">public static bool llama_mmap_supported()
+</code></pre>
+<h4 id="returns_19">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="llama_mlock_supported"><strong>llama_mlock_supported()</strong></h3>
+<p>Check if memory lockingis supported</p>
+<pre><code class="language-csharp">public static bool llama_mlock_supported()
+</code></pre>
+<h4 id="returns_20">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="llama_eval_exportsafellamacontexthandle-string"><strong>llama_eval_export(SafeLLamaContextHandle, String)</strong></h3>
+<p>Export a static computation graph for context of 511 and batch size of 1
+ NOTE: since this functionality is mostly for debugging and demonstration purposes, we hardcode these
+ parameters here to keep things simple
+ IMPORTANT: do not use for anything else other than debugging and testing!</p>
+<pre><code class="language-csharp">public static int llama_eval_export(SafeLLamaContextHandle ctx, string fname)
+</code></pre>
+<h4 id="parameters_31">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>fname</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<h4 id="returns_21">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_load_model_from_filestring-llamacontextparams"><strong>llama_load_model_from_file(String, LLamaContextParams)</strong></h3>
+<p>Various functions for loading a ggml llama model.
+ Allocate (almost) all memory needed for the model.
+ Return NULL on failure</p>
+<pre><code class="language-csharp">public static IntPtr llama_load_model_from_file(string path_model, LLamaContextParams params)
+</code></pre>
+<h4 id="parameters_32">Parameters</h4>
+<p><code>path_model</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>params</code> <a href="../llama.native.llamacontextparams/">LLamaContextParams</a><br></p>
+<h4 id="returns_22">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_new_context_with_modelsafellamamodelhandle-llamacontextparams"><strong>llama_new_context_with_model(SafeLlamaModelHandle, LLamaContextParams)</strong></h3>
+<p>Create a new llama_context with the given model.
+ Return value should always be wrapped in SafeLLamaContextHandle!</p>
+<pre><code class="language-csharp">public static IntPtr llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams params)
+</code></pre>
+<h4 id="parameters_33">Parameters</h4>
+<p><code>model</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<p><code>params</code> <a href="../llama.native.llamacontextparams/">LLamaContextParams</a><br></p>
+<h4 id="returns_23">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_backend_initboolean"><strong>llama_backend_init(Boolean)</strong></h3>
+<p>not great API - very likely to change. 
+ Initialize the llama + ggml backend
+ Call once at the start of the program</p>
+<pre><code class="language-csharp">public static void llama_backend_init(bool numa)
+</code></pre>
+<h4 id="parameters_34">Parameters</h4>
+<p><code>numa</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="llama_freeintptr"><strong>llama_free(IntPtr)</strong></h3>
+<p>Frees all allocated memory in the given llama_context</p>
+<pre><code class="language-csharp">public static void llama_free(IntPtr ctx)
+</code></pre>
+<h4 id="parameters_35">Parameters</h4>
+<p><code>ctx</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_free_modelintptr"><strong>llama_free_model(IntPtr)</strong></h3>
+<p>Frees all allocated memory associated with a model</p>
+<pre><code class="language-csharp">public static void llama_free_model(IntPtr model)
+</code></pre>
+<h4 id="parameters_36">Parameters</h4>
+<p><code>model</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.intptr">IntPtr</a><br></p>
+<h3 id="llama_model_apply_lora_from_filesafellamamodelhandle-string-string-int32"><strong>llama_model_apply_lora_from_file(SafeLlamaModelHandle, String, String, Int32)</strong></h3>
+<p>Apply a LoRA adapter to a loaded model
+ path_base_model is the path to a higher quality model to use as a base for
+ the layers modified by the adapter. Can be NULL to use the current loaded model.
+ The model needs to be reloaded before applying a new adapter, otherwise the adapter
+ will be applied on top of the previous one</p>
+<pre><code class="language-csharp">public static int llama_model_apply_lora_from_file(SafeLlamaModelHandle model_ptr, string path_lora, string path_base_model, int n_threads)
+</code></pre>
+<h4 id="parameters_37">Parameters</h4>
+<p><code>model_ptr</code> <a href="../llama.native.safellamamodelhandle/">SafeLlamaModelHandle</a><br></p>
+<p><code>path_lora</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>path_base_model</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>n_threads</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h4 id="returns_24">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns 0 on success</p>
+<h3 id="llama_get_kv_cache_token_countsafellamacontexthandle"><strong>llama_get_kv_cache_token_count(SafeLLamaContextHandle)</strong></h3>
+<p>Returns the number of tokens in the KV cache</p>
+<pre><code class="language-csharp">public static int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_38">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_25">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_set_rng_seedsafellamacontexthandle-int32"><strong>llama_set_rng_seed(SafeLLamaContextHandle, Int32)</strong></h3>
+<p>Sets the current rng seed.</p>
+<pre><code class="language-csharp">public static void llama_set_rng_seed(SafeLLamaContextHandle ctx, int seed)
+</code></pre>
+<h4 id="parameters_39">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>seed</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_get_state_sizesafellamacontexthandle"><strong>llama_get_state_size(SafeLLamaContextHandle)</strong></h3>
+<p>Returns the maximum size in bytes of the state (rng, logits, embedding
+ and kv_cache) - will often be smaller after compacting tokens</p>
+<pre><code class="language-csharp">public static ulong llama_get_state_size(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_40">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_26">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h3 id="llama_copy_state_datasafellamacontexthandle-byte"><strong>llama_copy_state_data(SafeLLamaContextHandle, Byte*)</strong></h3>
+<p>Copies the state to the specified destination address.
+ Destination needs to have allocated enough memory.</p>
+<pre><code class="language-csharp">public static ulong llama_copy_state_data(SafeLLamaContextHandle ctx, Byte* dest)
+</code></pre>
+<h4 id="parameters_41">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>dest</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte*">Byte*</a><br></p>
+<h4 id="returns_27">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br>
+the number of bytes copied</p>
+<h3 id="llama_copy_state_datasafellamacontexthandle-byte_1"><strong>llama_copy_state_data(SafeLLamaContextHandle, Byte[])</strong></h3>
+<p>Copies the state to the specified destination address.
+ Destination needs to have allocated enough memory (see llama_get_state_size)</p>
+<pre><code class="language-csharp">public static ulong llama_copy_state_data(SafeLLamaContextHandle ctx, Byte[] dest)
+</code></pre>
+<h4 id="parameters_42">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>dest</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte">Byte[]</a><br></p>
+<h4 id="returns_28">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br>
+the number of bytes copied</p>
+<h3 id="llama_set_state_datasafellamacontexthandle-byte"><strong>llama_set_state_data(SafeLLamaContextHandle, Byte*)</strong></h3>
+<p>Set the state reading from the specified address</p>
+<pre><code class="language-csharp">public static ulong llama_set_state_data(SafeLLamaContextHandle ctx, Byte* src)
+</code></pre>
+<h4 id="parameters_43">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>src</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte*">Byte*</a><br></p>
+<h4 id="returns_29">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br>
+the number of bytes read</p>
+<h3 id="llama_set_state_datasafellamacontexthandle-byte_1"><strong>llama_set_state_data(SafeLLamaContextHandle, Byte[])</strong></h3>
+<p>Set the state reading from the specified address</p>
+<pre><code class="language-csharp">public static ulong llama_set_state_data(SafeLLamaContextHandle ctx, Byte[] src)
+</code></pre>
+<h4 id="parameters_44">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>src</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte">Byte[]</a><br></p>
+<h4 id="returns_30">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br>
+the number of bytes read</p>
+<h3 id="llama_load_session_filesafellamacontexthandle-string-int32-uint64-uint64"><strong>llama_load_session_file(SafeLLamaContextHandle, String, Int32[], UInt64, UInt64*)</strong></h3>
+<p>Load session file</p>
+<pre><code class="language-csharp">public static bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, Int32[] tokens_out, ulong n_token_capacity, UInt64* n_token_count_out)
+</code></pre>
+<h4 id="parameters_45">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>path_session</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>tokens_out</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32[]</a><br></p>
+<p><code>n_token_capacity</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<p><code>n_token_count_out</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64*">UInt64*</a><br></p>
+<h4 id="returns_31">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="llama_save_session_filesafellamacontexthandle-string-int32-uint64"><strong>llama_save_session_file(SafeLLamaContextHandle, String, Int32[], UInt64)</strong></h3>
+<p>Save session file</p>
+<pre><code class="language-csharp">public static bool llama_save_session_file(SafeLLamaContextHandle ctx, string path_session, Int32[] tokens, ulong n_token_count)
+</code></pre>
+<h4 id="parameters_46">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>path_session</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32[]</a><br></p>
+<p><code>n_token_count</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.uint64">UInt64</a><br></p>
+<h4 id="returns_32">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="llama_evalsafellamacontexthandle-int32-int32-int32-int32"><strong>llama_eval(SafeLLamaContextHandle, Int32[], Int32, Int32, Int32)</strong></h3>
+<p>Run the llama inference to obtain the logits and probabilities for the next token.
+ tokens + n_tokens is the provided batch of new tokens to process
+ n_past is the number of tokens to use from previous eval calls</p>
+<pre><code class="language-csharp">public static int llama_eval(SafeLLamaContextHandle ctx, Int32[] tokens, int n_tokens, int n_past, int n_threads)
+</code></pre>
+<h4 id="parameters_47">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32[]</a><br></p>
+<p><code>n_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>n_past</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>n_threads</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h4 id="returns_33">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns 0 on success</p>
+<h3 id="llama_eval_with_pointersafellamacontexthandle-int32-int32-int32-int32"><strong>llama_eval_with_pointer(SafeLLamaContextHandle, Int32*, Int32, Int32, Int32)</strong></h3>
+<p>Run the llama inference to obtain the logits and probabilities for the next token.
+ tokens + n_tokens is the provided batch of new tokens to process
+ n_past is the number of tokens to use from previous eval calls</p>
+<pre><code class="language-csharp">public static int llama_eval_with_pointer(SafeLLamaContextHandle ctx, Int32* tokens, int n_tokens, int n_past, int n_threads)
+</code></pre>
+<h4 id="parameters_48">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32*">Int32*</a><br></p>
+<p><code>n_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>n_past</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>n_threads</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h4 id="returns_34">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns 0 on success</p>
+<h3 id="llama_tokenizesafellamacontexthandle-string-encoding-int32-int32-boolean"><strong>llama_tokenize(SafeLLamaContextHandle, String, Encoding, Int32[], Int32, Boolean)</strong></h3>
+<p>Convert the provided text into tokens.</p>
+<pre><code class="language-csharp">public static int llama_tokenize(SafeLLamaContextHandle ctx, string text, Encoding encoding, Int32[] tokens, int n_max_tokens, bool add_bos)
+</code></pre>
+<h4 id="parameters_49">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>text</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<p><code>encoding</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding">Encoding</a><br></p>
+<p><code>tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32[]</a><br></p>
+<p><code>n_max_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>add_bos</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h4 id="returns_35">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns the number of tokens on success, no more than n_max_tokens.
+ Returns a negative number on failure - the number of tokens that would have been returned</p>
+<h3 id="llama_tokenize_nativesafellamacontexthandle-byte-int32-int32-boolean"><strong>llama_tokenize_native(SafeLLamaContextHandle, Byte<em>, Int32</em>, Int32, Boolean)</strong></h3>
+<p>Convert the provided text into tokens.</p>
+<pre><code class="language-csharp">public static int llama_tokenize_native(SafeLLamaContextHandle ctx, Byte* text, Int32* tokens, int n_max_tokens, bool add_bos)
+</code></pre>
+<h4 id="parameters_50">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<p><code>text</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.byte*">Byte*</a><br></p>
+<p><code>tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32*">Int32*</a><br></p>
+<p><code>n_max_tokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>add_bos</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h4 id="returns_36">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br>
+Returns the number of tokens on success, no more than n_max_tokens.
+ Returns a negative number on failure - the number of tokens that would have been returned</p>
+<h3 id="llama_n_vocabsafellamacontexthandle"><strong>llama_n_vocab(SafeLLamaContextHandle)</strong></h3>
+<p>Get the number of tokens in the model vocabulary for this context</p>
+<pre><code class="language-csharp">public static int llama_n_vocab(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_51">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_37">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_n_ctxsafellamacontexthandle"><strong>llama_n_ctx(SafeLLamaContextHandle)</strong></h3>
+<p>Get the size of the context window for the model for this context</p>
+<pre><code class="language-csharp">public static int llama_n_ctx(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_52">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_38">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_n_embdsafellamacontexthandle"><strong>llama_n_embd(SafeLLamaContextHandle)</strong></h3>
+<p>Get the dimension of embedding vectors from the model for this context</p>
+<pre><code class="language-csharp">public static int llama_n_embd(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_53">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_39">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="llama_get_logitssafellamacontexthandle"><strong>llama_get_logits(SafeLLamaContextHandle)</strong></h3>
+<p>Token logits obtained from the last call to llama_eval()
+ The logits for the last token are stored in the last row
+ Can be mutated in order to change the probabilities of the next token.<br>
+ Rows: n_tokens<br>
+ Cols: n_vocab</p>
+<pre><code class="language-csharp">public static Single* llama_get_logits(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_54">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_40">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.single*">Single*</a><br></p>
+<h3 id="llama_get_embeddingssafellamacontexthandle"><strong>llama_get_embeddings(SafeLLamaContextHandle)</strong></h3>
+<p>Get the embeddings for the input
+ shape: [n_embd] (1-dimensional)</p>
+<pre><code class="language-csharp">public static Single* llama_get_embeddings(SafeLLamaContextHandle ctx)
+</code></pre>
+<h4 id="parameters_55">Parameters</h4>
+<p><code>ctx</code> <a href="../llama.native.safellamacontexthandle/">SafeLLamaContextHandle</a><br></p>
+<h4 id="returns_41">Returns</h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.single*">Single*</a><br></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a51614de.min.js"></script>
+      
+    
+  </body>
+</html>
