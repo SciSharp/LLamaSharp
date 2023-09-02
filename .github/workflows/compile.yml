@@ -155,6 +155,9 @@ jobs:
         with:
           path: ./build/libllama.dylib
           name: llama-bin-macos-${{ matrix.build }}.dylib
+      - name: Upload Metal
+        uses: actions/upload-artifact@v3
+        with:
           path: ./build/bin/ggml-metal.metal
           name: ggml-metal.metal
   
