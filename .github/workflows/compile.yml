@@ -135,10 +135,7 @@ jobs:
             defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}'
           - build: 'metal'
             defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=ON -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }}'
-        arch: [
-          "arm64"
-        ]
-
+    
     steps:
       - uses: actions/checkout@v3
         with:
