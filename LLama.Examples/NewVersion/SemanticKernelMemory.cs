@@ -93,13 +93,17 @@ namespace LLama.Examples.NewVersion
               Title    : README: README associated with a sample chat summary react-based webapp
 
             */
+
+            await SearchMemoryAsync(kernel, "Jupyter notebook");
+
+            await SearchMemoryAsync(kernel, "README: README associated with a sample chat summary react-based webapp");
         }
 
         private static async Task SearchMemoryAsync(IKernel kernel, string query)
         {
             Console.WriteLine("\nQuery: " + query + "\n");
 
-            var memories = kernel.Memory.SearchAsync(MemoryCollectionName, query, limit: 2, minRelevanceScore: 0.5);
+            var memories = kernel.Memory.SearchAsync(MemoryCollectionName, query, limit: 10, minRelevanceScore: 0.5);
 
             int i = 0;
             await foreach (MemoryQueryResult memory in memories)
