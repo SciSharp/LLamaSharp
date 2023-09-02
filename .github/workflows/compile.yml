@@ -179,8 +179,7 @@ jobs:
 
           mkdir deps
 
-          mkdir deps/noavx
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/noavx/libllama.so
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/libllama.so
           mkdir deps/avx
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/avx/libllama.so
           mkdir deps/avx2
@@ -188,8 +187,7 @@ jobs:
           mkdir deps/avx512
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
 
-          mkdir deps/noavx
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/noavx/libllama.dll
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/libllama.dll
           mkdir deps/win/avx
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/avx/libllama.dll
           mkdir deps/win/avx2
