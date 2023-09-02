@@ -5,12 +5,12 @@ nav:
     - Architecture: Architecture.md
     - Tricks for FAQ: Tricks.md
     - Contributing Guide: ContributingGuide.md
-    - LLamaModel:
-        - Model Parameters: LLamaModel/parameters.md
-        - Tokenization: LLamaModel/tokenization.md
-        - Get Embeddings: LLamaModel/embeddings.md
-        - Quantization: LLamaModel/quantization.md
-        - Save/Load State: LLamaModel/save-load-state.md
+    - LLamaContext:
+        - Context Parameters: LLamaContext/parameters.md
+        - Tokenization: LLamaContext/tokenization.md
+        - Get Embeddings: LLamaContext/embeddings.md
+        - Quantization: LLamaContext/quantization.md
+        - Save/Load State: LLamaContext/save-load-state.md
     - LLamaExecutors:
         - Inference Parameters: LLamaExecutors/parameters.md
         - Text-to-Text APIs: LLamaExecutors/text-to-text-apis.md
@@ -24,6 +24,7 @@ nav:
         - Chinese: NonEnglishUsage/Chinese.md
     - High-level Applications:
         - BotSharp: HighLevelApps/bot-sharp.md
+        - semantic-kernel: HighLevelApps/semantic-kernel.md
     - More:
         - Logger: More/log.md
     - Examples:
@@ -39,7 +40,9 @@ nav:
     - API Reference:
         - index: ./xmldocs/index.md
         - llama.abstractions.ihistorytransform: ./xmldocs/llama.abstractions.ihistorytransform.md
+        - llama.abstractions.iinferenceparams: ./xmldocs/llama.abstractions.iinferenceparams.md
         - llama.abstractions.illamaexecutor: ./xmldocs/llama.abstractions.illamaexecutor.md
+        - llama.abstractions.imodelparams: ./xmldocs/llama.abstractions.imodelparams.md
         - llama.abstractions.itextstreamtransform: ./xmldocs/llama.abstractions.itextstreamtransform.md
         - llama.abstractions.itexttransform: ./xmldocs/llama.abstractions.itexttransform.md
         - llama.chatsession: ./xmldocs/llama.chatsession.md
@@ -49,24 +52,44 @@ nav:
         - llama.common.illamalogger: ./xmldocs/llama.common.illamalogger.md
         - llama.common.inferenceparams: ./xmldocs/llama.common.inferenceparams.md
         - llama.common.llamadefaultlogger: ./xmldocs/llama.common.llamadefaultlogger.md
-        - llama.common.mirostatetype: ./xmldocs/llama.common.mirostatetype.md
+        - llama.common.mirostattype: ./xmldocs/llama.common.mirostattype.md
         - llama.common.modelparams: ./xmldocs/llama.common.modelparams.md
+        - llama.exceptions.grammarexpectedname: ./xmldocs/llama.exceptions.grammarexpectedname.md
+        - llama.exceptions.grammarexpectednext: ./xmldocs/llama.exceptions.grammarexpectednext.md
+        - llama.exceptions.grammarexpectedprevious: ./xmldocs/llama.exceptions.grammarexpectedprevious.md
+        - llama.exceptions.grammarformatexception: ./xmldocs/llama.exceptions.grammarformatexception.md
+        - llama.exceptions.grammarunexpectedcharaltelement: ./xmldocs/llama.exceptions.grammarunexpectedcharaltelement.md
+        - llama.exceptions.grammarunexpectedcharrngelement: ./xmldocs/llama.exceptions.grammarunexpectedcharrngelement.md
+        - llama.exceptions.grammarunexpectedendelement: ./xmldocs/llama.exceptions.grammarunexpectedendelement.md
+        - llama.exceptions.grammarunexpectedendofinput: ./xmldocs/llama.exceptions.grammarunexpectedendofinput.md
+        - llama.exceptions.grammarunexpectedhexcharscount: ./xmldocs/llama.exceptions.grammarunexpectedhexcharscount.md
+        - llama.exceptions.grammarunknownescapecharacter: ./xmldocs/llama.exceptions.grammarunknownescapecharacter.md
         - llama.exceptions.runtimeerror: ./xmldocs/llama.exceptions.runtimeerror.md
-        - llama.extensions.dictionaryextension: ./xmldocs/llama.extensions.dictionaryextension.md
+        - llama.extensions.imodelparamsextensions: ./xmldocs/llama.extensions.imodelparamsextensions.md
+        - llama.extensions.keyvaluepairextensions: ./xmldocs/llama.extensions.keyvaluepairextensions.md
+        - llama.grammars.grammar: ./xmldocs/llama.grammars.grammar.md
+        - llama.grammars.grammarrule: ./xmldocs/llama.grammars.grammarrule.md
         - llama.instructexecutor: ./xmldocs/llama.instructexecutor.md
         - llama.interactiveexecutor: ./xmldocs/llama.interactiveexecutor.md
+        - llama.llamacontext: ./xmldocs/llama.llamacontext.md
         - llama.llamaembedder: ./xmldocs/llama.llamaembedder.md
-        - llama.llamamodel: ./xmldocs/llama.llamamodel.md
         - llama.llamaquantizer: ./xmldocs/llama.llamaquantizer.md
         - llama.llamatransforms: ./xmldocs/llama.llamatransforms.md
+        - llama.llamaweights: ./xmldocs/llama.llamaweights.md
         - llama.native.llamacontextparams: ./xmldocs/llama.native.llamacontextparams.md
         - llama.native.llamaftype: ./xmldocs/llama.native.llamaftype.md
+        - llama.native.llamagrammarelement: ./xmldocs/llama.native.llamagrammarelement.md
+        - llama.native.llamagrammarelementtype: ./xmldocs/llama.native.llamagrammarelementtype.md
+        - llama.native.llamamodelquantizeparams: ./xmldocs/llama.native.llamamodelquantizeparams.md
         - llama.native.llamatokendata: ./xmldocs/llama.native.llamatokendata.md
         - llama.native.llamatokendataarray: ./xmldocs/llama.native.llamatokendataarray.md
         - llama.native.llamatokendataarraynative: ./xmldocs/llama.native.llamatokendataarraynative.md
         - llama.native.nativeapi: ./xmldocs/llama.native.nativeapi.md
         - llama.native.safellamacontexthandle: ./xmldocs/llama.native.safellamacontexthandle.md
+        - llama.native.safellamagrammarhandle: ./xmldocs/llama.native.safellamagrammarhandle.md
         - llama.native.safellamahandlebase: ./xmldocs/llama.native.safellamahandlebase.md
+        - llama.native.safellamamodelhandle: ./xmldocs/llama.native.safellamamodelhandle.md
+        - llama.native.samplingapi: ./xmldocs/llama.native.samplingapi.md
         - llama.oldversion.chatcompletion: ./xmldocs/llama.oldversion.chatcompletion.md
         - llama.oldversion.chatcompletionchoice: ./xmldocs/llama.oldversion.chatcompletionchoice.md
         - llama.oldversion.chatcompletionchunk: ./xmldocs/llama.oldversion.chatcompletionchunk.md
@@ -88,9 +111,9 @@ nav:
         - llama.oldversion.llamaembedder: ./xmldocs/llama.oldversion.llamaembedder.md
         - llama.oldversion.llamamodel: ./xmldocs/llama.oldversion.llamamodel.md
         - llama.oldversion.llamaparams: ./xmldocs/llama.oldversion.llamaparams.md
-        - llama.resettablellamamodel: ./xmldocs/llama.resettablellamamodel.md
         - llama.statefulexecutorbase: ./xmldocs/llama.statefulexecutorbase.md
         - llama.statelessexecutor: ./xmldocs/llama.statelessexecutor.md
+        - llama.utils: ./xmldocs/llama.utils.md
 
 theme:
   name: material

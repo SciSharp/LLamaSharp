@@ -10,26 +10,26 @@ public interface ILLamaExecutor
 
 ## Properties
 
-### **Model**
+### **Context**
 
-The loaded model for this executor.
+The loaded context for this executor.
 
 ```csharp
-public abstract LLamaModel Model { get; }
+public abstract LLamaContext Context { get; }
 ```
 
 #### Property Value
 
-[LLamaModel](./llama.llamamodel.md)<br>
+[LLamaContext](./llama.llamacontext.md)<br>
 
 ## Methods
 
-### **Infer(String, InferenceParams, CancellationToken)**
+### **Infer(String, IInferenceParams, CancellationToken)**
 
 Infers a response from the model.
 
 ```csharp
-IEnumerable<string> Infer(string text, InferenceParams inferenceParams, CancellationToken token)
+IEnumerable<string> Infer(string text, IInferenceParams inferenceParams, CancellationToken token)
 ```
 
 #### Parameters
@@ -37,7 +37,7 @@ IEnumerable<string> Infer(string text, InferenceParams inferenceParams, Cancella
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 Your prompt
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 Any additional parameters
 
 `token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
@@ -47,19 +47,24 @@ A cancellation token.
 
 [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
-### **InferAsync(String, InferenceParams, CancellationToken)**
+### **InferAsync(String, IInferenceParams, CancellationToken)**
+
+Asynchronously infers a response from the model.
 
 ```csharp
-IAsyncEnumerable<string> InferAsync(string text, InferenceParams inferenceParams, CancellationToken token)
+IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferenceParams, CancellationToken token)
 ```
 
 #### Parameters
 
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Your prompt
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+Any additional parameters
 
 `token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+A cancellation token.
 
 #### Returns
 

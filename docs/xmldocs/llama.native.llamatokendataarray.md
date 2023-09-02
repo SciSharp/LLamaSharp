@@ -2,6 +2,8 @@
 
 Namespace: LLama.Native
 
+Contains an array of LLamaTokenData, potentially sorted.
+
 ```csharp
 public struct LLamaTokenDataArray
 ```
@@ -12,17 +14,15 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 
 ### **data**
 
+The LLamaTokenData
+
 ```csharp
 public Memory<LLamaTokenData> data;
 ```
 
-### **size**
-
-```csharp
-public ulong size;
-```
-
 ### **sorted**
+
+Indicates if `data` is sorted by logits in descending order. If this is false the token data is in _no particular order_.
 
 ```csharp
 public bool sorted;
@@ -30,16 +30,34 @@ public bool sorted;
 
 ## Constructors
 
-### **LLamaTokenDataArray(LLamaTokenData[], UInt64, Boolean)**
+### **LLamaTokenDataArray(Memory&lt;LLamaTokenData&gt;, Boolean)**
+
+Create a new LLamaTokenDataArray
 
 ```csharp
-LLamaTokenDataArray(LLamaTokenData[] data, ulong size, bool sorted)
+LLamaTokenDataArray(Memory<LLamaTokenData> tokens, bool isSorted)
 ```
 
 #### Parameters
 
-`data` [LLamaTokenData[]](./llama.native.llamatokendata.md)<br>
+`tokens` [Memory&lt;LLamaTokenData&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.memory-1)<br>
 
-`size` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+`isSorted` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-`sorted` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+## Methods
+
+### **Create(ReadOnlySpan&lt;Single&gt;)**
+
+Create a new LLamaTokenDataArray, copying the data from the given logits
+
+```csharp
+LLamaTokenDataArray Create(ReadOnlySpan<float> logits)
+```
+
+#### Parameters
+
+`logits` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+
+#### Returns
+
+[LLamaTokenDataArray](./llama.native.llamatokendataarray.md)<br>

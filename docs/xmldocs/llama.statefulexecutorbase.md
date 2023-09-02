@@ -13,17 +13,17 @@ Implements [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)
 
 ## Properties
 
-### **Model**
+### **Context**
 
-The mode used by the executor.
+The context used by the executor.
 
 ```csharp
-public LLamaModel Model { get; }
+public LLamaContext Context { get; }
 ```
 
 #### Property Value
 
-[LLamaModel](./llama.llamamodel.md)<br>
+[LLamaContext](./llama.llamacontext.md)<br>
 
 ## Methods
 
@@ -111,17 +111,17 @@ protected abstract void PreprocessInputs(string text, InferStateArgs args)
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
-### **PostProcess(InferenceParams, InferStateArgs, IEnumerable`1&)**
+### **PostProcess(IInferenceParams, InferStateArgs, IEnumerable`1&)**
 
 Do some post processing after the inference.
 
 ```csharp
-protected abstract bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, IEnumerable`1& extraOutputs)
+protected abstract bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, IEnumerable`1& extraOutputs)
 ```
 
 #### Parameters
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
@@ -131,17 +131,17 @@ protected abstract bool PostProcess(InferenceParams inferenceParams, InferStateA
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **InferInternal(InferenceParams, InferStateArgs)**
+### **InferInternal(IInferenceParams, InferStateArgs)**
 
 The core inference logic.
 
 ```csharp
-protected abstract void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
+protected abstract void InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
 ```
 
 #### Parameters
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
@@ -193,19 +193,19 @@ public abstract void LoadState(string filename)
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-### **Infer(String, InferenceParams, CancellationToken)**
+### **Infer(String, IInferenceParams, CancellationToken)**
 
 Execute the inference.
 
 ```csharp
-public IEnumerable<string> Infer(string text, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IEnumerable<string> Infer(string text, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
@@ -213,19 +213,19 @@ public IEnumerable<string> Infer(string text, InferenceParams inferenceParams, C
 
 [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
-### **InferAsync(String, InferenceParams, CancellationToken)**
+### **InferAsync(String, IInferenceParams, CancellationToken)**
 
 Execute the inference asynchronously.
 
 ```csharp
-public IAsyncEnumerable<string> InferAsync(string text, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 

@@ -2,8 +2,14 @@
 
 Namespace: LLama.OldVersion
 
+#### Caution
+
+The entire LLama.OldVersion namespace will be removed
+
+---
+
 ```csharp
-public class CompletionChoice : System.IEquatable`1[[LLama.OldVersion.CompletionChoice, LLamaSharp, Version=0.4.0.0, Culture=neutral, PublicKeyToken=null]]
+public class CompletionChoice : System.IEquatable`1[[LLama.OldVersion.CompletionChoice, LLamaSharp, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CompletionChoice](./llama.oldversion.completionchoice.md)<br>
