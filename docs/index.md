@@ -9,6 +9,7 @@ LLamaSharp is the C#/.NET binding of [llama.cpp](https://github.com/ggerganov/ll
 - Model inference
 - Model quantization
 - Generating embeddings
+- Grammar parse
 - Interactive/Instruct/Stateless executor mode
 - Chat session APIs
 - Save/load the state

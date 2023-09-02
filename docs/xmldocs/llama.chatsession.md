@@ -161,19 +161,19 @@ public void LoadSession(string path)
 `path` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 The directory name to load the session.
 
-### **Chat(ChatHistory, InferenceParams, CancellationToken)**
+### **Chat(ChatHistory, IInferenceParams, CancellationToken)**
 
 Get the response from the LLama model with chat histories.
 
 ```csharp
-public IEnumerable<string> Chat(ChatHistory history, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IEnumerable<string> Chat(ChatHistory history, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `history` [ChatHistory](./llama.common.chathistory.md)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
@@ -181,20 +181,20 @@ public IEnumerable<string> Chat(ChatHistory history, InferenceParams inferencePa
 
 [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
-### **Chat(String, InferenceParams, CancellationToken)**
+### **Chat(String, IInferenceParams, CancellationToken)**
 
 Get the response from the LLama model. Note that prompt could not only be the preset words, 
  but also the question you want to ask.
 
 ```csharp
-public IEnumerable<string> Chat(string prompt, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IEnumerable<string> Chat(string prompt, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
@@ -202,19 +202,19 @@ public IEnumerable<string> Chat(string prompt, InferenceParams inferenceParams, 
 
 [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
-### **ChatAsync(ChatHistory, InferenceParams, CancellationToken)**
+### **ChatAsync(ChatHistory, IInferenceParams, CancellationToken)**
 
 Get the response from the LLama model with chat histories.
 
 ```csharp
-public IAsyncEnumerable<string> ChatAsync(ChatHistory history, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IAsyncEnumerable<string> ChatAsync(ChatHistory history, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `history` [ChatHistory](./llama.common.chathistory.md)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
@@ -222,19 +222,19 @@ public IAsyncEnumerable<string> ChatAsync(ChatHistory history, InferenceParams i
 
 [IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
 
-### **ChatAsync(String, InferenceParams, CancellationToken)**
+### **ChatAsync(String, IInferenceParams, CancellationToken)**
 
 Get the response from the LLama model with chat histories asynchronously.
 
 ```csharp
-public IAsyncEnumerable<string> ChatAsync(string prompt, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IAsyncEnumerable<string> ChatAsync(string prompt, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 

@@ -20,6 +20,8 @@ Implements IEnumerable&lt;T&gt;, [IEnumerable](https://docs.microsoft.com/en-us/
 
 ### **Count**
 
+Number of items in this queue
+
 ```csharp
 public int Count { get; }
 ```
@@ -29,6 +31,8 @@ public int Count { get; }
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **Capacity**
+
+Maximum number of items allowed in this queue
 
 ```csharp
 public int Capacity { get; }
@@ -42,6 +46,8 @@ public int Capacity { get; }
 
 ### **FixedSizeQueue(Int32)**
 
+Create a new queue
+
 ```csharp
 public FixedSizeQueue(int size)
 ```
@@ -49,8 +55,11 @@ public FixedSizeQueue(int size)
 #### Parameters
 
 `size` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+the maximum number of items to store in this queue
 
 ### **FixedSizeQueue(Int32, IEnumerable&lt;T&gt;)**
+
+Fill the quene with the data. Please ensure that data.Count &lt;= size
 
 ```csharp
 public FixedSizeQueue(int size, IEnumerable<T> data)
@@ -66,6 +75,8 @@ public FixedSizeQueue(int size, IEnumerable<T> data)
 
 ### **FillWith(T)**
 
+Replace every item in the queue with the given value
+
 ```csharp
 public FixedSizeQueue<T> FillWith(T value)
 ```
@@ -73,10 +84,12 @@ public FixedSizeQueue<T> FillWith(T value)
 #### Parameters
 
 `value` T<br>
+The value to replace all items with
 
 #### Returns
 
 [FixedSizeQueue&lt;T&gt;](./llama.common.fixedsizequeue-1.md)<br>
+returns this
 
 ### **Enqueue(T)**
 
@@ -89,16 +102,6 @@ public void Enqueue(T item)
 #### Parameters
 
 `item` T<br>
-
-### **ToArray()**
-
-```csharp
-public T[] ToArray()
-```
-
-#### Returns
-
-T[]<br>
 
 ### **GetEnumerator()**
 

@@ -2,6 +2,12 @@
 
 Namespace: LLama.OldVersion
 
+#### Caution
+
+The entire LLama.OldVersion namespace will be removed
+
+---
+
 ```csharp
 public class LLamaEmbedder : System.IDisposable
 ```

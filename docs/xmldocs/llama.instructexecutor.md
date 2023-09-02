@@ -13,31 +13,31 @@ Implements [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)
 
 ## Properties
 
-### **Model**
+### **Context**
 
-The mode used by the executor.
+The context used by the executor.
 
 ```csharp
-public LLamaModel Model { get; }
+public LLamaContext Context { get; }
 ```
 
 #### Property Value
 
-[LLamaModel](./llama.llamamodel.md)<br>
+[LLamaContext](./llama.llamacontext.md)<br>
 
 ## Constructors
 
-### **InstructExecutor(LLamaModel, String, String)**
+### **InstructExecutor(LLamaContext, String, String)**
 
 
 
 ```csharp
-public InstructExecutor(LLamaModel model, string instructionPrefix, string instructionSuffix)
+public InstructExecutor(LLamaContext context, string instructionPrefix, string instructionSuffix)
 ```
 
 #### Parameters
 
-`model` [LLamaModel](./llama.llamamodel.md)<br>
+`context` [LLamaContext](./llama.llamacontext.md)<br>
 
 `instructionPrefix` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
@@ -111,15 +111,15 @@ protected void PreprocessInputs(string text, InferStateArgs args)
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
-### **PostProcess(InferenceParams, InferStateArgs, IEnumerable`1&)**
+### **PostProcess(IInferenceParams, InferStateArgs, IEnumerable`1&)**
 
 ```csharp
-protected bool PostProcess(InferenceParams inferenceParams, InferStateArgs args, IEnumerable`1& extraOutputs)
+protected bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, IEnumerable`1& extraOutputs)
 ```
 
 #### Parameters
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
@@ -129,14 +129,14 @@ protected bool PostProcess(InferenceParams inferenceParams, InferStateArgs args,
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **InferInternal(InferenceParams, InferStateArgs)**
+### **InferInternal(IInferenceParams, InferStateArgs)**
 
 ```csharp
-protected void InferInternal(InferenceParams inferenceParams, InferStateArgs args)
+protected void InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
 ```
 
 #### Parameters
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>

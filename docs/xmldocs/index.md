@@ -8,25 +8,31 @@
 
 [InteractiveExecutor](./llama.interactiveexecutor.md)
 
-[LLamaEmbedder](./llama.llamaembedder.md)
+[LLamaContext](./llama.llamacontext.md)
 
-[LLamaModel](./llama.llamamodel.md)
+[LLamaEmbedder](./llama.llamaembedder.md)
 
 [LLamaQuantizer](./llama.llamaquantizer.md)
 
 [LLamaTransforms](./llama.llamatransforms.md)
 
-[ResettableLLamaModel](./llama.resettablellamamodel.md)
+[LLamaWeights](./llama.llamaweights.md)
 
 [StatefulExecutorBase](./llama.statefulexecutorbase.md)
 
 [StatelessExecutor](./llama.statelessexecutor.md)
 
+[Utils](./llama.utils.md)
+
 ## LLama.Abstractions
 
 [IHistoryTransform](./llama.abstractions.ihistorytransform.md)
 
+[IInferenceParams](./llama.abstractions.iinferenceparams.md)
+
 [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)
+
+[IModelParams](./llama.abstractions.imodelparams.md)
 
 [ITextStreamTransform](./llama.abstractions.itextstreamtransform.md)
 
@@ -46,23 +52,57 @@
 
 [LLamaDefaultLogger](./llama.common.llamadefaultlogger.md)
 
-[MiroStateType](./llama.common.mirostatetype.md)
+[MirostatType](./llama.common.mirostattype.md)
 
 [ModelParams](./llama.common.modelparams.md)
 
 ## LLama.Exceptions
 
+[GrammarExpectedName](./llama.exceptions.grammarexpectedname.md)
+
+[GrammarExpectedNext](./llama.exceptions.grammarexpectednext.md)
+
+[GrammarExpectedPrevious](./llama.exceptions.grammarexpectedprevious.md)
+
+[GrammarFormatException](./llama.exceptions.grammarformatexception.md)
+
+[GrammarUnexpectedCharAltElement](./llama.exceptions.grammarunexpectedcharaltelement.md)
+
+[GrammarUnexpectedCharRngElement](./llama.exceptions.grammarunexpectedcharrngelement.md)
+
+[GrammarUnexpectedEndElement](./llama.exceptions.grammarunexpectedendelement.md)
+
+[GrammarUnexpectedEndOfInput](./llama.exceptions.grammarunexpectedendofinput.md)
+
+[GrammarUnexpectedHexCharsCount](./llama.exceptions.grammarunexpectedhexcharscount.md)
+
+[GrammarUnknownEscapeCharacter](./llama.exceptions.grammarunknownescapecharacter.md)
+
 [RuntimeError](./llama.exceptions.runtimeerror.md)
 
 ## LLama.Extensions
 
-[DictionaryExtension](./llama.extensions.dictionaryextension.md)
+[IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)
+
+[KeyValuePairExtensions](./llama.extensions.keyvaluepairextensions.md)
+
+## LLama.Grammars
+
+[Grammar](./llama.grammars.grammar.md)
+
+[GrammarRule](./llama.grammars.grammarrule.md)
 
 ## LLama.Native
 
 [LLamaContextParams](./llama.native.llamacontextparams.md)
 
 [LLamaFtype](./llama.native.llamaftype.md)
+
+[LLamaGrammarElement](./llama.native.llamagrammarelement.md)
+
+[LLamaGrammarElementType](./llama.native.llamagrammarelementtype.md)
+
+[LLamaModelQuantizeParams](./llama.native.llamamodelquantizeparams.md)
 
 [LLamaTokenData](./llama.native.llamatokendata.md)
 
@@ -74,7 +114,13 @@
 
 [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)
 
+[SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)
+
 [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md)
+
+[SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)
+
+[SamplingApi](./llama.native.samplingapi.md)
 
 ## LLama.OldVersion
 

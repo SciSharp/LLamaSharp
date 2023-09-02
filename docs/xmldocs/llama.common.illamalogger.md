@@ -2,6 +2,8 @@
 
 Namespace: LLama.Common
 
+receives log messages from LLamaSharp
+
 ```csharp
 public interface ILLamaLogger
 ```
@@ -10,7 +12,7 @@ public interface ILLamaLogger
 
 ### **Log(String, String, LogLevel)**
 
-Write the log in cosutomized way
+Write the log in customized way
 
 ```csharp
 void Log(string source, string message, LogLevel level)
