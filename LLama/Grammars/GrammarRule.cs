@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LLama.Exceptions;
 using LLama.Native;
 
 namespace LLama.Grammars
@@ -36,7 +37,7 @@ namespace LLama.Grammars
         private static void Validate(IReadOnlyList<LLamaGrammarElement> elements, string name)
         {
             if (elements.Count == 0)
-                throw new ArgumentException("Cannot create a GrammaRule with zero elements", nameof(elements));
+                throw new ArgumentException("Cannot create a GrammarRule with zero elements", nameof(elements));
             if (elements[elements.Count - 1].Type != LLamaGrammarElementType.END)
                 throw new ArgumentException("Last grammar element must be END", nameof(elements));
 
@@ -46,18 +47,16 @@ namespace LLama.Grammars
                 {
                     case LLamaGrammarElementType.END:
                         if (i != elements.Count - 1)
-                            throw new ArgumentException("Found more than one END grammar element", nameof(elements));
+                            throw new GrammarUnexpectedEndElement(name, i);
                         continue;
 
                     case LLamaGrammarElementType.CHAR_RNG_UPPER:
                         if (i == 0 || !elements[i - 1].IsCharElement())
-                            throw new ArgumentException($"LLamaGrammarElementType.CHAR_RNG_UPPER without preceding char: {name},{i}", nameof(elements));
+                            throw new GrammarUnexpectedCharRngElement(name, i);
                         break;
                     case LLamaGrammarElementType.CHAR_ALT:
                         if (i == 0 || !elements[i - 1].IsCharElement())
-                        {
-                            throw new ArgumentException($"LLamaGrammarElementType.CHAR_ALT without preceding char: {name},{i}", nameof(elements));
-                        }
+                            throw new GrammarUnexpectedCharAltElement(name, i);
                         break;
 
                     case LLamaGrammarElementType.ALT:
@@ -67,7 +66,7 @@ namespace LLama.Grammars
                         break;
 
                     default:
-                        throw new ArgumentException($"Unknown grammar element type: '{elements[i].Type}'");
+                        throw new ArgumentException($"Unknown grammar element type: '{elements[i].Type}'", nameof(elements));
                 }
             }
         }

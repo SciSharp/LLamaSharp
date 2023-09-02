@@ -70,10 +70,10 @@ namespace LLama.Grammars
         private void PrintGrammar(StringBuilder output)
         {
             for (var i = 0; i < Rules.Count; i++)
-                PrintRule(output, (uint)i, Rules[i]);
+                PrintRule(output, Rules[i]);
         }
 
-        private void PrintRule(StringBuilder output, uint ruleId, GrammarRule rule)
+        private void PrintRule(StringBuilder output, GrammarRule rule)
         {
             output.Append($"{rule.Name} ::= ");
 
@@ -82,37 +82,34 @@ namespace LLama.Grammars
                 var elem = rule.Elements[i];
                 switch (elem.Type)
                 {
+                    // GrammarRule has already verified that END is not being misused, no need to check again
                     case LLamaGrammarElementType.END:
-                        throw new GrammarFormatException($"Unexpected end of rule: {ruleId}, {i}");
+                        break;
+
                     case LLamaGrammarElementType.ALT:
                         output.Append("| ");
                         break;
+
                     case LLamaGrammarElementType.RULE_REF:
                         output.Append($"{Rules[(int)elem.Value].Name} ");
                         break;
+
                     case LLamaGrammarElementType.CHAR:
                         output.Append('[');
                         PrintGrammarChar(output, elem.Value);
                         break;
+
                     case LLamaGrammarElementType.CHAR_NOT:
                         output.Append("[^");
                         PrintGrammarChar(output, elem.Value);
                         break;
+
                     case LLamaGrammarElementType.CHAR_RNG_UPPER:
-                        if (i == 0 || !rule.Elements[i - 1].IsCharElement())
-                        {
-                            throw new GrammarFormatException(
-                                $"LLamaGrammarElementType.CHAR_RNG_UPPER without preceding char: {ruleId},{i}");
-                        }
                         output.Append('-');
                         PrintGrammarChar(output, elem.Value);
                         break;
+
                     case LLamaGrammarElementType.CHAR_ALT:
-                        if (i == 0 || !rule.Elements[i - 1].IsCharElement())
-                        {
-                            throw new GrammarFormatException(
-                                $"LLamaGrammarElementType.CHAR_ALT without preceding char: {ruleId},{i}");
-                        }
                         PrintGrammarChar(output, elem.Value);
                         break;
 
