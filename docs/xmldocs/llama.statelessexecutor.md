@@ -14,46 +14,65 @@ Implements [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)
 
 ## Properties
 
-### **Model**
+### **Context**
 
-The mode used by the executor when running the inference.
+The context used by the executor when running the inference.
 
 ```csharp
-public LLamaModel Model { get; }
+public LLamaContext Context { get; private set; }
 ```
 
 #### Property Value
 
-[LLamaModel](./llama.llamamodel.md)<br>
+[LLamaContext](./llama.llamacontext.md)<br>
 
 ## Constructors
 
-### **StatelessExecutor(LLamaModel)**
+### **StatelessExecutor(LLamaWeights, IModelParams)**
 
-
+Create a new stateless executor which will use the given model
 
 ```csharp
-public StatelessExecutor(LLamaModel model)
+public StatelessExecutor(LLamaWeights weights, IModelParams params)
 ```
 
 #### Parameters
 
-`model` [LLamaModel](./llama.llamamodel.md)<br>
-The LLama model.
+`weights` [LLamaWeights](./llama.llamaweights.md)<br>
+
+`params` [IModelParams](./llama.abstractions.imodelparams.md)<br>
+
+### **StatelessExecutor(LLamaContext)**
+
+#### Caution
+
+Use the constructor which automatically creates contexts using the LLamaWeights
+
+---
+
+Create a new stateless executor which will use the model used to create the given context
+
+```csharp
+public StatelessExecutor(LLamaContext context)
+```
+
+#### Parameters
+
+`context` [LLamaContext](./llama.llamacontext.md)<br>
 
 ## Methods
 
-### **Infer(String, InferenceParams, CancellationToken)**
+### **Infer(String, IInferenceParams, CancellationToken)**
 
 ```csharp
-public IEnumerable<string> Infer(string text, InferenceParams inferenceParams, CancellationToken cancellationToken)
+public IEnumerable<string> Infer(string text, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
@@ -61,19 +80,19 @@ public IEnumerable<string> Infer(string text, InferenceParams inferenceParams, C
 
 [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
-### **InferAsync(String, InferenceParams, CancellationToken)**
+### **InferAsync(String, IInferenceParams, CancellationToken)**
 
 ```csharp
-public IAsyncEnumerable<string> InferAsync(string text, InferenceParams inferenceParams, CancellationToken token)
+public IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
-`token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 

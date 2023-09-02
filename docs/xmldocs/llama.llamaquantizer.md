@@ -12,12 +12,12 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 
 ## Methods
 
-### **Quantize(String, String, LLamaFtype, Int32)**
+### **Quantize(String, String, LLamaFtype, Int32, Boolean, Boolean)**
 
 Quantize the model.
 
 ```csharp
-public static bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread)
+public static bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread, bool allowRequantize, bool quantizeOutputTensor)
 ```
 
 #### Parameters
@@ -34,6 +34,10 @@ The type of quantization.
 `nthread` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 Thread to be used during the quantization. By default it's the physical core number.
 
+`allowRequantize` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`quantizeOutputTensor` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
 #### Returns
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
@@ -43,12 +47,12 @@ Whether the quantization is successful.
 
 [ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
 
-### **Quantize(String, String, String, Int32)**
+### **Quantize(String, String, String, Int32, Boolean, Boolean)**
 
 Quantize the model.
 
 ```csharp
-public static bool Quantize(string srcFileName, string dstFilename, string ftype, int nthread)
+public static bool Quantize(string srcFileName, string dstFilename, string ftype, int nthread, bool allowRequantize, bool quantizeOutputTensor)
 ```
 
 #### Parameters
@@ -64,6 +68,10 @@ The type of quantization.
 
 `nthread` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 Thread to be used during the quantization. By default it's the physical core number.
+
+`allowRequantize` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`quantizeOutputTensor` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 

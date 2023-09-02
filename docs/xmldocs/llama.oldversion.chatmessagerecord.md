@@ -2,8 +2,14 @@
 
 Namespace: LLama.OldVersion
 
+#### Caution
+
+The entire LLama.OldVersion namespace will be removed
+
+---
+
 ```csharp
-public class ChatMessageRecord : System.IEquatable`1[[LLama.OldVersion.ChatMessageRecord, LLamaSharp, Version=0.4.0.0, Culture=neutral, PublicKeyToken=null]]
+public class ChatMessageRecord : System.IEquatable`1[[LLama.OldVersion.ChatMessageRecord, LLamaSharp, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ChatMessageRecord](./llama.oldversion.chatmessagerecord.md)<br>

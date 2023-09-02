@@ -2,11 +2,14 @@
 
 Namespace: LLama.Common
 
+The paramters used for inference.
+
 ```csharp
-public class InferenceParams
+public class InferenceParams : LLama.Abstractions.IInferenceParams
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [InferenceParams](./llama.common.inferenceparams.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [InferenceParams](./llama.common.inferenceparams.md)<br>
+Implements [IInferenceParams](./llama.abstractions.iinferenceparams.md)
 
 ## Properties
 
@@ -212,12 +215,12 @@ Mirostat uses tokens instead of words.
  0 = disabled, 1 = mirostat, 2 = mirostat 2.0
 
 ```csharp
-public MiroStateType Mirostat { get; set; }
+public MirostatType Mirostat { get; set; }
 ```
 
 #### Property Value
 
-[MiroStateType](./llama.common.mirostatetype.md)<br>
+[MirostatType](./llama.common.mirostattype.md)<br>
 
 ### **MirostatTau**
 
@@ -254,6 +257,18 @@ public bool PenalizeNL { get; set; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Grammar**
+
+A grammar to constrain the possible tokens
+
+```csharp
+public SafeLLamaGrammarHandle Grammar { get; set; }
+```
+
+#### Property Value
+
+[SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
 
 ## Constructors
 
