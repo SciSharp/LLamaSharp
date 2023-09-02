@@ -27,8 +27,7 @@ namespace LLama.Examples.NewVersion
             var parameters = new ModelParams(modelPath)
             {
                 Seed = seed,
-                EmbeddingMode = true,
-                GpuLayerCount = 50,
+                EmbeddingMode = true
             };
 
             using var model = LLamaWeights.LoadFromFile(parameters);
