@@ -126,37 +126,40 @@ jobs:
   compile-macos:
     if: ${{ github.event.inputs.macos }}
     name: Compile (MacOS)
-    runs-on: macos-latest
     strategy:
       fail-fast: true
       matrix:
-        arch: [
-          "arm64"
-        ]
-
+        include:
+          - build: 'cpu'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
+          - build: 'metal'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=ON -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
+    runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
-
       - name: Dependencies
         continue-on-error: true
         run: |
           brew update
-
       - name: Build
         id: cmake_build
         run: |
           mkdir build
           cd build
-          cmake -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} ..
+          cmake .. ${{ matrix.defines }}
           cmake --build . --config Release
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.dylib
-          name: llama-bin-macos-${{ matrix.arch }}.dylib
+          name: llama-bin-macos-${{ matrix.build }}.dylib
+      - name: Upload Metal
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/bin/ggml-metal.metal
+          name: ggml-metal.metal
   
   build-deps:
     runs-on: ubuntu-latest
@@ -172,7 +175,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
-
       - name: Rearrange Files
         run: |
           ls -R
@@ -188,17 +190,19 @@ jobs:
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
 
           cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/libllama.dll
-          mkdir deps/win/avx
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/avx/libllama.dll
-          mkdir deps/win/avx2
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/avx2/libllama.dll
-          mkdir deps/win/avx512
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
 
       - name: Rearrange MacOS files
         if: ${{ github.event.inputs.macos }}
         run: |
-          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/libllama.dylib
+          mkdir deps/macos-cpu
+          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-cpu/libllama.dylib
+          mkdir deps/macos-metal
+          cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-metal/libllama.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-metal/ggml-metal.metal
+
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
