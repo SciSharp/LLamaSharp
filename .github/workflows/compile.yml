@@ -201,9 +201,9 @@ jobs:
         if: ${{ github.event.inputs.macos }}
         run: |
           mkdir deps/macos-cpu
-          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-cpu/libllama-cpu.dylib
+          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-cpu/libllama.dylib
           mkdir deps/macos-metal
-          cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-metal/libllama-metal.dylib
+          cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-metal/libllama.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-metal/ggml-metal.metal
 
 
