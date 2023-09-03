@@ -2,6 +2,8 @@
 
 Namespace: LLama.Native
 
+Base class for all llama handles to native resources
+
 ```csharp
 public abstract class SafeLLamaHandleBase : System.Runtime.InteropServices.SafeHandle, System.IDisposable
 ```
