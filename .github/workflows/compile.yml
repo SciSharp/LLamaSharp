@@ -190,11 +190,8 @@ jobs:
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
 
           cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/libllama.dll
-          mkdir deps/win/avx
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/avx/libllama.dll
-          mkdir deps/win/avx2
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/avx2/libllama.dll
-          mkdir deps/win/avx512
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
 
       - name: Rearrange MacOS files
