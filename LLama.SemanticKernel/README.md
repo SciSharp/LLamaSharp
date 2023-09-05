@@ -6,6 +6,7 @@ For reference on how to implement it, view the following examples:
 
 - [SemanticKernelChat](../LLama.Examples/NewVersion/SemanticKernelChat.cs)
 - [SemanticKernelPrompt](../LLama.Examples/NewVersion/SemanticKernelPrompt.cs)
+- [SemanticKernelMemory](../LLama.Examples/NewVersion/SemanticKernelMemory.cs)
 
 ## ITextCompletion
 ```csharp
@@ -23,4 +24,15 @@ using var context = model.CreateContext(parameters);
 // LLamaSharpChatCompletion requires InteractiveExecutor, as it's the best fit for the given command.
 var ex = new InteractiveExecutor(context);
 var chatGPT = new LLamaSharpChatCompletion(ex);
+```
+
+## ITextEmbeddingGeneration
+```csharp
+using var model = LLamaWeights.LoadFromFile(parameters);
+var embedding = new LLamaEmbedder(model, parameters);
+var kernelWithCustomDb = Kernel.Builder
+    .WithLoggerFactory(ConsoleLogger.LoggerFactory)
+    .WithAIService<ITextEmbeddingGeneration>("local-llama-embed", new LLamaSharpEmbeddingGeneration(embedding), true)
+    .WithMemoryStorage(new VolatileMemoryStore())
+    .Build();
 ```
