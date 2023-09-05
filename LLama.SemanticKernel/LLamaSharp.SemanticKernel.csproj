@@ -9,6 +9,27 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+
+    <Version>0.5.0</Version>
+    <Authors>Tim Miller</Authors>
+    <Company>SciSharp STACK</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+    <RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <PackageTags>LLama, LLM, GPT, ChatGPT, semantic-kernel, SciSharp</PackageTags>
+    <Description>
+      The integration of LLamaSharp ans semantic-kernel.
+    </Description>
+    <PackageReleaseNotes>
+      Support integration with semantic-kernel
+    </PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageOutputPath>packages</PackageOutputPath>
+    <Platforms>AnyCPU;x64;Arm64</Platforms>
+    <PackageId>LLamaSharp.semantic-kernel</PackageId>
+    <Configurations>Debug;Release;GPU</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>
