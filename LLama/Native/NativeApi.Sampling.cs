@@ -8,16 +8,6 @@ namespace LLama.Native
     public unsafe partial class NativeApi
     {
         /// <summary>
-        /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="candidates">A vector of `llama_token_data` containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.</param>
-        /// <param name="guidanceCtx">A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</param>
-        /// <param name="scale">Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.</param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative candidates, SafeLLamaContextHandle guidanceCtx, float scale);
-
-        /// <summary>
         /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
         /// </summary>
         /// <param name="ctx"></param>

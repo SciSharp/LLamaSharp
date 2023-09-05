@@ -17,8 +17,8 @@ namespace LLama
     /// </summary>
     public class InteractiveExecutor : StatefulExecutorBase
     {
-        bool _is_prompt_run = true;
-        llama_token[] _llama_token_newline;
+        private bool _is_prompt_run = true;
+        private readonly llama_token _llama_token_newline;
 
         /// <summary>
         /// 
@@ -26,7 +26,7 @@ namespace LLama
         /// <param name="context"></param>
         public InteractiveExecutor(LLamaContext context) : base(context)
         {
-            _llama_token_newline = new [] { NativeApi.llama_token_nl(Context.NativeHandle) };
+            _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle);
         }
 
         /// <inheritdoc />
@@ -40,7 +40,6 @@ namespace LLama
                 ConsumedTokensCount = _consumedTokensCount,
                 Embeds = _embeds,
                 LastTokens = _last_n_tokens.ToArray(),
-                LLamaNewlineTokens = _llama_token_newline,
                 MatchingSessionTokensCount = _n_matching_session_tokens,
                 PastTokensCount = _pastTokensCount,
                 SessionFilePath = _pathSession,
@@ -61,7 +60,6 @@ namespace LLama
                 _consumedTokensCount = state.ConsumedTokensCount;
                 _embeds = state.Embeds;
                 _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
-                _llama_token_newline = state.LLamaNewlineTokens;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
@@ -216,7 +214,7 @@ namespace LLama
 
                 if (id == NativeApi.llama_token_eos(Context.NativeHandle))
                 {
-                    id = _llama_token_newline.First();
+                    id = _llama_token_newline;
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
                         var first_antiprompt = Context.Tokenize(args.Antiprompts[0], false);
@@ -247,18 +245,14 @@ namespace LLama
         /// <summary>
         /// The descriptor of the state of the interactive executor.
         /// </summary>
-        public class InteractiveExecutorState : ExecutorBaseState
+        public class InteractiveExecutorState
+            : ExecutorBaseState
         {
             /// <summary>
             /// Whether the executor is running for the first time (running the prompt).
             /// </summary>
             [JsonPropertyName("is_prompt_run")]
             public bool IsPromptRun { get; set; }
-            /// <summary>
-            /// Tokens that represent a new line in with the current model.
-            /// </summary>
-            [JsonPropertyName("llama_token_newline")]
-            public llama_token[] LLamaNewlineTokens { get; set; }
         }
     }
 }

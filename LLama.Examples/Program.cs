@@ -1,5 +1,4 @@
 ﻿using LLama.Examples.NewVersion;
-using LLama.Examples.Old;
 
 Console.WriteLine("======================================================================================================");
 
@@ -11,19 +10,4 @@ Console.WriteLine("=============================================================
 
 Console.WriteLine();
 
-Console.WriteLine("Please choose the version you want to test: ");
-Console.WriteLine("0. old version (for v0.3.0 or earlier version)");
-Console.WriteLine("1. new version (for versions after v0.4.0)");
-
-Console.Write("\nYour Choice: ");
-int version = int.Parse(Console.ReadLine());
-Console.WriteLine();
-
-if(version == 1)
-{
-    await NewVersionTestRunner.Run();
-}
-else
-{
-    OldTestRunner.Run();
-}
+await NewVersionTestRunner.Run();
