@@ -4,7 +4,7 @@ using LLama.Extensions;
 
 namespace LLama.Unittest;
 
-public class TokenTests
+public sealed class TokenTests
     : IDisposable
 {
     private readonly ModelParams _params;
