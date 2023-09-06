@@ -15,6 +15,8 @@ namespace LLama.Common
         private readonly int _maxSize;
         private readonly List<T> _storage;
 
+        internal IReadOnlyList<T> Items => _storage;
+
         /// <summary>
         /// Number of items in this queue
         /// </summary>
@@ -57,6 +59,7 @@ namespace LLama.Common
             if (_storage.Count > _maxSize)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {_storage.Count} initial values.");
         }
+
         /// <summary>
         /// Replace every item in the queue with the given value
         /// </summary>
