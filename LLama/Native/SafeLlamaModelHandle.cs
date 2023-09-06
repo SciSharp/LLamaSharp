@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using LLama.Exceptions;
+using LLama.Extensions;
 
 namespace LLama.Native
 {
@@ -157,6 +160,93 @@ namespace LLama.Native
                     for (var i = 0; i < chars.Length; i++)
                         dest.Append(chars[i]);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Convert a sequence of tokens into characters. If there 
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="dest"></param>
+        /// <param name="encoding"></param>
+        /// <returns>The section of the span which has valid data in it.
+        /// If there was insufficient space in the output span this will be
+        /// filled with as many characters as possible, starting from the _last_ token.
+        /// </returns>
+        internal Span<char> TokensToSpan(IReadOnlyList<int> tokens, Span<char> dest, Encoding encoding)
+        {
+            // Rent an array to detokenize into
+            var tokenBytesArr = ArrayPool<byte>.Shared.Rent(16);
+            var tokenCharsArr = ArrayPool<char>.Shared.Rent(16);
+            try
+            {
+                var totalCharacters = 0;
+                var unused = dest;
+
+                for (var i = tokens.Count - 1; i >= 0; i--)
+                {
+                    var token = tokens[i];
+
+                    // Get bytes for this token
+                    var tokenBytes = TokenToBytes(ref tokenBytesArr, token, this);
+
+                    // Get chars for this token
+                    var tokenChars = BytesToChars(ref tokenCharsArr, tokenBytes, encoding);
+
+                    // Trim down number of characters if there are too many
+                    if (tokenChars.Length > unused.Length)
+                        tokenChars = tokenChars.Slice(tokenChars.Length - unused.Length, unused.Length);
+
+                    // Copy characters
+                    tokenChars.CopyTo(unused.Slice(unused.Length - tokenChars.Length, tokenChars.Length));
+                    unused = unused.Slice(0, unused.Length - tokenChars.Length);
+                    totalCharacters += tokenChars.Length;
+
+                    // Break out if we've run out of space
+                    if (unused.Length == 0)
+                        break;
+                }
+
+                return dest.Slice(dest.Length - totalCharacters, totalCharacters);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(tokenBytesArr);
+                ArrayPool<char>.Shared.Return(tokenCharsArr);
+            }
+            
+            // vvv Local Functions vvv
+
+            static Span<byte> TokenToBytes(ref byte[] bytes, int token, SafeLlamaModelHandle model)
+            {
+                // Try to get bytes, if that fails we known the length
+                var l = model.TokenToSpan(token, bytes);
+
+                // Array was too small, get a bigger one
+                if (l < 0)
+                {
+                    ArrayPool<byte>.Shared.Return(bytes);
+                    bytes = ArrayPool<byte>.Shared.Rent(-l * 2);
+
+                    // Get bytes, this time it can't fail
+                    l = model.TokenToSpan(token, bytes);
+                }
+
+                Debug.Assert(l >= 0);
+                return new Span<byte>(bytes, 0, l);
+            }
+
+            static Span<char> BytesToChars(ref char[] chars, ReadOnlySpan<byte> bytes, Encoding encoding)
+            {
+                var count = encoding.GetCharCount(bytes);
+                if (count > chars.Length)
+                {
+                    ArrayPool<char>.Shared.Return(chars);
+                    chars = ArrayPool<char>.Shared.Rent(count * 2);
+                }
+
+                encoding.GetChars(bytes, chars);
+                return chars.AsSpan(0, count);
             }
         }
 
