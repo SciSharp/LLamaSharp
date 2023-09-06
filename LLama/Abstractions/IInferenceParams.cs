@@ -32,21 +32,6 @@ namespace LLama.Abstractions
 		public IEnumerable<string> AntiPrompts { get; set; }
 
 		/// <summary>
-		/// path to file for saving/loading model eval state
-		/// </summary>
-		public string PathSession { get; set; }
-
-		/// <summary>
-		/// string to suffix user inputs with
-		/// </summary>
-		public string InputSuffix { get; set; }
-
-		/// <summary>
-		/// string to prefix user inputs with
-		/// </summary>
-		public string InputPrefix { get; set; }
-
-		/// <summary>
 		///  0 or lower to use vocab size
 		/// </summary>
 		public int TopK { get; set; }
