@@ -29,13 +29,13 @@ public class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var resultTrue = tokens.TokensEndsWithAnyString(new[]
+        var result = tokens.TokensEndsWithAnyString(new[]
         {
             "a fish",
             "the mat",
             "this is an improbably long query to be using for this method"
         }, _model.NativeHandle, Encoding.UTF8);
-        Assert.True(resultTrue);
+        Assert.True(result);
     }
 
     [Fact]
@@ -43,11 +43,11 @@ public class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var resultTrue = tokens.TokensEndsWithAnyString(new[]
+        var result = tokens.TokensEndsWithAnyString(new[]
         {
             "at",
         }, _model.NativeHandle, Encoding.UTF8);
-        Assert.True(resultTrue);
+        Assert.True(result);
     }
 
     [Fact]
@@ -55,13 +55,13 @@ public class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var resultTrue = tokens.TokensEndsWithAnyString(new[]
+        var result = tokens.TokensEndsWithAnyString(new[]
         {
             "a fish",
             "The cat sat on the edge of the ma",
             "this is an improbably long query to be using for this method"
         }, _model.NativeHandle, Encoding.UTF8);
-        Assert.False(resultTrue);
+        Assert.False(result);
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var resultTrue = tokens.TokensEndsWithAnyString(Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
-        Assert.False(resultTrue);
+        var result = tokens.TokensEndsWithAnyString(Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
+        Assert.False(result);
     }
 }
