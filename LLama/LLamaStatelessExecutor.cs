@@ -1,11 +1,13 @@
 ﻿using LLama.Abstractions;
 using LLama.Common;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using LLama.Extensions;
 
 namespace LLama
 {
@@ -138,22 +140,7 @@ namespace LLama
         /// <returns></returns>
         private bool EndsWithAntiprompt(IReadOnlyList<llama_token> tokens, IReadOnlyList<string> antiprompts)
         {
-            if (antiprompts.Count == 0 || tokens.Count == 0)
-                return false;
-
-            var builder = new StringBuilder();
-            foreach (var token in tokens)
-                builder.Append(Context.TokenToString(token));
-
-            var last_output = builder.ToString();
-
-            foreach (var antiprompt in antiprompts)
-            {
-                if (last_output.EndsWith(antiprompt))
-                    return true;
-            }
-
-            return false;
+            return tokens.TokensEndsWithAnyString(antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding);
         }
 
         /// <inheritdoc />
