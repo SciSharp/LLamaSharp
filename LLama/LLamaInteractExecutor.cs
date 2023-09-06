@@ -73,7 +73,7 @@ namespace LLama
         public override void SaveState(string filename)
         {
             InteractiveExecutorState state = (InteractiveExecutorState)GetStateData();
-            using(FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
+            using(FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
                 JsonSerializer.Serialize(fs, state);
             }
