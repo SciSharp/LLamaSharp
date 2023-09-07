@@ -66,7 +66,7 @@ namespace LLama.Unittest
                 Grammar = grammar,
             };
 
-            var result = executor.Infer("Question: What is your favourite number?\nAnswer: ", inferenceParams).ToList();
+            var result = executor.Infer("Q. 7 + 12\nA. ", inferenceParams).ToList();
 
             Assert.Equal("cat", result[0]);
         }
