@@ -15,7 +15,7 @@ namespace LLama.Unittest
             _testOutputHelper = testOutputHelper;
             _params = new ModelParams(Constants.ModelPath)
             {
-                ContextSize = 60,
+                ContextSize = 50,
                 Seed = 1754
             };
             _weights = LLamaWeights.LoadFromFile(_params);
@@ -31,8 +31,8 @@ namespace LLama.Unittest
         {
             var executor = new StatelessExecutor(_weights, _params);
 
-            const string question = "Question. what is a cat?\nAnswer: ";
-            var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
+            const string question = "Q. what is a cat?\nA. ";
+            var @params = new InferenceParams { MaxTokens = 10, AntiPrompts = new[] { "." } };
 
             var result1 = string.Join("", executor.Infer(question, @params));
             var result2 = string.Join("", executor.Infer(question, @params));
@@ -48,13 +48,13 @@ namespace LLama.Unittest
         {
             var executor = new StatelessExecutor(_weights, _params);
 
-            const string question = " Question. why is a cat the best pet?\nAnswer: ";
+            const string question = "Q. why is a cat the best pet?\nA. ";
 
-            // The context size is set to 60. Generate more than that, forcing it to generate a coherent response
+            // The context size is set to 50. Generate more than that, forcing it to generate a coherent response
             // with a modified context
             var @params = new InferenceParams()
             {
-                MaxTokens = 100,
+                MaxTokens = 75,
                 TokensKeep = question.Length,
             };
 
