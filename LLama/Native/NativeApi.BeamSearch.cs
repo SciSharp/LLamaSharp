@@ -10,7 +10,7 @@ public partial class NativeApi
     /// </summary>
     /// <param name="callback_data">callback_data is any custom data passed to llama_beam_search, that is subsequently passed back to beam_search_callbac</param>
     /// <param name="state"></param>
-    public unsafe delegate void LLamaBeamSearchCallback(IntPtr callback_data, LLamaBeamsState state);
+    public delegate void LLamaBeamSearchCallback(IntPtr callback_data, LLamaBeamsState state);
 
     /// <summary>Deterministically returns entire sentence constructed by a beam search.</summary>
     /// <param name="ctx">Pointer to the llama_context.</param>
