@@ -19,7 +19,7 @@ public partial class NativeApi
     /// <param name="n_beams">Number of beams to use.</param>
     /// <param name="n_past">Number of tokens already evaluated.</param>
     /// <param name="n_predict">Maximum number of tokens to predict. EOS may occur earlier.</param>
-    /// <param name="n_threads">Number of threads as passed to llama_eval().</param>
+    /// <param name="n_threads">Number of threads.</param>
     [DllImport(libraryName, EntryPoint = "llama_beam_search", CallingConvention = CallingConvention.Cdecl)]
     public static extern void llama_beam_search(SafeLLamaContextHandle ctx, LLamaBeamSearchCallback callback, IntPtr callback_data, ulong n_beams, int n_past, int n_predict, int n_threads);
 }
