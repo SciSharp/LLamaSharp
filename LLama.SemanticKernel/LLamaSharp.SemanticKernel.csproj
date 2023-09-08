@@ -34,6 +34,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="0.21.230828.2-preview" />
+	  <PackageReference Include="System.Memory" Version="4.5.5" />
 	</ItemGroup>
 
 	<ItemGroup>

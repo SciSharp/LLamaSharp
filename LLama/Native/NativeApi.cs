@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Common;
 using LLama.Exceptions;
+using Microsoft.Extensions.Logging;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -16,7 +17,7 @@ namespace LLama.Native
     /// </summary>
     /// <param name="level"></param>
     /// <param name="message"></param>
-	public delegate void LLamaLogCallback(ILLamaLogger.LogLevel level, string message);
+	public delegate void LLamaLogCallback(LLamaNativeLogType level, string message);
 
     /// <summary>
     /// Direct translation of the llama.cpp API

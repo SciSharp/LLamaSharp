@@ -10,6 +10,7 @@ using LLama.Common;
 using System.Runtime.InteropServices;
 using LLama.Extensions;
 using LLama.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -21,7 +22,7 @@ namespace LLama
     public sealed class LLamaContext
         : IDisposable
     {
-        private readonly ILLamaLogger? _logger;
+        private readonly ILogger<LLamaContext>? _logger;
         private readonly Encoding _encoding;
         private readonly SafeLLamaContextHandle _ctx;
 
@@ -62,18 +63,18 @@ namespace LLama
         /// <param name="params">Model params.</param>
         /// <param name="logger">The logger.</param>
         [Obsolete("Use the LLamaWeights.CreateContext instead")]
-        public LLamaContext(IModelParams @params, ILLamaLogger? logger = null)
+        public LLamaContext(IModelParams @params, ILogger<LLamaContext>? logger = null)
         {
             Params = @params;
 
             _logger = logger;
             _encoding = @params.Encoding;
 
-            _logger?.Log(nameof(LLamaContext), $"Initializing LLama model with params: {this.Params}", ILLamaLogger.LogLevel.Info);
+            _logger?.LogInformation($"Initializing LLama model with params: {this.Params}");
             _ctx = Utils.InitLLamaContextFromModelParams(Params);
         }
 
-        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILLamaLogger? logger = null)
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILogger<LLamaContext>? logger = null)
         {
             Params = @params;
 
@@ -89,7 +90,7 @@ namespace LLama
         /// <param name="params"></param>
         /// <param name="logger"></param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public LLamaContext(LLamaWeights model, IModelParams @params, ILLamaLogger? logger = null)
+        public LLamaContext(LLamaWeights model, IModelParams @params, ILogger<LLamaContext>? logger = null)
         {
             if (model.NativeHandle.IsClosed)
                 throw new ObjectDisposedException("Cannot create context, model weights have been disposed");
@@ -471,7 +472,7 @@ namespace LLama
 
                 if (!_ctx.Eval(tokens.Slice(i, n_eval), pastTokensCount, Params.Threads))
                 {
-                    _logger?.Log(nameof(LLamaContext), "Failed to eval.", ILLamaLogger.LogLevel.Error);
+                    _logger?.LogError("Failed to eval.");
                     throw new RuntimeError("Failed to eval.");
                 }
 
