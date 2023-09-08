@@ -36,6 +36,10 @@
 	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="0.21.230828.2-preview" />
 	</ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="4.5.5" PrivateAssets="all" />
+  </ItemGroup>
+  
 	<ItemGroup>
 		<ProjectReference Include="..\LLama\LLamaSharp.csproj" />
 	</ItemGroup>
