@@ -2,6 +2,7 @@
 using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +22,7 @@ namespace LLama
         /// <summary>
         /// The logger used by this executor.
         /// </summary>
-        protected ILLamaLogger? _logger;
+        protected ILogger? _logger;
         /// <summary>
         /// The tokens that were already processed by the model.
         /// </summary>
@@ -73,7 +74,7 @@ namespace LLama
         /// </summary>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        protected StatefulExecutorBase(LLamaContext context, ILLamaLogger? logger = null)
+        protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
         {
             Context = context;
             _logger = logger;
@@ -99,20 +100,20 @@ namespace LLama
             }
             if (File.Exists(filename))
             {
-                _logger?.Log("LLamaExecutor", $"Attempting to load saved session from {filename}", ILLamaLogger.LogLevel.Info);
+                _logger?.LogInformation($"[LLamaExecutor] Attempting to load saved session from {filename}");
                 llama_token[] session_tokens = new llama_token[Context.ContextSize];
                 ulong n_token_count_out = 0;
                 if (!NativeApi.llama_load_session_file(Context.NativeHandle, _pathSession, session_tokens, (ulong)Context.ContextSize, &n_token_count_out))
                 {
-                    _logger?.Log("LLamaExecutor", $"Failed to load session file {filename}", ILLamaLogger.LogLevel.Error);
+                    _logger?.LogError($"[LLamaExecutor] Failed to load session file {filename}");
                     throw new RuntimeError($"Failed to load session file {_pathSession}");
                 }
                 _session_tokens = session_tokens.Take((int)n_token_count_out).ToList();
-                _logger?.Log("LLamaExecutor", $"Loaded a session with prompt size of {session_tokens.Length} tokens", ILLamaLogger.LogLevel.Info);
+                _logger?.LogInformation($"[LLamaExecutor] Loaded a session with prompt size of {session_tokens.Length} tokens");
             }
             else
             {
-                _logger?.Log("LLamaExecutor", $"Session file does not exist, will create", ILLamaLogger.LogLevel.Warning);
+                _logger?.LogWarning($"[LLamaExecutor] Session file does not exist, will create");
             }
 
             _n_matching_session_tokens = 0;
@@ -128,17 +129,15 @@ namespace LLama
                 }
                 if (_n_matching_session_tokens >= _embed_inps.Count)
                 {
-                    _logger?.Log("LLamaExecutor", $"Session file has exact match for prompt!", ILLamaLogger.LogLevel.Info);
+                    _logger?.LogInformation("[LLamaExecutor] Session file has exact match for prompt!");
                 }
                 else if (_n_matching_session_tokens < _embed_inps.Count / 2)
                 {
-                    _logger?.Log("LLamaExecutor", $"session file has low similarity to prompt ({_n_matching_session_tokens}" +
-                        $" / {_embed_inps.Count} tokens); will mostly be reevaluated", ILLamaLogger.LogLevel.Warning);
+                    _logger?.LogWarning($"[LLamaExecutor] Session file has low similarity to prompt ({_n_matching_session_tokens} / {_embed_inps.Count} tokens) will mostly be reevaluated");
                 }
                 else
                 {
-                    _logger?.Log("LLamaExecutor", $"Session file matches {_n_matching_session_tokens} / " +
-                        $"{_embed_inps.Count} tokens of prompt", ILLamaLogger.LogLevel.Info);
+                    _logger?.LogInformation($"[LLamaExecutor] Session file matches {_n_matching_session_tokens} / {_embed_inps.Count} tokens of prompt");
                 }
             }
 

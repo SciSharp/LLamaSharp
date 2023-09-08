@@ -16,7 +16,7 @@ namespace LLama.Native
     /// </summary>
     /// <param name="level"></param>
     /// <param name="message"></param>
-	public delegate void LLamaLogCallback(ILLamaLogger.LogLevel level, string message);
+	public delegate void LLamaLogCallback(LLamaLogLevel level, string message);
 
     /// <summary>
     /// Direct translation of the llama.cpp API
