@@ -22,7 +22,7 @@ namespace LLama
         /// <summary>
         /// The logger used by this executor.
         /// </summary>
-        protected ILogger<StatefulExecutorBase>? _logger;
+        protected ILogger? _logger;
         /// <summary>
         /// The tokens that were already processed by the model.
         /// </summary>
@@ -73,10 +73,10 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="context"></param>
-        protected StatefulExecutorBase(LLamaContext context)
+        /// <param name="logger"></param>
+        protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
         {
-            _logger = Logger.Create<StatefulExecutorBase>();
-
+            _logger = logger;
             Context = context;
              _pastTokensCount = 0;
             _consumedTokensCount = 0;

@@ -22,7 +22,7 @@ namespace LLama
     public sealed class LLamaContext
         : IDisposable
     {
-        private readonly ILogger<LLamaContext>? _logger;
+        private readonly ILogger? _logger;
         private readonly Encoding _encoding;
         private readonly SafeLLamaContextHandle _ctx;
 
@@ -74,7 +74,7 @@ namespace LLama
             _ctx = Utils.InitLLamaContextFromModelParams(Params);
         }
 
-        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILogger<LLamaContext>? logger = null)
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILogger? logger = null)
         {
             Params = @params;
 
@@ -88,15 +88,16 @@ namespace LLama
         /// </summary>
         /// <param name="model"></param>
         /// <param name="params"></param>
+        /// <param name="logger"></param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public LLamaContext(LLamaWeights model, IModelParams @params)
+        public LLamaContext(LLamaWeights model, IModelParams @params, ILogger? logger = null)
         {
-            _logger = Logger.Create<LLamaContext>();
-
             if (model.NativeHandle.IsClosed)
                 throw new ObjectDisposedException("Cannot create context, model weights have been disposed");
 
             Params = @params;
+
+            _logger = logger;
             _encoding = @params.Encoding;
 
             using var pin = @params.ToLlamaContextParams(out var lparams);
@@ -471,7 +472,7 @@ namespace LLama
 
                 if (!_ctx.Eval(tokens.Slice(i, n_eval), pastTokensCount, Params.Threads))
                 {
-                    _logger?.LogError("Failed to eval.");
+                    _logger?.LogError( "Failed to eval.");
                     throw new RuntimeError("Failed to eval.");
                 }
 
