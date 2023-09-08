@@ -73,12 +73,12 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
-        protected StatefulExecutorBase(LLamaContext context, ILogger<StatefulExecutorBase>? logger = null)
+        protected StatefulExecutorBase(LLamaContext context)
         {
+            _logger = Logger.Create<StatefulExecutorBase>();
+
             Context = context;
-            _logger = logger;
-            _pastTokensCount = 0;
+             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;
             _last_n_tokens = new FixedSizeQueue<llama_token>(Context.ContextSize).FillWith(0);
