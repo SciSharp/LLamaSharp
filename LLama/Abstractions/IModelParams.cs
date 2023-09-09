@@ -58,11 +58,6 @@ namespace LLama.Abstractions
         string ModelPath { get; set; }
 
         /// <summary>
-        /// model alias
-        /// </summary>
-        string ModelAlias { get; set; }
-
-        /// <summary>
         /// lora adapter path (lora_adapter)
         /// </summary>
         string LoraAdapter { get; set; }

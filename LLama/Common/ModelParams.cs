@@ -53,10 +53,6 @@ namespace LLama.Common
         /// </summary>
         public string ModelPath { get; set; }
         /// <summary>
-        /// model alias
-        /// </summary>
-        public string ModelAlias { get; set; } = "unknown";
-        /// <summary>
         /// lora adapter path (lora_adapter)
         /// </summary>
         public string LoraAdapter { get; set; } = string.Empty;
