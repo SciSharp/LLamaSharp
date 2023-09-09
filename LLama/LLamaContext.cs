@@ -482,12 +482,6 @@ namespace LLama
         }
 #endregion
 
-        internal IEnumerable<string> GenerateResult(IEnumerable<llama_token> ids)
-        {
-            foreach(var id in ids)
-                yield return _ctx.TokenToString(id, _encoding);
-        }
-
         /// <summary>
         /// Convert a token into a string
         /// </summary>
