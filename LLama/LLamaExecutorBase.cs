@@ -288,10 +288,8 @@ namespace LLama
 
                 if (args.ReturnValue)
                 {
-                    foreach (var item in Context.GenerateResult(_embeds))
-                    {
-                        yield return item;
-                    }
+                    foreach (var id in _embeds)
+                        yield return Context.TokenToString(id);
                 }
 
                 var breakGeneration = PostProcess(inferenceParams, args, out var extraOutputs);
