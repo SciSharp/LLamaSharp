@@ -78,11 +78,6 @@ namespace LLama.Abstractions
         int BatchSize { get; set; }
 
         /// <summary>
-        /// Whether to convert eos to newline during the inference.
-        /// </summary>
-        bool ConvertEosToNewLine { get; set; }
-
-        /// <summary>
         /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
         /// The LLamaModel won't produce text response anymore.
         /// </summary>
