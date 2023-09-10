@@ -130,10 +130,8 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - build: 'cpu'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
           - build: 'metal'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_METAL=ON -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
@@ -197,8 +195,6 @@ jobs:
       - name: Rearrange MacOS files
         if: ${{ github.event.inputs.macos }}
         run: |
-          mkdir deps/macos-cpu
-          cp artifacts/llama-bin-macos-cpu.dylib/libllama.dylib deps/macos-cpu/libllama.dylib
           mkdir deps/macos-metal
           cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-metal/libllama.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-metal/ggml-metal.metal
