@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LLama.Extensions;
 
 namespace LLama
 {
@@ -139,21 +140,10 @@ namespace LLama
             extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
+                if (_last_n_tokens.Items.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
                 {
-                    var last_output_builder = new StringBuilder();
-                    foreach (var token in _last_n_tokens)
-                        Context.NativeHandle.TokenToString(token, Context.Encoding, last_output_builder);
-                    var last_output = last_output_builder.ToString();
-
-                    foreach (var antiprompt in args.Antiprompts)
-                    {
-                        if (last_output.EndsWith(antiprompt))
-                        {
-                            args.WaitForInput = true;
-                            return true;
-                        }
-                    }
+                    args.WaitForInput = true;
+                    return true;
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)

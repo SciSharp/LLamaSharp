@@ -9,6 +9,13 @@ namespace LLama.Extensions
 {
     internal static class IReadOnlyListExtensions
     {
+        /// <summary>
+        /// Find the index of `item` in `list`
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">list to search</param>
+        /// <param name="item">item to search for</param>
+        /// <returns></returns>
         public static int? IndexOf<T>(this IReadOnlyList<T> list, T item)
             where T : IEquatable<T>
         {
@@ -61,6 +68,14 @@ namespace LLama.Extensions
             }
         }
 
+        /// <summary>
+        /// Check if the given set of tokens ends with any of the given strings
+        /// </summary>
+        /// <param name="tokens">Tokens to check</param>
+        /// <param name="queries">Strings to search for</param>
+        /// <param name="model">Model to use to convert tokens into bytes</param>
+        /// <param name="encoding">Encoding to use to convert bytes into characters</param>
+        /// <returns></returns>
         internal static bool TokensEndsWithAnyString<TTokens>(this TTokens tokens, IList<string>? queries, SafeLlamaModelHandle model, Encoding encoding)
             where TTokens : IReadOnlyList<int>
         {
