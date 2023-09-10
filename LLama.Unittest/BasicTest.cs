@@ -1,8 +1,9 @@
+using System.Text;
 using LLama.Common;
 
 namespace LLama.Unittest
 {
-    public class BasicTest
+    public sealed class BasicTest
         : IDisposable
     {
         private readonly ModelParams _params;
@@ -28,6 +29,7 @@ namespace LLama.Unittest
             Assert.Equal(32000, _model.VocabCount);
             Assert.Equal(2048, _model.ContextSize);
             Assert.Equal(4096, _model.EmbeddingSize);
+            Assert.Equal(Encoding.UTF8, _model.Encoding);
         }
 
         [Fact]

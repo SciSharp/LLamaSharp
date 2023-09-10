@@ -29,6 +29,19 @@ namespace LLama.Native
         public int EmbeddingSize => ThrowIfDisposed().EmbeddingSize;
 
         /// <summary>
+        /// Get the number of tokens in the KV Cache for this context
+        /// </summary>
+        public int KVCacheTokenCount
+        {
+            get
+            {
+                if (IsClosed)
+                    throw new ObjectDisposedException("Cannot use this `SafeLLamaContextHandle` - it has been disposed");
+                return NativeApi.llama_get_kv_cache_token_count(this);
+            }
+        }
+
+        /// <summary>
         /// Get the model which this context is using
         /// </summary>
         public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();

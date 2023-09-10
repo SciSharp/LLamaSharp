@@ -30,6 +30,7 @@ namespace LLama.Unittest
             Assert.Equal(768, _context.ContextSize);
             Assert.Equal(4096, _context.EmbeddingSize);
             Assert.Equal(32000, _context.VocabCount);
+            Assert.Equal(0, _context.KVCacheTokenCount);
         }
     }
 }
