@@ -32,5 +32,29 @@ namespace LLama.Unittest
             Assert.Equal(32000, _context.VocabCount);
             Assert.Equal(0, _context.KVCacheTokenCount);
         }
+
+        [Fact]
+        public void Tokenize()
+        {
+            var tokens = _context.Tokenize("The quick brown fox", true);
+
+            Assert.Equal(new[] { 1, 450, 4996, 17354, 1701, 29916 }, tokens);
+        }
+
+        [Fact]
+        public void TokenizeWithoutBOS()
+        {
+            var tokens = _context.Tokenize("The quick brown fox", false);
+
+            Assert.Equal(new[] { 450, 4996, 17354, 1701, 29916 }, tokens);
+        }
+
+        [Fact]
+        public void TokenizeEmpty()
+        {
+            var tokens = _context.Tokenize("", false);
+
+            Assert.Equal(Array.Empty<int>(), tokens);
+        }
     }
 }
