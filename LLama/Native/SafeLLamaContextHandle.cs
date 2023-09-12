@@ -146,6 +146,9 @@ namespace LLama.Native
         {
             ThrowIfDisposed();
 
+            if (string.IsNullOrEmpty(text) && !add_bos)
+                return Array.Empty<int>();
+
             // Calculate number of bytes in string, this is a pessimistic estimate of token count. It can't
             // possibly be more than this.
             var count = encoding.GetByteCount(text) + (add_bos ? 1 : 0);
