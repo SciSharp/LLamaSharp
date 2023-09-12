@@ -1,4 +1,5 @@
 ﻿using Microsoft.SemanticKernel.AI.ChatCompletion;
+using Microsoft.SemanticKernel.Orchestration;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -6,6 +7,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
 internal sealed class LLamaSharpChatResult : IChatStreamingResult
 {
+    private readonly ModelResult _modelResult;
     private readonly IAsyncEnumerable<string> _stream;
 
     /// <summary>
@@ -15,7 +17,11 @@ internal sealed class LLamaSharpChatResult : IChatStreamingResult
     public LLamaSharpChatResult(IAsyncEnumerable<string> stream)
     {
         _stream = stream;
+        this._modelResult = new ModelResult(stream);
     }
+
+    public ModelResult ModelResult => this._modelResult;
+
     /// <inheritdoc/>
     public async Task<ChatMessageBase> GetChatMessageAsync(CancellationToken cancellationToken = default)
     {
