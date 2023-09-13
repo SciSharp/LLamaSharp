@@ -6,7 +6,7 @@
 
     internal class CodingAssistant
     {
-        const string DefaultModelUri = "https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGML/resolve/main/codellama-7b-instruct.ggmlv3.Q4_K_S.bin";
+        const string DefaultModelUri = "https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_S.gguf";
 
         // Source paper with example prompts:
         // https://scontent-ham3-1.xx.fbcdn.net/v/t39.2365-6/369856151_1754812304950972_1159666448927483931_n.pdf?_nc_cat=107&ccb=1-7&_nc_sid=3c67a6&_nc_ohc=wURKmnWKaloAX9CL8rD&_nc_ht=scontent-ham3-1.xx&oh=00_AfBSvnWP6BkLgXzZ0OvLGkiDbkejxoM03Xg2ghVhn_InZQ&oe=64EEAC4F
@@ -27,9 +27,7 @@
 
             var parameters = new ModelParams(modelPath)
             {
-                ContextSize = 4096,
-                Seed = 1337,
-                GpuLayerCount = 5
+                ContextSize = 4096
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
