@@ -58,11 +58,6 @@ namespace LLama.Abstractions
         string ModelPath { get; set; }
 
         /// <summary>
-        /// model alias
-        /// </summary>
-        string ModelAlias { get; set; }
-
-        /// <summary>
         /// lora adapter path (lora_adapter)
         /// </summary>
         string LoraAdapter { get; set; }
@@ -81,11 +76,6 @@ namespace LLama.Abstractions
         /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
         /// </summary>
         int BatchSize { get; set; }
-
-        /// <summary>
-        /// Whether to convert eos to newline during the inference.
-        /// </summary>
-        bool ConvertEosToNewLine { get; set; }
 
         /// <summary>
         /// Whether to use embedding mode. (embedding) Note that if this is set to true, 

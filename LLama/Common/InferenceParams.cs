@@ -29,18 +29,7 @@ namespace LLama.Common
         /// Sequences where the model will stop generating further tokens.
         /// </summary>
         public IEnumerable<string> AntiPrompts { get; set; } = Array.Empty<string>();
-        /// <summary>
-        /// path to file for saving/loading model eval state
-        /// </summary>
-        public string PathSession { get; set; } = string.Empty;
-        /// <summary>
-        /// string to suffix user inputs with
-        /// </summary>
-        public string InputSuffix { get; set; } = string.Empty;
-        /// <summary>
-        /// string to prefix user inputs with
-        /// </summary>
-        public string InputPrefix { get; set; } = string.Empty;
+
         /// <summary>
         ///  0 or lower to use vocab size
         /// </summary>

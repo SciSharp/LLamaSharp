@@ -53,10 +53,6 @@ namespace LLama.Common
         /// </summary>
         public string ModelPath { get; set; }
         /// <summary>
-        /// model alias
-        /// </summary>
-        public string ModelAlias { get; set; } = "unknown";
-        /// <summary>
         /// lora adapter path (lora_adapter)
         /// </summary>
         public string LoraAdapter { get; set; } = string.Empty;
@@ -72,11 +68,6 @@ namespace LLama.Common
         /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
         /// </summary>
         public int BatchSize { get; set; } = 512;
-
-        /// <summary>
-        /// Whether to convert eos to newline during the inference.
-        /// </summary>
-        public bool ConvertEosToNewLine { get; set; } = false;
 
         /// <summary>
         /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
@@ -141,7 +132,6 @@ namespace LLama.Common
         /// <param name="loraBase">Base model path for the lora adapter (lora_base)</param>
         /// <param name="threads">Number of threads (-1 = autodetect) (n_threads)</param>
         /// <param name="batchSize">Batch size for prompt processing (must be >=32 to use BLAS) (n_batch)</param>
-        /// <param name="convertEosToNewLine">Whether to convert eos to newline during the inference.</param>
         /// <param name="embeddingMode">Whether to use embedding mode. (embedding) Note that if this is set to true, The LLamaModel won't produce text response anymore.</param>
         /// <param name="ropeFrequencyBase">RoPE base frequency.</param>
         /// <param name="ropeFrequencyScale">RoPE frequency scaling factor</param>
@@ -152,7 +142,7 @@ namespace LLama.Common
                            int seed = 1337, bool useFp16Memory = true,
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
                            string loraAdapter = "", string loraBase = "", int threads = -1, int batchSize = 512,
-                           bool convertEosToNewLine = false, bool embeddingMode = false,
+                           bool embeddingMode = false,
                            float ropeFrequencyBase = 10000.0f, float ropeFrequencyScale = 1f, bool mulMatQ = false,
                            string encoding = "UTF-8")
         {
@@ -168,7 +158,6 @@ namespace LLama.Common
             LoraBase = loraBase;
             Threads = threads == -1 ? Math.Max(Environment.ProcessorCount / 2, 1) : threads;
             BatchSize = batchSize;
-            ConvertEosToNewLine = convertEosToNewLine;
             EmbeddingMode = embeddingMode;
             RopeFrequencyBase = ropeFrequencyBase;
             RopeFrequencyScale = ropeFrequencyScale;
