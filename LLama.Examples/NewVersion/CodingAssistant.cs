@@ -9,7 +9,7 @@
         const string DefaultModelUri = "https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_S.gguf";
 
         // Source paper with example prompts:
-        // https://scontent-ham3-1.xx.fbcdn.net/v/t39.2365-6/369856151_1754812304950972_1159666448927483931_n.pdf?_nc_cat=107&ccb=1-7&_nc_sid=3c67a6&_nc_ohc=wURKmnWKaloAX9CL8rD&_nc_ht=scontent-ham3-1.xx&oh=00_AfBSvnWP6BkLgXzZ0OvLGkiDbkejxoM03Xg2ghVhn_InZQ&oe=64EEAC4F
+        // https://doi.org/10.48550/arXiv.2308.12950
         const string InstructionPrefix = "[INST]";
         const string InstructionSuffix = "[/INST]";
         const string SystemInstruction = "You're an intelligent, concise coding assistant. Wrap code in ``` for readability. Don't repeat yourself. Use best practice and good coding standards.";
@@ -35,7 +35,8 @@
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions." +
-                "It's a 7B Code Llama, so it's trained for programming tasks like \"Write a C# function reading a file name from a given URI\" or \"Write some programming interview questions\".");
+                "\nIt's a 7B Code Llama, so it's trained for programming tasks like \"Write a C# function reading a file name from a given URI\" or \"Write some programming interview questions\"." +
+                "\nWrite 'exit' to exit");
             Console.ForegroundColor = ConsoleColor.White;
 
             var inferenceParams = new InferenceParams() { 
@@ -43,10 +44,10 @@
                 MaxTokens = -1,
             };
 
-            string instruction = $"{SystemInstruction}\n";
+            string instruction = $"{SystemInstruction}\n\n";
             await Console.Out.WriteAsync("Instruction: ");
             instruction += Console.ReadLine() ?? "Ask me for instructions.";
-            while (true)
+            while (instruction != "exit")
             {
 
                 Console.ForegroundColor = ConsoleColor.Green;
