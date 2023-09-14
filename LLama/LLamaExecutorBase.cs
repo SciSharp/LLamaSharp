@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace LLama
 {
@@ -212,47 +213,53 @@ namespace LLama
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected abstract bool GetLoopCondition(InferStateArgs args);
+        protected abstract Task<bool> GetLoopCondition(InferStateArgs args);
+
         /// <summary>
         /// Preprocess the inputs before the inference.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="args"></param>
-        protected abstract void PreprocessInputs(string text, InferStateArgs args);
+        protected abstract Task PreprocessInputs(string text, InferStateArgs args);
+
         /// <summary>
         /// Do some post processing after the inference.
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
-        /// <param name="extraOutputs"></param>
         /// <returns></returns>
-        protected abstract bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs);
+        protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
+
         /// <summary>
         /// The core inference logic.
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
-        protected abstract void InferInternal(IInferenceParams inferenceParams, InferStateArgs args);
+        protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args);
+
         /// <summary>
         /// Save the current state to a file.
         /// </summary>
         /// <param name="filename"></param>
-        public abstract void SaveState(string filename);
+        public abstract Task SaveState(string filename);
+
         /// <summary>
         /// Get the current state data.
         /// </summary>
         /// <returns></returns>
         public abstract ExecutorBaseState GetStateData();
+
         /// <summary>
         /// Load the state from data.
         /// </summary>
         /// <param name="data"></param>
-        public abstract void LoadState(ExecutorBaseState data);
+        public abstract Task LoadState(ExecutorBaseState data);
+
         /// <summary>
         /// Load the state from a file.
         /// </summary>
         /// <param name="filename"></param>
-        public abstract void LoadState(string filename);
+        public abstract Task LoadState(string filename);
 
 
         /// <summary>
@@ -262,12 +269,12 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             inferenceParams ??= new InferenceParams();
 
-            InferStateArgs args = new InferStateArgs()
+            var args = new InferStateArgs
             {
                 Antiprompts = inferenceParams.AntiPrompts.ToList(),
                 RemainedTokens = inferenceParams.MaxTokens,
@@ -276,15 +283,15 @@ namespace LLama
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
             };
 
-            PreprocessInputs(text, args);
+            await PreprocessInputs(text, args);
 
-            while (GetLoopCondition(args))
+            while (await GetLoopCondition(args))
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     break;
                 }
-                InferInternal(inferenceParams, args);
+                await InferInternal(inferenceParams, args);
 
                 if (args.ReturnValue)
                 {
@@ -292,8 +299,8 @@ namespace LLama
                         yield return Context.TokenToString(id);
                 }
 
-                var breakGeneration = PostProcess(inferenceParams, args, out var extraOutputs);
-                if (extraOutputs is not null)
+                var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args);
+                if (extraOutputs is { Count: > 0 })
                 {
                     foreach (var item in extraOutputs)
                     {
@@ -304,21 +311,6 @@ namespace LLama
                 {
                     break;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Execute the inference asynchronously.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="inferenceParams"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public virtual async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            foreach (var result in Infer(text, inferenceParams, cancellationToken))
-            {
-                yield return result;
             }
         }
 

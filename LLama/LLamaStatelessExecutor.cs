@@ -55,7 +55,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var context = _weights.CreateContext(_params);
             Context = context;
@@ -139,15 +139,6 @@ namespace LLama
         private bool EndsWithAntiprompt(IReadOnlyList<llama_token> tokens, IReadOnlyList<string> antiprompts)
         {
             return tokens.TokensEndsWithAnyString(antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding);
-        }
-
-        /// <inheritdoc />
-        public async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            foreach (var result in Infer(text, inferenceParams, cancellationToken))
-            {
-                yield return result;
-            }
         }
     }
 }

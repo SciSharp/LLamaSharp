@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text;
+using System.Threading.Tasks;
 using LLama.Extensions;
 
 namespace LLama
@@ -51,7 +51,7 @@ namespace LLama
             return state;
         }
         /// <inheritdoc />
-        public override void LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data)
         {
             if (data is InteractiveExecutorState state)
             {
@@ -68,23 +68,25 @@ namespace LLama
             }
             else
                 throw new ArgumentException("Invalid state data type.");
+
+            return Task.CompletedTask;
         }
         /// <inheritdoc />
-        public override void SaveState(string filename)
+        public override async Task SaveState(string filename)
         {
-            InteractiveExecutorState state = (InteractiveExecutorState)GetStateData();
-            using(FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            var state = (InteractiveExecutorState)GetStateData();
+            using(var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                JsonSerializer.Serialize(fs, state);
+                await JsonSerializer.SerializeAsync(fs, state);
             }
         }
         /// <inheritdoc />
-        public override void LoadState(string filename)
+        public override async Task LoadState(string filename)
         {
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
-                var state = JsonSerializer.Deserialize<InteractiveExecutorState>(fs);
-                LoadState(state);
+                var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
+                await LoadState(state);
             }
         }
 
@@ -92,13 +94,13 @@ namespace LLama
         /// Define whether to continue the loop to generate responses.
         /// </summary>
         /// <returns></returns>
-        protected override bool GetLoopCondition(InferStateArgs args)
+        protected override Task<bool> GetLoopCondition(InferStateArgs args)
         {
-            return args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run;
+            return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
         }
 
         /// <inheritdoc />
-        protected override void PreprocessInputs(string text, InferStateArgs args)
+        protected override Task PreprocessInputs(string text, InferStateArgs args)
         {
             if (_is_prompt_run)
             {
@@ -115,6 +117,8 @@ namespace LLama
                 _embed_inps.AddRange(line_inp);
                 args.RemainedTokens -= line_inp.Length;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -122,24 +126,21 @@ namespace LLama
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
-        /// <param name="extraOutputs"></param>
         /// <returns></returns>
-        protected override bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
+        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
-            extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
             {
                 if (_last_n_tokens.Items.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
                     args.WaitForInput = true;
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
-                    return true;
+                    return (true, Array.Empty<string>());
             }
 
             if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle))
             {
-                extraOutputs = new[] { " [end of text]\n" };
-                return true;
+                return (true, new[] { " [end of text]\n" });
             }
 
             if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
@@ -147,11 +148,12 @@ namespace LLama
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
-            return false;
+
+            return (false, Array.Empty<string>());
         }
 
         /// <inheritdoc />
-        protected override void InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
             {

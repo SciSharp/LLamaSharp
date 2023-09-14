@@ -8,13 +8,6 @@ namespace LLama.Abstractions
     public interface ITextStreamTransform
     {
         /// <summary>
-        /// Takes a stream of tokens and transforms them, returning a new stream of tokens.
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <returns></returns>
-        IEnumerable<string> Transform(IEnumerable<string> tokens);
-
-        /// <summary>
         /// Takes a stream of tokens and transforms them, returning a new stream of tokens asynchronously.
         /// </summary>
         /// <param name="tokens"></param>

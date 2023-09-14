@@ -4,7 +4,7 @@ namespace LLama.Examples.NewVersion
 {
     public class StatelessModeExecute
     {
-        public static void Run()
+        public static async Task Run()
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
@@ -35,7 +35,7 @@ namespace LLama.Examples.NewVersion
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
                 prompt = $"Question: {prompt?.Trim()} Answer: ";
-                foreach (var text in ex.Infer(prompt, inferenceParams))
+                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
                 {
                     Console.Write(text);
                 }

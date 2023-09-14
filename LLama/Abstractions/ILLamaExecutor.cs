@@ -14,15 +14,6 @@ namespace LLama.Abstractions
         public LLamaContext Context { get; }
 
         /// <summary>
-        /// Infers a response from the model.
-        /// </summary>
-        /// <param name="text">Your prompt</param>
-        /// <param name="inferenceParams">Any additional parameters</param>
-        /// <param name="token">A cancellation token.</param>
-        /// <returns></returns>
-        IEnumerable<string> Infer(string text, IInferenceParams? inferenceParams = null, CancellationToken token = default);
-
-        /// <summary>
         /// Asynchronously infers a response from the model.
         /// </summary>
         /// <param name="text">Your prompt</param>

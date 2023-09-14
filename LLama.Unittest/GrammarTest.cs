@@ -41,7 +41,7 @@ namespace LLama.Unittest
         }
 
         [Fact]
-        public void SampleWithTrivialGrammar()
+        public async Task SampleWithTrivialGrammar()
         {
             // Create a grammar that constrains the output to be "cat" and nothing else. This is a nonsense answer, so
             // we can be confident it's not what the LLM would say if not constrained by the grammar!
@@ -66,7 +66,7 @@ namespace LLama.Unittest
                 Grammar = grammar,
             };
 
-            var result = executor.Infer("Q. 7 + 12\nA. ", inferenceParams).ToList();
+            var result = await executor.InferAsync("Q. 7 + 12\nA. ", inferenceParams).ToListAsync();
 
             Assert.Equal("cat", result[0]);
         }
