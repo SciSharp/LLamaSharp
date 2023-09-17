@@ -51,7 +51,7 @@
             {
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                foreach (var text in executor.Infer(instruction+System.Environment.NewLine, inferenceParams))
+                await foreach (var text in executor.InferAsync(instruction + System.Environment.NewLine, inferenceParams))
                 {
                     Console.Write(text);
                 }
