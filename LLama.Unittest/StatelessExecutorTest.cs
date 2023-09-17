@@ -27,15 +27,15 @@ namespace LLama.Unittest
         }
 
         [Fact]
-        public void Stateless()
+        public async Task Stateless()
         {
             var executor = new StatelessExecutor(_weights, _params);
 
             const string question = "Question. what is a cat?\nAnswer: ";
             var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
 
-            var result1 = string.Join("", executor.Infer(question, @params));
-            var result2 = string.Join("", executor.Infer(question, @params));
+            var result1 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
+            var result2 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
 
             _testOutputHelper.WriteLine(result1);
 
@@ -44,7 +44,7 @@ namespace LLama.Unittest
         }
 
         [Fact]
-        public void OutOfContext()
+        public async Task OutOfContext()
         {
             var executor = new StatelessExecutor(_weights, _params);
 
@@ -58,8 +58,8 @@ namespace LLama.Unittest
                 TokensKeep = question.Length,
             };
 
-            var result1 = string.Join("", executor.Infer(question, @params));
-            var result2 = string.Join("", executor.Infer(question, @params));
+            var result1 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
+            var result2 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
 
             _testOutputHelper.WriteLine(result1);
 

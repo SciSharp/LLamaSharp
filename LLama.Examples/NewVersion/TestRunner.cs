@@ -30,11 +30,11 @@
 
                 if (choice == 0)
                 {
-                    ChatSessionWithRoleName.Run();
+                    await ChatSessionWithRoleName.Run();
                 }
                 else if (choice == 1)
                 {
-                    ChatSessionStripRoleName.Run();
+                    await ChatSessionStripRoleName.Run();
                 }
                 else if(choice == 2)
                 {
@@ -42,19 +42,19 @@
                 }
                 else if(choice == 3)
                 {
-                    InstructModeExecute.Run();
+                    await InstructModeExecute.Run();
                 }
                 else if(choice == 4)
                 {
-                    StatelessModeExecute.Run();
+                    await StatelessModeExecute.Run();
                 }
                 else if(choice == 5)
                 {
-                    SaveAndLoadSession.Run();
+                    await SaveAndLoadSession.Run();
                 }
                 else if(choice == 6)
                 {
-                    LoadAndSaveState.Run();
+                    await LoadAndSaveState.Run();
                 }
                 else if(choice == 7)
                 {
@@ -70,7 +70,7 @@
                 }
                 else if (choice == 10)
                 {
-                    GrammarJsonResponse.Run();
+                    await GrammarJsonResponse.Run();
                 }
                 else if (choice == 11)
                 {

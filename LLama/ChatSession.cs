@@ -135,26 +135,6 @@ namespace LLama
         }
 
         /// <summary>
-        /// Get the response from the LLama model with chat histories.
-        /// </summary>
-        /// <param name="history"></param>
-        /// <param name="inferenceParams"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public IEnumerable<string> Chat(ChatHistory history, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
-        {
-            var prompt = HistoryTransform.HistoryToText(history);
-            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
-            StringBuilder sb = new();
-            foreach (var result in ChatInternal(prompt, inferenceParams, cancellationToken))
-            {
-                yield return result;
-                sb.Append(result);
-            }
-            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
-        }
-
-        /// <summary>
         /// Get the response from the LLama model. Note that prompt could not only be the preset words, 
         /// but also the question you want to ask.
         /// </summary>
@@ -162,15 +142,14 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public IEnumerable<string> Chat(string prompt, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> ChatAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach(var inputTransform in InputTransformPipeline)
-            {
                 prompt = inputTransform.Transform(prompt);
-            }
+            
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
             StringBuilder sb = new();
-            foreach (var result in ChatInternal(prompt, inferenceParams, cancellationToken))
+            await foreach (var result in ChatAsyncInternal(prompt, inferenceParams, cancellationToken))
             {
                 yield return result;
                 sb.Append(result);
@@ -196,35 +175,6 @@ namespace LLama
                 sb.Append(result);
             }
             History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
-        }
-
-        /// <summary>
-        /// Get the response from the LLama model with chat histories asynchronously.
-        /// </summary>
-        /// <param name="prompt"></param>
-        /// <param name="inferenceParams"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public async IAsyncEnumerable<string> ChatAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            foreach (var inputTransform in InputTransformPipeline)
-            {
-                prompt = inputTransform.Transform(prompt);
-            }
-            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.User, prompt).Messages);
-            StringBuilder sb = new();
-            await foreach (var result in ChatAsyncInternal(prompt, inferenceParams, cancellationToken))
-            {
-                yield return result;
-                sb.Append(result);
-            }
-            History.Messages.AddRange(HistoryTransform.TextToHistory(AuthorRole.Assistant, sb.ToString()).Messages);
-        }
-
-        private IEnumerable<string> ChatInternal(string prompt, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default)
-        {
-            var results = _executor.Infer(prompt, inferenceParams, cancellationToken);
-            return OutputTransform.Transform(results);
         }
 
         private async IAsyncEnumerable<string> ChatAsyncInternal(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)

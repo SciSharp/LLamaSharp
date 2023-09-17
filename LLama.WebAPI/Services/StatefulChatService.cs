@@ -28,7 +28,7 @@ public class StatefulChatService : IDisposable
         _context?.Dispose();
     }
 
-    public string Send(SendMessageInput input)
+    public async Task<string> Send(SendMessageInput input)
     {
         var userInput = input.Text;
         if (!_continue)
@@ -42,13 +42,13 @@ public class StatefulChatService : IDisposable
         Console.Write(input.Text);
 
         Console.ForegroundColor = ConsoleColor.White;
-        var outputs = _session.Chat(userInput, new Common.InferenceParams()
+        var outputs = _session.ChatAsync(userInput, new Common.InferenceParams()
         {
             RepeatPenalty = 1.0f,
             AntiPrompts = new string[] { "User:" },
         });
         var result = "";
-        foreach (var output in outputs)
+        await foreach (var output in outputs)
         {
             Console.Write(output);
             result += output;

@@ -4,7 +4,7 @@ namespace LLama.Examples.NewVersion
 {
     public class ChatSessionWithRoleName
     {
-        public static void Run()
+        public static async Task Run()
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
@@ -30,7 +30,7 @@ namespace LLama.Examples.NewVersion
             Console.Write(prompt);
             while (true)
             {
-                foreach (var text in session.Chat(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
+                await foreach (var text in session.ChatAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
                 {
                     Console.Write(text);
                 }

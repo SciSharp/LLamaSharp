@@ -18,7 +18,7 @@ namespace LLama.WebAPI.Controllers
         }
 
         [HttpPost("Send")]
-        public string SendMessage([FromBody] SendMessageInput input, [FromServices] StatefulChatService _service)
+        public Task<string> SendMessage([FromBody] SendMessageInput input, [FromServices] StatefulChatService _service)
         {
             return _service.Send(input);
         }

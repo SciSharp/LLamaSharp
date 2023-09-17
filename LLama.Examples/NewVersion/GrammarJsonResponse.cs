@@ -5,9 +5,9 @@ namespace LLama.Examples.NewVersion
 {
     public class GrammarJsonResponse
     {
-        public static void Run()
+        public static async Task Run()
         {
-            var gbnf = File.ReadAllText("Assets/json.gbnf").Trim();
+            var gbnf = (await File.ReadAllTextAsync("Assets/json.gbnf")).Trim();
             var grammar = Grammar.Parse(gbnf, "root");
 
             Console.Write("Please input your model path: ");
@@ -43,7 +43,7 @@ namespace LLama.Examples.NewVersion
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
                 prompt = $"Question: {prompt?.Trim()} Answer: ";
-                foreach (var text in ex.Infer(prompt, inferenceParams))
+                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
                 {
                     Console.Write(text);
                 }

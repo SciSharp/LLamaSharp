@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using LLama.Extensions;
 
 namespace LLama
@@ -60,7 +60,7 @@ namespace LLama
             return state;
         }
         /// <inheritdoc />
-        public override void LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data)
         {
             if(data is InstructExecutorState state)
             {
@@ -81,34 +81,37 @@ namespace LLama
             {
                 throw new ArgumentException("Invalid state data type.");
             }
+
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public override void SaveState(string filename)
+        public override async Task SaveState(string filename)
         {
             var state = (InstructExecutorState)GetStateData();
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                JsonSerializer.Serialize(fs, state);
+                await JsonSerializer.SerializeAsync(fs, state);
             }
         }
         /// <inheritdoc />
-        public override void LoadState(string filename)
+        public override async Task LoadState(string filename)
         {
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
-                var state = JsonSerializer.Deserialize<InstructExecutorState>(fs);
-                LoadState(state);
+                var state = await JsonSerializer.DeserializeAsync<InstructExecutorState>(fs);
+                await LoadState(state);
             }
         }
 
         /// <inheritdoc />
-        protected override bool GetLoopCondition(InferStateArgs args)
+        protected override Task<bool> GetLoopCondition(InferStateArgs args)
         {
-            return args.RemainedTokens != 0 || _is_prompt_run;
+            return Task.FromResult(args.RemainedTokens != 0 || _is_prompt_run);
         }
+
         /// <inheritdoc />
-        protected override void PreprocessInputs(string text, InferStateArgs args)
+        protected override Task PreprocessInputs(string text, InferStateArgs args)
         {
             args.Antiprompts ??= new List<string>();
             args.Antiprompts.Add(_instructionPrefix);
@@ -133,23 +136,24 @@ namespace LLama
 
                 args.RemainedTokens -= line_inp.Length;
             }
+
+            return Task.CompletedTask;
         }
+
         /// <inheritdoc />
-        protected override bool PostProcess(IInferenceParams inferenceParams, InferStateArgs args, out IEnumerable<string>? extraOutputs)
+        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
-            extraOutputs = null;
             if (_embed_inps.Count <= _consumedTokensCount)
             {
                 if (_last_n_tokens.Items.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
                 {
                     args.WaitForInput = true;
-                    return true;
+                    return (true, Array.Empty<string>());
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    extraOutputs = new[] { "\n> " };
-                    return true;
+                    return (true, new[] { "\n> " });
                 }
             }
 
@@ -163,10 +167,11 @@ namespace LLama
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
-            return false;
+            return (false, Array.Empty<string>());
         }
+
         /// <inheritdoc />
-        protected override void InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
             {
@@ -230,6 +235,8 @@ namespace LLama
                     }
                 }
             }
+
+            return Task.CompletedTask;
         }
         /// <summary>
         /// The desciptor of the state of the instruct executor.

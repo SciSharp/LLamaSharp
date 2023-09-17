@@ -4,7 +4,7 @@ namespace LLama.Examples.NewVersion
 {
     public class InstructModeExecute
     {
-        public static void Run()
+        public static async Task Run()
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
@@ -29,7 +29,7 @@ namespace LLama.Examples.NewVersion
 
             while (true)
             {
-                foreach (var text in executor.Infer(prompt, inferenceParams))
+                await foreach (var text in executor.InferAsync(prompt, inferenceParams))
                 {
                     Console.Write(text);
                 }
