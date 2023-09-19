@@ -276,13 +276,13 @@ namespace LLama.Native
                 fixed (byte* bytesPtr = &bytes[0])
                 {
                     // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                    var count = -NativeApi.llama_tokenize_with_model(this, bytesPtr, (int*)IntPtr.Zero, 0, add_bos);
+                    var count = -NativeApi.llama_tokenize_with_model(this, bytesPtr, text.Length, (int*)IntPtr.Zero, 0, add_bos);
 
                     // Tokenize again, this time outputting into an array of exactly the right size
                     var tokens = new int[count];
                     fixed (int* tokensPtr = &tokens[0])
                     {
-                        NativeApi.llama_tokenize_with_model(this, bytesPtr, tokensPtr, count, add_bos);
+                        NativeApi.llama_tokenize_with_model(this, bytesPtr, text.Length, tokensPtr, count, add_bos);
                         return tokens;
                     }
                 }

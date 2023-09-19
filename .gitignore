@@ -346,3 +346,4 @@ site/
 /LLama.Unittest/Models/*.bin
 /LLama.Unittest/Models/*.gguf
 
+global.json

@@ -364,7 +364,7 @@ namespace LLama.Native
                 // Do the actual tokenization
                 fixed (byte* arrayPtr = array)
                 fixed (llama_token* tokensPtr = tokens)
-                    return llama_tokenize_native(ctx, arrayPtr, tokensPtr, n_max_tokens, add_bos);
+                    return llama_tokenize_native(ctx, arrayPtr, text.Length, tokensPtr, n_max_tokens, add_bos);
             }
             finally
             {
@@ -384,7 +384,7 @@ namespace LLama.Native
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, EntryPoint = "llama_tokenize", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_tokenize_native(SafeLLamaContextHandle ctx, byte* text, llama_token* tokens, int n_max_tokens, bool add_bos);
+        public static extern int llama_tokenize_native(SafeLLamaContextHandle ctx, byte* text, int text_len, llama_token* tokens, int n_max_tokens, bool add_bos);
 
         /// <summary>
         /// Get the number of tokens in the model vocabulary for this context
@@ -529,7 +529,7 @@ namespace LLama.Native
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_tokenize_with_model(SafeLlamaModelHandle model, byte* text, int* tokens, int n_max_tokens, bool add_bos);
+        public static extern int llama_tokenize_with_model(SafeLlamaModelHandle model, byte* text, int text_len, int* tokens, int n_max_tokens, bool add_bos);
 
         /// <summary>
         /// Register a callback to receive llama log messages
