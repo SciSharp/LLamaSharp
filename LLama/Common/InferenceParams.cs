@@ -9,7 +9,7 @@ namespace LLama.Common
     /// <summary>
     /// The paramters used for inference.
     /// </summary>
-    public class InferenceParams : IInferenceParams
+    public record InferenceParams : IInferenceParams
     {
         /// <summary>
         /// number of tokens to keep from initial prompt
