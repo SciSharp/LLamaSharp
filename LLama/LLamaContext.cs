@@ -210,9 +210,13 @@ namespace LLama
                     // Shrink to size
                     memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
 
-                    // Wrap memory in a state and return it
+                    // Wrap memory in a "state"
+                    var state = new State(memory);
+
+                    // Set memory to zero, to prevent it being freed in finally block
                     memory = IntPtr.Zero;
-                    return new State(memory);
+
+                    return state;
                 }
                 finally
                 {
