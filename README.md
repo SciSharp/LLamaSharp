@@ -18,10 +18,10 @@ both Windows, Linux and MAC without requirment for compiling llama.cpp yourself.
 
 ## Documentation
 
-- [Quick start](https://scisharp.github.io/LLamaSharp/0.4/GetStarted/)
-- [Tricks for FAQ](https://scisharp.github.io/LLamaSharp/0.4/Tricks/)
-- [Full documentation](https://scisharp.github.io/LLamaSharp/0.4/)
-- [API reference](https://scisharp.github.io/LLamaSharp/0.4/xmldocs/)
+- [Quick start](https://scisharp.github.io/LLamaSharp/0.5/GetStarted/)
+- [Tricks for FAQ](https://scisharp.github.io/LLamaSharp/0.5/Tricks/)
+- [Full documentation](https://scisharp.github.io/LLamaSharp/0.5/)
+- [API reference](https://scisharp.github.io/LLamaSharp/0.5/xmldocs/)
 - [Examples](./LLama.Examples/NewVersion/)
 
 ## Installation
@@ -62,7 +62,7 @@ Here's the mapping of them and corresponding model samples provided by `LLamaSha
 Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 
 We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
-from source and put the `libllama` under your project's output path ([guide](https://scisharp.github.io/LLamaSharp/0.4/ContributingGuide/)).
+from source and put the `libllama` under your project's output path ([guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
 
 ## FAQ
 
