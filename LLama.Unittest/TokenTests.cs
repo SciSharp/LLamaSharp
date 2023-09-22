@@ -43,7 +43,7 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var result = tokens.TokensEndsWithAnyString(new[]
+        var result = tokens.TokensEndsWithAnyString((IList<string>)new[]
         {
             "at",
         }, _model.NativeHandle, Encoding.UTF8);
@@ -55,7 +55,7 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var result = tokens.TokensEndsWithAnyString(new[]
+        var result = tokens.TokensEndsWithAnyString((IList<string>)new[]
         {
             "a fish",
             "The cat sat on the edge of the ma",
@@ -69,7 +69,7 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
 
-        var result = tokens.TokensEndsWithAnyString(Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
+        var result = tokens.TokensEndsWithAnyString((IList<string>)Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
         Assert.False(result);
     }
 }
