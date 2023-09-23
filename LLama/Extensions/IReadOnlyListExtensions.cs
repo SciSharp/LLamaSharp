@@ -68,6 +68,13 @@ namespace LLama.Extensions
             }
         }
 
+        internal static bool TokensEndsWithAnyString<TTokens, TQueries>(this TTokens tokens, TQueries? queries, LLamaContext context)
+            where TTokens : IReadOnlyList<int>
+            where TQueries : IReadOnlyList<string>
+        {
+            return TokensEndsWithAnyString(tokens, queries, context.NativeHandle.ModelHandle, context.Encoding);
+        }
+
         /// <summary>
         /// Check if the given set of tokens ends with any of the given strings
         /// </summary>

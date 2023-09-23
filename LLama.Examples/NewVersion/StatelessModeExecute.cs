@@ -35,10 +35,48 @@ namespace LLama.Examples.NewVersion
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
                 prompt = $"Question: {prompt?.Trim()} Answer: ";
-                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
+                await foreach (var text in Spinner(ex.InferAsync(prompt, inferenceParams)))
                 {
                     Console.Write(text);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Show a spinner while waiting for the next result
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        private static async IAsyncEnumerable<string> Spinner(IAsyncEnumerable<string> source)
+        {
+            var enumerator = source.GetAsyncEnumerator();
+
+            var characters = new[] { '|', '/', '-', '\\' };
+
+            while (true)
+            {
+                var next = enumerator.MoveNextAsync();
+
+                var (Left, Top) = Console.GetCursorPosition();
+
+                // Keep showing the next spinner character while waiting for "MoveNextAsync" to finish
+                var count = 0;
+                while (!next.IsCompleted)
+                {
+                    count = (count + 1) % characters.Length;
+                    Console.SetCursorPosition(Left, Top);
+                    Console.Write(characters[count]);
+                    await Task.Delay(75);
+                }
+
+                // Clear the spinner character
+                Console.SetCursorPosition(Left, Top);
+                Console.Write(" ");
+                Console.SetCursorPosition(Left, Top);
+
+                if (!next.Result)
+                    break;
+                yield return enumerator.Current;
             }
         }
     }
