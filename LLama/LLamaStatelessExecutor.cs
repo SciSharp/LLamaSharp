@@ -104,15 +104,13 @@ namespace LLama
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar);
 
                 lastTokens.Add(id);
-
-                var response = Context.TokenToString(id);
-                yield return response;
+                yield return Context.TokenToString(id);
 
                 tokens.Clear();
                 tokens.Add(id);
 
                 // Check if any of the antiprompts have been generated
-                if (tokens.TokensEndsWithAnyString(antiprompts, Context))
+                if (lastTokens.TokensEndsWithAnyString(antiprompts, Context))
                     break;
 
                 // when run out of context
