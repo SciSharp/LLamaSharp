@@ -42,11 +42,6 @@ namespace LLama
         public int EmbeddingSize => _ctx.EmbeddingSize;
 
         /// <summary>
-        /// Get the number of tokens in the KV Cache for this context
-        /// </summary>
-        public int KVCacheTokenCount => _ctx.KVCacheTokenCount;
-
-        /// <summary>
         /// The model params set for this model.
         /// </summary>
         public IModelParams Params { get; set; }

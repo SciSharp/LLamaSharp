@@ -29,19 +29,6 @@ namespace LLama.Native
         public int EmbeddingSize => ThrowIfDisposed().EmbeddingSize;
 
         /// <summary>
-        /// Get the number of tokens in the KV Cache for this context
-        /// </summary>
-        public int KVCacheTokenCount
-        {
-            get
-            {
-                if (IsClosed)
-                    throw new ObjectDisposedException("Cannot use this `SafeLLamaContextHandle` - it has been disposed");
-                return NativeApi.llama_get_kv_cache_token_count(this);
-            }
-        }
-
-        /// <summary>
         /// Get the model which this context is using
         /// </summary>
         public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();
@@ -136,6 +123,26 @@ namespace LLama.Native
         #endregion
 
         /// <summary>
+        /// Token logits obtained from the last call to llama_eval()
+        /// The logits for the last token are stored in the last row
+        /// Can be mutated in order to change the probabilities of the next token.<br />
+        /// Rows: n_tokens<br />
+        /// Cols: n_vocab
+        /// </summary>
+        /// <returns></returns>
+        public Span<float> GetLogits()
+        {
+            var model = ThrowIfDisposed();
+
+            unsafe
+            {
+                var logits = NativeApi.llama_get_logits(this);
+                return new Span<float>(logits, model.VocabCount);
+            }
+        }
+
+        #region tokens
+        /// <summary>
         /// Convert the given text into tokens
         /// </summary>
         /// <param name="text">The text to tokenize</param>
@@ -179,25 +186,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Token logits obtained from the last call to llama_eval()
-        /// The logits for the last token are stored in the last row
-        /// Can be mutated in order to change the probabilities of the next token.<br />
-        /// Rows: n_tokens<br />
-        /// Cols: n_vocab
-        /// </summary>
-        /// <returns></returns>
-        public Span<float> GetLogits()
-        {
-            var model = ThrowIfDisposed();
-
-            unsafe
-            {
-                var logits = NativeApi.llama_get_logits(this);
-                return new Span<float>(logits, model.VocabCount);
-            }
-        }
-
-        /// <summary>
         /// Convert a token into a string
         /// </summary>
         /// <param name="token">Token to decode into a string</param>
@@ -229,6 +217,7 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token, dest);
         }
+        #endregion
 
         /// <summary>
         /// Run the llama inference to obtain the logits and probabilities for the next token.
@@ -242,7 +231,8 @@ namespace LLama.Native
             {
                 fixed (int* pinned = tokens)
                 {
-                    return NativeApi.llama_eval(this, pinned, tokens.Length, n_past) == 0;
+                    var ret = NativeApi.llama_eval(this, pinned, tokens.Length, n_past);
+                    return ret == 0;
                 }
             }
         }

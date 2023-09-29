@@ -204,14 +204,6 @@ namespace LLama.Native
         public static extern int llama_model_apply_lora_from_file(SafeLlamaModelHandle model_ptr, string path_lora, float scale, string? path_base_model, int n_threads);
 
         /// <summary>
-        /// Returns the number of tokens in the KV cache
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx);
-
-        /// <summary>
         /// Sets the current rng seed.
         /// </summary>
         /// <param name="ctx"></param>
@@ -344,6 +336,14 @@ namespace LLama.Native
         public static extern float* llama_get_logits(SafeLLamaContextHandle ctx);
 
         /// <summary>
+        /// Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx);
+
+        /// <summary>
         /// Get the embeddings for the input
         /// shape: [n_embd] (1-dimensional)
         /// </summary>
@@ -466,5 +466,96 @@ namespace LLama.Native
         /// <param name="logCallback"></param>
 		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void llama_log_set(LLamaLogCallback logCallback);
-	}
+
+        /// <summary>
+        /// Remove all tokens data of cells in [c0, c1)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="c0"></param>
+        /// <param name="c1"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_tokens_rm(SafeLLamaContextHandle ctx, int c0, int c1);
+
+        /// <summary>
+        /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="seq"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_seq_rm(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1);
+
+        /// <summary>
+        /// Copy all tokens that belong to the specified sequence to another sequence
+        /// Note that this does not allocate extra KV cache memory - it simply assigns the tokens to the new sequence
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="src"></param>
+        /// <param name="dest"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_seq_cp(SafeLLamaContextHandle ctx, LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1);
+
+        /// <summary>
+        /// Removes all tokens that do not belong to the specified sequence
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="seq"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_seq_keep(SafeLLamaContextHandle ctx, LLamaSeqId seq);
+
+        /// <summary>
+        /// Adds relative position "delta" to all tokens that belong to the specified sequence and have positions in [p0, p1)
+        /// If the KV cache is RoPEd, the KV data is updated accordingly
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="seq"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="delta"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_seq_shift(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta);
+
+        /// <summary>
+        /// Allocates a batch of tokens on the heap
+        /// The batch has to be freed with llama_batch_free()
+        /// If embd != 0, llama_batch.embd will be allocated with size of n_tokens * embd * sizeof(float)
+        /// Otherwise, llama_batch.token will be allocated to store n_tokens llama_token
+        /// The rest of the llama_batch members are allocated with size n_tokens
+        /// All members are left uninitialized
+        /// </summary>
+        /// <param name="n_tokens"></param>
+        /// <param name="embd"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_batch_init(int n_tokens, int embd);
+
+        /// <summary>
+        /// Frees a batch of tokens allocated with llama_batch_init()
+        /// </summary>
+        /// <param name="batch"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_batch_free(LLamaNativeBatch batch);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="batch"></param>
+        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
+        ///  - 0: success<br />
+        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
+        ///  - &lt; 0: error<br />
+        /// </returns>
+        public static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
+
+        /// <summary>
+        /// Set the number of threads used for decoding
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="n_threads">n_threads is the number of threads used for generation (single token)</param>
+        /// <param name="n_threads_batch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
+        /// <returns></returns>
+        public static extern int llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
+    }
 }
