@@ -22,7 +22,7 @@ namespace LLama.Native
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize => ThrowIfDisposed().ContextSize;
+        public int ContextSize => NativeApi.llama_n_ctx(this);
 
         /// <summary>
         /// Dimension of embedding vectors
@@ -52,6 +52,8 @@ namespace LLama.Native
             _model.DangerousAddRef(ref success);
             if (!success)
                 throw new RuntimeError("Failed to increment model refcount");
+
+            
         }
 
         /// <inheritdoc />
@@ -238,7 +240,7 @@ namespace LLama.Native
             }
         }
 
-        public int Decode(SafeLLamaContextHandle ctx, LLamaBatchSafeHandle batch)
+        public int Decode(LLamaBatchSafeHandle batch)
         {
             return NativeApi.llama_decode(this, batch.Batch);
         }

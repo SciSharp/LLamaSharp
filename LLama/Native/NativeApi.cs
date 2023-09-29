@@ -547,6 +547,7 @@ namespace LLama.Native
         ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
         ///  - &lt; 0: error<br />
         /// </returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
 
         /// <summary>
@@ -556,6 +557,7 @@ namespace LLama.Native
         /// <param name="n_threads">n_threads is the number of threads used for generation (single token)</param>
         /// <param name="n_threads_batch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
         /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
     }
 }

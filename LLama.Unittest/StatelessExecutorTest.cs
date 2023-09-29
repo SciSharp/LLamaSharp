@@ -54,7 +54,7 @@ namespace LLama.Unittest
             // with a modified context
             var @params = new InferenceParams()
             {
-                MaxTokens = 100,
+                MaxTokens = 80,
                 TokensKeep = question.Length,
             };
 

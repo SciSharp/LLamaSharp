@@ -382,7 +382,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        public int Eval(List<llama_token> tokens, llama_token pastTokensCount)
+        public int Eval(List<llama_token> tokens, int pastTokensCount)
         {
 #if NET5_0_OR_GREATER
             var span = CollectionsMarshal.AsSpan(tokens);

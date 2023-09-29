@@ -11,5 +11,5 @@ public record struct LLamaPos
 
     public static explicit operator int(LLamaPos pos) => pos.Value;
 
-    public static explicit operator LLamaPos(int value) => new(value);
+    public static implicit operator LLamaPos(int value) => new(value);
 }
