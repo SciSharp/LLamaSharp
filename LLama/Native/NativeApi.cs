@@ -529,7 +529,7 @@ namespace LLama.Native
         /// <param name="n_tokens"></param>
         /// <param name="embd"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_batch_init(int n_tokens, int embd);
+        public static extern LLamaNativeBatch llama_batch_init(int n_tokens, int embd);
 
         /// <summary>
         /// Frees a batch of tokens allocated with llama_batch_init()
