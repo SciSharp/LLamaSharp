@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Examples.Extensions;
 
 namespace LLama.Examples.NewVersion
 {
@@ -35,7 +36,7 @@ namespace LLama.Examples.NewVersion
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
                 prompt = $"Question: {prompt?.Trim()} Answer: ";
-                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
+                await foreach (var text in ex.InferAsync(prompt, inferenceParams).Spinner())
                 {
                     Console.Write(text);
                 }

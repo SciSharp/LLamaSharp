@@ -406,7 +406,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        public int Eval(llama_token[] tokens, llama_token pastTokensCount)
+        public int Eval(llama_token[] tokens, int pastTokensCount)
         {
             return Eval(tokens.AsSpan(), pastTokensCount);
         }
@@ -418,7 +418,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        public int Eval(List<llama_token> tokens, llama_token pastTokensCount)
+        public int Eval(List<llama_token> tokens, int pastTokensCount)
         {
 #if NET5_0_OR_GREATER
             var span = CollectionsMarshal.AsSpan(tokens);
@@ -448,7 +448,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        public int Eval(ReadOnlyMemory<llama_token> tokens, llama_token pastTokensCount)
+        public int Eval(ReadOnlyMemory<llama_token> tokens, int pastTokensCount)
         {
             return Eval(tokens.Span, pastTokensCount);
         }
@@ -460,7 +460,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        public int Eval(ReadOnlySpan<llama_token> tokens, llama_token pastTokensCount)
+        public int Eval(ReadOnlySpan<llama_token> tokens, int pastTokensCount)
         {
             var total = tokens.Length;
             for(var i = 0; i < total; i += Params.BatchSize)

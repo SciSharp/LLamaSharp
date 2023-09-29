@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LLama.Extensions;
 
 namespace LLama
@@ -73,7 +74,6 @@ namespace LLama
             cancellationToken.ThrowIfCancellationRequested();
 
             var antiprompts = inferenceParams?.AntiPrompts.ToArray() ?? Array.Empty<string>();
-            var n_past = 1;
             inferenceParams ??= new InferenceParams();
 
             var lastTokens = new List<llama_token>(inferenceParams.RepeatLastTokensCount);
@@ -81,12 +81,12 @@ namespace LLama
                 lastTokens.Add(0);
 
             var tokens = Context.Tokenize(text).ToList();
-            var n_prompt_tokens = tokens.Count;
 
-            Context.Eval(tokens, n_past);
+            await Task.Run(() => { Context.Eval(tokens, 1); }, cancellationToken)
+                      .ConfigureAwait(false);
 
             lastTokens.AddRange(tokens);
-            n_past += n_prompt_tokens;
+            var n_past = 1 + tokens.Count;
 
             var mu = (float?)null;
             var max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
@@ -104,14 +104,13 @@ namespace LLama
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar);
 
                 lastTokens.Add(id);
-
-                var response = Context.TokenToString(id);
-                yield return response;
+                yield return Context.TokenToString(id);
 
                 tokens.Clear();
                 tokens.Add(id);
 
-                if (EndsWithAntiprompt(lastTokens, antiprompts))
+                // Check if any of the antiprompts have been generated
+                if (lastTokens.TokensEndsWithAnyString(antiprompts, Context))
                     break;
 
                 // when run out of context
@@ -126,19 +125,10 @@ namespace LLama
                     tokens.AddRange(lastTokens.Skip(lastTokens.Count - n_left / 2).Take(n_left / 2));
                 }
 
-                n_past = Context.Eval(tokens, n_past);
+                // ReSharper disable once AccessToModifiedClosure (Justification: n_past is modified inside and outside the capture, but not concurrently)
+                n_past = await Task.Run(() => Context.Eval(tokens, n_past), cancellationToken)
+                                   .ConfigureAwait(false);
             }
-        }
-
-        /// <summary>
-        /// Check if the given tokens list ends with any of the antiprompts
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="antiprompts"></param>
-        /// <returns></returns>
-        private bool EndsWithAntiprompt(IReadOnlyList<llama_token> tokens, IReadOnlyList<string> antiprompts)
-        {
-            return tokens.TokensEndsWithAnyString(antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding);
         }
     }
 }
