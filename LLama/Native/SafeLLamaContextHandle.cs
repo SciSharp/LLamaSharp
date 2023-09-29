@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -235,6 +236,11 @@ namespace LLama.Native
                     return ret == 0;
                 }
             }
+        }
+
+        public int Decode(SafeLLamaContextHandle ctx, LLamaBatchSafeHandle batch)
+        {
+            return NativeApi.llama_decode(this, batch.Batch);
         }
 
         #region state

@@ -4,7 +4,7 @@ namespace LLama.Native;
 
 using llama_token = Int32;
 
-internal class LLamaBatchSafeHandle
+public sealed class LLamaBatchSafeHandle
     : SafeLLamaHandleBase
 {
     private readonly int _embd;

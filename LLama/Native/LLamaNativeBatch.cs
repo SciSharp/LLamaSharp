@@ -11,7 +11,7 @@ using llama_token = Int32;
 /// The provided arrays (i.e. token, embd, pos, etc.) must have size of n_tokens
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct LLamaNativeBatch
+public readonly unsafe struct LLamaNativeBatch
 {
     /// <summary>
     /// The number of items pointed at by pos, seq_id and logits.
@@ -28,7 +28,18 @@ public unsafe struct LLamaNativeBatch
     /// </summary>
     public readonly float* embd;
 
+    /// <summary>
+    /// the positions of the respective token in the sequence
+    /// </summary>
     public readonly LLamaPos* pos;
+
+    /// <summary>
+    /// the sequence to which the respective token belongs
+    /// </summary>
     public readonly LLamaSeqId* seq_id;
+
+    /// <summary>
+    /// if zero, the logits for the respective token will not be output
+    /// </summary>
     public readonly byte* logits;
 }
