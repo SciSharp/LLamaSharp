@@ -69,12 +69,13 @@ namespace LLama.Native
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
+            NativeApi.llama_free(DangerousGetHandle());
+            SetHandle(IntPtr.Zero);
+
             // Decrement refcount on model
             _model?.DangerousRelease();
             _model = null!;
 
-            NativeApi.llama_free(handle);
-            SetHandle(IntPtr.Zero);
             return true;
         }
 
@@ -234,15 +235,14 @@ namespace LLama.Native
         /// </summary>
         /// <param name="tokens">The provided batch of new tokens to process</param>
         /// <param name="n_past">the number of tokens to use from previous eval calls</param>
-        /// <param name="n_threads"></param>
         /// <returns>Returns true on success</returns>
-        public bool Eval(ReadOnlySpan<int> tokens, int n_past, int n_threads)
+        public bool Eval(ReadOnlySpan<int> tokens, int n_past)
         {
             unsafe
             {
                 fixed (int* pinned = tokens)
                 {
-                    return NativeApi.llama_eval_with_pointer(this, pinned, tokens.Length, n_past, n_threads) == 0;
+                    return NativeApi.llama_eval(this, pinned, tokens.Length, n_past) == 0;
                 }
             }
         }

@@ -36,6 +36,16 @@ namespace LLama
         public int ContextSize => NativeHandle.ContextSize;
 
         /// <summary>
+        /// Get the size of this model in bytes
+        /// </summary>
+        public ulong SizeInBytes => NativeHandle.SizeInBytes;
+
+        /// <summary>
+        /// Get the number of parameters in this model
+        /// </summary>
+        public ulong ParameterCount => NativeHandle.ParameterCount;
+
+        /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
         public int EmbeddingSize => NativeHandle.EmbeddingSize;
@@ -53,11 +63,11 @@ namespace LLama
         /// <returns></returns>
         public static LLamaWeights LoadFromFile(IModelParams @params)
         {
-            using var pin = @params.ToLlamaContextParams(out var lparams);
+            using var pin = @params.ToLlamaModelParams(out var lparams);
             var weights = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
 
             if (!string.IsNullOrEmpty(@params.LoraAdapter))
-                weights.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraBase, @params.Threads);
+                weights.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraAdapterScale, @params.LoraBase, @params.Threads);
 
             return new LLamaWeights(weights, @params.Encoding);
         }

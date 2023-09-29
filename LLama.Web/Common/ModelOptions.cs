@@ -14,7 +14,7 @@ namespace LLama.Web.Common
 		/// <summary>
 		/// Model context size (n_ctx)
 		/// </summary>
-		public int ContextSize { get; set; } = 512;
+		public uint ContextSize { get; set; } = 512;
 		/// <summary>
 		/// the GPU that is used for scratch and small tensors
 		/// </summary>
@@ -30,7 +30,7 @@ namespace LLama.Web.Common
 		/// <summary>
 		/// Seed for the random number generator (seed)
 		/// </summary>
-		public int Seed { get; set; } = 1686349486;
+		public uint Seed { get; set; } = 1686349486;
 		/// <summary>
 		/// Use f16 instead of f32 for memory kv (memory_f16)
 		/// </summary>
@@ -59,10 +59,13 @@ namespace LLama.Web.Common
 		/// lora adapter path (lora_adapter)
 		/// </summary>
 		public string LoraAdapter { get; set; } = string.Empty;
-		/// <summary>
-		/// base model path for the lora adapter (lora_base)
-		/// </summary>
-		public string LoraBase { get; set; } = string.Empty;
+
+        public float LoraAdapterScale { get; set; } = 1;
+
+        /// <summary>
+        /// base model path for the lora adapter (lora_base)
+        /// </summary>
+        public string LoraBase { get; set; } = string.Empty;
 		/// <summary>
 		/// Number of threads (-1 = autodetect) (n_threads)
 		/// </summary>
@@ -70,7 +73,7 @@ namespace LLama.Web.Common
 		/// <summary>
 		/// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
 		/// </summary>
-		public int BatchSize { get; set; } = 512;
+		public uint BatchSize { get; set; } = 512;
 
 		/// <summary>
 		/// Whether to convert eos to newline during the inference.
@@ -107,5 +110,10 @@ namespace LLama.Web.Common
         /// The encoding to use for models
         /// </summary>
         public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+        /// <summary>
+        /// Load vocab only (no weights)
+        /// </summary>
+        public bool VocabOnly { get; set; }
     }
 }

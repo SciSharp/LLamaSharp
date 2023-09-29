@@ -22,8 +22,8 @@ namespace LLama
         {
             using var weights = LLamaWeights.LoadFromFile(@params);
 
-            using (@params.ToLlamaContextParams(out var lparams))
-                return SafeLLamaContextHandle.Create(weights.NativeHandle, lparams);
+            @params.ToLlamaContextParams(out var lparams);
+            return SafeLLamaContextHandle.Create(weights.NativeHandle, lparams);
         }
 
         [Obsolete("Use SafeLLamaContextHandle Tokenize method instead")]
@@ -47,11 +47,11 @@ namespace LLama
 
         [Obsolete("Use SafeLLamaContextHandle Eval method instead")]
         #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public static int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past, int n_threads)
+        public static int Eval(SafeLLamaContextHandle ctx, llama_token[] tokens, int startIndex, int n_tokens, int n_past)
         #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             var slice = tokens.AsSpan().Slice(startIndex, n_tokens);
-            return ctx.Eval(slice, n_past, n_threads) ? 0 : 1;
+            return ctx.Eval(slice, n_past) ? 0 : 1;
         }
 
         [Obsolete("Use SafeLLamaContextHandle TokenToString method instead")]

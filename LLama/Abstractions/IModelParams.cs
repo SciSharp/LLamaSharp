@@ -10,7 +10,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// Model context size (n_ctx)
         /// </summary>
-        int ContextSize { get; set; }
+        uint ContextSize { get; set; }
 
         /// <summary>
         /// the GPU that is used for scratch and small tensors
@@ -30,7 +30,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// Seed for the random number generator (seed)
         /// </summary>
-        int Seed { get; set; }
+        uint Seed { get; set; }
 
         /// <summary>
         /// Use f16 instead of f32 for memory kv (memory_f16)
@@ -62,6 +62,8 @@ namespace LLama.Abstractions
         /// </summary>
         string LoraAdapter { get; set; }
 
+        float LoraAdapterScale { get; set; }
+
         /// <summary>
         /// base model path for the lora adapter (lora_base)
         /// </summary>
@@ -75,7 +77,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
         /// </summary>
-        int BatchSize { get; set; }
+        uint BatchSize { get; set; }
 
         /// <summary>
         /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
@@ -107,5 +109,10 @@ namespace LLama.Abstractions
         /// The encoding to use for models
         /// </summary>
         Encoding Encoding { get; set; }
+
+        /// <summary>
+        /// Load vocab only (no weights)
+        /// </summary>
+        bool VocabOnly { get; set; }
     }
 }

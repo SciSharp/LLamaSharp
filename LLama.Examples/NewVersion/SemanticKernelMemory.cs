@@ -22,7 +22,7 @@ namespace LLama.Examples.NewVersion
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
 
-            var seed = 1337;
+            var seed = 1337u;
             // Load weights into memory
             var parameters = new ModelParams(modelPath)
             {

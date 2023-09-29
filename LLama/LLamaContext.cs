@@ -105,7 +105,7 @@ namespace LLama
             _logger = logger;
             _encoding = @params.Encoding;
 
-            using var pin = @params.ToLlamaContextParams(out var lparams);
+            @params.ToLlamaContextParams(out var lparams);
             _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
         }
 
@@ -115,9 +115,9 @@ namespace LLama
         /// <returns></returns>
         public LLamaContext Clone()
         {
-            using var pin = Params.ToLlamaContextParams(out var lparams);
+            Params.ToLlamaContextParams(out var lparams);
             var clone = _ctx.Clone(lparams);
-            return  new LLamaContext(clone, Params);
+            return new LLamaContext(clone, Params);
         }
 
         /// <summary>
@@ -178,19 +178,6 @@ namespace LLama
         }
 
         /// <summary>
-        /// Get the state data as a byte array.
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("Use `GetState` instead, this supports larger states (over 2GB)")]
-        public byte[] GetStateData()
-        {
-            var stateSize = NativeApi.llama_get_state_size(_ctx);
-            byte[] stateMemory = new byte[stateSize];
-            NativeApi.llama_copy_state_data(_ctx, stateMemory);
-            return stateMemory;
-        }
-
-        /// <summary>
         /// Get the state data as an opaque handle
         /// </summary>
         /// <returns></returns>
@@ -198,31 +185,28 @@ namespace LLama
         {
             var stateSize = _ctx.GetStateSize();
 
-            unsafe
+            // Allocate a chunk of memory large enough to hold the entire state
+            var memory = Marshal.AllocHGlobal((nint)stateSize);
+            try
             {
-                // Allocate a chunk of memory large enough to hold the entire state
-                var memory = Marshal.AllocHGlobal((nint)stateSize);
-                try
-                {
-                    // Copy the state data into memory, discover the actual size required
-                    var actualSize = _ctx.GetState(memory, stateSize);
+                // Copy the state data into memory, discover the actual size required
+                var actualSize = _ctx.GetState(memory, stateSize);
 
-                    // Shrink to size
-                    memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
+                // Shrink to size
+                memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
 
-                    // Wrap memory in a "state"
-                    var state = new State(memory);
+                // Wrap memory in a "state"
+                var state = new State(memory);
 
-                    // Set memory to zero, to prevent it being freed in finally block
-                    memory = IntPtr.Zero;
+                // Set memory to zero, to prevent it being freed in finally block
+                memory = IntPtr.Zero;
 
-                    return state;
-                }
-                finally
-                {
-                    if (memory != IntPtr.Zero)
-                        Marshal.FreeHGlobal(memory);
-                }
+                return state;
+            }
+            finally
+            {
+                if (memory != IntPtr.Zero)
+                    Marshal.FreeHGlobal(memory);
             }
         }
 
@@ -245,21 +229,6 @@ namespace LLama
                     view.SafeMemoryMappedViewHandle.ReleasePointer();
                 }
             }
-        }
-
-        /// <summary>
-        /// Load the state from memory.
-        /// </summary>
-        /// <param name="stateData"></param>
-        /// <exception cref="RuntimeError"></exception>
-        public void LoadState(byte[] stateData)
-        {
-            int stateSize = (int)NativeApi.llama_get_state_size(_ctx);
-            if (stateData.Length > stateSize)
-            {
-                throw new RuntimeError("Failed to validate state size.");
-            }
-            NativeApi.llama_set_state_data(_ctx, stateData);
         }
 
         /// <summary>
@@ -463,15 +432,15 @@ namespace LLama
         public int Eval(ReadOnlySpan<llama_token> tokens, llama_token pastTokensCount)
         {
             var total = tokens.Length;
-            for(var i = 0; i < total; i += Params.BatchSize)
+            for(var i = 0; i < total; i += (int)Params.BatchSize)
             {
                 var n_eval = total - i;
                 if (n_eval > Params.BatchSize)
                 {
-                    n_eval = Params.BatchSize;
+                    n_eval = (int)Params.BatchSize;
                 }
 
-                if (!_ctx.Eval(tokens.Slice(i, n_eval), pastTokensCount, Params.Threads))
+                if (!_ctx.Eval(tokens.Slice(i, n_eval), pastTokensCount))
                 {
                     _logger?.LogError($"[LLamaContext] Failed to eval.");
                     throw new RuntimeError("Failed to eval.");

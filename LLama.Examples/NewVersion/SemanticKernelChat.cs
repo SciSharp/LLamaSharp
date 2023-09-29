@@ -1,13 +1,7 @@
-﻿using System.Reflection.Metadata;
-using System.Security.Cryptography;
-using System.Text;
-using LLama.Abstractions;
+﻿using System.Security.Cryptography;
 using LLama.Common;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
-using Microsoft.SemanticKernel.AI.TextCompletion;
 using LLamaSharp.SemanticKernel.ChatCompletion;
-using LLamaSharp.SemanticKernel.TextCompletion;
 
 namespace LLama.Examples.NewVersion
 {
@@ -22,7 +16,7 @@ namespace LLama.Examples.NewVersion
             // Load weights into memory
             var parameters = new ModelParams(modelPath)
             {
-                Seed = RandomNumberGenerator.GetInt32(int.MaxValue),
+                Seed = unchecked((uint)RandomNumberGenerator.GetInt32(int.MaxValue)),
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);

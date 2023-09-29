@@ -15,7 +15,7 @@ namespace LLama.Common
         /// <summary>
         /// Model context size (n_ctx)
         /// </summary>
-        public int ContextSize { get; set; } = 512;
+        public uint ContextSize { get; set; } = 512;
         /// <summary>
         /// the GPU that is used for scratch and small tensors
         /// </summary>
@@ -31,7 +31,7 @@ namespace LLama.Common
         /// <summary>
         /// Seed for the random number generator (seed)
         /// </summary>
-        public int Seed { get; set; } = 1686349486;
+        public uint Seed { get; set; } = 1686349486;
         /// <summary>
         /// Use f16 instead of f32 for memory kv (memory_f16)
         /// </summary>
@@ -56,6 +56,9 @@ namespace LLama.Common
         /// lora adapter path (lora_adapter)
         /// </summary>
         public string LoraAdapter { get; set; } = string.Empty;
+
+        public float LoraAdapterScale { get; set; } = 1;
+
         /// <summary>
         /// base model path for the lora adapter (lora_base)
         /// </summary>
@@ -67,7 +70,7 @@ namespace LLama.Common
         /// <summary>
         /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
         /// </summary>
-        public int BatchSize { get; set; } = 512;
+        public uint BatchSize { get; set; } = 512;
 
         /// <summary>
         /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
@@ -94,6 +97,11 @@ namespace LLama.Common
 		/// Use experimental mul_mat_q kernels
 		/// </summary>
 		public bool MulMatQ { get; set; }
+
+        /// <summary>
+        /// Load vocab only (no weights)
+        /// </summary>
+        public bool VocabOnly { get; set; }
 
         /// <summary>
         /// The encoding to use to convert text for the model
@@ -138,10 +146,10 @@ namespace LLama.Common
         /// <param name="mulMatQ">Use experimental mul_mat_q kernels</param>
         /// <param name="encoding">The encoding to use to convert text for the model</param>
         [Obsolete("Use object initializer to set all optional parameters")]
-        public ModelParams(string modelPath, int contextSize = 512, int gpuLayerCount = 20,
-                           int seed = 1337, bool useFp16Memory = true,
+        public ModelParams(string modelPath, uint contextSize = 512, int gpuLayerCount = 20,
+                           uint seed = 1337, bool useFp16Memory = true,
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
-                           string loraAdapter = "", string loraBase = "", int threads = -1, int batchSize = 512,
+                           string loraAdapter = "", string loraBase = "", int threads = -1, uint batchSize = 512,
                            bool embeddingMode = false,
                            float ropeFrequencyBase = 10000.0f, float ropeFrequencyScale = 1f, bool mulMatQ = false,
                            string encoding = "UTF-8")

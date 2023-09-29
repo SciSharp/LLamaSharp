@@ -27,7 +27,7 @@ namespace LLama.Unittest
         public void BasicModelProperties()
         {
             Assert.Equal(32000, _model.VocabCount);
-            Assert.Equal(2048, _model.ContextSize);
+            Assert.Equal(4096, _model.ContextSize);
             Assert.Equal(4096, _model.EmbeddingSize);
             Assert.Equal(Encoding.UTF8, _model.Encoding);
         }

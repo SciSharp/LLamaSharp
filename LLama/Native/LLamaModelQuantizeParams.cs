@@ -36,5 +36,15 @@ namespace LLama.Native
             set => _quantize_output_tensor = Convert.ToSByte(value);
         }
         private sbyte _quantize_output_tensor;
+
+        /// <summary>
+        /// only copy tensors - ftype, allow_requantize and quantize_output_tensor are ignored
+        /// </summary>
+        public bool only_copy
+        {
+            get => Convert.ToBoolean(_only_copy);
+            set => _only_copy = Convert.ToSByte(value);
+        }
+        private sbyte _only_copy;
     }
 }
