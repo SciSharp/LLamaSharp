@@ -13,7 +13,6 @@ namespace LLama.Unittest
             {
                 BatchSize = 17,
                 ContextSize = 42,
-                LoraAdapter = "adapter",
                 Seed = 42,
                 GpuLayerCount = 111
             };
@@ -31,9 +30,13 @@ namespace LLama.Unittest
             {
                 BatchSize = 17,
                 ContextSize = 42,
-                LoraAdapter = "adapter",
                 Seed = 42,
-                GpuLayerCount = 111
+                GpuLayerCount = 111,
+                LoraAdapters =
+                {
+                    new("abc", 1),
+                    new("def", 0)
+                }
             };
 
             var settings = new Newtonsoft.Json.JsonSerializerSettings();

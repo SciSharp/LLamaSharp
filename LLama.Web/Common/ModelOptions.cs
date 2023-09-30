@@ -4,7 +4,7 @@ using LLama.Abstractions;
 namespace LLama.Web.Common
 {
     public class ModelOptions
-        : IModelParams
+        : ILLamaParams
     {
       
         public string Name { get; set; }
@@ -51,16 +51,11 @@ namespace LLama.Web.Common
 		/// Model path (model)
 		/// </summary>
 		public string ModelPath { get; set; }
-		/// <summary>
-		/// model alias
-		/// </summary>
-		public string ModelAlias { get; set; } = "unknown";
-		/// <summary>
-		/// lora adapter path (lora_adapter)
-		/// </summary>
-		public string LoraAdapter { get; set; } = string.Empty;
 
-        public float LoraAdapterScale { get; set; } = 1;
+		/// <summary>
+		/// List of LoRAs to apply
+		/// </summary>
+        public AdapterCollection LoraAdapters { get; set; } = new();
 
         /// <summary>
         /// base model path for the lora adapter (lora_base)

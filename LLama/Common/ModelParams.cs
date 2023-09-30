@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,7 +11,7 @@ namespace LLama.Common
     /// The parameters for initializing a LLama model.
     /// </summary>
     public record ModelParams
-        : IModelParams
+        : ILLamaParams
     {
         /// <summary>
         /// Model context size (n_ctx)
@@ -20,10 +21,7 @@ namespace LLama.Common
         /// the GPU that is used for scratch and small tensors
         /// </summary>
         public int MainGpu { get; set; } = 0;
-        /// <summary>
-        /// if true, reduce VRAM usage at the cost of performance
-        /// </summary>
-        public bool LowVram { get; set; } = false;
+
         /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
         /// </summary>
@@ -52,17 +50,17 @@ namespace LLama.Common
         /// Model path (model)
         /// </summary>
         public string ModelPath { get; set; }
-        /// <summary>
-        /// lora adapter path (lora_adapter)
-        /// </summary>
-        public string LoraAdapter { get; set; } = string.Empty;
 
-        public float LoraAdapterScale { get; set; } = 1;
+        /// <summary>
+        /// List of LoRAs to apply
+        /// </summary>
+        public AdapterCollection LoraAdapters { get; set; } = new();
 
         /// <summary>
         /// base model path for the lora adapter (lora_base)
         /// </summary>
         public string LoraBase { get; set; } = string.Empty;
+
         /// <summary>
         /// Number of threads (-1 = autodetect) (n_threads)
         /// </summary>
@@ -162,7 +160,6 @@ namespace LLama.Common
             UseMemoryLock = useMemoryLock;
             Perplexity = perplexity;
             ModelPath = modelPath;
-            LoraAdapter = loraAdapter;
             LoraBase = loraBase;
             Threads = threads == -1 ? Math.Max(Environment.ProcessorCount / 2, 1) : threads;
             BatchSize = batchSize;
@@ -171,6 +168,7 @@ namespace LLama.Common
             RopeFrequencyScale = ropeFrequencyScale;
             MulMatQ = mulMatQ;
             Encoding = Encoding.GetEncoding(encoding);
+            LoraAdapters.Add(new LoraAdapter(loraAdapter, 1));
         }
     }
 

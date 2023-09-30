@@ -42,9 +42,9 @@ namespace LLama
         public int EmbeddingSize => _ctx.EmbeddingSize;
 
         /// <summary>
-        /// The model params set for this model.
+        /// The context params set for this context
         /// </summary>
-        public IModelParams Params { get; set; }
+        public IContextParams Params { get; set; }
 
         /// <summary>
         /// The native handle, which is used to be passed to the native APIs
@@ -57,24 +57,7 @@ namespace LLama
         /// </summary>
         public Encoding Encoding => _encoding;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="params">Model params.</param>
-        /// <param name="logger">The logger.</param>
-        [Obsolete("Use the LLamaWeights.CreateContext instead")]
-        public LLamaContext(IModelParams @params, ILogger? logger = null)
-        {
-            Params = @params;
-
-            _logger = logger;
-            _encoding = @params.Encoding;
-
-            _logger?.LogInformation($"[LLamaContext] Initializing LLama model with params: {this.Params}");
-            _ctx = Utils.InitLLamaContextFromModelParams(Params);
-        }
-
-        internal LLamaContext(SafeLLamaContextHandle nativeContext, IModelParams @params, ILogger? logger = null)
+        internal LLamaContext(SafeLLamaContextHandle nativeContext, IContextParams @params, ILogger? logger = null)
         {
             Params = @params;
 
@@ -90,7 +73,7 @@ namespace LLama
         /// <param name="params"></param>
         /// <param name="logger"></param>
         /// <exception cref="ObjectDisposedException"></exception>
-        public LLamaContext(LLamaWeights model, IModelParams @params, ILogger? logger = null)
+        public LLamaContext(LLamaWeights model, IContextParams @params, ILogger? logger = null)
         {
             if (model.NativeHandle.IsClosed)
                 throw new ObjectDisposedException("Cannot create context, model weights have been disposed");

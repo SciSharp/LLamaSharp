@@ -19,7 +19,7 @@ namespace LLama.Extensions
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public static void ToLlamaContextParams(this IModelParams @params, out LLamaContextParams result)
+        public static void ToLlamaContextParams(this IContextParams @params, out LLamaContextParams result)
         {
             result = NativeApi.llama_context_default_params();
             result.n_ctx = @params.ContextSize;

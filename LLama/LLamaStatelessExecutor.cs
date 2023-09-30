@@ -20,7 +20,7 @@ namespace LLama
         : ILLamaExecutor
     {
         private readonly LLamaWeights _weights;
-        private readonly IModelParams _params;
+        private readonly IContextParams _params;
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -32,24 +32,10 @@ namespace LLama
         /// </summary>
         /// <param name="weights"></param>
         /// <param name="params"></param>
-        public StatelessExecutor(LLamaWeights weights, IModelParams @params)
+        public StatelessExecutor(LLamaWeights weights, IContextParams @params)
         {
             _weights = weights;
             _params = @params;
-
-            Context = _weights.CreateContext(_params);
-            Context.Dispose();
-        }
-
-        /// <summary>
-        /// Create a new stateless executor which will use the model used to create the given context
-        /// </summary>
-        /// <param name="context"></param>
-        [Obsolete("Use the constructor which automatically creates contexts using the LLamaWeights")]
-        public StatelessExecutor(LLamaContext context)
-        {
-            _weights = new LLamaWeights(context.NativeHandle.ModelHandle, context.Params.Encoding);
-            _params = context.Params;
 
             Context = _weights.CreateContext(_params);
             Context.Dispose();

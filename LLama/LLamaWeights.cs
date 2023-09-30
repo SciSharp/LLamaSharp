@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using LLama.Abstractions;
 using LLama.Extensions;
 using LLama.Native;
@@ -19,11 +18,6 @@ namespace LLama
         /// </summary>
         /// <remarks>Be careful how you use this!</remarks>
         public SafeLlamaModelHandle NativeHandle => _weights;
-
-        /// <summary>
-        /// Encoding to use to convert text into bytes for the model
-        /// </summary>
-        public Encoding Encoding { get; }
 
         /// <summary>
         /// Total number of tokens in vocabulary of this model
@@ -50,10 +44,9 @@ namespace LLama
         /// </summary>
         public int EmbeddingSize => NativeHandle.EmbeddingSize;
 
-        internal LLamaWeights(SafeLlamaModelHandle weights, Encoding encoding)
+        internal LLamaWeights(SafeLlamaModelHandle weights)
         {
             _weights = weights;
-            Encoding = encoding;
         }
 
         /// <summary>
@@ -66,10 +59,17 @@ namespace LLama
             using var pin = @params.ToLlamaModelParams(out var lparams);
             var weights = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
 
-            if (!string.IsNullOrEmpty(@params.LoraAdapter))
-                weights.ApplyLoraFromFile(@params.LoraAdapter, @params.LoraAdapterScale, @params.LoraBase, @params.Threads);
+            foreach (var adapter in @params.LoraAdapters)
+            {
+                if (string.IsNullOrEmpty(adapter.Path))
+                    continue;
+                if (adapter.Scale <= 0)
+                    continue;
 
-            return new LLamaWeights(weights, @params.Encoding);
+                weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase, @params.Threads);
+            }
+
+            return new LLamaWeights(weights);
         }
 
         /// <inheritdoc />
@@ -83,7 +83,7 @@ namespace LLama
         /// </summary>
         /// <param name="params"></param>
         /// <returns></returns>
-        public LLamaContext CreateContext(IModelParams @params)
+        public LLamaContext CreateContext(IContextParams @params)
         {
             return new LLamaContext(this, @params);
         }

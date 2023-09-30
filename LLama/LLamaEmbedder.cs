@@ -18,19 +18,22 @@ namespace LLama
         /// </summary>
         public int EmbeddingSize => _ctx.EmbeddingSize;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="params"></param>
-        public LLamaEmbedder(IModelParams @params)
+        public LLamaEmbedder(ILLamaParams allParams)
+            : this(allParams, allParams)
         {
-            @params.EmbeddingMode = true;
-            using var weights = LLamaWeights.LoadFromFile(@params);
-            _ctx = weights.CreateContext(@params);
         }
 
-        public LLamaEmbedder(LLamaWeights weights, IModelParams @params)
+        public LLamaEmbedder(IModelParams modelParams, IContextParams contextParams)
         {
+            using var weights = LLamaWeights.LoadFromFile(modelParams);
+
+            contextParams.EmbeddingMode = true;
+            _ctx = weights.CreateContext(contextParams);
+        }
+
+        public LLamaEmbedder(LLamaWeights weights, IContextParams @params)
+        {
+            @params.EmbeddingMode = true;
             _ctx = weights.CreateContext(@params);
         }
 
