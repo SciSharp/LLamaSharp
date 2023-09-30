@@ -94,35 +94,6 @@ namespace LLama.Native
 
             return new(ctx_ptr, model);
         }
-
-        /// <summary>
-        /// Create a new llama context with a clone of the current llama context state
-        /// </summary>
-        /// <param name="lparams"></param>
-        /// <returns></returns>
-        public SafeLLamaContextHandle Clone(LLamaContextParams lparams)
-        {
-            // Allocate space to read the state of the current context
-            var stateSize = GetStateSize();
-            var stateMemory = Marshal.AllocHGlobal((nint)stateSize);
-            try
-            {
-                // Copy state from this context into memory
-                GetState(stateMemory, stateSize);
-
-                // Create a new context
-                var newCtx = Create(ModelHandle, lparams);
-
-                // Copy state into new context
-                newCtx.SetState(stateMemory);
-
-                return newCtx;
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(stateMemory);
-            }
-        }
         #endregion
 
         /// <summary>

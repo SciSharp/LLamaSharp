@@ -105,17 +105,6 @@ namespace LLama
         }
 
         /// <summary>
-        /// Create a copy of the current state of this context
-        /// </summary>
-        /// <returns></returns>
-        public LLamaContext Clone()
-        {
-            Params.ToLlamaContextParams(out var lparams);
-            var clone = _ctx.Clone(lparams);
-            return new LLamaContext(clone, Params);
-        }
-
-        /// <summary>
         /// Tokenize a string.
         /// </summary>
         /// <param name="text"></param>
