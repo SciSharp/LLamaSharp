@@ -12,10 +12,16 @@ namespace LLama.WebAPI.Services
 
         public StatelessChatService(IConfiguration configuration)
         {
-            _context = new LLamaContext(new ModelParams(configuration["ModelPath"])
+            var @params = new Common.ModelParams(configuration["ModelPath"])
             {
                 ContextSize = 512,
-            });
+            };
+
+            // todo: share weights from a central service
+            using var weights = LLamaWeights.LoadFromFile(@params);
+
+            _context = new LLamaContext(weights, @params);
+
             // TODO: replace with a stateless executor
             _session = new ChatSession(new InteractiveExecutor(_context))
                         .WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Assistant:" }, redundancyLength: 8))
