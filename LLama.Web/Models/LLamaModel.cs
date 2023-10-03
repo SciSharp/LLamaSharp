@@ -2,12 +2,12 @@
 using LLama.Web.Common;
 using System.Collections.Concurrent;
 
-namespace LLama.Web
+namespace LLama.Web.Models
 {
     /// <summary>
     /// Wrapper class for LLamaSharp LLamaWeights
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IDisposable" />
     public class LLamaModel : IDisposable
     {
         private readonly ModelOptions _config;

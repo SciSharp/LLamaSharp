@@ -1,5 +1,6 @@
 ﻿using LLama.Web.Async;
 using LLama.Web.Common;
+using LLama.Web.Models;
 using System.Collections.Concurrent;
 
 namespace LLama.Web.Services

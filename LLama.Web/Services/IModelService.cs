@@ -1,4 +1,5 @@
 ﻿using LLama.Web.Common;
+using LLama.Web.Models;
 
 namespace LLama.Web.Services
 {

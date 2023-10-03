@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LLama.Web</title>
+    <title>@ViewData["Title"] - LLamaSharp.Web</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link href="~/lib/bootstrap/dist/css/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -13,24 +13,26 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow ">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">LLama.Web</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">LLamaSharp.Web</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 justify-content-between">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-dark" asp-page="/Index"></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Executor/Interactive">Interactive</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Executor/Instruct">Instruct</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Executor/Stateless">Stateless</a>
+                            <a class="nav-link text-dark" href="https://github.com/SciSharp/LLamaSharp" target="_blank">
+
+                                <div class="d-flex flex-row align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-github"></i>
+                                        <span>LLamaSharp</span>
+                                    </h5>
+                                </div>
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -38,14 +40,14 @@
         </nav>
     </header>
 
-        <main class="container" role="main" >
-            @RenderBody()
-        </main>
+    <main class="container" role="main">
+        @RenderBody()
+    </main>
 
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2023 - LLama.Web
+            &copy; 2023 - LLamaSharp.Web
         </div>
     </footer>
 
