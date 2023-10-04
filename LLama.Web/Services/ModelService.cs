@@ -1,6 +1,7 @@
 ﻿using LLama.Web.Async;
 using LLama.Web.Common;
 using LLama.Web.Models;
+using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace LLama.Web.Services
@@ -11,10 +12,10 @@ namespace LLama.Web.Services
     /// </summary>
     public class ModelService : IModelService
     {
-        private readonly ILogger _llamaLogger;
         private readonly AsyncLock _modelLock;
         private readonly AsyncLock _contextLock;
         private readonly LLamaOptions _configuration;
+        private readonly ILogger<ModelService> _llamaLogger;
         private readonly ConcurrentDictionary<string, LLamaModel> _modelInstances;
 
 
@@ -23,12 +24,12 @@ namespace LLama.Web.Services
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
-        public ModelService(LLamaOptions configuration, ILogger llamaLogger)
+        public ModelService(IOptions<LLamaOptions> configuration, ILogger<ModelService> llamaLogger)
         {
             _llamaLogger = llamaLogger;
             _modelLock = new AsyncLock();
             _contextLock = new AsyncLock();
-            _configuration = configuration;
+            _configuration = configuration.Value;
             _modelInstances = new ConcurrentDictionary<string, LLamaModel>();
         }
 

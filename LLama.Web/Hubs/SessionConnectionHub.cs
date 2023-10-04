@@ -37,7 +37,7 @@ namespace LLama.Web.Hubs
 
 
         [HubMethodName("LoadModel")]
-        public async Task OnLoadModel(ISessionConfig sessionConfig, InferenceOptions inferenceConfig)
+        public async Task OnLoadModel(SessionConfig sessionConfig, InferenceOptions inferenceConfig)
         {
             _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}", Context.ConnectionId);
             await _modelSessionService.CloseAsync(Context.ConnectionId);

@@ -33,7 +33,7 @@ namespace LLama.Web
         /// <returns>Combined list with duplicates removed</returns>
         private static List<string> CombineCSV(List<string> list, string csv)
         {
-            var results = list?.Count == 0
+            var results = list is null || list.Count == 0
                 ? CommaSeperatedToList(csv)
                 : CommaSeperatedToList(csv).Concat(list);
             return results

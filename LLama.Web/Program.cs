@@ -14,6 +14,8 @@ namespace LLama.Web
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddSignalR();
+            builder.Logging.ClearProviders();
+            builder.Services.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddConsole());
 
             // Load InteractiveOptions
             builder.Services.AddOptions<LLamaOptions>()

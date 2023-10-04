@@ -43,8 +43,8 @@ const createConnectionSessionChat = () => {
             return;
 
         if (response.tokenType == Enums.TokenType.Begin) {
-            const uniqueId = randomString();
-            outputContainer.append(Mustache.render(outputBotTemplate, { id: uniqueId, ...response }));
+            let uniqueId = randomString();
+            outputContainer.append(Mustache.render(outputBotTemplate, { uniqueId: uniqueId, ...response }));
             responseContainer = $(`#${uniqueId}`);
             responseContent = responseContainer.find(".content");
             responseFirstToken = true;
@@ -102,6 +102,7 @@ const createConnectionSessionChat = () => {
     }
 
     const unloadModel = async () => {
+        await cancelPrompt();
         disableControls();
         enablePromptControls();
         $("#load").removeAttr("disabled");
