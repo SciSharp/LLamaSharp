@@ -2,14 +2,14 @@
 
 namespace LLama.Web
 {
-    public static  class Extensioms
+    public static  class Extensions
     {
         /// <summary>
         /// Combines the AntiPrompts list and AntiPrompt csv 
         /// </summary>
         /// <param name="sessionConfig">The session configuration.</param>
         /// <returns>Combined AntiPrompts with duplicates removed</returns>
-        public static List<string> GetAntiPrompts(this Common.SessionOptions sessionConfig)
+        public static List<string> GetAntiPrompts(this ISessionConfig sessionConfig)
         {
             return CombineCSV(sessionConfig.AntiPrompts, sessionConfig.AntiPrompt);
         }
@@ -19,7 +19,7 @@ namespace LLama.Web
         /// </summary>
         /// <param name="sessionConfig">The session configuration.</param>
         /// <returns>Combined OutputFilters with duplicates removed</returns>
-        public static List<string> GetOutputFilters(this Common.SessionOptions sessionConfig)
+        public static List<string> GetOutputFilters(this ISessionConfig sessionConfig)
         {
             return CombineCSV(sessionConfig.OutputFilters, sessionConfig.OutputFilter);
         }

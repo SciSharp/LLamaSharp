@@ -18,14 +18,14 @@ namespace LLama.Web.Pages
         public LLamaOptions Options { get; set; }
 
         [BindProperty]
-        public Common.SessionOptions SessionOptions { get; set; }
+        public ISessionConfig SessionConfig { get; set; }
 
         [BindProperty]
         public InferenceOptions InferenceOptions { get; set; }
 
         public void OnGet()
         {
-            SessionOptions = new Common.SessionOptions
+            SessionConfig = new SessionConfig
             {
                 Prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
                 AntiPrompt = "User:",

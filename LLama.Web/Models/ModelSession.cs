@@ -9,21 +9,21 @@ namespace LLama.Web.Models
         private readonly LLamaModel _model;
         private readonly LLamaContext _context;
         private readonly ILLamaExecutor _executor;
-        private readonly Common.SessionOptions _sessionParams;
+        private readonly ISessionConfig _sessionConfig;
         private readonly ITextStreamTransform _outputTransform;
         private readonly InferenceOptions _defaultInferenceConfig;
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public ModelSession(LLamaModel model, LLamaContext context, string sessionId, Common.SessionOptions sessionOptions, InferenceOptions inferenceOptions = null)
+        public ModelSession(LLamaModel model, LLamaContext context, string sessionId, ISessionConfig sessionConfig, InferenceOptions inferenceOptions = null)
         {
             _model = model;
             _context = context;
             _sessionId = sessionId;
-            _sessionParams = sessionOptions;
+            _sessionConfig = sessionConfig;
             _defaultInferenceConfig = inferenceOptions ?? new InferenceOptions();
-            _outputTransform = CreateOutputFilter(_sessionParams);
-            _executor = CreateExecutor(_model, _context, _sessionParams);
+            _outputTransform = CreateOutputFilter();
+            _executor = CreateExecutor();
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace LLama.Web.Models
         /// <summary>
         /// Gets the name of the model.
         /// </summary>
-        public string ModelName => _sessionParams.Model;
+        public string ModelName => _sessionConfig.Model;
 
         /// <summary>
         /// Gets the context.
@@ -44,7 +44,7 @@ namespace LLama.Web.Models
         /// <summary>
         /// Gets the session configuration.
         /// </summary>
-        public Common.SessionOptions SessionConfig => _sessionParams;
+        public ISessionConfig SessionConfig => _sessionConfig;
 
         /// <summary>
         /// Gets the inference parameters.
@@ -60,16 +60,16 @@ namespace LLama.Web.Models
         /// <param name="cancellationToken">The cancellation token.</param>
         internal async Task InitializePrompt(InferenceOptions inferenceConfig = null, CancellationToken cancellationToken = default)
         {
-            if (_sessionParams.ExecutorType == LLamaExecutorType.Stateless)
+            if (_sessionConfig.ExecutorType == LLamaExecutorType.Stateless)
                 return;
 
-            if (string.IsNullOrEmpty(_sessionParams.Prompt))
+            if (string.IsNullOrEmpty(_sessionConfig.Prompt))
                 return;
 
             // Run Initial prompt
             var inferenceParams = ConfigureInferenceParams(inferenceConfig);
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            await foreach (var _ in _executor.InferAsync(_sessionParams.Prompt, inferenceParams, _cancellationTokenSource.Token))
+            await foreach (var _ in _executor.InferAsync(_sessionConfig.Prompt, inferenceParams, _cancellationTokenSource.Token))
             {
                 // We dont really need the response of the initial prompt, so exit on first token
                 break;
@@ -114,13 +114,13 @@ namespace LLama.Web.Models
         private IInferenceParams ConfigureInferenceParams(InferenceOptions inferenceConfig)
         {
             var inferenceParams = inferenceConfig ?? _defaultInferenceConfig;
-            inferenceParams.AntiPrompts = _sessionParams.GetAntiPrompts();
+            inferenceParams.AntiPrompts = _sessionConfig.GetAntiPrompts();
             return inferenceParams;
         }
 
-        private ITextStreamTransform CreateOutputFilter(Common.SessionOptions sessionConfig)
+        private ITextStreamTransform CreateOutputFilter()
         {
-            var outputFilters = sessionConfig.GetOutputFilters();
+            var outputFilters = _sessionConfig.GetOutputFilters();
             if (outputFilters.Count > 0)
                 return new LLamaTransforms.KeywordTextOutputStreamTransform(outputFilters);
 
@@ -128,9 +128,9 @@ namespace LLama.Web.Models
         }
 
 
-        private ILLamaExecutor CreateExecutor(LLamaModel model, LLamaContext context, Common.SessionOptions sessionConfig)
+        private ILLamaExecutor CreateExecutor()
         {
-            return sessionConfig.ExecutorType switch
+            return _sessionConfig.ExecutorType switch
             {
                 LLamaExecutorType.Interactive => new InteractiveExecutor(_context),
                 LLamaExecutorType.Instruct => new InstructExecutor(_context),

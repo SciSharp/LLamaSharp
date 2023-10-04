@@ -24,7 +24,7 @@ namespace LLama.Web.Services
         /// Creates a new ModelSession
         /// </summary>
         /// <param name="sessionId">The session identifier.</param>
-        /// <param name="sessionOptions">The session configuration.</param>
+        /// <param name="sessionConfig">The session configuration.</param>
         /// <param name="inferenceOptions">The default inference configuration, will be used for all inference where no infer configuration is supplied.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
@@ -33,7 +33,7 @@ namespace LLama.Web.Services
         /// or
         /// Failed to create model session
         /// </exception>
-        Task<ModelSession> CreateAsync(string sessionId, Common.SessionOptions sessionOptions, InferenceOptions inferenceOptions = null, CancellationToken cancellationToken = default);
+        Task<ModelSession> CreateAsync(string sessionId, ISessionConfig sessionConfig, InferenceOptions inferenceOptions = null, CancellationToken cancellationToken = default);
 
 
         /// <summary>

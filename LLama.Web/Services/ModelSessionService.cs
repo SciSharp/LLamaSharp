@@ -65,7 +65,7 @@ namespace LLama.Web.Services
         /// or
         /// Failed to create model session
         /// </exception>
-        public async Task<ModelSession> CreateAsync(string sessionId, Common.SessionOptions sessionConfig, InferenceOptions inferenceConfig = null, CancellationToken cancellationToken = default)
+        public async Task<ModelSession> CreateAsync(string sessionId, ISessionConfig sessionConfig, InferenceOptions inferenceConfig = null, CancellationToken cancellationToken = default)
         {
             if (_modelSessions.TryGetValue(sessionId, out _))
                 throw new Exception($"Session with id {sessionId} already exists");

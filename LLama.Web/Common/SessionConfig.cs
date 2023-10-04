@@ -1,6 +1,6 @@
 ﻿namespace LLama.Web.Common
 {
-    public class SessionOptions
+    public class SessionConfig : ISessionConfig
     {
         public string Model { get; set; }
         public string Prompt { get; set; }

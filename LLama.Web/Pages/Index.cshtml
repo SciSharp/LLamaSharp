@@ -24,11 +24,11 @@
                 <div class="d-flex flex-column m-1">
                     <div class="d-flex flex-column mb-2">
                         <small>Model</small>
-                        @Html.DropDownListFor(m => m.SessionOptions.Model, new SelectList(Model.Options.Models, "Name", "Name"), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
+                        @Html.DropDownListFor(m => m.SessionConfig.Model, new SelectList(Model.Options.Models, "Name", "Name"), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
                     </div>
                     <div class="d-flex flex-column mb-2">
                         <small>Inference Type</small>
-                        @Html.DropDownListFor(m => m.SessionOptions.ExecutorType, Html.GetEnumSelectList<LLamaExecutorType>(), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
+                        @Html.DropDownListFor(m => m.SessionConfig.ExecutorType, Html.GetEnumSelectList<LLamaExecutorType>(), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
                     </div>
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -40,17 +40,17 @@
                         <div class="tab-pane fade show active" id="nav-prompt" role="tabpanel" aria-labelledby="nav-prompt-tab">
                             <div class="d-flex flex-column mb-2">
                                 <small>Prompt</small>
-                                @Html.TextAreaFor(m => Model.SessionOptions.Prompt, new { @type="text", @class = "form-control prompt-control", rows=8})
+                                @Html.TextAreaFor(m => Model.SessionConfig.Prompt, new { @type="text", @class = "form-control prompt-control", rows=8})
                             </div>
 
                             <div class="d-flex flex-column mb-2">
                                 <small>AntiPrompts</small>
-                                @Html.TextBoxFor(m => Model.SessionOptions.AntiPrompt, new { @type="text", @class = "form-control prompt-control"})
+                                @Html.TextBoxFor(m => Model.SessionConfig.AntiPrompt, new { @type="text", @class = "form-control prompt-control"})
                             </div>
 
                             <div class="d-flex flex-column mb-2">
                                 <small>OutputFilter</small>
-                                @Html.TextBoxFor(m => Model.SessionOptions.OutputFilter, new { @type="text", @class = "form-control prompt-control"})
+                                @Html.TextBoxFor(m => Model.SessionConfig.OutputFilter, new { @type="text", @class = "form-control prompt-control"})
                             </div>
                         </div>
                         <div class="tab-pane fade" id="nav-params" role="tabpanel" aria-labelledby="nav-params-tab">
