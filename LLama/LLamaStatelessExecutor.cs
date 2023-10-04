@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -19,6 +20,7 @@ namespace LLama
     public class StatelessExecutor
         : ILLamaExecutor
     {
+        private readonly ILogger? _logger;
         private readonly LLamaWeights _weights;
         private readonly IModelParams _params;
 
@@ -32,8 +34,10 @@ namespace LLama
         /// </summary>
         /// <param name="weights"></param>
         /// <param name="params"></param>
-        public StatelessExecutor(LLamaWeights weights, IModelParams @params)
+        /// <param name="logger"></param>
+        public StatelessExecutor(LLamaWeights weights, IModelParams @params, ILogger logger = null!)
         {
+            _logger = logger;
             _weights = weights;
             _params = @params;
 

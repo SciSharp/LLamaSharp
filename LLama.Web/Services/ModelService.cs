@@ -11,6 +11,7 @@ namespace LLama.Web.Services
     /// </summary>
     public class ModelService : IModelService
     {
+        private readonly ILogger _llamaLogger;
         private readonly AsyncLock _modelLock;
         private readonly AsyncLock _contextLock;
         private readonly LLamaOptions _configuration;
@@ -22,8 +23,9 @@ namespace LLama.Web.Services
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
-        public ModelService(LLamaOptions configuration)
+        public ModelService(LLamaOptions configuration, ILogger llamaLogger)
         {
+            _llamaLogger = llamaLogger;
             _modelLock = new AsyncLock();
             _contextLock = new AsyncLock();
             _configuration = configuration;
@@ -52,7 +54,7 @@ namespace LLama.Web.Services
                     await UnloadModels();
 
 
-                model = new LLamaModel(modelOptions);
+                model = new LLamaModel(modelOptions, _llamaLogger);
                 _modelInstances.TryAdd(modelOptions.Name, model);
                 return model;
             }

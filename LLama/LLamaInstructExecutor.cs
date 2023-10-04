@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LLama.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -27,10 +28,11 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="logger"></param>
         /// <param name="instructionPrefix"></param>
         /// <param name="instructionSuffix"></param>
-        public InstructExecutor(LLamaContext context, string instructionPrefix = "\n\n### Instruction:\n\n",
-            string instructionSuffix = "\n\n### Response:\n\n") : base(context)
+        public InstructExecutor(LLamaContext context, ILogger logger = null!, string instructionPrefix = "\n\n### Instruction:\n\n",
+            string instructionSuffix = "\n\n### Response:\n\n") : base(context, logger)
         {
             _inp_pfx = Context.Tokenize(instructionPrefix, true);
             _inp_sfx = Context.Tokenize(instructionSuffix, false);

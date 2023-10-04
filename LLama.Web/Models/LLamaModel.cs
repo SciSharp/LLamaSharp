@@ -10,6 +10,7 @@ namespace LLama.Web.Models
     /// <seealso cref="IDisposable" />
     public class LLamaModel : IDisposable
     {
+        private readonly ILogger _llamaLogger;
         private readonly ModelOptions _config;
         private readonly LLamaWeights _weights;
         private readonly ConcurrentDictionary<string, LLamaContext> _contexts;
@@ -18,9 +19,10 @@ namespace LLama.Web.Models
         /// Initializes a new instance of the <see cref="LLamaModel"/> class.
         /// </summary>
         /// <param name="modelParams">The model parameters.</param>
-        public LLamaModel(ModelOptions modelParams)
+        public LLamaModel(ModelOptions modelParams, ILogger llamaLogger)
         {
             _config = modelParams;
+            _llamaLogger = llamaLogger;
             _weights = LLamaWeights.LoadFromFile(modelParams);
             _contexts = new ConcurrentDictionary<string, LLamaContext>();
         }
@@ -56,7 +58,7 @@ namespace LLama.Web.Models
             if (_config.MaxInstances > -1 && ContextCount >= _config.MaxInstances)
                 throw new Exception($"Maximum model instances reached");
 
-            context = _weights.CreateContext(_config);
+            context = _weights.CreateContext(_config, _llamaLogger);
             if (_contexts.TryAdd(contextName, context))
                 return Task.FromResult(context);
 
