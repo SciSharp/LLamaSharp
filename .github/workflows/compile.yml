@@ -131,7 +131,7 @@ jobs:
       matrix:
         include:
           - build: 'metal'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_NATIVE=OFF -DCMAKE_OSX_ARCHITECTURES=arm64'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
