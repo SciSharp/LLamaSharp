@@ -40,7 +40,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
-          cmake --build . --config Release
+          cmake --build . --config Release -j $(nproc)
       - uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.so
@@ -72,7 +72,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
-          cmake --build . --config Release
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -96,10 +96,21 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
 
-      - uses: Jimver/cuda-toolkit@v0.2.10
-        id: cuda-toolkit
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        if: runner.os == 'Windows'
+        id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.cuda }}
+          method: 'network'
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        if: runner.os == 'Linux'
+        id: cuda-toolkit-linux
+        with:
+          cuda: ${{ matrix.cuda }}
+          method: 'network'
+          linux-local-args: '["--toolkit"]'
 
       - name: Build
         id: cmake_build
@@ -107,7 +118,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
-          cmake --build . --config Release
+          cmake --build . --config Release -j4
           ls -R
 
       - name: Upload artifacts (Windows)
@@ -131,7 +142,7 @@ jobs:
       matrix:
         include:
           - build: 'metal'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_NATIVE=OFF -DCMAKE_OSX_ARCHITECTURES=arm64'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
@@ -147,7 +158,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
-          cmake --build . --config Release
+          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
