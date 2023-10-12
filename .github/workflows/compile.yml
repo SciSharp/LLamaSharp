@@ -118,7 +118,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
-          cmake --build . --config Release
+          cmake --build . --config Release -j4
           ls -R
 
       - name: Upload artifacts (Windows)
