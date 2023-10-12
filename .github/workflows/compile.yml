@@ -97,11 +97,18 @@ jobs:
           repository: ggerganov/llama.cpp
 
       - uses: Jimver/cuda-toolkit@v0.2.11
-        id: cuda-toolkit
+        if: runner.os == 'Windows'
+        id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
           sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust"]'
+
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        if: runner.os == 'Linux'
+        id: cuda-toolkit-linux
+        with:
+          cuda: ${{ matrix.cuda }}
 
       - name: Build
         id: cmake_build
