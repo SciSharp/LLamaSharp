@@ -102,7 +102,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
-          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust"]'
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         if: runner.os == 'Linux'
