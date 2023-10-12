@@ -57,4 +57,14 @@ public interface IContextParams
     /// The encoding to use for models
     /// </summary>
     Encoding Encoding { get; set; }
+
+    /// <summary>
+    /// Number of threads (null = autodetect) (n_threads)
+    /// </summary>
+    uint? Threads { get; set; }
+
+    /// <summary>
+    /// Number of threads to use for batch processing (null = autodetect) (n_threads)
+    /// </summary>
+    uint? BatchThreads { get; set; }
 }

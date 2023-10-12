@@ -37,7 +37,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// Number of threads (-1 = autodetect) (n_threads)
         /// </summary>
-        int Threads { get; set; }
+        uint? Threads { get; set; }
 
         /// <summary>
         /// how split tensors should be distributed across GPUs

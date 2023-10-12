@@ -61,14 +61,21 @@ namespace LLama.Web.Common
         /// base model path for the lora adapter (lora_base)
         /// </summary>
         public string LoraBase { get; set; } = string.Empty;
+
 		/// <summary>
-		/// Number of threads (-1 = autodetect) (n_threads)
+		/// Number of threads (null = autodetect) (n_threads)
 		/// </summary>
-		public int Threads { get; set; } = Math.Max(Environment.ProcessorCount / 2, 1);
-		/// <summary>
-		/// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
-		/// </summary>
-		public uint BatchSize { get; set; } = 512;
+		public uint? Threads { get; set; }
+
+        /// <summary>
+        /// Number of threads to use for batch processing (null = autodetect) (n_threads)
+        /// </summary>
+        public uint? BatchThreads { get; set; }
+
+        /// <summary>
+        /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
+        /// </summary>
+        public uint BatchSize { get; set; } = 512;
 
 		/// <summary>
 		/// Whether to convert eos to newline during the inference.

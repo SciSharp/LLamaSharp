@@ -16,7 +16,7 @@ namespace LLama.Unittest
             _params = new ModelParams(Constants.ModelPath)
             {
                 ContextSize = 60,
-                Seed = 1754
+                Seed = 1754,
             };
             _weights = LLamaWeights.LoadFromFile(_params);
         }

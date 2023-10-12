@@ -30,6 +30,17 @@ namespace LLama.Extensions
             result.rope_freq_base = @params.RopeFrequencyBase;
             result.rope_freq_scale = @params.RopeFrequencyScale;
             result.mul_mat_q = @params.MulMatQ;
+
+            result.n_threads = Threads(@params.Threads);
+            result.n_threads_batch = Threads(@params.BatchThreads);
+        }
+
+        private static uint Threads(uint? value)
+        {
+            if (value is > 0)
+                return (uint)value;
+
+            return (uint)Math.Max(Environment.ProcessorCount / 2, 1);
         }
     }
 }

@@ -84,14 +84,14 @@ namespace LLama.Native
         /// adapter. Can be NULL to use the current loaded model.</param>
         /// <param name="threads"></param>
         /// <exception cref="RuntimeError"></exception>
-        public void ApplyLoraFromFile(string lora, float scale, string? modelBase = null, int threads = -1)
+        public void ApplyLoraFromFile(string lora, float scale, string? modelBase = null, uint? threads = null)
         {
             var err = NativeApi.llama_model_apply_lora_from_file(
                 this,
                 lora,
                 scale,
                 string.IsNullOrEmpty(modelBase) ? null : modelBase,
-                threads
+                (int?)threads ?? -1
             );
 
             if (err != 0)

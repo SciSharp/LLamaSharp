@@ -1,6 +1,5 @@
 ﻿using LLama.Abstractions;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -62,9 +61,15 @@ namespace LLama.Common
         public string LoraBase { get; set; } = string.Empty;
 
         /// <summary>
-        /// Number of threads (-1 = autodetect) (n_threads)
+        /// Number of threads (null = autodetect) (n_threads)
         /// </summary>
-        public int Threads { get; set; } = Math.Max(Environment.ProcessorCount / 2, 1);
+        public uint? Threads { get; set; }
+
+        /// <summary>
+        /// Number of threads to use for batch processing (null = autodetect) (n_threads)
+        /// </summary>
+        public uint? BatchThreads { get; set; }
+
         /// <summary>
         /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
         /// </summary>
@@ -161,7 +166,7 @@ namespace LLama.Common
             Perplexity = perplexity;
             ModelPath = modelPath;
             LoraBase = loraBase;
-            Threads = threads == -1 ? Math.Max(Environment.ProcessorCount / 2, 1) : threads;
+            Threads = threads < 1 ? null : (uint)threads;
             BatchSize = batchSize;
             EmbeddingMode = embeddingMode;
             RopeFrequencyBase = ropeFrequencyBase;
