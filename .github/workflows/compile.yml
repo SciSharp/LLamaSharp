@@ -109,6 +109,8 @@ jobs:
         id: cuda-toolkit-linux
         with:
           cuda: ${{ matrix.cuda }}
+          method: 'network'
+          linux-local-args: '["--toolkit"]'
 
       - name: Build
         id: cmake_build
