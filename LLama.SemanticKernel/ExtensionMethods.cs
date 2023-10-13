@@ -1,5 +1,5 @@
-﻿using Microsoft.SemanticKernel.AI.ChatCompletion;
-using Microsoft.SemanticKernel.AI.TextCompletion;
+﻿using LLamaSharp.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.AI.ChatCompletion;
 
 namespace LLamaSharp.SemanticKernel;
 
@@ -43,29 +43,6 @@ internal static class ExtensionMethods
             PresencePenalty = (float)requestSettings.PresencePenalty,
             FrequencyPenalty = (float)requestSettings.FrequencyPenalty,
             AntiPrompts = antiPrompts,
-            MaxTokens = requestSettings.MaxTokens ?? -1
-        };
-    }
-
-    /// <summary>
-    /// Convert CompleteRequestSettings to LLamaSharp InferenceParams
-    /// </summary>
-    /// <param name="requestSettings"></param>
-    /// <returns></returns>
-    internal static global::LLama.Common.InferenceParams ToLLamaSharpInferenceParams(this CompleteRequestSettings requestSettings)
-    {
-        if (requestSettings is null)
-        {
-            throw new ArgumentNullException(nameof(requestSettings));
-        }
-
-        return new global::LLama.Common.InferenceParams
-        {
-            Temperature = (float)requestSettings.Temperature,
-            TopP = (float)requestSettings.TopP,
-            PresencePenalty = (float)requestSettings.PresencePenalty,
-            FrequencyPenalty = (float)requestSettings.FrequencyPenalty,
-            AntiPrompts = requestSettings.StopSequences,
             MaxTokens = requestSettings.MaxTokens ?? -1
         };
     }

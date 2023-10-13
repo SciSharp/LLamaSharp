@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="0.21.230828.2-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta1" />
   </ItemGroup>
 
   <ItemGroup>
