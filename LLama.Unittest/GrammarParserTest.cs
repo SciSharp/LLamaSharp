@@ -1,4 +1,5 @@
-﻿using LLama.Native;
+﻿using LLama.Exceptions;
+using LLama.Native;
 using LLama.Grammars;
 
 namespace LLama.Unittest
@@ -236,6 +237,90 @@ namespace LLama.Unittest
                 }
             }
             Assert.NotEmpty(state.Rules);
+        }
+
+        [Fact]
+        public void InvalidRuleNoElements()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                // ReSharper disable once ObjectCreationAsStatement
+                new GrammarRule("name", Array.Empty<LLamaGrammarElement>());
+            });
+        }
+
+        [Fact]
+        public void InvalidRuleNoEndElement()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                // ReSharper disable once ObjectCreationAsStatement
+                new GrammarRule("name", new[]
+                {
+                    new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0)
+                });
+            });
+        }
+
+        [Fact]
+        public void InvalidRuleExtraEndElement()
+        {
+            Assert.Throws<GrammarUnexpectedEndElement>(() =>
+            {
+                // ReSharper disable once ObjectCreationAsStatement
+                new GrammarRule("name", new[]
+                {
+                    new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.END, 0)
+                });
+            });
+        }
+
+        [Fact]
+        public void InvalidRuleMalformedRange()
+        {
+            Assert.Throws<GrammarUnexpectedCharRngElement>(() =>
+            {
+                // ReSharper disable once ObjectCreationAsStatement
+                new GrammarRule("name", new[]
+                {
+                    new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR_RNG_UPPER, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.END, 0)
+                });
+            });
+
+            
+        }
+
+        [Fact]
+        public void InvalidRuleMalformedCharAlt()
+        {
+            Assert.Throws<GrammarUnexpectedCharAltElement>(() =>
+            {
+                // ReSharper disable once ObjectCreationAsStatement
+                new GrammarRule("name", new[]
+                {
+                    new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR_ALT, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.END, 0)
+                });
+            });
+        }
+
+        [Fact]
+        public void InvalidRuleElement()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                // ReSharper disable once ObjectCreationAsStatement
+                new GrammarRule("name", new[]
+                {
+                    new LLamaGrammarElement((LLamaGrammarElementType)99999, 0),
+                    new LLamaGrammarElement(LLamaGrammarElementType.END, 0)
+                });
+            });
         }
     }
 }
