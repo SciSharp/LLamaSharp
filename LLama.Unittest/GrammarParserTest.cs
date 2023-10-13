@@ -12,16 +12,48 @@ namespace LLama.Unittest
     /// </summary>
     public sealed class GrammarParserTest
     {
+        private static void CheckGrammar(string grammar, string rootRule, List<KeyValuePair<string, uint>> expected, List<LLamaGrammarElement> expectedRules)
+        {
+            var state = Grammar.Parse(grammar, rootRule);
+            Assert.Equal(0ul, state.StartRuleIndex);
+
+            foreach (var symbol in expected)
+            {
+                var rule = state.Rules[(int)symbol.Value];
+                Assert.Equal(symbol.Key, rule.Name);
+            }
+
+            uint index = 0;
+            foreach (var rule in state.Rules)
+            {
+                // compare rule to expected rule
+                for (uint i = 0; i < rule.Elements.Count; i++)
+                {
+                    var element = rule.Elements[(int)i];
+                    var expectedElement = expectedRules[(int)index];
+
+                    // Pretty print error message before asserting
+                    if (expectedElement.Type != element.Type || expectedElement.Value != element.Value)
+                    {
+                        Console.Error.WriteLine($"index: {index}");
+                        Console.Error.WriteLine($"expected_element: {expectedElement.Type}, {expectedElement.Value}");
+                        Console.Error.WriteLine($"actual_element: {element.Type}, {element.Value}");
+                        Console.Error.WriteLine("expected_element != actual_element");
+                    }
+                    Assert.Equal(expectedElement.Type, element.Type);
+                    Assert.Equal(expectedElement.Value, element.Value);
+                    index++;
+                }
+            }
+            Assert.NotEmpty(state.Rules);
+        }
+
         [Fact]
         public void ParseComplexGrammar()
         {
-            GBNFGrammarParser parsedGrammar = new GBNFGrammarParser();
-            string grammarBytes = @"root  ::= (expr ""="" term ""\n"")+
-                expr  ::= term ([-+*/] term)*
-                term  ::= [0-9]+";
-
-            var state = parsedGrammar.Parse(grammarBytes, "root");
-            Assert.Equal(0ul, state.StartRuleIndex);
+            var grammarBytes = @"root  ::= (expr ""="" term ""\n"")+
+                expr  ::= term ([-\x2b\x2A/] term)*
+                term  ::= [\x30-\x39]+";
 
             var expected = new List<KeyValuePair<string, uint>>
             {
@@ -34,12 +66,6 @@ namespace LLama.Unittest
                 new KeyValuePair<string, uint>("term", 3),
                 new KeyValuePair<string, uint>("term_7", 7),
             };
-
-            foreach (var symbol in expected)
-            {
-                var rule = state.Rules[(int)symbol.Value];
-                Assert.Equal(symbol.Key, rule.Name);
-            }
 
             var expectedRules = new List<LLamaGrammarElement>
             {
@@ -79,35 +105,12 @@ namespace LLama.Unittest
                 new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
             };
 
-            uint index = 0;
-            foreach (var rule in state.Rules)
-            {
-                // compare rule to expected rule
-                for (uint i = 0; i < rule.Elements.Count; i++)
-                {
-                    var element = rule.Elements[(int)i];
-                    var expectedElement = expectedRules[(int)index];
-
-                    // Pretty print error message before asserting
-                    if (expectedElement.Type != element.Type || expectedElement.Value != element.Value)
-                    {
-                        Console.Error.WriteLine($"index: {index}");
-                        Console.Error.WriteLine($"expected_element: {expectedElement.Type}, {expectedElement.Value}");
-                        Console.Error.WriteLine($"actual_element: {element.Type}, {element.Value}");
-                        Console.Error.WriteLine("expected_element != actual_element");
-                    }
-                    Assert.Equal(expectedElement.Type, element.Type);
-                    Assert.Equal(expectedElement.Value, element.Value);
-                    index++;
-                }
-            }
-            Assert.NotEmpty(state.Rules);
+            CheckGrammar(grammarBytes, "root", expected, expectedRules);
         }
 
         [Fact]
         public void ParseExtraComplexGrammar()
         {
-            GBNFGrammarParser parsedGrammar = new GBNFGrammarParser();
             string grammarBytes = @"
                 root  ::= (expr ""="" ws term ""\n"")+
                 expr  ::= term ([-+*/] term)*
@@ -116,9 +119,6 @@ namespace LLama.Unittest
                 num   ::= [0-9]+ ws
                 ws    ::= [ \t\n]*
             ";
-
-            var state = parsedGrammar.Parse(grammarBytes, "root");
-            Assert.Equal(0ul, state.StartRuleIndex);
 
             var expected = new List<KeyValuePair<string, uint>>
             {
@@ -136,12 +136,6 @@ namespace LLama.Unittest
                 new KeyValuePair<string, uint>("ws", 3),
                 new KeyValuePair<string, uint>("ws_12", 12),
             };
-
-            foreach (var symbol in expected)
-            {
-                var rule = state.Rules[(int)symbol.Value];
-                Assert.Equal(symbol.Key, rule.Name);
-            }
 
             var expectedRules = new List<LLamaGrammarElement>
             {
@@ -214,30 +208,67 @@ namespace LLama.Unittest
                 new LLamaGrammarElement(LLamaGrammarElementType.END, 0)
             };
 
-            uint index = 0;
-            foreach (var rule in state.Rules)
-            {
-                // compare rule to expected rule
-                for (uint i = 0; i < rule.Elements.Count; i++)
-                {
-                    var element = rule.Elements[(int)i];
-                    var expectedElement = expectedRules[(int)index];
-
-                    // Pretty print error message before asserting
-                    if (expectedElement.Type != element.Type || expectedElement.Value != element.Value)
-                    {
-                        Console.Error.WriteLine($"index: {index}");
-                        Console.Error.WriteLine($"expected_element: {expectedElement.Type}, {expectedElement.Value}");
-                        Console.Error.WriteLine($"actual_element: {element.Type}, {element.Value}");
-                        Console.Error.WriteLine("expected_element != actual_element");
-                    }
-                    Assert.Equal(expectedElement.Type, element.Type);
-                    Assert.Equal(expectedElement.Value, element.Value);
-                    index++;
-                }
-            }
-            Assert.NotEmpty(state.Rules);
+            CheckGrammar(grammarBytes, "root", expected, expectedRules);
         }
+
+
+        [Fact]
+        public void InvalidGrammarNoClosingBracket()
+        {
+            var parsedGrammar = new GBNFGrammarParser();
+            var grammarBytes = @"
+                root  ::= (expr ""="" ws term ""\n""+           ## <--- Mismatched brackets on this line
+                expr  ::= term ([-+*/] term)*
+                term  ::= ident | num | ""("" ws expr "")"" ws
+                ident ::= [a-z] [a-z0-9_]* ws
+                num   ::= [0-9]+ ws
+                ws    ::= [ \t\n]*
+            ";
+
+            Assert.Throws<GrammarExpectedNext>(() =>
+            {
+                parsedGrammar.Parse(grammarBytes, "root");
+            });
+        }
+
+        [Fact]
+        public void InvalidGrammarNoName()
+        {
+            var parsedGrammar = new GBNFGrammarParser();
+            var grammarBytes = @"
+                root  ::= (expr ""="" ws term ""\n"")+
+                  ::= term ([-+*/] term)*                       ## <--- Missing a name for this rule!
+                term  ::= ident | num | ""("" ws expr "")"" ws
+                ident ::= [a-z] [a-z0-9_]* ws
+                num   ::= [0-9]+ ws
+                ws    ::= [ \t\n]*
+            ";
+
+            Assert.Throws<GrammarExpectedName>(() =>
+            {
+                parsedGrammar.Parse(grammarBytes, "root");
+            });
+        }
+
+        [Fact]
+        public void InvalidGrammarBadHex()
+        {
+            var parsedGrammar = new GBNFGrammarParser();
+            var grammarBytes = @"
+                root  ::= (expr ""="" ws term ""\n"")+
+                expr  ::= term ([-+*/] term)*
+                term  ::= ident | num | ""("" ws expr "")"" ws
+                ident ::= [a-z] [a-z0-9_]* ws
+                num   ::= [0-\xQQ]+ ws                             ## <--- `\xQQ` is not valid hex!
+                ws    ::= [ \t\n]*
+            ";
+
+            Assert.Throws<GrammarUnexpectedHexCharsCount>(() =>
+            {
+                parsedGrammar.Parse(grammarBytes, "root");
+            });
+        }
+
 
         [Fact]
         public void InvalidRuleNoElements()
