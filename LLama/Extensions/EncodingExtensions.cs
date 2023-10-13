@@ -35,6 +35,9 @@ internal static class EncodingExtensions
 
     internal static int GetCharCountImpl(Encoding encoding, ReadOnlySpan<byte> bytes)
     {
+        if (bytes.Length == 0)
+            return 0;
+
         unsafe
         {
             fixed (byte* bytePtr = bytes)
