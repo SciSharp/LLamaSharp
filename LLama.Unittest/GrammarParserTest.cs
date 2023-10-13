@@ -1,4 +1,5 @@
-﻿using LLama.Exceptions;
+﻿using System.Text;
+using LLama.Exceptions;
 using LLama.Native;
 using LLama.Grammars;
 
@@ -211,6 +212,61 @@ namespace LLama.Unittest
             CheckGrammar(grammarBytes, "root", expected, expectedRules);
         }
 
+        [Fact]
+        public void ParseGrammarNotSequence()
+        {
+            var grammarBytes = @"root  ::= [^a]";
+
+            var expected = new List<KeyValuePair<string, uint>>
+            {
+                new KeyValuePair<string, uint>("root", 0),
+            };
+
+            var expectedRules = new List<LLamaGrammarElement>
+            {
+                new LLamaGrammarElement(LLamaGrammarElementType.CHAR_NOT, 97),
+                new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
+            };
+
+            CheckGrammar(grammarBytes, "root", expected, expectedRules);
+        }
+
+        [Fact]
+        public void ParseGrammarWithMultibyteCharacter()
+        {
+            var grammarBytes = @"root  ::= [罗]*";
+
+            var expected = new List<KeyValuePair<string, uint>>
+            {
+                new KeyValuePair<string, uint>("root", 0),
+                new KeyValuePair<string, uint>("root_1", 1),
+            };
+
+            var expectedRules = new List<LLamaGrammarElement>
+            {
+                new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, 1),
+                new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
+                new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 32599),
+                new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, 1),
+                new LLamaGrammarElement(LLamaGrammarElementType.ALT, 0),
+                new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
+            };
+
+            CheckGrammar(grammarBytes, "root", expected, expectedRules);
+        }
+
+
+        [Fact]
+        public void InvalidGrammarMissingRuleDefinition()
+        {
+            var parsedGrammar = new GBNFGrammarParser();
+            var grammarBytes = @"root  := [^a]";
+
+            Assert.Throws<GrammarExpectedNext>(() =>
+            {
+                parsedGrammar.Parse(grammarBytes, "root");
+            });
+        }
 
         [Fact]
         public void InvalidGrammarNoClosingBracket()
@@ -264,6 +320,37 @@ namespace LLama.Unittest
             ";
 
             Assert.Throws<GrammarUnexpectedHexCharsCount>(() =>
+            {
+                parsedGrammar.Parse(grammarBytes, "root");
+            });
+        }
+
+        [Fact]
+        public void InvalidGrammarBadEscapeCharacter()
+        {
+            var parsedGrammar = new GBNFGrammarParser();
+            var grammarBytes = @"
+                root  ::= (expr ""="" ws term ""\z"")+          ## <--- `\z` is not a valid escape character
+                expr  ::= term ([-+*/] term)*
+                term  ::= ident | num | ""("" ws expr "")"" ws
+                ident ::= [a-z] [a-z0-9_]* ws
+                num   ::= [0-9]+ ws
+                ws    ::= [ \t\n]*
+            ";
+
+            Assert.Throws<GrammarUnknownEscapeCharacter>(() =>
+            {
+                parsedGrammar.Parse(grammarBytes, "root");
+            });
+        }
+
+        [Fact]
+        public void InvalidGrammarUnexpectedEndOfInput()
+        {
+            var parsedGrammar = new GBNFGrammarParser();
+            var grammarBytes = @"root  ::= (expr ""="" ws term ""\";
+
+            Assert.Throws<GrammarUnexpectedEndOfInput>(() =>
             {
                 parsedGrammar.Parse(grammarBytes, "root");
             });

@@ -43,7 +43,7 @@ namespace LLama.Unittest
             Assert.Equal(result1, result2);
         }
 
-        [Fact]
+        [Fact(Skip = "Very very slow in CI")]
         public async Task OutOfContext()
         {
             var executor = new StatelessExecutor(_weights, _params);

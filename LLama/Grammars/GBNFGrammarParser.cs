@@ -155,35 +155,27 @@ namespace LLama.Grammars
         {
             if (src[0] == '\\')
             {
+                if (src.Length < 2)
+                    throw new GrammarUnexpectedEndOfInput();
+
                 var chr = src[1];
                 src = src.Slice(2);
-                switch (chr)
+
+                return (char)chr switch
                 {
-                    case (byte)'x':
-                        return ParseHex(ref src, 2);
-                    case (byte)'u':
-                        return ParseHex(ref src, 4);
-                    case (byte)'U':
-                        return ParseHex(ref src, 8);
-                    case (byte)'t':
-                        return '\t';
-                    case (byte)'r':
-                        return '\r';
-                    case (byte)'n':
-                        return '\n';
-                    case (byte)'\\':
-                    case (byte)'"':
-                    case (byte)'[':
-                    case (byte)']':
-                        return chr;
-                    default:
-                        throw new GrammarUnknownEscapeCharacter(Encoding.UTF8.GetString(src.ToArray()));
-                }
+                    'x' => ParseHex(ref src, 2),
+                    'u' => ParseHex(ref src, 4),
+                    'U' => ParseHex(ref src, 8),
+                    't' => '\t',
+                    'r' => '\r',
+                    'n' => '\n',
+                    '\\' or '"' or '[' or ']' => chr,
+                    _ => throw new GrammarUnknownEscapeCharacter(Encoding.UTF8.GetString(src.ToArray())),
+                };
             }
-            else if (!src.IsEmpty)
-            {
+
+            if (!src.IsEmpty)
                 return DecodeUTF8(ref src);
-            }
 
             throw new GrammarUnexpectedEndOfInput();
         }
