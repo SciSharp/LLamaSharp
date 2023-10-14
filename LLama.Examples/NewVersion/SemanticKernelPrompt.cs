@@ -1,10 +1,7 @@
-﻿using System.Reflection.Metadata;
-using System.Security.Cryptography;
-using System.Text;
-using LLama.Abstractions;
+﻿using System.Security.Cryptography;
 using LLama.Common;
+using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.AI.TextCompletion;
 using LLamaSharp.SemanticKernel.TextCompletion;
 
@@ -35,7 +32,8 @@ namespace LLama.Examples.NewVersion
 
 One line TLDR with the fewest words.";
 
-            var summarize = kernel.CreateSemanticFunction(prompt, maxTokens: 100);
+            ChatRequestSettings settings = new() {MaxTokens = 100};
+            var summarize = kernel.CreateSemanticFunction(prompt, requestSettings: settings);
 
             string text1 = @"
 1st Law of Thermodynamics - Energy cannot be created or destroyed.
@@ -47,9 +45,10 @@ One line TLDR with the fewest words.";
 2. The acceleration of an object depends on the mass of the object and the amount of force applied.
 3. Whenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.";
 
-            Console.WriteLine(await summarize.InvokeAsync(text1));
+            Console.WriteLine(await kernel.RunAsync(text1, summarize));
 
-            Console.WriteLine(await summarize.InvokeAsync(text2));
+            Console.WriteLine(await kernel.RunAsync(text2, summarize));
         }
     }
 }
+ 

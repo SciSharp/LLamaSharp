@@ -1,5 +1,6 @@
-﻿using LLama;
-using LLama.Abstractions;
+﻿using LLama.Abstractions;
+using LLamaSharp.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.AI.TextCompletion;
 
 namespace LLamaSharp.SemanticKernel.TextCompletion;
@@ -13,15 +14,19 @@ public sealed class LLamaSharpTextCompletion : ITextCompletion
         this.executor = executor;
     }
 
-    public async Task<IReadOnlyList<ITextResult>> GetCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ITextResult>> GetCompletionsAsync(string text, AIRequestSettings? requestSettings, CancellationToken cancellationToken = default)
     {
-        var result = executor.InferAsync(text, requestSettings.ToLLamaSharpInferenceParams(), cancellationToken);
+        var settings = (ChatRequestSettings?)requestSettings;
+        var result = executor.InferAsync(text, settings?.ToLLamaSharpInferenceParams(), cancellationToken);
         return await Task.FromResult(new List<ITextResult> { new LLamaTextResult(result) }.AsReadOnly()).ConfigureAwait(false);
     }
 
-    public async IAsyncEnumerable<ITextStreamingResult> GetStreamingCompletionsAsync(string text, CompleteRequestSettings requestSettings, CancellationToken cancellationToken = default)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously.
+    public async IAsyncEnumerable<ITextStreamingResult> GetStreamingCompletionsAsync(string text, AIRequestSettings? requestSettings, CancellationToken cancellationToken = default)
+#pragma warning restore CS1998
     {
-        var result = executor.InferAsync(text, requestSettings.ToLLamaSharpInferenceParams(), cancellationToken);
+        var settings = (ChatRequestSettings?)requestSettings;
+        var result = executor.InferAsync(text, settings?.ToLLamaSharpInferenceParams(), cancellationToken);
         yield return new LLamaTextResult(result);
     }
 }

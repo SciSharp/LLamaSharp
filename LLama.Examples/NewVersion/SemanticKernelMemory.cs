@@ -1,13 +1,9 @@
-﻿using Microsoft.SemanticKernel.Memory;
+﻿using LLama.Common;
 using Microsoft.SemanticKernel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LLama.Common;
+using Microsoft.SemanticKernel.Memory;
 using LLamaSharp.SemanticKernel.TextEmbedding;
 using Microsoft.SemanticKernel.AI.Embeddings;
+using Microsoft.SemanticKernel.Plugins.Memory;
 
 namespace LLama.Examples.NewVersion
 {
