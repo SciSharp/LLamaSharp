@@ -5,8 +5,9 @@ namespace LLama.Extensions
     /// <summary>
     /// Extensions to the KeyValuePair struct
     /// </summary>
-    public static class KeyValuePairExtensions
+    internal static class KeyValuePairExtensions
     {
+#if NETSTANDARD2_0
         /// <summary>
         /// Deconstruct a KeyValuePair into it's constituent parts.
         /// </summary>
@@ -20,5 +21,6 @@ namespace LLama.Extensions
             first = pair.Key;
             second = pair.Value;
         }
+#endif
     }
 }

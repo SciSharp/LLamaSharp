@@ -18,16 +18,17 @@ namespace LLama
         /// </summary>
         public class DefaultHistoryTransform : IHistoryTransform
         {
-            private readonly string defaultUserName = "User";
-            private readonly string defaultAssistantName = "Assistant";
-            private readonly string defaultSystemName = "System";
-            private readonly string defaultUnknownName = "??";
+            private const string defaultUserName = "User";
+            private const string defaultAssistantName = "Assistant";
+            private const string defaultSystemName = "System";
+            private const string defaultUnknownName = "??";
 
-            string _userName;
-            string _assistantName;
-            string _systemName;
-            string _unknownName;
-            bool _isInstructMode;
+            private readonly string _userName;
+            private readonly string _assistantName;
+            private readonly string _systemName;
+            private readonly string _unknownName;
+            private readonly bool _isInstructMode;
+
             /// <summary>
             /// 
             /// </summary>
@@ -107,46 +108,37 @@ namespace LLama
         /// <summary>
         /// A text input transform that only trims the text.
         /// </summary>
-        public class NaiveTextInputTransform : ITextTransform
+        public class NaiveTextInputTransform
+            : ITextTransform
         {
-            /// <summary>
-            /// 
-            /// </summary>
-            public NaiveTextInputTransform()
-            {
-                
-            }
             /// <inheritdoc />
             public string Transform(string text)
             {
                 return text.Trim();
             }
         }
+
         /// <summary>
         /// A no-op text input transform.
         /// </summary>
-        public class EmptyTextOutputStreamTransform : ITextStreamTransform
+        public class EmptyTextOutputStreamTransform
+            : ITextStreamTransform
         {
-            /// <inheritdoc />
-            public IEnumerable<string> Transform(IEnumerable<string> tokens)
-            {
-                return tokens;
-            }
-
             /// <inheritdoc />
             public IAsyncEnumerable<string> TransformAsync(IAsyncEnumerable<string> tokens)
             {
                 return tokens;
             }
         }
+
         /// <summary>
         /// A text output transform that removes the keywords from the response.
         /// </summary>
         public class KeywordTextOutputStreamTransform : ITextStreamTransform
         {
-            HashSet<string> _keywords;
-            int _maxKeywordLength;
-            bool _removeAllMatchedTokens;
+            private readonly HashSet<string> _keywords;
+            private readonly int _maxKeywordLength;
+            private readonly bool _removeAllMatchedTokens;
 
             /// <summary>
             /// 
@@ -164,59 +156,7 @@ namespace LLama
                 _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
             }
-            /// <inheritdoc />
-            public IEnumerable<string> Transform(IEnumerable<string> tokens)
-            {
-                var window = new Queue<string>();
 
-                foreach (var s in tokens)
-                {
-                    window.Enqueue(s);
-                    var current = string.Join("", window);
-                    if (_keywords.Any(x => current.Contains(x)))
-                    {
-                        var matchedKeyword = _keywords.First(x => current.Contains(x));
-                        int total = window.Count;
-                        for (int i = 0; i < total; i++)
-                        {
-                            window.Dequeue();
-                        }
-                        if (!_removeAllMatchedTokens)
-                        {
-                            yield return current.Replace(matchedKeyword, "");
-                        }
-                    }
-                    if (current.Length >= _maxKeywordLength)
-                    {
-                        if (_keywords.Any(x => current.Contains(x)))
-                        {
-                            var matchedKeyword = _keywords.First(x => current.Contains(x));
-                            int total = window.Count;
-                            for (int i = 0; i < total; i++)
-                            {
-                                window.Dequeue();
-                            }
-                            if (!_removeAllMatchedTokens)
-                            {
-                                yield return current.Replace(matchedKeyword, "");
-                            }
-                        }
-                        else
-                        {
-                            int total = window.Count;
-                            for (int i = 0; i < total; i++)
-                            {
-                                yield return window.Dequeue();
-                            }
-                        }
-                    }
-                }
-                int totalCount = window.Count;
-                for (int i = 0; i < totalCount; i++)
-                {
-                    yield return window.Dequeue();
-                }
-            }
             /// <inheritdoc />
             public async IAsyncEnumerable<string> TransformAsync(IAsyncEnumerable<string> tokens)
             {

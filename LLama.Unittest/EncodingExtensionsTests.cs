@@ -16,6 +16,15 @@ namespace LLama.Unittest
             Assert.True(chars[..count].SequenceEqual(str));
         }
 
+        private static void GetCharCountTest(string str)
+        {
+            var bytes = Encoding.UTF8.GetBytes(str);
+
+            var count = EncodingExtensions.GetCharCountImpl(Encoding.UTF8, bytes);
+
+            Assert.Equal(str.Length, count);
+        }
+
         [Fact]
         public void GetCharsEmptyString()
         {
@@ -32,6 +41,24 @@ namespace LLama.Unittest
         public void GetCharsChineseString()
         {
             GetCharsTest("猫坐在垫子上");
+        }
+
+        [Fact]
+        public void GetCharCountEmptyString()
+        {
+            GetCharCountTest("");
+        }
+
+        [Fact]
+        public void GetCharCountString()
+        {
+            GetCharCountTest("Hello World");
+        }
+
+        [Fact]
+        public void GetCharCountChineseString()
+        {
+            GetCharCountTest("猫坐在垫子上");
         }
     }
 }
