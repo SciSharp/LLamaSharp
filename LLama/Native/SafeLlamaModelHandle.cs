@@ -271,8 +271,9 @@ namespace LLama.Native
         /// <param name="text"></param>
         /// <param name="add_bos"></param>
         /// <param name="encoding"></param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
-        public int[] Tokenize(string text, bool add_bos, Encoding encoding)
+        public int[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
@@ -291,13 +292,13 @@ namespace LLama.Native
                 fixed (byte* bytesPtr = &bytes[0])
                 {
                     // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                    var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (int*)IntPtr.Zero, 0, add_bos);
+                    var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (int*)IntPtr.Zero, 0, add_bos, special);
 
                     // Tokenize again, this time outputting into an array of exactly the right size
                     var tokens = new int[count];
                     fixed (int* tokensPtr = &tokens[0])
                     {
-                        NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos);
+                        NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
                         return tokens;
                     }
                 }

@@ -122,9 +122,10 @@ namespace LLama.Native
         /// <param name="text">The text to tokenize</param>
         /// <param name="add_bos">Whether the "BOS" token should be added</param>
         /// <param name="encoding">Encoding to use for the text</param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public int[] Tokenize(string text, bool add_bos, Encoding encoding)
+        public int[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             ThrowIfDisposed();
 
@@ -140,7 +141,7 @@ namespace LLama.Native
             try
             {
                 // Do the actual conversion
-                var n = NativeApi.llama_tokenize(this, text, encoding, temporaryArray, count, add_bos);
+                var n = NativeApi.llama_tokenize(this, text, encoding, temporaryArray, count, add_bos, special);
                 if (n < 0)
                 {
                     throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +

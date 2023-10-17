@@ -92,10 +92,11 @@ namespace LLama
         /// </summary>
         /// <param name="text"></param>
         /// <param name="addBos">Whether to add a bos to the text.</param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
-        public llama_token[] Tokenize(string text, bool addBos = true)
+        public llama_token[] Tokenize(string text, bool addBos = true, bool special = false)
         {
-            return _ctx.Tokenize(text, addBos, _encoding);
+            return _ctx.Tokenize(text, addBos, special, _encoding);
         }
 
         /// <summary>

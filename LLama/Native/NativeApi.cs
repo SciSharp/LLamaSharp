@@ -284,10 +284,11 @@ namespace LLama.Native
         /// <param name="tokens"></param>
         /// <param name="n_max_tokens"></param>
         /// <param name="add_bos"></param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext. Does not insert a leading space.</param>
         /// <returns>Returns the number of tokens on success, no more than n_max_tokens.
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
-        public static int llama_tokenize(SafeLLamaContextHandle ctx, string text, Encoding encoding, llama_token[] tokens, int n_max_tokens, bool add_bos)
+        public static int llama_tokenize(SafeLLamaContextHandle ctx, string text, Encoding encoding, llama_token[] tokens, int n_max_tokens, bool add_bos, bool special)
         {
             // Calculate number of bytes in text and borrow an array that large (+1 for nul byte)
             var byteCount = encoding.GetByteCount(text);
@@ -307,7 +308,7 @@ namespace LLama.Native
                 // Do the actual tokenization
                 fixed (byte* arrayPtr = array)
                 fixed (llama_token* tokensPtr = tokens)
-                    return llama_tokenize(ctx.ModelHandle, arrayPtr, byteCount, tokensPtr, n_max_tokens, add_bos);
+                    return llama_tokenize(ctx.ModelHandle, arrayPtr, byteCount, tokensPtr, n_max_tokens, add_bos, special);
             }
             finally
             {
@@ -454,11 +455,12 @@ namespace LLama.Native
         /// <param name="tokens"></param>
         /// <param name="n_max_tokens"></param>
         /// <param name="add_bos"></param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext. Does not insert a leading space.</param>
         /// <returns>Returns the number of tokens on success, no more than n_max_tokens.
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, int* tokens, int n_max_tokens, bool add_bos);
+        public static extern int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, int* tokens, int n_max_tokens, bool add_bos, bool special);
 
         /// <summary>
         /// Register a callback to receive llama log messages
