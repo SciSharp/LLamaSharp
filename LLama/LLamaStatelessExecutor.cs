@@ -112,9 +112,6 @@ namespace LLama
                     NativeApi.llama_kv_cache_seq_shift(Context.NativeHandle, (LLamaSeqId)0, inferenceParams.TokensKeep + 1 + n_discard, n_past, -n_discard);
 
                     n_past -= n_discard;
-
-                    tokens.Clear();
-                    tokens.AddRange(lastTokens.Skip(lastTokens.Count - n_left / 2).Take(n_left / 2));
                 }
 
                 n_past = Context.Eval(tokens, n_past);

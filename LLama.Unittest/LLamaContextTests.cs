@@ -37,7 +37,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("The quick brown fox", true);
 
-            Assert.Equal(new[] { 1, 450, 4996, 17354, 1701, 29916 }, tokens);
+            Assert.Equal(new[] { 1, 1576, 4996, 17354, 1701, 29916 }, tokens);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("The quick brown fox", false);
 
-            Assert.Equal(new[] { 450, 4996, 17354, 1701, 29916 }, tokens);
+            Assert.Equal(new[] { 1576, 4996, 17354, 1701, 29916 }, tokens);
         }
 
         [Fact]

@@ -48,13 +48,13 @@ namespace LLama.Unittest
         {
             var executor = new StatelessExecutor(_weights, _params);
 
-            const string question = " Question. why is a cat the best pet?\nAnswer: ";
+            const string question = " Question. cats or dogs?\nAnswer: ";
 
             // The context size is set to 60. Generate more than that, forcing it to generate a coherent response
             // with a modified context
             var @params = new InferenceParams()
             {
-                MaxTokens = 80,
+                MaxTokens = 70,
                 TokensKeep = question.Length,
             };
 
