@@ -1,6 +1,4 @@
-﻿using System.Text;
-using LLama.Common;
-using Newtonsoft.Json;
+﻿using LLama.Common;
 
 namespace LLama.Unittest
 {
@@ -40,34 +38,11 @@ namespace LLama.Unittest
             };
 
             var settings = new Newtonsoft.Json.JsonSerializerSettings();
-            settings.Converters.Add(new NewtsonsoftEncodingConverter());
 
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(expected, settings);
             var actual = Newtonsoft.Json.JsonConvert.DeserializeObject<ModelParams>(json, settings);
 
             Assert.Equal(expected, actual);
         }
-
-
-
-        public class NewtsonsoftEncodingConverter : JsonConverter
-        {
-            public override bool CanConvert(Type objectType)
-            {
-                return typeof(Encoding).IsAssignableFrom(objectType);
-            }
-
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                writer.WriteValue(((Encoding)value).WebName);
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                return Encoding.GetEncoding((string)reader.Value);
-            }
-        }
-
-
     }
 }

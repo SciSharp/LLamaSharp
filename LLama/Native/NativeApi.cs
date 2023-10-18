@@ -273,6 +273,7 @@ namespace LLama.Native
         /// <param name="n_past"></param>
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [Obsolete("use llama_decode() instead")]
         public static extern int llama_eval(SafeLLamaContextHandle ctx, llama_token* tokens, int n_tokens, int n_past);
 
         /// <summary>
