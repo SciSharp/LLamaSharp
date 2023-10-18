@@ -1,28 +1,28 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace LLama.Native
-{
-    [StructLayout(LayoutKind.Sequential)]
-    public struct LLamaTokenData
-    {
-        /// <summary>
-        /// token id
-        /// </summary>
-        public int id;
-        /// <summary>
-        /// log-odds of the token
-        /// </summary>
-        public float logit;
-        /// <summary>
-        /// probability of the token
-        /// </summary>
-        public float p;
+namespace LLama.Native;
 
-        public LLamaTokenData(int id, float logit, float p)
-        {
-            this.id = id;
-            this.logit = logit;
-            this.p = p;
-        }
-    }
+/// <summary>
+/// A single token along with probability of this token being selected
+/// </summary>
+/// <param name="id"></param>
+/// <param name="logit"></param>
+/// <param name="p"></param>
+[StructLayout(LayoutKind.Sequential)]
+public record struct LLamaTokenData(int id, float logit, float p)
+{
+    /// <summary>
+    /// token id
+    /// </summary>
+    public int id = id;
+
+    /// <summary>
+    /// log-odds of the token
+    /// </summary>
+    public float logit = logit;
+
+    /// <summary>
+    /// probability of the token
+    /// </summary>
+    public float p = p;
 }

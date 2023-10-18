@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 
@@ -212,9 +210,17 @@ namespace LLama.Native
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
+        ///  - 0: success<br />
+        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
+        ///  - &lt; 0: error<br />
+        /// </returns>
         public int Decode(LLamaBatchSafeHandle batch)
         {
-            return NativeApi.llama_decode(this, batch.Batch);
+            return NativeApi.llama_decode(this, batch.NativeBatch);
         }
 
         #region state

@@ -80,6 +80,7 @@ namespace LLama
                     return true;
 
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1_SOME_F16:
+                case LLamaFtype.LLAMA_FTYPE_GUESSED:
                 default:
                     return false;
             }

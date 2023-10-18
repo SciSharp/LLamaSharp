@@ -17,7 +17,7 @@ namespace LLama.Grammars
     {
         // NOTE: assumes valid utf8 (but checks for overrun)
         // copied from llama.cpp
-        private uint DecodeUTF8(ref ReadOnlySpan<byte> src)
+        private static uint DecodeUTF8(ref ReadOnlySpan<byte> src)
         {
             int[] lookup = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4 };
 
@@ -40,46 +40,12 @@ namespace LLama.Grammars
             return value;
         }
 
-        private uint GetSymbolId(ParseState state, ReadOnlySpan<byte> src, int len)
-        {
-            uint nextId = (uint)state.SymbolIds.Count;
-            string key = Encoding.UTF8.GetString(src.Slice(0, src.Length - len).ToArray());
-
-            if (state.SymbolIds.TryGetValue(key, out uint existingId))
-            {
-                return existingId;
-            }
-            else
-            {
-                state.SymbolIds[key] = nextId;
-                return nextId;
-            }
-        }
-
-        private uint GenerateSymbolId(ParseState state, string baseName)
-        {
-            uint nextId = (uint)state.SymbolIds.Count;
-            string key = $"{baseName}_{nextId}";
-            state.SymbolIds[key] = nextId;
-            return nextId;
-        }
-
-        private void AddRule(ParseState state, uint ruleId, List<LLamaGrammarElement> rule)
-        {
-            while (state.Rules.Count <= ruleId)
-            {
-                state.Rules.Add(new List<LLamaGrammarElement>());
-            }
-
-            state.Rules[(int)ruleId] = rule;
-        }
-
-        private bool IsWordChar(byte c)
+        private static bool IsWordChar(byte c)
         {
             return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '-' || ('0' <= c && c <= '9');
         }
 
-        private uint ParseHex(ref ReadOnlySpan<byte> src, int size)
+        private static uint ParseHex(ref ReadOnlySpan<byte> src, int size)
         {
             int pos = 0;
             int end = size;
@@ -115,7 +81,7 @@ namespace LLama.Grammars
             return value;
         }
 
-        private ReadOnlySpan<byte> ParseSpace(ReadOnlySpan<byte> src, bool newlineOk)
+        private static ReadOnlySpan<byte> ParseSpace(ReadOnlySpan<byte> src, bool newlineOk)
         {
             int pos = 0;
             while (pos < src.Length &&
@@ -137,7 +103,7 @@ namespace LLama.Grammars
             return src.Slice(pos);
         }
 
-        private ReadOnlySpan<byte> ParseName(ReadOnlySpan<byte> src)
+        private static ReadOnlySpan<byte> ParseName(ReadOnlySpan<byte> src)
         {
             int pos = 0;
             while (pos < src.Length && IsWordChar(src[pos]))
@@ -151,7 +117,7 @@ namespace LLama.Grammars
             return src.Slice(pos);
         }
 
-        private uint ParseChar(ref ReadOnlySpan<byte> src)
+        private static uint ParseChar(ref ReadOnlySpan<byte> src)
         {
             if (src[0] == '\\')
             {
@@ -235,7 +201,7 @@ namespace LLama.Grammars
                 else if (IsWordChar(pos[0]))  // rule reference
                 {
                     var nameEnd = ParseName(pos);
-                    uint refRuleId = GetSymbolId(state, pos, nameEnd.Length);
+                    uint refRuleId = state.GetSymbolId(pos, nameEnd.Length);
                     pos = ParseSpace(nameEnd, isNested);
                     lastSymStart = outElements.Count;
                     outElements.Add(new LLamaGrammarElement(LLamaGrammarElementType.RULE_REF, refRuleId));
@@ -244,7 +210,7 @@ namespace LLama.Grammars
                 {
                     // parse nested alternates into synthesized rule
                     pos = ParseSpace(pos.Slice(1), true);
-                    uint subRuleId = GenerateSymbolId(state, ruleName);
+                    uint subRuleId = state.GenerateSymbolId(ruleName);
                     pos = ParseAlternates(state, pos, ruleName, subRuleId, true);
                     lastSymStart = outElements.Count;
                     // output reference to synthesized rule
@@ -263,7 +229,7 @@ namespace LLama.Grammars
                     // S* --> S' ::= S S' |
                     // S+ --> S' ::= S S' | S
                     // S? --> S' ::= S |
-                    uint subRuleId = GenerateSymbolId(state, ruleName);
+                    uint subRuleId = state.GenerateSymbolId(ruleName);
 
                     List<LLamaGrammarElement> subRule = new List<LLamaGrammarElement>();
 
@@ -287,7 +253,7 @@ namespace LLama.Grammars
 
                     subRule.Add(new LLamaGrammarElement(LLamaGrammarElementType.END, 0));
 
-                    AddRule(state, subRuleId, subRule);
+                    state.AddRule(subRuleId, subRule);
 
                     // in original rule, replace previous symbol with reference to generated rule
                     outElements.RemoveRange(lastSymStart, outElements.Count - lastSymStart);
@@ -323,7 +289,7 @@ namespace LLama.Grammars
             }
 
             rule.Add(new LLamaGrammarElement(LLamaGrammarElementType.END, 0));
-            AddRule(state, ruleId, rule);
+            state.AddRule(ruleId, rule);
 
             return pos;
         }
@@ -333,7 +299,7 @@ namespace LLama.Grammars
             ReadOnlySpan<byte> nameEnd = ParseName(src);
             ReadOnlySpan<byte> pos = ParseSpace(nameEnd, false);
             int nameLen = src.Length - nameEnd.Length;
-            uint ruleId = GetSymbolId(state, src.Slice(0, nameLen), 0);
+            uint ruleId = state.GetSymbolId(src.Slice(0, nameLen), 0);
             string name = Encoding.UTF8.GetString(src.Slice(0, nameLen).ToArray());
 
             if (!(pos[0] == ':' && pos[1] == ':' && pos[2] == '='))
@@ -393,6 +359,40 @@ namespace LLama.Grammars
         {
             public SortedDictionary<string, uint> SymbolIds { get; } = new();
             public List<List<LLamaGrammarElement>> Rules { get; } = new();
+
+            public uint GetSymbolId(ReadOnlySpan<byte> src, int len)
+            {
+                var nextId = (uint)SymbolIds.Count;
+                var key = Encoding.UTF8.GetString(src.Slice(0, src.Length - len).ToArray());
+
+                if (SymbolIds.TryGetValue(key, out uint existingId))
+                {
+                    return existingId;
+                }
+                else
+                {
+                    SymbolIds[key] = nextId;
+                    return nextId;
+                }
+            }
+
+            public uint GenerateSymbolId(string baseName)
+            {
+                var nextId = (uint)SymbolIds.Count;
+                var key = $"{baseName}_{nextId}";
+                SymbolIds[key] = nextId;
+                return nextId;
+            }
+
+            public void AddRule(uint ruleId, List<LLamaGrammarElement> rule)
+            {
+                while (Rules.Count <= ruleId)
+                {
+                    Rules.Add(new List<LLamaGrammarElement>());
+                }
+
+                Rules[(int)ruleId] = rule;
+            }
         }
     }
 }

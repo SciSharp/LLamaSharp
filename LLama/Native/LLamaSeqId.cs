@@ -1,15 +1,26 @@
 ﻿namespace LLama.Native;
 
-public record struct LLamaSeqId
+/// <summary>
+/// ID for a sequence in a batch
+/// </summary>
+/// <param name="Value"></param>
+public record struct LLamaSeqId(int Value)
 {
-    public int Value;
+    /// <summary>
+    /// The raw value
+    /// </summary>
+    public int Value = Value;
 
-    public LLamaSeqId(int value)
-    {
-        Value = value;
-    }
-
+    /// <summary>
+    /// Convert a LLamaSeqId into an integer (extract the raw value)
+    /// </summary>
+    /// <param name="pos"></param>
     public static explicit operator int(LLamaSeqId pos) => pos.Value;
 
+    /// <summary>
+    /// Convert an integer into a LLamaSeqId
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public static explicit operator LLamaSeqId(int value) => new(value);
 }

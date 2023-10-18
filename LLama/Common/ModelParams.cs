@@ -40,11 +40,11 @@ namespace LLama.Common
         /// <summary>
         /// Use mlock to keep model in memory (use_mlock)
         /// </summary>
-        public bool UseMemoryLock { get; set; } = false;
+        public bool UseMemoryLock { get; set; }
         /// <summary>
         /// Compute perplexity over the prompt (perplexity)
         /// </summary>
-        public bool Perplexity { get; set; } = false;
+        public bool Perplexity { get; set; }
         /// <summary>
         /// Model path (model)
         /// </summary>
@@ -79,7 +79,7 @@ namespace LLama.Common
         /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
         /// The LLamaModel won't produce text response anymore.
         /// </summary>
-        public bool EmbeddingMode { get; set; } = false;
+        public bool EmbeddingMode { get; set; }
 
         /// <summary>
         /// how split tensors should be distributed across GPUs

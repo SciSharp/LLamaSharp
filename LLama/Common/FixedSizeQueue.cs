@@ -12,7 +12,6 @@ namespace LLama.Common
     public class FixedSizeQueue<T>
         : IEnumerable<T>
     {
-        private readonly int _maxSize;
         private readonly List<T> _storage;
 
         internal IReadOnlyList<T> Items => _storage;
@@ -25,7 +24,7 @@ namespace LLama.Common
         /// <summary>
         /// Maximum number of items allowed in this queue
         /// </summary>
-        public int Capacity => _maxSize;
+        public int Capacity { get; }
 
         /// <summary>
         /// Create a new queue
@@ -33,7 +32,7 @@ namespace LLama.Common
         /// <param name="size">the maximum number of items to store in this queue</param>
         public FixedSizeQueue(int size)
         {
-            _maxSize = size;
+            Capacity = size;
             _storage = new();
         }
 
@@ -52,11 +51,11 @@ namespace LLama.Common
 #endif
 
             // Size of "data" is unknown, copy it all into a list
-            _maxSize = size;
+            Capacity = size;
             _storage = new List<T>(data);
 
             // Now check if that list is a valid size.
-            if (_storage.Count > _maxSize)
+            if (_storage.Count > Capacity)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {_storage.Count} initial values.");
         }
 
@@ -81,7 +80,7 @@ namespace LLama.Common
         public void Enqueue(T item)
         {
             _storage.Add(item);
-            if(_storage.Count >= _maxSize)
+            if(_storage.Count >= Capacity)
             {
                 _storage.RemoveAt(0);
             }

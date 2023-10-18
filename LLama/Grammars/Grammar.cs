@@ -112,7 +112,6 @@ namespace LLama.Grammars
                     case LLamaGrammarElementType.CHAR_ALT:
                         PrintGrammarChar(output, elem.Value);
                         break;
-
                 }
 
                 if (elem.IsCharElement())

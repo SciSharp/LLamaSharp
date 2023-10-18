@@ -23,23 +23,21 @@ namespace LLama
         : IDisposable
     {
         private readonly ILogger? _logger;
-        private readonly Encoding _encoding;
-        private readonly SafeLLamaContextHandle _ctx;
 
         /// <summary>
         /// Total number of tokens in vocabulary of this model
         /// </summary>
-        public int VocabCount => _ctx.VocabCount;
+        public int VocabCount => NativeHandle.VocabCount;
 
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize => _ctx.ContextSize;
+        public int ContextSize => NativeHandle.ContextSize;
 
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingSize => _ctx.EmbeddingSize;
+        public int EmbeddingSize => NativeHandle.EmbeddingSize;
 
         /// <summary>
         /// The context params set for this context
@@ -50,20 +48,20 @@ namespace LLama
         /// The native handle, which is used to be passed to the native APIs
         /// </summary>
         /// <remarks>Be careful how you use this!</remarks>
-        public SafeLLamaContextHandle NativeHandle => _ctx;
+        public SafeLLamaContextHandle NativeHandle { get; }
 
         /// <summary>
         /// The encoding set for this model to deal with text input.
         /// </summary>
-        public Encoding Encoding => _encoding;
+        public Encoding Encoding { get; }
 
         internal LLamaContext(SafeLLamaContextHandle nativeContext, IContextParams @params, ILogger? logger = null)
         {
             Params = @params;
 
             _logger = logger;
-            _encoding = @params.Encoding;
-            _ctx = nativeContext;
+            Encoding = @params.Encoding;
+            NativeHandle = nativeContext;
         }
 
         /// <summary>
@@ -81,10 +79,10 @@ namespace LLama
             Params = @params;
 
             _logger = logger;
-            _encoding = @params.Encoding;
+            Encoding = @params.Encoding;
 
             @params.ToLlamaContextParams(out var lparams);
-            _ctx = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
+            NativeHandle = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
         }
 
         /// <summary>
@@ -96,7 +94,7 @@ namespace LLama
         /// <returns></returns>
         public llama_token[] Tokenize(string text, bool addBos = true, bool special = false)
         {
-            return _ctx.Tokenize(text, addBos, special, _encoding);
+            return NativeHandle.Tokenize(text, addBos, special, Encoding);
         }
 
         /// <summary>
@@ -108,7 +106,7 @@ namespace LLama
         {
             var sb = new StringBuilder();
             foreach (var token in tokens)
-                _ctx.TokenToString(token, _encoding, sb);
+                NativeHandle.TokenToString(token, Encoding, sb);
 
             return sb.ToString();
         }
@@ -124,7 +122,7 @@ namespace LLama
                 File.Delete(filename);
 
             // Estimate size of state to write to disk, this is always equal to or greater than the actual size
-            var estimatedStateSize = (long)NativeApi.llama_get_state_size(_ctx);
+            var estimatedStateSize = (long)NativeApi.llama_get_state_size(NativeHandle);
 
             // Map the file and write the bytes directly to it. This saves copying the bytes into a C# array
             long writtenBytes;
@@ -135,7 +133,7 @@ namespace LLama
                 {
                     byte* ptr = null;
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
-                    writtenBytes = (long)NativeApi.llama_copy_state_data(_ctx, ptr);
+                    writtenBytes = (long)NativeApi.llama_copy_state_data(NativeHandle, ptr);
                     view.SafeMemoryMappedViewHandle.ReleasePointer();
                 }
             }
@@ -151,14 +149,14 @@ namespace LLama
         /// <returns></returns>
         public State GetState()
         {
-            var stateSize = _ctx.GetStateSize();
+            var stateSize = NativeHandle.GetStateSize();
 
             // Allocate a chunk of memory large enough to hold the entire state
             var memory = Marshal.AllocHGlobal((nint)stateSize);
             try
             {
                 // Copy the state data into memory, discover the actual size required
-                var actualSize = _ctx.GetState(memory, stateSize);
+                var actualSize = NativeHandle.GetState(memory, stateSize);
 
                 // Shrink to size
                 memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
@@ -193,7 +191,7 @@ namespace LLama
                 {
                     byte* ptr = null;
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
-                    NativeApi.llama_set_state_data(_ctx, ptr);
+                    NativeApi.llama_set_state_data(NativeHandle, ptr);
                     view.SafeMemoryMappedViewHandle.ReleasePointer();
                 }
             }
@@ -208,7 +206,7 @@ namespace LLama
         {
             unsafe
             {
-                _ctx.SetState((byte*)state.DangerousGetHandle().ToPointer());
+                NativeHandle.SetState((byte*)state.DangerousGetHandle().ToPointer());
             }
         }
 
@@ -235,13 +233,13 @@ namespace LLama
 
             if (grammar != null)
             {
-                SamplingApi.llama_sample_grammar(_ctx, candidates, grammar);
+                SamplingApi.llama_sample_grammar(NativeHandle, candidates, grammar);
             }
 
             if (temperature <= 0)
             {
                 // Greedy sampling
-                id = SamplingApi.llama_sample_token_greedy(_ctx, candidates);
+                id = SamplingApi.llama_sample_token_greedy(NativeHandle, candidates);
             }
             else
             {
@@ -250,23 +248,23 @@ namespace LLama
                     if (mirostat == MirostatType.Mirostat)
                     {
                         const int mirostat_m = 100;
-                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                        id = SamplingApi.llama_sample_token_mirostat(_ctx, candidates, mirostatTau, mirostatEta, mirostat_m, ref mu);
+                        SamplingApi.llama_sample_temperature(NativeHandle, candidates, temperature);
+                        id = SamplingApi.llama_sample_token_mirostat(NativeHandle, candidates, mirostatTau, mirostatEta, mirostat_m, ref mu);
                     }
                     else if (mirostat == MirostatType.Mirostat2)
                     {
-                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                        id = SamplingApi.llama_sample_token_mirostat_v2(_ctx, candidates, mirostatTau, mirostatEta, ref mu);
+                        SamplingApi.llama_sample_temperature(NativeHandle, candidates, temperature);
+                        id = SamplingApi.llama_sample_token_mirostat_v2(NativeHandle, candidates, mirostatTau, mirostatEta, ref mu);
                     }
                     else
                     {
                         // Temperature sampling
-                        SamplingApi.llama_sample_top_k(_ctx, candidates, topK, 1);
-                        SamplingApi.llama_sample_tail_free(_ctx, candidates, tfsZ, 1);
-                        SamplingApi.llama_sample_typical(_ctx, candidates, typicalP, 1);
-                        SamplingApi.llama_sample_top_p(_ctx, candidates, topP, 1);
-                        SamplingApi.llama_sample_temperature(_ctx, candidates, temperature);
-                        id = SamplingApi.llama_sample_token(_ctx, candidates);
+                        SamplingApi.llama_sample_top_k(NativeHandle, candidates, topK, 1);
+                        SamplingApi.llama_sample_tail_free(NativeHandle, candidates, tfsZ, 1);
+                        SamplingApi.llama_sample_typical(NativeHandle, candidates, typicalP, 1);
+                        SamplingApi.llama_sample_top_p(NativeHandle, candidates, topP, 1);
+                        SamplingApi.llama_sample_temperature(NativeHandle, candidates, temperature);
+                        id = SamplingApi.llama_sample_token(NativeHandle, candidates);
                     }
                 }
                 mirostat_mu = mu;
@@ -274,7 +272,7 @@ namespace LLama
 
             if (grammar != null)
             {
-                NativeApi.llama_grammar_accept_token(_ctx, grammar, id);
+                NativeApi.llama_grammar_accept_token(NativeHandle, grammar, id);
             }
 
             return id;
@@ -295,7 +293,7 @@ namespace LLama
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
         {
-            var logits = _ctx.GetLogits();
+            var logits = NativeHandle.GetLogits();
 
             // Apply params.logit_bias map
             if (logitBias is not null)
@@ -305,7 +303,7 @@ namespace LLama
             }
 
             // Save the newline logit value
-            var nl_token = NativeApi.llama_token_nl(_ctx);
+            var nl_token = NativeApi.llama_token_nl(NativeHandle);
             var nl_logit = logits[nl_token];
 
             // Convert logits into token candidates
@@ -316,8 +314,8 @@ namespace LLama
             var last_n_array = lastTokens.TakeLast(last_n_repeat).ToArray();
 
             // Apply penalties to candidates
-            SamplingApi.llama_sample_repetition_penalty(_ctx, candidates_p, last_n_array, repeatPenalty);
-            SamplingApi.llama_sample_frequency_and_presence_penalties(_ctx, candidates_p, last_n_array, alphaFrequency, alphaPresence);
+            SamplingApi.llama_sample_repetition_penalty(NativeHandle, candidates_p, last_n_array, repeatPenalty);
+            SamplingApi.llama_sample_frequency_and_presence_penalties(NativeHandle, candidates_p, last_n_array, alphaFrequency, alphaPresence);
 
             // Restore newline token logit value if necessary
             if (!penalizeNL)
@@ -408,9 +406,9 @@ namespace LLama
                     n_eval = (int)Params.BatchSize;
                 }
 
-                if (!_ctx.Eval(tokens.Slice(i, n_eval), pastTokensCount))
+                if (!NativeHandle.Eval(tokens.Slice(i, n_eval), pastTokensCount))
                 {
-                    _logger?.LogError($"[LLamaContext] Failed to eval.");
+                    _logger?.LogError("[LLamaContext] Failed to eval.");
                     throw new RuntimeError("Failed to eval.");
                 }
 
@@ -443,7 +441,7 @@ namespace LLama
         /// <inheritdoc />
         public void Dispose()
         {
-            _ctx.Dispose();
+            NativeHandle.Dispose();
         }
 
         /// <summary>
