@@ -3,7 +3,6 @@ using LLama.Web.Common;
 using LLama.Web.Models;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
-using System.Drawing;
 
 namespace LLama.Web.Services
 {
@@ -50,15 +49,16 @@ namespace LLama.Web.Services
             if (modelOption.MaxInstances > -1 && currentInstances >= modelOption.MaxInstances)
                 return Task.FromResult(ServiceResult.FromError<ModelSession>("Maximum model instances reached"));
 
-            // Create model
-            var llamaModel = new LLamaContext(modelOption);
+            // Load weights
+            // todo: it would be better to have a central service which loads weights and shares them between all contexts that need them!
+            using var weights = LLamaWeights.LoadFromFile(modelOption);
 
             // Create executor
             ILLamaExecutor executor = executorType switch
             {
-                LLamaExecutorType.Interactive => new InteractiveExecutor(llamaModel),
-                LLamaExecutorType.Instruct => new InstructExecutor(llamaModel),
-                LLamaExecutorType.Stateless => new StatelessExecutor(llamaModel),
+                LLamaExecutorType.Interactive => new InteractiveExecutor(new LLamaContext(weights, modelOption)), //todo: properly dispose of LLamaContext
+                LLamaExecutorType.Instruct => new InstructExecutor(new LLamaContext(weights, modelOption)), //todo: properly dispose of LLamaContext
+                LLamaExecutorType.Stateless => new StatelessExecutor(weights, modelOption),
                 _ => default
             };
 

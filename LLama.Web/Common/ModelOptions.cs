@@ -4,7 +4,7 @@ using LLama.Abstractions;
 namespace LLama.Web.Common
 {
     public class ModelOptions
-        : IModelParams
+        : ILLamaParams
     {
       
         public string Name { get; set; }
@@ -14,7 +14,7 @@ namespace LLama.Web.Common
 		/// <summary>
 		/// Model context size (n_ctx)
 		/// </summary>
-		public int ContextSize { get; set; } = 512;
+		public uint ContextSize { get; set; } = 512;
 		/// <summary>
 		/// the GPU that is used for scratch and small tensors
 		/// </summary>
@@ -30,7 +30,7 @@ namespace LLama.Web.Common
 		/// <summary>
 		/// Seed for the random number generator (seed)
 		/// </summary>
-		public int Seed { get; set; } = 1686349486;
+		public uint Seed { get; set; } = 1686349486;
 		/// <summary>
 		/// Use f16 instead of f32 for memory kv (memory_f16)
 		/// </summary>
@@ -51,26 +51,31 @@ namespace LLama.Web.Common
 		/// Model path (model)
 		/// </summary>
 		public string ModelPath { get; set; }
+
 		/// <summary>
-		/// model alias
+		/// List of LoRAs to apply
 		/// </summary>
-		public string ModelAlias { get; set; } = "unknown";
+        public AdapterCollection LoraAdapters { get; set; } = new();
+
+        /// <summary>
+        /// base model path for the lora adapter (lora_base)
+        /// </summary>
+        public string LoraBase { get; set; } = string.Empty;
+
 		/// <summary>
-		/// lora adapter path (lora_adapter)
+		/// Number of threads (null = autodetect) (n_threads)
 		/// </summary>
-		public string LoraAdapter { get; set; } = string.Empty;
-		/// <summary>
-		/// base model path for the lora adapter (lora_base)
-		/// </summary>
-		public string LoraBase { get; set; } = string.Empty;
-		/// <summary>
-		/// Number of threads (-1 = autodetect) (n_threads)
-		/// </summary>
-		public int Threads { get; set; } = Math.Max(Environment.ProcessorCount / 2, 1);
-		/// <summary>
-		/// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
-		/// </summary>
-		public int BatchSize { get; set; } = 512;
+		public uint? Threads { get; set; }
+
+        /// <summary>
+        /// Number of threads to use for batch processing (null = autodetect) (n_threads)
+        /// </summary>
+        public uint? BatchThreads { get; set; }
+
+        /// <summary>
+        /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
+        /// </summary>
+        public uint BatchSize { get; set; } = 512;
 
 		/// <summary>
 		/// Whether to convert eos to newline during the inference.
@@ -107,5 +112,10 @@ namespace LLama.Web.Common
         /// The encoding to use for models
         /// </summary>
         public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+        /// <summary>
+        /// Load vocab only (no weights)
+        /// </summary>
+        public bool VocabOnly { get; set; }
     }
 }

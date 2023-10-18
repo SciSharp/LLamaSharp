@@ -1,4 +1,5 @@
 ﻿using LLama.Examples.NewVersion;
+using LLama.Native;
 
 Console.WriteLine("======================================================================================================");
 
@@ -7,7 +8,7 @@ Console.WriteLine(" __       __                                       ____     _
 Console.WriteLine("======================================================================================================");
 
 
-
+NativeApi.llama_empty_call();
 Console.WriteLine();
 
 await NewVersionTestRunner.Run();

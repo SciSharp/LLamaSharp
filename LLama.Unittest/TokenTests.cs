@@ -27,7 +27,7 @@ public sealed class TokenTests
     [Fact]
     public void TokensEndWith()
     {
-        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
+        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
         var result = tokens.TokensEndsWithAnyString(new[]
         {
@@ -41,7 +41,7 @@ public sealed class TokenTests
     [Fact]
     public void TokensEndSubstring()
     {
-        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
+        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
         var result = tokens.TokensEndsWithAnyString((IList<string>)new[]
         {
@@ -53,7 +53,7 @@ public sealed class TokenTests
     [Fact]
     public void TokensNotEndWith()
     {
-        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
+        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
         var result = tokens.TokensEndsWithAnyString((IList<string>)new[]
         {
@@ -67,7 +67,7 @@ public sealed class TokenTests
     [Fact]
     public void TokensNotEndWithNothing()
     {
-        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, Encoding.UTF8);
+        var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
         var result = tokens.TokensEndsWithAnyString((IList<string>)Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
         Assert.False(result);

@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Extensions;
+using LLama.Native;
 
 namespace LLama
 {
@@ -20,7 +21,7 @@ namespace LLama
         : ILLamaExecutor
     {
         private readonly LLamaWeights _weights;
-        private readonly IModelParams _params;
+        private readonly IContextParams _params;
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -32,24 +33,10 @@ namespace LLama
         /// </summary>
         /// <param name="weights"></param>
         /// <param name="params"></param>
-        public StatelessExecutor(LLamaWeights weights, IModelParams @params)
+        public StatelessExecutor(LLamaWeights weights, IContextParams @params)
         {
             _weights = weights;
             _params = @params;
-
-            Context = _weights.CreateContext(_params);
-            Context.Dispose();
-        }
-
-        /// <summary>
-        /// Create a new stateless executor which will use the model used to create the given context
-        /// </summary>
-        /// <param name="context"></param>
-        [Obsolete("Use the constructor which automatically creates contexts using the LLamaWeights")]
-        public StatelessExecutor(LLamaContext context)
-        {
-            _weights = new LLamaWeights(context.NativeHandle.ModelHandle, context.Params.Encoding);
-            _params = context.Params;
 
             Context = _weights.CreateContext(_params);
             Context.Dispose();
@@ -114,15 +101,16 @@ namespace LLama
                     break;
 
                 // when run out of context
-                // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L433
-                if (n_past + tokens.Count > Context.ContextSize)
+                // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L497
+                if (n_past + tokens.Count >= Context.ContextSize)
                 {
-                    var n_left = n_past - inferenceParams.TokensKeep;
+                    var n_left = n_past - inferenceParams.TokensKeep - 1;
+                    var n_discard = n_left / 2;
 
-                    n_past = Math.Max(1, inferenceParams.TokensKeep);
+                    NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, (LLamaSeqId)0, inferenceParams.TokensKeep + 1, inferenceParams.TokensKeep + n_discard + 1);
+                    NativeApi.llama_kv_cache_seq_shift(Context.NativeHandle, (LLamaSeqId)0, inferenceParams.TokensKeep + 1 + n_discard, n_past, -n_discard);
 
-                    tokens.Clear();
-                    tokens.AddRange(lastTokens.Skip(lastTokens.Count - n_left / 2).Take(n_left / 2));
+                    n_past -= n_discard;
                 }
 
                 // ReSharper disable once AccessToModifiedClosure (Justification: n_past is modified inside and outside the capture, but not concurrently)

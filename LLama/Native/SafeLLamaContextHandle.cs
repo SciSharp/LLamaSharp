@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -21,25 +22,12 @@ namespace LLama.Native
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize => ThrowIfDisposed().ContextSize;
+        public int ContextSize => NativeApi.llama_n_ctx(this);
 
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
         public int EmbeddingSize => ThrowIfDisposed().EmbeddingSize;
-
-        /// <summary>
-        /// Get the number of tokens in the KV Cache for this context
-        /// </summary>
-        public int KVCacheTokenCount
-        {
-            get
-            {
-                if (IsClosed)
-                    throw new ObjectDisposedException("Cannot use this `SafeLLamaContextHandle` - it has been disposed");
-                return NativeApi.llama_get_kv_cache_token_count(this);
-            }
-        }
 
         /// <summary>
         /// Get the model which this context is using
@@ -64,17 +52,20 @@ namespace LLama.Native
             _model.DangerousAddRef(ref success);
             if (!success)
                 throw new RuntimeError("Failed to increment model refcount");
+
+            
         }
 
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
+            NativeApi.llama_free(DangerousGetHandle());
+            SetHandle(IntPtr.Zero);
+
             // Decrement refcount on model
             _model?.DangerousRelease();
             _model = null!;
 
-            NativeApi.llama_free(handle);
-            SetHandle(IntPtr.Zero);
             return true;
         }
 
@@ -103,79 +94,7 @@ namespace LLama.Native
 
             return new(ctx_ptr, model);
         }
-
-        /// <summary>
-        /// Create a new llama context with a clone of the current llama context state
-        /// </summary>
-        /// <param name="lparams"></param>
-        /// <returns></returns>
-        public SafeLLamaContextHandle Clone(LLamaContextParams lparams)
-        {
-            // Allocate space to read the state of the current context
-            var stateSize = GetStateSize();
-            var stateMemory = Marshal.AllocHGlobal((nint)stateSize);
-            try
-            {
-                // Copy state from this context into memory
-                GetState(stateMemory, stateSize);
-
-                // Create a new context
-                var newCtx = Create(ModelHandle, lparams);
-
-                // Copy state into new context
-                newCtx.SetState(stateMemory);
-
-                return newCtx;
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(stateMemory);
-            }
-        }
         #endregion
-
-        /// <summary>
-        /// Convert the given text into tokens
-        /// </summary>
-        /// <param name="text">The text to tokenize</param>
-        /// <param name="add_bos">Whether the "BOS" token should be added</param>
-        /// <param name="encoding">Encoding to use for the text</param>
-        /// <returns></returns>
-        /// <exception cref="RuntimeError"></exception>
-        public int[] Tokenize(string text, bool add_bos, Encoding encoding)
-        {
-            ThrowIfDisposed();
-
-            if (string.IsNullOrEmpty(text) && !add_bos)
-                return Array.Empty<int>();
-
-            // Calculate number of bytes in string, this is a pessimistic estimate of token count. It can't
-            // possibly be more than this.
-            var count = encoding.GetByteCount(text) + (add_bos ? 1 : 0);
-
-            // "Rent" an array to write results into (avoiding an allocation of a large array)
-            var temporaryArray = ArrayPool<int>.Shared.Rent(count);
-            try
-            {
-                // Do the actual conversion
-                var n = NativeApi.llama_tokenize(this, text, encoding, temporaryArray, count, add_bos);
-                if (n < 0)
-                {
-                    throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +
-                                           "specify the encoding.");
-                }
-
-                // Copy the results from the rented into an array which is exactly the right size
-                var result = new int[n];
-                Array.ConstrainedCopy(temporaryArray, 0, result, 0, n);
-
-                return result;
-            }
-            finally
-            {
-                ArrayPool<int>.Shared.Return(temporaryArray);
-            }
-        }
 
         /// <summary>
         /// Token logits obtained from the last call to llama_eval()
@@ -193,6 +112,51 @@ namespace LLama.Native
             {
                 var logits = NativeApi.llama_get_logits(this);
                 return new Span<float>(logits, model.VocabCount);
+            }
+        }
+
+        #region tokens
+        /// <summary>
+        /// Convert the given text into tokens
+        /// </summary>
+        /// <param name="text">The text to tokenize</param>
+        /// <param name="add_bos">Whether the "BOS" token should be added</param>
+        /// <param name="encoding">Encoding to use for the text</param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
+        /// <returns></returns>
+        /// <exception cref="RuntimeError"></exception>
+        public int[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
+        {
+            ThrowIfDisposed();
+
+            if (string.IsNullOrEmpty(text) && !add_bos)
+                return Array.Empty<int>();
+
+            // Calculate number of bytes in string, this is a pessimistic estimate of token count. It can't
+            // possibly be more than this.
+            var count = encoding.GetByteCount(text) + (add_bos ? 1 : 0);
+
+            // "Rent" an array to write results into (avoiding an allocation of a large array)
+            var temporaryArray = ArrayPool<int>.Shared.Rent(count);
+            try
+            {
+                // Do the actual conversion
+                var n = NativeApi.llama_tokenize(this, text, encoding, temporaryArray, count, add_bos, special);
+                if (n < 0)
+                {
+                    throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +
+                                           "specify the encoding.");
+                }
+
+                // Copy the results from the rented into an array which is exactly the right size
+                var result = new int[n];
+                Array.ConstrainedCopy(temporaryArray, 0, result, 0, n);
+
+                return result;
+            }
+            finally
+            {
+                ArrayPool<int>.Shared.Return(temporaryArray);
             }
         }
 
@@ -228,23 +192,29 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token, dest);
         }
+        #endregion
 
         /// <summary>
         /// Run the llama inference to obtain the logits and probabilities for the next token.
         /// </summary>
         /// <param name="tokens">The provided batch of new tokens to process</param>
         /// <param name="n_past">the number of tokens to use from previous eval calls</param>
-        /// <param name="n_threads"></param>
         /// <returns>Returns true on success</returns>
-        public bool Eval(ReadOnlySpan<int> tokens, int n_past, int n_threads)
+        public bool Eval(ReadOnlySpan<int> tokens, int n_past)
         {
             unsafe
             {
                 fixed (int* pinned = tokens)
                 {
-                    return NativeApi.llama_eval_with_pointer(this, pinned, tokens.Length, n_past, n_threads) == 0;
+                    var ret = NativeApi.llama_eval(this, pinned, tokens.Length, n_past);
+                    return ret == 0;
                 }
             }
+        }
+
+        public int Decode(LLamaBatchSafeHandle batch)
+        {
+            return NativeApi.llama_decode(this, batch.Batch);
         }
 
         #region state

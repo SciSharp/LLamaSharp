@@ -15,7 +15,7 @@ namespace LLama.Examples.NewVersion
             // Load weights into memory
             var @params = new ModelParams(modelPath)
             {
-                Seed = RandomNumberGenerator.GetInt32(int.MaxValue)
+                Seed = unchecked((uint)RandomNumberGenerator.GetInt32(int.MaxValue))
             };
             using var weights = LLamaWeights.LoadFromFile(@params);
 

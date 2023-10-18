@@ -16,10 +16,15 @@ public class StatefulChatService : IDisposable
 
     public StatefulChatService(IConfiguration configuration)
     {
-        _context = new LLamaContext(new Common.ModelParams(configuration["ModelPath"])
+        var @params = new Common.ModelParams(configuration["ModelPath"])
         {
-            ContextSize = 512
-        });
+            ContextSize = 512,
+        };
+
+        // todo: share weights from a central service
+        using var weights = LLamaWeights.LoadFromFile(@params);
+
+        _context = new LLamaContext(weights, @params);
         _session = new ChatSession(new InteractiveExecutor(_context));
     }
 

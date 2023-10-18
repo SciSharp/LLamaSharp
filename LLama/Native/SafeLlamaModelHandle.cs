@@ -29,18 +29,30 @@ namespace LLama.Native
         /// </summary>
         public int EmbeddingSize { get; }
 
+        /// <summary>
+        /// Get the size of this model in bytes
+        /// </summary>
+        public ulong SizeInBytes { get; }
+
+        /// <summary>
+        /// Get the number of parameters in this model
+        /// </summary>
+        public ulong ParameterCount { get; }
+
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)
         {
-            VocabCount = NativeApi.llama_model_n_vocab(this);
-            ContextSize = NativeApi.llama_model_n_ctx(this);
-            EmbeddingSize = NativeApi.llama_model_n_embd(this);
+            VocabCount = NativeApi.llama_n_vocab(this);
+            ContextSize = NativeApi.llama_n_ctx_train(this);
+            EmbeddingSize = NativeApi.llama_n_embd(this);
+            SizeInBytes = NativeApi.llama_model_size(this);
+            ParameterCount = NativeApi.llama_model_n_params(this);
         }
 
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
-            NativeApi.llama_free_model(handle);
+            NativeApi.llama_free_model(DangerousGetHandle());
             SetHandle(IntPtr.Zero);
             return true;
         }
@@ -52,7 +64,7 @@ namespace LLama.Native
         /// <param name="lparams"></param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaContextParams lparams)
+        public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
             var model_ptr = NativeApi.llama_load_model_from_file(modelPath, lparams);
             if (model_ptr == IntPtr.Zero)
@@ -62,21 +74,24 @@ namespace LLama.Native
         }
 
         #region LoRA
+
         /// <summary>
         /// Apply a LoRA adapter to a loaded model
         /// </summary>
         /// <param name="lora"></param>
+        /// <param name="scale"></param>
         /// <param name="modelBase">A path to a higher quality model to use as a base for the layers modified by the
         /// adapter. Can be NULL to use the current loaded model.</param>
         /// <param name="threads"></param>
         /// <exception cref="RuntimeError"></exception>
-        public void ApplyLoraFromFile(string lora, string? modelBase = null, int threads = -1)
+        public void ApplyLoraFromFile(string lora, float scale, string? modelBase = null, uint? threads = null)
         {
             var err = NativeApi.llama_model_apply_lora_from_file(
                 this,
                 lora,
+                scale,
                 string.IsNullOrEmpty(modelBase) ? null : modelBase,
-                threads
+                (int?)threads ?? -1
             );
 
             if (err != 0)
@@ -97,7 +112,7 @@ namespace LLama.Native
             {
                 fixed (byte* destPtr = dest)
                 {
-                    var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, destPtr, dest.Length);
+                    var length = NativeApi.llama_token_to_piece(this, llama_token, destPtr, dest.Length);
                     return Math.Abs(length);
                 }
             }
@@ -113,7 +128,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, null, 0);
+                var length = NativeApi.llama_token_to_piece(this, llama_token, null, 0);
                 if (length == 0)
                     return "";
 
@@ -121,7 +136,7 @@ namespace LLama.Native
 
                 fixed (byte* bytePtr = bytes)
                 {
-                    var written = NativeApi.llama_token_to_piece_with_model(this, llama_token, bytePtr, bytes.Length);
+                    var written = NativeApi.llama_token_to_piece(this, llama_token, bytePtr, bytes.Length);
                     Debug.Assert(written == bytes.Length);
 
                     return encoding.GetString(bytePtr, bytes.Length);
@@ -139,7 +154,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                var length = NativeApi.llama_token_to_piece_with_model(this, llama_token, null, 0);
+                var length = NativeApi.llama_token_to_piece(this, llama_token, null, 0);
                 if (length == 0)
                     return;
 
@@ -147,7 +162,7 @@ namespace LLama.Native
                 fixed (byte* bytePtr = bytes)
                 {
                     // Decode into bytes
-                    var written = NativeApi.llama_token_to_piece_with_model(this, llama_token, bytePtr, bytes.Length);
+                    var written = NativeApi.llama_token_to_piece(this, llama_token, bytePtr, bytes.Length);
                     Debug.Assert(written == bytes.Length);
 
                     // Decode into chars
@@ -256,8 +271,9 @@ namespace LLama.Native
         /// <param name="text"></param>
         /// <param name="add_bos"></param>
         /// <param name="encoding"></param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
-        public int[] Tokenize(string text, bool add_bos, Encoding encoding)
+        public int[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
@@ -276,13 +292,13 @@ namespace LLama.Native
                 fixed (byte* bytesPtr = &bytes[0])
                 {
                     // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                    var count = -NativeApi.llama_tokenize_with_model(this, bytesPtr, (int*)IntPtr.Zero, 0, add_bos);
+                    var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (int*)IntPtr.Zero, 0, add_bos, special);
 
                     // Tokenize again, this time outputting into an array of exactly the right size
                     var tokens = new int[count];
                     fixed (int* tokensPtr = &tokens[0])
                     {
-                        NativeApi.llama_tokenize_with_model(this, bytesPtr, tokensPtr, count, add_bos);
+                        NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
                         return tokens;
                     }
                 }

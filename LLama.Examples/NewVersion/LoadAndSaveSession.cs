@@ -8,7 +8,7 @@ namespace LLama.Examples.NewVersion
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
-            var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+            var prompt = (await File.ReadAllTextAsync("Assets/chat-with-bob.txt")).Trim();
 
             var parameters = new ModelParams(modelPath)
             {
@@ -50,7 +50,7 @@ namespace LLama.Examples.NewVersion
                     Console.ForegroundColor = ConsoleColor.White;
 
                     ex.Context.Dispose();
-                    ex = new(new LLamaContext(parameters));
+                    ex = new(new LLamaContext(model, parameters));
                     session = new ChatSession(ex);
                     session.LoadSession(statePath);
 
