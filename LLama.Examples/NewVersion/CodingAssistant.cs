@@ -31,7 +31,7 @@
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
-            var executor = new InstructExecutor(context, null!, InstructionPrefix, InstructionSuffix);
+            var executor = new InstructExecutor(context, InstructionPrefix, InstructionSuffix, null);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions." +
