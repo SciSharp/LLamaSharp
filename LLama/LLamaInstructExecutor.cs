@@ -17,7 +17,8 @@ namespace LLama
     /// <summary>
     /// The LLama executor for instruct mode.
     /// </summary>
-    public class InstructExecutor : StatefulExecutorBase
+    public class InstructExecutor
+        : StatefulExecutorBase
     {
         private bool _is_prompt_run = true;
         private readonly string _instructionPrefix;
@@ -28,11 +29,14 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
         /// <param name="instructionPrefix"></param>
         /// <param name="instructionSuffix"></param>
-        public InstructExecutor(LLamaContext context, ILogger logger = null!, string instructionPrefix = "\n\n### Instruction:\n\n",
-            string instructionSuffix = "\n\n### Response:\n\n") : base(context)
+        /// <param name="logger"></param>
+        public InstructExecutor(LLamaContext context,
+                                string instructionPrefix = "\n\n### Instruction:\n\n",
+                                string instructionSuffix = "\n\n### Response:\n\n",
+                                ILogger? logger = null)
+            : base(context, logger)
         {
             _inp_pfx = Context.Tokenize(instructionPrefix, true);
             _inp_sfx = Context.Tokenize(instructionSuffix, false);
