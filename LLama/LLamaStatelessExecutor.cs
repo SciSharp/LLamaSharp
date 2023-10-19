@@ -36,9 +36,8 @@ namespace LLama
         /// <param name="weights"></param>
         /// <param name="params"></param>
         /// <param name="logger"></param>
-        public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger logger = null!)
+        public StatelessExecutor(LLamaWeights weights, IContextParams @params)
         {
-            _logger = logger;
             _weights = weights;
             _params = @params;
 

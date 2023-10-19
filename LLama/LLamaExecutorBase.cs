@@ -75,10 +75,9 @@ namespace LLama
         /// </summary>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
+        protected StatefulExecutorBase(LLamaContext context)
         {
             Context = context;
-            _logger = logger;
             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;

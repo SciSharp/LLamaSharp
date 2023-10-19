@@ -27,7 +27,7 @@ namespace LLama
         /// </summary>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        public InteractiveExecutor(LLamaContext context, ILogger logger = null!) : base(context, logger)
+        public InteractiveExecutor(LLamaContext context) : base(context)
         {
             _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle);
         }

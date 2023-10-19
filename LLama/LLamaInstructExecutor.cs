@@ -32,7 +32,7 @@ namespace LLama
         /// <param name="instructionPrefix"></param>
         /// <param name="instructionSuffix"></param>
         public InstructExecutor(LLamaContext context, ILogger logger = null!, string instructionPrefix = "\n\n### Instruction:\n\n",
-            string instructionSuffix = "\n\n### Response:\n\n") : base(context, logger)
+            string instructionSuffix = "\n\n### Response:\n\n") : base(context)
         {
             _inp_pfx = Context.Tokenize(instructionPrefix, true);
             _inp_sfx = Context.Tokenize(instructionSuffix, false);
