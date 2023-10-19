@@ -1,6 +1,7 @@
 using LLama.Web.Common;
 using LLama.Web.Hubs;
 using LLama.Web.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LLama.Web
 {
@@ -13,6 +14,8 @@ namespace LLama.Web
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddSignalR();
+            builder.Logging.ClearProviders();
+            builder.Services.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddConsole());
 
             // Load InteractiveOptions
             builder.Services.AddOptions<LLamaOptions>()
@@ -20,7 +23,9 @@ namespace LLama.Web
                 .BindConfiguration(nameof(LLamaOptions));
 
             // Services DI
-            builder.Services.AddSingleton<ConnectionSessionService>();
+            builder.Services.AddHostedService<ModelLoaderService>();
+            builder.Services.AddSingleton<IModelService, ModelService>();
+            builder.Services.AddSingleton<IModelSessionService, ModelSessionService>();
 
             var app = builder.Build();
 

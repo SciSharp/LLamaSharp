@@ -2,6 +2,7 @@
 using LLama.Abstractions;
 using LLama.Extensions;
 using LLama.Native;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -80,10 +81,11 @@ namespace LLama
         /// Create a llama_context using this model
         /// </summary>
         /// <param name="params"></param>
+        /// <param name="logger"></param>
         /// <returns></returns>
-        public LLamaContext CreateContext(IContextParams @params)
+        public LLamaContext CreateContext(IContextParams @params, ILogger logger = default!)
         {
-            return new LLamaContext(this, @params);
+            return new LLamaContext(this, @params, logger);
         }
     }
 }
