@@ -58,7 +58,7 @@ public class GrammarUnexpectedEndOfInput
     : GrammarFormatException
 {
     internal GrammarUnexpectedEndOfInput()
-        : base($"Unexpected end of input")
+        : base("Unexpected end of input")
     {
     }
 }

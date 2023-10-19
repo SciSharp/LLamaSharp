@@ -4,11 +4,18 @@ namespace LLama.Native;
 
 using llama_token = Int32;
 
+/// <summary>
+/// Input data for llama_decode. A llama_batch object can contain input about one or many sequences.
+/// </summary>
 public sealed class LLamaBatchSafeHandle
     : SafeLLamaHandleBase
 {
     private readonly int _embd;
-    public LLamaNativeBatch Batch { get; private set; }
+
+    /// <summary>
+    /// Get the native llama_batch struct
+    /// </summary>
+    public LLamaNativeBatch NativeBatch { get; private set; }
 
     /// <summary>
     /// the token ids of the input (used when embd is NULL)
@@ -22,7 +29,7 @@ public sealed class LLamaBatchSafeHandle
                 if (_embd != 0)
                     return new Span<int>(null, 0);
                 else
-                    return new Span<int>(Batch.token, Batch.n_tokens);
+                    return new Span<int>(NativeBatch.token, NativeBatch.n_tokens);
             }
         }
     }
@@ -37,10 +44,10 @@ public sealed class LLamaBatchSafeHandle
             unsafe
             {
                 // If embd != 0, llama_batch.embd will be allocated with size of n_tokens *embd * sizeof(float)
-                /// Otherwise, llama_batch.token will be allocated to store n_tokens llama_token
+                // Otherwise, llama_batch.token will be allocated to store n_tokens llama_token
 
                 if (_embd != 0)
-                    return new Span<llama_token>(Batch.embd, Batch.n_tokens * _embd);
+                    return new Span<llama_token>(NativeBatch.embd, NativeBatch.n_tokens * _embd);
                 else
                     return new Span<llama_token>(null, 0);
             }
@@ -56,7 +63,7 @@ public sealed class LLamaBatchSafeHandle
         {
             unsafe
             {
-                return new Span<LLamaPos>(Batch.pos, Batch.n_tokens);
+                return new Span<LLamaPos>(NativeBatch.pos, NativeBatch.n_tokens);
             }
         }
     }
@@ -70,7 +77,7 @@ public sealed class LLamaBatchSafeHandle
         {
             unsafe
             {
-                return new Span<LLamaSeqId>(Batch.seq_id, Batch.n_tokens);
+                return new Span<LLamaSeqId>(NativeBatch.seq_id, NativeBatch.n_tokens);
             }
         }
     }
@@ -84,22 +91,40 @@ public sealed class LLamaBatchSafeHandle
         {
             unsafe
             {
-                return new Span<byte>(Batch.logits, Batch.n_tokens);
+                return new Span<byte>(NativeBatch.logits, NativeBatch.n_tokens);
             }
         }
     }
 
-    public LLamaBatchSafeHandle(int n_tokens, int embd)
+    /// <summary>
+    /// Create a safe handle owning a `LLamaNativeBatch`
+    /// </summary>
+    /// <param name="batch"></param>
+    /// <param name="embd"></param>
+    public LLamaBatchSafeHandle(LLamaNativeBatch batch, int embd)
         : base((nint)1)
     {
         _embd = embd;
-        Batch = NativeApi.llama_batch_init(n_tokens, embd);
+        NativeBatch = batch;
     }
 
+    /// <summary>
+    /// Call `llama_batch_init` and create a new batch
+    /// </summary>
+    /// <param name="n_tokens"></param>
+    /// <param name="embd"></param>
+    /// <returns></returns>
+    public static LLamaBatchSafeHandle Create(int n_tokens, int embd)
+    {
+        var batch = NativeApi.llama_batch_init(n_tokens, embd);
+        return new LLamaBatchSafeHandle(batch, embd);
+    }
+
+    /// <inheritdoc />
     protected override bool ReleaseHandle()
     {
-        NativeApi.llama_batch_free(Batch);
-        Batch = default;
+        NativeApi.llama_batch_free(NativeBatch);
+        NativeBatch = default;
         SetHandle(IntPtr.Zero);
         return true;
     }

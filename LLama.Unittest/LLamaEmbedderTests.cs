@@ -5,7 +5,14 @@ namespace LLama.Unittest;
 public class LLamaEmbedderTests
     : IDisposable
 {
-    private readonly LLamaEmbedder _embedder = new(new ModelParams(Constants.ModelPath));
+    private readonly LLamaEmbedder _embedder;
+
+    public LLamaEmbedderTests()
+    {
+        var @params = new ModelParams(Constants.ModelPath);
+        using var weights = LLamaWeights.LoadFromFile(@params);
+        _embedder = new(weights, @params);
+    }
 
     public void Dispose()
     {

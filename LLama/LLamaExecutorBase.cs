@@ -114,7 +114,7 @@ namespace LLama
             }
             else
             {
-                _logger?.LogWarning($"[LLamaExecutor] Session file does not exist, will create");
+                _logger?.LogWarning("[LLamaExecutor] Session file does not exist, will create");
             }
 
             _n_matching_session_tokens = 0;

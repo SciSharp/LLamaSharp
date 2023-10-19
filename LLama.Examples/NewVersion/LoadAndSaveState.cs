@@ -8,7 +8,7 @@ namespace LLama.Examples.NewVersion
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
-            var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
+            var prompt = (await File.ReadAllTextAsync("Assets/chat-with-bob.txt")).Trim();
 
             var parameters = new ModelParams(modelPath)
             {
@@ -44,7 +44,7 @@ namespace LLama.Examples.NewVersion
 
                     Console.Write("Your path to save executor state: ");
                     var executorStatePath = Console.ReadLine();
-                    ex.SaveState(executorStatePath);
+                    await ex.SaveState(executorStatePath);
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("All states saved!");
@@ -53,7 +53,7 @@ namespace LLama.Examples.NewVersion
                     var ctx = ex.Context;
                     ctx.LoadState(modelStatePath);
                     ex = new InteractiveExecutor(ctx);
-                    ex.LoadState(executorStatePath);
+                    await ex.LoadState(executorStatePath);
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("Loaded state!");
                     Console.ForegroundColor = ConsoleColor.White;

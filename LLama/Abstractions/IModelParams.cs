@@ -35,11 +35,6 @@ namespace LLama.Abstractions
         string ModelPath { get; set; }
 
         /// <summary>
-        /// Number of threads (-1 = autodetect) (n_threads)
-        /// </summary>
-        uint? Threads { get; set; }
-
-        /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
         float[]? TensorSplits { get; set; }

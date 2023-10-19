@@ -18,10 +18,10 @@ namespace LLama
     /// </summary>
     public class InstructExecutor : StatefulExecutorBase
     {
-        bool _is_prompt_run = true;
-        string _instructionPrefix;
-        llama_token[] _inp_pfx;
-        llama_token[] _inp_sfx;
+        private bool _is_prompt_run = true;
+        private readonly string _instructionPrefix;
+        private llama_token[] _inp_pfx;
+        private llama_token[] _inp_sfx;
 
         /// <summary>
         /// 

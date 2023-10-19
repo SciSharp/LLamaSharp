@@ -11,13 +11,11 @@ namespace LLama
     public sealed class LLamaWeights
         : IDisposable
     {
-        private readonly SafeLlamaModelHandle _weights;
-
         /// <summary>
         /// The native handle, which is used in the native APIs
         /// </summary>
         /// <remarks>Be careful how you use this!</remarks>
-        public SafeLlamaModelHandle NativeHandle => _weights;
+        public SafeLlamaModelHandle NativeHandle { get; }
 
         /// <summary>
         /// Total number of tokens in vocabulary of this model
@@ -46,7 +44,7 @@ namespace LLama
 
         internal LLamaWeights(SafeLlamaModelHandle weights)
         {
-            _weights = weights;
+            NativeHandle = weights;
         }
 
         /// <summary>
@@ -66,7 +64,7 @@ namespace LLama
                 if (adapter.Scale <= 0)
                     continue;
 
-                weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase, @params.Threads);
+                weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase);
             }
 
             return new LLamaWeights(weights);
@@ -75,7 +73,7 @@ namespace LLama
         /// <inheritdoc />
         public void Dispose()
         {
-            _weights.Dispose();
+            NativeHandle.Dispose();
         }
 
         /// <summary>

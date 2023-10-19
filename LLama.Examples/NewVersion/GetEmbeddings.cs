@@ -8,7 +8,10 @@ namespace LLama.Examples.NewVersion
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
-            var embedder = new LLamaEmbedder(new ModelParams(modelPath));
+
+            var @params = new ModelParams(modelPath);
+            using var weights = LLamaWeights.LoadFromFile(@params);
+            var embedder = new LLamaEmbedder(weights, @params);
 
             while (true)
             {

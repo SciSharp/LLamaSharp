@@ -45,7 +45,7 @@ namespace LLama.Native
         /// CHAR_RNG_UPPER to add an alternate char to match ([ab], [a-zA])
         /// </summary>
         CHAR_ALT = 6,
-    };
+    }
 
     /// <summary>
     /// An element of a grammar
