@@ -2,6 +2,7 @@
 using System;
 using LLama.Exceptions;
 using LLama.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -22,9 +23,10 @@ namespace LLama
         /// Create a new embedder (loading temporary weights)
         /// </summary>
         /// <param name="allParams"></param>
+        /// <param name="logger"></param>
         [Obsolete("Preload LLamaWeights and use the constructor which accepts them")]
-        public LLamaEmbedder(ILLamaParams allParams)
-            : this(allParams, allParams)
+        public LLamaEmbedder(ILLamaParams allParams, ILogger? logger = null)
+            : this(allParams, allParams, logger)
         {
         }
 
@@ -33,13 +35,14 @@ namespace LLama
         /// </summary>
         /// <param name="modelParams"></param>
         /// <param name="contextParams"></param>
+        /// <param name="logger"></param>
         [Obsolete("Preload LLamaWeights and use the constructor which accepts them")]
-        public LLamaEmbedder(IModelParams modelParams, IContextParams contextParams)
+        public LLamaEmbedder(IModelParams modelParams, IContextParams contextParams, ILogger? logger = null)
         {
             using var weights = LLamaWeights.LoadFromFile(modelParams);
 
             contextParams.EmbeddingMode = true;
-            _ctx = weights.CreateContext(contextParams);
+            _ctx = weights.CreateContext(contextParams, logger);
         }
 
         /// <summary>
@@ -47,10 +50,11 @@ namespace LLama
         /// </summary>
         /// <param name="weights"></param>
         /// <param name="params"></param>
-        public LLamaEmbedder(LLamaWeights weights, IContextParams @params)
+        /// <param name="logger"></param>
+        public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
             @params.EmbeddingMode = true;
-            _ctx = weights.CreateContext(@params);
+            _ctx = weights.CreateContext(@params, logger);
         }
 
         /// <summary>
@@ -89,7 +93,6 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public float[] GetEmbeddings(string text, bool addBos)
         {
-
             var embed_inp_array = _ctx.Tokenize(text, addBos);
 
             // TODO(Rinne): deal with log of prompt
