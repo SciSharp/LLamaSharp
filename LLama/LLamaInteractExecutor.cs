@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LLama.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
@@ -25,6 +26,7 @@ namespace LLama
         /// 
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="logger"></param>
         public InteractiveExecutor(LLamaContext context) : base(context)
         {
             _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle);

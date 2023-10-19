@@ -2,6 +2,7 @@
 using LLama.Abstractions;
 using LLama.Extensions;
 using LLama.Native;
+using Microsoft.Extensions.Logging;
 
 namespace LLama
 {

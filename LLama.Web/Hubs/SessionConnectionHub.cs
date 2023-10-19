@@ -2,16 +2,15 @@
 using LLama.Web.Models;
 using LLama.Web.Services;
 using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics;
 
 namespace LLama.Web.Hubs
 {
     public class SessionConnectionHub : Hub<ISessionClient>
     {
         private readonly ILogger<SessionConnectionHub> _logger;
-        private readonly ConnectionSessionService _modelSessionService;
+        private readonly IModelSessionService _modelSessionService;
 
-        public SessionConnectionHub(ILogger<SessionConnectionHub> logger, ConnectionSessionService modelSessionService)
+        public SessionConnectionHub(ILogger<SessionConnectionHub> logger, IModelSessionService modelSessionService)
         {
             _logger = logger;
             _modelSessionService = modelSessionService;
@@ -27,29 +26,27 @@ namespace LLama.Web.Hubs
         }
 
 
-        public override async Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
             _logger.Log(LogLevel.Information, "[OnDisconnectedAsync], Id: {0}", Context.ConnectionId);
 
             // Remove connections session on dissconnect
-            await _modelSessionService.RemoveAsync(Context.ConnectionId);
+            await _modelSessionService.CloseAsync(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
 
 
         [HubMethodName("LoadModel")]
-        public async Task OnLoadModel(LLamaExecutorType executorType, string modelName, string promptName, string parameterName)
+        public async Task OnLoadModel(SessionConfig sessionConfig, InferenceOptions inferenceConfig)
         {
-            _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}, Model: {1}, Prompt: {2}, Parameter: {3}", Context.ConnectionId, modelName, promptName, parameterName);
-
-            // Remove existing connections session
-            await _modelSessionService.RemoveAsync(Context.ConnectionId);
+            _logger.Log(LogLevel.Information, "[OnLoadModel] - Load new model, Connection: {0}", Context.ConnectionId);
+            await _modelSessionService.CloseAsync(Context.ConnectionId);
 
             // Create model session
-            var modelSessionResult = await _modelSessionService.CreateAsync(executorType, Context.ConnectionId, modelName, promptName, parameterName);
-            if (modelSessionResult.HasError)
+            var modelSession = await _modelSessionService.CreateAsync(Context.ConnectionId, sessionConfig, inferenceConfig);
+            if (modelSession is null)
             {
-                await Clients.Caller.OnError(modelSessionResult.Error);
+                await Clients.Caller.OnError("Failed to create model session");
                 return;
             }
 
@@ -59,40 +56,12 @@ namespace LLama.Web.Hubs
 
 
         [HubMethodName("SendPrompt")]
-        public async Task OnSendPrompt(string prompt)
+        public IAsyncEnumerable<TokenModel> OnSendPrompt(string prompt, InferenceOptions inferConfig, CancellationToken cancellationToken)
         {
             _logger.Log(LogLevel.Information, "[OnSendPrompt] - New prompt received, Connection: {0}", Context.ConnectionId);
 
-            // Get connections session
-            var modelSession = await _modelSessionService.GetAsync(Context.ConnectionId);
-            if (modelSession is null)
-            {
-                await Clients.Caller.OnError("No model has been loaded");
-                return;
-            }
-
-
-            // Create unique response id
-            var responseId = Guid.NewGuid().ToString();
-
-            // Send begin of response
-            await Clients.Caller.OnResponse(new ResponseFragment(responseId, isFirst: true));
-
-            // Send content of response
-            var stopwatch = Stopwatch.GetTimestamp();
-            await foreach (var fragment in modelSession.InferAsync(prompt, CancellationTokenSource.CreateLinkedTokenSource(Context.ConnectionAborted)))
-            {
-                await Clients.Caller.OnResponse(new ResponseFragment(responseId, fragment));
-            }
-
-            // Send end of response
-            var elapsedTime = Stopwatch.GetElapsedTime(stopwatch);
-            var signature = modelSession.IsInferCanceled()
-                ? $"Inference cancelled after {elapsedTime.TotalSeconds:F0} seconds"
-                : $"Inference completed in {elapsedTime.TotalSeconds:F0} seconds";
-            await Clients.Caller.OnResponse(new ResponseFragment(responseId, signature, isLast: true));
-            _logger.Log(LogLevel.Information, "[OnSendPrompt] - Inference complete, Connection: {0}, Elapsed: {1}, Canceled: {2}", Context.ConnectionId, elapsedTime, modelSession.IsInferCanceled());
+            var linkedCancelationToken = CancellationTokenSource.CreateLinkedTokenSource(Context.ConnectionAborted, cancellationToken);
+            return _modelSessionService.InferAsync(Context.ConnectionId, prompt, inferConfig, linkedCancelationToken.Token);
         }
-
     }
 }
