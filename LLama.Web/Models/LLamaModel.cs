@@ -58,7 +58,7 @@ namespace LLama.Web.Models
             if (_config.MaxInstances > -1 && ContextCount >= _config.MaxInstances)
                 throw new Exception($"Maximum model instances reached");
 
-            context = _weights.CreateContext(_config);
+            context = _weights.CreateContext(_config, _llamaLogger);
             if (_contexts.TryAdd(contextName, context))
                 return Task.FromResult(context);
 

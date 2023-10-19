@@ -81,10 +81,11 @@ namespace LLama
         /// Create a llama_context using this model
         /// </summary>
         /// <param name="params"></param>
+        /// <param name="logger"></param>
         /// <returns></returns>
-        public LLamaContext CreateContext(IContextParams @params)
+        public LLamaContext CreateContext(IContextParams @params, ILogger? logger = null)
         {
-            return new LLamaContext(this, @params);
+            return new LLamaContext(this, @params, logger);
         }
     }
 }

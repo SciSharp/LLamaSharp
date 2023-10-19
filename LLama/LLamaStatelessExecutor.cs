@@ -21,9 +21,9 @@ namespace LLama
     public class StatelessExecutor
         : ILLamaExecutor
     {
-        private readonly ILogger? _logger;
         private readonly LLamaWeights _weights;
         private readonly IContextParams _params;
+        private readonly ILogger? _logger;
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -36,24 +36,25 @@ namespace LLama
         /// <param name="weights"></param>
         /// <param name="params"></param>
         /// <param name="logger"></param>
-        public StatelessExecutor(LLamaWeights weights, IContextParams @params)
+        public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
             _weights = weights;
             _params = @params;
+            _logger = logger;
 
-            Context = _weights.CreateContext(_params);
+            Context = _weights.CreateContext(_params, logger);
             Context.Dispose();
         }
 
         /// <inheritdoc />
         public async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            using var context = _weights.CreateContext(_params);
+            using var context = _weights.CreateContext(_params, _logger);
             Context = context;
 
             if (!Context.NativeHandle.IsClosed)
                 Context.Dispose();
-            Context = _weights.CreateContext(Context.Params);
+            Context = _weights.CreateContext(Context.Params, _logger);
 
             if (inferenceParams != null)
             {
