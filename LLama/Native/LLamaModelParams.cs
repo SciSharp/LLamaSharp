@@ -20,7 +20,7 @@ namespace LLama.Native
         public int main_gpu;
 
         /// <summary>
-        /// how to split layers across multiple GPUs (size: LLAMA_MAX_DEVICES)
+        /// how to split layers across multiple GPUs (size: <see cref="NativeApi.llama_max_devices"/>)
         /// </summary>
         public float* tensor_split;
 
