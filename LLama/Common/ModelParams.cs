@@ -82,9 +82,10 @@ namespace LLama.Common
         public bool EmbeddingMode { get; set; }
 
         /// <summary>
-        /// how split tensors should be distributed across GPUs
+        /// how split tensors should be distributed across GPUs.
         /// </summary>
-        public float[]? TensorSplits { get; set; }
+        /// <remarks>"[ 3, 2 ]" will assign 60% of the data to GPU 0 and 40% to GPU 1.</remarks>
+        public TensorSplitsCollection TensorSplits { get; set; }
 
 		/// <summary>
 		/// RoPE base frequency

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using LLama.Native;
 
 namespace LLama.Abstractions
 {
@@ -37,7 +39,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        float[]? TensorSplits { get; set; }
+        TensorSplitsCollection TensorSplits { get; set; }
 
         /// <summary>
         /// Load vocab only (no weights)
@@ -96,6 +98,44 @@ namespace LLama.Abstractions
                 }
                 return hash;
             }
+        }
+    }
+
+    /// <summary>
+    /// A fixed size array to set the tensor splits across multiple GPUs
+    /// </summary>
+    public sealed class TensorSplitsCollection
+    {
+        private readonly float[] _array = new float[NativeApi.llama_max_devices()];
+
+        /// <summary>
+        /// The size of this array
+        /// </summary>
+        public int Length => _array.Length;
+
+        /// <summary>
+        /// Get or set the proportion of work to do on the given device.
+        /// </summary>
+        /// <remarks>"[ 3, 2 ]" will assign 60% of the data to GPU 0 and 40% to GPU 1.</remarks>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public float this[int index]
+        {
+            get => _array[index];
+            set => _array[index] = value;
+        }
+
+        /// <summary>
+        /// Set all values to zero
+        /// </summary>
+        public void Clear()
+        {
+            Array.Clear(_array, 0, _array.Length);
+        }
+
+        internal MemoryHandle Pin()
+        {
+            return _array.AsMemory().Pin();
         }
     }
 }

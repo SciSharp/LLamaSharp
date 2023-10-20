@@ -106,7 +106,7 @@ namespace LLama.Web.Common
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        public float[] TensorSplits { get; set; }
+        public TensorSplitsCollection TensorSplits { get; set; } = new();
 
         /// <summary>
         /// RoPE base frequency
