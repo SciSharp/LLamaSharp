@@ -108,12 +108,12 @@ namespace LLama.Abstractions
     public sealed class TensorSplitsCollection
         : IEnumerable<float>
     {
-        private readonly float[] _splits = new float[NativeApi.llama_max_devices()];
+        internal readonly float[] Splits = new float[NativeApi.llama_max_devices()];
 
         /// <summary>
         /// The size of this array
         /// </summary>
-        public int Length => _splits.Length;
+        public int Length => Splits.Length;
 
         /// <summary>
         /// Get or set the proportion of work to do on the given device.
@@ -123,8 +123,8 @@ namespace LLama.Abstractions
         /// <returns></returns>
         public float this[int index]
         {
-            get => _splits[index];
-            set => _splits[index] = value;
+            get => Splits[index];
+            set => Splits[index] = value;
         }
 
         /// <summary>
@@ -134,9 +134,9 @@ namespace LLama.Abstractions
         /// <exception cref="ArgumentException"></exception>
         public TensorSplitsCollection(float[] splits)
         {
-            if (splits.Length != _splits.Length)
-                throw new ArgumentException($"tensor splits length must equal {_splits.Length}");
-            _splits = splits;
+            if (splits.Length != Splits.Length)
+                throw new ArgumentException($"tensor splits length must equal {Splits.Length}");
+            Splits = splits;
         }
 
         /// <summary>
@@ -151,25 +151,25 @@ namespace LLama.Abstractions
         /// </summary>
         public void Clear()
         {
-            Array.Clear(_splits, 0, _splits.Length);
+            Array.Clear(Splits, 0, Splits.Length);
         }
 
         internal MemoryHandle Pin()
         {
-            return _splits.AsMemory().Pin();
+            return Splits.AsMemory().Pin();
         }
 
         #region IEnumerator
         /// <inheritdoc />
         public IEnumerator<float> GetEnumerator()
         {
-            return ((IEnumerable<float>)_splits).GetEnumerator();
+            return ((IEnumerable<float>)Splits).GetEnumerator();
         }
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _splits.GetEnumerator();
+            return Splits.GetEnumerator();
         }
         #endregion
     }

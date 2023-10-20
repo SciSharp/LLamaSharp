@@ -207,7 +207,7 @@ namespace LLama.Common
 
         public override void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
         {
-            JsonSerializer.Serialize(writer, value.Data, options);
+            JsonSerializer.Serialize(writer, value.Splits, options);
         }
     }
 }
