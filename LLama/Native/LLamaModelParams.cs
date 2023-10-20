@@ -15,7 +15,7 @@ namespace LLama.Native
         public int n_gpu_layers;
 
         /// <summary>
-        /// // the GPU that is used for scratch and small tensors
+        /// the GPU that is used for scratch and small tensors
         /// </summary>
         public int main_gpu;
 

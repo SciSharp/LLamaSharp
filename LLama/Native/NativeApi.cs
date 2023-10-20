@@ -110,6 +110,13 @@ namespace LLama.Native
         public static extern bool llama_empty_call();
 
         /// <summary>
+        /// Get the maximum number of devices supported by llama.cpp
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_max_devices();
+
+        /// <summary>
         /// Create a LLamaModelParams with default values
         /// </summary>
         /// <returns></returns>

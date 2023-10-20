@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System;
 using System.Buffers;
+using System.Diagnostics;
 using LLama.Abstractions;
 using LLama.Native;
 
@@ -21,8 +22,24 @@ namespace LLama.Extensions
         /// <exception cref="ArgumentException"></exception>
         public static MemoryHandle ToLlamaModelParams(this IModelParams @params, out LLamaModelParams result)
         {
-            if (@params.TensorSplits != null && @params.TensorSplits.Length != 1)
-                throw new ArgumentException("Currently multi-gpu support is not supported by both llama.cpp and LLamaSharp.");
+            var maxDevices = NativeApi.llama_max_devices();
+            var splits = @params.TensorSplits;
+            if (splits != null)
+            {
+                Debug.Assert(@params.TensorSplits != null);
+
+                // If the splits array is too large just throw
+                if (splits.Length > maxDevices)
+                    throw new ArgumentException($"TensorSplits size must be <= NativeApi.llama_max_devices() ({maxDevices})");
+
+                // If the splits array is too small pad it up to the necessary size
+                if (splits.Length < maxDevices)
+                {
+                    splits = new float[maxDevices];
+                    for (var i = 0; i < @params.TensorSplits.Length; i++)
+                        splits[i] = @params.TensorSplits[i];
+                }
+            }
 
             result = NativeApi.llama_model_default_params();
 
@@ -32,7 +49,7 @@ namespace LLama.Extensions
             result.use_mmap = @params.UseMemorymap;
             result.vocab_only = @params.VocabOnly;
 
-            var pin = @params.TensorSplits.AsMemory().Pin();
+            var pin = splits.AsMemory().Pin();
             unsafe
             {
                 result.tensor_split = (float*)pin.Pointer;
