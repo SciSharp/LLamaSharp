@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LLama.Native;
@@ -105,13 +106,14 @@ namespace LLama.Abstractions
     /// A fixed size array to set the tensor splits across multiple GPUs
     /// </summary>
     public sealed class TensorSplitsCollection
+        : IEnumerable<float>
     {
-        private readonly float[] _array = new float[NativeApi.llama_max_devices()];
+        private readonly float[] _splits = new float[NativeApi.llama_max_devices()];
 
         /// <summary>
         /// The size of this array
         /// </summary>
-        public int Length => _array.Length;
+        public int Length => _splits.Length;
 
         /// <summary>
         /// Get or set the proportion of work to do on the given device.
@@ -121,8 +123,27 @@ namespace LLama.Abstractions
         /// <returns></returns>
         public float this[int index]
         {
-            get => _array[index];
-            set => _array[index] = value;
+            get => _splits[index];
+            set => _splits[index] = value;
+        }
+
+        /// <summary>
+        /// Create a new tensor splits collection, copying the given values
+        /// </summary>
+        /// <param name="splits"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public TensorSplitsCollection(float[] splits)
+        {
+            if (splits.Length != _splits.Length)
+                throw new ArgumentException($"tensor splits length must equal {_splits.Length}");
+            _splits = splits;
+        }
+
+        /// <summary>
+        /// Create a new tensot splits collection with all values initialised to the default
+        /// </summary>
+        public TensorSplitsCollection()
+        {
         }
 
         /// <summary>
@@ -130,12 +151,26 @@ namespace LLama.Abstractions
         /// </summary>
         public void Clear()
         {
-            Array.Clear(_array, 0, _array.Length);
+            Array.Clear(_splits, 0, _splits.Length);
         }
 
         internal MemoryHandle Pin()
         {
-            return _array.AsMemory().Pin();
+            return _splits.AsMemory().Pin();
         }
+
+        #region IEnumerator
+        /// <inheritdoc />
+        public IEnumerator<float> GetEnumerator()
+        {
+            return ((IEnumerable<float>)_splits).GetEnumerator();
+        }
+
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _splits.GetEnumerator();
+        }
+        #endregion
     }
 }
