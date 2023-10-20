@@ -45,9 +45,9 @@ One line TLDR with the fewest words.";
 2. The acceleration of an object depends on the mass of the object and the amount of force applied.
 3. Whenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.";
 
-            Console.WriteLine(await kernel.RunAsync(text1, summarize));
+            Console.WriteLine((await kernel.RunAsync(text1, summarize)).GetValue<string>());
 
-            Console.WriteLine(await kernel.RunAsync(text2, summarize));
+            Console.WriteLine((await kernel.RunAsync(text2, summarize)).GetValue<string>());
         }
     }
 }

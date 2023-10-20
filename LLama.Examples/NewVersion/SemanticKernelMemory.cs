@@ -42,20 +42,19 @@ namespace LLama.Examples.NewVersion
              * or implement your connectors for Pinecone, Vespa, Postgres + pgvector, SQLite VSS, etc.
              */
 
-            var kernelWithCustomDb = Kernel.Builder
-                .WithLoggerFactory(ConsoleLogger.LoggerFactory)
-                .WithAIService<ITextEmbeddingGeneration>("local-llama-embed", new LLamaSharpEmbeddingGeneration(embedding), true)
-                .WithMemoryStorage(new VolatileMemoryStore())
+            var memory = new MemoryBuilder()
+                .WithTextEmbeddingGeneration(new LLamaSharpEmbeddingGeneration(embedding))
+                .WithMemoryStore(new VolatileMemoryStore())
                 .Build();
 
-            await RunExampleAsync(kernelWithCustomDb);
+            await RunExampleAsync(memory);
         }
 
-        private static async Task RunExampleAsync(IKernel kernel)
+        private static async Task RunExampleAsync(ISemanticTextMemory memory)
         {
-            await StoreMemoryAsync(kernel);
+            await StoreMemoryAsync(memory);
 
-            await SearchMemoryAsync(kernel, "How do I get started?");
+            await SearchMemoryAsync(memory, "How do I get started?");
 
             /*
             Output:
@@ -72,7 +71,7 @@ namespace LLama.Examples.NewVersion
 
             */
 
-            await SearchMemoryAsync(kernel, "Can I build a chat with SK?");
+            await SearchMemoryAsync(memory, "Can I build a chat with SK?");
 
             /*
             Output:
@@ -89,33 +88,33 @@ namespace LLama.Examples.NewVersion
 
             */
 
-            await SearchMemoryAsync(kernel, "Jupyter notebook");
+            await SearchMemoryAsync(memory, "Jupyter notebook");
 
-            await SearchMemoryAsync(kernel, "README: README associated with a sample chat summary react-based webapp");
+            await SearchMemoryAsync(memory, "README: README associated with a sample chat summary react-based webapp");
 
-            await SearchMemoryAsync(kernel, "Jupyter notebook describing how to pass prompts from a file to a semantic skill or function");
+            await SearchMemoryAsync(memory, "Jupyter notebook describing how to pass prompts from a file to a semantic skill or function");
         }
 
-        private static async Task SearchMemoryAsync(IKernel kernel, string query)
+        private static async Task SearchMemoryAsync(ISemanticTextMemory memory, string query)
         {
             Console.WriteLine("\nQuery: " + query + "\n");
 
-            var memories = kernel.Memory.SearchAsync(MemoryCollectionName, query, limit: 10, minRelevanceScore: 0.5);
+            var memories = memory.SearchAsync(MemoryCollectionName, query, limit: 10, minRelevanceScore: 0.5);
 
             int i = 0;
-            await foreach (MemoryQueryResult memory in memories)
+            await foreach (MemoryQueryResult result in memories)
             {
                 Console.WriteLine($"Result {++i}:");
-                Console.WriteLine("  URL:     : " + memory.Metadata.Id);
-                Console.WriteLine("  Title    : " + memory.Metadata.Description);
-                Console.WriteLine("  Relevance: " + memory.Relevance);
+                Console.WriteLine("  URL:     : " + result.Metadata.Id);
+                Console.WriteLine("  Title    : " + result.Metadata.Description);
+                Console.WriteLine("  Relevance: " + result.Relevance);
                 Console.WriteLine();
             }
 
             Console.WriteLine("----------------------");
         }
 
-        private static async Task StoreMemoryAsync(IKernel kernel)
+        private static async Task StoreMemoryAsync(ISemanticTextMemory memory)
         {
             /* Store some data in the semantic memory.
              *
@@ -130,7 +129,7 @@ namespace LLama.Examples.NewVersion
             var i = 0;
             foreach (var entry in githubFiles)
             {
-                var result = await kernel.Memory.SaveReferenceAsync(
+                var result = await memory.SaveReferenceAsync(
                     collection: MemoryCollectionName,
                     externalSourceName: "GitHub",
                     externalId: entry.Key,
