@@ -140,7 +140,7 @@ namespace LLama.Abstractions
         }
 
         /// <summary>
-        /// Create a new tensot splits collection with all values initialised to the default
+        /// Create a new tensor splits collection with all values initialised to the default
         /// </summary>
         public TensorSplitsCollection()
         {
