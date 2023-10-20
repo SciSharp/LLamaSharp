@@ -85,7 +85,7 @@ namespace LLama.Common
         /// how split tensors should be distributed across GPUs.
         /// </summary>
         /// <remarks>"[ 3, 2 ]" will assign 60% of the data to GPU 0 and 40% to GPU 1.</remarks>
-        public TensorSplitsCollection TensorSplits { get; set; }
+        public TensorSplitsCollection TensorSplits { get; set; } = new();
 
 		/// <summary>
 		/// RoPE base frequency
