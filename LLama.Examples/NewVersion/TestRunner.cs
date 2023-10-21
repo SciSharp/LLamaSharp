@@ -22,6 +22,7 @@
             Console.WriteLine("12: Semantic Kernel Chat.");
             Console.WriteLine("13: Semantic Kernel Memory.");
             Console.WriteLine("14: Coding Assistant.");
+            Console.WriteLine("15: Batch Decoding Benchmark.");
 
             while (true)
             {
@@ -87,6 +88,10 @@
                 else if(choice == 14)
                 {
                     await CodingAssistant.Run();
+                }
+                else if (choice == 15)
+                {
+                    await BatchedBench.Run();
                 }
                 else
                 {

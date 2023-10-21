@@ -113,10 +113,11 @@ public sealed class LLamaBatchSafeHandle
     /// </summary>
     /// <param name="n_tokens"></param>
     /// <param name="embd"></param>
+    /// <param name="n_seq_max"></param>
     /// <returns></returns>
-    public static LLamaBatchSafeHandle Create(int n_tokens, int embd)
+    public static LLamaBatchSafeHandle Create(int n_tokens, int embd, int n_seq_max)
     {
-        var batch = NativeApi.llama_batch_init(n_tokens, embd);
+        var batch = NativeApi.llama_batch_init(n_tokens, embd, n_seq_max);
         return new LLamaBatchSafeHandle(batch, embd);
     }
 
