@@ -25,10 +25,11 @@ ls ..;
 mkdir ./temp;
 mkdir ./temp/runtimes;
 cp ./LLama/runtimes/*.* ./temp/runtimes/;
-cp ./LLama/runtimes/build/*/* ./temp/;
+cp ./LLama/runtimes/build/*.* ./temp/;
 
 # get the current version
 cd temp;
+ls;
 dotnet add package LLamaSharp;
 version=$(dotnet list temp.csproj package | grep LLamaSharp);
 regex="[0-9]+\.[0-9]+\.[0-9]+$";
