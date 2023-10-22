@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>LLamaSharp.Backend.Cpu</id>
+    <version>$version$</version>
+    <title>LLamaSharp.Backend.Cpu, the backend for LLamaSharp</title>
+    <authors>llama.cpp Authors</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <icon>icon512.png</icon>
+    <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+    <description>LLamaSharp.Backend.Cpu is a backend for LLamaSharp to use with Cpu only and MAC.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+    <tags>LLamaSharp LLama LLM GPT AI CharBot SciSharp</tags>
+  </metadata>
+
+  <files>
+    <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
+    <file src="runtimes/ggml-metal.metal" target="runtimes\osx-x64\native\ggml-metal.metal" />
+    <file src="runtimes/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
+    <file src="icon512.png" target="" />
+  </files>
+</package>

@@ -1,0 +1,66 @@
+name: auto-release
+
+on:
+  workflow_run:
+    workflows: ["main", "compile"]
+    types:
+      - completed
+
+env:
+  NUGET_API_TOKEN: ${{ SECRETS.NUGET_API_KEY }}
+  GITHUB_TOKEN: ${{ SECRETS.RINNE_GITHUB_TOKEN }}
+
+jobs:
+  release_to_nuget:
+    if: contains(github.event.pull_request.labels.*.name, 'minor-release') | contains(github.event.pull_request.labels.*.name, 'patch-release')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 6.0.x SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: $NUGET_API_TOKEN
+        nuget-version: 'latest'
+
+    - name: Check .NET info
+      run: dotnet --info
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build -c Release --no-restore
+
+    - name: Pack packages
+      run: |
+        git fetch --unshallow;
+        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*";
+        git fetch origin;
+        $LastTag = git describe --tags;
+        $DroppedTag = ($LastTag).TrimStart('v');
+        echo "Last tag is: $DroppedTag";
+        
+        is_minor=contains(github.event.pull_request.labels.*.name, 'minor-release')
+        is_patch=contains(github.event.pull_request.labels.*.name, 'patch-release')
+        sh ./.github/prepare_release.sh $DroppedTag $is_minor $is_patch
+
+        if($LastExitCode -ne 0)
+        {
+            Write-Warning -Message "Pack packages warming, last exit code is ${LastExitCode}."
+            $LastExitCode = 0;
+        }
+
+    - name: Upload packages artifacts
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: "drop-ci-packages"
+        path: './temp'
+
+    - name: Push TensorFlow.NET to myget.org
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.myget.org/F/rinne/api/v3/index.json -k $NUGET_API_TOKEN --skip-duplicate
