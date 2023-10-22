@@ -42,13 +42,10 @@ jobs:
         git fetch --unshallow;
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*";
         git fetch origin;
-        LastTag=$(git describe --tags);
-        DroppedTag=$(echo "$LastTag" | sed 's/^v//');
-        echo "Last tag is: $DroppedTag";
         
         is_minor=contains(github.event.pull_request.labels.*.name, 'minor-release')
         is_patch=contains(github.event.pull_request.labels.*.name, 'patch-release')
-        sh ./.github/prepare_release.sh $DroppedTag $is_minor $is_patch
+        sh ./.github/prepare_release.sh $is_minor $is_patch
 
         if($LastExitCode -ne 0)
         {

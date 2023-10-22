@@ -1,6 +1,5 @@
-version="$1" # version is in format "A.B.C"
-is_minor="$2"    # type is "minor" or "patch"
-is_patch="$3"    # type is "minor" or "patch"
+is_minor="$1"    # type is "minor" or "patch"
+is_patch="$2"    # type is "minor" or "patch"
 
 echo "is_minor: $is_minor"
 echo "is_patch: $is_patch"
@@ -18,6 +17,26 @@ else
   echo "At least one of minor version and patch version should be specified."
 fi
 
+# preparation before packing backends
+mkdir ./temp
+mkdir ./temp/runtimes
+cp ./LLama/runtimes/*.* ./temp/runtimes/
+cp ./LLama/runtimes/build/*/* ./temp/
+
+# get the current version
+cd temp
+dotnet add package LLamaSharp
+version=$(dotnet list temp.csproj package | grep LLamaSharp)
+regex="[0-9]+\.[0-9]+\.[0-9]+$"
+if [[ $version =~ $regex ]]; then
+  version="${BASH_REMATCH[0]}"
+  echo "Extracted version: $version"
+else
+  echo "No matching version found"
+  exit 1
+fi
+
+# update the version
 if [[ $type == "minor" ]]; then
     regex="[0-9]+\.([0-9]+)\.[0-9]+$"
     if [[ $version =~ $regex ]]; then
@@ -53,12 +72,6 @@ else
     echo "Invalid type"
     exit 1
 fi
-
-# preparation before packing backends
-mkdir ./temp
-mkdir ./temp/runtimes
-cp ./LLama/runtimes/*.* ./temp/runtimes/
-cp -r ./LLama/runtimes/build ./temp/
 
 # pack the main package
 dotnet pack ./LLama/LLamaSharp.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
