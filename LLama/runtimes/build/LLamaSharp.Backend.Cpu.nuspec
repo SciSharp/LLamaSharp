@@ -9,7 +9,7 @@
     <license type="expression">MIT</license>
     <icon>icon512.png</icon>
     <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
-    <description>LLamaSharp.Backend.Cpu is a backend for LLamaSharp to use with Cpu only and MAC.</description>
+    <description>LLamaSharp.Backend.Cpu is a backend for LLamaSharp to use with Cpu only.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
     <tags>LLamaSharp LLama LLM GPT AI CharBot SciSharp</tags>
@@ -20,6 +20,6 @@
     <file src="runtimes/libllama.dll" target="runtimes\win-x64\native\libllama.dll" />
     <file src="runtimes/libllama.so" target="runtimes\linux-x64\native\libllama.so" />
     <file src="runtimes/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
-    <file src="icon512.png" target="" />
+    <file src="icon512.png" target="icon512.png" />
   </files>
 </package>

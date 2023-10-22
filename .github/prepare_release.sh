@@ -7,8 +7,8 @@ echo "is_minor: $is_minor"
 echo "is_patch: $is_patch"
 
 if [ "$is_minor" = true ] && [ "$is_patch" = true ]; then
-  type="minor_patch"
-  echo "When both minor version and patch version are specified, the minor version will increase and patch version becomes 0."
+  echo "Only one of minor version and patch version should be specified."
+  exit 1
 elif [ "$is_minor" = true ] && [ "$is_patch" = false ]; then
   type="minor"
   echo "dicided to update minor version"
@@ -39,8 +39,8 @@ if [[ $type == "minor" ]]; then
     regex="[0-9]+\.([0-9]+)\.[0-9]+$"
     if [[ $version =~ $regex ]]; then
         b="${BASH_REMATCH[1]}"
-        b=$((b + 1))  # 将 B 值加 1
-        updated_version="${version%%.*}.$b.${version##*.}"  # 构建更新后的版本号
+        b=$((b + 1))
+        updated_version="${version%%.*}.$b.0"
         echo "Updated version: $updated_version"
     else
         echo "Invalid version format" exit 1
@@ -49,22 +49,12 @@ elif [[ $type == "patch" ]]; then
     regex="([0-9]+)$"
     if [[ $version =~ $regex ]]; then
         c="${BASH_REMATCH[1]}"
-        c=$((c + 1))  # 将 C 值加 1
-        updated_version="${version%.*}.$c"  # 构建更新后的版本号
+        c=$((c + 1))
+        updated_version="${version%.*}.$c"
         echo "Updated version: $updated_version"
     else
         echo "Invalid version format"
         exit 1
-    fi
-elif [[ $type == "minor_patch" ]]; then
-    regex="[0-9]+\.([0-9]+)\.[0-9]+$"
-    if [[ $version =~ $regex ]]; then
-        b="${BASH_REMATCH[1]}"
-        b=$((b + 1))  # 将 B 值加 1
-        updated_version="${version%%.*}.$b.0"  # 构建更新后的版本号
-        echo "Updated version: $updated_version"
-    else
-        echo "Invalid version format" exit 1
     fi
 else
     echo "Invalid type"
