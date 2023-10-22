@@ -36,7 +36,9 @@ jobs:
       run: dotnet restore
 
     - name: Build solution
-      run: dotnet build -c Release --no-restore
+      run: |
+        dotnet build ./LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release --no-restore
 
     - name: Pack packages
       run: |
@@ -47,12 +49,6 @@ jobs:
         chmod +x ./.github/prepare_release.sh
         ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
 
-        if($LastExitCode -ne 0)
-        {
-            Write-Warning -Message "Pack packages warming, last exit code is ${LastExitCode}."
-            $LastExitCode = 0;
-        }
-        
     - name: Upload packages artifacts
       uses: actions/upload-artifact@v1.0.0
       with:
