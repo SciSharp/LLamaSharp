@@ -11,10 +11,10 @@ if [ "$is_minor" = true ] && [ "$is_patch" = true ]; then
   exit 1
 elif [ "$is_minor" = true ] && [ "$is_patch" = false ]; then
   type="minor"
-  echo "dicided to update minor version"
+  echo "decided to update minor version"
 elif [ "$is_minor" = false ] && [ "$is_patch" = true ]; then
   type="patch"
-  echo "dicided to update patch version"
+  echo "decided to update patch version"
 else
   echo "At least one of minor version and patch version should be specified."
   exit 1
