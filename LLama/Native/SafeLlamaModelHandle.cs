@@ -129,77 +129,25 @@ namespace LLama.Native
         /// If there was insufficient space in the output span this will be
         /// filled with as many characters as possible, starting from the _last_ token.
         /// </returns>
+        [Obsolete("Use a StreamingTokenDecoder instead")]
         internal Span<char> TokensToSpan(IReadOnlyList<int> tokens, Span<char> dest, Encoding encoding)
         {
-            // Rent an array to detokenize into
-            var tokenBytesArr = ArrayPool<byte>.Shared.Rent(16);
+            var decoder = new StreamingTokenDecoder(encoding, this);
 
-            // Convert all of the tokens into bytes
-            var bytes = new List<byte>();
             foreach (var token in tokens)
+                decoder.Add(token);
+
+            var str = decoder.Read();
+
+            if (str.Length < dest.Length)
             {
-                var tokenBytes = TokenToBytes(ref tokenBytesArr, token, this);
-                foreach (var tokenByte in tokenBytes)
-                    bytes.Add(tokenByte);
-            }
-
-            // Extract a span from the list
-            var bytesSpan =
-#if NETSTANDARD2_0
-                bytes.ToArray().AsSpan();
-#else
-                CollectionsMarshal.AsSpan(bytes);
-#endif
-
-            // Check how many characters these bytes represent. If there's not enough space in the
-            // output array we need to handle that.
-            var characterCount = encoding.GetCharCount(bytesSpan);
-            if (characterCount > dest.Length)
-            {
-                var bigChars = ArrayPool<char>.Shared.Rent(characterCount);
-                try
-                {
-                    encoding.GetChars(bytesSpan, bigChars);
-                    var charSlice = bigChars
-                        .AsSpan(0, characterCount)
-                        .Slice(characterCount - dest.Length);
-
-                    charSlice.CopyTo(dest);
-                    return dest;
-                }
-                finally
-                {
-                    ArrayPool<char>.Shared.Return(bigChars);
-                }
-
-                //todo: handle dest span too small
-                throw new NotImplementedException();
+                str.AsSpan().CopyTo(dest);
+                return dest.Slice(0, str.Length);
             }
             else
             {
-                var charCount = encoding.GetChars(bytes.ToArray(), dest);
-                return dest.Slice(0, charCount);
-            }
-            
-            // vvv Local Functions vvv
-
-            static Span<byte> TokenToBytes(ref byte[] bytes, int token, SafeLlamaModelHandle model)
-            {
-                // Try to get bytes, if that fails we known the length
-                var l = model.TokenToSpan(token, bytes);
-
-                // Array was too small, get a bigger one
-                if (l < 0)
-                {
-                    ArrayPool<byte>.Shared.Return(bytes);
-                    bytes = ArrayPool<byte>.Shared.Rent(-l * 2);
-
-                    // Get bytes, this time it can't fail
-                    l = model.TokenToSpan(token, bytes);
-                }
-
-                Debug.Assert(l >= 0);
-                return new Span<byte>(bytes, 0, l);
+                str.AsSpan().Slice(str.Length - dest.Length).CopyTo(dest);
+                return dest;
             }
         }
 

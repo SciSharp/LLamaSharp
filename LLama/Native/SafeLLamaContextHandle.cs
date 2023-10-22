@@ -169,33 +169,6 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token, dest);
         }
-
-        /// <summary>
-        /// Convert a set of tokens into a string
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="encoding"></param>
-        /// <returns></returns>
-        public string DeTokenize(IReadOnlyList<int> tokens, Encoding encoding)
-        {
-            var chars = ArrayPool<char>.Shared.Rent(tokens.Count * 2);
-            try
-            {
-                var span = ThrowIfDisposed().TokensToSpan(tokens, chars.AsSpan(), encoding);
-                if (span.Length == 0)
-                    return "";
-
-                unsafe
-                {
-                    fixed (char* ptr = &span[0])
-                        return new string(ptr, 0, span.Length);
-                }
-            }
-            finally
-            {
-                ArrayPool<char>.Shared.Return(chars);
-            }
-        }
 #endregion
 
         /// <summary>

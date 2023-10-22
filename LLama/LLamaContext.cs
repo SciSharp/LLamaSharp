@@ -102,9 +102,15 @@ namespace LLama
         /// </summary>
         /// <param name="tokens"></param>
         /// <returns></returns>
+        [Obsolete("Use a `StreamingTokenDecoder` instead")]
         public string DeTokenize(IReadOnlyList<llama_token> tokens)
         {
-            return NativeHandle.DeTokenize(tokens, Encoding);
+            // Do **not** use this method as an example of how to correctly use the StreamingTokenDecoder!
+            // It should be kept around for the entire time you are decoding one stream of tokens.
+
+            var decoder = new StreamingTokenDecoder(this);
+            decoder.AddRange(tokens);
+            return decoder.ToString();
         }
 
         /// <summary>
