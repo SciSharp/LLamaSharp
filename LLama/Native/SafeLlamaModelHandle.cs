@@ -179,7 +179,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Convert a sequence of tokens into characters. If there 
+        /// Convert a sequence of tokens into characters.
         /// </summary>
         /// <param name="tokens"></param>
         /// <param name="dest"></param>

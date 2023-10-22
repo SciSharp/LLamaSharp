@@ -72,4 +72,34 @@ public sealed class TokenTests
         var result = tokens.TokensEndsWithAnyString((IList<string>)Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
         Assert.False(result);
     }
+
+    [Fact]
+    public void RoundTrip()
+    {
+        var strings = new[]
+        {
+            "Hello world",
+            "철수라는",
+            "😀 😃 😄 😁 😆 😅 😂 😊 😇 🙂 ",
+        };
+
+        var charsArr = new char[1024];
+
+        foreach (var input in strings)
+        {
+            // Convert into llama tokens
+            var tokens = _model.NativeHandle.Tokenize(input, false, false, Encoding.UTF8);
+
+            // Convert tokens back into characters
+            var chars = _model.NativeHandle.TokensToSpan(tokens, charsArr.AsSpan(), Encoding.UTF8);
+
+            // llama.cpp adds a space to the start of strings, remove that
+            var output = new string(chars).TrimStart(' ');
+
+            // Check that the input equals the output
+            Assert.Equal(input, output);
+        }
+
+        
+    }
 }
