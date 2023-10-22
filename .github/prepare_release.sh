@@ -19,6 +19,9 @@ fi
 
 cur=$(pwd);
 echo "Current directory: $cur";
+ls;
+echo "=================================";
+ls ..;
 mkdir ./temp;
 mkdir ./temp/runtimes;
 cp ./LLama/runtimes/*.* ./temp/runtimes/;
