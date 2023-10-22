@@ -8,7 +8,8 @@ on:
 
 env:
   NUGET_API_TOKEN: ${{ SECRETS.NUGET_API_KEY }}
-  GITHUB_TOKEN: ${{ SECRETS.RINNE_GITHUB_TOKEN }}
+  IS_MINOR: ${{contains(github.event.pull_request.labels.*.name, 'minor-release')}}
+  IS_PATCH: ${{contains(github.event.pull_request.labels.*.name, 'patch-release')}}
 
 jobs:
   release_to_nuget:
@@ -43,9 +44,7 @@ jobs:
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*";
         git fetch origin;
         
-        is_minor=contains(github.event.pull_request.labels.*.name, 'minor-release')
-        is_patch=contains(github.event.pull_request.labels.*.name, 'patch-release')
-        sh ./.github/prepare_release.sh $is_minor $is_patch
+        sh ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
 
         if($LastExitCode -ne 0)
         {
