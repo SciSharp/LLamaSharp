@@ -44,7 +44,8 @@ jobs:
         git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*";
         git fetch origin;
         
-        sh ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
+        chmod +x ./.github/prepare_release.sh
+        ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
 
         if($LastExitCode -ne 0)
         {
