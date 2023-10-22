@@ -1,10 +1,10 @@
 name: auto-release
 
 on:
-  workflow_run:
-    workflows: ["main", "compile"]
-    types:
-      - completed
+  pull_request:
+    branches: 
+      - master
+    types: [ closed ]
 
 env:
   NUGET_API_TOKEN: ${{ SECRETS.NUGET_API_KEY }}
