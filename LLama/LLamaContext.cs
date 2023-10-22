@@ -102,13 +102,9 @@ namespace LLama
         /// </summary>
         /// <param name="tokens"></param>
         /// <returns></returns>
-        public string DeTokenize(IEnumerable<llama_token> tokens)
+        public string DeTokenize(IReadOnlyList<llama_token> tokens)
         {
-            var sb = new StringBuilder();
-            foreach (var token in tokens)
-                NativeHandle.TokenToString(token, Encoding, sb);
-
-            return sb.ToString();
+            return NativeHandle.DeTokenize(tokens, Encoding);
         }
 
         /// <summary>
@@ -417,26 +413,6 @@ namespace LLama
             return pastTokensCount;
         }
 #endregion
-
-        /// <summary>
-        /// Convert a token into a string
-        /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public string TokenToString(llama_token token)
-        {
-            return NativeHandle.TokenToString(token, Encoding);
-        }
-
-        /// <summary>
-        /// Append a single token to a string builder
-        /// </summary>
-        /// <param name="token">Token to decode</param>
-        /// <param name="dest">string builder to append the result to</param>
-        public void TokenToString(llama_token token, StringBuilder dest)
-        {
-            NativeHandle.TokenToString(token, Encoding, dest);
-        }
 
         /// <inheritdoc />
         public void Dispose()

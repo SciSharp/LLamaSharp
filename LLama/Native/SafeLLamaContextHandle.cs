@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
 
@@ -159,28 +160,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Convert a token into a string
-        /// </summary>
-        /// <param name="token">Token to decode into a string</param>
-        /// <param name="encoding"></param>
-        /// <returns></returns>
-        public string TokenToString(int token, Encoding encoding)
-        {
-            return ThrowIfDisposed().TokenToString(token, encoding);
-        }
-
-        /// <summary>
-        /// Append a single llama token to a string builder
-        /// </summary>
-        /// <param name="token">Token to decode</param>
-        /// <param name="encoding"></param>
-        /// <param name="dest">string builder to append the result to</param>
-        public void TokenToString(int token, Encoding encoding, StringBuilder dest)
-        {
-            ThrowIfDisposed().TokenToString(token, encoding, dest);
-        }
-
-        /// <summary>
         /// Convert a single llama token into bytes
         /// </summary>
         /// <param name="token">Token to decode</param>
@@ -190,7 +169,34 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token, dest);
         }
-        #endregion
+
+        /// <summary>
+        /// Convert a set of tokens into a string
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public string DeTokenize(IReadOnlyList<int> tokens, Encoding encoding)
+        {
+            var chars = ArrayPool<char>.Shared.Rent(tokens.Count * 2);
+            try
+            {
+                var span = ThrowIfDisposed().TokensToSpan(tokens, chars.AsSpan(), encoding);
+                if (span.Length == 0)
+                    return "";
+
+                unsafe
+                {
+                    fixed (char* ptr = &span[0])
+                        return new string(ptr, 0, span.Length);
+                }
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(chars);
+            }
+        }
+#endregion
 
         /// <summary>
         /// Run the llama inference to obtain the logits and probabilities for the next token.

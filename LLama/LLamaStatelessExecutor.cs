@@ -95,7 +95,7 @@ namespace LLama
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar);
 
                 lastTokens.Add(id);
-                yield return Context.TokenToString(id);
+                yield return Context.DeTokenize(new [] { id }); //todo: not correct to return tokens one by one like this!
 
                 tokens.Clear();
                 tokens.Add(id);

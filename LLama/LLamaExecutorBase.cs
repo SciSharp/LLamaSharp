@@ -294,10 +294,7 @@ namespace LLama
                 await InferInternal(inferenceParams, args);
 
                 if (args.ReturnValue)
-                {
-                    foreach (var id in _embeds)
-                        yield return Context.TokenToString(id);
-                }
+                    yield return Context.DeTokenize(_embeds);
 
                 var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args);
                 if (extraOutputs is { Count: > 0 })

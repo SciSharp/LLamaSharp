@@ -79,7 +79,7 @@ public sealed class TokenTests
         var strings = new[]
         {
             "Hello world",
-            "철수라는",
+            "철수",
             "😀 😃 😄 😁 😆 😅 😂 😊 😇 🙂 ",
         };
 
