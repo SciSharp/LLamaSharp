@@ -17,13 +17,9 @@ elif [ "$is_minor" = false ] && [ "$is_patch" = true ]; then
   echo "dicided to update patch version"
 else
   echo "At least one of minor version and patch version should be specified."
+  exit 1
 fi
 
-cur=$(pwd);
-echo "Current directory: $cur";
-ls;
-echo "=================================";
-ls ..;
 mkdir ./temp;
 mkdir ./temp/runtimes;
 cp ./LLama/runtimes/*.* ./temp/runtimes/;
@@ -31,17 +27,12 @@ cp ./LLama/runtimes/build/*.* ./temp/;
 
 # get the current version
 cd temp;
-ls;
 dotnet add package LLamaSharp;
 version=$(dotnet list temp.csproj package | grep LLamaSharp);
-regex="[0-9]+\.[0-9]+\.[0-9]+$";
-if [[ $version =~ $regex ]]; then
-  version="${BASH_REMATCH[0]}"
-  echo "Extracted version: $version"
-else
-  echo "No matching version found"
-  exit 1
-fi
+read -ra arr <<< "$version"
+version="${arr[-1]}"
+echo "The latest version: $version";
+
 
 # update the version
 if [[ $type == "minor" ]]; then
@@ -49,7 +40,7 @@ if [[ $type == "minor" ]]; then
     if [[ $version =~ $regex ]]; then
         b="${BASH_REMATCH[1]}"
         b=$((b + 1))  # 将 B 值加 1
-        updated_version="${version%.*}.$b.${version##*.}"  # 构建更新后的版本号
+        updated_version="${version%%.*}.$b.${version##*.}"  # 构建更新后的版本号
         echo "Updated version: $updated_version"
     else
         echo "Invalid version format" exit 1
@@ -70,7 +61,7 @@ elif [[ $type == "minor_patch" ]]; then
     if [[ $version =~ $regex ]]; then
         b="${BASH_REMATCH[1]}"
         b=$((b + 1))  # 将 B 值加 1
-        updated_version="${version%.*}.$b.0"  # 构建更新后的版本号
+        updated_version="${version%%.*}.$b.0"  # 构建更新后的版本号
         echo "Updated version: $updated_version"
     else
         echo "Invalid version format" exit 1
@@ -80,9 +71,10 @@ else
     exit 1
 fi
 
+cd ..
 # pack the main package
 dotnet pack ./LLama/LLamaSharp.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
-dotnet pack ./LLama.SemanticKernel/LLamaSharp.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
+dotnet pack ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
 
 # pack the backends
 cd temp
