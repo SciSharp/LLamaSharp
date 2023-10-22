@@ -20,6 +20,7 @@
     <file src="runtimes/libllama.dll" target="runtimes\win-x64\native\libllama.dll" />
     <file src="runtimes/libllama.so" target="runtimes\linux-x64\native\libllama.so" />
     <file src="runtimes/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
+    <file src="runtimes/ggml-metal.metal" target="runtimes\osx-x64\native\ggml-metal.metal" />
     <file src="icon512.png" target="icon512.png" />
   </files>
 </package>
