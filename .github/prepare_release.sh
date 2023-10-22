@@ -17,17 +17,18 @@ else
   echo "At least one of minor version and patch version should be specified."
 fi
 
-# preparation before packing backends
-mkdir ./temp
-mkdir ./temp/runtimes
-cp ./LLama/runtimes/*.* ./temp/runtimes/
-cp ./LLama/runtimes/build/*/* ./temp/
+cur=$(pwd);
+echo "Current directory: $cur";
+mkdir ./temp;
+mkdir ./temp/runtimes;
+cp ./LLama/runtimes/*.* ./temp/runtimes/;
+cp ./LLama/runtimes/build/*/* ./temp/;
 
 # get the current version
-cd temp
-dotnet add package LLamaSharp
-version=$(dotnet list temp.csproj package | grep LLamaSharp)
-regex="[0-9]+\.[0-9]+\.[0-9]+$"
+cd temp;
+dotnet add package LLamaSharp;
+version=$(dotnet list temp.csproj package | grep LLamaSharp);
+regex="[0-9]+\.[0-9]+\.[0-9]+$";
 if [[ $version =~ $regex ]]; then
   version="${BASH_REMATCH[0]}"
   echo "Extracted version: $version"
