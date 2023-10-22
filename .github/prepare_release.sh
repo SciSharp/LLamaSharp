@@ -1,3 +1,5 @@
+#!/bin/bash
+
 is_minor="$1"    # type is "minor" or "patch"
 is_patch="$2"    # type is "minor" or "patch"
 
