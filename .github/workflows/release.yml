@@ -1,0 +1,59 @@
+name: auto-release
+
+on:
+  pull_request:
+    branches: 
+      - master
+    types: [ closed ]
+
+env:
+  NUGET_API_TOKEN: ${{ SECRETS.LLAMA_SHARP_NUGET_KEY }}
+  IS_MINOR: ${{contains(github.event.pull_request.labels.*.name, 'minor-release')}}
+  IS_PATCH: ${{contains(github.event.pull_request.labels.*.name, 'patch-release')}}
+
+jobs:
+  release_to_nuget:
+    if: contains(github.event.pull_request.labels.*.name, 'minor-release') || contains(github.event.pull_request.labels.*.name, 'patch-release')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET 6.0.x SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: $NUGET_API_TOKEN
+        nuget-version: 'latest'
+
+    - name: Check .NET info
+      run: dotnet --info
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: |
+        dotnet build ./LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release --no-restore
+
+    - name: Pack packages
+      run: |
+        git fetch --unshallow;
+        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*";
+        git fetch origin;
+        
+        chmod +x ./.github/prepare_release.sh
+        ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
+
+    - name: Upload packages artifacts
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: "drop-ci-packages"
+        path: './temp'
+
+    - name: Push LLamaSharp packages to nuget.org
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k $NUGET_API_TOKEN --skip-duplicate
