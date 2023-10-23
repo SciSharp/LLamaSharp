@@ -100,7 +100,7 @@ namespace LLama
 
                 decoder.Add(id);
                 var decoded = decoder.Read();
-                yield return decoder.Read();
+                yield return decoded;
 
                 tokens.Clear();
                 tokens.Add(id);

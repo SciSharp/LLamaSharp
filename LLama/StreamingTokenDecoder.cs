@@ -155,7 +155,12 @@ public sealed class StreamingTokenDecoder
     /// <returns></returns>
     public string Read()
     {
-        return string.Join("", _characters);
+        if (_characters.Count == 0)
+            return "";
+
+        var str = string.Join("", _characters);
+        _characters.Clear();
+        return str;
     }
 
     /// <summary>
