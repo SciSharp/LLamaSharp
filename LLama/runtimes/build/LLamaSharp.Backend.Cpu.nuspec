@@ -12,7 +12,7 @@
     <description>LLamaSharp.Backend.Cpu is a backend for LLamaSharp to use with Cpu only.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
-    <tags>LLamaSharp LLama LLM GPT AI CharBot SciSharp</tags>
+    <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
   </metadata>
 
   <files>
@@ -20,6 +20,7 @@
     <file src="runtimes/libllama.dll" target="runtimes\win-x64\native\libllama.dll" />
     <file src="runtimes/libllama.so" target="runtimes\linux-x64\native\libllama.so" />
     <file src="runtimes/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
+    <file src="runtimes/ggml-metal.metal" target="runtimes\osx-x64\native\ggml-metal.metal" />
     <file src="icon512.png" target="icon512.png" />
   </files>
 </package>

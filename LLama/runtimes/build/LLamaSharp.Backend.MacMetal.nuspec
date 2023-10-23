@@ -12,7 +12,7 @@
     <description>LLamaSharp.Backend.MacMetal is a backend for LLamaSharp to use MAC with GPU support.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
-    <tags>LLamaSharp LLama LLM GPT AI CharBot SciSharp</tags>
+    <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
   </metadata>
 
   <files>
