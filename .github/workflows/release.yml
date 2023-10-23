@@ -7,7 +7,7 @@ on:
     types: [ closed ]
 
 env:
-  NUGET_API_TOKEN: ${{ SECRETS.LLAMA_SHARP_NUGET_KEY }}
+  NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY }}
   IS_MINOR: ${{contains(github.event.pull_request.labels.*.name, 'minor-release')}}
   IS_PATCH: ${{contains(github.event.pull_request.labels.*.name, 'patch-release')}}
 
@@ -56,4 +56,4 @@ jobs:
         path: './temp'
 
     - name: Push LLamaSharp packages to nuget.org
-      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k $NUGET_API_TOKEN --skip-duplicate
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k "$NUGET_API_TOKEN" --skip-duplicate
