@@ -11,7 +11,7 @@ env:
 
 jobs:
   patch_release_to_nuget:
-    needs: release-patch-trigger
+  if: ${{ github.event.workflow_run.conclusion == 'success' && needs.release-patch-trigger.outputs.workflow_run_id }}
     runs-on: ubuntu-latest
 
     steps:

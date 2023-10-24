@@ -11,7 +11,7 @@ env:
 
 jobs:
   minor_release_to_nuget:
-    needs: release-minor-trigger
+    if: ${{ github.event.workflow_run.conclusion == 'success' && needs.release-minor-trigger.outputs.workflow_run_id }}
     runs-on: ubuntu-latest
 
     steps:
