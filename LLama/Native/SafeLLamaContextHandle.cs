@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
 
@@ -159,28 +160,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Convert a token into a string
-        /// </summary>
-        /// <param name="token">Token to decode into a string</param>
-        /// <param name="encoding"></param>
-        /// <returns></returns>
-        public string TokenToString(int token, Encoding encoding)
-        {
-            return ThrowIfDisposed().TokenToString(token, encoding);
-        }
-
-        /// <summary>
-        /// Append a single llama token to a string builder
-        /// </summary>
-        /// <param name="token">Token to decode</param>
-        /// <param name="encoding"></param>
-        /// <param name="dest">string builder to append the result to</param>
-        public void TokenToString(int token, Encoding encoding, StringBuilder dest)
-        {
-            ThrowIfDisposed().TokenToString(token, encoding, dest);
-        }
-
-        /// <summary>
         /// Convert a single llama token into bytes
         /// </summary>
         /// <param name="token">Token to decode</param>
@@ -190,7 +169,7 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token, dest);
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Run the llama inference to obtain the logits and probabilities for the next token.

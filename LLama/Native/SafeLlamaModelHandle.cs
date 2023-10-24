@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using LLama.Exceptions;
-using LLama.Extensions;
 
 namespace LLama.Native
 {
@@ -119,67 +116,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Convert a single llama token into a string
-        /// </summary>
-        /// <param name="llama_token"></param>
-        /// <param name="encoding">Encoding to use to decode the bytes into a string</param>
-        /// <returns></returns>
-        public string TokenToString(int llama_token, Encoding encoding)
-        {
-            unsafe
-            {
-                var length = NativeApi.llama_token_to_piece(this, llama_token, null, 0);
-                if (length == 0)
-                    return "";
-
-                Span<byte> bytes = stackalloc byte[-length];
-
-                fixed (byte* bytePtr = bytes)
-                {
-                    var written = NativeApi.llama_token_to_piece(this, llama_token, bytePtr, bytes.Length);
-                    Debug.Assert(written == bytes.Length);
-
-                    return encoding.GetString(bytePtr, bytes.Length);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Append a single llama token to a string builder
-        /// </summary>
-        /// <param name="llama_token">Token to decode</param>
-        /// <param name="encoding"></param>
-        /// <param name="dest">string builder to append the result to</param>
-        public void TokenToString(int llama_token, Encoding encoding, StringBuilder dest)
-        {
-            unsafe
-            {
-                var length = NativeApi.llama_token_to_piece(this, llama_token, null, 0);
-                if (length == 0)
-                    return;
-
-                Span<byte> bytes = stackalloc byte[-length];
-                fixed (byte* bytePtr = bytes)
-                {
-                    // Decode into bytes
-                    var written = NativeApi.llama_token_to_piece(this, llama_token, bytePtr, bytes.Length);
-                    Debug.Assert(written == bytes.Length);
-
-                    // Decode into chars
-                    var charCount = encoding.GetCharCount(bytePtr, bytes.Length);
-                    Span<char> chars = stackalloc char[charCount];
-                    fixed (char* charPtr = chars)
-                        encoding.GetChars(bytePtr, bytes.Length, charPtr, chars.Length);
-
-                    // Write it to the output
-                    for (var i = 0; i < chars.Length; i++)
-                        dest.Append(chars[i]);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Convert a sequence of tokens into characters. If there 
+        /// Convert a sequence of tokens into characters.
         /// </summary>
         /// <param name="tokens"></param>
         /// <param name="dest"></param>
@@ -188,80 +125,25 @@ namespace LLama.Native
         /// If there was insufficient space in the output span this will be
         /// filled with as many characters as possible, starting from the _last_ token.
         /// </returns>
+        [Obsolete("Use a StreamingTokenDecoder instead")]
         internal Span<char> TokensToSpan(IReadOnlyList<int> tokens, Span<char> dest, Encoding encoding)
         {
-            // Rent an array to detokenize into
-            var tokenBytesArr = ArrayPool<byte>.Shared.Rent(16);
-            var tokenCharsArr = ArrayPool<char>.Shared.Rent(16);
-            try
+            var decoder = new StreamingTokenDecoder(encoding, this);
+
+            foreach (var token in tokens)
+                decoder.Add(token);
+
+            var str = decoder.Read();
+
+            if (str.Length < dest.Length)
             {
-                var totalCharacters = 0;
-                var unused = dest;
-
-                for (var i = tokens.Count - 1; i >= 0; i--)
-                {
-                    var token = tokens[i];
-
-                    // Get bytes for this token
-                    var tokenBytes = TokenToBytes(ref tokenBytesArr, token, this);
-
-                    // Get chars for this token
-                    var tokenChars = BytesToChars(ref tokenCharsArr, tokenBytes, encoding);
-
-                    // Trim down number of characters if there are too many
-                    if (tokenChars.Length > unused.Length)
-                        tokenChars = tokenChars.Slice(tokenChars.Length - unused.Length, unused.Length);
-
-                    // Copy characters
-                    tokenChars.CopyTo(unused.Slice(unused.Length - tokenChars.Length, tokenChars.Length));
-                    unused = unused.Slice(0, unused.Length - tokenChars.Length);
-                    totalCharacters += tokenChars.Length;
-
-                    // Break out if we've run out of space
-                    if (unused.Length == 0)
-                        break;
-                }
-
-                return dest.Slice(dest.Length - totalCharacters, totalCharacters);
+                str.AsSpan().CopyTo(dest);
+                return dest.Slice(0, str.Length);
             }
-            finally
+            else
             {
-                ArrayPool<byte>.Shared.Return(tokenBytesArr);
-                ArrayPool<char>.Shared.Return(tokenCharsArr);
-            }
-            
-            // vvv Local Functions vvv
-
-            static Span<byte> TokenToBytes(ref byte[] bytes, int token, SafeLlamaModelHandle model)
-            {
-                // Try to get bytes, if that fails we known the length
-                var l = model.TokenToSpan(token, bytes);
-
-                // Array was too small, get a bigger one
-                if (l < 0)
-                {
-                    ArrayPool<byte>.Shared.Return(bytes);
-                    bytes = ArrayPool<byte>.Shared.Rent(-l * 2);
-
-                    // Get bytes, this time it can't fail
-                    l = model.TokenToSpan(token, bytes);
-                }
-
-                Debug.Assert(l >= 0);
-                return new Span<byte>(bytes, 0, l);
-            }
-
-            static Span<char> BytesToChars(ref char[] chars, ReadOnlySpan<byte> bytes, Encoding encoding)
-            {
-                var count = encoding.GetCharCount(bytes);
-                if (count > chars.Length)
-                {
-                    ArrayPool<char>.Shared.Return(chars);
-                    chars = ArrayPool<char>.Shared.Rent(count * 2);
-                }
-
-                encoding.GetChars(bytes, chars);
-                return chars.AsSpan(0, count);
+                str.AsSpan().Slice(str.Length - dest.Length).CopyTo(dest);
+                return dest;
             }
         }
 
@@ -304,7 +186,7 @@ namespace LLama.Native
                 }
             }
         }
-        #endregion
+#endregion
 
         #region context
         /// <summary>

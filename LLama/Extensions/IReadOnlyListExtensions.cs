@@ -36,6 +36,7 @@ namespace LLama.Extensions
         /// <param name="model">Model to use to convert tokens into bytes</param>
         /// <param name="encoding">Encoding to use to convert bytes into characters</param>
         /// <returns></returns>
+        [Obsolete("Use an Antiprompt processor instead")]
         internal static bool TokensEndsWithAnyString<TTokens, TQueries>(this TTokens tokens, TQueries? queries, SafeLlamaModelHandle model, Encoding encoding)
             where TTokens : IReadOnlyList<int>
             where TQueries : IReadOnlyList<string>
@@ -68,13 +69,6 @@ namespace LLama.Extensions
             }
         }
 
-        internal static bool TokensEndsWithAnyString<TTokens, TQueries>(this TTokens tokens, TQueries? queries, LLamaContext context)
-            where TTokens : IReadOnlyList<int>
-            where TQueries : IReadOnlyList<string>
-        {
-            return TokensEndsWithAnyString(tokens, queries, context.NativeHandle.ModelHandle, context.Encoding);
-        }
-
         /// <summary>
         /// Check if the given set of tokens ends with any of the given strings
         /// </summary>
@@ -83,6 +77,7 @@ namespace LLama.Extensions
         /// <param name="model">Model to use to convert tokens into bytes</param>
         /// <param name="encoding">Encoding to use to convert bytes into characters</param>
         /// <returns></returns>
+        [Obsolete("Use an Antiprompt processor instead")]
         internal static bool TokensEndsWithAnyString<TTokens>(this TTokens tokens, IList<string>? queries, SafeLlamaModelHandle model, Encoding encoding)
             where TTokens : IReadOnlyList<int>
         {

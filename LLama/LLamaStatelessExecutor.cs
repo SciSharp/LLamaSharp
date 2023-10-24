@@ -56,6 +56,9 @@ namespace LLama
                 Context.Dispose();
             Context = _weights.CreateContext(Context.Params, _logger);
 
+            var decoder = new StreamingTokenDecoder(Context);
+            var antiprocessor = new AntipromptProcessor(inferenceParams?.AntiPrompts ?? Array.Empty<string>());
+
             if (inferenceParams != null)
             {
                 if (inferenceParams.TokensKeep > Context.ContextSize)
@@ -64,7 +67,6 @@ namespace LLama
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var antiprompts = inferenceParams?.AntiPrompts.ToArray() ?? Array.Empty<string>();
             inferenceParams ??= new InferenceParams();
 
             var lastTokens = new List<llama_token>(inferenceParams.RepeatLastTokensCount);
@@ -95,13 +97,16 @@ namespace LLama
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar);
 
                 lastTokens.Add(id);
-                yield return Context.TokenToString(id);
+
+                decoder.Add(id);
+                var decoded = decoder.Read();
+                yield return decoded;
 
                 tokens.Clear();
                 tokens.Add(id);
 
                 // Check if any of the antiprompts have been generated
-                if (lastTokens.TokensEndsWithAnyString(antiprompts, Context))
+                if (antiprocessor.Add(decoded))
                     break;
 
                 // when run out of context

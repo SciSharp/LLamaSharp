@@ -32,13 +32,14 @@ public sealed class BeamTests
     {
         const int num_beams = 2;
         const int n_predict = 3;
+        const string prompt = "The cat sat on";
 
         var context = _model.CreateContext(_params);
 
         var result = new StringBuilder();
 
-        var initial_tokens = context.Tokenize("The cat sat on");
-        result.Append(context.DeTokenize(initial_tokens.ToArray()));
+        var initial_tokens = context.Tokenize(prompt);
+        result.Append(prompt);
         context.Eval(initial_tokens, 0);
 
         NativeApi.llama_beam_search(context.NativeHandle, (data, state) =>
