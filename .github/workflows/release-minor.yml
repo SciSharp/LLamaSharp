@@ -1,4 +1,4 @@
-name: auto-release
+name: auto-minor-release
 
 on:
   workflow_run:
@@ -11,6 +11,7 @@ env:
 
 jobs:
   minor_release_to_nuget:
+    needs: release-minor-trigger
     runs-on: ubuntu-latest
 
     steps:
