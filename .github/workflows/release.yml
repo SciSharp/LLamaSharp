@@ -14,5 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: drop-ci-packages  # 要下载的工件的名称
+        path: .  # 工件下载到的路径
+
     - name: Push LLamaSharp packages to nuget.org
-      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
+      run: |
+      ls
+      ls ./temp
+      dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
