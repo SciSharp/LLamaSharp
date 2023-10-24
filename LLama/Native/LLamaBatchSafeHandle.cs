@@ -15,7 +15,7 @@ public sealed class LLamaBatchSafeHandle
     /// <summary>
     /// Get the native llama_batch struct
     /// </summary>
-    public LLamaNativeBatch NativeBatch { get; private set; }
+    public LLamaNativeBatch NativeBatch;
 
     /// <summary>
     /// the token ids of the input (used when embd is NULL)

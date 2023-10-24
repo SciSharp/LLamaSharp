@@ -8,6 +8,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <!-- Set IncludeBuiltInRuntimes to false to include your own runtime libraries and not link the defaults -->
     <IncludeBuiltInRuntimes>true</IncludeBuiltInRuntimes>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

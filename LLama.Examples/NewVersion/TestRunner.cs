@@ -91,7 +91,7 @@
                 }
                 else if (choice == 15)
                 {
-                    await BatchedBench.Run();
+                    await BatchedDecoding.Run();
                 }
                 else
                 {

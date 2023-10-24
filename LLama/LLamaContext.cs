@@ -305,7 +305,7 @@ namespace LLama
             }
 
             // Save the newline logit value
-            var nl_token = NativeApi.llama_token_nl(NativeHandle);
+            var nl_token = NativeApi.llama_token_nl(NativeHandle.ModelHandle);
             var nl_logit = logits[nl_token];
 
             // Convert logits into token candidates

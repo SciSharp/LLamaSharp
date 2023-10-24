@@ -350,7 +350,7 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx);
+        public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
 
         /// <summary>
         /// Get the embeddings for the input
@@ -366,21 +366,21 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_bos(SafeLLamaContextHandle ctx);
+        public static extern llama_token llama_token_bos(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the "End of sentence" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_eos(SafeLLamaContextHandle ctx);
+        public static extern llama_token llama_token_eos(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the "new line" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_nl(SafeLLamaContextHandle ctx);
+        public static extern llama_token llama_token_nl(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Print out timing information for this context
