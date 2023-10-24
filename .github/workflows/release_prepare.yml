@@ -49,7 +49,7 @@ jobs:
         ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
 
     - name: Upload packages artifacts
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v2
       with:
         name: "drop-ci-packages"
         path: './temp'
