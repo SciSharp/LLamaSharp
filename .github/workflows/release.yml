@@ -15,10 +15,11 @@ jobs:
     
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v2
+      uses: dawidd6/action-download-artifact@v2
       with:
-        name: drop-ci-packages  # 要下载的工件的名称
-        path: .  # 工件下载到的路径
+        name: drop-ci-packages
+        workflow: release-prepare.yml
+        branch: master
 
     - name: Push LLamaSharp packages to nuget.org
       run: |
