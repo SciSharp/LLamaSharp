@@ -1,4 +1,4 @@
-name: auto-release
+name: auto-minor-release
 
 on:
   workflow_run:
@@ -11,9 +11,11 @@ env:
 
 jobs:
   minor_release_to_nuget:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v3
     - name: Setup NuGet
       uses: nuget/setup-nuget@v1
       with:

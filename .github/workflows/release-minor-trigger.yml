@@ -7,7 +7,7 @@ on:
     types: [ closed ]
 
 jobs:
-  trigger_minor_release:
+  release-minor-trigger:
     if: contains(github.event.pull_request.labels.*.name, 'minor-release') && !contains(github.event.pull_request.labels.*.name, 'patch-release')
     runs-on: ubuntu-latest
     
@@ -17,4 +17,3 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-        
