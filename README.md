@@ -8,6 +8,8 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cpu?label=LLamaSharp.Backend.Cpu)](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda11?label=LLamaSharp.Backend.Cuda11)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda12?label=LLamaSharp.Backend.Cuda12)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)
+[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.MacMetal?label=LLamaSharp.Backend.MacMetal)](https://www.nuget.org/packages/LLamaSharp.Backend.MacMetal)
+[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.semantic-kernel?label=LLamaSharp.semantic-kernel)](https://www.nuget.org/packages/LLamaSharp.semantic-kernel)
 
 
 **The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on local environment. It works on 
@@ -35,10 +37,10 @@ PM> Install-Package LLamaSharp
 Then, search and install one of the following backends:
 
 ```
-LLamaSharp.Backend.Cpu  # cpu for windows, linux and mac
+LLamaSharp.Backend.Cpu  # cpu for windows, linux and mac (mac metal is also supported)
 LLamaSharp.Backend.Cuda11  # cuda11 for windows and linux
 LLamaSharp.Backend.Cuda12  # cuda12 for windows and linux
-LLamaSharp.Backend.MacMetal  # metal for mac
+LLamaSharp.Backend.MacMetal  # special for using mac metal
 ```
 
 If you would like to use it with [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel), please search and install the following package:
@@ -161,6 +163,8 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 ✅ Chat session
 
 ✅ Quantization
+
+✅ Grammar
 
 ✅ State saving and loading
 
