@@ -1,27 +1,19 @@
-name: release-prepare
+name: auto-release
 
 on:
-  pull_request:
-    branches: 
-      - master
-    types: [ closed ]
+  workflow_run:
+    workflows: ["release-minor-trigger"]
+    types:
+      - completed
 
 env:
-  IS_MINOR: ${{contains(github.event.pull_request.labels.*.name, 'minor-release')}}
-  IS_PATCH: ${{contains(github.event.pull_request.labels.*.name, 'patch-release')}}
+  NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY }}
 
 jobs:
-  prepare_package:
-    if: contains(github.event.pull_request.labels.*.name, 'minor-release') || contains(github.event.pull_request.labels.*.name, 'patch-release')
+  minor_release_to_nuget:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET 6.0.x SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
 
+    steps:
     - name: Setup NuGet
       uses: nuget/setup-nuget@v1
       with:
@@ -46,10 +38,13 @@ jobs:
         git fetch origin;
         
         chmod +x ./.github/prepare_release.sh
-        ./.github/prepare_release.sh $IS_MINOR $IS_PATCH
+        ./.github/prepare_release.sh true false
 
     - name: Upload packages artifacts
       uses: actions/upload-artifact@v2
       with:
         name: "drop-ci-packages"
         path: './temp'
+
+    - name: Push LLamaSharp packages to nuget.org
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
