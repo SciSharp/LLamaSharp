@@ -1,0 +1,50 @@
+name: auto-release
+
+on:
+  workflow_run:
+    workflows: ["release-patch-trigger"]
+    types:
+      - completed
+
+env:
+  NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY }}
+
+jobs:
+  patch_release_to_nuget:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: $NUGET_API_TOKEN
+        nuget-version: 'latest'
+
+    - name: Check .NET info
+      run: dotnet --info
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: |
+        dotnet build ./LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release --no-restore
+
+    - name: Pack packages
+      run: |
+        git fetch --unshallow;
+        git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*";
+        git fetch origin;
+        
+        chmod +x ./.github/prepare_release.sh
+        ./.github/prepare_release.sh false true
+
+    - name: Upload packages artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: "drop-ci-packages"
+        path: './temp'
+
+    - name: Push LLamaSharp packages to nuget.org
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
