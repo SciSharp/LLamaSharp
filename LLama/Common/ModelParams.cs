@@ -28,7 +28,7 @@ namespace LLama.Common
         /// <summary>
         /// Seed for the random number generator (seed)
         /// </summary>
-        public uint Seed { get; set; } = 1686349486;
+        public uint Seed { get; set; } = 0xFFFFFFFF;
         /// <summary>
         /// Use f16 instead of f32 for memory kv (memory_f16)
         /// </summary>
