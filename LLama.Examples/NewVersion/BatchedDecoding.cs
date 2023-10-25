@@ -22,13 +22,12 @@ public class BatchedDecoding
     public static async Task Run()
     {
         Console.Write("Please input your model path: ");
-        //todo:var modelPath = Console.ReadLine();
-        var modelPath = @"C:\Users\Martin\Documents\Python\oobabooga_windows\text-generation-webui\models\llama-2-7b-chat.Q5_K_M.gguf";
+        var modelPath = Console.ReadLine();
 
         Console.WriteLine("Prompt (leave blank to select automatically):");
         var prompt = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(prompt))
-            prompt = "I would like to tell you about";
+            prompt = "Not many people know that";
 
         // Load model
         var parameters = new ModelParams(modelPath);
