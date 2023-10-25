@@ -110,7 +110,7 @@ namespace LLama
 
             var decoder = new StreamingTokenDecoder(this);
             decoder.AddRange(tokens);
-            return decoder.ToString();
+            return decoder.Read();
         }
 
         /// <summary>
