@@ -54,6 +54,7 @@ jobs:
     - name: Test
       run: dotnet test LLamaSharp.sln -c ${{ matrix.config }} -l "console;verbosity=detailed" --diag:logs/log.txt
     - name: Upload artifacts
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         path: logs/
