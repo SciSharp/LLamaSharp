@@ -96,5 +96,48 @@ namespace LLama.Native
 
             return handle;
         }
+
+        /// <summary>
+        /// Perform TopK sampling, sorting the data and reducing the size to k
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="k">Number of tokens to keep</param>
+        /// <param name="minKeep">Minimum number to keep</param>
+        public void TopK(SafeLLamaContextHandle context, int k, ulong minKeep = 1)
+        {
+            NativeApi.llama_sample_top_k(context, ref this, k, minKeep);
+        }
+
+        /// <summary>
+        /// Perform top p sampling, sorting the data and keeping only logits more likely than p
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="p"></param>
+        /// <param name="minKeep"></param>
+        public void TopP(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
+        {
+            NativeApi.llama_sample_top_p(context, ref this, p, minKeep);
+        }
+
+        /// <summary>
+        /// Apply temperature to logits
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="temp"></param>
+        public void Temperature(SafeLLamaContextHandle context, float temp)
+        {
+            NativeApi.llama_sample_temperature(context, ref this, temp);
+        }
+
+        /// <summary>
+        /// Sample a token from the set of possible tokens
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public int SampleToken(SafeLLamaContextHandle context)
+        {
+            return NativeApi.llama_sample_token(context, ref this);
+        }
     }
 }
