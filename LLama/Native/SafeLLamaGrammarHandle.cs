@@ -102,5 +102,15 @@ namespace LLama.Native
             return new(grammar_ptr);
         }
         #endregion
+
+        /// <summary>
+        /// Accepts the sampled token into the grammar
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="token"></param>
+        public void AcceptToken(SafeLLamaContextHandle ctx, int token)
+        {
+            NativeApi.llama_grammar_accept_token(ctx, this, token);
+        }
     }
 }

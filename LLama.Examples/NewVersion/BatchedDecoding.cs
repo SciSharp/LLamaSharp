@@ -6,6 +6,10 @@ using LLama.Native;
 
 namespace LLama.Examples.NewVersion;
 
+/// <summary>
+/// This demonstrates generating multiple replies to the same prompt, with a shared cache
+/// </summary>
+/// <remarks>Note that this is currently using the low level API directly, future work will provide a safer C# wrapper over this!</remarks>
 public class BatchedDecoding
 {
     private const int n_parallel = 8;
@@ -116,12 +120,11 @@ public class BatchedDecoding
                 {
                     candidates = LLamaTokenDataArray.Create(new Span<float>(NativeApi.llama_get_logits_ith(context.NativeHandle, i_batch[i]), n_vocab));
                 }
-                using var pin = LLamaTokenDataArrayNative.Create(candidates, out var candidates_native);
 
-                candidates_native.TopK(context.NativeHandle, top_k);
-                candidates_native.TopP(context.NativeHandle, top_p);
-                candidates_native.Temperature(context.NativeHandle, temp);
-                var new_token_id = candidates_native.SampleToken(context.NativeHandle);
+                candidates.TopK(context.NativeHandle, top_k);
+                candidates.TopP(context.NativeHandle, top_p);
+                candidates.Temperature(context.NativeHandle, temp);
+                var new_token_id = candidates.SampleToken(context.NativeHandle);
 
                 if (new_token_id == eos || new_token_id == nl)
                 {

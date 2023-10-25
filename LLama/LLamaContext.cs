@@ -235,13 +235,13 @@ namespace LLama
 
             if (grammar != null)
             {
-                SamplingApi.llama_sample_grammar(NativeHandle, candidates, grammar);
+                candidates.ApplyGrammar(NativeHandle, grammar);
             }
 
             if (temperature <= 0)
             {
                 // Greedy sampling
-                id = SamplingApi.llama_sample_token_greedy(NativeHandle, candidates);
+                id = candidates.SampleTokenGreedy(NativeHandle);
             }
             else
             {
@@ -250,32 +250,28 @@ namespace LLama
                     if (mirostat == MirostatType.Mirostat)
                     {
                         const int mirostat_m = 100;
-                        SamplingApi.llama_sample_temperature(NativeHandle, candidates, temperature);
-                        id = SamplingApi.llama_sample_token_mirostat(NativeHandle, candidates, mirostatTau, mirostatEta, mirostat_m, ref mu);
+                        candidates.Temperature(NativeHandle, temperature);
+                        id = candidates.SampleTokenMirostat(NativeHandle, mirostatTau, mirostatEta, mirostat_m, ref mu);
                     }
                     else if (mirostat == MirostatType.Mirostat2)
                     {
-                        SamplingApi.llama_sample_temperature(NativeHandle, candidates, temperature);
-                        id = SamplingApi.llama_sample_token_mirostat_v2(NativeHandle, candidates, mirostatTau, mirostatEta, ref mu);
+                        candidates.Temperature(NativeHandle, temperature);
+                        id = candidates.SampleTokenMirostat2(NativeHandle, mirostatTau, mirostatEta, ref mu);
                     }
                     else
                     {
-                        // Temperature sampling
-                        SamplingApi.llama_sample_top_k(NativeHandle, candidates, topK, 1);
-                        SamplingApi.llama_sample_tail_free(NativeHandle, candidates, tfsZ, 1);
-                        SamplingApi.llama_sample_typical(NativeHandle, candidates, typicalP, 1);
-                        SamplingApi.llama_sample_top_p(NativeHandle, candidates, topP, 1);
-                        SamplingApi.llama_sample_temperature(NativeHandle, candidates, temperature);
-                        id = SamplingApi.llama_sample_token(NativeHandle, candidates);
+                        candidates.TopK(NativeHandle, topK);
+                        candidates.TailFree(NativeHandle, tfsZ);
+                        candidates.LocallyTypical(NativeHandle, typicalP);
+                        candidates.TopP(NativeHandle, topP);
+                        candidates.Temperature(NativeHandle, temperature);
+                        id = candidates.SampleToken(NativeHandle);
                     }
                 }
                 mirostat_mu = mu;
             }
 
-            if (grammar != null)
-            {
-                NativeApi.llama_grammar_accept_token(NativeHandle, grammar, id);
-            }
+            grammar?.AcceptToken(NativeHandle, id);
 
             return id;
         }
@@ -305,7 +301,7 @@ namespace LLama
             }
 
             // Save the newline logit value
-            var nl_token = NativeApi.llama_token_nl(NativeHandle.ModelHandle);
+            var nl_token =  NativeApi.llama_token_nl(NativeHandle.ModelHandle);
             var nl_logit = logits[nl_token];
 
             // Convert logits into token candidates
@@ -316,8 +312,7 @@ namespace LLama
             var last_n_array = lastTokens.TakeLast(last_n_repeat).ToArray();
 
             // Apply penalties to candidates
-            SamplingApi.llama_sample_repetition_penalty(NativeHandle, candidates_p, last_n_array, repeatPenalty);
-            SamplingApi.llama_sample_frequency_and_presence_penalties(NativeHandle, candidates_p, last_n_array, alphaFrequency, alphaPresence);
+            candidates_p.RepetitionPenalty(NativeHandle, last_n_array, repeatPenalty, alphaFrequency, alphaPresence);
 
             // Restore newline token logit value if necessary
             if (!penalizeNL)

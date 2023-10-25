@@ -22,7 +22,7 @@
             Console.WriteLine("12: Semantic Kernel Chat.");
             Console.WriteLine("13: Semantic Kernel Memory.");
             Console.WriteLine("14: Coding Assistant.");
-            Console.WriteLine("15: Batch Decoding Benchmark.");
+            Console.WriteLine("15: Batch Decoding.");
 
             while (true)
             {

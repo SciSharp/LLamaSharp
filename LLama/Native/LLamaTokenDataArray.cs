@@ -45,6 +45,199 @@ namespace LLama.Native
 
             return new LLamaTokenDataArray(candidates);
         }
+
+        #region sampling
+        /// <summary>
+        /// Apply grammar rules to candidate tokens
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="grammar"></param>
+        public void ApplyGrammar(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_grammar(ctx, ref st, grammar);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Top-K sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="k">Number of tokens to keep</param>
+        /// <param name="minKeep">Minimum number to keep</param>
+        public void TopK(SafeLLamaContextHandle context, int k, ulong minKeep = 1)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_top_k(context, ref st, k, minKeep);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Nucleus sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="p"></param>
+        /// <param name="minKeep"></param>
+        public void TopP(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_top_p(context, ref st, p, minKeep);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Tail Free Sampling described in https://www.trentonbricken.com/Tail-Free-Sampling/.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="z"></param>
+        /// <param name="min_keep"></param>
+        public void TailFree(SafeLLamaContextHandle context, float z, ulong min_keep = 1)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_tail_free(context, ref st, z, min_keep);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="p"></param>
+        /// <param name="min_keep"></param>
+        public void LocallyTypical(SafeLLamaContextHandle context, float p, ulong min_keep = 1)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_typical(context, ref st, p, min_keep);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
+        /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="last_tokens"></param>
+        /// <param name="penalty_repeat"></param>
+        /// <param name="penalty_freq"></param>
+        /// <param name="penalty_present"></param>
+        public void RepetitionPenalty(SafeLLamaContextHandle context, Memory<llama_token> last_tokens, float penalty_repeat, float penalty_freq, float penalty_present)
+        {
+            unsafe
+            {
+                using (LLamaTokenDataArrayNative.Create(this, out var st))
+                using (var last_tokens_handle = last_tokens.Pin())
+                {
+                    NativeApi.llama_sample_repetition_penalties(context, ref st, (int*)last_tokens_handle.Pointer, (ulong)last_tokens.Length, penalty_repeat, penalty_freq, penalty_present);
+                    sorted = st.sorted;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sample with temperature.
+        /// As temperature increases, the prediction becomes more diverse but also vulnerable to hallucinations -- generating tokens that are sensible but not factual
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="temp"></param>
+        public void Temperature(SafeLLamaContextHandle context, float temp)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_temperature(context, ref st, temp);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
+        /// </summary>
+        /// <param name="context"></param>
+        public void Softmax(SafeLLamaContextHandle context)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_softmax(context, ref st);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
+        /// Randomly selects a token from the candidates based on their probabilities.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public int SampleToken(SafeLLamaContextHandle context)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                var token = NativeApi.llama_sample_token(context, ref st);
+                sorted = st.sorted;
+                return token;
+            }
+        }
+
+        /// <summary>
+        /// Selects the token with the highest probability.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public int SampleTokenGreedy(SafeLLamaContextHandle context)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                var token = NativeApi.llama_sample_token_greedy(context, ref st);
+                sorted = st.sorted;
+                return token;
+            }
+        }
+
+        /// <summary>
+        /// Mirostat 1.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tau">The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</param>
+        /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
+        /// <param name="m">The number of tokens considered in the estimation of `s_hat`. This is an arbitrary value that is used to calculate `s_hat`, which in turn helps to calculate the value of `k`. In the paper, they use `m = 100`, but you can experiment with different values to see how it affects the performance of the algorithm.</param>
+        /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
+        /// <returns></returns>
+        public int SampleTokenMirostat(SafeLLamaContextHandle context, float tau, float eta, int m, ref float mu)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                var token = NativeApi.llama_sample_token_mirostat(context, ref st, tau, eta, m, ref mu);
+                sorted = st.sorted;
+                return token;
+            }
+        }
+
+        /// <summary>
+        /// Mirostat 2.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="tau">The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</param>
+        /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
+        /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
+        /// <returns></returns>
+        public int SampleTokenMirostat2(SafeLLamaContextHandle context, float tau, float eta, ref float mu)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                var token = NativeApi.llama_sample_token_mirostat_v2(context, ref st, tau, eta, ref mu);
+                sorted = st.sorted;
+                return token;
+            }
+        }
+        #endregion
     }
 
     /// <summary>
@@ -95,49 +288,6 @@ namespace LLama.Native
             }
 
             return handle;
-        }
-
-        /// <summary>
-        /// Perform TopK sampling, sorting the data and reducing the size to k
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="k">Number of tokens to keep</param>
-        /// <param name="minKeep">Minimum number to keep</param>
-        public void TopK(SafeLLamaContextHandle context, int k, ulong minKeep = 1)
-        {
-            NativeApi.llama_sample_top_k(context, ref this, k, minKeep);
-        }
-
-        /// <summary>
-        /// Perform top p sampling, sorting the data and keeping only logits more likely than p
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="p"></param>
-        /// <param name="minKeep"></param>
-        public void TopP(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
-        {
-            NativeApi.llama_sample_top_p(context, ref this, p, minKeep);
-        }
-
-        /// <summary>
-        /// Apply temperature to logits
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="temp"></param>
-        public void Temperature(SafeLLamaContextHandle context, float temp)
-        {
-            NativeApi.llama_sample_temperature(context, ref this, temp);
-        }
-
-        /// <summary>
-        /// Sample a token from the set of possible tokens
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public int SampleToken(SafeLLamaContextHandle context)
-        {
-            return NativeApi.llama_sample_token(context, ref this);
         }
     }
 }
