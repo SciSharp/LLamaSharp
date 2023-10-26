@@ -348,6 +348,7 @@ namespace LLama.Native
         /// Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
         /// </summary>
         /// <param name="ctx"></param>
+        /// <param name="i"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
