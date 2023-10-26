@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using LLama.Native;
 
 namespace LLama.Abstractions
 {
@@ -37,7 +40,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        float[]? TensorSplits { get; set; }
+        TensorSplitsCollection TensorSplits { get; set; }
 
         /// <summary>
         /// Load vocab only (no weights)
@@ -97,5 +100,77 @@ namespace LLama.Abstractions
                 return hash;
             }
         }
+    }
+
+    /// <summary>
+    /// A fixed size array to set the tensor splits across multiple GPUs
+    /// </summary>
+    public sealed class TensorSplitsCollection
+        : IEnumerable<float>
+    {
+        internal readonly float[] Splits = new float[NativeApi.llama_max_devices()];
+
+        /// <summary>
+        /// The size of this array
+        /// </summary>
+        public int Length => Splits.Length;
+
+        /// <summary>
+        /// Get or set the proportion of work to do on the given device.
+        /// </summary>
+        /// <remarks>"[ 3, 2 ]" will assign 60% of the data to GPU 0 and 40% to GPU 1.</remarks>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public float this[int index]
+        {
+            get => Splits[index];
+            set => Splits[index] = value;
+        }
+
+        /// <summary>
+        /// Create a new tensor splits collection, copying the given values
+        /// </summary>
+        /// <param name="splits"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public TensorSplitsCollection(float[] splits)
+        {
+            if (splits.Length != Splits.Length)
+                throw new ArgumentException($"tensor splits length must equal {Splits.Length}");
+            Splits = splits;
+        }
+
+        /// <summary>
+        /// Create a new tensor splits collection with all values initialised to the default
+        /// </summary>
+        public TensorSplitsCollection()
+        {
+        }
+
+        /// <summary>
+        /// Set all values to zero
+        /// </summary>
+        public void Clear()
+        {
+            Array.Clear(Splits, 0, Splits.Length);
+        }
+
+        internal MemoryHandle Pin()
+        {
+            return Splits.AsMemory().Pin();
+        }
+
+        #region IEnumerator
+        /// <inheritdoc />
+        public IEnumerator<float> GetEnumerator()
+        {
+            return ((IEnumerable<float>)Splits).GetEnumerator();
+        }
+
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Splits.GetEnumerator();
+        }
+        #endregion
     }
 }

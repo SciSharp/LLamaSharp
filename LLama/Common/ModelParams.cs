@@ -82,9 +82,11 @@ namespace LLama.Common
         public bool EmbeddingMode { get; set; }
 
         /// <summary>
-        /// how split tensors should be distributed across GPUs
+        /// how split tensors should be distributed across GPUs.
         /// </summary>
-        public float[]? TensorSplits { get; set; }
+        /// <remarks>"[ 3, 2 ]" will assign 60% of the data to GPU 0 and 40% to GPU 1.</remarks>
+        [JsonConverter(typeof(TensorSplitsCollectionConverter))]
+        public TensorSplitsCollection TensorSplits { get; set; } = new();
 
 		/// <summary>
 		/// RoPE base frequency
@@ -191,6 +193,21 @@ namespace LLama.Common
         public override void Write(Utf8JsonWriter writer, Encoding value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.WebName);
+        }
+    }
+
+    internal class TensorSplitsCollectionConverter
+        : JsonConverter<TensorSplitsCollection>
+    {
+        public override TensorSplitsCollection? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? Array.Empty<float>();
+            return new TensorSplitsCollection(arr);
+        }
+
+        public override void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, value.Splits, options);
         }
     }
 }

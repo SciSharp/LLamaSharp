@@ -15,12 +15,12 @@ namespace LLama.Native
         public int n_gpu_layers;
 
         /// <summary>
-        /// // the GPU that is used for scratch and small tensors
+        /// the GPU that is used for scratch and small tensors
         /// </summary>
         public int main_gpu;
 
         /// <summary>
-        /// how to split layers across multiple GPUs (size: LLAMA_MAX_DEVICES)
+        /// how to split layers across multiple GPUs (size: <see cref="NativeApi.llama_max_devices"/>)
         /// </summary>
         public float* tensor_split;
 
