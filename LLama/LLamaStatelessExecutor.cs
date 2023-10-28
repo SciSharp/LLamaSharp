@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using LLama.Extensions;
 using LLama.Native;
 using Microsoft.Extensions.Logging;
 
@@ -47,61 +46,58 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<string> InferAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            // Ensure the context from last time is disposed (it always hould be)
+            if (!Context.NativeHandle.IsClosed)
+                Context.Dispose();
+
+            // Create an inference context which will be disposed when this method exits
             using var context = _weights.CreateContext(_params, _logger);
             Context = context;
 
-            if (!Context.NativeHandle.IsClosed)
-                Context.Dispose();
-            Context = _weights.CreateContext(Context.Params, _logger);
-
-            var decoder = new StreamingTokenDecoder(Context);
-            var antiprocessor = new AntipromptProcessor(inferenceParams?.AntiPrompts ?? Array.Empty<string>());
-
-            if (inferenceParams != null)
-            {
-                if (inferenceParams.TokensKeep > Context.ContextSize)
-                    throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
+            // Sanity check inference params
             inferenceParams ??= new InferenceParams();
+            if (inferenceParams.TokensKeep > Context.ContextSize)
+                throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
 
-            var lastTokens = new List<llama_token>(inferenceParams.RepeatLastTokensCount);
-            for (var i = 0; i < inferenceParams.RepeatLastTokensCount; i++)
+            // Create decoders for the token stream
+            var decoder = new StreamingTokenDecoder(Context);
+            var antiprocessor = new AntipromptProcessor(inferenceParams.AntiPrompts);
+
+            // Keep track of the last N tokens emitted
+            var repeat_last_n = Math.Max(0, inferenceParams.RepeatLastTokensCount <0 ? _weights.ContextSize : inferenceParams.RepeatLastTokensCount);
+            var lastTokens = new List<llama_token>(repeat_last_n);
+            for (var i = 0; i < repeat_last_n; i++)
                 lastTokens.Add(0);
 
-            var tokens = Context.Tokenize(text).ToList();
-
-            await Task.Run(() => { Context.Eval(tokens, 1); }, cancellationToken)
-                      .ConfigureAwait(false);
-
+            // Tokenize the prompt
+            var tokens = Context.Tokenize(prompt).ToList();
             lastTokens.AddRange(tokens);
             var n_past = 1 + tokens.Count;
 
+            // Evaluate the prompt
+            await Task.Run(() => { Context.Eval(tokens, 1); }, cancellationToken)
+                      .ConfigureAwait(false);
+
+            // Begin loop, evaluating one token at a time
             var mu = (float?)null;
             var max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
-            for(var i = 0; i < max_tokens; i++)
+            for(var i = 0; i < max_tokens && !cancellationToken.IsCancellationRequested; i++)
             {
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? Context.ContextSize : inferenceParams.RepeatLastTokensCount;
-
+                // Penalize the generated tokens by various penalties
                 var tokenDataArray = Context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
                     inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
+                // Sample a single token
                 var id = Context.Sample(tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar);
-
-                lastTokens.Add(id);
 
                 decoder.Add(id);
                 var decoded = decoder.Read();
                 yield return decoded;
 
+                lastTokens.Add(id);
                 tokens.Clear();
                 tokens.Add(id);
 
