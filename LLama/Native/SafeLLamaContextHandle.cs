@@ -114,6 +114,22 @@ namespace LLama.Native
             }
         }
 
+        /// <summary>
+        /// Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public Span<float> GetLogitsIth(int i)
+        {
+            var model = ThrowIfDisposed();
+
+            unsafe
+            {
+                var logits = NativeApi.llama_get_logits_ith(this, i);
+                return new Span<float>(logits, model.VocabCount);
+            }
+        }
+
         #region tokens
         /// <summary>
         /// Convert the given text into tokens
