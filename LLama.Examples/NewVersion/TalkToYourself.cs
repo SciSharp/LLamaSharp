@@ -13,10 +13,7 @@ namespace LLama.Examples.NewVersion
             var modelPath = Console.ReadLine();
 
             // Load weights into memory
-            var @params = new ModelParams(modelPath)
-            {
-                Seed = unchecked((uint)RandomNumberGenerator.GetInt32(int.MaxValue))
-            };
+            var @params = new ModelParams(modelPath);
             using var weights = LLamaWeights.LoadFromFile(@params);
 
             // Create 2 contexts sharing the same weights

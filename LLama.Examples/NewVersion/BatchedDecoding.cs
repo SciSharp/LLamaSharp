@@ -39,7 +39,6 @@ public class BatchedDecoding
 
         // Create a context
         parameters.ContextSize = (uint)model.ContextSize;
-        parameters.Seed = unchecked((uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue));
         parameters.BatchSize = (uint)Math.Max(n_len, n_parallel);
         using var context = model.CreateContext(parameters);
 
@@ -57,8 +56,8 @@ public class BatchedDecoding
 
         // evaluate the initial prompt
         for (var i = 0; i < prompt_tokens.Length; i++)
-            llama_batch_add(batch, prompt_tokens[i], i, new List<LLamaSeqId> { (LLamaSeqId)0 }, false);
-        Debug.Assert(batch.NativeBatch.n_tokens == (int)prompt_tokens.Length);
+            batch.LLamaBatchAdd(prompt_tokens[i], i, new[] { (LLamaSeqId)0 }, false);
+        Debug.Assert(batch.NativeBatch.n_tokens == prompt_tokens.Length);
 
         // llama_decode will output logits only for the last token of the prompt
         unsafe
@@ -105,7 +104,7 @@ public class BatchedDecoding
         timer.Start();
         while (n_cur <= n_len)
         {
-            llama_batch_clear(batch);
+            batch.LLamaBatchClear();
 
             for (var i = 0; i < n_parallel; i++)
             {
@@ -137,7 +136,7 @@ public class BatchedDecoding
                 i_batch[i] = batch.NativeBatch.n_tokens;
 
                 // push this new token for next evaluation
-                llama_batch_add(batch, new_token_id, n_cur, new List<LLamaSeqId> { (LLamaSeqId)i }, true);
+                batch.LLamaBatchAdd(new_token_id, n_cur, new[] { (LLamaSeqId)i }, true);
 
                 n_decode++;
             }
@@ -174,36 +173,5 @@ public class BatchedDecoding
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
         }
-    }
-
-    /// <summary>
-    /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L829C2-L829C2
-    /// </summary>
-    private static void llama_batch_add(LLamaBatchSafeHandle batchHandle, int token, LLamaPos pos, IReadOnlyList<LLamaSeqId> sequences, bool logits)
-    {
-        unsafe
-        {
-            ref var batch = ref batchHandle.NativeBatch;
-
-            batch.token[batch.n_tokens] = token;
-            batch.pos[batch.n_tokens] = pos;
-            batch.n_seq_id[batch.n_tokens] = sequences.Count;
-
-            for (var i = 0; i < sequences.Count; i++)
-                batch.seq_id[batch.n_tokens][i] = sequences[i];
-
-            batch.logits[batch.n_tokens] = Convert.ToByte(logits);
-
-            batch.n_tokens++;
-        }
-    }
-
-    /// <summary>
-    /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L825
-    /// </summary>
-    /// <param name="batchHandle"></param>
-    private static void llama_batch_clear(LLamaBatchSafeHandle batchHandle)
-    {
-        batchHandle.NativeBatch.n_tokens = 0;
     }
 }

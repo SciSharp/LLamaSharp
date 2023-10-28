@@ -16,10 +16,7 @@ namespace LLama.Examples.NewVersion
             var modelPath = Console.ReadLine();
 
             // Load weights into memory
-            var parameters = new ModelParams(modelPath)
-            {
-                Seed = unchecked((uint)RandomNumberGenerator.GetInt32(int.MaxValue))
-            };
+            var parameters = new ModelParams(modelPath);
             using var model = LLamaWeights.LoadFromFile(parameters);
             var ex = new StatelessExecutor(model, parameters);
 

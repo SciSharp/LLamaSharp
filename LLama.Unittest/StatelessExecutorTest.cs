@@ -38,6 +38,7 @@ namespace LLama.Unittest
             var result2 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
 
             _testOutputHelper.WriteLine(result1);
+            _testOutputHelper.WriteLine(result2);
 
             // Check that it produced the exact same result both times
             Assert.Equal(result1, result2);

@@ -93,17 +93,18 @@ namespace LLama
                 var id = Context.Sample(tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
                     inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar);
 
+                // Decode this token into text
                 decoder.Add(id);
                 var decoded = decoder.Read();
                 yield return decoded;
 
-                lastTokens.Add(id);
-                tokens.Clear();
-                tokens.Add(id);
-
                 // Check if any of the antiprompts have been generated
                 if (antiprocessor.Add(decoded))
                     break;
+
+                lastTokens.Add(id);
+                tokens.Clear();
+                tokens.Add(id);
 
                 // when run out of context
                 // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L497

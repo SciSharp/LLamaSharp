@@ -129,4 +129,32 @@ public sealed class LLamaBatchSafeHandle
         SetHandle(IntPtr.Zero);
         return true;
     }
+
+    /// <summary>
+    /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L829C2-L829C2
+    /// </summary>
+    public void LLamaBatchAdd(int token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
+    {
+        unsafe
+        {
+            NativeBatch.token[NativeBatch.n_tokens] = token;
+            NativeBatch.pos[NativeBatch.n_tokens] = pos;
+            NativeBatch.n_seq_id[NativeBatch.n_tokens] = sequences.Length;
+
+            for (var i = 0; i < sequences.Length; i++)
+                NativeBatch.seq_id[NativeBatch.n_tokens][i] = sequences[i];
+
+            NativeBatch.logits[NativeBatch.n_tokens] = Convert.ToByte(logits);
+
+            NativeBatch.n_tokens++;
+        }
+    }
+
+    /// <summary>
+    /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L825
+    /// </summary>
+    public void LLamaBatchClear()
+    {
+        NativeBatch.n_tokens = 0;
+    }
 }
