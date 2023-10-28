@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LLama.Common;
 using Xunit.Abstractions;
 
@@ -34,8 +35,14 @@ namespace LLama.Unittest
             const string question = "Question. what is a cat?\nAnswer: ";
             var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
 
+            var timer = new Stopwatch();
+            timer.Start();
+
             var result1 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
             var result2 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
+
+            timer.Stop();
+            _testOutputHelper.WriteLine($"{timer.ElapsedMilliseconds}ms");
 
             _testOutputHelper.WriteLine(result1);
             _testOutputHelper.WriteLine(result2);
