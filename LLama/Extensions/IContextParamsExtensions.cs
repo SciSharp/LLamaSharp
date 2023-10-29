@@ -27,8 +27,8 @@ namespace LLama.Extensions
             result.f16_kv = @params.UseFp16Memory;
             result.logits_all = @params.Perplexity;
             result.embedding = @params.EmbeddingMode;
-            result.rope_freq_base = @params.RopeFrequencyBase;
-            result.rope_freq_scale = @params.RopeFrequencyScale;
+            result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
+            result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
             result.mul_mat_q = @params.MulMatQ;
 
             result.n_threads = Threads(@params.Threads);

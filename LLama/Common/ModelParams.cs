@@ -91,12 +91,12 @@ namespace LLama.Common
 		/// <summary>
 		/// RoPE base frequency
 		/// </summary>
-		public float RopeFrequencyBase { get; set; } = 10000.0f;
+		public float? RopeFrequencyBase { get; set; }
 
 		/// <summary>
 		/// RoPE frequency scaling factor
 		/// </summary>
-		public float RopeFrequencyScale { get; set; } = 1.0f;
+		public float? RopeFrequencyScale { get; set; }
 
 		/// <summary>
 		/// Use experimental mul_mat_q kernels
@@ -156,7 +156,7 @@ namespace LLama.Common
                            bool useMemorymap = true, bool useMemoryLock = false, bool perplexity = false,
                            string loraAdapter = "", string loraBase = "", int threads = -1, uint batchSize = 512,
                            bool embeddingMode = false,
-                           float ropeFrequencyBase = 10000.0f, float ropeFrequencyScale = 1f, bool mulMatQ = false,
+                           float? ropeFrequencyBase = null, float? ropeFrequencyScale = null, bool mulMatQ = false,
                            string encoding = "UTF-8")
         {
             ContextSize = contextSize;
