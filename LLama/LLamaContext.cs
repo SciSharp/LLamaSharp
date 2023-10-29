@@ -364,7 +364,7 @@ namespace LLama
             try
             {
                 tokens.CopyTo(rented, 0);
-                return Eval(rented, pastTokensCount);
+                return Eval(rented.AsSpan(0, tokens.Count), pastTokensCount);
             }
             finally
             {
