@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticMemory;
+﻿using Microsoft.KernelMemory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace LLamaSharp.KernelMemory
         /// <param name="builder">The MemoryClientBuilder instance.</param>
         /// <param name="config">The LLamaSharpConfig instance.</param>
         /// <returns>The MemoryClientBuilder instance with LLamaSharpTextEmbeddingGeneration added.</returns>
-        public static MemoryClientBuilder WithLLamaSharpTextEmbeddingGeneration(this MemoryClientBuilder builder, LLamaSharpConfig config)
+        public static KernelMemoryBuilder WithLLamaSharpTextEmbeddingGeneration(this KernelMemoryBuilder builder, LLamaSharpConfig config)
         {
             builder.WithCustomEmbeddingGeneration(new LLamaSharpTextEmbeddingGeneration(config));
             return builder;
@@ -30,7 +30,7 @@ namespace LLamaSharp.KernelMemory
         /// <param name="builder">The MemoryClientBuilder instance.</param>
         /// <param name="config">The LLamaSharpConfig instance.</param>
         /// <returns>The MemoryClientBuilder instance with LLamaSharpTextGeneration added.</returns>
-        public static MemoryClientBuilder WithLLamaSharpTextGeneration(this MemoryClientBuilder builder, LLamaSharpConfig config)
+        public static KernelMemoryBuilder WithLLamaSharpTextGeneration(this KernelMemoryBuilder builder, LLamaSharpConfig config)
         {
             builder.WithCustomTextGeneration(new LlamaSharpTextGeneration(config));
             return builder;
@@ -42,7 +42,7 @@ namespace LLamaSharp.KernelMemory
         /// <param name="builder">The MemoryClientBuilder instance.</param>
         /// <param name="config">The LLamaSharpConfig instance.</param>
         /// <returns>The MemoryClientBuilder instance with LLamaSharpTextEmbeddingGeneration and LLamaSharpTextGeneration added.</returns>
-        public static MemoryClientBuilder WithLLamaSharpDefaults(this MemoryClientBuilder builder, LLamaSharpConfig config)
+        public static KernelMemoryBuilder WithLLamaSharpDefaults(this KernelMemoryBuilder builder, LLamaSharpConfig config)
         {
             builder.WithLLamaSharpTextEmbeddingGeneration(config);
             builder.WithLLamaSharpTextGeneration(config);

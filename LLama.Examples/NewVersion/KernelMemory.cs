@@ -1,11 +1,11 @@
-﻿using Microsoft.SemanticMemory.Handlers;
-using Microsoft.SemanticMemory;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LLamaSharp.KernelMemory;
+using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.Handlers;
 
 namespace LLama.Examples.NewVersion
 {
@@ -16,7 +16,7 @@ namespace LLama.Examples.NewVersion
             Console.WriteLine("Example from: https://github.com/microsoft/kernel-memory/blob/main/examples/101-using-core-nuget/Program.cs");
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
-            var memory = new MemoryClientBuilder()
+            var memory = new KernelMemoryBuilder()
                     .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath))
                     .With(new TextPartitioningOptions
                     {

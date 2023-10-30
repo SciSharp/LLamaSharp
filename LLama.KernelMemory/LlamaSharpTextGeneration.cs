@@ -1,6 +1,6 @@
 ﻿using LLama;
 using LLama.Common;
-using Microsoft.SemanticMemory.AI;
+using Microsoft.KernelMemory.AI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
