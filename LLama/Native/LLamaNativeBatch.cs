@@ -21,32 +21,32 @@ public unsafe struct LLamaNativeBatch
     /// <summary>
     /// Either `n_tokens` of `llama_token`, or `NULL`, depending on how this batch was created
     /// </summary>
-    public readonly llama_token* token;
+    public llama_token* token;
 
     /// <summary>
     /// Either `n_tokens * embd * sizeof(float)` or `NULL`, depending on how this batch was created
     /// </summary>
-    public readonly float* embd;
+    public float* embd;
 
     /// <summary>
     /// the positions of the respective token in the sequence
     /// </summary>
-    public readonly LLamaPos* pos;
+    public LLamaPos* pos;
 
     /// <summary>
     /// https://github.com/ggerganov/llama.cpp/blob/master/llama.h#L139 ???
     /// </summary>
-    public readonly int* n_seq_id;
+    public int* n_seq_id;
 
     /// <summary>
     /// the sequence to which the respective token belongs
     /// </summary>
-    public readonly LLamaSeqId** seq_id;
+    public LLamaSeqId** seq_id;
 
     /// <summary>
     /// if zero, the logits for the respective token will not be output
     /// </summary>
-    public readonly byte* logits;
+    public byte* logits;
 
     // Note from llama.cpp:
     // > helpers for smooth API transition - can be deprecated in the future

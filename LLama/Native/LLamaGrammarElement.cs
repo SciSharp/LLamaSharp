@@ -52,18 +52,18 @@ namespace LLama.Native
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     [DebuggerDisplay("{Type} {Value}")]
-    public readonly struct LLamaGrammarElement
+    public struct LLamaGrammarElement
         : IEquatable<LLamaGrammarElement>
     {
         /// <summary>
         /// The type of this element
         /// </summary>
-        public readonly LLamaGrammarElementType Type;
+        public LLamaGrammarElementType Type;
 
         /// <summary>
         /// Unicode code point or rule ID
         /// </summary>
-        public readonly uint Value;
+        public uint Value;
 
         /// <summary>
         /// Construct a new LLamaGrammarElement
