@@ -40,7 +40,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
-          cmake --build . --config Release -j $(nproc)
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.so
@@ -53,13 +53,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx2'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
           - build: 'avx512'
-            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -118,7 +118,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
-          cmake --build . --config Release -j4
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
       - name: Upload artifacts (Windows)
@@ -158,7 +158,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ matrix.defines }}
-          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -189,13 +189,13 @@ jobs:
           ls -R
 
           mkdir deps
+          mkdir deps/avx
+          mkdir deps/avx2
+          mkdir deps/avx512
 
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/libllama.so
-          mkdir deps/avx
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/avx/libllama.so
-          mkdir deps/avx2
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/avx2/libllama.so
-          mkdir deps/avx512
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
 
           cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/libllama.dll
@@ -210,15 +210,15 @@ jobs:
           cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-metal/libllama.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-metal/ggml-metal.metal
 
-
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
         run: |
           mkdir cuda_deps
           mkdir cuda_deps/cu11.7.1
+          mkdir cuda_deps/cu12.1.0
+
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cuda_deps/cu11.7.1/libllama.dll
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so cuda_deps/cu11.7.1/libllama.so
-          mkdir cuda_deps/cu12.1.0
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cuda_deps/cu12.1.0/libllama.dll
           cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so cuda_deps/cu12.1.0/libllama.so
 
