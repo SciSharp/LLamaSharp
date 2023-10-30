@@ -26,7 +26,7 @@ namespace LLama.Examples.NewVersion
                     })
                 .BuildServerlessClient();
 
-            await memory.ImportDocumentAsync(@"./Asserts/sample-SK-Readme.pdf");
+            await memory.ImportDocumentAsync(@"./Assets/sample-SK-Readme.pdf");
 
             var question = "What's Semantic Kernel?";
 
