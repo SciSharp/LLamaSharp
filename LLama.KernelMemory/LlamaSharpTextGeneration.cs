@@ -9,14 +9,21 @@ using System.Threading.Tasks;
 
 namespace LLamaSharp.KernelMemory
 {
+    /// <summary>
+    /// Provides text generation for LLamaSharp.
+    /// </summary>
     public class LlamaSharpTextGeneration : ITextGeneration, IDisposable
     {
-        private readonly LlamaSharpConfig _config;
+        private readonly LLamaSharpConfig _config;
         private readonly LLamaWeights _weights;
         private readonly InstructExecutor _executor;
         private readonly LLamaContext _context;
 
-        public LlamaSharpTextGeneration(LlamaSharpConfig config)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LlamaSharpTextGeneration"/> class.
+        /// </summary>
+        /// <param name="config">The configuration for LLamaSharp.</param>
+        public LlamaSharpTextGeneration(LLamaSharpConfig config)
         {
             this._config = config;
             var parameters = new ModelParams(config.ModelPath)
@@ -31,12 +38,14 @@ namespace LLamaSharp.KernelMemory
 
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             _context.Dispose();
             _weights.Dispose();
         }
 
+        /// <inheritdoc/>
         public IAsyncEnumerable<string> GenerateTextAsync(string prompt, TextGenerationOptions options, CancellationToken cancellationToken = default)
         {
             return _executor.InferAsync(prompt, OptionsToParams(options), cancellationToken: cancellationToken);
