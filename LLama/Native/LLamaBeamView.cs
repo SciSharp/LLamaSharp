@@ -11,13 +11,13 @@ using llama_token = Int32;
 [StructLayout(LayoutKind.Sequential)]
 public struct LLamaBeamView
 {
-    private readonly unsafe llama_token* tokens;
-    private readonly nint n_tokens;
+    private unsafe llama_token* tokens;
+    private nint n_tokens;
 
     /// <summary>
     /// Cumulative beam probability (renormalized relative to all beams)
     /// </summary>
-    public readonly float CumulativeProbability;
+    public float CumulativeProbability;
 
     /// <summary>
     /// Callback should set this to true when a beam is at end-of-beam.

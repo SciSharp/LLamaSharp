@@ -1,14 +1,26 @@
-﻿namespace LLama.Native;
+﻿using System.Runtime.InteropServices;
+
+namespace LLama.Native;
 
 /// <summary>
 /// Indicates position in a sequence
 /// </summary>
-public readonly record struct LLamaPos(int Value)
+[StructLayout(LayoutKind.Sequential)]
+public struct LLamaPos
 {
     /// <summary>
     /// The raw value
     /// </summary>
-    public readonly int Value = Value;
+    public int Value;
+
+    /// <summary>
+    /// Create a new LLamaPos
+    /// </summary>
+    /// <param name="value"></param>
+    public LLamaPos(int value)
+    {
+        Value = value;
+    }
 
     /// <summary>
     /// Convert a LLamaPos into an integer (extract the raw value)

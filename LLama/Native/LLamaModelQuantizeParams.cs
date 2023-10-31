@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
     /// <summary>
     /// Quantizer parameters used in the native API
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct LLamaModelQuantizeParams
     {
         /// <summary>

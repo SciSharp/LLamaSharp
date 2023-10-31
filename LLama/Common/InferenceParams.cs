@@ -28,7 +28,7 @@ namespace LLama.Common
         /// <summary>
         /// Sequences where the model will stop generating further tokens.
         /// </summary>
-        public IEnumerable<string> AntiPrompts { get; set; } = Array.Empty<string>();
+        public IReadOnlyList<string> AntiPrompts { get; set; } = Array.Empty<string>();
 
         /// <summary>
         ///  0 or lower to use vocab size

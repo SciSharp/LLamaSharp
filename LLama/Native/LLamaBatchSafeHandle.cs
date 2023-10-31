@@ -15,7 +15,7 @@ public sealed class LLamaBatchSafeHandle
     /// <summary>
     /// Get the native llama_batch struct
     /// </summary>
-    public LLamaNativeBatch NativeBatch { get; private set; }
+    public LLamaNativeBatch NativeBatch;
 
     /// <summary>
     /// the token ids of the input (used when embd is NULL)
@@ -113,10 +113,11 @@ public sealed class LLamaBatchSafeHandle
     /// </summary>
     /// <param name="n_tokens"></param>
     /// <param name="embd"></param>
+    /// <param name="n_seq_max"></param>
     /// <returns></returns>
-    public static LLamaBatchSafeHandle Create(int n_tokens, int embd)
+    public static LLamaBatchSafeHandle Create(int n_tokens, int embd, int n_seq_max)
     {
-        var batch = NativeApi.llama_batch_init(n_tokens, embd);
+        var batch = NativeApi.llama_batch_init(n_tokens, embd, n_seq_max);
         return new LLamaBatchSafeHandle(batch, embd);
     }
 
@@ -127,5 +128,33 @@ public sealed class LLamaBatchSafeHandle
         NativeBatch = default;
         SetHandle(IntPtr.Zero);
         return true;
+    }
+
+    /// <summary>
+    /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L829C2-L829C2
+    /// </summary>
+    public void LLamaBatchAdd(int token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
+    {
+        unsafe
+        {
+            NativeBatch.token[NativeBatch.n_tokens] = token;
+            NativeBatch.pos[NativeBatch.n_tokens] = pos;
+            NativeBatch.n_seq_id[NativeBatch.n_tokens] = sequences.Length;
+
+            for (var i = 0; i < sequences.Length; i++)
+                NativeBatch.seq_id[NativeBatch.n_tokens][i] = sequences[i];
+
+            NativeBatch.logits[NativeBatch.n_tokens] = Convert.ToByte(logits);
+
+            NativeBatch.n_tokens++;
+        }
+    }
+
+    /// <summary>
+    /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L825
+    /// </summary>
+    public void LLamaBatchClear()
+    {
+        NativeBatch.n_tokens = 0;
     }
 }

@@ -23,7 +23,7 @@ namespace LLama.Web.Common
         /// <summary>
         /// Sequences where the model will stop generating further tokens.
         /// </summary>
-        public IEnumerable<string> AntiPrompts { get; set; } = Array.Empty<string>();
+        public IReadOnlyList<string> AntiPrompts { get; set; } = Array.Empty<string>();
         /// <summary>
         /// path to file for saving/loading model eval state
         /// </summary>

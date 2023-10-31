@@ -348,9 +348,10 @@ namespace LLama.Native
         /// Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
         /// </summary>
         /// <param name="ctx"></param>
+        /// <param name="i"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx);
+        public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
 
         /// <summary>
         /// Get the embeddings for the input
@@ -366,21 +367,21 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_bos(SafeLLamaContextHandle ctx);
+        public static extern llama_token llama_token_bos(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the "End of sentence" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_eos(SafeLLamaContextHandle ctx);
+        public static extern llama_token llama_token_eos(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the "new line" token
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_token_nl(SafeLLamaContextHandle ctx);
+        public static extern llama_token llama_token_nl(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Print out timing information for this context
@@ -530,6 +531,7 @@ namespace LLama.Native
 
         /// <summary>
         /// Allocates a batch of tokens on the heap
+        /// Each token can be assigned up to n_seq_max sequence ids
         /// The batch has to be freed with llama_batch_free()
         /// If embd != 0, llama_batch.embd will be allocated with size of n_tokens * embd * sizeof(float)
         /// Otherwise, llama_batch.token will be allocated to store n_tokens llama_token
@@ -538,8 +540,9 @@ namespace LLama.Native
         /// </summary>
         /// <param name="n_tokens"></param>
         /// <param name="embd"></param>
+        /// <param name="n_seq_max">Each token can be assigned up to n_seq_max sequence ids</param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern LLamaNativeBatch llama_batch_init(int n_tokens, int embd);
+        public static extern LLamaNativeBatch llama_batch_init(int n_tokens, int embd, int n_seq_max);
 
         /// <summary>
         /// Frees a batch of tokens allocated with llama_batch_init()

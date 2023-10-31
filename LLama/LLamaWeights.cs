@@ -39,6 +39,21 @@ namespace LLama
         public ulong ParameterCount => NativeHandle.ParameterCount;
 
         /// <summary>
+        /// Get the newline token for this model
+        /// </summary>
+        public int NewlineToken => NativeApi.llama_token_nl(NativeHandle);
+
+        /// <summary>
+        /// Get the "end of sentence" token for this model
+        /// </summary>
+        public int EndOfSentenceToken => NativeApi.llama_token_eos(NativeHandle);
+
+        /// <summary>
+        /// Get the "beginning of sentence" token for this model
+        /// </summary>
+        public int BeginningOfSentenceToken => NativeApi.llama_token_bos(NativeHandle);
+
+        /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
         public int EmbeddingSize => NativeHandle.EmbeddingSize;

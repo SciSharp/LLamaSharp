@@ -29,7 +29,7 @@ namespace LLama.Abstractions
 		/// <summary>
 		/// Sequences where the model will stop generating further tokens.
 		/// </summary>
-		public IEnumerable<string> AntiPrompts { get; set; }
+		public IReadOnlyList<string> AntiPrompts { get; set; }
 
 		/// <summary>
 		///  0 or lower to use vocab size

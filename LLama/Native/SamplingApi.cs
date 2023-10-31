@@ -9,7 +9,7 @@ namespace LLama.Native
     /// <summary>
     /// Direct translation of the llama.cpp sampling API
     /// </summary>
-    public unsafe class SamplingApi
+    public class SamplingApi
     {
         /// <summary>
         /// Apply grammar rules to candidate tokens
@@ -17,70 +17,10 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <param name="candidates"></param>
         /// <param name="grammar"></param>
+        [Obsolete("use LLamaTokenDataArray ApplyGrammar method")]
         public static void llama_sample_grammar(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, SafeLLamaGrammarHandle grammar)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_grammar(ctx, ref st, grammar);
-        }
-
-        /// <summary>
-        /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
-        /// <param name="last_tokens"></param>
-        /// <param name="last_tokens_size"></param>
-        /// <param name="penalty"></param>
-        [Obsolete("last_tokens_size parameter is no longer needed")]
-        public static void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, Memory<llama_token> last_tokens, ulong last_tokens_size, float penalty)
-        {
-            llama_sample_repetition_penalty(ctx, candidates, last_tokens, penalty);
-        }
-
-        /// <summary>
-        /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
-        /// <param name="last_tokens"></param>
-        /// <param name="penalty"></param>
-        public static void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, Memory<llama_token> last_tokens, float penalty)
-        {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            using var last_tokens_handle = last_tokens.Pin();
-
-            NativeApi.llama_sample_repetition_penalty(ctx, ref st, (int*)last_tokens_handle.Pointer, (ulong)last_tokens.Length, penalty);
-        }
-
-        /// <summary>
-        /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
-        /// <param name="last_tokens"></param>
-        /// <param name="last_tokens_size"></param>
-        /// <param name="alpha_frequency"></param>
-        /// <param name="alpha_presence"></param>
-        [Obsolete("last_tokens_size parameter is no longer needed")]
-        public static void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, Memory<llama_token> last_tokens, ulong last_tokens_size, float alpha_frequency, float alpha_presence)
-        {
-            llama_sample_frequency_and_presence_penalties(ctx, candidates, last_tokens, alpha_frequency, alpha_presence);
-        }
-
-        /// <summary>
-        /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
-        /// <param name="last_tokens"></param>
-        /// <param name="alpha_frequency"></param>
-        /// <param name="alpha_presence"></param>
-        public static void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, Memory<llama_token> last_tokens, float alpha_frequency, float alpha_presence)
-        {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            using var last_tokens_handle = last_tokens.Pin();
-
-            NativeApi.llama_sample_frequency_and_presence_penalties(ctx, ref st, (int*)last_tokens_handle.Pointer, (ulong)last_tokens.Length, alpha_frequency, alpha_presence);
+            candidates.ApplyGrammar(ctx, grammar);
         }
 
         /// <summary>
@@ -88,10 +28,10 @@ namespace LLama.Native
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
+        [Obsolete("use LLamaTokenDataArray Softmax method")]
         public static void llama_sample_softmax(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_softmax(ctx, ref st);
+            candidates.Softmax(ctx);
         }
 
         /// <summary>
@@ -101,10 +41,10 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <param name="k"></param>
         /// <param name="min_keep"></param>
+        [Obsolete("use LLamaTokenDataArray TopK method")]
         public static void llama_sample_top_k(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, int k, ulong min_keep)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_top_k(ctx, ref st, k, min_keep);
+            candidates.TopK(ctx, k, min_keep);
         }
 
         /// <summary>
@@ -114,10 +54,10 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <param name="p"></param>
         /// <param name="min_keep"></param>
+        [Obsolete("use LLamaTokenDataArray TopP method")]
         public static void llama_sample_top_p(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float p, ulong min_keep)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_top_p(ctx, ref st, p, min_keep);
+            candidates.TopP(ctx, p, min_keep);
         }
 
         /// <summary>
@@ -127,10 +67,10 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <param name="z"></param>
         /// <param name="min_keep"></param>
+        [Obsolete("use LLamaTokenDataArray TailFree method")]
         public static void llama_sample_tail_free(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float z, ulong min_keep)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_tail_free(ctx, ref st, z, min_keep);
+            candidates.TailFree(ctx, z, min_keep);
         }
 
         /// <summary>
@@ -140,10 +80,10 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <param name="p"></param>
         /// <param name="min_keep"></param>
+        [Obsolete("use LLamaTokenDataArray LocallyTypical method")]
         public static void llama_sample_typical(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float p, ulong min_keep)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_typical(ctx, ref st, p, min_keep);
+            candidates.LocallyTypical(ctx, p, min_keep);
         }
 
         /// <summary>
@@ -153,10 +93,10 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <param name="candidates"></param>
         /// <param name="temp"></param>
+        [Obsolete("use LLamaTokenDataArray Temperature() method")]
         public static void llama_sample_temperature(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float temp)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            NativeApi.llama_sample_temperature(ctx, ref st, temp);
+            candidates.Temperature(ctx, temp);
         }
 
         /// <summary>
@@ -169,10 +109,10 @@ namespace LLama.Native
         /// <param name="m">The number of tokens considered in the estimation of `s_hat`. This is an arbitrary value that is used to calculate `s_hat`, which in turn helps to calculate the value of `k`. In the paper, they use `m = 100`, but you can experiment with different values to see how it affects the performance of the algorithm.</param>
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
+        [Obsolete("use LLamaTokenDataArray SampleTokenMirostat() method")]
         public static llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, int m, ref float mu)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            return NativeApi.llama_sample_token_mirostat(ctx, ref st, tau, eta, m, ref mu);
+            return candidates.SampleTokenMirostat(ctx, tau, eta, m, ref mu);
         }
 
         /// <summary>
@@ -184,10 +124,10 @@ namespace LLama.Native
         /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
+        [Obsolete("use LLamaTokenDataArray SampleTokenMirostat2() method")]
         public static llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, ref float mu)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            return NativeApi.llama_sample_token_mirostat_v2(ctx, ref st, tau, eta, ref mu);
+            return candidates.SampleTokenMirostat2(ctx, tau, eta, ref mu);
         }
 
         /// <summary>
@@ -196,10 +136,10 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <returns></returns>
+        [Obsolete("Use LLamaTokenDataArray SampleTokenGreedy() method")]
         public static llama_token llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            return NativeApi.llama_sample_token_greedy(ctx, ref st);
+            return candidates.SampleTokenGreedy(ctx);
         }
 
         /// <summary>
@@ -208,10 +148,10 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <returns></returns>
+        [Obsolete("use LLamaTokenDataArray SampleToken() method")]
         public static llama_token llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
-            using var handle = LLamaTokenDataArrayNative.Create(candidates, out var st);
-            return NativeApi.llama_sample_token(ctx, ref st);
+            return candidates.SampleToken(ctx);
         }
     }
 }

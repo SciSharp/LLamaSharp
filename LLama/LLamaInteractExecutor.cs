@@ -30,7 +30,7 @@ namespace LLama
         public InteractiveExecutor(LLamaContext context, ILogger? logger = null)
             : base(context, logger)
         {
-            _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle);
+            _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle.ModelHandle);
         }
 
         /// <inheritdoc />
@@ -141,7 +141,7 @@ namespace LLama
                     return (true, Array.Empty<string>());
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle))
+            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle.ModelHandle))
             {
                 return (true, new[] { " [end of text]\n" });
             }
@@ -202,7 +202,7 @@ namespace LLama
 
                 _last_n_tokens.Enqueue(id);
 
-                if (id == NativeApi.llama_token_eos(Context.NativeHandle))
+                if (id == NativeApi.llama_token_eos(Context.NativeHandle.ModelHandle))
                 {
                     id = _llama_token_newline;
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)

@@ -39,14 +39,14 @@ public interface IContextParams
     bool EmbeddingMode { get; set; }
 
     /// <summary>
-    /// RoPE base frequency
+    /// RoPE base frequency (null to fetch from the model)
     /// </summary>
-    float RopeFrequencyBase { get; set; }
+    float? RopeFrequencyBase { get; set; }
 
     /// <summary>
-    /// RoPE frequency scaling factor
+    /// RoPE frequency scaling factor (null to fetch from the model)
     /// </summary>
-    float RopeFrequencyScale { get; set; }
+    float? RopeFrequencyScale { get; set; }
 
     /// <summary>
     /// Use experimental mul_mat_q kernels

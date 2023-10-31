@@ -11,35 +11,47 @@ using llama_token = Int32;
 /// The provided arrays (i.e. token, embd, pos, etc.) must have size of n_tokens
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly unsafe struct LLamaNativeBatch
+public unsafe struct LLamaNativeBatch
 {
     /// <summary>
     /// The number of items pointed at by pos, seq_id and logits.
     /// </summary>
-    public readonly int n_tokens;
+    public int n_tokens;
 
     /// <summary>
     /// Either `n_tokens` of `llama_token`, or `NULL`, depending on how this batch was created
     /// </summary>
-    public readonly llama_token* token;
+    public llama_token* token;
 
     /// <summary>
     /// Either `n_tokens * embd * sizeof(float)` or `NULL`, depending on how this batch was created
     /// </summary>
-    public readonly float* embd;
+    public float* embd;
 
     /// <summary>
     /// the positions of the respective token in the sequence
     /// </summary>
-    public readonly LLamaPos* pos;
+    public LLamaPos* pos;
+
+    /// <summary>
+    /// https://github.com/ggerganov/llama.cpp/blob/master/llama.h#L139 ???
+    /// </summary>
+    public int* n_seq_id;
 
     /// <summary>
     /// the sequence to which the respective token belongs
     /// </summary>
-    public readonly LLamaSeqId* seq_id;
+    public LLamaSeqId** seq_id;
 
     /// <summary>
     /// if zero, the logits for the respective token will not be output
     /// </summary>
-    public readonly byte* logits;
+    public byte* logits;
+
+    // Note from llama.cpp:
+    // > helpers for smooth API transition - can be deprecated in the future
+    // > for future-proof code, use the above fields instead and ignore everything below
+    private LLamaPos _all_pos_0;
+    private LLamaPos _all_pos_1;
+    private LLamaSeqId _all_seq_id;
 }
