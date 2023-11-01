@@ -9,27 +9,27 @@ namespace LLama.Native;
 /// (e.g. beams[0]) as they will be removed (shifted) from all beams in all subsequent callbacks.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct LLamaBeamsState
+public struct LLamaBeamsState
 {
     /// <summary>
     /// The state of each individual beam
     /// </summary>
-    private readonly unsafe LLamaBeamView* beam_views;
+    private unsafe LLamaBeamView* beam_views;
 
     /// <summary>
     /// Number of elements in beam_views
     /// </summary>
-    private readonly nint n_beams;
+    private nint n_beams;
 
     /// <summary>
     /// Current max length of prefix tokens shared by all beams.
     /// </summary>
-    public readonly ulong CommonPrefixLength;
+    public ulong CommonPrefixLength;
 
     /// <summary>
     /// True iff this is the last callback invocation.
     /// </summary>
-    public readonly bool LastCall;
+    public bool LastCall;
 
     /// <summary>
     /// The current state of each beam

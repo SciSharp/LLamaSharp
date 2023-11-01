@@ -111,12 +111,12 @@ namespace LLama.Web.Common
         /// <summary>
         /// RoPE base frequency
         /// </summary>
-        public float RopeFrequencyBase { get; set; } = 10000.0f;
+        public float? RopeFrequencyBase { get; set; }
 
         /// <summary>
         /// RoPE frequency scaling factor
         /// </summary>
-        public float RopeFrequencyScale { get; set; } = 1.0f;
+        public float? RopeFrequencyScale { get; set; }
 
         /// <summary>
         /// Use experimental mul_mat_q kernels
