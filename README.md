@@ -12,10 +12,10 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.semantic-kernel?label=LLamaSharp.semantic-kernel)](https://www.nuget.org/packages/LLamaSharp.semantic-kernel)
 
 
-**The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on local environment. It works on 
-both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Its performance is close to llama.cpp.**
+**The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides higher-level APIs to inference the LLaMA Models and deploy it on local device with C#/.NET. It works on 
+both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Even without GPU or not enought GPU memory, you can still apply LLaMA models well with this repo. 🤗**
 
-**Furthermore, it provides integrations with other projects such as [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications and UI.**
+**Furthermore, it provides integrations with other projects such as [semantic-kernel](https://github.com/microsoft/semantic-kernel), [kernel-memory](https://github.com/microsoft/kernel-memory) and [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications.**
 
 
 ## Documentation
@@ -61,6 +61,7 @@ Here's the mapping of them and corresponding model samples provided by `LLamaSha
 | v0.4.2-preview (cpu,cuda11) |v0.4.2-preview | [Llama2 7b GGML](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGML)| 3323112 |
 | v0.5.1 | v0.5.1 | [Llama2 7b GGUF](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF)| 6b73ef1 |
 | v0.6.0 | v0.6.0 | | [cb33f43](https://github.com/ggerganov/llama.cpp/commit/cb33f43a2a9f5a5a5f8d290dd97c625d9ba97a2f) |
+| v0.7.0 | v0.7.0 | | [207b519](https://github.com/ggerganov/llama.cpp/commit/207b51900e15cc7f89763a3bb1c565fe11cbb45d) |
 
 Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 
@@ -177,7 +178,7 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 🔳 Fine-tune
 
-🔳 Local document search
+⚠️ Local document search (enabled by kernel-memory now)
 
 🔳 MAUI Integration
 
