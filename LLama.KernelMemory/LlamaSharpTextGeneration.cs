@@ -16,7 +16,7 @@ namespace LLamaSharp.KernelMemory
     {
         private readonly LLamaSharpConfig _config;
         private readonly LLamaWeights _weights;
-        private readonly InstructExecutor _executor;
+        private readonly StatelessExecutor _executor;
         private readonly LLamaContext _context;
 
         /// <summary>
@@ -28,14 +28,13 @@ namespace LLamaSharp.KernelMemory
             this._config = config;
             var parameters = new ModelParams(config.ModelPath)
             {
-                ContextSize = config?.ContextSize ?? 1024,
+                ContextSize = config?.ContextSize ?? 2048,
                 Seed = config?.Seed ?? 0,
                 GpuLayerCount = config?.GpuLayerCount ?? 20
             };
             _weights = LLamaWeights.LoadFromFile(parameters);
             _context = _weights.CreateContext(parameters);
-            _executor = new InstructExecutor(_context);
-
+            _executor = new StatelessExecutor(_weights, parameters);
         }
 
         /// <inheritdoc/>
@@ -55,7 +54,7 @@ namespace LLamaSharp.KernelMemory
         {
             return new InferenceParams()
             {
-                AntiPrompts = options.StopSequences,
+                AntiPrompts = options.StopSequences.ToList().AsReadOnly(),
                 Temperature = (float)options.Temperature,
                 MaxTokens = options.MaxTokens ?? 1024,
                 FrequencyPenalty = (float)options.FrequencyPenalty,
