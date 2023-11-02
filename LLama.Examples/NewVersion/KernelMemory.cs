@@ -22,11 +22,11 @@ namespace LLama.Examples.NewVersion
                     {
                         MaxTokensPerParagraph = 300,
                         MaxTokensPerLine = 100,
-                        OverlappingTokens = 50
+                        OverlappingTokens = 30
                     })
                 .BuildServerlessClient();
 
-            await memory.ImportDocumentAsync(@"./Assets/sample-SK-Readme.pdf");
+            await memory.ImportDocumentAsync(@"./Assets/sample-SK-Readme.pdf", steps: Constants.PipelineWithoutSummary);
 
             var question = "What's Semantic Kernel?";
 
