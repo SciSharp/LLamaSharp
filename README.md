@@ -34,7 +34,7 @@ Firstly, search `LLamaSharp` in nuget package manager and install it.
 PM> Install-Package LLamaSharp
 ```
 
-Then, search and install one of the following backends:
+Then, search and install one of the following backends. (Please don't install two or more)
 
 ```
 LLamaSharp.Backend.Cpu  # cpu for windows, linux and mac (mac metal is also supported)
@@ -43,7 +43,9 @@ LLamaSharp.Backend.Cuda12  # cuda12 for windows and linux
 LLamaSharp.Backend.MacMetal  # special for using mac metal
 ```
 
-If you would like to use it with [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel), please search and install the following package:
+We publish these backends because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp) yourself. In this case, please **DO NOT** install the backend packages, instead, add your DLL to your project and ensure it will be copied to the output directory when compiling your project. For more informations please refer to ([this guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
+
+For [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, please search and install the following package:
 
 ```
 LLamaSharp.semantic-kernel
@@ -73,13 +75,12 @@ The llama.cpp commit id will help if you want to compile a DLL yourself.
 
 Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 
-We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
-from source and put the `libllama` under your project's output path ([guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
 
 ## FAQ
 
 1. GPU out of memory: Please try setting `n_gpu_layers` to a smaller number.
 2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or use the model we provide [on huggingface](https://huggingface.co/AsakusaRinne/LLamaSharpSamples).
+3. Cannot find backend package: 1) ensure you installed one of them. 2) check if there's a `libllama.dll` under your output path. 3) check if your system supports avx2, which is the default settings of official runtimes now. If not, please compile llama.cpp yourself.
 
 
 
