@@ -13,8 +13,20 @@
       <Visible>false</Visible>
       <Link>%(Filename)%(Extension)</Link>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\win-x86\native\*.dll"
-             Condition="'$(PlatformTarget)' == 'x86'">
+    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\linux-x64\native\*.so"
+             Condition="'$(PlatformTarget)' == 'x64'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+      <Link>%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-x64\native\*.dylib"
+             Condition="'$(PlatformTarget)' == 'x64'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+      <Link>%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-x64\native\*.metal"
+             Condition="'$(PlatformTarget)' == 'x64'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>false</Visible>
       <Link>%(Filename)%(Extension)</Link>
