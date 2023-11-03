@@ -24,7 +24,12 @@ both Windows, Linux and MAC without requirment for compiling llama.cpp yourself.
 - [Tricks for FAQ](https://scisharp.github.io/LLamaSharp/0.5/Tricks/)
 - [Full documentation](https://scisharp.github.io/LLamaSharp/0.5/)
 - [API reference](https://scisharp.github.io/LLamaSharp/0.5/xmldocs/)
-- [Examples](./LLama.Examples/NewVersion/)
+
+## Examples
+- [Official Console Examples](./LLama.Examples/NewVersion/)
+- [Unity Demo](https://github.com/eublefar/LLAMASharpUnityDemo)
+- [LLamaStack (with WPF and Web support)](https://github.com/saddam213/LLamaStack)
+
 
 ## Installation
 
