@@ -34,7 +34,7 @@ Firstly, search `LLamaSharp` in nuget package manager and install it.
 PM> Install-Package LLamaSharp
 ```
 
-Then, search and install one of the following backends:
+Then, search and install one of the following backends. (Please don't install two or more)
 
 ```
 LLamaSharp.Backend.Cpu  # cpu for windows, linux and mac (mac metal is also supported)
@@ -43,13 +43,23 @@ LLamaSharp.Backend.Cuda12  # cuda12 for windows and linux
 LLamaSharp.Backend.MacMetal  # special for using mac metal
 ```
 
-If you would like to use it with [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel), please search and install the following package:
+We publish these backends because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp) yourself. In this case, please **DO NOT** install the backend packages, instead, add your DLL to your project and ensure it will be copied to the output directory when compiling your project. For more informations please refer to ([this guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
+
+For [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, please search and install the following package:
 
 ```
 LLamaSharp.semantic-kernel
 ```
 
+### Tips for choosing a version
+
+In general, there may be some break changes between two minor releases, for example 0.5.1 and 0.6.0. On the contrary, we don't introduce API break changes in patch release. Therefore it's recommended to keep the highest patch version of a minor release. For example, keep 0.5.6 instead of 0.5.3.
+
+
+### Mapping from LLamaSharp to llama.cpp
 Here's the mapping of them and corresponding model samples provided by `LLamaSharp`. If you're not sure which model is available for a version, please try our sample model.
+
+The llama.cpp commit id will help if you want to compile a DLL yourself.
 
 | LLamaSharp.Backend | LLamaSharp | Verified Model Resources | llama.cpp commit id |
 | - | - | -- | - |
@@ -65,17 +75,16 @@ Here's the mapping of them and corresponding model samples provided by `LLamaSha
 
 Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 
-We publish the backend with cpu, cuda11 and cuda12 because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp)
-from source and put the `libllama` under your project's output path ([guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
 
 ## FAQ
 
 1. GPU out of memory: Please try setting `n_gpu_layers` to a smaller number.
 2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or use the model we provide [on huggingface](https://huggingface.co/AsakusaRinne/LLamaSharpSamples).
+3. Cannot find backend package: 1) ensure you installed one of them. 2) check if there's a `libllama.dll` under your output path. 3) check if your system supports avx2, which is the default settings of official runtimes now. If not, please compile llama.cpp yourself.
 
 
 
-## Usages
+## Quick Start
 
 #### Model Inference and Chat Session
 
@@ -142,13 +151,19 @@ For more usages, please refer to [Examples](./LLama.Examples).
 
 #### Web API
 
-We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since currently the API is not stable, please clone the repo and use it. In the future we'll publish it on NuGet.
+We provide [the integration of ASP.NET core](./LLama.WebAPI) and a [web app demo](./LLama.Web). Please clone the repo to have a try.
 
 Since we are in short of hands, if you're familiar with ASP.NET core, we'll appreciate it if you would like to help upgrading the Web API integration.
 
-## Demo
+## Console Demo
 
 ![demo-console](Assets/console_demo.gif)
+
+## How to Get a Model
+
+Model in format `gguf` is valid for LLamaSharp (and `ggml` before v0.5.1). One option is to search `LLama` and `gguf` in [huggingface](https://huggingface.co/) to find a model.
+
+Another choice is generate gguf format file yourself with a pytorch weight (or any other), pleae refer to [convert.py](https://github.com/ggerganov/llama.cpp/blob/master/convert.py) and [convert-llama-ggml-to-gguf.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-llama-ggml-to-gguf.py) to get gguf file though a ggml transform.
 
 ## Roadmap
 
@@ -181,24 +196,6 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 ⚠️ Local document search (enabled by kernel-memory now)
 
 🔳 MAUI Integration
-
-## Assets
-
-Some extra model resources could be found below:
-
-- [Qunatized models provided by LLamaSharp Authors](https://huggingface.co/AsakusaRinne/LLamaSharpSamples)
-- [eachadea/ggml-vicuna-13b-1.1](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main)
-- [TheBloke/wizardLM-7B-GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
-- Magnet: [magnet:?xt=urn:btih:b8287ebfa04f879b048d4d4404108cf3e8014352&dn=LLaMA](magnet:?xt=urn:btih:b8287ebfa04f879b048d4d4404108cf3e8014352&dn=LLaMA)
-
-The weights included in the magnet is exactly the weights from [Facebook LLaMa](https://github.com/facebookresearch/llama).
-
-The prompts could be found below:
-
-- [llama.cpp prompts](https://github.com/ggerganov/llama.cpp/tree/master/prompts) 
-- [ChatGPT_DAN](https://github.com/0xk1h0/ChatGPT_DAN)
-- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts)
-- [awesome-chatgpt-prompts-zh](https://github.com/PlexPt/awesome-chatgpt-prompts-zh) (Chinese)
 
 ## Contributing
 
