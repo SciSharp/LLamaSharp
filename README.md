@@ -49,7 +49,15 @@ If you would like to use it with [microsoft semantic-kernel](https://github.com/
 LLamaSharp.semantic-kernel
 ```
 
+### Tips for choosing a version
+
+In general, there may be some break changes between two minor releases, for example 0.5.1 and 0.6.0. On the contrary, we don't introduce API break changes in patch release. Therefore it's recommended to keep the highest patch version of a minor release. For example, keep 0.5.6 instead of 0.5.3.
+
+
+### Mapping from LLamaSharp to llama.cpp
 Here's the mapping of them and corresponding model samples provided by `LLamaSharp`. If you're not sure which model is available for a version, please try our sample model.
+
+The llama.cpp commit id will help if you want to compile a DLL yourself.
 
 | LLamaSharp.Backend | LLamaSharp | Verified Model Resources | llama.cpp commit id |
 | - | - | -- | - |
@@ -75,7 +83,7 @@ from source and put the `libllama` under your project's output path ([guide](htt
 
 
 
-## Usages
+## Quick Start
 
 #### Model Inference and Chat Session
 
@@ -142,13 +150,19 @@ For more usages, please refer to [Examples](./LLama.Examples).
 
 #### Web API
 
-We provide the integration of ASP.NET core [here](./LLama.WebAPI). Since currently the API is not stable, please clone the repo and use it. In the future we'll publish it on NuGet.
+We provide [the integration of ASP.NET core](./LLama.WebAPI) and a [web app demo](./LLama.Web). Please clone the repo to have a try.
 
 Since we are in short of hands, if you're familiar with ASP.NET core, we'll appreciate it if you would like to help upgrading the Web API integration.
 
-## Demo
+## Console Demo
 
 ![demo-console](Assets/console_demo.gif)
+
+## How to Get a Model
+
+Model in format `gguf` is valid for LLamaSharp (and `ggml` before v0.5.1). One option is to search `LLama` and `gguf` in [huggingface](https://huggingface.co/) to find a model.
+
+Another choice is generate gguf format file yourself with a pytorch weight (or any other), pleae refer to [convert.py](https://github.com/ggerganov/llama.cpp/blob/master/convert.py) and [convert-llama-ggml-to-gguf.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-llama-ggml-to-gguf.py) to get gguf file though a ggml transform.
 
 ## Roadmap
 
@@ -181,24 +195,6 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 ⚠️ Local document search (enabled by kernel-memory now)
 
 🔳 MAUI Integration
-
-## Assets
-
-Some extra model resources could be found below:
-
-- [Qunatized models provided by LLamaSharp Authors](https://huggingface.co/AsakusaRinne/LLamaSharpSamples)
-- [eachadea/ggml-vicuna-13b-1.1](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main)
-- [TheBloke/wizardLM-7B-GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
-- Magnet: [magnet:?xt=urn:btih:b8287ebfa04f879b048d4d4404108cf3e8014352&dn=LLaMA](magnet:?xt=urn:btih:b8287ebfa04f879b048d4d4404108cf3e8014352&dn=LLaMA)
-
-The weights included in the magnet is exactly the weights from [Facebook LLaMa](https://github.com/facebookresearch/llama).
-
-The prompts could be found below:
-
-- [llama.cpp prompts](https://github.com/ggerganov/llama.cpp/tree/master/prompts) 
-- [ChatGPT_DAN](https://github.com/0xk1h0/ChatGPT_DAN)
-- [awesome-chatgpt-prompts](https://github.com/f/awesome-chatgpt-prompts)
-- [awesome-chatgpt-prompts-zh](https://github.com/PlexPt/awesome-chatgpt-prompts-zh) (Chinese)
 
 ## Contributing
 
