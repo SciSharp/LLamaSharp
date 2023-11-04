@@ -54,12 +54,11 @@ For [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) in
 LLamaSharp.semantic-kernel
 ```
 
-For [microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration, please search and install the following package:
+For [microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration, please search and install the following package (currently kernel-memory only supports net6.0):
 
 ```
 LLamaSharp.kernel-memory
 ```
-
 
 ### Tips for choosing a version
 
