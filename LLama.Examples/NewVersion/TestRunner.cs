@@ -23,6 +23,7 @@
             Console.WriteLine("13: Semantic Kernel Memory.");
             Console.WriteLine("14: Coding Assistant.");
             Console.WriteLine("15: Batch Decoding.");
+            Console.WriteLine("16: SK Kernel Memory.");
 
             while (true)
             {
@@ -37,31 +38,31 @@
                 {
                     await ChatSessionStripRoleName.Run();
                 }
-                else if(choice == 2)
+                else if (choice == 2)
                 {
                     await InteractiveModeExecute.Run();
                 }
-                else if(choice == 3)
+                else if (choice == 3)
                 {
                     await InstructModeExecute.Run();
                 }
-                else if(choice == 4)
+                else if (choice == 4)
                 {
                     await StatelessModeExecute.Run();
                 }
-                else if(choice == 5)
+                else if (choice == 5)
                 {
                     await SaveAndLoadSession.Run();
                 }
-                else if(choice == 6)
+                else if (choice == 6)
                 {
                     await LoadAndSaveState.Run();
                 }
-                else if(choice == 7)
+                else if (choice == 7)
                 {
                     GetEmbeddings.Run();
                 }
-                else if(choice == 8)
+                else if (choice == 8)
                 {
                     QuantizeModel.Run();
                 }
@@ -85,13 +86,17 @@
                 {
                     await SemanticKernelMemory.Run();
                 }
-                else if(choice == 14)
+                else if (choice == 14)
                 {
                     await CodingAssistant.Run();
                 }
                 else if (choice == 15)
                 {
                     await BatchedDecoding.Run();
+                }
+                else if (choice == 16)
+                {
+                    await KernelMemory.Run();
                 }
                 else
                 {
@@ -103,5 +108,5 @@
         }
     }
 
-    
+
 }

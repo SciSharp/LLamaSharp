@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.Web", "LLama.Web\LLam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaSharp.SemanticKernel", "LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj", "{D98F93E3-B344-4F9D-86BB-FDBF6768B587}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaSharp.KernelMemory", "LLama.KernelMemory\LLamaSharp.KernelMemory.csproj", "{E5589AE7-B86F-4343-A1CC-8E5D34596E52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{D98F93E3-B344-4F9D-86BB-FDBF6768B587}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D98F93E3-B344-4F9D-86BB-FDBF6768B587}.Release|x64.ActiveCfg = Release|Any CPU
 		{D98F93E3-B344-4F9D-86BB-FDBF6768B587}.Release|x64.Build.0 = Release|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Debug|x64.Build.0 = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.GPU|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.GPU|Any CPU.Build.0 = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.GPU|x64.ActiveCfg = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.GPU|x64.Build.0 = Debug|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Release|x64.ActiveCfg = Release|Any CPU
+		{E5589AE7-B86F-4343-A1CC-8E5D34596E52}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
