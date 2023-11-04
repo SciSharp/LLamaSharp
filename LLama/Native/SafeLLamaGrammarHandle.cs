@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LLama.Exceptions;
 using LLama.Grammars;
 
@@ -52,31 +53,30 @@ namespace LLama.Native
                 var rulePointers = ArrayPool<IntPtr>.Shared.Rent(rules.Count);
                 try
                 {
-                    fixed (LLamaGrammarElement* allElementsPtr = allElements)
+                    // We're taking pointers into `allElements` below, so this pin is required to fix
+                    // that memory in place while those pointers are in use!
+                    using var pin = allElements.AsMemory().Pin();
+
+                    var elementIndex = 0;
+                    var ruleIndex = 0;
+                    foreach (var rule in rules)
                     {
-                        var elementIndex = 0;
-                        var ruleIndex = 0;
-                        foreach (var rule in rules)
-                        {
-                            Debug.Assert(elementIndex < allElements.Length);
+                        // Save a pointer to the start of this rule
+                        rulePointers[ruleIndex++] = (IntPtr)Unsafe.AsPointer(ref allElements[elementIndex]);
 
-                            // Save a pointer to the start of this rule
-                            rulePointers[ruleIndex++] = (IntPtr)(allElementsPtr + elementIndex);
+                        // Copy all of the rule elements into the flat array
+                        foreach (var element in rule.Elements)
+                            allElements[elementIndex++] = element;
+                    }
 
-                            // Copy all of the rule elements into the flat array
-                            foreach (var element in rule.Elements)
-                                allElements[elementIndex++] = element;
-                        }
+                    // Sanity check some things that should be true if the copy worked as planned
+                    Debug.Assert((ulong)ruleIndex == nrules);
+                    Debug.Assert(elementIndex == totalElements);
 
-                        // Sanity check some things that should be true if the copy worked as planned
-                        Debug.Assert((ulong)ruleIndex == nrules);
-                        Debug.Assert(elementIndex == totalElements);
-
-                        // Make the actual call through to llama.cpp
-                        fixed (void* ptr = rulePointers)
-                        {
-                            return Create((LLamaGrammarElement**)ptr, nrules, start_rule_index);
-                        }
+                    // Make the actual call through to llama.cpp
+                    fixed (void* ptr = rulePointers)
+                    {
+                        return Create((LLamaGrammarElement**)ptr, nrules, start_rule_index);
                     }
                 }
                 finally
