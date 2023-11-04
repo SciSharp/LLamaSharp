@@ -49,29 +49,31 @@ namespace LLama.Native
                 // Borrow an array large enough to hold every single element
                 // and another array large enough to hold a pointer to each rule
                 var allElements = ArrayPool<LLamaGrammarElement>.Shared.Rent(totalElements);
-                var pointers = ArrayPool<IntPtr>.Shared.Rent(rules.Count);
+                var rulePointers = ArrayPool<IntPtr>.Shared.Rent(rules.Count);
                 try
                 {
                     fixed (LLamaGrammarElement* allElementsPtr = allElements)
                     {
                         var elementIndex = 0;
-                        var pointerIndex = 0;
+                        var ruleIndex = 0;
                         foreach (var rule in rules)
                         {
+                            Debug.Assert(elementIndex < allElements.Length);
+
                             // Save a pointer to the start of this rule
-                            pointers[pointerIndex++] = (IntPtr)(allElementsPtr + elementIndex);
+                            rulePointers[ruleIndex++] = (IntPtr)(allElementsPtr + elementIndex);
 
                             // Copy all of the rule elements into the flat array
                             foreach (var element in rule.Elements)
-                                allElementsPtr[elementIndex++] = element;
+                                allElements[elementIndex++] = element;
                         }
 
                         // Sanity check some things that should be true if the copy worked as planned
-                        Debug.Assert((ulong)pointerIndex == nrules);
+                        Debug.Assert((ulong)ruleIndex == nrules);
                         Debug.Assert(elementIndex == totalElements);
 
                         // Make the actual call through to llama.cpp
-                        fixed (void* ptr = pointers)
+                        fixed (void* ptr = rulePointers)
                         {
                             return Create((LLamaGrammarElement**)ptr, nrules, start_rule_index);
                         }
@@ -80,7 +82,7 @@ namespace LLama.Native
                 finally
                 {
                     ArrayPool<LLamaGrammarElement>.Shared.Return(allElements);
-                    ArrayPool<IntPtr>.Shared.Return(pointers);
+                    ArrayPool<IntPtr>.Shared.Return(rulePointers);
                 }
             }
         }
