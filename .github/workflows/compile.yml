@@ -15,7 +15,8 @@ on:
   #  - cron: "22 22 * * 2"
 
 env:
-  COMMON_DEFINE: -DLLAMA_NATIVE=OFF
+  # Compiler defines common to all platforms
+  COMMON_DEFINE: -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
 
 jobs:
   compile-linux:
@@ -25,13 +26,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
           - build: 'avx2'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX512=ON'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -56,13 +57,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
           - build: 'avx2'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX2=OFF -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=OFF -DLLAMA_AVX512=ON -DBUILD_SHARED_LIBS=ON'
+            defines: '-DLLAMA_AVX512=ON'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -74,7 +75,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Upload artifacts
@@ -120,7 +121,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DLLAMA_NATIVE=OFF -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
+          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CUBLAS=ON
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
@@ -145,7 +146,7 @@ jobs:
       matrix:
         include:
           - build: 'metal'
-            defines: '-DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_OSX_ARCHITECTURES=arm64'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=arm64'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
@@ -160,7 +161,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
