@@ -141,8 +141,10 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - build: 'metal'
+          - build: 'arm64'
             defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_NATIVE=OFF -DCMAKE_OSX_ARCHITECTURES=arm64'
+          - build: 'x86_64'
+            defines: '-DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_NATIVE=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
