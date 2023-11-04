@@ -54,6 +54,13 @@ For [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) in
 LLamaSharp.semantic-kernel
 ```
 
+For [microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration, please search and install the following package:
+
+```
+LLamaSharp.kernel-memory
+```
+
+
 ### Tips for choosing a version
 
 In general, there may be some break changes between two minor releases, for example 0.5.1 and 0.6.0. On the contrary, we don't introduce API break changes in patch release. Therefore it's recommended to keep the highest patch version of a minor release. For example, keep 0.5.6 instead of 0.5.3.
@@ -196,7 +203,7 @@ Another choice is generate gguf format file yourself with a pytorch weight (or a
 
 🔳 Fine-tune
 
-⚠️ Local document search (enabled by kernel-memory now)
+✅ Local document search (enabled by kernel-memory now)
 
 🔳 MAUI Integration
 
