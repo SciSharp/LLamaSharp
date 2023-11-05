@@ -16,7 +16,7 @@ jobs:
         include:
           - build: linux-release
             os: ubuntu-latest
-            config: release          
+            config: release
         # - build: macos-release
         #   os: macos-latest
         #   config: release
