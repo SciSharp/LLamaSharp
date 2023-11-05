@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LLamaSharp.KernelMemory
 {
     /// <summary>
-    /// Represents the configuration for LLamaSharp.
+    /// Represents the configuration for LLamaSharp. Available properties are `ModelPath`, `ContextSize`, `Seed`, `GpuLayerCount`.
     /// </summary>
     public class LLamaSharpConfig
     {
