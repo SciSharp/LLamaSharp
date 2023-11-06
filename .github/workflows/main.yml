@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: [RuntimeDetection]
+    branches: [master]
   pull_request:
-    branches: [RuntimeDetection]
+    branches: [master]
 
 jobs:
   build:
