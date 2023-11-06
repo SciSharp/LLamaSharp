@@ -27,13 +27,21 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>libllama-cuda12.so</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.dylib">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-arm64/libllama.dylib">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>libllama.dylib</Link>
+            <Link>runtimes/macos-arm64/libllama.dylib</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/ggml-metal.metal">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-arm64/ggml-metal.metal">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>ggml-metal.metal</Link>
-        </None>    
+            <Link>runtimes/macos-arm64/ggml-metal.metal</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-x86_64/libllama.dylib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>runtimes/macos-x86_64/libllama.dylib</Link>
+        </None>
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-x86_64/ggml-metal.metal">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>runtimes/macos-x86_64/ggml-metal.metal</Link>
+        </None>       
     </ItemGroup>
 </Project>
