@@ -145,8 +145,10 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - build: 'metal'
+          - build: 'arm64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=arm64'
+          - build: 'x86_64'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64'            
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
@@ -210,9 +212,13 @@ jobs:
       - name: Rearrange MacOS files
         if: ${{ github.event.inputs.macos }}
         run: |
-          mkdir deps/macos-metal
-          cp artifacts/llama-bin-macos-metal.dylib/libllama.dylib deps/macos-metal/libllama.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-metal/ggml-metal.metal
+          mkdir deps/macos-arm64
+          mkdir deps/macos-x86_64
+          
+          cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-arm64/ggml-metal.metal
+          cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-x86_64/ggml-metal.metal 
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
