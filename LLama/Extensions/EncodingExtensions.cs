@@ -5,7 +5,7 @@ namespace LLama.Extensions;
 
 internal static class EncodingExtensions
 {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0_OR_GREATER
     public static int GetChars(this Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> output)
     {
         return GetCharsImpl(encoding, bytes, output);
@@ -15,6 +15,8 @@ internal static class EncodingExtensions
     {
         return GetCharCountImpl(encoding, bytes);
     }
+#elif !NET6_0_OR_GREATER
+#error Target framework not supported!
 #endif
 
     internal static int GetCharsImpl(Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> output)

@@ -43,11 +43,13 @@ namespace LLama.Common
         /// <param name="data"></param>
         public FixedSizeQueue(int size, IEnumerable<T> data)
         {
-#if !NETSTANDARD2_0 
+#if NET6_0_OR_GREATER
             // Try to check the size without enumerating the entire IEnumerable. This may not be able to get the count,
             // in which case we'll have to check later
             if (data.TryGetNonEnumeratedCount(out var dataCount) && dataCount > size)
                 throw new ArgumentException($"The max size set for the quene is {size}, but got {dataCount} initial values.");
+#elif !NETSTANDARD2_0_OR_GREATER
+#error Target framework not supported!
 #endif
 
             // Size of "data" is unknown, copy it all into a list

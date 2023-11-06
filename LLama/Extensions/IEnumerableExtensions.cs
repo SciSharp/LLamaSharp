@@ -5,11 +5,13 @@ namespace LLama.Extensions
 {
     internal static class IEnumerableExtensions
     {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0_OR_GREATER
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int count)
         {
             return TakeLastImpl(source, count);
         }
+#elif !NET6_0_OR_GREATER
+#error Target framework not supported!
 #endif
 
         internal static IEnumerable<T> TakeLastImpl<T>(IEnumerable<T> source, int count)
