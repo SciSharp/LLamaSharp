@@ -148,7 +148,7 @@ jobs:
           - build: 'arm64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=arm64'
           - build: 'x86_64'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64'            
+            defines: '-DLLAMA_METAL=OFF  -DCMAKE_OSX_ARCHITECTURES=x86_64'            
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
