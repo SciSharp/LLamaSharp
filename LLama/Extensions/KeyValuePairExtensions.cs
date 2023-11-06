@@ -5,7 +5,7 @@
 /// </summary>
 internal static class KeyValuePairExtensions
 {
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0
     /// <summary>
     /// Deconstruct a KeyValuePair into it's constituent parts.
     /// </summary>
@@ -19,7 +19,7 @@ internal static class KeyValuePairExtensions
         first = pair.Key;
         second = pair.Value;
     }
-#elif !NET6_0_OR_GREATER
+#elif !NET6_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
 #error Target framework not supported!
 #endif
 }
