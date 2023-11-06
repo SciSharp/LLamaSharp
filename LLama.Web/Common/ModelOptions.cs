@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using LLama.Abstractions;
+using LLama.Native;
 
 namespace LLama.Web.Common
 {
@@ -117,6 +118,24 @@ namespace LLama.Web.Common
         /// RoPE frequency scaling factor
         /// </summary>
         public float? RopeFrequencyScale { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnExtrapolationFactor { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnAttentionFactor { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnBetaFast { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnBetaSlow { get; set; }
+
+        /// <inheritdoc />
+        public uint? YarnOriginalContext { get; set; }
+
+        /// <inheritdoc />
+        public RopeScalingType? YarnScalingType { get; set; }
 
         /// <summary>
         /// Use experimental mul_mat_q kernels
