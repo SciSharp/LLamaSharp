@@ -17,9 +17,9 @@ jobs:
           - build: linux-release
             os: ubuntu-latest
             config: release
-        # - build: macos-release
-        #   os: macos-latest
-        #   config: release
+          - build: macos-release
+            os: macos-latest
+            config: release
           - build: windows-release
             os: windows-2019
             config: release
