@@ -218,7 +218,7 @@ jobs:
           cp artifacts/llama-bin-macos-arm64.dylib/libllama.dylib deps/macos-arm64/libllama.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-arm64/ggml-metal.metal
           cp artifacts/llama-bin-macos-x86_64.dylib/libllama.dylib deps/macos-x86_64/libllama.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal deps/macos-x86_64/ggml-metal.metal 
+
 
       - name: Rearrange CUDA files
         if: ${{ github.event.inputs.cublas }}
