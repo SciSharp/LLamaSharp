@@ -71,7 +71,7 @@ cd temp
 nuget pack LLamaSharp.Backend.Cpu.nuspec -version $updated_version
 nuget pack LLamaSharp.Backend.Cuda11.nuspec -version $updated_version
 nuget pack LLamaSharp.Backend.Cuda12.nuspec -version $updated_version
-nuget pack LLamaSharp.Backend.MacMetal.nuspec -version $updated_version
+
 
 cd ..
 exit 0
