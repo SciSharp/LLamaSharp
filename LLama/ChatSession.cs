@@ -146,7 +146,7 @@ namespace LLama
         /// <param name="prompt"></param>
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns>Returns generated tokens of the assistant message.</returns>
+        /// <returns>Returns generated text of the assistant message.</returns>
         public async IAsyncEnumerable<string> ChatAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach (var inputTransform in InputTransformPipeline)
@@ -196,7 +196,7 @@ namespace LLama
         /// <param name="history"></param>
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <returns>Returns generated text of the assistant message.</returns>
         public async IAsyncEnumerable<string> ChatAsync(ChatHistory history, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             if (history.Messages.Count == 0)
