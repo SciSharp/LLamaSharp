@@ -15,8 +15,6 @@ internal static class EncodingExtensions
     {
         return GetCharCountImpl(encoding, bytes);
     }
-#elif !NET6_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
-#error Target framework not supported!
 #endif
 
     internal static int GetCharsImpl(Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> output)

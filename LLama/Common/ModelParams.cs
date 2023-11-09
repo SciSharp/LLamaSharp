@@ -12,68 +12,105 @@ namespace LLama.Common
     public record ModelParams
         : ILLamaParams
     {
-        /// <inheritdoc />
-        public uint? ContextSize { get; set; }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Model context size (n_ctx)
+        /// </summary>
+        public uint ContextSize { get; set; } = 512;
+        /// <summary>
+        /// the GPU that is used for scratch and small tensors
+        /// </summary>
         public int MainGpu { get; set; } = 0;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
+        /// </summary>
         public int GpuLayerCount { get; set; } = 20;
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Seed for the random number generator (seed)
+        /// </summary>
         public uint Seed { get; set; } = 0xFFFFFFFF;
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Use f16 instead of f32 for memory kv (memory_f16)
+        /// </summary>
         public bool UseFp16Memory { get; set; } = true;
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Use mmap for faster loads (use_mmap)
+        /// </summary>
         public bool UseMemorymap { get; set; } = true;
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Use mlock to keep model in memory (use_mlock)
+        /// </summary>
         public bool UseMemoryLock { get; set; }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Compute perplexity over the prompt (perplexity)
+        /// </summary>
         public bool Perplexity { get; set; }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Model path (model)
+        /// </summary>
         public string ModelPath { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// List of LoRAs to apply
+        /// </summary>
         public AdapterCollection LoraAdapters { get; set; } = new();
 
-        /// <inheritdoc />
+        /// <summary>
+        /// base model path for the lora adapter (lora_base)
+        /// </summary>
         public string LoraBase { get; set; } = string.Empty;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Number of threads (null = autodetect) (n_threads)
+        /// </summary>
         public uint? Threads { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Number of threads to use for batch processing (null = autodetect) (n_threads)
+        /// </summary>
         public uint? BatchThreads { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
+        /// </summary>
         public uint BatchSize { get; set; } = 512;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
+        /// The LLamaModel won't produce text response anymore.
+        /// </summary>
         public bool EmbeddingMode { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// how split tensors should be distributed across GPUs.
+        /// </summary>
+        /// <remarks>"[ 3, 2 ]" will assign 60% of the data to GPU 0 and 40% to GPU 1.</remarks>
         [JsonConverter(typeof(TensorSplitsCollectionConverter))]
         public TensorSplitsCollection TensorSplits { get; set; } = new();
 
-        /// <inheritdoc />
-        public float? RopeFrequencyBase { get; set; }
+		/// <summary>
+		/// RoPE base frequency
+		/// </summary>
+		public float? RopeFrequencyBase { get; set; }
 
-        /// <inheritdoc />
-        public float? RopeFrequencyScale { get; set; }
+		/// <summary>
+		/// RoPE frequency scaling factor
+		/// </summary>
+		public float? RopeFrequencyScale { get; set; }
 
-        /// <inheritdoc />
-        public bool MulMatQ { get; set; }
+		/// <summary>
+		/// Use experimental mul_mat_q kernels
+		/// </summary>
+		public bool MulMatQ { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Load vocab only (no weights)
+        /// </summary>
         public bool VocabOnly { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The encoding to use to convert text for the model
+        /// </summary>
         [JsonConverter(typeof(EncodingConverter))]
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 

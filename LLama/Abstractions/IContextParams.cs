@@ -8,9 +8,9 @@ namespace LLama.Abstractions;
 public interface IContextParams
 {
     /// <summary>
-    /// Model context size (n_ctx). Null to use value from model file.
+    /// Model context size (n_ctx)
     /// </summary>
-    uint? ContextSize { get; set; }
+    uint ContextSize { get; set; }
 
     /// <summary>
     /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)

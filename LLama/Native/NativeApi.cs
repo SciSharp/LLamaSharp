@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Buffers;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
-using ManagedCuda;
-#if NET6_0_OR_GREATER
-using System.Runtime.Intrinsics.X86;
-#endif
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -29,9 +24,8 @@ namespace LLama.Native
     {
         static NativeApi()
         {
-#if NET6_0_OR_GREATER
-            NativeLibrary.SetDllImportResolver(typeof(NativeApi).Assembly, LLamaImportResolver);
-#endif
+            // Try to load a preferred library, based on CPU feature detection
+            TryLoadLibrary();
 
             try
             {
@@ -50,120 +44,63 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Get the cuda version if possible.
+        /// Try to load libllama, using CPU feature detection to try and load a more specialised DLL if possible
         /// </summary>
-        /// <returns> -1 for no cuda</returns>
-        private static int GetCudaVersion()
+        /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
+        private static IntPtr TryLoadLibrary()
         {
-            int deviceCount = CudaContext.GetDeviceCount();
-            for (int deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++)
-            {
-                using (CudaContext ctx = new CudaContext(deviceIndex))
-                {
-                    var version = ctx.GetAPIVersionOfCurrentContext();
-                    return version.Major;
-                }
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Get the xla flag for native library name.
-        /// </summary>
-        /// <returns></returns>
-        private static string GetAvxFlag()
-        {
-            AvxLevel level = AvxLevel.None;
 #if NET6_0_OR_GREATER
-            if (Avx.IsSupported) level = AvxLevel.Avx;
-            if (Avx2.IsSupported) level = AvxLevel.Avx2;
-#if NET8_0_OR_GREATER
-             if(Avx512F.IsSupported) level = AvxLevel.Avx512;
-#endif
 
-            return level switch
-            {
-                AvxLevel.None => "",
-                AvxLevel.Avx => "-avx",
-                AvxLevel.Avx2 => "-avx2",
-                AvxLevel.Avx512 => "-avx512",
-            };
-#else
-            return string.Empty;
-#endif
-        }
-
-#if NET6_0_OR_GREATER
-        private static IntPtr LLamaImportResolver(string name, Assembly assembly, DllImportSearchPath? searchPath)
-        {
-            IntPtr handle = IntPtr.Zero;
-            if(!name.Equals(libraryName))
-            {
-                return NativeLibrary.Load(name, assembly, searchPath);
-            }
-
-            string libraryPath = string.Empty;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var avxFlag = GetAvxFlag();
-                // check cuda
-                var cudaVersion = GetCudaVersion();
-                if(cudaVersion == 11)
-                {
-                    libraryPath = $"runtimes/win-x64/native/libllama-cuda11{avxFlag}.dll";
-                }
-                else if (cudaVersion == 12)
-                {
-                    libraryPath = $"runtimes/win-x64/native/libllama-cuda12{avxFlag}.dll";
-                }
-                else if(cudaVersion == -1) // cpu version
-                {
-                    libraryPath = $"runtimes/win-x64/native/libllama{avxFlag}.dll";
-                }
-                else
-                {
-                    throw new NotImplementedException($"Cuda version {cudaVersion} has not been supported, please compile dll yourself or open an issue in LLamaSharp.");
-                }
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                var avxFlag = GetAvxFlag();
-                // check cuda
-                var cudaVersion = GetCudaVersion();
-                if (cudaVersion == 11)
-                {
-                    libraryPath = $"runtimes/linux-x64/native/libllama-cuda11{avxFlag}.so";
-                }
-                else if (cudaVersion == 12)
-                {
-                    libraryPath = $"runtimes/linux-x64/native/libllama-cuda12{avxFlag}.so";
-                }
-                else if (cudaVersion == -1) // cpu version
-                {
-                    libraryPath = $"runtimes/linux-x64/native/libllama{avxFlag}.so";
-                }
-                else
-                {
-                    throw new NotImplementedException($"Cuda version {cudaVersion} has not been supported, please compile dll yourself or open an issue in LLamaSharp.");
-                }
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                if (System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
-                {
-                    libraryPath = $"runtimes/osx-arm64/native/libllama.dylib";
-                }
-                else
-                {
-                    libraryPath = $"runtimes/osx-x64/native/libllama.dylib";
-                }
+                // All of the Windows libraries, in order of preference
+                return TryLoad("cu12.1.0/libllama.dll")
+                    ?? TryLoad("cu11.7.1/libllama.dll")
+#if NET8_0_OR_GREATER
+                    ?? TryLoad("avx512/libllama.dll", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
+#endif
+                    ?? TryLoad("avx2/libllama.dll", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
+                    ?? TryLoad("avx/libllama.dll", System.Runtime.Intrinsics.X86.Avx.IsSupported)
+                    ?? IntPtr.Zero;
             }
 
-            NativeLibrary.TryLoad(libraryPath, assembly, searchPath, out handle);
-            return handle;
-        }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // All of the Linux libraries, in order of preference
+                return TryLoad("cu12.1.0/libllama.so")
+                    ?? TryLoad("cu11.7.1/libllama.so")
+#if NET8_0_OR_GREATER
+                    ?? TryLoad("avx512/libllama.so", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
+#endif
+                    ?? TryLoad("avx2/libllama.so", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
+                    ?? TryLoad("avx/libllama.so", System.Runtime.Intrinsics.X86.Avx.IsSupported)
+                    ?? IntPtr.Zero;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return TryLoad("runtimes/macos-arm64/libllama.dylib", System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
+                      ?? TryLoad("runtimes/macos-x86_64/libllama.dylib")  
+                      ?? IntPtr.Zero;
+            }
 #endif
 
+            return IntPtr.Zero;
+
+#if NET6_0_OR_GREATER
+            // Try to load a DLL from the path if supported. Returns null if nothing is loaded.
+            static IntPtr? TryLoad(string path, bool supported = true)
+            {
+                if (!supported)
+                    return null;
+
+                if (NativeLibrary.TryLoad(path, out var handle))
+                    return handle;
+
+                return null;
+            }
+#endif
+        }
 
         private const string libraryName = "libllama";
 
@@ -637,13 +574,5 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
-
-        private enum AvxLevel
-        {
-            None = 0, 
-            Avx = 1, 
-            Avx2 = 2, 
-            Avx512 = 3
-        }
     }
 }
