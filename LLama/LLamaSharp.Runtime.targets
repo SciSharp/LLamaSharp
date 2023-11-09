@@ -3,41 +3,41 @@
         <IncludeBuiltInRuntimes Condition="'$(IncludeBuiltInRuntimes)' == ''">true</IncludeBuiltInRuntimes>
     </PropertyGroup>
     <ItemGroup Condition="'$(IncludeBuiltInRuntimes)' == 'true'">
-        <None Include="$(MSBuildThisFileDirectory)runtimes/win-x64/libllama.dll">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/libllama.dll</Link>
+            <Link>libllama.dll</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/win-x64/libllama-cuda11.dll">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/libllama-cuda11.dll</Link>
+            <Link>libllama-cuda11.dll</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/win-x64/libllama-cuda12.dll">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda12.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/libllama-cuda12.dll</Link>
+            <Link>libllama-cuda12.dll</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/linux-x64/libllama.so">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama.so">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/linux-x64/libllama.so</Link>
+            <Link>libllama.so</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/linux-x64/libllama-cuda11.so">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda11.so">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/linux-x64/libllama-cuda11.so</Link>
+            <Link>libllama-cuda11.so</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/linux-x64/libllama-cuda12.so">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/libllama-cuda12.so">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/linux-x64/libllama-cuda12.so</Link>
+            <Link>libllama-cuda12.so</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/osx-arm64/libllama.dylib">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-arm64/libllama.dylib">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/osx-arm64/libllama.dylib</Link>
+            <Link>runtimes/macos-arm64/libllama.dylib</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/osx-arm64/ggml-metal.metal">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-arm64/ggml-metal.metal">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/osx-arm64/ggml-metal.metal</Link>
+            <Link>runtimes/macos-arm64/ggml-metal.metal</Link>
         </None>
-        <None Include="$(MSBuildThisFileDirectory)runtimes/osx-x64/libllama.dylib">
+        <None Include="$(MSBuildThisFileDirectory)runtimes/macos-x86_64/libllama.dylib">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/osx-x64/libllama.dylib</Link>
+            <Link>runtimes/macos-x86_64/libllama.dylib</Link>
         </None>
     </ItemGroup>
 </Project>

@@ -110,15 +110,15 @@ namespace LLama.Native
                 var cudaVersion = GetCudaVersion();
                 if(cudaVersion == 11)
                 {
-                    libraryPath = $"runtimes/win-x64/libllama-cuda11{avxFlag}.dll";
+                    libraryPath = $"runtimes/win-x64/native/libllama-cuda11{avxFlag}.dll";
                 }
                 else if (cudaVersion == 12)
                 {
-                    libraryPath = $"runtimes/win-x64/libllama-cuda12{avxFlag}.dll";
+                    libraryPath = $"runtimes/win-x64/native/libllama-cuda12{avxFlag}.dll";
                 }
                 else if(cudaVersion == -1) // cpu version
                 {
-                    libraryPath = $"runtimes/win-x64/libllama{avxFlag}.dll";
+                    libraryPath = $"runtimes/win-x64/native/libllama{avxFlag}.dll";
                 }
                 else
                 {
@@ -132,15 +132,15 @@ namespace LLama.Native
                 var cudaVersion = GetCudaVersion();
                 if (cudaVersion == 11)
                 {
-                    libraryPath = $"runtimes/linux-x64/libllama-cuda11{avxFlag}.so";
+                    libraryPath = $"runtimes/linux-x64/native/libllama-cuda11{avxFlag}.so";
                 }
                 else if (cudaVersion == 12)
                 {
-                    libraryPath = $"runtimes/linux-x64/libllama-cuda12{avxFlag}.so";
+                    libraryPath = $"runtimes/linux-x64/native/libllama-cuda12{avxFlag}.so";
                 }
                 else if (cudaVersion == -1) // cpu version
                 {
-                    libraryPath = $"runtimes/linux-x64/libllama{avxFlag}.so";
+                    libraryPath = $"runtimes/linux-x64/native/libllama{avxFlag}.so";
                 }
                 else
                 {
@@ -151,11 +151,11 @@ namespace LLama.Native
             {
                 if (System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
                 {
-                    libraryPath = $"runtimes/osx-arm64/libllama.dylib";
+                    libraryPath = $"runtimes/osx-arm64/native/libllama.dylib";
                 }
                 else
                 {
-                    libraryPath = $"runtimes/osx-x86_64/libllama.dylib";
+                    libraryPath = $"runtimes/osx-x64/native/libllama.dylib";
                 }
             }
 
