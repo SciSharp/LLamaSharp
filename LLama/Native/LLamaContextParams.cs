@@ -22,7 +22,7 @@ namespace LLama.Native
         public uint seed;
 
         /// <summary>
-        /// text context
+        /// text context, 0 = from model
         /// </summary>
         public uint n_ctx;
 
@@ -42,17 +42,41 @@ namespace LLama.Native
         public uint n_threads_batch;
 
         /// <summary>
-        /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
-        /// RoPE base frequency
+        /// RoPE scaling type, from `enum llama_rope_scaling_type` 
         /// </summary>
-        public float rope_freq_base;
+        public sbyte   rope_scaling_type;        
+        
 
         /// <summary>
-        /// ref: https://github.com/ggerganov/llama.cpp/pull/2054
-        /// RoPE frequency scaling factor
+        /// RoPE base frequency, 0 = from model
         /// </summary>
-        public float rope_freq_scale; 
-
+        public float    rope_freq_base;   
+        /// <summary>
+        /// RoPE frequency scaling factor, 0 = from model
+        /// </summary>
+        public float    rope_freq_scale; 
+        /// <summary>
+        /// YaRN extrapolation mix factor, NaN = from model
+        /// </summary>
+        public float    yarn_ext_factor;  
+        /// <summary>
+        /// YaRN magnitude scaling factor
+        /// </summary>
+        public float    yarn_attn_factor; 
+        /// <summary>
+        /// YaRN low correction dim
+        /// </summary>
+        public float    yarn_beta_fast;   
+        /// <summary>
+        /// YaRN high correction dim
+        /// </summary>
+        public float    yarn_beta_slow;  
+        
+        /// <summary>
+        /// YaRN original context size
+        /// </summary>
+        public uint yarn_orig_ctx;        
+        
         /// <summary>
         /// if true, use experimental mul_mat_q kernels
         /// </summary>

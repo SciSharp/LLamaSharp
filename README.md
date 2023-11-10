@@ -11,7 +11,7 @@
 
 
 **The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides higher-level APIs to inference the LLaMA Models and deploy it on local device with C#/.NET. It works on 
-both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Even without GPU or not enought GPU memory, you can still apply LLaMA models well with this repo. 🤗**
+both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Even without GPU or not enough GPU memory, you can still apply LLaMA models well with this repo. 🤗**
 
 **Furthermore, it provides integrations with other projects such as [semantic-kernel](https://github.com/microsoft/semantic-kernel), [kernel-memory](https://github.com/microsoft/kernel-memory) and [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications.**
 
@@ -80,7 +80,7 @@ The llama.cpp commit id will help if you want to compile a DLL yourself.
 | v0.4.2-preview (cpu,cuda11) |v0.4.2-preview | [Llama2 7b GGML](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGML)| 3323112 |
 | v0.5.1 | v0.5.1 | [Llama2 7b GGUF](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF)| 6b73ef1 |
 | v0.6.0 | v0.6.0 | | [cb33f43](https://github.com/ggerganov/llama.cpp/commit/cb33f43a2a9f5a5a5f8d290dd97c625d9ba97a2f) |
-| v0.7.0 | v0.7.0 | [Thespis-13B](https://huggingface.co/TheBloke/Thespis-13B-v0.5-GGUF/tree/main?not-for-all-audiences=true), [LLaMA2-7B](https://huggingface.co/TheBloke/Thespis-13B-v0.5-GGUF/tree/main?not-for-all-audiences=true) | [207b519](https://github.com/ggerganov/llama.cpp/commit/207b51900e15cc7f89763a3bb1c565fe11cbb45d) |
+| v0.7.0 | v0.7.0 | [Thespis-13B](https://huggingface.co/TheBloke/Thespis-13B-v0.5-GGUF/tree/main?not-for-all-audiences=true), [LLaMA2-7B](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF) | [207b519](https://github.com/ggerganov/llama.cpp/commit/207b51900e15cc7f89763a3bb1c565fe11cbb45d) |
 
 Many hands make light work. If you have found any other model resource that could work for a version, we'll appreciate it for opening an PR about it! 😊
 

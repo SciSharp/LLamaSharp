@@ -2,7 +2,7 @@
 {
     public class QuantizeModel
     {
-        public static void Run()
+        public static Task Run()
         {
             Console.Write("Please input your original model path: ");
             var inputPath = Console.ReadLine();
@@ -21,6 +21,8 @@
             {
                 Console.WriteLine("Quantization failed!");
             }
+
+            return Task.CompletedTask;
         }
     }
 }

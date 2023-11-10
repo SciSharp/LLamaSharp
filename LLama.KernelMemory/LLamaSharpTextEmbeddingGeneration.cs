@@ -1,4 +1,5 @@
 ﻿using LLama;
+using LLama.Abstractions;
 using LLama.Common;
 using Microsoft.SemanticKernel.AI.Embeddings;
 using System;
@@ -14,9 +15,11 @@ namespace LLamaSharp.KernelMemory
     /// </summary>
     public class LLamaSharpTextEmbeddingGeneration : ITextEmbeddingGeneration, IDisposable
     {
-        private readonly LLamaSharpConfig _config;
+        private readonly LLamaSharpConfig? _config;
+        private readonly LLamaWeights? _weights;
         private readonly LLamaEmbedder _embedder;
-        private readonly LLamaWeights _weights;
+        private bool _ownsEmbedder = false;
+        private bool _ownsWeights = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class.
@@ -28,13 +31,46 @@ namespace LLamaSharp.KernelMemory
             var @params = new ModelParams(_config.ModelPath);
             _weights = LLamaWeights.LoadFromFile(@params);
             _embedder = new LLamaEmbedder(_weights, @params);
+            _ownsWeights = true;
+            _ownsEmbedder = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class from reused weights.
+        /// </summary>
+        /// <param name="config">The configuration for LLamaSharp.</param>
+        /// <param name="weights">A LLamaWeights object.</param>
+        public LLamaSharpTextEmbeddingGeneration(LLamaSharpConfig config, LLamaWeights weights)
+        {
+            this._config = config;
+            var @params = new ModelParams(_config.ModelPath);
+            _weights = weights;
+            _embedder = new LLamaEmbedder(_weights, @params);
+            _ownsEmbedder = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class from reused embedder.
+        /// </summary>
+        /// <param name="embedder">A LLamaEmbedder object.</param>
+        public LLamaSharpTextEmbeddingGeneration(LLamaEmbedder embedder)
+        {
+            this._config = null;
+            this._weights = null;
+            _embedder = embedder;
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            _embedder.Dispose();
-            _weights.Dispose();
+            if (_ownsWeights)
+            {
+                _weights?.Dispose();
+            }
+            if(_ownsEmbedder)
+            {
+                _embedder.Dispose();
+            }
         }
 
         /// <inheritdoc/>
