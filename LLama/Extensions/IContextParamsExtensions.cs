@@ -29,6 +29,15 @@ namespace LLama.Extensions
             result.embedding = @params.EmbeddingMode;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
+
+            // Default YaRN values copied from here: https://github.com/ggerganov/llama.cpp/blob/381efbf480959bb6d1e247a8b0c2328f22e350f8/common/common.h#L67
+            result.yarn_ext_factor = @params.YarnExtrapolationFactor ?? -1f;
+            result.yarn_attn_factor = @params.YarnAttentionFactor ?? 1f;
+            result.yarn_beta_fast = @params.YarnBetaFast ?? 32f;
+            result.yarn_beta_slow = @params.YarnBetaSlow ?? 1f;
+            result.yarn_orig_ctx = @params.YarnOriginalContext ?? 0;
+            result.rope_scaling_type = @params.YarnScalingType ?? RopeScalingType.LLAMA_ROPE_SCALING_UNSPECIFIED;
+
             result.mul_mat_q = @params.MulMatQ;
 
             result.n_threads = Threads(@params.Threads);
