@@ -79,8 +79,8 @@ namespace LLama.Native
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return TryLoad("runtimes/macos-arm64/libllama.dylib", System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
-                      ?? TryLoad("runtimes/macos-x86_64/libllama.dylib")  
+                return TryLoad("runtimes/osx-arm64/libllama.dylib", System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
+                      ?? TryLoad("runtimes/osx-x64/libllama.dylib")  
                       ?? IntPtr.Zero;
             }
 #endif
