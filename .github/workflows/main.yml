@@ -18,7 +18,7 @@ jobs:
             os: ubuntu-latest
             config: release
           - build: osx-release
-            os: osx-latest
+            os: macos-latest
             config: release
           - build: windows-release
             os: windows-2019
