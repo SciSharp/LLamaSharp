@@ -10,8 +10,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-    <Version>0.6.2-beta1</Version>
-    <Authors>Tim Miller</Authors>
+    <Version>0.8.0</Version>
+    <Authors>Tim Miller, xbotter</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>

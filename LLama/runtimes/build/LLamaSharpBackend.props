@@ -7,33 +7,7 @@
   <ItemGroup Condition="Exists('packages.config') OR
                         Exists('$(MSBuildProjectName).packages.config') OR
                         Exists('packages.$(MSBuildProjectName).config')">
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\win-x64\native\*.dll"
-             Condition="'$(PlatformTarget)' == 'x64'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-      <Link>%(Filename)%(Extension)</Link>
-    </Content>
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\linux-x64\native\*.so"
-             Condition="'$(PlatformTarget)' == 'x64'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-      <Link>%(Filename)%(Extension)</Link>
-    </Content>
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-x64\native\*.dylib"
-             Condition="'$(PlatformTarget)' == 'x64'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-      <Link>%(Filename)%(Extension)</Link>
-    </Content>
-
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-arm64\native\*.dylib"
-             Condition="'$(PlatformTarget)' == 'arm64'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-      <Link>%(Filename)%(Extension)</Link>
-    </Content>
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-arm64\native\*.metal"
-             Condition="'$(PlatformTarget)' == 'arm64'">
+    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>false</Visible>
       <Link>%(Filename)%(Extension)</Link>
