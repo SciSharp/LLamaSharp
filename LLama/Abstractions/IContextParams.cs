@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using LLama.Native;
 
 namespace LLama.Abstractions;
 
@@ -67,4 +68,34 @@ public interface IContextParams
     /// Number of threads to use for batch processing (null = autodetect) (n_threads)
     /// </summary>
     uint? BatchThreads { get; set; }
+
+    /// <summary>
+    /// YaRN extrapolation mix factor
+    /// </summary>
+    float? YarnExtrapolationFactor { get; set; }
+
+    /// <summary>
+    /// YaRN magnitude scaling factor
+    /// </summary>
+    float? YarnAttentionFactor { get; set; }
+
+    /// <summary>
+    /// YaRN low correction dim
+    /// </summary>
+    float? YarnBetaFast { get; set; }
+
+    /// <summary>
+    /// YaRN high correction dim
+    /// </summary>
+    float? YarnBetaSlow { get; set; }
+
+    /// <summary>
+    /// YaRN original context length
+    /// </summary>
+    uint? YarnOriginalContext { get; set; }
+
+    /// <summary>
+    /// YaRN scaling method to use.
+    /// </summary>
+    RopeScalingType? YarnScalingType { get; set; }
 }
