@@ -262,19 +262,43 @@ namespace LLama.Native
 
             var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
 
-            foreach(var libraryPath in libraryTryLoadOrder)
+            string[] possiblePathPrefix = new string[] {
+                System.AppDomain.CurrentDomain.BaseDirectory,
+                Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
+            };
+
+            var tryFindPath = (string filename) =>
             {
-                var result = TryLoad(libraryPath, true);
+                int i = 0;
+                while (!File.Exists(filename))
+                {
+                    if (i < possiblePathPrefix.Length)
+                    {
+                        filename = Path.Combine(possiblePathPrefix[i], filename);
+                        i++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return filename;
+            };
+
+            foreach (var libraryPath in libraryTryLoadOrder)
+            {
+                var fullPath = tryFindPath(libraryPath);
+                var result = TryLoad(fullPath, true);
                 if(result is not null && result != IntPtr.Zero)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[Native Library] {libraryPath} is loaded.");
+                    Console.WriteLine($"[Native Library] {fullPath} is loaded.");
                     Console.ResetColor();
                     return result ?? IntPtr.Zero;
                 }
                 else
                 {
-                    Console.WriteLine($"Tried to load {libraryPath}");
+                    Console.WriteLine($"Tried to load {fullPath}");
                 }
             }
 
