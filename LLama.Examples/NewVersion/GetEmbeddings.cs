@@ -4,7 +4,7 @@ namespace LLama.Examples.NewVersion
 {
     public class GetEmbeddings
     {
-        public static void Run()
+        public static Task Run()
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
@@ -23,6 +23,7 @@ namespace LLama.Examples.NewVersion
                 Console.WriteLine(string.Join(", ", embedder.GetEmbeddings(text)));
                 Console.WriteLine();
             }
+            return Task.CompletedTask;
         }
     }
 }

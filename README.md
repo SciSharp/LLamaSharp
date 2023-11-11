@@ -11,7 +11,7 @@
 
 
 **The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides higher-level APIs to inference the LLaMA Models and deploy it on local device with C#/.NET. It works on 
-both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Even without GPU or not enought GPU memory, you can still apply LLaMA models well with this repo. 🤗**
+both Windows, Linux and MAC without requirment for compiling llama.cpp yourself. Even without GPU or not enough GPU memory, you can still apply LLaMA models well with this repo. 🤗**
 
 **Furthermore, it provides integrations with other projects such as [semantic-kernel](https://github.com/microsoft/semantic-kernel), [kernel-memory](https://github.com/microsoft/kernel-memory) and [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications.**
 
@@ -52,6 +52,12 @@ For [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) in
 
 ```
 LLamaSharp.semantic-kernel
+```
+
+For [microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration, please search and install the following package (currently kernel-memory only supports net6.0):
+
+```
+LLamaSharp.kernel-memory
 ```
 
 ### Tips for choosing a version
@@ -196,7 +202,7 @@ Another choice is generate gguf format file yourself with a pytorch weight (or a
 
 🔳 Fine-tune
 
-⚠️ Local document search (enabled by kernel-memory now)
+✅ Local document search (enabled by kernel-memory now)
 
 🔳 MAUI Integration
 

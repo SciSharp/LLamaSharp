@@ -4,6 +4,27 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <Version>0.7.1</Version>
+    <Authors>Xbotter</Authors>
+    <Company>SciSharp STACK</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+    <RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <PackageTags>LLama, LLM, GPT, ChatGPT, kernel-memory, vector search, SciSharp</PackageTags>
+    <Description>
+      The integration of LLamaSharp and Microsoft kernel-memory. It could make it easy to support document search for LLamaSharp model inference.
+    </Description>
+    <PackageReleaseNotes>
+      Support integration with kernel-memory
+    </PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageOutputPath>packages</PackageOutputPath>
+    <Platforms>AnyCPU;x64;Arm64</Platforms>
+    <PackageId>LLamaSharp.kernel-memory</PackageId>
+    <Configurations>Debug;Release;GPU</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

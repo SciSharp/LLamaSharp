@@ -18,9 +18,9 @@ namespace LLama.Web.Common
         public int MaxInstances { get; set; }
 
         /// <summary>
-        /// Model context size (n_ctx)
+        /// Model context size (n_ctx). Null to use value from model.
         /// </summary>
-        public uint ContextSize { get; set; } = 512;
+        public uint? ContextSize { get; set; }
 
         /// <summary>
         /// the GPU that is used for scratch and small tensors
