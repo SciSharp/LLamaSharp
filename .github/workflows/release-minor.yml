@@ -32,6 +32,7 @@ jobs:
       run: |
         dotnet build ./LLama/LLamaSharp.csproj -c Release --no-restore
         dotnet build ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release --no-restore
+        dotnet build ./LLama.KernelMemory/LLamaSharp.KernelMemory.csproj -c Release --no-restore
 
     - name: Pack packages
       run: |
