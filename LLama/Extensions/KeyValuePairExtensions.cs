@@ -19,7 +19,5 @@ internal static class KeyValuePairExtensions
         first = pair.Key;
         second = pair.Value;
     }
-#elif !NET6_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
-#error Target framework not supported!
 #endif
 }

@@ -5,7 +5,7 @@ namespace LLama.Extensions
 {
     internal static class ListExtensions
     {
-#if !NET6_0_OR_GREATER
+#if NETSTANDARD2_0
         public static void EnsureCapacity<T>(this List<T> list, int capacity)
         {
             if (list.Capacity < capacity)

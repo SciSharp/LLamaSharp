@@ -22,13 +22,19 @@ fi
 
 mkdir ./temp;
 mkdir ./temp/runtimes;
-cp ./LLama/runtimes/*.* ./temp/runtimes/;
+# For sure it could be done better but cp -R did not work on osx
+mkdir ./temp/runtimes/osx-arm64
+mkdir ./temp/runtimes/osx-x64
+cp  ./LLama/runtimes/*.* ./temp/runtimes/;
+cp  ./LLama/runtimes/osx-arm64/*.* ./temp/runtimes/osx-arm64/;
+cp  ./LLama/runtimes/osx-x64/*.* ./temp/runtimes/osx-x64;
 cp ./LLama/runtimes/build/*.* ./temp/;
 
 # get the current version
 cd temp;
 dotnet add package LLamaSharp;
 version=$(dotnet list temp.csproj package | grep LLamaSharp);
+# TODO: This didn´t work on osx...we need a solution
 read -ra arr <<< "$version"
 version="${arr[-1]}"
 echo "The latest version: $version";
@@ -71,7 +77,7 @@ cd temp
 nuget pack LLamaSharp.Backend.Cpu.nuspec -version $updated_version
 nuget pack LLamaSharp.Backend.Cuda11.nuspec -version $updated_version
 nuget pack LLamaSharp.Backend.Cuda12.nuspec -version $updated_version
-nuget pack LLamaSharp.Backend.MacMetal.nuspec -version $updated_version
+
 
 cd ..
 exit 0

@@ -25,12 +25,6 @@
       <Visible>false</Visible>
       <Link>%(Filename)%(Extension)</Link>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-x64\native\*.metal"
-             Condition="'$(PlatformTarget)' == 'x64'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-      <Link>%(Filename)%(Extension)</Link>
-    </Content>
 
     <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\osx-arm64\native\*.dylib"
              Condition="'$(PlatformTarget)' == 'arm64'">

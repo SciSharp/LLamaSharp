@@ -1,54 +1,109 @@
-﻿using System.Linq.Expressions;
-using Spectre.Console;
-
-namespace LLama.Examples.NewVersion
+﻿namespace LLama.Examples.NewVersion
 {
     public class NewVersionTestRunner
     {
-        static Dictionary<string, Func<Task>> Examples = new Dictionary<string, Func<Task>>
-        {
-            {"Run a chat session without stripping the role names.", () => ChatSessionWithRoleName.Run()},
-            {"Run a chat session with the role names stripped.",()=> ChatSessionStripRoleName.Run()},
-            {"Interactive mode chat by using executor.",()=> InteractiveModeExecute.Run()},
-            {"Instruct mode chat by using executor.",()=> InstructModeExecute.Run()},
-            {"Stateless mode chat by using executor.",()=> StatelessModeExecute.Run()},
-            {"Load and save chat session.",()=> SaveAndLoadSession.Run()},
-            {"Load and save state of model and executor.",()=> LoadAndSaveState.Run()},
-            {"Get embeddings from LLama model.",()=> GetEmbeddings.Run()},
-            {"Quantize the model.",()=> QuantizeModel.Run()},
-            {"Automatic conversation.",()=> TalkToYourself.Run()},
-            {"Constrain response to json format using grammar.",()=> GrammarJsonResponse.Run()},
-            {"Semantic Kernel Prompt.",()=> SemanticKernelPrompt.Run()},
-            {"Semantic Kernel Chat.",()=> SemanticKernelChat.Run()},
-            {"Semantic Kernel Memory.",()=> SemanticKernelMemory.Run()},
-            {"Coding Assistant.",()=> CodingAssistant.Run()},
-            {"Batch Decoding.",()=> BatchedDecoding.Run()},
-            {"SK Kernel Memory.",()=> KernelMemory.Run()},
-            {"Exit", ()=> Task.CompletedTask}
-        };
         public static async Task Run()
         {
-            AnsiConsole.Write(new Rule("LLamaSharp Examples"));
+            Console.WriteLine("================LLamaSharp Examples (New Version)==================\n");
+
+            Console.WriteLine("Please input a number to choose an example to run:");
+            Console.WriteLine("0: Run a chat session without stripping the role names.");
+            Console.WriteLine("1: Run a chat session with the role names stripped.");
+            Console.WriteLine("2: Interactive mode chat by using executor.");
+            Console.WriteLine("3: Instruct mode chat by using executor.");
+            Console.WriteLine("4: Stateless mode chat by using executor.");
+            Console.WriteLine("5: Load and save chat session.");
+            Console.WriteLine("6: Load and save state of model and executor.");
+            Console.WriteLine("7: Get embeddings from LLama model.");
+            Console.WriteLine("8: Quantize the model.");
+            Console.WriteLine("9: Automatic conversation.");
+            Console.WriteLine("10: Constrain response to json format using grammar.");
+            Console.WriteLine("11: Semantic Kernel Prompt.");
+            Console.WriteLine("12: Semantic Kernel Chat.");
+            Console.WriteLine("13: Semantic Kernel Memory.");
+            Console.WriteLine("14: Coding Assistant.");
+            Console.WriteLine("15: Batch Decoding.");
+            Console.WriteLine("16: SK Kernel Memory.");
 
             while (true)
             {
-                var choice = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("Please choose[green] an example[/] to run: ")
-                        .AddChoices(Examples.Keys));
+                Console.Write("\nYour choice: ");
+                int choice = int.Parse(Console.ReadLine());
 
-
-                if (Examples.TryGetValue(choice, out var example))
+                if (choice == 0)
                 {
-                    if (choice == "Exit")
-                    {
-                        break;
-                    }
-                    AnsiConsole.Write(new Rule(choice));
-                    await example();
+                    await ChatSessionWithRoleName.Run();
                 }
-
-                AnsiConsole.Clear();
+                else if (choice == 1)
+                {
+                    await ChatSessionStripRoleName.Run();
+                }
+                else if (choice == 2)
+                {
+                    await InteractiveModeExecute.Run();
+                }
+                else if (choice == 3)
+                {
+                    await InstructModeExecute.Run();
+                }
+                else if (choice == 4)
+                {
+                    await StatelessModeExecute.Run();
+                }
+                else if (choice == 5)
+                {
+                    await SaveAndLoadSession.Run();
+                }
+                else if (choice == 6)
+                {
+                    await LoadAndSaveState.Run();
+                }
+                else if (choice == 7)
+                {
+                    GetEmbeddings.Run();
+                }
+                else if (choice == 8)
+                {
+                    QuantizeModel.Run();
+                }
+                else if (choice == 9)
+                {
+                    await TalkToYourself.Run();
+                }
+                else if (choice == 10)
+                {
+                    await GrammarJsonResponse.Run();
+                }
+                else if (choice == 11)
+                {
+                    await SemanticKernelPrompt.Run();
+                }
+                else if (choice == 12)
+                {
+                    await SemanticKernelChat.Run();
+                }
+                else if (choice == 13)
+                {
+                    await SemanticKernelMemory.Run();
+                }
+                else if (choice == 14)
+                {
+                    await CodingAssistant.Run();
+                }
+                else if (choice == 15)
+                {
+                    await BatchedDecoding.Run();
+                }
+                else if (choice == 16)
+                {
+                    await KernelMemory.Run();
+                }
+                else
+                {
+                    Console.WriteLine("Cannot parse your choice. Please select again.");
+                    continue;
+                }
+                break;
             }
         }
     }

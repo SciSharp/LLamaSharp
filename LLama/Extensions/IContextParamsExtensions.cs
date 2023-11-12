@@ -21,7 +21,7 @@ namespace LLama.Extensions
         public static void ToLlamaContextParams(this IContextParams @params, out LLamaContextParams result)
         {
             result = NativeApi.llama_context_default_params();
-            result.n_ctx = @params.ContextSize ?? 0;
+            result.n_ctx = @params.ContextSize;
             result.n_batch = @params.BatchSize;
             result.seed = @params.Seed;
             result.f16_kv = @params.UseFp16Memory;
