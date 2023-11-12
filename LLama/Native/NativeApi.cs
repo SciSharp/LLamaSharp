@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
-using LLama.Exceptions;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -22,88 +21,6 @@ namespace LLama.Native
     /// </summary>
 	public unsafe partial class NativeApi
     {
-        static NativeApi()
-        {
-            // Try to load a preferred library, based on CPU feature detection
-            TryLoadLibrary();
-
-            try
-            {
-                llama_empty_call();
-            }
-            catch (DllNotFoundException)
-            {
-                throw new RuntimeError("The native library cannot be found. It could be one of the following reasons: \n" +
-                    "1. No LLamaSharp backend was installed. Please search LLamaSharp.Backend and install one of them. \n" +
-                    "2. You are using a device with only CPU but installed cuda backend. Please install cpu backend instead. \n" +
-                    "3. The backend is not compatible with your system cuda environment. Please check and fix it. If the environment is " +
-                    "expected not to be changed, then consider build llama.cpp from source or submit an issue to LLamaSharp.\n" +
-                    "4. One of the dependency of the native library is missed.\n");
-            }
-            llama_backend_init(false);
-        }
-
-        /// <summary>
-        /// Try to load libllama, using CPU feature detection to try and load a more specialised DLL if possible
-        /// </summary>
-        /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
-        private static IntPtr TryLoadLibrary()
-        {
-#if NET6_0_OR_GREATER
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                // All of the Windows libraries, in order of preference
-                return TryLoad("cu12.1.0/libllama.dll")
-                    ?? TryLoad("cu11.7.1/libllama.dll")
-#if NET8_0_OR_GREATER
-                    ?? TryLoad("avx512/libllama.dll", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
-#endif
-                    ?? TryLoad("avx2/libllama.dll", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
-                    ?? TryLoad("avx/libllama.dll", System.Runtime.Intrinsics.X86.Avx.IsSupported)
-                    ?? IntPtr.Zero;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                // All of the Linux libraries, in order of preference
-                return TryLoad("cu12.1.0/libllama.so")
-                    ?? TryLoad("cu11.7.1/libllama.so")
-#if NET8_0_OR_GREATER
-                    ?? TryLoad("avx512/libllama.so", System.Runtime.Intrinsics.X86.Avx512.IsSupported)
-#endif
-                    ?? TryLoad("avx2/libllama.so", System.Runtime.Intrinsics.X86.Avx2.IsSupported)
-                    ?? TryLoad("avx/libllama.so", System.Runtime.Intrinsics.X86.Avx.IsSupported)
-                    ?? IntPtr.Zero;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return TryLoad("runtimes/osx-arm64/libllama.dylib", System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
-                      ?? TryLoad("runtimes/osx-x64/libllama.dylib")  
-                      ?? IntPtr.Zero;
-            }
-#endif
-
-            return IntPtr.Zero;
-
-#if NET6_0_OR_GREATER
-            // Try to load a DLL from the path if supported. Returns null if nothing is loaded.
-            static IntPtr? TryLoad(string path, bool supported = true)
-            {
-                if (!supported)
-                    return null;
-
-                if (NativeLibrary.TryLoad(path, out var handle))
-                    return handle;
-
-                return null;
-            }
-#endif
-        }
-
-        private const string libraryName = "libllama";
-
         /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
         /// </summary>
