@@ -29,7 +29,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta4" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta1" />
+    <PackageReference Include="Spectre.Console" Version="0.47.0" />
   </ItemGroup>
 
   <ItemGroup>

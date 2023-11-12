@@ -3,9 +3,9 @@ using Microsoft.SemanticKernel.AI.ChatCompletion;
 
 namespace LLamaSharp.SemanticKernel;
 
-internal static class ExtensionMethods
+public static class ExtensionMethods
 {
-    internal static global::LLama.Common.ChatHistory ToLLamaSharpChatHistory(this ChatHistory chatHistory)
+    public static global::LLama.Common.ChatHistory ToLLamaSharpChatHistory(this ChatHistory chatHistory, bool ignoreCase = true)
     {
         if (chatHistory is null)
         {
@@ -16,7 +16,7 @@ internal static class ExtensionMethods
 
         foreach (var chat in chatHistory)
         {
-            var role = Enum.TryParse<global::LLama.Common.AuthorRole>(chat.Role.Label, out var _role) ? _role : global::LLama.Common.AuthorRole.Unknown;
+            var role = Enum.TryParse<global::LLama.Common.AuthorRole>(chat.Role.Label, ignoreCase, out var _role) ? _role : global::LLama.Common.AuthorRole.Unknown;
             history.AddMessage(role, chat.Content);
         }
 

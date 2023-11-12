@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LLama.Native;
 
 namespace LLama.Common
 {
@@ -98,10 +99,30 @@ namespace LLama.Common
 		/// </summary>
 		public float? RopeFrequencyScale { get; set; }
 
-		/// <summary>
-		/// Use experimental mul_mat_q kernels
-		/// </summary>
-		public bool MulMatQ { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnExtrapolationFactor { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnAttentionFactor { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnBetaFast { get; set; }
+
+        /// <inheritdoc />
+        public float? YarnBetaSlow { get; set; }
+
+        /// <inheritdoc />
+        public uint? YarnOriginalContext { get; set; }
+
+        /// <inheritdoc />
+        public RopeScalingType? YarnScalingType { get; set; }
+
+        /// <summary>
+        /// Use experimental mul_mat_q kernels
+        /// </summary>
+        public bool MulMatQ { get; set; }
+
 
         /// <summary>
         /// Load vocab only (no weights)

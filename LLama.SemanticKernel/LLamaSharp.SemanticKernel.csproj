@@ -20,7 +20,7 @@
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
     <PackageTags>LLama, LLM, GPT, ChatGPT, semantic-kernel, SciSharp</PackageTags>
     <Description>
-      The integration of LLamaSharp ans semantic-kernel.
+      The integration of LLamaSharp and Microsoft semantic-kernel.
     </Description>
     <PackageReleaseNotes>
       Support integration with semantic-kernel

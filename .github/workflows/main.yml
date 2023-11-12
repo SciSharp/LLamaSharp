@@ -12,12 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [linux-release, windows-release, macos-release]
+        build: [linux-release, windows-release, osx-release]
         include:
           - build: linux-release
             os: ubuntu-latest
             config: release
-          - build: macos-release
+          - build: osx-release
             os: macos-latest
             config: release
           - build: windows-release

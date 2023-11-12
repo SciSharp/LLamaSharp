@@ -44,13 +44,13 @@ namespace LLama.Native
         /// <summary>
         /// RoPE scaling type, from `enum llama_rope_scaling_type` 
         /// </summary>
-        public sbyte   rope_scaling_type;        
+        public RopeScalingType rope_scaling_type;        
         
 
         /// <summary>
         /// RoPE base frequency, 0 = from model
         /// </summary>
-        public float    rope_freq_base;   
+        public float    rope_freq_base;
         /// <summary>
         /// RoPE frequency scaling factor, 0 = from model
         /// </summary>
