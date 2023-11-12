@@ -43,7 +43,7 @@ Then, search and install one of the following backends. (Please don't install tw
 LLamaSharp.Backend.Cpu  # cpu for windows, linux and mac (mac metal is also supported)
 LLamaSharp.Backend.Cuda11  # cuda11 for windows and linux
 LLamaSharp.Backend.Cuda12  # cuda12 for windows and linux
-LLamaSharp.Backend.MacMetal  # special for using mac metal
+LLamaSharp.Backend.MacMetal  # Removed after v0.8.0, metal support has been moved to cpu version now
 ```
 
 We publish these backends because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp) yourself. In this case, please **DO NOT** install the backend packages, instead, add your DLL to your project and ensure it will be copied to the output directory when compiling your project. For more informations please refer to ([this guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
@@ -88,8 +88,8 @@ Many hands make light work. If you have found any other model resource that coul
 ## FAQ
 
 1. GPU out of memory: Please try setting `n_gpu_layers` to a smaller number.
-2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or use the model we provide [on huggingface](https://huggingface.co/AsakusaRinne/LLamaSharpSamples).
-3. Cannot find backend package: 1) ensure you installed one of them. 2) check if there's a `libllama.dll` under your output path. 3) check if your system supports avx2, which is the default settings of official runtimes now. If not, please compile llama.cpp yourself.
+2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or generate `gguf` format weights from original weights yourself.
+3. Cannot load native lirary: 1) ensure you installed one of the backend packages. 2) Run `NativeLibraryConfig.WithLogs()` at the very beginning of your code to print more informations. 3) check if your system supports avx2, which is the default settings of official runtimes now. If not, please compile llama.cpp yourself and specify it with `NativeLibraryConfig.WithLibrary`.
 
 
 
@@ -168,13 +168,13 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ![demo-console](Assets/console_demo.gif)
 
-## How to Get a Model
+## How to Find a Model
 
-Model in format `gguf` is valid for LLamaSharp (and `ggml` before v0.5.1). One option is to search `LLama` and `gguf` in [huggingface](https://huggingface.co/) to find a model.
+Models in format `gguf` are valid for LLamaSharp (and `ggml` before v0.5.1). If you're new to LLM/LLaMA, it's a good choice to search `LLama` and `gguf` on [huggingface](https://huggingface.co/) to find a model.
 
-Another choice is generate gguf format file yourself with a pytorch weight (or any other), pleae refer to [convert.py](https://github.com/ggerganov/llama.cpp/blob/master/convert.py) and [convert-llama-ggml-to-gguf.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-llama-ggml-to-gguf.py) to get gguf file though a ggml transform.
+Another choice is generate gguf format file yourself with a pytorch weight (or any other), pleae refer to [convert.py](https://github.com/ggerganov/llama.cpp/blob/master/convert.py) and [convert-llama-ggml-to-gguf.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-llama-ggml-to-gguf.py) to get gguf file through a ggml transformation.
 
-## Roadmap
+## Features
 
 ---
 
