@@ -11,7 +11,7 @@
 		<Nullable>enable</Nullable>
 
     <Version>0.8.0</Version>
-    <Authors>Tim Miller, xbotter</Authors>
+    <Authors>Tim Miller, Xbotter</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
