@@ -6,10 +6,12 @@ using LLama.Native;
 namespace LLama.Common
 {
     using llama_token = Int32;
+
     /// <summary>
     /// The paramters used for inference.
     /// </summary>
-    public record InferenceParams : IInferenceParams
+    public record InferenceParams
+        : IInferenceParams
     {
         /// <summary>
         /// number of tokens to keep from initial prompt
@@ -30,66 +32,49 @@ namespace LLama.Common
         /// </summary>
         public IReadOnlyList<string> AntiPrompts { get; set; } = Array.Empty<string>();
 
-        /// <summary>
-        ///  0 or lower to use vocab size
-        /// </summary>
+        /// <inheritdoc />
         public int TopK { get; set; } = 40;
-        /// <summary>
-        /// 1.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
         public float TopP { get; set; } = 0.95f;
-        /// <summary>
-        /// 1.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
+        public float MinP { get; set; } = 0.05f;
+
+        /// <inheritdoc />
         public float TfsZ { get; set; } = 1.0f;
-        /// <summary>
-        /// 1.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
         public float TypicalP { get; set; } = 1.0f;
-        /// <summary>
-        /// 1.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
         public float Temperature { get; set; } = 0.8f;
-        /// <summary>
-        /// 1.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
         public float RepeatPenalty { get; set; } = 1.1f;
-        /// <summary>
-        /// last n tokens to penalize (0 = disable penalty, -1 = context size) (repeat_last_n)
-        /// </summary>
+
+        /// <inheritdoc />
         public int RepeatLastTokensCount { get; set; } = 64;
-        /// <summary>
-        /// frequency penalty coefficient
-        /// 0.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
         public float FrequencyPenalty { get; set; } = .0f;
-        /// <summary>
-        /// presence penalty coefficient
-        /// 0.0 = disabled
-        /// </summary>
+
+        /// <inheritdoc />
         public float PresencePenalty { get; set; } = .0f;
-        /// <summary>
-        /// Mirostat uses tokens instead of words.
-        /// algorithm described in the paper https://arxiv.org/abs/2007.14966.
-        /// 0 = disabled, 1 = mirostat, 2 = mirostat 2.0
-        /// </summary>
+
+        /// <inheritdoc />
         public MirostatType Mirostat { get; set; } = MirostatType.Disable;
-        /// <summary>
-        /// target entropy
-        /// </summary>
+
+        /// <inheritdoc />
         public float MirostatTau { get; set; } = 5.0f;
-        /// <summary>
-        /// learning rate
-        /// </summary>
+
+        /// <inheritdoc />
         public float MirostatEta { get; set; } = 0.1f;
-        /// <summary>
-        /// consider newlines as a repeatable token (penalize_nl)
-        /// </summary>
+
+        /// <inheritdoc />
         public bool PenalizeNL { get; set; } = true;
 
-        /// <summary>
-        /// A grammar to constrain the possible tokens
-        /// </summary>
+        /// <inheritdoc />
         public SafeLLamaGrammarHandle? Grammar { get; set; }
     }
 

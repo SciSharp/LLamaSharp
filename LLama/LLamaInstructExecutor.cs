@@ -216,8 +216,8 @@ namespace LLama
                 var mu = MirostatMu;
                 var id = Context.Sample(
                     tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP,
-                    inferenceParams.Grammar
+                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar,
+                    inferenceParams.MinP
                 );
                 MirostatMu = mu;
 

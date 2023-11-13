@@ -25,7 +25,6 @@ namespace LLama.Abstractions
 		/// </summary>
 		public Dictionary<int, float>? LogitBias { get; set; }
 
-
 		/// <summary>
 		/// Sequences where the model will stop generating further tokens.
 		/// </summary>
@@ -41,10 +40,15 @@ namespace LLama.Abstractions
 		/// </summary>
 		public float TopP { get; set; }
 
-		/// <summary>
-		/// 1.0 = disabled
-		/// </summary>
-		public float TfsZ { get; set; }
+        /// <summary>llama_eval
+        /// 0.0 = disabled
+        /// </summary>
+        public float MinP { get; set; }
+
+        /// <summary>
+        /// 1.0 = disabled
+        /// </summary>
+        public float TfsZ { get; set; }
 
 		/// <summary>
 		/// 1.0 = disabled

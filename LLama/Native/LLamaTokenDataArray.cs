@@ -92,6 +92,21 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="p">All tokens with probability greater than this will be kept</param>
+        /// <param name="minKeep"></param>
+        public void MinP(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
+        {
+            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            {
+                NativeApi.llama_sample_min_p(context, ref st, p, minKeep);
+                sorted = st.sorted;
+            }
+        }
+
+        /// <summary>
         /// Tail Free Sampling described in https://www.trentonbricken.com/Tail-Free-Sampling/.
         /// </summary>
         /// <param name="context"></param>

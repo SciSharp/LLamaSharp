@@ -226,10 +226,11 @@ namespace LLama
         /// <param name="tfsZ"></param>
         /// <param name="typicalP"></param>
         /// <param name="grammar"></param>
+        /// <param name="minP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature = 0.8f, MirostatType mirostat = MirostatType.Disable, 
-                                  float mirostatTau = 5.0f, float mirostatEta = 0.1f, int topK = 40, float topP = 0.95f, float tfsZ = 1.0f, float typicalP = 1.0f,
-                                  SafeLLamaGrammarHandle? grammar = null)
+        public llama_token Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature, MirostatType mirostat, 
+                                  float mirostatTau, float mirostatEta, int topK, float topP, float tfsZ, float typicalP,
+                                  SafeLLamaGrammarHandle? grammar, float minP)
         {
             llama_token id;
 
@@ -264,6 +265,7 @@ namespace LLama
                         candidates.TailFree(NativeHandle, tfsZ);
                         candidates.LocallyTypical(NativeHandle, typicalP);
                         candidates.TopP(NativeHandle, topP);
+                        candidates.MinP(NativeHandle, minP);
                         candidates.Temperature(NativeHandle, temperature);
                         id = candidates.SampleToken(NativeHandle);
                     }
