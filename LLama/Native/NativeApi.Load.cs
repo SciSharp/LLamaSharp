@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 
 namespace LLama.Native
@@ -227,24 +226,15 @@ namespace LLama.Native
             }
             else if (platform != OSPlatform.OSX) // in macos there's absolutely no avx
             {
-#if NET8_0_OR_GREATER
-                if (configuration.AvxLevel == NativeLibraryConfig.AvxLevel.Avx512)
-                {
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx512, prefix, suffix)));
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx2, prefix, suffix)));
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix)));
-                }
-                else 
-#endif
-                if (configuration.AvxLevel == NativeLibraryConfig.AvxLevel.Avx2)
-                {
+                if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx512)
+                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx512, prefix, suffix));
+
+                if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx2)
                     result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx2, prefix, suffix));
+                
+                if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx)
                     result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix));
-                }
-                else if (configuration.AvxLevel == NativeLibraryConfig.AvxLevel.Avx)
-                {
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix));
-                }
+
                 result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.None, prefix, suffix));
             }
 
