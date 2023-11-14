@@ -3,13 +3,21 @@ using System.Collections.Generic;
 
 namespace LLama
 {
-    internal sealed class AntipromptProcessor
+    /// <summary>
+    /// AntipromptProcessor keeps track of past tokens looking for any set Anti-Prompts
+    /// </summary>
+    public sealed class AntipromptProcessor
     {
         private int _longestAntiprompt;
         private readonly List<string> _antiprompts = new();
 
         private string? _string;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AntipromptProcessor"/> class.
+        /// </summary>
+        /// <param name="antiprompts">The antiprompts.</param>
         public AntipromptProcessor(IEnumerable<string>? antiprompts = null)
         {
             if (antiprompts != null)
