@@ -22,7 +22,7 @@ namespace LLama.Native
         public uint seed;
 
         /// <summary>
-        /// text context
+        /// text context, 0 = from model
         /// </summary>
         public uint n_ctx;
 

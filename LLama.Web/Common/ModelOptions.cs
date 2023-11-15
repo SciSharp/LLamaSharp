@@ -20,7 +20,7 @@ namespace LLama.Web.Common
         /// <summary>
         /// Model context size (n_ctx)
         /// </summary>
-        public uint ContextSize { get; set; } = 512;
+        public uint? ContextSize { get; set; }
 
         /// <summary>
         /// the GPU that is used for scratch and small tensors
