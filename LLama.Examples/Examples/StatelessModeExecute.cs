@@ -1,7 +1,7 @@
 ﻿using LLama.Common;
 using LLama.Examples.Extensions;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class StatelessModeExecute
     {

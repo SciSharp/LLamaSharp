@@ -1,4 +1,4 @@
-﻿namespace LLama.Examples.NewVersion
+﻿namespace LLama.Examples.Examples
 {
     public class QuantizeModel
     {

@@ -4,7 +4,7 @@ using System.Text;
 using LLama.Common;
 using LLama.Native;
 
-namespace LLama.Examples.NewVersion;
+namespace LLama.Examples.Examples;
 
 /// <summary>
 /// This demonstrates generating multiple replies to the same prompt, with a shared cache

@@ -1,4 +1,4 @@
-﻿namespace LLama.Examples.NewVersion
+﻿namespace LLama.Examples.Examples
 {
     using LLama.Common;
     using System;

@@ -7,7 +7,7 @@ using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Handlers;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class KernelMemory
     {

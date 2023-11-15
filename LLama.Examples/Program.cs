@@ -1,4 +1,4 @@
-﻿using LLama.Examples.NewVersion;
+﻿using LLama.Examples.Examples;
 using LLama.Native;
 
 Console.WriteLine("======================================================================================================");
@@ -12,4 +12,4 @@ NativeLibraryConfig.Instance.WithCuda().WithLogs();
 NativeApi.llama_empty_call();
 Console.WriteLine();
 
-await NewVersionTestRunner.Run();
+await Runner.Run();

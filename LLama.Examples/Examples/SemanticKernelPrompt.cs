@@ -5,7 +5,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.TextCompletion;
 using LLamaSharp.SemanticKernel.TextCompletion;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class SemanticKernelPrompt
     {

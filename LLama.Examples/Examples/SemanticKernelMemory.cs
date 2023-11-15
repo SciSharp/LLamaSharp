@@ -5,7 +5,7 @@ using LLamaSharp.SemanticKernel.TextEmbedding;
 using Microsoft.SemanticKernel.AI.Embeddings;
 using Microsoft.SemanticKernel.Plugins.Memory;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class SemanticKernelMemory
     {

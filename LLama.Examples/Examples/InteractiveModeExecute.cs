@@ -1,14 +1,14 @@
 ﻿using LLama.Common;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
-    public class InstructModeExecute
+    public class InteractiveModeExecute
     {
         public static async Task Run()
         {
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
-            var prompt = File.ReadAllText("Assets/dan.txt").Trim();
+            var prompt = (await File.ReadAllTextAsync("Assets/chat-with-bob.txt")).Trim();
 
             var parameters = new ModelParams(modelPath)
             {
@@ -18,18 +18,19 @@ namespace LLama.Examples.NewVersion
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
-            var executor = new InstructExecutor(context);
+            var ex = new InteractiveExecutor(context);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions. For example, you can input \"Write a story about a fox who want to " +
-                "make friend with human, no less than 200 words.\"");
+            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 128 and the context size is 256. (an example for small scale usage)");
             Console.ForegroundColor = ConsoleColor.White;
 
-            var inferenceParams = new InferenceParams() { Temperature = 0.8f, MaxTokens = 600 };
+            Console.Write(prompt);
+
+            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" }, MaxTokens = 128 };
 
             while (true)
             {
-                await foreach (var text in executor.InferAsync(prompt, inferenceParams))
+                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
                 {
                     Console.Write(text);
                 }
