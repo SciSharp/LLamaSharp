@@ -137,7 +137,7 @@ namespace LLama.Native
                 AvxLevel.Avx => "avx",
                 AvxLevel.Avx2 => "avx2",
 #if NET8_0_OR_GREATER
-                AvxLevel.Avx512 => "avx512"
+                AvxLevel.Avx512 => "avx512",
 #endif
                 _ => throw new ArgumentException($"Unknown AvxLevel '{level}'")
             };
@@ -154,7 +154,7 @@ namespace LLama.Native
             if (System.Runtime.Intrinsics.X86.Avx2.IsSupported)
                 _avxLevel = AvxLevel.Avx2;
 #if NET8_0_OR_GREATER
-            if (System.Runtime.Intrinsics.X86.Avx512.IsSupported)
+            if (System.Runtime.Intrinsics.X86.Avx512F.IsSupported)
                 _avxLevel = AvxLevel.Avx512;
 #endif
         }
