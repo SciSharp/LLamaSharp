@@ -136,9 +136,7 @@ namespace LLama.Native
                 AvxLevel.None => string.Empty,
                 AvxLevel.Avx => "avx",
                 AvxLevel.Avx2 => "avx2",
-#if NET8_0_OR_GREATER
                 AvxLevel.Avx512 => "avx512",
-#endif
                 _ => throw new ArgumentException($"Unknown AvxLevel '{level}'")
             };
         }
