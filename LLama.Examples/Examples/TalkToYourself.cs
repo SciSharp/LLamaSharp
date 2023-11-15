@@ -3,7 +3,7 @@ using System.Text;
 using LLama.Abstractions;
 using LLama.Common;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class TalkToYourself
     {

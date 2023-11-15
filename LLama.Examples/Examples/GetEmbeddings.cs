@@ -1,6 +1,6 @@
 ﻿using LLama.Common;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class GetEmbeddings
     {

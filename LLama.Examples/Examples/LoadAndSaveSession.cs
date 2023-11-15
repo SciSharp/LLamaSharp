@@ -1,8 +1,8 @@
 ﻿using LLama.Common;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
-    public class LoadAndSaveState
+    public class SaveAndLoadSession
     {
         public static async Task Run()
         {
@@ -20,42 +20,42 @@ namespace LLama.Examples.NewVersion
             using var context = model.CreateContext(parameters);
             var ex = new InteractiveExecutor(context);
 
+            var session = new ChatSession(ex);
+
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
+            Console.WriteLine("The chat session has started. In this example, the prompt is printed for better visual result. Input \"save\" to save and reload the session.");
             Console.ForegroundColor = ConsoleColor.White;
 
+            // show the prompt
             Console.Write(prompt);
-
-            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } };
-
             while (true)
             {
-                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
+                await foreach (var text in session.ChatAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
                 {
                     Console.Write(text);
                 }
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 prompt = Console.ReadLine();
+                Console.ForegroundColor = ConsoleColor.White;
                 if (prompt == "save")
                 {
-                    Console.Write("Your path to save model state: ");
-                    var modelStatePath = Console.ReadLine();
-                    ex.Context.SaveState(modelStatePath);
-
-                    Console.Write("Your path to save executor state: ");
-                    var executorStatePath = Console.ReadLine();
-                    await ex.SaveState(executorStatePath);
-
+                    Console.Write("Preparing to save the state, please input the path you want to save it: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    var statePath = Console.ReadLine();
+                    session.SaveSession(statePath);
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("All states saved!");
+                    Console.WriteLine("Saved session!");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    var ctx = ex.Context;
-                    ctx.LoadState(modelStatePath);
-                    ex = new InteractiveExecutor(ctx);
-                    await ex.LoadState(executorStatePath);
+                    ex.Context.Dispose();
+                    ex = new(new LLamaContext(model, parameters));
+                    session = new ChatSession(ex);
+                    session.LoadSession(statePath);
+
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Loaded state!");
+                    Console.WriteLine("Loaded session!");
                     Console.ForegroundColor = ConsoleColor.White;
 
                     Console.Write("Now you can continue your session: ");

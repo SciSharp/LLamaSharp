@@ -1,8 +1,8 @@
 ﻿using LLama.Common;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
-    public class ChatSessionWithRoleName
+    public class ChatSessionStripRoleName
     {
         public static async Task Run()
         {
@@ -20,10 +20,10 @@ namespace LLama.Examples.NewVersion
             using var context = model.CreateContext(parameters);
             var executor = new InteractiveExecutor(context);
 
-            var session = new ChatSession(executor);
+            var session = new ChatSession(executor).WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(new string[] { "User:", "Bob:" }, redundancyLength: 8));
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The chat session has started. In this example, the prompt is printed for better visual result.");
+            Console.WriteLine("The chat session has started. The role names won't be printed.");
             Console.ForegroundColor = ConsoleColor.White;
 
             // show the prompt

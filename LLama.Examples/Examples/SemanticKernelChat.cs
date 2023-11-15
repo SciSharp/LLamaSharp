@@ -3,7 +3,7 @@ using LLama.Common;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using LLamaSharp.SemanticKernel.ChatCompletion;
 
-namespace LLama.Examples.NewVersion
+namespace LLama.Examples.Examples
 {
     public class SemanticKernelChat
     {
