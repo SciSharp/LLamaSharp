@@ -85,7 +85,7 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-cublas:
-    if: ${{ github.event.inputs.cublas }}
+    if: ${{ github.event.inputs.cublas != 'false' }}
     name: Compile (cublas)
     strategy:
       fail-fast: false
@@ -139,7 +139,7 @@ jobs:
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
     
   compile-macos:
-    if: ${{ github.event.inputs.macos }}
+    if: ${{ github.event.inputs.macos != 'false' }}
     name: Compile (MacOS)
     strategy:
       fail-fast: true
