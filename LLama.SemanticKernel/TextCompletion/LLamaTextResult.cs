@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLamaSharp.SemanticKernel.TextCompletion;
 
-internal sealed class LLamaTextResult : ITextStreamingResult
+internal sealed class LLamaTextResult : ITextResult, ITextStreamingResult
 {
     private readonly IAsyncEnumerable<string> _text;
 
