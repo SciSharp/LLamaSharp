@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
-internal sealed class LLamaSharpChatResult : IChatStreamingResult
+internal sealed class LLamaSharpChatResult : IChatResult, IChatStreamingResult
 {
     private readonly ModelResult _modelResult;
     private readonly IAsyncEnumerable<string> _stream;
