@@ -233,9 +233,6 @@ namespace LLama
 
         private async IAsyncEnumerable<string> ChatAsyncInternal(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(prompt);
-
             var results = _executor.InferAsync(prompt, inferenceParams, cancellationToken);
             await foreach (var textToken in OutputTransform.TransformAsync(results).WithCancellation(cancellationToken))
             {
