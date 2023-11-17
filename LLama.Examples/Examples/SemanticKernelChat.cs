@@ -49,7 +49,7 @@ namespace LLama.Examples.Examples
         /// </summary>
         private static Task MessageOutputAsync(Microsoft.SemanticKernel.AI.ChatCompletion.ChatHistory chatHistory)
         {
-            var message = chatHistory.Messages.Last();
+            var message = chatHistory.Last();
 
             Console.WriteLine($"{message.Role}: {message.Content}");
             Console.WriteLine("------------------------");
