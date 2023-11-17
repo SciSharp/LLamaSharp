@@ -27,12 +27,12 @@ namespace LLama.Native
         /// <summary>
         /// called with a progress value between 0 and 1, pass NULL to disable
         /// </summary>
-        LlamaProgressCallback progress_callback;
+        public LlamaProgressCallback progress_callback;
 
         /// <summary>
         /// context pointer passed to the progress callback
         /// </summary>
-        void* progress_callback_user_data;
+        public void* progress_callback_user_data;
 
         /// <summary>
         /// only load the vocabulary, no weights
