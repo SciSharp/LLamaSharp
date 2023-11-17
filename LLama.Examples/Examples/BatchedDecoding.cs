@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Security.Cryptography;
 using System.Text;
 using LLama.Common;
 using LLama.Native;
@@ -17,7 +16,7 @@ public class BatchedDecoding
 
     private const int top_k = 80;
     private const float top_p = 0.8f;
-    private const float temp = 0.5f;
+    private const float temp = 0.75f;
 
     public static async Task Run()
     {
@@ -173,5 +172,8 @@ public class BatchedDecoding
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
         }
+
+        Console.WriteLine("Press any key to exit demo");
+        Console.ReadKey(true);
     }
 }
