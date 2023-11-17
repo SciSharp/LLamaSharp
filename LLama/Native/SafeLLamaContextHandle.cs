@@ -193,6 +193,7 @@ namespace LLama.Native
         /// <param name="tokens">The provided batch of new tokens to process</param>
         /// <param name="n_past">the number of tokens to use from previous eval calls</param>
         /// <returns>Returns true on success</returns>
+        [Obsolete("use llama_decode() instead")]
         public bool Eval(ReadOnlySpan<int> tokens, int n_past)
         {
             unsafe
