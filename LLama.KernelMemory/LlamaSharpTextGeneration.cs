@@ -72,20 +72,35 @@ namespace LLamaSharp.KernelMemory
         /// <inheritdoc/>
         public IAsyncEnumerable<string> GenerateTextAsync(string prompt, TextGenerationOptions options, CancellationToken cancellationToken = default)
         {
-            return _executor.InferAsync(prompt, OptionsToParams(options), cancellationToken: cancellationToken);
+            return _executor.InferAsync(prompt, OptionsToParams(options, this._config?.DefaultInferenceParams), cancellationToken: cancellationToken);
         }
 
-        private static InferenceParams OptionsToParams(TextGenerationOptions options)
+        private static InferenceParams OptionsToParams(TextGenerationOptions options, InferenceParams? defaultParams)
         {
-            return new InferenceParams()
+            if (defaultParams != null)
             {
-                AntiPrompts = options.StopSequences.ToList().AsReadOnly(),
-                Temperature = (float)options.Temperature,
-                MaxTokens = options.MaxTokens ?? 1024,
-                FrequencyPenalty = (float)options.FrequencyPenalty,
-                PresencePenalty = (float)options.PresencePenalty,
-                TopP = (float)options.TopP,
-            };
+                return defaultParams with
+                {
+                    AntiPrompts = defaultParams.AntiPrompts.Concat(options.StopSequences).ToList().AsReadOnly(),
+                    Temperature = options.Temperature == default ? defaultParams.Temperature : default,
+                    MaxTokens = options.MaxTokens ?? defaultParams.MaxTokens,
+                    FrequencyPenalty = options.FrequencyPenalty == default ? defaultParams.FrequencyPenalty : default,
+                    PresencePenalty = options.PresencePenalty == default ? defaultParams.PresencePenalty : default,
+                    TopP = options.TopP == default ? defaultParams.TopP : default
+                };
+            }
+            else
+            {
+                return new InferenceParams()
+                {
+                    AntiPrompts = options.StopSequences.ToList().AsReadOnly(),
+                    Temperature = (float)options.Temperature,
+                    MaxTokens = options.MaxTokens ?? 1024,
+                    FrequencyPenalty = (float)options.FrequencyPenalty,
+                    PresencePenalty = (float)options.PresencePenalty,
+                    TopP = (float)options.TopP,
+                };
+            }
         }
     }
 }

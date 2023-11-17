@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LLama.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,5 +40,11 @@ namespace LLamaSharp.KernelMemory
         /// Gets or sets the number of GPU layers.
         /// </summary>
         public int? GpuLayerCount { get; set; }
+
+
+        /// <summary>
+        /// Set the default inference parameters.
+        /// </summary>
+        public InferenceParams? DefaultInferenceParams { get; set; }
     }
 }
