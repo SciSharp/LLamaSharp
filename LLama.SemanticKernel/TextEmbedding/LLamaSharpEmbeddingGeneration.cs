@@ -7,6 +7,10 @@ public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGeneration
 {
     private LLamaEmbedder _embedder;
 
+    private readonly Dictionary<string, string> _attributes = new();
+
+    public IReadOnlyDictionary<string, string> Attributes => this._attributes;
+
     public LLamaSharpEmbeddingGeneration(LLamaEmbedder embedder)
     {
         _embedder = embedder;

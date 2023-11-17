@@ -10,6 +10,10 @@ public sealed class LLamaSharpTextCompletion : ITextCompletion
 {
     public ILLamaExecutor executor;
 
+    private readonly Dictionary<string, string> _attributes = new();
+
+    public IReadOnlyDictionary<string, string> Attributes => this._attributes;
+
     public LLamaSharpTextCompletion(ILLamaExecutor executor)
     {
         this.executor = executor;
