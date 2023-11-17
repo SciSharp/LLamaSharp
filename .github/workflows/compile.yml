@@ -33,7 +33,7 @@ jobs:
             defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
             defines: '-DLLAMA_AVX512=ON'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -85,12 +85,12 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-cublas:
-    if: ${{ github.event.inputs.cublas }}
+    if: ${{ github.event.inputs.cublas != 'false' }}
     name: Compile (cublas)
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-20.04, windows-latest]
         cuda: ['12.1.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
@@ -132,14 +132,14 @@ jobs:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
       - name: Upload artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
     
   compile-macos:
-    if: ${{ github.event.inputs.macos }}
+    if: ${{ github.event.inputs.macos != 'false' }}
     name: Compile (MacOS)
     strategy:
       fail-fast: true
