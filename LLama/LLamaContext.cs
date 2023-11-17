@@ -340,6 +340,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
+        [Obsolete("use llama_decode() instead")]
         public int Eval(llama_token[] tokens, int pastTokensCount)
         {
             return Eval(tokens.AsSpan(), pastTokensCount);
@@ -352,6 +353,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
+        [Obsolete("use llama_decode() instead")]
         public int Eval(List<llama_token> tokens, int pastTokensCount)
         {
 #if NET5_0_OR_GREATER
@@ -382,6 +384,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
+        [Obsolete("use llama_decode() instead")]
         public int Eval(ReadOnlyMemory<llama_token> tokens, int pastTokensCount)
         {
             return Eval(tokens.Span, pastTokensCount);
@@ -394,6 +397,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
+        [Obsolete("use llama_decode() instead")]
         public int Eval(ReadOnlySpan<llama_token> tokens, int pastTokensCount)
         {
             var total = tokens.Length;
@@ -415,7 +419,7 @@ namespace LLama
             }
             return pastTokensCount;
         }
-#endregion
+        #endregion
 
         /// <inheritdoc />
         public void Dispose()
