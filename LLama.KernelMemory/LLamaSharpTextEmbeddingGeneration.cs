@@ -20,6 +20,9 @@ namespace LLamaSharp.KernelMemory
         private readonly LLamaEmbedder _embedder;
         private bool _ownsEmbedder = false;
         private bool _ownsWeights = false;
+        private readonly Dictionary<string, string> _attributes = new();
+
+        public IReadOnlyDictionary<string, string> Attributes => this._attributes;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class.
@@ -67,7 +70,7 @@ namespace LLamaSharp.KernelMemory
             {
                 _weights?.Dispose();
             }
-            if(_ownsEmbedder)
+            if (_ownsEmbedder)
             {
                 _embedder.Dispose();
             }

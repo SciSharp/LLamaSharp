@@ -15,6 +15,10 @@ public sealed class LLamaSharpChatCompletion : IChatCompletion
     private ChatSession session;
     private ChatRequestSettings defaultRequestSettings;
 
+    private readonly Dictionary<string, string> _attributes = new();
+
+    public IReadOnlyDictionary<string, string> Attributes => this._attributes;
+
     static ChatRequestSettings GetDefaultSettings()
     {
         return new ChatRequestSettings
