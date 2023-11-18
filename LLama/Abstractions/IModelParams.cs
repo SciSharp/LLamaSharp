@@ -134,9 +134,10 @@ namespace LLama.Abstractions
         /// <exception cref="ArgumentException"></exception>
         public TensorSplitsCollection(float[] splits)
         {
-            if (splits.Length != Splits.Length)
-                throw new ArgumentException($"tensor splits length must equal {Splits.Length}");
-            Splits = splits;
+            if (splits.Length > Splits.Length)
+                throw new ArgumentException($"Must supply at most {Splits.Length} tensor splits", nameof(splits));
+
+            splits.CopyTo(Splits.AsSpan());
         }
 
         /// <summary>
