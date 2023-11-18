@@ -82,7 +82,7 @@ namespace LLamaSharp.KernelMemory
             var executor = new StatelessExecutor(weights, parameters);
             var embedder = new LLamaEmbedder(weights, parameters);
             builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGeneration(embedder));
-            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGeneration(weights, context, executor));
+            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGeneration(weights, context, executor, config?.DefaultInferenceParams));
             return builder;
         }
     }

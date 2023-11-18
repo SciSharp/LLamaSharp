@@ -15,10 +15,10 @@ namespace LLamaSharp.KernelMemory
     /// </summary>
     public class LlamaSharpTextGeneration : ITextGeneration, IDisposable
     {
-        private readonly LLamaSharpConfig? _config;
         private readonly LLamaWeights _weights;
         private readonly StatelessExecutor _executor;
         private readonly LLamaContext _context;
+        private readonly InferenceParams? _defaultInferenceParams;
         private bool _ownsContext = false;
         private bool _ownsWeights = false;
 
@@ -28,7 +28,6 @@ namespace LLamaSharp.KernelMemory
         /// <param name="config">The configuration for LLamaSharp.</param>
         public LlamaSharpTextGeneration(LLamaSharpConfig config)
         {
-            this._config = config;
             var parameters = new ModelParams(config.ModelPath)
             {
                 ContextSize = config?.ContextSize ?? 2048,
@@ -38,6 +37,7 @@ namespace LLamaSharp.KernelMemory
             _weights = LLamaWeights.LoadFromFile(parameters);
             _context = _weights.CreateContext(parameters);
             _executor = new StatelessExecutor(_weights, parameters);
+            _defaultInferenceParams = config?.DefaultInferenceParams;
             _ownsWeights = _ownsContext = true;
         }
 
@@ -48,12 +48,12 @@ namespace LLamaSharp.KernelMemory
         /// <param name="weights">A LLamaWeights object.</param>
         /// <param name="context">A LLamaContext object.</param>
         /// <param name="executor">An executor. Currently only StatelessExecutor is expected.</param>
-        public LlamaSharpTextGeneration(LLamaWeights weights, LLamaContext context, StatelessExecutor? executor = null)
+        public LlamaSharpTextGeneration(LLamaWeights weights, LLamaContext context, StatelessExecutor? executor = null, InferenceParams? inferenceParams = null)
         {
-            _config = null;
             _weights = weights;
             _context = context;
             _executor = executor ?? new StatelessExecutor(_weights, _context.Params);
+            _defaultInferenceParams = inferenceParams;
         }
 
         /// <inheritdoc/>
@@ -72,7 +72,7 @@ namespace LLamaSharp.KernelMemory
         /// <inheritdoc/>
         public IAsyncEnumerable<string> GenerateTextAsync(string prompt, TextGenerationOptions options, CancellationToken cancellationToken = default)
         {
-            return _executor.InferAsync(prompt, OptionsToParams(options, this._config?.DefaultInferenceParams), cancellationToken: cancellationToken);
+            return _executor.InferAsync(prompt, OptionsToParams(options, this._defaultInferenceParams), cancellationToken: cancellationToken);
         }
 
         private static InferenceParams OptionsToParams(TextGenerationOptions options, InferenceParams? defaultParams)
@@ -82,11 +82,11 @@ namespace LLamaSharp.KernelMemory
                 return defaultParams with
                 {
                     AntiPrompts = defaultParams.AntiPrompts.Concat(options.StopSequences).ToList().AsReadOnly(),
-                    Temperature = options.Temperature == default ? defaultParams.Temperature : default,
+                    Temperature = options.Temperature == defaultParams.Temperature ? defaultParams.Temperature : (float)options.Temperature,
                     MaxTokens = options.MaxTokens ?? defaultParams.MaxTokens,
-                    FrequencyPenalty = options.FrequencyPenalty == default ? defaultParams.FrequencyPenalty : default,
-                    PresencePenalty = options.PresencePenalty == default ? defaultParams.PresencePenalty : default,
-                    TopP = options.TopP == default ? defaultParams.TopP : default
+                    FrequencyPenalty = options.FrequencyPenalty == defaultParams.FrequencyPenalty ? defaultParams.FrequencyPenalty : (float)options.FrequencyPenalty,
+                    PresencePenalty = options.PresencePenalty == defaultParams.PresencePenalty ? defaultParams.PresencePenalty : (float)options.PresencePenalty,
+                    TopP = options.TopP == defaultParams.TopP ? defaultParams.TopP : (float)options.TopP
                 };
             }
             else
