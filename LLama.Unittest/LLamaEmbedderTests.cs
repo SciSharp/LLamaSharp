@@ -2,7 +2,7 @@
 
 namespace LLama.Unittest;
 
-public class LLamaEmbedderTests
+public sealed class LLamaEmbedderTests
     : IDisposable
 {
     private readonly LLamaEmbedder _embedder;
@@ -36,26 +36,6 @@ public class LLamaEmbedderTests
         Assert.Equal(a.Length, b.Length);
         return a.Zip(b, (x, y) => x * y).Sum();
     }
-
-    private static void AssertApproxStartsWith(float[] expected, float[] actual, float epsilon = 0.08f)
-    {
-        for (int i = 0; i < expected.Length; i++)
-            Assert.Equal(expected[i], actual[i], epsilon);
-    }
-
-    // todo: enable this one llama2 7B gguf is available
-    //[Fact]
-    //public void EmbedBasic()
-    //{
-    //    var cat = _embedder.GetEmbeddings("cat");
-
-    //    Assert.NotNull(cat);
-    //    Assert.NotEmpty(cat);
-
-    //    // Expected value generate with llama.cpp embedding.exe
-    //    var expected = new float[] { -0.127304f, -0.678057f, -0.085244f, -0.956915f, -0.638633f };
-    //    AssertApproxStartsWith(expected, cat);
-    //}
 
     [Fact]
     public void EmbedCompare()

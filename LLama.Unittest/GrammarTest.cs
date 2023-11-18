@@ -41,6 +41,22 @@ namespace LLama.Unittest
         }
 
         [Fact]
+        public void CreateGrammar_StartIndexOutOfRange()
+        {
+            var rules = new List<GrammarRule>
+            {
+                new GrammarRule("alpha", new[]
+                {
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR, 'a'),
+                    new LLamaGrammarElement(LLamaGrammarElementType.CHAR_RNG_UPPER, 'z'),
+                    new LLamaGrammarElement(LLamaGrammarElementType.END, 0),
+                }),
+            };
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Grammar(rules, 3));
+        }
+
+        [Fact]
         public async Task SampleWithTrivialGrammar()
         {
             // Create a grammar that constrains the output to be "cat" and nothing else. This is a nonsense answer, so
@@ -56,14 +72,15 @@ namespace LLama.Unittest
                 }),
             };
 
-            using var grammar = SafeLLamaGrammarHandle.Create(rules, 0);
+            var grammar = new Grammar(rules, 0);
+            using var grammarInstance = grammar.CreateInstance();
 
             var executor = new StatelessExecutor(_model, _params);
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = 3,
                 AntiPrompts = new [] { ".", "Input:", "\n" },
-                Grammar = grammar,
+                Grammar = grammarInstance,
             };
 
             var result = await executor.InferAsync("Q. 7 + 12\nA. ", inferenceParams).ToListAsync();
