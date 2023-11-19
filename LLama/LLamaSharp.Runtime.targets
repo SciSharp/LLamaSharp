@@ -6,66 +6,66 @@
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/noavx/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/noavx/libllama.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/avx/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/avx/libllama.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/avx2/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/avx2/libllama.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/avx512/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/avx512/libllama.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/cuda11/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/cuda11/libllama.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/cuda12/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/cuda12/libllama.dll</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/noavx/libllama.so</Link>
+        <Link>runtimes/linux-x64/native/noavx/libllama.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/avx/libllama.so</Link>
+        <Link>runtimes/linux-x64/native/avx/libllama.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/avx2/libllama.so</Link>
+        <Link>runtimes/linux-x64/native/avx2/libllama.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/avx512/libllama.so</Link>
+        <Link>runtimes/linux-x64/native/avx512/libllama.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/cuda11/libllama.so</Link>
+        <Link>runtimes/linux-x64/native/cuda11/libllama.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/cuda12/libllama.so</Link>
+        <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllama.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-arm64/libllama.dylib</Link>
+        <Link>runtimes/osx-arm64/native/libllama.dylib</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/ggml-metal.metal">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-arm64/ggml-metal.metal</Link>
+        <Link>runtimes/osx-arm64/native/ggml-metal.metal</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllama.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-x64/libllama.dylib</Link>
+        <Link>runtimes/osx-x64/native/libllama.dylib</Link>
       </None>
     </ItemGroup>
 </Project>
