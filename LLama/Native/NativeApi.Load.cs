@@ -155,13 +155,13 @@ namespace LLama.Native
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 platform = OSPlatform.Windows;
-                prefix = "runtimes/win-x64/native/";
+                prefix = "runtimes/win-x64/";
                 suffix = ".dll";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 platform = OSPlatform.Linux;
-                prefix = "runtimes/linux-x64/native/";
+                prefix = "runtimes/linux-x64/";
                 suffix = ".so";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -170,11 +170,11 @@ namespace LLama.Native
                 suffix = ".dylib";
                 if (System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
                 {
-                    prefix = "runtimes/osx-arm64/native/";
+                    prefix = "runtimes/osx-arm64/";
                 }
                 else
                 {
-                    prefix = "runtimes/osx-x64/native/";
+                    prefix = "runtimes/osx-x64/";
                 }
             }
             else
