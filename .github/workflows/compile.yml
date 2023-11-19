@@ -2,13 +2,7 @@ name: Update Binaries
 
 on:
   workflow_dispatch:
-    inputs:
-      cublas:
-        type: boolean
-        description: Build CUBLAS binaries
-      osx:
-        type: boolean
-        description: Build OSX binaries
+    inputs: {}
   push:
     branches: [cron_job]
   #schedule:
@@ -85,7 +79,6 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
   compile-cublas:
-    if: ${{ github.event.inputs.cublas != 'false' }}
     name: Compile (cublas)
     strategy:
       fail-fast: false
@@ -139,7 +132,6 @@ jobs:
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
     
   compile-macos:
-    if: ${{ github.event.inputs.macos != 'false' }}
     name: Compile (MacOS)
     strategy:
       fail-fast: true
@@ -148,7 +140,7 @@ jobs:
           - build: 'arm64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=arm64'
           - build: 'x64'
-            defines: '-DLLAMA_METAL=OFF  -DCMAKE_OSX_ARCHITECTURES=x86_64'            
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DLLAMA_METAL=OFF'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v3
@@ -171,6 +163,7 @@ jobs:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
+        if: ${{ matrix.build != 'x64' }}
         uses: actions/upload-artifact@v3
         with:
           path: ./build/bin/ggml-metal.metal
@@ -195,63 +188,45 @@ jobs:
           ls -R
 
           mkdir deps
+
           mkdir deps/avx
           mkdir deps/avx2
           mkdir deps/avx512
 
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so deps/libllama.so
-          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so deps/avx/libllama.so
-          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so deps/avx2/libllama.so
-          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
-
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll deps/libllama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll deps/avx/libllama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll deps/avx2/libllama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
-
-      - name: Rearrange MacOS files
-        if: ${{ github.event.inputs.macos }}
-        run: |
           mkdir deps/osx-arm64
           mkdir deps/osx-x64
-          
+
+          mkdir deps/cu11.7.1
+          mkdir deps/cu12.1.0
+
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
+          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
+          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so   deps/avx2/libllama.so
+          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
+
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/libllama.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/libllama.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
+
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal deps/osx-arm64/ggml-metal.metal
-          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib deps/osx-x64/libllama.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
+          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
 
-
-      - name: Rearrange CUDA files
-        if: ${{ github.event.inputs.cublas }}
-        run: |
-          mkdir cuda_deps
-          mkdir cuda_deps/cu11.7.1
-          mkdir cuda_deps/cu12.1.0
-
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll cuda_deps/cu11.7.1/libllama.dll
-          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so cuda_deps/cu11.7.1/libllama.so
-          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll cuda_deps/cu12.1.0/libllama.dll
-          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so cuda_deps/cu12.1.0/libllama.so
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/libllama.dll
+          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll    deps/cu12.1.0/libllama.dll
+          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so deps/cu12.1.0/libllama.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           path: deps/
           name: deps
-      - name: Upload artifacts (CUDA12)
-        if: ${{ github.event.inputs.cublas }}
-        uses: actions/upload-artifact@v3
-        with:
-          path: cuda_deps/cu12.1.0/
-          name: cu12.1.0
-      - name: Upload artifacts (CUDA11)
-        if: ${{ github.event.inputs.cublas }}
-        uses: actions/upload-artifact@v3
-        with:
-          path: cuda_deps/cu11.7.1/
-          name: cu11.7.1
 
       - name: Remove Artifacts
         uses: geekyeggo/delete-artifact@v2
         with:
           name: |
             llama-*
+            *.metal
