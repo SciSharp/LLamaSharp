@@ -21,7 +21,7 @@ public sealed class LLamaSharpTextCompletion : ITextCompletion
 
     public async Task<IReadOnlyList<ITextResult>> GetCompletionsAsync(string text, AIRequestSettings? requestSettings, CancellationToken cancellationToken = default)
     {
-        var settings = (ChatRequestSettings?)requestSettings;
+        var settings = ChatRequestSettings.FromRequestSettings(requestSettings);
         var result = executor.InferAsync(text, settings?.ToLLamaSharpInferenceParams(), cancellationToken);
         return await Task.FromResult(new List<ITextResult> { new LLamaTextResult(result) }.AsReadOnly()).ConfigureAwait(false);
     }
@@ -30,7 +30,7 @@ public sealed class LLamaSharpTextCompletion : ITextCompletion
     public async IAsyncEnumerable<ITextStreamingResult> GetStreamingCompletionsAsync(string text, AIRequestSettings? requestSettings,[EnumeratorCancellation] CancellationToken cancellationToken = default)
 #pragma warning restore CS1998
     {
-        var settings = (ChatRequestSettings?)requestSettings;
+        var settings = ChatRequestSettings.FromRequestSettings(requestSettings);
         var result = executor.InferAsync(text, settings?.ToLLamaSharpInferenceParams(), cancellationToken);
         yield return new LLamaTextResult(result);
     }
