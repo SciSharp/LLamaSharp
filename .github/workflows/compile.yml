@@ -163,7 +163,7 @@ jobs:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
-        if: ${{ matrix.defines != 'x64' }}
+        if: ${{ matrix.build != 'x64' }}
         uses: actions/upload-artifact@v3
         with:
           path: ./build/bin/ggml-metal.metal
@@ -229,3 +229,4 @@ jobs:
         with:
           name: |
             llama-*
+            *.metal
