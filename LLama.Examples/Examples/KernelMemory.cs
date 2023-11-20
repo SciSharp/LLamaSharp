@@ -17,7 +17,13 @@ namespace LLama.Examples.Examples
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
             var memory = new KernelMemoryBuilder()
-                    .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath))
+                    .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath)
+                    {
+                        DefaultInferenceParams = new Common.InferenceParams
+                        {
+                            AntiPrompts = new List<string> { "\n\n" }
+                        }
+                    })
                     .With(new TextPartitioningOptions
                     {
                         MaxTokensPerParagraph = 300,
