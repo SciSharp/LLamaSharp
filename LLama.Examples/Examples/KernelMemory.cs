@@ -30,7 +30,7 @@ namespace LLama.Examples.Examples
                         MaxTokensPerLine = 100,
                         OverlappingTokens = 30
                     })
-                .BuildServerlessClient();
+                .Build();
 
             await memory.ImportDocumentAsync(@"./Assets/sample-SK-Readme.pdf", steps: Constants.PipelineWithoutSummary);
 
