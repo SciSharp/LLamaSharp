@@ -23,6 +23,7 @@ public class Runner
         { "Coding Assistant.", CodingAssistant.Run },
         { "Batch Decoding.", BatchedDecoding.Run },
         { "SK Kernel Memory.", KernelMemory.Run },
+        { "Chinese gb2312 chat", ChatChineseGB2312.Run }, 
         { "Exit", async () => Environment.Exit(0) }
     };
 
