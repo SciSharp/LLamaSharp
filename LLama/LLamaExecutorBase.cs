@@ -84,7 +84,7 @@ namespace LLama
             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;
-            _last_n_tokens = new FixedSizeQueue<llama_token>(Context.ContextSize).FillWith(0);
+            _last_n_tokens = new FixedSizeQueue<llama_token>(Context.ContextSize);
             _decoder = new StreamingTokenDecoder(context);
         }
 

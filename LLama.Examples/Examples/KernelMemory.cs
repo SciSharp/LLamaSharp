@@ -17,14 +17,20 @@ namespace LLama.Examples.Examples
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
             var memory = new KernelMemoryBuilder()
-                    .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath))
+                    .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath)
+                    {
+                        DefaultInferenceParams = new Common.InferenceParams
+                        {
+                            AntiPrompts = new List<string> { "\n\n" }
+                        }
+                    })
                     .With(new TextPartitioningOptions
                     {
                         MaxTokensPerParagraph = 300,
                         MaxTokensPerLine = 100,
                         OverlappingTokens = 30
                     })
-                .BuildServerlessClient();
+                .Build();
 
             await memory.ImportDocumentAsync(@"./Assets/sample-SK-Readme.pdf", steps: Constants.PipelineWithoutSummary);
 

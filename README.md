@@ -15,6 +15,8 @@ both Windows, Linux and MAC without requirment for compiling llama.cpp yourself.
 
 **Furthermore, it provides integrations with other projects such as [semantic-kernel](https://github.com/microsoft/semantic-kernel), [kernel-memory](https://github.com/microsoft/kernel-memory) and [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications.**
 
+**Discussions about the roadmap to v1.0.0: [#287](https://github.com/SciSharp/LLamaSharp/issues/287)**
+
 <details>
   <summary>Table of Contents</summary>
   <ul>
@@ -52,7 +54,7 @@ both Windows, Linux and MAC without requirment for compiling llama.cpp yourself.
 - [API reference](https://scisharp.github.io/LLamaSharp/latest/xmldocs/)
 
 ## Examples
-- [Official Console Examples](./LLama.Examples/NewVersion/)
+- [Official Console Examples](./LLama.Examples/)
 - [Unity Demo](https://github.com/eublefar/LLAMASharpUnityDemo)
 - [LLamaStack (with WPF and Web support)](https://github.com/saddam213/LLamaStack)
 

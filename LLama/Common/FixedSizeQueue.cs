@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using LLama.Extensions;
 
 namespace LLama.Common
 {
@@ -10,11 +11,12 @@ namespace LLama.Common
     /// Currently it's only a naive implementation and needs to be further optimized in the future.
     /// </summary>
     public class FixedSizeQueue<T>
-        : IEnumerable<T>
+        : IReadOnlyList<T>
     {
         private readonly List<T> _storage;
 
-        internal IReadOnlyList<T> Items => _storage;
+        /// <inheritdoc />
+        public T this[int index] => _storage[index];
 
         /// <summary>
         /// Number of items in this queue
@@ -60,30 +62,14 @@ namespace LLama.Common
         }
 
         /// <summary>
-        /// Replace every item in the queue with the given value
-        /// </summary>
-        /// <param name="value">The value to replace all items with</param>
-        /// <returns>returns this</returns>
-        public FixedSizeQueue<T> FillWith(T value)
-        {
-            for(var i = 0; i < Count; i++)
-            {
-                _storage[i] = value;
-            }
-            return this;
-        }
-
-        /// <summary>
         /// Enquene an element.
         /// </summary>
         /// <returns></returns>
         public void Enqueue(T item)
         {
             _storage.Add(item);
-            if(_storage.Count >= Capacity)
-            {
+            if (_storage.Count > Capacity)
                 _storage.RemoveAt(0);
-            }
         }
 
         /// <inheritdoc />

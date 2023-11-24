@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
-internal sealed class LLamaSharpChatResult : IChatStreamingResult
+internal sealed class LLamaSharpChatResult : IChatResult, IChatStreamingResult
 {
     private readonly ModelResult _modelResult;
     private readonly IAsyncEnumerable<string> _stream;
@@ -23,7 +23,7 @@ internal sealed class LLamaSharpChatResult : IChatStreamingResult
     public ModelResult ModelResult => this._modelResult;
 
     /// <inheritdoc/>
-    public async Task<ChatMessageBase> GetChatMessageAsync(CancellationToken cancellationToken = default)
+    public async Task<ChatMessage> GetChatMessageAsync(CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
         await foreach (var token in _stream)
@@ -34,7 +34,7 @@ internal sealed class LLamaSharpChatResult : IChatStreamingResult
     }
 
     /// <inheritdoc/>
-    public async IAsyncEnumerable<ChatMessageBase> GetStreamingChatMessageAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ChatMessage> GetStreamingChatMessageAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await foreach (var token in _stream)
         {
