@@ -9,6 +9,17 @@ namespace LLama.Native
 {
     using llama_token = Int32;
 
+    public enum LLamaTokenType
+    {
+        LLAMA_TOKEN_TYPE_UNDEFINED = 0,
+        LLAMA_TOKEN_TYPE_NORMAL = 1,
+        LLAMA_TOKEN_TYPE_UNKNOWN = 2,
+        LLAMA_TOKEN_TYPE_CONTROL = 3,
+        LLAMA_TOKEN_TYPE_USER_DEFINED = 4,
+        LLAMA_TOKEN_TYPE_UNUSED = 5,
+        LLAMA_TOKEN_TYPE_BYTE = 6,
+    }
+
     /// <summary>
     /// Callback from llama.cpp with log messages
     /// </summary>
@@ -242,6 +253,9 @@ namespace LLama.Native
                 ArrayPool<byte>.Shared.Return(array);
             }
         }
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LLamaTokenType llama_token_get_type(SafeLlamaModelHandle model, llama_token token);
 
         /// <summary>
         /// Get the size of the context window for the model for this context
