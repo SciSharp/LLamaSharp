@@ -61,7 +61,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletion
     public Task<IReadOnlyList<IChatResult>> GetChatCompletionsAsync(ChatHistory chat, AIRequestSettings? requestSettings = null, CancellationToken cancellationToken = default)
     {
         var settings = requestSettings != null 
-            ? (ChatRequestSettings)requestSettings
+            ? ChatRequestSettings.FromRequestSettings(requestSettings)
             : defaultRequestSettings;
 
         // This call is not awaited because LLamaSharpChatResult accepts an IAsyncEnumerable.
@@ -76,7 +76,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletion
 #pragma warning restore CS1998
     {
         var settings = requestSettings != null
-            ? (ChatRequestSettings)requestSettings
+            ? ChatRequestSettings.FromRequestSettings(requestSettings)
             : defaultRequestSettings;
 
         // This call is not awaited because LLamaSharpChatResult accepts an IAsyncEnumerable.

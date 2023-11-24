@@ -317,6 +317,20 @@ namespace LLama.Native
         public static extern llama_token llama_token_nl(SafeLlamaModelHandle model);
 
         /// <summary>
+        /// Returns -1 if unknown, 1 for true or 0 for false.
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_add_bos_token(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Returns -1 if unknown, 1 for true or 0 for false.
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_add_eos_token(SafeLlamaModelHandle model);
+
+        /// <summary>
         /// Print out timing information for this context
         /// </summary>
         /// <param name="ctx"></param>
@@ -362,10 +376,69 @@ namespace LLama.Native
         public static extern int llama_n_embd(SafeLlamaModelHandle model);
 
         /// <summary>
-        /// Get the size of the model in bytes
+        /// Get the model's RoPE frequency scaling factor
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float llama_rope_freq_scale_train(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Get metadata value as a string by key name
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="key"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of the string on success, or -1 on failure</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_model_meta_val_str(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
+
+        /// <summary>
+        /// Get the number of metadata key/value pairs
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_model_meta_count(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Get metadata key name by index
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="index"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of the string on success, or -1 on failure</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_model_meta_key_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+
+        /// <summary>
+        /// Get metadata value as a string by index
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="index"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of the string on success, or -1 on failure</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_model_meta_val_str_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+
+        /// <summary>
+        /// Get a string describing the model type
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of the string on success, or -1 on failure</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_model_desc(SafeLlamaModelHandle model, byte* buf, long buf_size);
+
+        /// <summary>
+        /// Get the size of the model in bytes
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>The size of the model</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern ulong llama_model_size(SafeLlamaModelHandle model);
 
@@ -373,7 +446,7 @@ namespace LLama.Native
         /// Get the number of parameters in this model
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>The functions return the length of the string on success, or -1 on failure</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern ulong llama_model_n_params(SafeLlamaModelHandle model);
 
@@ -384,7 +457,7 @@ namespace LLama.Native
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
         /// <param name="length">size of the buffer</param>
-        /// <returns>The length writte, or if the buffer is too small a negative that indicates the length required</returns>
+        /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_token_to_piece(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
 

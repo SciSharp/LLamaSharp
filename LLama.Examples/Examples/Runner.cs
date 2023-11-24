@@ -43,7 +43,8 @@ public class Runner
                 AnsiConsole.Write(new Rule(choice));
                 await example();
             }
-
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
             AnsiConsole.Clear();
         }
     }
