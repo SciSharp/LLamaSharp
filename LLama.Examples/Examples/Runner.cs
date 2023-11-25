@@ -6,8 +6,9 @@ public class Runner
 {
     private static readonly Dictionary<string, Func<Task>> Examples = new()
     {
-        { "Run a chat session without stripping the role names.", ChatSessionWithRoleName.Run },
-        { "Run a chat session with the role names stripped.", ChatSessionStripRoleName.Run },
+        { "Run a chat session with history.", ChatSessionWithHistory.Run },
+        // { "Run a chat session without stripping the role names.", ChatSessionWithRoleName.Run },
+        // { "Run a chat session with the role names stripped.", ChatSessionStripRoleName.Run },
         { "Interactive mode chat by using executor.", InteractiveModeExecute.Run },
         { "Instruct mode chat by using executor.", InstructModeExecute.Run },
         { "Stateless mode chat by using executor.", StatelessModeExecute.Run },
