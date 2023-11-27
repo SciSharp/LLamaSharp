@@ -1,4 +1,3 @@
-using DocumentFormat.OpenXml.Bibliography;
 using LLama.Common;
 
 namespace LLama.Examples.Examples;
@@ -60,7 +59,6 @@ public class ChatSessionWithHistory
             if (userInput == "save")
             {
                 session.SaveSession("Assets/chat-with-bob");
-                // await session.LoadSessionAsync("Assets/chat-with-bob");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session saved.");
             }
