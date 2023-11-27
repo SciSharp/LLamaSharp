@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.12.231123.1-preview" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta8" />
-    <PackageReference Include="Spectre.Console" Version="0.47.0" />
+    <PackageReference Include="Spectre.Console" Version="0.48.0" />
   </ItemGroup>
 
   <ItemGroup>
