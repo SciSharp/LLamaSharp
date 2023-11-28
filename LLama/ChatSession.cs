@@ -152,14 +152,24 @@ namespace LLama
             foreach (var inputTransform in InputTransformPipeline)
                 prompt = inputTransform.Transform(prompt);
 
-            History.Messages.Add(new ChatHistory.Message(AuthorRole.User, prompt));
-
-            if (_executor is InteractiveExecutor executor)
+            // TODO: need to be refactored.
+            if (_executor is InteractiveExecutor executor && ((InteractiveExecutorState)executor.GetStateData()).IsPromptRun)
             {
-                InteractiveExecutorState state = (InteractiveExecutorState)executor.GetStateData();
-                prompt = state.IsPromptRun
-                    ? HistoryTransform.HistoryToText(History)
-                    : prompt;
+                History.Messages.Add(new ChatHistory.Message(AuthorRole.System, prompt));
+                var converted_prompt = HistoryTransform.HistoryToText(History);
+                // Avoid missing anti-prompt.
+                if (!prompt.EndsWith("\n") && !prompt.EndsWith("\r\n"))
+                {
+                    prompt = converted_prompt.Trim();
+                }
+                else
+                {
+                    prompt = converted_prompt;
+                }
+            }
+            else
+            {
+                History.Messages.Add(new ChatHistory.Message(AuthorRole.User, prompt));
             }
 
             StringBuilder sb = new();
