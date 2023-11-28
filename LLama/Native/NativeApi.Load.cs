@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -258,6 +259,7 @@ namespace LLama.Native
             enableLogging = configuration.Logging;
             // We move the flag to avoid loading library when the variable is called else where.
             NativeLibraryConfig.LibraryHasLoaded = true;
+            Log(configuration.ToString(), LogLevel.Information);
 
             if (!string.IsNullOrEmpty(configuration.Path))
             {
@@ -273,6 +275,7 @@ namespace LLama.Native
 
             var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
 
+            string[] preferredPaths = configuration.SearchDirectories.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).ToArray();
             string[] possiblePathPrefix = new string[] {
                 System.AppDomain.CurrentDomain.BaseDirectory,
                 Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
@@ -280,19 +283,22 @@ namespace LLama.Native
 
             var tryFindPath = (string filename) =>
             {
-                int i = 0;
-                while (!File.Exists(filename))
+                foreach(var path in preferredPaths)
                 {
-                    if (i < possiblePathPrefix.Length)
+                    if (File.Exists(Path.Combine(path, filename)))
                     {
-                        filename = Path.Combine(possiblePathPrefix[i], filename);
-                        i++;
-                    }
-                    else
-                    {
-                        break;
+                        return Path.Combine(path, filename);
                     }
                 }
+
+                foreach(var path in possiblePathPrefix)
+                {
+                    if (File.Exists(Path.Combine(path, filename)))
+                    {
+                        return Path.Combine(path, filename);
+                    }
+                }
+
                 return filename;
             };
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LLama.Native
 {
@@ -27,6 +29,13 @@ namespace LLama.Native
         private bool _allowFallback = true;
         private bool _skipCheck = false;
         private bool _logging = false;
+        /// <summary>
+        /// search directory -> priority level, 0 is the lowest.
+        /// </summary>
+        private Dictionary<string, int> _searchDirectories = new Dictionary<string, int>()
+        {
+            { "./", 0 }
+        };
 
         private static void ThrowIfLoaded()
         {
@@ -120,13 +129,62 @@ namespace LLama.Native
             return this;
         }
 
+        /// <summary>
+        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// directories must be the same as the default directory. Besides, the directory 
+        /// won't be used recursively.
+        /// </summary>
+        /// <param name="directoriesAndPriorities">The directories and corresponding priorities, in which 0 is the lowest. The default path has priority 0.</param>
+        /// <returns></returns>
+        public NativeLibraryConfig WithSearchDirectories(IDictionary<string, int> directoriesAndPriorities)
+        {
+            ThrowIfLoaded();
+
+            foreach(var (directory, priority) in directoriesAndPriorities)
+            {
+                if(priority < 0)
+                {
+                    throw new ArgumentException("Priority must be a positive number.");
+                }
+                _searchDirectories[directory] = priority;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// directories must be the same as the default directory. Besides, the directory 
+        /// won't be used recursively.
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="priority">The priority of your added search path. 0 is the lowest. The default path has priority 0.</param>
+        /// <returns></returns>
+        public NativeLibraryConfig WithSearchDirectory(string directory, int priority)
+        {
+            ThrowIfLoaded();
+
+            if (priority < 0)
+            {
+                throw new ArgumentException("Priority must be a positive number.");
+            }
+            _searchDirectories[directory] = priority;
+            return this;
+        }
+
         internal static Description CheckAndGatherDescription()
         {
             if (Instance._allowFallback && Instance._skipCheck)
             {
                 throw new ArgumentException("Cannot skip the check when fallback is allowed.");
             }
-            return new Description(Instance._libraryPath, Instance._useCuda, Instance._avxLevel, Instance._allowFallback, Instance._skipCheck, Instance._logging);
+            return new Description(
+                Instance._libraryPath, 
+                Instance._useCuda, 
+                Instance._avxLevel, 
+                Instance._allowFallback, 
+                Instance._skipCheck, 
+                Instance._logging, 
+                Instance._searchDirectories);
         }
 
         internal static string AvxLevelToString(AvxLevel level)
@@ -183,7 +241,31 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging);
+        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, Dictionary<string, int> SearchDirectories)
+        {
+            public override string ToString()
+            {
+                string avxLevelString = AvxLevel switch
+                {
+                    AvxLevel.None => "NoAVX",
+                    AvxLevel.Avx => "AVX",
+                    AvxLevel.Avx2 => "AVX2",
+                    AvxLevel.Avx512 => "AVX512",
+                    _ => "Unknown"
+                };
+
+                string searchDirectoriesString = string.Join(", ", SearchDirectories.Select(kv => $"[{kv.Key}: {kv.Value}]"));
+
+                return $"NativeLibraryConfig Description:\n" +
+                       $"- Path: {Path}\n" +
+                       $"- PreferCuda: {UseCuda}\n" +
+                       $"- PreferredAvxLevel: {avxLevelString}\n" +
+                       $"- AllowFallback: {AllowFallback}\n" +
+                       $"- SkipCheck: {SkipCheck}\n" +
+                       $"- Logging: {Logging}\n" +
+                       $"- SearchDirectories and Priorities: {searchDirectoriesString}";
+            }
+        }
     }
 #endif
-        }
+}
