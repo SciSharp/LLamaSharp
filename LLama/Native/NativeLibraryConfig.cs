@@ -32,10 +32,7 @@ namespace LLama.Native
         /// <summary>
         /// search directory -> priority level, 0 is the lowest.
         /// </summary>
-        private Dictionary<string, int> _searchDirectories = new Dictionary<string, int>()
-        {
-            { "./", 0 }
-        };
+        private List<string> _searchDirectories = new List<string>();
 
         private static void ThrowIfLoaded()
         {
@@ -134,20 +131,13 @@ namespace LLama.Native
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
-        /// <param name="directoriesAndPriorities">The directories and corresponding priorities, in which 0 is the lowest. The default path has priority 0.</param>
+        /// <param name="directories"></param>
         /// <returns></returns>
-        public NativeLibraryConfig WithSearchDirectories(IDictionary<string, int> directoriesAndPriorities)
+        public NativeLibraryConfig WithSearchDirectories(IEnumerable<string> directories)
         {
             ThrowIfLoaded();
 
-            foreach(var (directory, priority) in directoriesAndPriorities)
-            {
-                if(priority < 0)
-                {
-                    throw new ArgumentException("Priority must be a positive number.");
-                }
-                _searchDirectories[directory] = priority;
-            }
+            _searchDirectories.AddRange(directories);
             return this;
         }
 
@@ -157,17 +147,12 @@ namespace LLama.Native
         /// won't be used recursively.
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="priority">The priority of your added search path. 0 is the lowest. The default path has priority 0.</param>
         /// <returns></returns>
-        public NativeLibraryConfig WithSearchDirectory(string directory, int priority)
+        public NativeLibraryConfig WithSearchDirectory(string directory)
         {
             ThrowIfLoaded();
 
-            if (priority < 0)
-            {
-                throw new ArgumentException("Priority must be a positive number.");
-            }
-            _searchDirectories[directory] = priority;
+            _searchDirectories.Add(directory);
             return this;
         }
 
@@ -184,7 +169,7 @@ namespace LLama.Native
                 Instance._allowFallback, 
                 Instance._skipCheck, 
                 Instance._logging, 
-                Instance._searchDirectories);
+                Instance._searchDirectories.Concat(new string[] { "./" }).ToArray());
         }
 
         internal static string AvxLevelToString(AvxLevel level)
@@ -241,7 +226,7 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, Dictionary<string, int> SearchDirectories)
+        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, string[] SearchDirectories)
         {
             public override string ToString()
             {
@@ -254,7 +239,7 @@ namespace LLama.Native
                     _ => "Unknown"
                 };
 
-                string searchDirectoriesString = string.Join(", ", SearchDirectories.Select(kv => $"[{kv.Key}: {kv.Value}]"));
+                string searchDirectoriesString = "{ " +  string.Join(", ", SearchDirectories) + " }";
 
                 return $"NativeLibraryConfig Description:\n" +
                        $"- Path: {Path}\n" +

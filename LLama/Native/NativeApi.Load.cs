@@ -275,7 +275,7 @@ namespace LLama.Native
 
             var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
 
-            string[] preferredPaths = configuration.SearchDirectories.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).ToArray();
+            string[] preferredPaths = configuration.SearchDirectories;
             string[] possiblePathPrefix = new string[] {
                 System.AppDomain.CurrentDomain.BaseDirectory,
                 Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
