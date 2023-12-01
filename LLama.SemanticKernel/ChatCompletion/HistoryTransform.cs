@@ -1,4 +1,6 @@
-﻿using static LLama.LLamaTransforms;
+﻿using LLama.Common;
+using System.Text;
+using static LLama.LLamaTransforms;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
@@ -10,8 +12,6 @@ public class HistoryTransform : DefaultHistoryTransform
     /// <inheritdoc/>
     public override string HistoryToText(global::LLama.Common.ChatHistory history)
     {
-        var prompt = base.HistoryToText(history);
-        return prompt + "\nAssistant:";
-
+        return base.HistoryToText(history) + $"{AuthorRole.Assistant}: ";
     }
 }

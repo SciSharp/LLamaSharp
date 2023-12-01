@@ -35,7 +35,10 @@ public static class ExtensionMethods
             throw new ArgumentNullException(nameof(requestSettings));
         }
 
-        var antiPrompts = new List<string>(requestSettings.StopSequences) { AuthorRole.User.ToString() + ":" };
+        var antiPrompts = new List<string>(requestSettings.StopSequences)
+                                  { LLama.Common.AuthorRole.User.ToString() + ":" ,
+                                    LLama.Common.AuthorRole.Assistant.ToString() + ":",
+                                    LLama.Common.AuthorRole.System.ToString() + ":"};
         return new global::LLama.Common.InferenceParams
         {
             Temperature = (float)requestSettings.Temperature,
