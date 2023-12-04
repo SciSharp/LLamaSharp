@@ -145,15 +145,17 @@ namespace LLama.Native
         /// <param name="penalty_repeat"></param>
         /// <param name="penalty_freq"></param>
         /// <param name="penalty_present"></param>
-        public void RepetitionPenalty(SafeLLamaContextHandle context, Memory<llama_token> last_tokens, float penalty_repeat, float penalty_freq, float penalty_present)
+        public void RepetitionPenalty(SafeLLamaContextHandle context, ReadOnlySpan<llama_token> last_tokens, float penalty_repeat, float penalty_freq, float penalty_present)
         {
             unsafe
             {
                 using (LLamaTokenDataArrayNative.Create(this, out var st))
-                using (var last_tokens_handle = last_tokens.Pin())
                 {
-                    NativeApi.llama_sample_repetition_penalties(context, ref st, (int*)last_tokens_handle.Pointer, (ulong)last_tokens.Length, penalty_repeat, penalty_freq, penalty_present);
-                    sorted = st.sorted;
+                    fixed (int* last_tokens_handle = last_tokens)
+                    {
+                        NativeApi.llama_sample_repetition_penalties(context, ref st, last_tokens_handle, (ulong)last_tokens.Length, penalty_repeat, penalty_freq, penalty_present);
+                        sorted = st.sorted;
+                    }
                 }
             }
         }
