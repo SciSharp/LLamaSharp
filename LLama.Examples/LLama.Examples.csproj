@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.12.231123.1-preview" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta8" />
-    <PackageReference Include="Spectre.Console" Version="0.47.0" />
+    <PackageReference Include="Spectre.Console" Version="0.48.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,6 +69,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\sample-SK-Readme.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\chat-with-kunkun-chinese.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
