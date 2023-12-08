@@ -46,14 +46,41 @@ namespace LLama.Native
             return new LLamaTokenDataArray(candidates);
         }
 
+        /// <summary>
+        /// Overwrite the logit values for all given tokens
+        /// </summary>
+        /// <param name="values">tuples of token and logit value to overwrite</param>
+        public void OverwriteLogits(ReadOnlySpan<(llama_token token, float logit)> values)
+        {
+            if (values.Length == 0)
+                return;
+
+            var dataSpan = data.Span;
+            foreach (var (token, value) in values)
+            {
+                for (var i = 0; i < data.Length; i++)
+                {
+                    if (dataSpan[i].id == token)
+                    {
+                        dataSpan[i].logit = value;
+                        break;
+                    }
+                }   
+            }
+            sorted = false;
+        }
+
         #region sampling
         /// <summary>
         /// Apply grammar rules to candidate tokens
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="grammar"></param>
-        public void ApplyGrammar(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar)
+        public void ApplyGrammar(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle? grammar)
         {
+            if (grammar == null)
+                return;
+
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_grammar(ctx, ref st, grammar);

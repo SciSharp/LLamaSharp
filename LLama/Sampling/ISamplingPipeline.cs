@@ -3,14 +3,11 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LLama.Native;
-using LLama.Sampling.Logits;
-using LLama.Sampling.Selection;
-using LLama.Sampling.Tokens;
 
 namespace LLama.Sampling;
 
 /// <summary>
-/// Convert a span of logits into a single sampled token
+/// Convert a span of logits into a single sampled token. This interface can be implemented to completely customise the sampling process.
 /// </summary>
 public interface ISamplingPipeline
     : IDisposable
@@ -60,102 +57,5 @@ public static class ISamplingPipelineExtensions
             ArrayPool<int>.Shared.Return(copy);
         }
 #endif
-    }
-}
-
-/// <summary>
-/// Simple implementation of `ISamplingPipeline`, applies processors in order every time
-/// </summary>
-public sealed class ConfigurableSamplingPipeline
-    : ISamplingPipeline
-{
-    /// <summary>
-    /// Logit processors to apply in this pipeline
-    /// </summary>
-    public IList<ILogitProcessor> LogitProcessors { get; } = new List<ILogitProcessor>();
-
-    /// <summary>
-    /// Logits values which will not be changed by the logit processors
-    /// </summary>
-    public IList<int> ProtectedLogits { get; } = new List<int>();
-
-    /// <summary>
-    /// Token data processors to apply in this pipeline
-    /// </summary>
-    public IList<ITokenDataProcessor> TokenDataProcessors { get; } = new List<ITokenDataProcessor>();
-
-    /// <summary>
-    /// The selector to choose the final token
-    /// </summary>
-    public ITokenSelector Selector { get; set; } = new StandardSelection();
-
-    /// <inheritdoc />
-    public int Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<int> lastTokens)
-    {
-        var savedLogitsCount = ProtectedLogits.Count;
-        var savedLogitValues = ArrayPool<float>.Shared.Rent(savedLogitsCount);
-        var savedLogitIndices = ArrayPool<int>.Shared.Rent(savedLogitsCount);
-        try
-        {
-            // Save the values of protected logits
-            for (var i = 0; i < ProtectedLogits.Count; i++)
-            {
-                savedLogitValues[i] = logits[ProtectedLogits[i]];
-                savedLogitIndices[i] = ProtectedLogits[i];
-            }
-
-            // Modify raw logits
-            foreach (var logitProcessor in LogitProcessors)
-                logitProcessor.ProcessLogits(ctx, logits, lastTokens);
-
-            // Restore the values of protected logits
-            for (var i = 0; i < savedLogitsCount; i++)
-                logits[savedLogitIndices[i]] = savedLogitValues[i];
-        }
-        finally
-        {
-            ArrayPool<float>.Shared.Return(savedLogitValues);
-            ArrayPool<int>.Shared.Return(savedLogitIndices);
-        }
-
-        // Convert logits into token candidates
-        var candidates_p = LLamaTokenDataArray.Create(logits);
-
-        // Process token candidates
-        foreach (var tokenDataProcessor in TokenDataProcessors)
-            tokenDataProcessor.ProcessTokens(ctx, candidates_p, lastTokens);
-
-        // Select a token
-        var token = Selector.Select(ctx, candidates_p, lastTokens);
-
-        // Tell processors what was selected
-        foreach (var logitProcessor in LogitProcessors)
-            logitProcessor.AcceptToken(ctx, token);
-        foreach (var tokenDataProcessor in TokenDataProcessors)
-            tokenDataProcessor.AcceptToken(ctx, token);
-
-        return token;
-    }
-
-    /// <inheritdoc />
-    public void Reset()
-    {
-        foreach (var logitProcessor in LogitProcessors)
-            logitProcessor.Reset();
-        foreach (var tokenDataProcessor in TokenDataProcessors)
-            tokenDataProcessor.Reset();
-
-        Selector.Reset();
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        foreach (var logitProcessor in LogitProcessors)
-            logitProcessor.Dispose();
-        foreach (var tokenDataProcessor in TokenDataProcessors)
-            tokenDataProcessor.Dispose();
-
-        Selector.Dispose();
     }
 }
