@@ -1,5 +1,9 @@
 using System.Diagnostics;
 using LLama.Common;
+using LLama.Sampling;
+using LLama.Sampling.Logits;
+using LLama.Sampling.Selection;
+using LLama.Sampling.Tokens;
 using Xunit.Abstractions;
 
 namespace LLama.Unittest
@@ -30,10 +34,41 @@ namespace LLama.Unittest
         [Fact]
         public async Task Stateless()
         {
+            // Create a custom pipeline that mimics the default pipeline
+            var pipeline = new ConfigurableSamplingPipeline()
+            {
+                ProtectedLogits =
+                {
+                    _weights.NewlineToken,
+                    _weights.BeginningOfSentenceToken,
+                    _weights.EndOfSentenceToken
+                },
+                LogitProcessors =
+                {
+                    new LogitBias
+                    {
+                        Biases =
+                        {
+                            { _weights.NewlineToken, 1000 }, // This is an insane bias, but because newline is a protected logit it will do nothing!
+                            { 42, 0f },
+                        }
+                    }
+                },
+                TokenDataProcessors =
+                {
+                    new TailFreeSampling { Z = 1 },
+                    new LocallyTypicalSampling { P = 1 },
+                    new TopPSampling { P = 0.95f },
+                    new MinPSampling { P = 0.05f },
+                    new TemperatureSampling { Temperature = 0.8f },
+                },
+                Selector = new StandardSelection(),
+            };
+
             var executor = new StatelessExecutor(_weights, _params);
 
             const string question = "Question. what is a cat?\nAnswer: ";
-            var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
+            var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." }, SamplingPipeline = pipeline};
 
             var timer = new Stopwatch();
             timer.Start();

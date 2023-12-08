@@ -75,6 +75,11 @@ public sealed class ConfigurableSamplingPipeline
     public IList<ILogitProcessor> LogitProcessors { get; } = new List<ILogitProcessor>();
 
     /// <summary>
+    /// Logits values which will not be changed by the logit processors
+    /// </summary>
+    public IList<int> ProtectedLogits { get; } = new List<int>();
+
+    /// <summary>
     /// Token data processors to apply in this pipeline
     /// </summary>
     public IList<ITokenDataProcessor> TokenDataProcessors { get; } = new List<ITokenDataProcessor>();
@@ -87,9 +92,31 @@ public sealed class ConfigurableSamplingPipeline
     /// <inheritdoc />
     public int Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<int> lastTokens)
     {
-        // Modify raw logits
-        foreach (var logitProcessor in LogitProcessors)
-            logitProcessor.ProcessLogits(ctx, logits, lastTokens);
+        var savedLogitsCount = ProtectedLogits.Count;
+        var savedLogitValues = ArrayPool<float>.Shared.Rent(savedLogitsCount);
+        var savedLogitIndices = ArrayPool<int>.Shared.Rent(savedLogitsCount);
+        try
+        {
+            // Save the values of protected logits
+            for (var i = 0; i < ProtectedLogits.Count; i++)
+            {
+                savedLogitValues[i] = logits[ProtectedLogits[i]];
+                savedLogitIndices[i] = ProtectedLogits[i];
+            }
+
+            // Modify raw logits
+            foreach (var logitProcessor in LogitProcessors)
+                logitProcessor.ProcessLogits(ctx, logits, lastTokens);
+
+            // Restore the values of protected logits
+            for (var i = 0; i < savedLogitsCount; i++)
+                logits[savedLogitIndices[i]] = savedLogitValues[i];
+        }
+        finally
+        {
+            ArrayPool<float>.Shared.Return(savedLogitValues);
+            ArrayPool<int>.Shared.Return(savedLogitIndices);
+        }
 
         // Convert logits into token candidates
         var candidates_p = LLamaTokenDataArray.Create(logits);
