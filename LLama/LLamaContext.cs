@@ -10,6 +10,7 @@ using LLama.Common;
 using System.Runtime.InteropServices;
 using LLama.Extensions;
 using LLama.Abstractions;
+using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
 namespace LLama
@@ -210,6 +211,17 @@ namespace LLama
             {
                 NativeHandle.SetState((byte*)state.DangerousGetHandle().ToPointer());
             }
+        }
+
+        /// <summary>
+        /// Sample a single token from this context, using the given sampling pipeline
+        /// </summary>
+        /// <param name="pipeline">The pipeline to use to process the logits and to select a token</param>
+        /// <param name="lastTokens">The tokens recently returned from the model</param>
+        /// <returns>The selected token</returns>
+        public llama_token Sample(ISamplingPipeline pipeline, ReadOnlySpan<llama_token> lastTokens)
+        {
+            return pipeline.Sample(NativeHandle, NativeHandle.GetLogits(), lastTokens);
         }
 
         /// <summary>

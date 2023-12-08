@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using LLama.Native;
+using LLama.Sampling;
 
 namespace LLama.Common
 {
@@ -76,6 +77,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public SafeLLamaGrammarHandle? Grammar { get; set; }
+
+        /// <inheritdoc />
+        public ISamplingPipeline? SamplingPipeline { get; set; }
     }
 
     /// <summary>

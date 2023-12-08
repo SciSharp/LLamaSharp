@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Native;
+using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
 namespace LLama
@@ -85,16 +86,24 @@ namespace LLama
             var max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
             for(var i = 0; i < max_tokens && !cancellationToken.IsCancellationRequested; i++)
             {
-                // Penalize the generated tokens by various penalties
-                var tokenDataArray = Context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
-                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
+                llama_token id;
+                if (inferenceParams.SamplingPipeline is not null)
+                {
+                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), lastTokens);
+                }
+                else
+                {
+                    // Penalize the generated tokens by various penalties
+                    var tokenDataArray = Context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
+                        inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                // Sample a single token
-                var id = Context.Sample(
-                    tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar,
-                    inferenceParams.MinP
-                );
+                    // Sample a single token
+                    id = Context.Sample(
+                        tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                        inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar,
+                        inferenceParams.MinP
+                    );
+                }
 
                 // Decode this token into text
                 decoder.Add(id);
