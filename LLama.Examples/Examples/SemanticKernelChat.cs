@@ -16,12 +16,11 @@ namespace LLama.Examples.Examples
             // Load weights into memory
             var parameters = new ModelParams(modelPath);
             using var model = LLamaWeights.LoadFromFile(parameters);
-            using var context = model.CreateContext(parameters);
-            var ex = new InteractiveExecutor(context);
+            var ex = new StatelessExecutor(model, parameters);
 
             var chatGPT = new LLamaSharpChatCompletion(ex);
 
-            var chatHistory = chatGPT.CreateNewChat("You are a librarian, expert about books");
+            var chatHistory = chatGPT.CreateNewChat("This is a conversation between the assistant and the user. \n\n You are a librarian, expert about books. ");
 
             Console.WriteLine("Chat content:");
             Console.WriteLine("------------------------");
