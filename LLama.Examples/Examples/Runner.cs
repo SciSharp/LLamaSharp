@@ -9,6 +9,7 @@ public class Runner
         { "Run a chat session with history.", ChatSessionWithHistory.Run },
         { "Run a chat session without stripping the role names.", ChatSessionWithRoleName.Run },
         { "Run a chat session with the role names stripped.", ChatSessionStripRoleName.Run },
+        { "Run a chat session in Chinese GB2312 encoding", ChatChineseGB2312.Run },
         { "Interactive mode chat by using executor.", InteractiveModeExecute.Run },
         { "Instruct mode chat by using executor.", InstructModeExecute.Run },
         { "Stateless mode chat by using executor.", StatelessModeExecute.Run },
@@ -24,7 +25,6 @@ public class Runner
         { "Coding Assistant.", CodingAssistant.Run },
         { "Batch Decoding.", BatchedDecoding.Run },
         { "SK Kernel Memory.", KernelMemory.Run },
-        { "Chinese gb2312 chat", ChatChineseGB2312.Run }, 
         { "Exit", async () => Environment.Exit(0) }
     };
 

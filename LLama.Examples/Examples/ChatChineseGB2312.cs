@@ -1,69 +1,124 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using LLama.Common;
 
-namespace LLama.Examples.Examples
+namespace LLama.Examples.Examples;
+
+public class ChatChineseGB2312
 {
-    public class ChatChineseGB2312
+    private static string ConvertEncoding(string input, Encoding original, Encoding target)
     {
-        private static string ConvertFromEncodingToAnother(string input, Encoding original, Encoding target)
+        byte[] bytes = original.GetBytes(input);
+        var convertedBytes = Encoding.Convert(original, target, bytes);
+        return target.GetString(convertedBytes);
+    }
+
+    public static async Task Run()
+    {
+        // Register provider for GB2312 encoding
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("This example shows how to use Chinese with gb2312 encoding, which is common in windows. It's recommended" +
+            " to use https://huggingface.co/hfl/chinese-alpaca-2-7b-gguf/blob/main/ggml-model-q5_0.gguf, which has been verified by LLamaSharp developers.");
+        Console.ForegroundColor = ConsoleColor.White;
+
+        Console.Write("Please input your model path: ");
+        var modelPath = Console.ReadLine();
+
+        var parameters = new ModelParams(modelPath)
         {
-            byte[] bytes = original.GetBytes(input);
-            var convertedBytes = Encoding.Convert(original, target, bytes);
-            return target.GetString(convertedBytes);
-        }
+            ContextSize = 1024,
+            Seed = 1337,
+            GpuLayerCount = 5,
+            Encoding = Encoding.UTF8
+        };
+        using var model = LLamaWeights.LoadFromFile(parameters);
+        using var context = model.CreateContext(parameters);
+        var executor = new InteractiveExecutor(context);
 
-        public static async Task Run()
+        ChatSession session;
+        if (Directory.Exists("Assets/chat-with-kunkun-chinese"))
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // Register gb2312 encoding
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
-            var prompt = File.ReadAllText("Assets/chat-with-kunkun-chinese.txt", encoding: Encoding.GetEncoding("gb2312")).Trim();
-            prompt = ConvertFromEncodingToAnother(prompt, Encoding.GetEncoding("gb2312"), Encoding.UTF8);
-
-            var parameters = new ModelParams(modelPath)
-            {
-                ContextSize = 1024,
-                Seed = 1337,
-                GpuLayerCount = 20,
-                Encoding = Encoding.UTF8
-            };
-            using var model = LLamaWeights.LoadFromFile(parameters);
-            using var context = model.CreateContext(parameters);
-            var executor = new InteractiveExecutor(context);
-
-            var session = new ChatSession(executor).WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform("用户"));
-
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("This example shows how to use Chinese with gb2312 encoding, which is common in windows. It's recommended" +
-                " to use https://huggingface.co/hfl/chinese-alpaca-2-7b-gguf/blob/main/ggml-model-q5_0.gguf, which has been verified by LLamaSharp developers.");
+            Console.WriteLine("Loading session from disk.");
             Console.ForegroundColor = ConsoleColor.White;
 
-            // show the prompt
-            Console.Write(prompt);
-            while (true)
-            {
-                await foreach (var text in session.ChatAsync(prompt, new InferenceParams()
-                {
-                    Temperature = 0.3f,
-                    TopK = 5,
-                    TopP = 0.85f,
-                    AntiPrompts = new List<string> { "用户：" },
-                    MaxTokens = 2048,
-                    RepeatPenalty = 1.05f
-                }))
-                {
-                    //Console.Write(text);
-                    Console.Write(ConvertFromEncodingToAnother(text, Encoding.UTF8, Encoding.GetEncoding("gb2312")));
-                }
+            session = new ChatSession(executor);
+            session.LoadSession("Assets/chat-with-kunkun-chinese");
+        }
+        else
+        {
+            var chatHistoryJson = File.ReadAllText("Assets/chat-with-kunkun-chinese.json");
+            ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                prompt = Console.ReadLine();
-                Console.ForegroundColor = ConsoleColor.White;
+            session = new ChatSession(executor, chatHistory);
+        }
+
+        session
+            .WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform("用户"))
+            .WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
+                // User and Assistant in Chinese (User is: 用户, Assistant is: 坤坤)
+                new string[] { "用户：", "坤坤：" },
+                redundancyLength: 8));
+
+        InferenceParams inferenceParams = new InferenceParams()
+        {
+            Temperature = 0.9f,
+            AntiPrompts = new List<string> { "用户：" }
+        };
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("The chat session has started.");
+
+        // show the prompt
+        Console.ForegroundColor = ConsoleColor.Green;
+        string userInput = Console.ReadLine() ?? "";
+
+        while (userInput != "exit")
+        {
+            // Convert the encoding from gb2312 to utf8 for the language model
+            // and later saving to the history json file.
+            userInput = ConvertEncoding(userInput, Encoding.GetEncoding("gb2312"), Encoding.UTF8);
+
+            if (userInput == "save")
+            {
+                session.SaveSession("Assets/chat-with-kunkun-chinese");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Session saved.");
             }
+            else if (userInput == "regenerate")
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Regenerating last response ...");
+
+                await foreach (
+                    var text
+                    in session.RegenerateAssistantMessageAsync(
+                        inferenceParams))
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    // Convert the encoding from utf8 to gb2312 for the console output.
+                    Console.Write(ConvertEncoding(text, Encoding.UTF8, Encoding.GetEncoding("gb2312")));
+                }
+            }
+            else
+            {
+                await foreach (
+                    var text
+                    in session.ChatAsync(
+                        new ChatHistory.Message(AuthorRole.User, userInput),
+                        inferenceParams))
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(text);
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            userInput = Console.ReadLine() ?? "";
+
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
