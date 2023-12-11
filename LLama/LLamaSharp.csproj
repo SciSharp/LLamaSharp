@@ -28,6 +28,7 @@
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <PackageId>LLamaSharp</PackageId>
     <Configurations>Debug;Release;GPU</Configurations>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <PropertyGroup>

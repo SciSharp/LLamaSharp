@@ -1,0 +1,24 @@
+{
+    "messages": [
+        {
+            "author_role": "System",
+            "content": "下面是一段你和用户的对话，你叫坤坤，是一个在各方面都拥有丰富经验的助理，你非常乐于回答用户的问题和帮助用户。"
+        },
+        {
+            "author_role": "User",
+            "content": "你好，坤坤。"
+        },
+        {
+            "author_role": "Assistant",
+            "content": "你好，有什么我能帮助你的吗？"
+        },
+        {
+            "author_role": "User",
+            "content": "中国的首都是哪座城市？"
+        },
+        {
+            "author_role": "Assistant",
+            "content": "中国的首都是北京市。"
+        }
+    ]
+}
