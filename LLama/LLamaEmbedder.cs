@@ -117,5 +117,13 @@ namespace LLama
         {
             _ctx.Dispose();
         }
+
+        /// <summary>
+        /// Tokenize a string.
+        /// </summary>
+        public int[] Tokenize(string text, bool addBos = true, bool special = false)
+        {
+            return _ctx.Tokenize(text, addBos, special);
+        }
     }
 }

@@ -75,7 +75,7 @@ namespace LLama.Unittest.SemanticKernel
         public void ChatRequestSettings_FromAIRequestSettings()
         {
             // Arrange
-            var originalRequestSettings = new AIRequestSettings()
+            var originalRequestSettings = new PromptExecutionSettings()
             {
                 ServiceId = "test",
             };
@@ -92,7 +92,7 @@ namespace LLama.Unittest.SemanticKernel
         public void ChatRequestSettings_FromAIRequestSettingsWithExtraPropertiesInSnakeCase()
         {
             // Arrange
-            var originalRequestSettings = new AIRequestSettings()
+            var originalRequestSettings = new PromptExecutionSettings()
             {
                 ServiceId = "test",
                 ExtensionData = new Dictionary<string, object>
@@ -131,7 +131,7 @@ namespace LLama.Unittest.SemanticKernel
         public void ChatRequestSettings_FromAIRequestSettingsWithExtraPropertiesInPascalCase()
         {
             // Arrange
-            var originalRequestSettings = new AIRequestSettings()
+            var originalRequestSettings = new PromptExecutionSettings()
             {
                 ServiceId = "test",
                 ExtensionData = new Dictionary<string, object>

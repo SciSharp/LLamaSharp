@@ -17,19 +17,6 @@ namespace LLamaSharp.KernelMemory
     public static class BuilderExtensions
     {
 
-        private static IKernelMemoryBuilder WithCustomEmbeddingGeneration(this IKernelMemoryBuilder builder, ITextEmbeddingGeneration embeddingGeneration)
-        {
-            builder.AddSingleton<ITextEmbeddingGeneration>(embeddingGeneration);
-            builder.AddIngestionEmbeddingGenerator(embeddingGeneration);
-            return builder;
-        }
-
-        private static IKernelMemoryBuilder WithCustomTextGeneration(this IKernelMemoryBuilder builder, ITextGeneration textGeneration)
-        {
-            builder.AddSingleton<ITextGeneration>(textGeneration);
-            return builder;
-        }
-
         /// <summary>
         /// Adds LLamaSharpTextEmbeddingGeneration to the KernelMemoryBuilder.
         /// </summary>
@@ -38,7 +25,9 @@ namespace LLamaSharp.KernelMemory
         /// <returns>The KernelMemoryBuilder instance with LLamaSharpTextEmbeddingGeneration added.</returns>
         public static IKernelMemoryBuilder WithLLamaSharpTextEmbeddingGeneration(this IKernelMemoryBuilder builder, LLamaSharpConfig config)
         {
-            builder.WithCustomEmbeddingGeneration(new LLamaSharpTextEmbeddingGeneration(config));
+            var generator = new LLamaSharpTextEmbeddingGenerator(config);
+            builder.AddSingleton<ITextEmbeddingGenerator>(generator);
+            builder.AddIngestionEmbeddingGenerator(generator);
             return builder;
         }
 
@@ -46,11 +35,12 @@ namespace LLamaSharp.KernelMemory
         /// Adds LLamaSharpTextEmbeddingGeneration to the KernelMemoryBuilder.
         /// </summary>
         /// <param name="builder">The KernelMemoryBuilder instance.</param>
-        /// <param name="textEmbeddingGeneration">The LLamaSharpTextEmbeddingGeneration instance.</param>
+        /// <param name="textEmbeddingGenerator">The LLamaSharpTextEmbeddingGeneration instance.</param>
         /// <returns>The KernelMemoryBuilder instance with LLamaSharpTextEmbeddingGeneration added.</returns>
-        public static IKernelMemoryBuilder WithLLamaSharpTextEmbeddingGeneration(this IKernelMemoryBuilder builder, LLamaSharpTextEmbeddingGeneration textEmbeddingGeneration)
+        public static IKernelMemoryBuilder WithLLamaSharpTextEmbeddingGeneration(this IKernelMemoryBuilder builder, LLamaSharpTextEmbeddingGenerator textEmbeddingGenerator)
         {
-            builder.WithCustomEmbeddingGeneration(textEmbeddingGeneration);
+            builder.AddSingleton<ITextEmbeddingGenerator>(textEmbeddingGenerator);
+            builder.AddIngestionEmbeddingGenerator(textEmbeddingGenerator);
             return builder;
         }
 
@@ -62,7 +52,7 @@ namespace LLamaSharp.KernelMemory
         /// <returns>The KernelMemoryBuilder instance with LLamaSharpTextGeneration added.</returns>
         public static IKernelMemoryBuilder WithLLamaSharpTextGeneration(this IKernelMemoryBuilder builder, LLamaSharpConfig config)
         {
-            builder.WithCustomTextGeneration(new LlamaSharpTextGeneration(config));
+            builder.AddSingleton<ITextGenerator>(new LlamaSharpTextGenerator(config));
             return builder;
         }
 
@@ -70,11 +60,11 @@ namespace LLamaSharp.KernelMemory
         /// Adds LLamaSharpTextGeneration to the KernelMemoryBuilder.
         /// </summary>
         /// <param name="builder">The KernelMemoryBuilder instance.</param>
-        /// <param name="textGeneration">The LlamaSharpTextGeneration instance.</param>
+        /// <param name="textGenerator">The LlamaSharpTextGeneration instance.</param>
         /// <returns>The KernelMemoryBuilder instance with LLamaSharpTextGeneration added.</returns>
-        public static IKernelMemoryBuilder WithLLamaSharpTextGeneration(this IKernelMemoryBuilder builder, LlamaSharpTextGeneration textGeneration)
+        public static IKernelMemoryBuilder WithLLamaSharpTextGeneration(this IKernelMemoryBuilder builder, LlamaSharpTextGenerator textGenerator)
         {
-            builder.WithCustomTextGeneration(textGeneration);
+            builder.AddSingleton<ITextGenerator>(textGenerator);
             return builder;
         }
 
@@ -96,8 +86,8 @@ namespace LLamaSharp.KernelMemory
             var context = weights.CreateContext(parameters);
             var executor = new StatelessExecutor(weights, parameters);
             var embedder = new LLamaEmbedder(weights, parameters);
-            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGeneration(embedder));
-            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGeneration(weights, context, executor, config?.DefaultInferenceParams));
+            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(embedder));
+            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, context, executor, config?.DefaultInferenceParams));
             return builder;
         }
     }

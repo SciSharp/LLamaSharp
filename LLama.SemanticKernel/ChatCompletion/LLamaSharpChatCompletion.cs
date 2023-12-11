@@ -1,8 +1,13 @@
 ﻿using LLama;
 using LLama.Abstractions;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
+using Microsoft.SemanticKernel.Services;
+using System;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using static LLama.LLamaTransforms;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
@@ -10,7 +15,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 /// <summary>
 /// LLamaSharp ChatCompletion
 /// </summary>
-public sealed class LLamaSharpChatCompletion : IChatCompletion
+public sealed class LLamaSharpChatCompletion : IChatCompletionService
 {
     private readonly StatelessExecutor _model;
     private ChatRequestSettings defaultRequestSettings;
@@ -20,6 +25,8 @@ public sealed class LLamaSharpChatCompletion : IChatCompletion
     private readonly Dictionary<string, string> _attributes = new();
 
     public IReadOnlyDictionary<string, string> Attributes => this._attributes;
+
+    IReadOnlyDictionary<string, object?> IAIService.Attributes => throw new NotImplementedException();
 
     static ChatRequestSettings GetDefaultSettings()
     {
@@ -45,7 +52,6 @@ public sealed class LLamaSharpChatCompletion : IChatCompletion
                                                                                             $"{LLama.Common.AuthorRole.System}:"});
     }
 
-    /// <inheritdoc/>
     public ChatHistory CreateNewChat(string? instructions = "")
     {
         var history = new ChatHistory();
@@ -59,30 +65,41 @@ public sealed class LLamaSharpChatCompletion : IChatCompletion
     }
 
     /// <inheritdoc/>
-    public Task<IReadOnlyList<IChatResult>> GetChatCompletionsAsync(ChatHistory chat, AIRequestSettings? requestSettings = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
-        var settings = requestSettings != null
-            ? ChatRequestSettings.FromRequestSettings(requestSettings)
-            : defaultRequestSettings;
-        var prompt = historyTransform.HistoryToText(chat.ToLLamaSharpChatHistory());
+        var settings = executionSettings != null
+           ? ChatRequestSettings.FromRequestSettings(executionSettings)
+           : defaultRequestSettings;
+        var prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
 
         var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
 
-        return Task.FromResult<IReadOnlyList<IChatResult>>(new List<IChatResult> { new LLamaSharpChatResult(outputTransform.TransformAsync(result)) }.AsReadOnly());
+        var output = outputTransform.TransformAsync(result);
+
+        var sb = new StringBuilder();
+        await foreach (var token in output)
+        {
+            sb.Append(token);
+        }
+
+        return new List<ChatMessageContent> { new(AuthorRole.Assistant, sb.ToString()) }.AsReadOnly();
     }
 
     /// <inheritdoc/>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously.
-    public async IAsyncEnumerable<IChatStreamingResult> GetStreamingChatCompletionsAsync(ChatHistory chat, AIRequestSettings? requestSettings = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-#pragma warning restore CS1998
+    public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var settings = requestSettings != null
-            ? ChatRequestSettings.FromRequestSettings(requestSettings)
-            : defaultRequestSettings;
-        var prompt = historyTransform.HistoryToText(chat.ToLLamaSharpChatHistory());
-        // This call is not awaited because LLamaSharpChatResult accepts an IAsyncEnumerable.
+        var settings = executionSettings != null
+          ? ChatRequestSettings.FromRequestSettings(executionSettings)
+          : defaultRequestSettings;
+        var prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
+
         var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
 
-        yield return new LLamaSharpChatResult(outputTransform.TransformAsync(result));
+        var output = outputTransform.TransformAsync(result);
+
+        await foreach (var token in output)
+        {
+            yield return new StreamingChatMessageContent(AuthorRole.Assistant, token);
+        }
     }
 }

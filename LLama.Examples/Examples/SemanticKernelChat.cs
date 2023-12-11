@@ -29,7 +29,7 @@ namespace LLama.Examples.Examples
             await MessageOutputAsync(chatHistory);
 
             // First bot assistant message
-            string reply = await chatGPT.GenerateMessageAsync(chatHistory);
+            string reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
             chatHistory.AddAssistantMessage(reply);
             await MessageOutputAsync(chatHistory);
 
@@ -38,7 +38,7 @@ namespace LLama.Examples.Examples
             await MessageOutputAsync(chatHistory);
 
             // Second bot assistant message
-            reply = await chatGPT.GenerateMessageAsync(chatHistory);
+            reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
             chatHistory.AddAssistantMessage(reply);
             await MessageOutputAsync(chatHistory);
         }
