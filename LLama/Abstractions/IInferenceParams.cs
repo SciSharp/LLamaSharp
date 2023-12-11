@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using LLama.Common;
 using LLama.Native;
+using LLama.Sampling;
 
 namespace LLama.Abstractions
 {  
@@ -108,5 +109,10 @@ namespace LLama.Abstractions
 		/// Grammar to constrain possible tokens
 		/// </summary>
 		SafeLLamaGrammarHandle? Grammar { get; set; }
+
+		/// <summary>
+		/// Set a custom sampling pipeline to use. <b>If this is set All other sampling parameters are ignored!</b>
+		/// </summary>
+		ISamplingPipeline? SamplingPipeline { get; set; }
 	}
 }

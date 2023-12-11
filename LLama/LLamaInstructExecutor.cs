@@ -210,16 +210,24 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                var tokenDataArray = Context.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
-                    inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
+                llama_token id;
+                if (inferenceParams.SamplingPipeline is not null)
+                {
+                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), _last_n_tokens.ToArray());
+                }
+                else
+                {
+                    var tokenDataArray = Context.ApplyPenalty(_last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
+                        inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
-                var mu = MirostatMu;
-                var id = Context.Sample(
-                    tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                    inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar,
-                    inferenceParams.MinP
-                );
-                MirostatMu = mu;
+                    var mu = MirostatMu;
+                    id = Context.Sample(
+                        tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
+                        inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar,
+                        inferenceParams.MinP
+                    );
+                    MirostatMu = mu;
+                }
 
                 _last_n_tokens.Enqueue(id);
 
