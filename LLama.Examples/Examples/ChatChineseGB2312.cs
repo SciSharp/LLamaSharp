@@ -55,11 +55,7 @@ public class ChatChineseGB2312
         }
 
         session
-            .WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform("用户"))
-            .WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
-                // User and Assistant in Chinese (User is: 用户, Assistant is: 坤坤)
-                new string[] { "用户：", "坤坤：" },
-                redundancyLength: 8));
+            .WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform("用户", "坤坤"));
 
         InferenceParams inferenceParams = new InferenceParams()
         {
