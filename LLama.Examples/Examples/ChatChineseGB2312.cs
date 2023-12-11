@@ -67,6 +67,8 @@ public class ChatChineseGB2312
         Console.WriteLine("The chat session has started.");
 
         // show the prompt
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("用户：");
         Console.ForegroundColor = ConsoleColor.Green;
         string userInput = Console.ReadLine() ?? "";
 
