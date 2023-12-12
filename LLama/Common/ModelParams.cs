@@ -96,6 +96,7 @@ namespace LLama.Common
         /// `Encoding` cannot be directly JSON serialized, instead store the name as a string which can
         /// </summary>
         [JsonPropertyName("Encoding")]
+        [JsonInclude]
         private string EncodingName { get; set; } = Encoding.UTF8.WebName;
 
         /// <inheritdoc />
