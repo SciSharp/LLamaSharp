@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using System.Text.Json;
 
 namespace LLama.Unittest
 {
@@ -7,6 +8,8 @@ namespace LLama.Unittest
         [Fact]
         public void SerializeRoundTripSystemTextJson()
         {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new EncodingConverter());
             var expected = new ModelParams("abc/123")
             {
                 BatchSize = 17,
@@ -16,8 +19,8 @@ namespace LLama.Unittest
                 TensorSplits = { [0] = 3 }
             };
 
-            var json = System.Text.Json.JsonSerializer.Serialize(expected);
-            var actual = System.Text.Json.JsonSerializer.Deserialize<ModelParams>(json)!;
+            var json = JsonSerializer.Serialize(expected, options);
+            var actual = JsonSerializer.Deserialize<ModelParams>(json, options)!;
 
             // Cannot compare splits with default equality, check they are sequence equal and then set to null
             Assert.Equal((IEnumerable<float>)expected.TensorSplits, expected.TensorSplits);
