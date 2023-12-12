@@ -92,9 +92,19 @@ namespace LLama.Common
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
 
+        /// <summary>
+        /// `Encoding` cannot be directly JSON serialized, instead store the name as a string which can
+        /// </summary>
+        [JsonPropertyName("Encoding")]
+        private string EncodingName { get; set; } = Encoding.UTF8.WebName;
+
         /// <inheritdoc />
-        [JsonConverter(typeof(EncodingConverter))]
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
+        [JsonIgnore]
+        public Encoding Encoding
+        {
+            get => Encoding.GetEncoding(EncodingName);
+            set => EncodingName = value.WebName;
+        }
 
         /// <summary>
         /// 
@@ -113,22 +123,6 @@ namespace LLama.Common
         }
     }
 
-    internal class EncodingConverter
-        : JsonConverter<Encoding>
-    {
-        public override Encoding? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var name = reader.GetString();
-            if (name == null)
-                return null;
-            return Encoding.GetEncoding(name);
-        }
-
-        public override void Write(Utf8JsonWriter writer, Encoding value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.WebName);
-        }
-    }
 
     internal class TensorSplitsCollectionConverter
         : JsonConverter<TensorSplitsCollection>
