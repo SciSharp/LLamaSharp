@@ -1,5 +1,8 @@
 ﻿namespace LLama.Native;
 
+/// <summary>
+/// Possible GGML quantisation types
+/// </summary>
 public enum GGMLType
 {
     /// <summary>
