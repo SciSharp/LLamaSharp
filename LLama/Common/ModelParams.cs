@@ -26,16 +26,10 @@ namespace LLama.Common
         public uint Seed { get; set; } = 0xFFFFFFFF;
 
         /// <inheritdoc />
-        public bool UseFp16Memory { get; set; } = true;
-
-        /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
 
         /// <inheritdoc />
         public bool UseMemoryLock { get; set; }
-
-        /// <inheritdoc />
-        public bool Perplexity { get; set; }
 
         /// <inheritdoc />
         public string ModelPath { get; set; }
@@ -86,7 +80,13 @@ namespace LLama.Common
         public RopeScalingType? YarnScalingType { get; set; }
 
         /// <inheritdoc />
-        public bool MulMatQ { get; set; }
+        public GGMLType? TypeK { get; set; }
+
+        /// <inheritdoc />
+        public GGMLType? TypeV { get; set; }
+
+        /// <inheritdoc />
+        public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
         public bool VocabOnly { get; set; }

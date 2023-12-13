@@ -17,106 +17,52 @@ namespace LLama.Web.Common
         /// </summary>
         public int MaxInstances { get; set; }
 
-        /// <summary>
-        /// Model context size (n_ctx)
-        /// </summary>
+        /// <inheritdoc />
         public uint? ContextSize { get; set; }
 
-        /// <summary>
-        /// the GPU that is used for scratch and small tensors
-        /// </summary>
+        /// <inheritdoc />
         public int MainGpu { get; set; } = 0;
 
-        /// <summary>
-        /// if true, reduce VRAM usage at the cost of performance
-        /// </summary>
-        public bool LowVram { get; set; } = false;
-
-        /// <summary>
-        /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
-        /// </summary>
+        /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
-        /// <summary>
-        /// Seed for the random number generator (seed)
-        /// </summary>
+        /// <inheritdoc />
         public uint Seed { get; set; } = 1686349486;
 
-        /// <summary>
-        /// Use f16 instead of f32 for memory kv (memory_f16)
-        /// </summary>
-        public bool UseFp16Memory { get; set; } = true;
-
-        /// <summary>
-        /// Use mmap for faster loads (use_mmap)
-        /// </summary>
+        /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
 
-        /// <summary>
-        /// Use mlock to keep model in memory (use_mlock)
-        /// </summary>
+        /// <inheritdoc />
         public bool UseMemoryLock { get; set; } = false;
 
-        /// <summary>
-        /// Compute perplexity over the prompt (perplexity)
-        /// </summary>
-        public bool Perplexity { get; set; } = false;
-
-        /// <summary>
-        /// Model path (model)
-        /// </summary>
+        /// <inheritdoc />
         public string ModelPath { get; set; }
 
-        /// <summary>
-        /// List of LoRAs to apply
-        /// </summary>
+        /// <inheritdoc />
         public AdapterCollection LoraAdapters { get; set; } = new();
 
-        /// <summary>
-
-        /// base model path for the lora adapter (lora_base)
-        /// </summary>
+        /// <inheritdoc />
         public string LoraBase { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Number of threads (null = autodetect) (n_threads)
-        /// </summary>
+        /// <inheritdoc />
         public uint? Threads { get; set; }
 
-        /// <summary>
-        /// Number of threads to use for batch processing (null = autodetect) (n_threads)
-        /// </summary>
+        /// <inheritdoc />
         public uint? BatchThreads { get; set; }
 
-        /// <summary>
-        /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
-        /// </summary>
+        /// <inheritdoc />
         public uint BatchSize { get; set; } = 512;
 
-        /// <summary>
-        /// Whether to convert eos to newline during the inference.
-        /// </summary>
-        public bool ConvertEosToNewLine { get; set; } = false;
-
-        /// <summary>
-        /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
-        /// The LLamaModel won't produce text response anymore.
-        /// </summary>
+        /// <inheritdoc />
         public bool EmbeddingMode { get; set; } = false;
 
-        /// <summary>
-        /// how split tensors should be distributed across GPUs
-        /// </summary>
+        /// <inheritdoc />
         public TensorSplitsCollection TensorSplits { get; set; } = new();
 
-        /// <summary>
-        /// RoPE base frequency
-        /// </summary>
+        /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }
 
-        /// <summary>
-        /// RoPE frequency scaling factor
-        /// </summary>
+        /// <inheritdoc />
         public float? RopeFrequencyScale { get; set; }
 
         /// <inheritdoc />
@@ -137,19 +83,19 @@ namespace LLama.Web.Common
         /// <inheritdoc />
         public RopeScalingType? YarnScalingType { get; set; }
 
-        /// <summary>
-        /// Use experimental mul_mat_q kernels
-        /// </summary>
-        public bool MulMatQ { get; set; }
+        /// <inheritdoc />
+        public GGMLType? TypeK { get; set; }
 
-        /// <summary>
-        /// The encoding to use for models
-        /// </summary>
+        /// <inheritdoc />
+        public GGMLType? TypeV { get; set; }
+
+        /// <inheritdoc />
+        public bool NoKqvOffload { get; set; }
+
+        /// <inheritdoc />
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
-        /// <summary>
-        /// Load vocab only (no weights)
-        /// </summary>
+        /// <inheritdoc />
         public bool VocabOnly { get; set; }
     }
 }

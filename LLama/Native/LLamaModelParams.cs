@@ -35,6 +35,11 @@ namespace LLama.Native
         public void* progress_callback_user_data;
 
         /// <summary>
+        /// override key-value pairs of the model meta data
+        /// </summary>
+        public LLamaModelKvOverride* kv_overrides;
+
+        /// <summary>
         /// only load the vocabulary, no weights
         /// </summary>
         public bool vocab_only
