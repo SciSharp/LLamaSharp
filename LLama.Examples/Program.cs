@@ -7,7 +7,11 @@ Console.WriteLine(" __       __                                       ____     _
 
 Console.WriteLine("======================================================================================================");
 
-NativeLibraryConfig.Instance.WithCuda().WithLogs();
+NativeLibraryConfig
+   .Instance
+   .WithCuda()
+   .WithLogs()
+   .WithAvx(NativeLibraryConfig.AvxLevel.Avx512);
 
 NativeApi.llama_empty_call();
 Console.WriteLine();
