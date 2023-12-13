@@ -67,7 +67,7 @@ public class LLamaKvCacheViewSafeHandle
     /// <param name="ctx"></param>
     /// <param name="view"></param>
     public LLamaKvCacheViewSafeHandle(SafeLLamaContextHandle ctx, LLamaKvCacheView view)
-        : base(IntPtr.MaxValue, true)
+        : base((IntPtr)1, true)
     {
         _ctx = ctx;
         _view = view;
