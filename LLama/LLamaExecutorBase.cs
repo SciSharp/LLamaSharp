@@ -2,6 +2,7 @@
 using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
+using LLama.Transform;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

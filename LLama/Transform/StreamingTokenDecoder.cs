@@ -6,14 +6,14 @@ using System.Text;
 using LLama.Extensions;
 using LLama.Native;
 
-namespace LLama
+namespace LLama.Transform
 {
     /// <summary>
     /// Decodes a stream of tokens into a stream of characters
     /// </summary>
     public sealed class StreamingTokenDecoder
     {
-        private readonly SafeLlamaModelHandle _weights;
+        private readonly SafeLlamaModelHandle? _weights;
         private readonly Decoder _decoder;
 
         private readonly List<char> _characters = new();
@@ -29,8 +29,8 @@ namespace LLama
         /// </summary>
         /// <param name="encoding">Text encoding to use</param>
         /// <param name="weights">Model weights</param>
-        public StreamingTokenDecoder(Encoding encoding, LLamaWeights weights)
-            : this(encoding, weights.NativeHandle)
+        public StreamingTokenDecoder(Encoding encoding, LLamaWeights? weights = null)
+            : this(encoding, weights?.NativeHandle)
         {
         }
 
@@ -69,14 +69,19 @@ namespace LLama
         /// Add a single token to the decoder
         /// </summary>
         /// <param name="token"></param>
-        public void Add(int token)
+        public void Add(int token, SafeLlamaModelHandle? weights = null)
         {
+            weights ??= _weights;
+            if(weights is null)
+            {
+                throw new NullReferenceException("No weights provided for StreamingTokenDecoder.");
+            }
             var charsArr = ArrayPool<char>.Shared.Rent(16);
             var bytesArr = ArrayPool<byte>.Shared.Rent(16);
             try
             {
                 // Convert this token into bytes
-                var bytesAvailable = TokenToBytes(ref bytesArr, token, _weights).Length;
+                var bytesAvailable = TokenToBytes(ref bytesArr, token, weights).Length;
 
                 // Convert those bytes into characters
                 var bytesOffset = 0;
@@ -133,10 +138,10 @@ namespace LLama
         /// Add all tokens in the given enumerable
         /// </summary>
         /// <param name="tokens"></param>
-        public void AddRange(IEnumerable<int> tokens)
+        public void AddRange(IEnumerable<int> tokens, SafeLlamaModelHandle? weights = null)
         {
             foreach (var item in tokens)
-                Add(item);
+                Add(item, weights);
         }
 
         /// <summary>

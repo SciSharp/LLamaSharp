@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using LLama.Native;
 using LLama.Sampling;
+using LLama.Control;
+using LLama.Transform;
+using System.Text;
 
 namespace LLama.Common
 {
@@ -80,6 +83,12 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public ISamplingPipeline? SamplingPipeline { get; set; }
+
+        /// <inheritdoc />
+        public IGenerationControl GenerationControl { get; set; } = new DefaultGenerationControl();
+
+        /// <inheritdoc />
+        public ITokenizer Tokenizer { get; set; } = new DefaultTokenizer(Encoding.UTF8);
     }
 
     /// <summary>

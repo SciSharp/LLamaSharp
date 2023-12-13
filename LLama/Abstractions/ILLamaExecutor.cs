@@ -18,8 +18,8 @@ namespace LLama.Abstractions
         /// </summary>
         /// <param name="text">Your prompt</param>
         /// <param name="inferenceParams">Any additional parameters</param>
-        /// <param name="token">A cancellation token.</param>
+        /// <param name="cancellationToken">A cancellation token.</param>
         /// <returns></returns>
-        IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, CancellationToken token = default);
+        IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = default);
     }
 }

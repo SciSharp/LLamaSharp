@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using LLama.Common;
+using LLama.Control;
 using LLama.Native;
 using LLama.Sampling;
+using LLama.Transform;
 
 namespace LLama.Abstractions
 {  
@@ -114,5 +116,15 @@ namespace LLama.Abstractions
 		/// Set a custom sampling pipeline to use. <b>If this is set All other sampling parameters are ignored!</b>
 		/// </summary>
 		ISamplingPipeline? SamplingPipeline { get; set; }
+
+		/// <summary>
+		/// Set a custom generation control to use. <b>If this is set antiprompt will be ignored!</b>
+		/// </summary>
+		IGenerationControl GenerationControl { get; set; }
+
+		/// <summary>
+		/// Set a custom tokenizer to use.
+		/// </summary>
+		ITokenizer Tokenizer { get; set; }
 	}
 }
