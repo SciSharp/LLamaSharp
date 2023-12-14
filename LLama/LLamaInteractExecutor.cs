@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LLama.Extensions;
 using Microsoft.Extensions.Logging;
+using LLama.Control;
 
 namespace LLama
 {
@@ -21,6 +22,7 @@ namespace LLama
     {
         private bool _is_prompt_run = true;
         private readonly llama_token _llama_token_newline;
+        private IGenerationControl _control;
 
         /// <summary>
         /// 
@@ -31,6 +33,7 @@ namespace LLama
             : base(context, logger)
         {
             _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle.ModelHandle);
+            _control = new DefaultGenerationControl();
         }
 
         /// <inheritdoc />
@@ -134,8 +137,17 @@ namespace LLama
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                var control = inferenceParams.GenerationControl ?? _control;
+                // Get stop signal by ids
+                if(control.ShouldStopGeneration(Context, inferenceParams, _embeds))
+                {
                     args.WaitForInput = true;
+                }
+                // Get stop signal by text
+                else if (control.ShouldStopGeneration(Context, inferenceParams, _lastOutputText))
+                {
+                    args.WaitForInput = true;
+                }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                     return (true, Array.Empty<string>());

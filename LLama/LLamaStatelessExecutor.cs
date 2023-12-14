@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LLama.Native;
 using LLama.Sampling;
+using LLama.Control;
 using Microsoft.Extensions.Logging;
 
 namespace LLama
@@ -63,8 +64,8 @@ namespace LLama
                 throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
 
             // Create decoders for the token stream
+            IGenerationControl control = inferenceParams.GenerationControl ?? new DefaultGenerationControl();
             var decoder = new StreamingTokenDecoder(Context);
-            var antiprocessor = new AntipromptProcessor(inferenceParams.AntiPrompts);
 
             // Keep track of the last N tokens emitted
             var repeat_last_n = Math.Max(0, inferenceParams.RepeatLastTokensCount <0 ? _weights.ContextSize : inferenceParams.RepeatLastTokensCount);
@@ -105,13 +106,16 @@ namespace LLama
                     );
                 }
 
+                if(control.ShouldStopGeneration(context, inferenceParams, new int[] { id }))
+                    break;
+
                 // Decode this token into text
                 decoder.Add(id);
                 var decoded = decoder.Read();
                 yield return decoded;
 
                 // Check if any of the antiprompts have been generated
-                if (antiprocessor.Add(decoded))
+                if(control.ShouldStopGeneration(Context, inferenceParams, decoded))
                     break;
 
                 lastTokens.Add(id);

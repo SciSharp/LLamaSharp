@@ -13,6 +13,7 @@ public class Runner
         { "Interactive mode chat by using executor.", InteractiveModeExecute.Run },
         { "Instruct mode chat by using executor.", InstructModeExecute.Run },
         { "Stateless mode chat by using executor.", StatelessModeExecute.Run },
+        { "Customize the generation control of executor.", CustomGenerationControl.Run }, 
         { "Load and save chat session.", SaveAndLoadSession.Run },
         { "Load and save state of model and executor.", LoadAndSaveState.Run },
         { "Get embeddings from LLama model.", () => Task.Run(GetEmbeddings.Run) },

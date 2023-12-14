@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using LLama.Native;
 using LLama.Sampling;
+using LLama.Control;
 
 namespace LLama.Common
 {
@@ -80,6 +81,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public ISamplingPipeline? SamplingPipeline { get; set; }
+
+        /// <inheritdoc />
+        public IGenerationControl? GenerationControl { get; set; }
     }
 
     /// <summary>
