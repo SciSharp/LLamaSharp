@@ -59,6 +59,11 @@ namespace LLama.Abstractions
         /// base model path for the lora adapter (lora_base)
         /// </summary>
         string LoraBase { get; set; }
+
+        /// <summary>
+        /// Override specific metadata items in the model
+        /// </summary>
+        List<MetadataOverride> MetadataOverrides { get; }
     }
 
     /// <summary>
@@ -186,7 +191,7 @@ namespace LLama.Abstractions
         : JsonConverter<TensorSplitsCollection>
     {
         /// <inheritdoc/>
-        public override TensorSplitsCollection? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TensorSplitsCollection Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? Array.Empty<float>();
             return new TensorSplitsCollection(arr);
@@ -196,6 +201,99 @@ namespace LLama.Abstractions
         public override void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
         {
             JsonSerializer.Serialize(writer, value.Splits, options);
+        }
+    }
+
+    /// <summary>
+    /// An override for a single key/value pair in model metadata
+    /// </summary>
+    [JsonConverter(typeof(MetadataOverrideConverter))]
+    public abstract record MetadataOverride
+    {
+        /// <summary>
+        /// Create a new override for an int key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static MetadataOverride Create(string key, int value)
+        {
+            return new IntOverride(key, value);
+        }
+
+        /// <summary>
+        /// Create a new override for a float key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static MetadataOverride Create(string key, float value)
+        {
+            return new FloatOverride(key, value);
+        }
+
+        /// <summary>
+        /// Create a new override for a boolean key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static MetadataOverride Create(string key, bool value)
+        {
+            return new BoolOverride(key, value);
+        }
+
+        internal abstract void Write(ref LLamaModelMetadataOverride dest);
+
+        /// <summary>
+        /// Get the key being overriden by this override
+        /// </summary>
+        public abstract string Key { get; init; }
+
+        private record IntOverride(string Key, int Value) : MetadataOverride
+        {
+            internal override void Write(ref LLamaModelMetadataOverride dest)
+            {
+                dest.Tag = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT;
+                dest.IntValue = Value;
+            }
+        }
+
+        private record FloatOverride(string Key, float Value) : MetadataOverride
+        {
+            internal override void Write(ref LLamaModelMetadataOverride dest)
+            {
+                dest.Tag = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT;
+                dest.FloatValue = Value;
+            }
+        }
+
+        private record BoolOverride(string Key, bool Value) : MetadataOverride
+        {
+            internal override void Write(ref LLamaModelMetadataOverride dest)
+            {
+                dest.Tag = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL;
+                dest.BoolValue = Value ? -1 : 0;
+            }
+        }
+    }
+
+    public class MetadataOverrideConverter
+        : JsonConverter<MetadataOverride>
+    {
+        /// <inheritdoc/>
+        public override MetadataOverride Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+            //var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? Array.Empty<float>();
+            //return new TensorSplitsCollection(arr);
+        }
+
+        /// <inheritdoc/>
+        public override void Write(Utf8JsonWriter writer, MetadataOverride value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+            //JsonSerializer.Serialize(writer, value.Splits, options);
         }
     }
 }

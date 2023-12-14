@@ -10,8 +10,7 @@ Console.WriteLine("=============================================================
 NativeLibraryConfig
    .Instance
    .WithCuda()
-   .WithLogs()
-   .WithAvx(NativeLibraryConfig.AvxLevel.Avx512);
+   .WithLogs();
 
 NativeApi.llama_empty_call();
 Console.WriteLine();

@@ -1,5 +1,6 @@
 ﻿using LLama.Common;
 using System.Text.Json;
+using LLama.Abstractions;
 
 namespace LLama.Unittest
 {
@@ -14,7 +15,12 @@ namespace LLama.Unittest
                 ContextSize = 42,
                 Seed = 42,
                 GpuLayerCount = 111,
-                TensorSplits = { [0] = 3 }
+                TensorSplits = { [0] = 3 },
+                MetadataOverrides =
+                {
+                    MetadataOverride.Create("hello", true),
+                    MetadataOverride.Create("world", 17),
+                }
             };
 
             var json = JsonSerializer.Serialize(expected);

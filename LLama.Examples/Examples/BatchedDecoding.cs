@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using LLama.Abstractions;
 using LLama.Common;
 using LLama.Native;
 
@@ -30,6 +31,7 @@ public class BatchedDecoding
 
         // Load model
         var parameters = new ModelParams(modelPath);
+
         using var model = LLamaWeights.LoadFromFile(parameters);
 
         // Tokenize prompt

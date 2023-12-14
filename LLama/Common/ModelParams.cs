@@ -1,9 +1,8 @@
 ﻿using LLama.Abstractions;
-using System;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using LLama.Native;
+using System.Collections.Generic;
 
 namespace LLama.Common
 {
@@ -54,6 +53,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public TensorSplitsCollection TensorSplits { get; set; } = new();
+
+        /// <inheritdoc />
+        public List<MetadataOverride> MetadataOverrides { get; } = new();
 
         /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }

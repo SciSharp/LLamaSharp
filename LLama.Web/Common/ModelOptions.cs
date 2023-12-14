@@ -60,6 +60,9 @@ namespace LLama.Web.Common
         public TensorSplitsCollection TensorSplits { get; set; } = new();
 
         /// <inheritdoc />
+        public List<MetadataOverride> MetadataOverrides { get; } = new();
+
+        /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }
 
         /// <inheritdoc />

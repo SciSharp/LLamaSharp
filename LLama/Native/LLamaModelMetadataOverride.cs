@@ -12,7 +12,7 @@ public unsafe struct LLamaModelMetadataOverride
     /// Key to override
     /// </summary>
     [FieldOffset(0)]
-    public fixed char key[128];
+    public fixed byte key[128];
 
     /// <summary>
     /// Type of value
