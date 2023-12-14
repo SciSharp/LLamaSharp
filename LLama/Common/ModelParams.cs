@@ -55,7 +55,7 @@ namespace LLama.Common
         public TensorSplitsCollection TensorSplits { get; set; } = new();
 
         /// <inheritdoc />
-        public List<MetadataOverride> MetadataOverrides { get; } = new();
+        public List<MetadataOverride> MetadataOverrides { get; set; } = new();
 
         /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }

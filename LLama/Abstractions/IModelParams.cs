@@ -209,17 +209,29 @@ namespace LLama.Abstractions
     /// An override for a single key/value pair in model metadata
     /// </summary>
     [JsonConverter(typeof(MetadataOverrideConverter))]
-    public abstract record MetadataOverride
+    public sealed record MetadataOverride
     {
+        /// <summary>
+        /// Get the key being overriden by this override
+        /// </summary>
+        public string Key { get; init; }
+
+        internal LLamaModelKvOverrideType Type { get; }
+
+        private readonly int _valueInt;
+        private readonly float _valueFloat;
+        private readonly bool _valueBool;
+
         /// <summary>
         /// Create a new override for an int key
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        /// <returns></returns>
-        public static MetadataOverride Create(string key, int value)
+        public MetadataOverride(string key, int value)
         {
-            return new IntOverride(key, value);
+            Key = key;
+            _valueInt = value;
+            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT;
         }
 
         /// <summary>
@@ -227,10 +239,11 @@ namespace LLama.Abstractions
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        /// <returns></returns>
-        public static MetadataOverride Create(string key, float value)
+        public MetadataOverride(string key, float value)
         {
-            return new FloatOverride(key, value);
+            Key = key;
+            _valueFloat = value;
+            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT;
         }
 
         /// <summary>
@@ -238,65 +251,46 @@ namespace LLama.Abstractions
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        /// <returns></returns>
-        public static MetadataOverride Create(string key, bool value)
+        public MetadataOverride(string key, bool value)
         {
-            return new BoolOverride(key, value);
+            Key = key;
+            _valueBool = value;
+            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL;
         }
 
-        /// <summary>
-        /// Get the key being overriden by this override
-        /// </summary>
-        public abstract string Key { get; init; }
-
-        internal abstract LLamaModelKvOverrideType Type { get; }
-
-        internal abstract void WriteValue(ref LLamaModelMetadataOverride dest);
-
-        internal abstract void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options);
-
-        private record IntOverride(string Key, int Value) : MetadataOverride
+        internal void WriteValue(ref LLamaModelMetadataOverride dest)
         {
-            internal override LLamaModelKvOverrideType Type => LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT;
-
-            internal override void WriteValue(ref LLamaModelMetadataOverride dest)
+            switch (Type)
             {
-                dest.IntValue = Value;
-            }
-
-            internal override void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
-            {
-                writer.WriteNumberValue(Value);
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT:
+                    dest.IntValue = _valueInt;
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT:
+                    dest.FloatValue = _valueFloat;
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
+                    dest.BoolValue = _valueBool ? -1 : 0;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
-        private record FloatOverride(string Key, float Value) : MetadataOverride
+        internal void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
         {
-            internal override LLamaModelKvOverrideType Type => LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT;
-
-            internal override void WriteValue(ref LLamaModelMetadataOverride dest)
+            switch (Type)
             {
-                dest.FloatValue = Value;
-            }
-
-            internal override void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
-            {
-                writer.WriteNumberValue(Value);
-            }
-        }
-
-        private record BoolOverride(string Key, bool Value) : MetadataOverride
-        {
-            internal override LLamaModelKvOverrideType Type => LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL;
-
-            internal override void WriteValue(ref LLamaModelMetadataOverride dest)
-            {
-                dest.BoolValue = Value ? -1 : 0;
-            }
-
-            internal override void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
-            {
-                writer.WriteBooleanValue(Value);
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT:
+                    writer.WriteNumberValue(_valueInt);
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT:
+                    writer.WriteNumberValue(_valueFloat);
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
+                    writer.WriteBooleanValue(_valueBool);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
@@ -308,15 +302,17 @@ namespace LLama.Abstractions
         : JsonConverter<MetadataOverride>
     {
         /// <inheritdoc/>
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeof(MetadataOverride).IsAssignableFrom(typeToConvert);
-        }
-
-        /// <inheritdoc/>
         public override MetadataOverride Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            throw new NotImplementedException("for some reason this is never called!");
+            var ktv = JsonSerializer.Deserialize<KeyTypeValue>(ref reader, options)!;
+
+            return ((LLamaModelKvOverrideType)ktv.Type) switch
+            {
+                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT => new MetadataOverride(ktv.Key, ktv.Value.GetInt32()),
+                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT => new MetadataOverride(ktv.Key, ktv.Value.GetSingle()),
+                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL => new MetadataOverride(ktv.Key, ktv.Value.GetBoolean()),
+                _ => throw new JsonException(),
+            };
         }
 
         /// <inheritdoc/>
@@ -324,12 +320,14 @@ namespace LLama.Abstractions
         {
             writer.WriteStartObject();
             {
-                writer.WriteString("Key", value.Key);
                 writer.WriteNumber("Type", (int)value.Type);
+                writer.WriteString("Key", value.Key);
                 writer.WritePropertyName("Value");
                 value.WriteValue(writer, options);
             }
             writer.WriteEndObject();
         }
+
+        private record KeyTypeValue(int Type, string Key, JsonElement Value);
     }
 }
