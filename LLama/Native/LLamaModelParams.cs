@@ -37,7 +37,7 @@ namespace LLama.Native
         /// <summary>
         /// override key-value pairs of the model meta data
         /// </summary>
-        public LLamaModelKvOverride* kv_overrides;
+        public LLamaModelMetadataOverride* kv_overrides;
 
         /// <summary>
         /// only load the vocabulary, no weights

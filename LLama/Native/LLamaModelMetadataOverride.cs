@@ -3,10 +3,10 @@
 namespace LLama.Native;
 
 /// <summary>
-/// Override a key/value pair in the llama model metadata
+/// Override a key/value pair in the llama model metadata (llama_model_kv_override)
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
-public unsafe struct LLamaModelKvOverride
+public unsafe struct LLamaModelMetadataOverride
 {
     /// <summary>
     /// Key to override
