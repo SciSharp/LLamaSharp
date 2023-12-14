@@ -57,10 +57,12 @@ public static class IModelParamsExtensions
             for (var i = 0; i < @params.MetadataOverrides.Count; i++)
             {
                 var item = @params.MetadataOverrides[i];
-                var native = new LLamaModelMetadataOverride();
+                var native = new LLamaModelMetadataOverride
+                {
+                    Tag = item.Type
+                };
 
-                // Init value and tag
-                item.Write(ref native);
+                item.WriteValue(ref native);
 
                 // Convert key to bytes
                 unsafe
