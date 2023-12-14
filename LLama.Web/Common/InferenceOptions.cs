@@ -1,6 +1,9 @@
-﻿using LLama.Common;
+﻿#nullable enable
+
+using LLama.Common;
 using LLama.Abstractions;
 using LLama.Native;
+using LLama.Sampling;
 
 namespace LLama.Web.Common
 {
@@ -64,6 +67,9 @@ namespace LLama.Web.Common
         /// <summary>
         /// A grammar to constrain possible tokens
         /// </summary>
-        public SafeLLamaGrammarHandle Grammar { get; set; } = null;
+        public SafeLLamaGrammarHandle? Grammar { get; set; }
+
+        /// <inheritdoc />
+        public ISamplingPipeline? SamplingPipeline { get; set; }
     }
 }

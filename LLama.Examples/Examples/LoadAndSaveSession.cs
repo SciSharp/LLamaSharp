@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using LLama.Common;
 
 namespace LLama.Examples.Examples
 {
@@ -30,7 +31,15 @@ namespace LLama.Examples.Examples
             Console.Write(prompt);
             while (true)
             {
-                await foreach (var text in session.ChatAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
+                await foreach (
+                    var text
+                    in session.ChatAsync(
+                        new ChatHistory.Message(AuthorRole.User, prompt),
+                        new InferenceParams()
+                        {
+                            Temperature = 0.6f,
+                            AntiPrompts = new List<string> { "User:" }
+                        }))
                 {
                     Console.Write(text);
                 }

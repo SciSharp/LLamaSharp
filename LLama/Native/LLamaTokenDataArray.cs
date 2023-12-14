@@ -46,14 +46,41 @@ namespace LLama.Native
             return new LLamaTokenDataArray(candidates);
         }
 
+        /// <summary>
+        /// Overwrite the logit values for all given tokens
+        /// </summary>
+        /// <param name="values">tuples of token and logit value to overwrite</param>
+        public void OverwriteLogits(ReadOnlySpan<(llama_token token, float logit)> values)
+        {
+            if (values.Length == 0)
+                return;
+
+            var dataSpan = data.Span;
+            foreach (var (token, value) in values)
+            {
+                for (var i = 0; i < data.Length; i++)
+                {
+                    if (dataSpan[i].id == token)
+                    {
+                        dataSpan[i].logit = value;
+                        break;
+                    }
+                }   
+            }
+            sorted = false;
+        }
+
         #region sampling
         /// <summary>
         /// Apply grammar rules to candidate tokens
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="grammar"></param>
-        public void ApplyGrammar(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar)
+        public void ApplyGrammar(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle? grammar)
         {
+            if (grammar == null)
+                return;
+
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_grammar(ctx, ref st, grammar);
@@ -145,15 +172,17 @@ namespace LLama.Native
         /// <param name="penalty_repeat"></param>
         /// <param name="penalty_freq"></param>
         /// <param name="penalty_present"></param>
-        public void RepetitionPenalty(SafeLLamaContextHandle context, Memory<llama_token> last_tokens, float penalty_repeat, float penalty_freq, float penalty_present)
+        public void RepetitionPenalty(SafeLLamaContextHandle context, ReadOnlySpan<llama_token> last_tokens, float penalty_repeat, float penalty_freq, float penalty_present)
         {
             unsafe
             {
                 using (LLamaTokenDataArrayNative.Create(this, out var st))
-                using (var last_tokens_handle = last_tokens.Pin())
                 {
-                    NativeApi.llama_sample_repetition_penalties(context, ref st, (int*)last_tokens_handle.Pointer, (ulong)last_tokens.Length, penalty_repeat, penalty_freq, penalty_present);
-                    sorted = st.sorted;
+                    fixed (int* last_tokens_handle = last_tokens)
+                    {
+                        NativeApi.llama_sample_repetition_penalties(context, ref st, last_tokens_handle, (ulong)last_tokens.Length, penalty_repeat, penalty_freq, penalty_present);
+                        sorted = st.sorted;
+                    }
                 }
             }
         }

@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LLama.Common
 {
@@ -43,11 +46,14 @@ namespace LLama.Common
             /// <summary>
             /// Role of the message author, e.g. user/assistant/system
             /// </summary>
+            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonPropertyName("author_role")]
             public AuthorRole AuthorRole { get; set; }
 
             /// <summary>
             /// Message content
             /// </summary>
+            [JsonPropertyName("content")]
             public string Content { get; set; }
 
             /// <summary>
@@ -65,15 +71,14 @@ namespace LLama.Common
         /// <summary>
         /// List of messages in the chat
         /// </summary>
-        public List<Message> Messages { get; }
+        [JsonPropertyName("messages")]
+        public List<Message> Messages { get; set; } = new();
 
         /// <summary>
         /// Create a new instance of the chat content class
         /// </summary>
-        public ChatHistory()
-        {
-            this.Messages = new List<Message>();
-        }
+        [JsonConstructor]
+        public ChatHistory() { }
 
         /// <summary>
         /// Add a message to the chat history
@@ -84,6 +89,29 @@ namespace LLama.Common
         {
             this.Messages.Add(new Message(authorRole, content));
         }
-    }
 
+        /// <summary>
+        /// Serialize the chat history to JSON
+        /// </summary>
+        /// <returns></returns>
+        public string ToJson()
+        {
+            return JsonSerializer.Serialize(
+                this,
+                new JsonSerializerOptions()
+                {
+                    WriteIndented = true
+                });
+        }
+
+        /// <summary>
+        /// Deserialize a chat history from JSON
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static ChatHistory? FromJson(string json)
+        {
+            return JsonSerializer.Deserialize<ChatHistory>(json);
+        }
+    }
 }
