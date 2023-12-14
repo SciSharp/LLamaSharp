@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using LLama.Common;
+using LLama.Sampling;
 using Xunit.Abstractions;
 
 namespace LLama.Unittest
@@ -30,10 +31,13 @@ namespace LLama.Unittest
         [Fact]
         public async Task Stateless()
         {
+            // Create a custom pipeline that mimics the default pipeline
+            var pipeline = new DefaultSamplingPipeline();
+
             var executor = new StatelessExecutor(_weights, _params);
 
             const string question = "Question. what is a cat?\nAnswer: ";
-            var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." } };
+            var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." }, SamplingPipeline = pipeline };
 
             var timer = new Stopwatch();
             timer.Start();

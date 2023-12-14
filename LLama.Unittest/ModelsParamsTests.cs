@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using System.Text.Json;
 
 namespace LLama.Unittest
 {
@@ -16,13 +17,18 @@ namespace LLama.Unittest
                 TensorSplits = { [0] = 3 }
             };
 
-            var json = System.Text.Json.JsonSerializer.Serialize(expected);
-            var actual = System.Text.Json.JsonSerializer.Deserialize<ModelParams>(json)!;
+            var json = JsonSerializer.Serialize(expected);
+            var actual = JsonSerializer.Deserialize<ModelParams>(json)!;
 
             // Cannot compare splits with default equality, check they are sequence equal and then set to null
             Assert.Equal((IEnumerable<float>)expected.TensorSplits, expected.TensorSplits);
             actual.TensorSplits = null!;
             expected.TensorSplits = null!;
+
+            // Check encoding is the same
+            var b1 = expected.Encoding.GetBytes("Hello");
+            var b2 = actual.Encoding.GetBytes("Hello");
+            Assert.True(b1.SequenceEqual(b2));
 
             Assert.Equal(expected, actual);
         }

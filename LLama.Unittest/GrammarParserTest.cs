@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LLama.Exceptions;
+﻿using LLama.Exceptions;
 using LLama.Native;
 using LLama.Grammars;
 
