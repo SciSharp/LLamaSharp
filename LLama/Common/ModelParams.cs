@@ -59,7 +59,6 @@ namespace LLama.Common
         public bool EmbeddingMode { get; set; }
 
         /// <inheritdoc />
-        [JsonConverter(typeof(TensorSplitsCollectionConverter))]
         public TensorSplitsCollection TensorSplits { get; set; } = new();
 
         /// <inheritdoc />
@@ -121,22 +120,6 @@ namespace LLama.Common
         {
             // This constructor (default parameterless constructor) is used by Newtonsoft to deserialize!
             ModelPath = "";
-        }
-    }
-
-
-    internal class TensorSplitsCollectionConverter
-        : JsonConverter<TensorSplitsCollection>
-    {
-        public override TensorSplitsCollection? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? Array.Empty<float>();
-            return new TensorSplitsCollection(arr);
-        }
-
-        public override void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value.Splits, options);
         }
     }
 }
