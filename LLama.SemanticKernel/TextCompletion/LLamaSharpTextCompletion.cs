@@ -1,9 +1,8 @@
 ﻿using LLama.Abstractions;
 using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.AI.TextGeneration;
 using Microsoft.SemanticKernel.Services;
+using Microsoft.SemanticKernel.TextGeneration;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -13,11 +12,9 @@ public sealed class LLamaSharpTextCompletion : ITextGenerationService
 {
     public ILLamaExecutor executor;
 
-    private readonly Dictionary<string, string> _attributes = new();
+    private readonly Dictionary<string, object?> _attributes = new();
 
-    public IReadOnlyDictionary<string, string> Attributes => this._attributes;
-
-    IReadOnlyDictionary<string, object?> IAIService.Attributes => throw new NotImplementedException();
+    public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
 
     public LLamaSharpTextCompletion(ILLamaExecutor executor)
     {

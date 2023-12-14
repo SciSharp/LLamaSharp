@@ -1,6 +1,5 @@
 ﻿using LLamaSharp.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.AI.ChatCompletion;
-
+using Microsoft.SemanticKernel.ChatCompletion;
 namespace LLamaSharp.SemanticKernel;
 
 public static class ExtensionMethods

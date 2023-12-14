@@ -3,7 +3,7 @@ using LLama.Common;
 using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
 using LLamaSharp.SemanticKernel.TextCompletion;
-using Microsoft.SemanticKernel.AI.TextGeneration;
+using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LLama.Examples.Examples
@@ -21,7 +21,7 @@ namespace LLama.Examples.Examples
             using var model = LLamaWeights.LoadFromFile(parameters);
             var ex = new StatelessExecutor(model, parameters);
 
-            var builder = new KernelBuilder();
+            var builder = Kernel.CreateBuilder();
             builder.Services.AddKeyedSingleton<ITextGenerationService>("local-llama", new LLamaSharpTextCompletion(ex));
 
             var kernel = builder.Build();
@@ -43,9 +43,9 @@ One line TLDR with the fewest words.";
 2. The acceleration of an object depends on the mass of the object and the amount of force applied.
 3. Whenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.";
 
-            Console.WriteLine((await kernel.InvokeAsync(summarize,new KernelArguments(text1))).GetValue<string>());
+            Console.WriteLine((await kernel.InvokeAsync(summarize, new() { ["input"] = text1 })).GetValue<string>());
 
-            Console.WriteLine((await kernel.InvokeAsync(summarize, new KernelArguments(text2))).GetValue<string>());
+            Console.WriteLine((await kernel.InvokeAsync(summarize, new() { ["input"] = text2 })).GetValue<string>());
         }
     }
 }

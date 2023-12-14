@@ -2,6 +2,7 @@
 using LLama.Common;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using LLamaSharp.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace LLama.Examples.Examples
 {
@@ -29,8 +30,8 @@ namespace LLama.Examples.Examples
             await MessageOutputAsync(chatHistory);
 
             // First bot assistant message
-            string reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
-            chatHistory.AddAssistantMessage(reply);
+            var reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
+            chatHistory.AddAssistantMessage(reply.Content);
             await MessageOutputAsync(chatHistory);
 
             // Second user message
@@ -39,14 +40,14 @@ namespace LLama.Examples.Examples
 
             // Second bot assistant message
             reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
-            chatHistory.AddAssistantMessage(reply);
+            chatHistory.AddAssistantMessage(reply.Content);
             await MessageOutputAsync(chatHistory);
         }
 
         /// <summary>
         /// Outputs the last message of the chat history
         /// </summary>
-        private static Task MessageOutputAsync(Microsoft.SemanticKernel.AI.ChatCompletion.ChatHistory chatHistory)
+        private static Task MessageOutputAsync(Microsoft.SemanticKernel.ChatCompletion.ChatHistory chatHistory)
         {
             var message = chatHistory.Last();
 

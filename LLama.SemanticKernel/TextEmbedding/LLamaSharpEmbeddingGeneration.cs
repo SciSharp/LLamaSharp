@@ -1,10 +1,10 @@
 ﻿using LLama;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI.Embeddings;
+using Microsoft.SemanticKernel.Embeddings;
 
 namespace LLamaSharp.SemanticKernel.TextEmbedding;
 
-public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGeneration
+public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationService
 {
     private LLamaEmbedder _embedder;
 

@@ -31,6 +31,10 @@ public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
 
                 switch (propertyName)
                 {
+                    case "MODELID":
+                    case "MODEL_ID":
+                        requestSettings.ModelId = reader.GetString();
+                        break;
                     case "TEMPERATURE":
                         requestSettings.Temperature = reader.GetDouble();
                         break;
@@ -61,10 +65,6 @@ public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
                     case "TOKENSELECTIONBIASES":
                     case "TOKEN_SELECTION_BIASES":
                         requestSettings.TokenSelectionBiases = JsonSerializer.Deserialize<IDictionary<int, int>>(ref reader, options) ?? new Dictionary<int, int>();
-                        break;
-                    case "SERVICEID":
-                    case "SERVICE_ID":
-                        requestSettings.ServiceId = reader.GetString();
                         break;
                     default:
                         reader.Skip();
@@ -98,7 +98,6 @@ public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
         writer.WriteNumber("results_per_prompt", value.ResultsPerPrompt);
         writer.WritePropertyName("token_selection_biases");
         JsonSerializer.Serialize(writer, value.TokenSelectionBiases, options);
-        writer.WriteString("service_id", value.ServiceId);
 
         writer.WriteEndObject();
     }

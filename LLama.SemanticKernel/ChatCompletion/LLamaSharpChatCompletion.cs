@@ -1,8 +1,7 @@
 ﻿using LLama;
 using LLama.Abstractions;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI;
-using Microsoft.SemanticKernel.AI.ChatCompletion;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Services;
 using System;
 using System.IO;
@@ -22,11 +21,9 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     private readonly IHistoryTransform historyTransform;
     private readonly ITextStreamTransform outputTransform;
 
-    private readonly Dictionary<string, string> _attributes = new();
+    private readonly Dictionary<string, object?> _attributes = new();
 
-    public IReadOnlyDictionary<string, string> Attributes => this._attributes;
-
-    IReadOnlyDictionary<string, object?> IAIService.Attributes => throw new NotImplementedException();
+    public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
 
     static ChatRequestSettings GetDefaultSettings()
     {
