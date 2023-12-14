@@ -18,7 +18,7 @@ There'll be two kinds of input accepted by the `Chat` API, which are `ChatHistor
 ```cs
 string prompt = "What is C#?";
 
-foreach (var text in session.Chat(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } })) // the inference params should be changed depending on your statement
+await foreach (var text in session.ChatAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } })) // the inference params should be changed depending on your statement
 {
     Console.Write(text);
 }
