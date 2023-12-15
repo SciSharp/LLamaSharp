@@ -87,6 +87,15 @@ namespace LLama
         }
 
         /// <summary>
+        /// Set the seed for the RNG
+        /// </summary>
+        /// <param name="seed"></param>
+        public void SetSeed(uint seed)
+        {
+            NativeHandle.SetSeed(seed);
+        }
+
+        /// <summary>
         /// Tokenize a string.
         /// </summary>
         /// <param name="text"></param>
