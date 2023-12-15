@@ -87,6 +87,16 @@ namespace LLama
         }
 
         /// <summary>
+        /// Return if a token marks the end of a sentence.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public bool IsEOS(int token)
+        {
+            return NativeApi.llama_token_eos(this.NativeHandle.ModelHandle) == token;
+        }
+
+        /// <summary>
         /// Tokenize a string.
         /// </summary>
         /// <param name="text"></param>

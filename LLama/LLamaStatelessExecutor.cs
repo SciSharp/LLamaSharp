@@ -106,20 +106,22 @@ namespace LLama
                     );
                 }
 
-                if(control.ShouldStopGeneration(context, inferenceParams, new int[] { id }))
-                    break;
-
                 // Decode this token into text
                 decoder.Add(id);
                 var decoded = decoder.Read();
                 yield return decoded;
 
-                // Check if any of the antiprompts have been generated
-                if(control.ShouldStopGeneration(Context, inferenceParams, decoded))
-                    break;
-
                 lastTokens.Add(id);
                 tokens.Clear();
+
+                // Check if we should steop generation by ids
+                if (control.ShouldStopGeneration(context, inferenceParams, id))
+                    break;
+                // Check if we should steop generation by text
+                if (control.ShouldStopGeneration(Context, inferenceParams, decoded))
+                    break;
+
+                // prepare for the next loop
                 tokens.Add(id);
 
                 // when run out of context

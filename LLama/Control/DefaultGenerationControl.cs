@@ -34,9 +34,9 @@ namespace LLama.Control
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public bool ShouldStopGeneration(LLamaContext context, IInferenceParams inferenceParams, IEnumerable<int> lastOutputIds)
+        public bool ShouldStopGeneration(LLamaContext context, IInferenceParams inferenceParams, int lastOutputId)
         {
-            return false;
+            return context.IsEOS(lastOutputId);
         }
     }
 }

@@ -11,14 +11,10 @@ namespace LLama.Examples.Examples
         {
             public bool ShouldStopGeneration(LLamaContext context, IInferenceParams inferenceParams, string lastOutputText)
             {
-                if (lastOutputText.Any(char.IsDigit))
-                {
-                    return true;
-                }
-                return false;
+                return lastOutputText.Any(x => char.IsDigit(x) && (x == '4' || x == '5'));
             }
 
-            public bool ShouldStopGeneration(LLamaContext context, IInferenceParams inferenceParams, IEnumerable<int> lastOutputIds)
+            public bool ShouldStopGeneration(LLamaContext context, IInferenceParams inferenceParams, int lastOutputId)
             {
                 return false;
             }
@@ -39,7 +35,7 @@ namespace LLama.Examples.Examples
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("This is an example to show how to customize the generation control of the executors. Here we implement a control mode in which" +
-                " the generation will stop once there's a number generated. Please try different questions to lead the model to generate answers with and without numbers." +
+                " the generation will stop once there's a number 4 or 5 is generated. Please try different questions to lead the model to generate answers with and without numbers." +
                 " No anti-prompt is used in this example.");
             Console.ForegroundColor = ConsoleColor.White;
 
