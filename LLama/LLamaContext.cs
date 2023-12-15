@@ -87,6 +87,15 @@ namespace LLama
         }
 
         /// <summary>
+        /// Set the seed for the RNG
+        /// </summary>
+        /// <param name="seed"></param>
+        public void SetSeed(uint seed)
+        {
+            NativeApi.llama_set_rng_seed(NativeHandle, seed);
+        }
+
+        /// <summary>
         /// Tokenize a string.
         /// </summary>
         /// <param name="text"></param>
