@@ -48,5 +48,15 @@ namespace LLama.Native
             set => _only_copy = Convert.ToSByte(value);
         }
         private sbyte _only_copy;
+
+        /// <summary>
+        /// disable k-quant mixtures and quantize all tensors to the same type
+        /// </summary>
+        public bool pure
+        {
+            get => Convert.ToBoolean(_pure);
+            set => _pure = Convert.ToSByte(value);
+        }
+        private sbyte _pure;
     }
 }
