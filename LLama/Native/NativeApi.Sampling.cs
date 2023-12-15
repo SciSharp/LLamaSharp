@@ -102,7 +102,7 @@ namespace LLama.Native
         /// <param name="candidates"></param>
         /// <param name="temp"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_sample_temperature(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float temp);
+        public static extern void llama_sample_temp(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float temp);
 
         /// <summary>
         /// Mirostat 1.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
