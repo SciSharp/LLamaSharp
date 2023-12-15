@@ -25,6 +25,14 @@ namespace LLama.Native
 		public static extern void llama_grammar_free(IntPtr grammar);
 
 		/// <summary>
+		/// Create a copy of an existing grammar instance
+		/// </summary>
+		/// <param name="grammar"></param>
+		/// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr llama_grammar_copy(SafeLLamaGrammarHandle grammar);
+
+		/// <summary>
 		/// Apply constraints from grammar
 		/// </summary>
 		/// <param name="ctx"></param>

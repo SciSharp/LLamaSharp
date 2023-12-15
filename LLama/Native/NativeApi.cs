@@ -255,6 +255,12 @@ namespace LLama.Native
         }
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern byte* llama_token_get_text(SafeLlamaModelHandle model, llama_token token);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern float llama_token_get_score(SafeLlamaModelHandle model, llama_token token);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern LLamaTokenType llama_token_get_type(SafeLlamaModelHandle model, llama_token token);
 
         /// <summary>
@@ -329,6 +335,34 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_add_eos_token(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// codellama infill tokens, Beginning of infill prefix
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_token_prefix(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// codellama infill tokens, Beginning of infill middle
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_token_middle(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// codellama infill tokens, Beginning of infill suffix
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_token_suffix(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// codellama infill tokens, End of infill middle
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_token_eot(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Print out timing information for this context
@@ -485,13 +519,11 @@ namespace LLama.Native
 		public static extern void llama_log_set(LLamaLogCallback logCallback);
 
         /// <summary>
-        /// Remove all tokens data of cells in [c0, c1)
+        /// Clear the KV cache
         /// </summary>
         /// <param name="ctx"></param>
-        /// <param name="c0"></param>
-        /// <param name="c1"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_kv_cache_tokens_rm(SafeLLamaContextHandle ctx, int c0, int c1);
+        public static extern void llama_kv_cache_clear(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
