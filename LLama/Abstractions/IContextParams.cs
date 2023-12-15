@@ -24,16 +24,6 @@ public interface IContextParams
     uint Seed { get; set; }
 
     /// <summary>
-    /// Use f16 instead of f32 for memory kv (memory_f16)
-    /// </summary>
-    bool UseFp16Memory { get; set; }
-
-    /// <summary>
-    /// Compute perplexity over the prompt (perplexity)
-    /// </summary>
-    bool Perplexity { get; set; }
-
-    /// <summary>
     /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
     /// The LLamaModel won't produce text response anymore.
     /// </summary>
@@ -48,11 +38,6 @@ public interface IContextParams
     /// RoPE frequency scaling factor (null to fetch from the model)
     /// </summary>
     float? RopeFrequencyScale { get; set; }
-
-    /// <summary>
-    /// Use experimental mul_mat_q kernels
-    /// </summary>
-    bool MulMatQ { get; set; }
 
     /// <summary>
     /// The encoding to use for models
@@ -70,27 +55,27 @@ public interface IContextParams
     uint? BatchThreads { get; set; }
 
     /// <summary>
-    /// YaRN extrapolation mix factor
+    /// YaRN extrapolation mix factor (null = from model)
     /// </summary>
     float? YarnExtrapolationFactor { get; set; }
 
     /// <summary>
-    /// YaRN magnitude scaling factor
+    /// YaRN magnitude scaling factor (null = from model)
     /// </summary>
     float? YarnAttentionFactor { get; set; }
 
     /// <summary>
-    /// YaRN low correction dim
+    /// YaRN low correction dim (null = from model)
     /// </summary>
     float? YarnBetaFast { get; set; }
 
     /// <summary>
-    /// YaRN high correction dim
+    /// YaRN high correction dim (null = from model)
     /// </summary>
     float? YarnBetaSlow { get; set; }
 
     /// <summary>
-    /// YaRN original context length
+    /// YaRN original context length (null = from model)
     /// </summary>
     uint? YarnOriginalContext { get; set; }
 
@@ -98,4 +83,19 @@ public interface IContextParams
     /// YaRN scaling method to use.
     /// </summary>
     RopeScalingType? YarnScalingType { get; set; }
+
+    /// <summary>
+    /// Override the type of the K cache
+    /// </summary>
+    GGMLType? TypeK { get; set; }
+
+    /// <summary>
+    /// Override the type of the V cache
+    /// </summary>
+    GGMLType? TypeV { get; set; }
+
+    /// <summary>
+    /// Whether to disable offloading the KQV cache to the GPU
+    /// </summary>
+    bool NoKqvOffload { get; set; }
 }

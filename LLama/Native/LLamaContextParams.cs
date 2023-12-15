@@ -56,7 +56,7 @@ namespace LLama.Native
         /// </summary>
         public float    rope_freq_scale; 
         /// <summary>
-        /// YaRN extrapolation mix factor, NaN = from model
+        /// YaRN extrapolation mix factor, negative = from model
         /// </summary>
         public float    yarn_ext_factor;  
         /// <summary>
@@ -75,36 +75,26 @@ namespace LLama.Native
         /// <summary>
         /// YaRN original context size
         /// </summary>
-        public uint yarn_orig_ctx;        
-        
+        public uint yarn_orig_ctx;
+
         /// <summary>
-        /// if true, use experimental mul_mat_q kernels
+        /// data type for K cache
         /// </summary>
-        public bool mul_mat_q
-        { 
-            readonly get => Convert.ToBoolean(_mul_mat_q);
-            set => _mul_mat_q = Convert.ToSByte(value);
-        }
+        public GGMLType type_k;
+
+        /// <summary>
+        /// data type for V cache
+        /// </summary>
+        public GGMLType type_v;
+
+        /// <summary>
+        /// Deprecated!
+        /// </summary>
         private sbyte _mul_mat_q;
 
         /// <summary>
-        /// use fp16 for KV cache
+        /// Deprecated!
         /// </summary>
-        public bool f16_kv
-        { 
-            readonly get => Convert.ToBoolean(_f16_kv);
-            set => _f16_kv = Convert.ToSByte(value);
-        }
-        private sbyte _f16_kv;
-
-        /// <summary>
-        /// the llama_eval() call computes all logits, not just the last one
-        /// </summary>
-        public bool logits_all
-        { 
-            readonly get => Convert.ToBoolean(_logits_all);
-            set => _logits_all = Convert.ToSByte(value);
-        }
         private sbyte _logits_all;
 
         /// <summary>
@@ -116,6 +106,16 @@ namespace LLama.Native
             set => _embedding = Convert.ToSByte(value);
         }
         private sbyte _embedding;
+
+        /// <summary>
+        /// whether to offload the KQV ops (including the KV cache) to GPU
+        /// </summary>
+        public bool offload_kqv
+        {
+            readonly get => Convert.ToBoolean(_offload_kqv);
+            set => _offload_kqv = Convert.ToSByte(value);
+        }
+        private sbyte _offload_kqv;
     }
 }
 

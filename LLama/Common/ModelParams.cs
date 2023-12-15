@@ -1,9 +1,8 @@
 ﻿using LLama.Abstractions;
-using System;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using LLama.Native;
+using System.Collections.Generic;
 
 namespace LLama.Common
 {
@@ -26,16 +25,10 @@ namespace LLama.Common
         public uint Seed { get; set; } = 0xFFFFFFFF;
 
         /// <inheritdoc />
-        public bool UseFp16Memory { get; set; } = true;
-
-        /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
 
         /// <inheritdoc />
         public bool UseMemoryLock { get; set; }
-
-        /// <inheritdoc />
-        public bool Perplexity { get; set; }
 
         /// <inheritdoc />
         public string ModelPath { get; set; }
@@ -62,6 +55,9 @@ namespace LLama.Common
         public TensorSplitsCollection TensorSplits { get; set; } = new();
 
         /// <inheritdoc />
+        public List<MetadataOverride> MetadataOverrides { get; set; } = new();
+
+        /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }
 
         /// <inheritdoc />
@@ -86,7 +82,13 @@ namespace LLama.Common
         public RopeScalingType? YarnScalingType { get; set; }
 
         /// <inheritdoc />
-        public bool MulMatQ { get; set; }
+        public GGMLType? TypeK { get; set; }
+
+        /// <inheritdoc />
+        public GGMLType? TypeV { get; set; }
+
+        /// <inheritdoc />
+        public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
