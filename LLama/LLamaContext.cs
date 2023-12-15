@@ -92,7 +92,7 @@ namespace LLama
         /// <param name="seed"></param>
         public void SetSeed(uint seed)
         {
-            NativeApi.llama_set_rng_seed(NativeHandle, seed);
+            NativeHandle.SetSeed(seed);
         }
 
         /// <summary>
