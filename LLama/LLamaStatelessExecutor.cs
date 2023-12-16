@@ -57,6 +57,9 @@ namespace LLama
             using var context = _weights.CreateContext(_params, _logger);
             Context = context;
 
+            // Reset the sampling pipeline (if there is one)
+            inferenceParams?.SamplingPipeline?.Reset();
+
             // Sanity check inference params
             inferenceParams ??= new InferenceParams();
             if (inferenceParams.TokensKeep > Context.ContextSize)
