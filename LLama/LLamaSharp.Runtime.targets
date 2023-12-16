@@ -67,5 +67,31 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libllama.dylib</Link>
       </None>
+	  
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/cublas64_11.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>cublas64_11.dll</Link>
+      </None>
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/cublasLt64_11.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>cublasLt64_11.dll</Link>
+      </None>
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/cudart64_110.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>cudart64_110.dll</Link>
+      </None>
+	  
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/cublas64_12.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>cublas64_12.dll</Link>
+      </None>
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/cublasLt64_12.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>cublasLt64_12.dll</Link>
+      </None>
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/cudart64_12.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>cudart64_12.dll</Link>
+      </None>
     </ItemGroup>
 </Project>

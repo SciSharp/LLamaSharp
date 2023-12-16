@@ -20,6 +20,9 @@
     
     <file src="runtimes/deps/cu12.1.0/libllama.dll" target="runtimes\win-x64\native\cuda12\libllama.dll" />
     <file src="runtimes/deps/cu12.1.0/libllama.so" target="runtimes\linux-x64\native\cuda12\libllama.so" />
+	<file src="runtimes\deps\cu12.1.0\cublas64_12.dll" target="cublas64_12.dll" />
+	<file src="runtimes\deps\cu12.1.0\cublasLt64_12.dll" target="cublasLt64_12.dll" />
+	<file src="runtimes\deps\cu12.1.0\cudart64_12.dll" target="cudart64_12.dll" />
     
     <file src="icon512.png" target="icon512.png" />
   </files>
