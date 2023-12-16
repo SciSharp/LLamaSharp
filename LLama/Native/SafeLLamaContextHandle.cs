@@ -283,5 +283,14 @@ namespace LLama.Native
             }
         }
         #endregion
+
+        /// <summary>
+        /// Set the RNG seed
+        /// </summary>
+        /// <param name="seed"></param>
+        public void SetSeed(uint seed)
+        {
+            NativeApi.llama_set_rng_seed(this, seed);
+        }
     }
 }

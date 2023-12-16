@@ -3,6 +3,8 @@ using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LLama.Native;
 
 namespace LLama.Abstractions
@@ -56,6 +58,11 @@ namespace LLama.Abstractions
         /// base model path for the lora adapter (lora_base)
         /// </summary>
         string LoraBase { get; set; }
+
+        /// <summary>
+        /// Override specific metadata items in the model
+        /// </summary>
+        List<MetadataOverride> MetadataOverrides { get; }
     }
 
     /// <summary>
@@ -102,9 +109,11 @@ namespace LLama.Abstractions
         }
     }
 
+
     /// <summary>
     /// A fixed size array to set the tensor splits across multiple GPUs
     /// </summary>
+    [JsonConverter(typeof(TensorSplitsCollectionConverter))]
     public sealed class TensorSplitsCollection
         : IEnumerable<float>
     {
@@ -173,5 +182,152 @@ namespace LLama.Abstractions
             return Splits.GetEnumerator();
         }
         #endregion
+    }
+
+    /// <summary>
+    /// A JSON converter for <see cref="TensorSplitsCollection"/>
+    /// </summary>
+    public class TensorSplitsCollectionConverter
+        : JsonConverter<TensorSplitsCollection>
+    {
+        /// <inheritdoc/>
+        public override TensorSplitsCollection Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? Array.Empty<float>();
+            return new TensorSplitsCollection(arr);
+        }
+
+        /// <inheritdoc/>
+        public override void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, value.Splits, options);
+        }
+    }
+
+
+    /// <summary>
+    /// An override for a single key/value pair in model metadata
+    /// </summary>
+    [JsonConverter(typeof(MetadataOverrideConverter))]
+    public sealed record MetadataOverride
+    {
+        /// <summary>
+        /// Get the key being overriden by this override
+        /// </summary>
+        public string Key { get; init; }
+
+        internal LLamaModelKvOverrideType Type { get; }
+
+        private readonly int _valueInt;
+        private readonly float _valueFloat;
+        private readonly bool _valueBool;
+
+        /// <summary>
+        /// Create a new override for an int key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public MetadataOverride(string key, int value)
+        {
+            Key = key;
+            _valueInt = value;
+            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT;
+        }
+
+        /// <summary>
+        /// Create a new override for a float key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public MetadataOverride(string key, float value)
+        {
+            Key = key;
+            _valueFloat = value;
+            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT;
+        }
+
+        /// <summary>
+        /// Create a new override for a boolean key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public MetadataOverride(string key, bool value)
+        {
+            Key = key;
+            _valueBool = value;
+            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL;
+        }
+
+        internal void WriteValue(ref LLamaModelMetadataOverride dest)
+        {
+            switch (Type)
+            {
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT:
+                    dest.IntValue = _valueInt;
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT:
+                    dest.FloatValue = _valueFloat;
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
+                    dest.BoolValue = _valueBool ? -1 : 0;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        internal void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
+        {
+            switch (Type)
+            {
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT:
+                    writer.WriteNumberValue(_valueInt);
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT:
+                    writer.WriteNumberValue(_valueFloat);
+                    break;
+                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
+                    writer.WriteBooleanValue(_valueBool);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    /// <summary>
+    /// A JSON converter for <see cref="MetadataOverride"/>
+    /// </summary>
+    public class MetadataOverrideConverter
+        : JsonConverter<MetadataOverride>
+    {
+        /// <inheritdoc/>
+        public override MetadataOverride Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var ktv = JsonSerializer.Deserialize<KeyTypeValue>(ref reader, options)!;
+
+            return ((LLamaModelKvOverrideType)ktv.Type) switch
+            {
+                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT => new MetadataOverride(ktv.Key, ktv.Value.GetInt32()),
+                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT => new MetadataOverride(ktv.Key, ktv.Value.GetSingle()),
+                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL => new MetadataOverride(ktv.Key, ktv.Value.GetBoolean()),
+                _ => throw new JsonException(),
+            };
+        }
+
+        /// <inheritdoc/>
+        public override void Write(Utf8JsonWriter writer, MetadataOverride value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            {
+                writer.WriteNumber("Type", (int)value.Type);
+                writer.WriteString("Key", value.Key);
+                writer.WritePropertyName("Value");
+                value.WriteValue(writer, options);
+            }
+            writer.WriteEndObject();
+        }
+
+        private record KeyTypeValue(int Type, string Key, JsonElement Value);
     }
 }

@@ -197,7 +197,7 @@ namespace LLama.Native
         {
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
-                NativeApi.llama_sample_temperature(context, ref st, temp);
+                NativeApi.llama_sample_temp(context, ref st, temp);
                 sorted = st.sorted;
             }
         }
