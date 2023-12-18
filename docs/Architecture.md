@@ -5,7 +5,7 @@
 The figure below shows the core framework structure, which is separated to four levels.
 
 - **LLamaContext**: The holder of a model which directly interact with native library and provide some basic APIs such as tokenization and embedding. Currently it includes three classes: `LLamaContext`, `LLamaEmbedder` and `LLamaQuantizer`.
-- **LLamaExecutors**: Executors which define the way to run the LLama model. It provides text-to-text APIs to make it easy to use. Currently we provide three kinds of executors: `InteractiveExecutor`, `InstructuExecutor` and `StatelessExecutor`.
+- **LLamaExecutors**: Executors which define the way to run the LLama model. It provides text-to-text APIs to make it easy to use. Currently we provide three kinds of executors: `InteractiveExecutor`, `InstructExecutor` and `StatelessExecutor`.
 - **ChatSession**: A wrapping for `InteractiveExecutor` and `LLamaContext`, which supports interactive tasks and saving/re-loading sessions. It also provides a flexible way to customize the text process by `IHistoryTransform`, `ITextTransform` and `ITextStreamTransform`.
 - **High-level Applications**: Some applications that provides higher-level integration. For example, [BotSharp](https://github.com/SciSharp/BotSharp) provides integration for vector search, Chatbot UI and Web APIs. [semantic-kernel](https://github.com/microsoft/semantic-kernel) provides various APIs for manipulations related with LLM. If you've made an integration, please tell us and add it to the doc!
 
