@@ -33,7 +33,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.0.0-beta8" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.0.0-rc4" />
 	</ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
