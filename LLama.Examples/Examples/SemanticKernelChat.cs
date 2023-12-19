@@ -10,7 +10,7 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/README.md");
+            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example17_ChatGPT.cs");
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
 
