@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using LLama.Exceptions;
 
@@ -36,6 +38,12 @@ namespace LLama.Native
         /// </summary>
         public ulong ParameterCount { get; }
 
+        /// <summary>
+        /// Get the number of metadata key/value pairs
+        /// </summary>
+        /// <returns></returns>
+        public int MetadataCount { get; }
+
         internal SafeLlamaModelHandle(IntPtr handle)
             : base(handle)
         {
@@ -44,6 +52,7 @@ namespace LLama.Native
             EmbeddingSize = NativeApi.llama_n_embd(this);
             SizeInBytes = NativeApi.llama_model_size(this);
             ParameterCount = NativeApi.llama_model_n_params(this);
+            MetadataCount = NativeApi.llama_model_meta_count(this);
         }
 
         /// <inheritdoc />
@@ -197,6 +206,76 @@ namespace LLama.Native
         public SafeLLamaContextHandle CreateContext(LLamaContextParams @params)
         {
             return SafeLLamaContextHandle.Create(this, @params);
+        }
+        #endregion
+
+        #region metadata
+        /// <summary>
+        /// Get the metadata key for the given index
+        /// </summary>
+        /// <param name="index">The index to get</param>
+        /// <param name="buffer">A temporary buffer to store key characters in. Must be large enough to contain the key.</param>
+        /// <returns>The key, null if there is no such key or if the buffer was too small</returns>
+        public Memory<byte>? MetadataKeyByIndex(int index, Memory<byte> buffer)
+        {
+            unsafe
+            {
+                using var pin = buffer.Pin();
+                var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, 1024);
+                if (keyLength < 0)
+                    return null;
+                return buffer.Slice(keyLength);
+            }
+        }
+
+        /// <summary>
+        /// Get the metadata value for the given index
+        /// </summary>
+        /// <param name="index">The index to get</param>
+        /// <param name="buffer">A temporary buffer to store value characters in. Must be large enough to contain the value.</param>
+        /// <returns>The value, null if there is no such value or if the buffer was too small</returns>
+        public Memory<byte>? MetadataValueByIndex(int index, Memory<byte> buffer)
+        {
+            unsafe
+            {
+                using var pin = buffer.Pin();
+                var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, 1024);
+                if (keyLength < 0)
+                    return null;
+                return buffer.Slice(keyLength);
+            }
+        }
+
+        internal IReadOnlyDictionary<string, string> ReadMetadata()
+        {
+            var result = new Dictionary<string, string>();
+
+            var dest = ArrayPool<byte>.Shared.Rent(1024);
+            try
+            {
+                for (var i = 0; i < MetadataCount; i++)
+                {
+                    Array.Clear(dest, 0, dest.Length);
+
+                    var keyBytes = MetadataKeyByIndex(i, dest.AsMemory());
+                    if (keyBytes == null)
+                        continue;
+                    var key = Encoding.UTF8.GetString(keyBytes.Value.Span);
+
+                    var valBytes = MetadataValueByIndex(i, dest.AsMemory());
+                    if (valBytes == null)
+                        continue;
+                    var val = Encoding.UTF8.GetString(valBytes.Value.Span);
+
+                    result[key] = val;
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(dest);
+            }
+
+            return result;
         }
         #endregion
     }
