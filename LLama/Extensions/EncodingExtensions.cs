@@ -16,7 +16,7 @@ internal static class EncodingExtensions
         return GetCharCountImpl(encoding, bytes);
     }
 #elif !NET6_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
-    #error Target framework not supported!
+#error Target framework not supported!
 #endif
 
     internal static int GetCharsImpl(Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> output)
@@ -44,6 +44,17 @@ internal static class EncodingExtensions
             fixed (byte* bytePtr = bytes)
             {
                 return encoding.GetCharCount(bytePtr, bytes.Length);
+            }
+        }
+    }
+
+    internal static string GetStringFromSpan(this Encoding encoding, ReadOnlySpan<byte> bytes)
+    {
+        unsafe
+        {
+            fixed (byte* bytesPtr = bytes)
+            {
+                return encoding.GetString(bytesPtr, bytes.Length);
             }
         }
     }

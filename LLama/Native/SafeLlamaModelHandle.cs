@@ -3,6 +3,8 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
+using LLama.Extensions;
+using EncodingExtensions = LLama.Extensions.EncodingExtensions;
 
 namespace LLama.Native
 {
@@ -259,12 +261,12 @@ namespace LLama.Native
                     var keyBytes = MetadataKeyByIndex(i, dest.AsMemory());
                     if (keyBytes == null)
                         continue;
-                    var key = Encoding.UTF8.GetString(keyBytes.Value.Span);
+                    var key = Encoding.UTF8.GetStringFromSpan(keyBytes.Value.Span);
 
                     var valBytes = MetadataValueByIndex(i, dest.AsMemory());
                     if (valBytes == null)
                         continue;
-                    var val = Encoding.UTF8.GetString(valBytes.Value.Span);
+                    var val = Encoding.UTF8.GetStringFromSpan(valBytes.Value.Span);
 
                     result[key] = val;
                 }
