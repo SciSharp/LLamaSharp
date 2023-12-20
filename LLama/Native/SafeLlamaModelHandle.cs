@@ -222,10 +222,10 @@ namespace LLama.Native
             unsafe
             {
                 using var pin = buffer.Pin();
-                var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, 1024);
+                var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
                 if (keyLength < 0)
                     return null;
-                return buffer.Slice(keyLength);
+                return buffer.Slice(0, keyLength);
             }
         }
 
@@ -240,10 +240,10 @@ namespace LLama.Native
             unsafe
             {
                 using var pin = buffer.Pin();
-                var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, 1024);
+                var keyLength = NativeApi.llama_model_meta_val_str_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
                 if (keyLength < 0)
                     return null;
-                return buffer.Slice(keyLength);
+                return buffer.Slice(0, keyLength);
             }
         }
 
