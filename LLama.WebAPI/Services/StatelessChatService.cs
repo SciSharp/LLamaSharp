@@ -12,7 +12,7 @@ namespace LLama.WebAPI.Services
 
         public StatelessChatService(IConfiguration configuration)
         {
-            var @params = new Common.ModelParams(configuration["ModelPath"])
+            var @params = new Common.ModelParams(configuration["ModelPath"]!)
             {
                 ContextSize = 512,
             };

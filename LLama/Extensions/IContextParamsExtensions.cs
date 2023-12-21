@@ -24,8 +24,6 @@ namespace LLama.Extensions
             result.n_ctx = @params.ContextSize ?? 0;
             result.n_batch = @params.BatchSize;
             result.seed = @params.Seed;
-            result.f16_kv = @params.UseFp16Memory;
-            result.logits_all = @params.Perplexity;
             result.embedding = @params.EmbeddingMode;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
@@ -38,7 +36,9 @@ namespace LLama.Extensions
             result.yarn_orig_ctx = @params.YarnOriginalContext ?? 0;
             result.rope_scaling_type = @params.YarnScalingType ?? RopeScalingType.LLAMA_ROPE_SCALING_UNSPECIFIED;
 
-            result.mul_mat_q = @params.MulMatQ;
+            result.type_k = @params.TypeK ?? GGMLType.GGML_TYPE_F16;
+            result.type_k = @params.TypeV ?? GGMLType.GGML_TYPE_F16;
+            result.offload_kqv = !@params.NoKqvOffload;
 
             result.n_threads = Threads(@params.Threads);
             result.n_threads_batch = Threads(@params.BatchThreads);

@@ -95,6 +95,14 @@ namespace LLama
         {
             return NativeApi.llama_token_eos(this.NativeHandle.ModelHandle) == token;
         }
+        
+        /// Set the seed for the RNG
+        /// </summary>
+        /// <param name="seed"></param>
+        public void SetSeed(uint seed)
+        {
+            NativeHandle.SetSeed(seed);
+        }
 
         /// <summary>
         /// Tokenize a string.

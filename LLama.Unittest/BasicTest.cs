@@ -38,6 +38,8 @@ namespace LLama.Unittest
         [Fact]
         public void AdvancedModelProperties()
         {
+            // These are the keys in the llama 7B test model. This will need changing if
+            // tests are switched to use a new model!
             var expected = new Dictionary<string, string>
             {
                 { "general.name", "LLaMA v2" },
@@ -60,31 +62,16 @@ namespace LLama.Unittest
                 { "tokenizer.ggml.unknown_token_id", "0" },
             };
 
-            var metaCount = NativeApi.llama_model_meta_count(_model.NativeHandle);
-            Assert.Equal(expected.Count, metaCount);
+            // Print all keys
+            foreach (var (key, value) in _model.Metadata)
+                _testOutputHelper.WriteLine($"{key} = {value}");
 
-            Span<byte> buffer = stackalloc byte[128];
-            for (var i = 0; i < expected.Count; i++)
-            {
-                unsafe
-                {
-                    fixed (byte* ptr = buffer)
-                    {
-                        var length = NativeApi.llama_model_meta_key_by_index(_model.NativeHandle, i, ptr, 128);
-                        Assert.True(length > 0);
-                        var key = Encoding.UTF8.GetString(buffer[..length]);
+            // Check the count is equal
+            Assert.Equal(expected.Count, _model.Metadata.Count);
 
-                        length = NativeApi.llama_model_meta_val_str_by_index(_model.NativeHandle, i, ptr, 128);
-                        Assert.True(length > 0);
-                        var val = Encoding.UTF8.GetString(buffer[..length]);
-
-                        _testOutputHelper.WriteLine($"{key} == {val}");
-
-                        Assert.True(expected.ContainsKey(key));
-                        Assert.Equal(expected[key], val);
-                    }
-                }
-            }
+            // Check every key
+            foreach (var (key, value) in _model.Metadata)
+                Assert.Equal(expected[key], value);
         }
     }
 }

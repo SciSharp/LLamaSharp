@@ -2,15 +2,15 @@
 
 public class SendMessageInput
 {
-    public string Text { get; set; }
+    public string Text { get; set; } = "";
 }
 
 public class HistoryInput
 {
-    public List<HistoryItem> Messages { get; set; }
+    public List<HistoryItem> Messages { get; set; } = [];
     public class HistoryItem
     {
-        public string Role { get; set; }
-        public string Content { get; set; }
+        public string Role { get; set; } = "User";
+        public string Content { get; set; } = "";
     }
 }

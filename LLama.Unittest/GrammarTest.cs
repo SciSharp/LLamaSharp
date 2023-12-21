@@ -74,13 +74,14 @@ namespace LLama.Unittest
 
             var grammar = new Grammar(rules, 0);
             using var grammarInstance = grammar.CreateInstance();
+            using var grammarInstance2 = grammarInstance.Clone();
 
             var executor = new StatelessExecutor(_model, _params);
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = 3,
                 AntiPrompts = new [] { ".", "Input:", "\n" },
-                Grammar = grammarInstance,
+                Grammar = grammarInstance2,
             };
 
             var result = await executor.InferAsync("Q. 7 + 12\nA. ", inferenceParams).ToListAsync();

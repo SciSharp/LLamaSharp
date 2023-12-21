@@ -106,6 +106,15 @@ namespace LLama.Native
         #endregion
 
         /// <summary>
+        /// Create a copy of this grammar instance
+        /// </summary>
+        /// <returns></returns>
+        public SafeLLamaGrammarHandle Clone()
+        {
+            return new SafeLLamaGrammarHandle(NativeApi.llama_grammar_copy(this));
+        }
+
+        /// <summary>
         /// Accepts the sampled token into the grammar
         /// </summary>
         /// <param name="ctx"></param>

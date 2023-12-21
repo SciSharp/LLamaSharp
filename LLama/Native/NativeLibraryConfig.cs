@@ -194,10 +194,31 @@ namespace LLama.Native
                 _avxLevel = AvxLevel.Avx;
             if (System.Runtime.Intrinsics.X86.Avx2.IsSupported)
                 _avxLevel = AvxLevel.Avx2;
-#if NET8_0_OR_GREATER
-            if (System.Runtime.Intrinsics.X86.Avx512F.IsSupported)
+
+            if (CheckAVX512())
                 _avxLevel = AvxLevel.Avx512;
+        }
+
+        private static bool CheckAVX512()
+        {
+            if (!System.Runtime.Intrinsics.X86.X86Base.IsSupported)
+                return false;
+
+            var (_, ebx, ecx, _) = System.Runtime.Intrinsics.X86.X86Base.CpuId(7, 0);
+
+            var vnni = (ecx & 0b_1000_0000_0000) != 0;
+
+#if NET8_0_OR_GREATER
+            var f = System.Runtime.Intrinsics.X86.Avx512F.IsSupported;
+            var bw = System.Runtime.Intrinsics.X86.Avx512BW.IsSupported;
+            var vbmi = System.Runtime.Intrinsics.X86.Avx512Vbmi.IsSupported;
+#else
+            var f = (ebx & (1 << 16)) != 0;
+            var bw = (ebx & (1 << 30)) != 0;
+            var vbmi = (ecx & 0b_0000_0000_0010) != 0;
 #endif
+
+            return vnni && vbmi && bw && f;
         }
 
         /// <summary>
@@ -253,4 +274,4 @@ namespace LLama.Native
         }
     }
 #endif
-}
+        }

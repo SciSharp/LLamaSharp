@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LLama.Abstractions;
 using LLama.Extensions;
 using LLama.Native;
@@ -58,9 +59,15 @@ namespace LLama
         /// </summary>
         public int EmbeddingSize => NativeHandle.EmbeddingSize;
 
+        /// <summary>
+        /// All metadata keys in this model
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Metadata { get; set; }
+
         internal LLamaWeights(SafeLlamaModelHandle weights)
         {
             NativeHandle = weights;
+            Metadata = weights.ReadMetadata();
         }
 
         /// <summary>
