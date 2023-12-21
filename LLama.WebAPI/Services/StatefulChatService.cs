@@ -9,13 +9,14 @@ public class StatefulChatService : IDisposable
 {
     private readonly ChatSession _session;
     private readonly LLamaContext _context;
+    private readonly ILogger<StatefulChatService> _logger;
     private bool _continue = false;
 
     private const string SystemPrompt = "Transcript of a dialog, where the User interacts with an Assistant. Assistant is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.";
 
-    public StatefulChatService(IConfiguration configuration)
+    public StatefulChatService(IConfiguration configuration, ILogger<StatefulChatService> logger)
     {
-        var @params = new Common.ModelParams(configuration["ModelPath"])
+        var @params = new Common.ModelParams(configuration["ModelPath"]!)
         {
             ContextSize = 512,
         };
@@ -23,6 +24,7 @@ public class StatefulChatService : IDisposable
         // todo: share weights from a central service
         using var weights = LLamaWeights.LoadFromFile(@params);
 
+        _logger = logger;
         _context = new LLamaContext(weights, @params);
 
         _session = new ChatSession(new InteractiveExecutor(_context));
@@ -36,16 +38,13 @@ public class StatefulChatService : IDisposable
 
     public async Task<string> Send(SendMessageInput input)
     {
+
         if (!_continue)
         {
-            Console.Write(SystemPrompt);
+            _logger.LogInformation("Prompt: {text}", SystemPrompt);
             _continue = true;
         }
-
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(input.Text);
-
-        Console.ForegroundColor = ConsoleColor.White;
+        _logger.LogInformation("Input: {text}", input.Text);
         var outputs = _session.ChatAsync(
             new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text),
             new Common.InferenceParams()
@@ -57,7 +56,7 @@ public class StatefulChatService : IDisposable
         var result = "";
         await foreach (var output in outputs)
         {
-            Console.Write(output);
+            _logger.LogInformation("Message: {output}", output);
             result += output;
         }
 
@@ -68,16 +67,14 @@ public class StatefulChatService : IDisposable
     {
         if (!_continue)
         {
-            Console.Write(SystemPrompt);
+            _logger.LogInformation(SystemPrompt);
             _continue = true;
         }
 
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(input.Text);
+        _logger.LogInformation(input.Text);
 
-        Console.ForegroundColor = ConsoleColor.White;
         var outputs = _session.ChatAsync(
-            new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text)
+            new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text!)
             , new Common.InferenceParams()
             {
                 RepeatPenalty = 1.0f,
@@ -86,7 +83,7 @@ public class StatefulChatService : IDisposable
 
         await foreach (var output in outputs)
         {
-            Console.Write(output);
+            _logger.LogInformation(output);
             yield return output;
         }
     }
