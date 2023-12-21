@@ -16,6 +16,11 @@ namespace LLama.Examples.Examples
             Console.WriteLine("Example from: https://github.com/microsoft/kernel-memory/blob/main/examples/101-using-core-nuget/Program.cs");
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
+            var searchClientConfig = new SearchClientConfig
+            {
+                MaxMatchesCount = 1,
+                AnswerTokens = 100,
+            };
             var memory = new KernelMemoryBuilder()
                     .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath)
                     {
@@ -24,6 +29,7 @@ namespace LLama.Examples.Examples
                             AntiPrompts = new List<string> { "\n\n" }
                         }
                     })
+                    .WithSearchClientConfig(searchClientConfig)
                     .With(new TextPartitioningOptions
                     {
                         MaxTokensPerParagraph = 300,

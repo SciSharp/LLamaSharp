@@ -2,6 +2,7 @@
 using LLama.Common;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using LLamaSharp.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace LLama.Examples.Examples
 {
@@ -9,7 +10,7 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/README.md");
+            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example17_ChatGPT.cs");
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
 
@@ -29,8 +30,8 @@ namespace LLama.Examples.Examples
             await MessageOutputAsync(chatHistory);
 
             // First bot assistant message
-            string reply = await chatGPT.GenerateMessageAsync(chatHistory);
-            chatHistory.AddAssistantMessage(reply);
+            var reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
+            chatHistory.AddAssistantMessage(reply.Content);
             await MessageOutputAsync(chatHistory);
 
             // Second user message
@@ -38,15 +39,15 @@ namespace LLama.Examples.Examples
             await MessageOutputAsync(chatHistory);
 
             // Second bot assistant message
-            reply = await chatGPT.GenerateMessageAsync(chatHistory);
-            chatHistory.AddAssistantMessage(reply);
+            reply = await chatGPT.GetChatMessageContentAsync(chatHistory);
+            chatHistory.AddAssistantMessage(reply.Content);
             await MessageOutputAsync(chatHistory);
         }
 
         /// <summary>
         /// Outputs the last message of the chat history
         /// </summary>
-        private static Task MessageOutputAsync(Microsoft.SemanticKernel.AI.ChatCompletion.ChatHistory chatHistory)
+        private static Task MessageOutputAsync(Microsoft.SemanticKernel.ChatCompletion.ChatHistory chatHistory)
         {
             var message = chatHistory.Last();
 

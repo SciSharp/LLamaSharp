@@ -20,30 +20,9 @@ namespace LLama
         public int EmbeddingSize => _ctx.EmbeddingSize;
 
         /// <summary>
-        /// Create a new embedder (loading temporary weights)
+        /// LLama Context
         /// </summary>
-        /// <param name="allParams"></param>
-        /// <param name="logger"></param>
-        [Obsolete("Preload LLamaWeights and use the constructor which accepts them")]
-        public LLamaEmbedder(ILLamaParams allParams, ILogger? logger = null)
-            : this(allParams, allParams, logger)
-        {
-        }
-
-        /// <summary>
-        /// Create a new embedder (loading temporary weights)
-        /// </summary>
-        /// <param name="modelParams"></param>
-        /// <param name="contextParams"></param>
-        /// <param name="logger"></param>
-        [Obsolete("Preload LLamaWeights and use the constructor which accepts them")]
-        public LLamaEmbedder(IModelParams modelParams, IContextParams contextParams, ILogger? logger = null)
-        {
-            using var weights = LLamaWeights.LoadFromFile(modelParams);
-
-            contextParams.EmbeddingMode = true;
-            _ctx = weights.CreateContext(contextParams, logger);
-        }
+        public LLamaContext Context => this._ctx;
 
         /// <summary>
         /// Create a new embedder, using the given LLamaWeights
@@ -117,5 +96,6 @@ namespace LLama
         {
             _ctx.Dispose();
         }
+
     }
 }

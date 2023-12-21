@@ -13,7 +13,7 @@ namespace LLamaSharp.KernelMemory
     /// <summary>
     /// Provides text generation for LLamaSharp.
     /// </summary>
-    public class LlamaSharpTextGeneration : ITextGeneration, IDisposable
+    public class LlamaSharpTextGenerator : ITextGenerator, IDisposable
     {
         private readonly LLamaWeights _weights;
         private readonly StatelessExecutor _executor;
@@ -22,11 +22,13 @@ namespace LLamaSharp.KernelMemory
         private bool _ownsContext = false;
         private bool _ownsWeights = false;
 
+        public int MaxTokenTotal { get; }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="LlamaSharpTextGeneration"/> class.
+        /// Initializes a new instance of the <see cref="LlamaSharpTextGenerator"/> class.
         /// </summary>
         /// <param name="config">The configuration for LLamaSharp.</param>
-        public LlamaSharpTextGeneration(LLamaSharpConfig config)
+        public LlamaSharpTextGenerator(LLamaSharpConfig config)
         {
             var parameters = new ModelParams(config.ModelPath)
             {
@@ -39,21 +41,23 @@ namespace LLamaSharp.KernelMemory
             _executor = new StatelessExecutor(_weights, parameters);
             _defaultInferenceParams = config?.DefaultInferenceParams;
             _ownsWeights = _ownsContext = true;
+            MaxTokenTotal = (int)parameters.ContextSize;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LlamaSharpTextGeneration"/> class from reused weights, context and executor.
+        /// Initializes a new instance of the <see cref="LlamaSharpTextGenerator"/> class from reused weights, context and executor.
         /// If executor is not specified, then a StatelessExecutor will be created with `context.Params`. So far only `StatelessExecutor` is expected.
         /// </summary>
         /// <param name="weights">A LLamaWeights object.</param>
         /// <param name="context">A LLamaContext object.</param>
         /// <param name="executor">An executor. Currently only StatelessExecutor is expected.</param>
-        public LlamaSharpTextGeneration(LLamaWeights weights, LLamaContext context, StatelessExecutor? executor = null, InferenceParams? inferenceParams = null)
+        public LlamaSharpTextGenerator(LLamaWeights weights, LLamaContext context, StatelessExecutor? executor = null, InferenceParams? inferenceParams = null)
         {
             _weights = weights;
             _context = context;
             _executor = executor ?? new StatelessExecutor(_weights, _context.Params);
             _defaultInferenceParams = inferenceParams;
+            MaxTokenTotal = (int)_context.Params.ContextSize;
         }
 
         /// <inheritdoc/>
@@ -102,5 +106,8 @@ namespace LLamaSharp.KernelMemory
                 };
             }
         }
+
+        /// <inheritdoc/>
+        public int CountTokens(string text) => _context.Tokenize(text).Length;
     }
 }

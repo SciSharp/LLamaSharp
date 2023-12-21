@@ -1,5 +1,5 @@
 ﻿using LLamaSharp.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.AI;
+using Microsoft.SemanticKernel;
 
 namespace LLama.Unittest.SemanticKernel
 {
@@ -75,9 +75,9 @@ namespace LLama.Unittest.SemanticKernel
         public void ChatRequestSettings_FromAIRequestSettings()
         {
             // Arrange
-            var originalRequestSettings = new AIRequestSettings()
+            var originalRequestSettings = new PromptExecutionSettings()
             {
-                ServiceId = "test",
+                ModelId = "test",
             };
 
             // Act
@@ -85,16 +85,16 @@ namespace LLama.Unittest.SemanticKernel
 
             // Assert
             Assert.NotNull(requestSettings);
-            Assert.Equal(originalRequestSettings.ServiceId, requestSettings.ServiceId);
+            Assert.Equal(originalRequestSettings.ModelId, requestSettings.ModelId);
         }
 
         [Fact]
         public void ChatRequestSettings_FromAIRequestSettingsWithExtraPropertiesInSnakeCase()
         {
             // Arrange
-            var originalRequestSettings = new AIRequestSettings()
+            var originalRequestSettings = new PromptExecutionSettings()
             {
-                ServiceId = "test",
+                ModelId = "test",
                 ExtensionData = new Dictionary<string, object>
                 {
                     { "frequency_penalty", 0.5 },
@@ -131,9 +131,9 @@ namespace LLama.Unittest.SemanticKernel
         public void ChatRequestSettings_FromAIRequestSettingsWithExtraPropertiesInPascalCase()
         {
             // Arrange
-            var originalRequestSettings = new AIRequestSettings()
+            var originalRequestSettings = new PromptExecutionSettings()
             {
-                ServiceId = "test",
+                ModelId = "test",
                 ExtensionData = new Dictionary<string, object>
                 {
                     { "FrequencyPenalty", 0.5 },

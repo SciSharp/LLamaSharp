@@ -1,6 +1,8 @@
 ﻿using LLama;
 using LLama.Abstractions;
 using LLama.Common;
+using Microsoft.KernelMemory;
+using Microsoft.KernelMemory.AI;
 using Microsoft.SemanticKernel.AI.Embeddings;
 using System;
 using System.Collections.Generic;
@@ -13,22 +15,23 @@ namespace LLamaSharp.KernelMemory
     /// <summary>
     /// Provides text embedding generation for LLamaSharp.
     /// </summary>
-    public class LLamaSharpTextEmbeddingGeneration : ITextEmbeddingGeneration, IDisposable
+    public class LLamaSharpTextEmbeddingGenerator
+        : ITextEmbeddingGenerator, IDisposable
     {
         private readonly LLamaSharpConfig? _config;
         private readonly LLamaWeights? _weights;
         private readonly LLamaEmbedder _embedder;
         private bool _ownsEmbedder = false;
         private bool _ownsWeights = false;
-        private readonly Dictionary<string, string> _attributes = new();
 
-        public IReadOnlyDictionary<string, string> Attributes => this._attributes;
+        /// <inheritdoc/>
+        public int MaxTokens => (int?)_config?.ContextSize ?? 2048;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class.
+        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGenerator"/> class.
         /// </summary>
         /// <param name="config">The configuration for LLamaSharp.</param>
-        public LLamaSharpTextEmbeddingGeneration(LLamaSharpConfig config)
+        public LLamaSharpTextEmbeddingGenerator(LLamaSharpConfig config)
         {
             this._config = config;
             var @params = new ModelParams(_config.ModelPath);
@@ -39,11 +42,11 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class from reused weights.
+        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGenerator"/> class from reused weights.
         /// </summary>
         /// <param name="config">The configuration for LLamaSharp.</param>
         /// <param name="weights">A LLamaWeights object.</param>
-        public LLamaSharpTextEmbeddingGeneration(LLamaSharpConfig config, LLamaWeights weights)
+        public LLamaSharpTextEmbeddingGenerator(LLamaSharpConfig config, LLamaWeights weights)
         {
             this._config = config;
             var @params = new ModelParams(_config.ModelPath);
@@ -53,10 +56,10 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGeneration"/> class from reused embedder.
+        /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGenerator"/> class from reused embedder.
         /// </summary>
         /// <param name="embedder">A LLamaEmbedder object.</param>
-        public LLamaSharpTextEmbeddingGeneration(LLamaEmbedder embedder)
+        public LLamaSharpTextEmbeddingGenerator(LLamaEmbedder embedder)
         {
             this._config = null;
             this._weights = null;
@@ -89,5 +92,15 @@ namespace LLamaSharp.KernelMemory
 
             return Task.FromResult(results);
         }
+
+        /// <inheritdoc/>
+        public Task<Embedding> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
+        {
+            var embeddings = _embedder.GetEmbeddings(text);
+            return Task.FromResult(new Embedding(embeddings));
+        }
+
+        /// <inheritdoc/>
+        public int CountTokens(string text) => _embedder.Context.Tokenize(text).Length;
     }
 }

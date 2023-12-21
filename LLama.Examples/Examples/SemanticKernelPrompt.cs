@@ -2,8 +2,9 @@
 using LLama.Common;
 using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.AI.TextCompletion;
 using LLamaSharp.SemanticKernel.TextCompletion;
+using Microsoft.SemanticKernel.TextGeneration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LLama.Examples.Examples
 {
@@ -11,7 +12,7 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example17_ChatGPT.cs");
+            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/README.md");
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
 
@@ -20,8 +21,8 @@ namespace LLama.Examples.Examples
             using var model = LLamaWeights.LoadFromFile(parameters);
             var ex = new StatelessExecutor(model, parameters);
 
-            var builder = new KernelBuilder();
-            builder.WithAIService<ITextCompletion>("local-llama", new LLamaSharpTextCompletion(ex), true);
+            var builder = Kernel.CreateBuilder();
+            builder.Services.AddKeyedSingleton<ITextGenerationService>("local-llama", new LLamaSharpTextCompletion(ex));
 
             var kernel = builder.Build();
 
@@ -29,8 +30,8 @@ namespace LLama.Examples.Examples
 
 One line TLDR with the fewest words.";
 
-            ChatRequestSettings settings = new() {MaxTokens = 100};
-            var summarize = kernel.CreateSemanticFunction(prompt, requestSettings: settings);
+            ChatRequestSettings settings = new() { MaxTokens = 100 };
+            var summarize = kernel.CreateFunctionFromPrompt(prompt, settings);
 
             string text1 = @"
 1st Law of Thermodynamics - Energy cannot be created or destroyed.
@@ -42,10 +43,9 @@ One line TLDR with the fewest words.";
 2. The acceleration of an object depends on the mass of the object and the amount of force applied.
 3. Whenever one object exerts a force on another object, the second object exerts an equal and opposite on the first.";
 
-            Console.WriteLine((await kernel.RunAsync(text1, summarize)).GetValue<string>());
+            Console.WriteLine((await kernel.InvokeAsync(summarize, new() { ["input"] = text1 })).GetValue<string>());
 
-            Console.WriteLine((await kernel.RunAsync(text2, summarize)).GetValue<string>());
+            Console.WriteLine((await kernel.InvokeAsync(summarize, new() { ["input"] = text2 })).GetValue<string>());
         }
     }
 }
- 

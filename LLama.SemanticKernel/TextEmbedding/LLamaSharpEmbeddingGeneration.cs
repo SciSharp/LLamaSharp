@@ -1,15 +1,16 @@
 ﻿using LLama;
-using Microsoft.SemanticKernel.AI.Embeddings;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Embeddings;
 
 namespace LLamaSharp.SemanticKernel.TextEmbedding;
 
-public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGeneration
+public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationService
 {
     private LLamaEmbedder _embedder;
 
-    private readonly Dictionary<string, string> _attributes = new();
+    private readonly Dictionary<string, object?> _attributes = new();
 
-    public IReadOnlyDictionary<string, string> Attributes => this._attributes;
+    public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
 
     public LLamaSharpEmbeddingGeneration(LLamaEmbedder embedder)
     {
@@ -17,7 +18,7 @@ public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGeneration
     }
 
     /// <inheritdoc/>
-    public async Task<IList<ReadOnlyMemory<float>>> GenerateEmbeddingsAsync(IList<string> data, CancellationToken cancellationToken = default)
+    public async Task<IList<ReadOnlyMemory<float>>> GenerateEmbeddingsAsync(IList<string> data, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
         var embeddings = data.Select(text => new ReadOnlyMemory<float>(_embedder.GetEmbeddings(text))).ToList();
         return await Task.FromResult(embeddings);

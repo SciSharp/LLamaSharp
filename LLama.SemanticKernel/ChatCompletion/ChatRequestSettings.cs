@@ -1,10 +1,10 @@
-﻿using Microsoft.SemanticKernel.AI;
+﻿using Microsoft.SemanticKernel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
-public class ChatRequestSettings : AIRequestSettings
+public class ChatRequestSettings : PromptExecutionSettings
 {
     /// <summary>
     /// Temperature controls the randomness of the completion.
@@ -68,7 +68,7 @@ public class ChatRequestSettings : AIRequestSettings
     /// <param name="requestSettings">Template configuration</param>
     /// <param name="defaultMaxTokens">Default max tokens</param>
     /// <returns>An instance of OpenAIRequestSettings</returns>
-    public static ChatRequestSettings FromRequestSettings(AIRequestSettings? requestSettings, int? defaultMaxTokens = null)
+    public static ChatRequestSettings FromRequestSettings(PromptExecutionSettings? requestSettings, int? defaultMaxTokens = null)
     {
         if (requestSettings is null)
         {
