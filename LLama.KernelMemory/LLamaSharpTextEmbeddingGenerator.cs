@@ -101,6 +101,6 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <inheritdoc/>
-        public int CountTokens(string text) => _embedder.Tokenize(text).Length;
+        public int CountTokens(string text) => _embedder.Context.Tokenize(text).Length;
     }
 }
