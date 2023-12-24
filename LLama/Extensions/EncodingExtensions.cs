@@ -6,6 +6,11 @@ namespace LLama.Extensions;
 internal static class EncodingExtensions
 {
 #if NETSTANDARD2_0
+    public static int GetBytes(this Encoding encoding, ReadOnlySpan<char> chars, Span<byte> output)
+    {
+        return GetBytesImpl(encoding, chars, output);
+    }
+
     public static int GetChars(this Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> output)
     {
         return GetCharsImpl(encoding, bytes, output);
@@ -18,6 +23,21 @@ internal static class EncodingExtensions
 #elif !NET6_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
 #error Target framework not supported!
 #endif
+
+    internal static int GetBytesImpl(Encoding encoding, ReadOnlySpan<char> chars, Span<byte> output)
+    {
+        if (chars.Length == 0)
+            return 0;
+
+        unsafe
+        {
+            fixed (char* charPtr = chars)
+            fixed (byte* bytePtr = output)
+            {
+                return encoding.GetBytes(charPtr, chars.Length, bytePtr, output.Length);
+            }
+        }
+    }
 
     internal static int GetCharsImpl(Encoding encoding, ReadOnlySpan<byte> bytes, Span<char> output)
     {

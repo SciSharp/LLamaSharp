@@ -45,35 +45,39 @@ public static class IModelParamsExtensions
         }
         else
         {
-            // Allocate enough space for all the override items
+            // Allocate enough space for all the override items. Pin it in place so we can safely pass it to llama.cpp
+            // This is one larger than necessary. The last item indicates the end of the overrides.
             var overrides = new LLamaModelMetadataOverride[@params.MetadataOverrides.Count + 1];
-            var overridesPin = overrides.AsMemory().Pin();
             unsafe
             {
-                result.kv_overrides = (LLamaModelMetadataOverride*)disposer.Add(overridesPin).Pointer;
+                result.kv_overrides = (LLamaModelMetadataOverride*)disposer.Add(overrides.AsMemory().Pin()).Pointer;
             }
 
             // Convert each item
             for (var i = 0; i < @params.MetadataOverrides.Count; i++)
             {
-                var item = @params.MetadataOverrides[i];
-                var native = new LLamaModelMetadataOverride
-                {
-                    Tag = item.Type
-                };
-
-                item.WriteValue(ref native);
-
-                // Convert key to bytes
                 unsafe
                 {
-                    fixed (char* srcKey = item.Key)
-                    {
-                        Encoding.UTF8.GetBytes(srcKey, 0, native.key, 128);
-                    }
-                }
+                    // Get the item to convert
+                    var item = @params.MetadataOverrides[i];
 
-                overrides[i] = native;
+                    // Create the "native" representation to fill in
+                    var native = new LLamaModelMetadataOverride
+                    {
+                        Tag = item.Type
+                    };
+
+                    // Write the value into the native struct
+                    item.WriteValue(ref native);
+
+                    // Convert key chars to bytes
+                    var srcSpan = item.Key.AsSpan();
+                    var dstSpan = new Span<byte>(native.key, 128);
+                    Encoding.UTF8.GetBytes(srcSpan, dstSpan);
+
+                    // Store it in the array
+                    overrides[i] = native;
+                }
             }
         }
 
