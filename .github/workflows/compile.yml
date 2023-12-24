@@ -57,7 +57,7 @@ jobs:
           - build: 'avx'
             defines: '-DLLAMA_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON -LLAMA_AVX512_VBMI=ON -DLLAMA_AVX512_VNNI=ON'
+            defines: '-DLLAMA_AVX512=ON -DLLAMA_AVX512_VBMI=ON -DLLAMA_AVX512_VNNI=ON'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
