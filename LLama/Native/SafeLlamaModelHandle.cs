@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using LLama.Exceptions;
 using LLama.Extensions;
-using EncodingExtensions = LLama.Extensions.EncodingExtensions;
 
 namespace LLama.Native
 {
@@ -196,7 +195,7 @@ namespace LLama.Native
                 }
             }
         }
-#endregion
+        #endregion
 
         #region context
         /// <summary>
@@ -217,15 +216,26 @@ namespace LLama.Native
         /// <param name="index">The index to get</param>
         /// <param name="buffer">A temporary buffer to store key characters in. Must be large enough to contain the key.</param>
         /// <returns>The key, null if there is no such key or if the buffer was too small</returns>
-        public Memory<byte>? MetadataKeyByIndex(int index, Memory<byte> buffer)
+        public Memory<byte>? MetadataKeyByIndex(int index)
         {
+            int keyLength;
             unsafe
             {
-                using var pin = buffer.Pin();
-                var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
+                // Check if the key exists, without getting any bytes of data
+                keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)0, 0);
                 if (keyLength < 0)
                     return null;
-                return buffer.Slice(0, keyLength);
+            }
+
+            // get a buffer large enough to hold it
+            var buffer = new byte[keyLength + 1];
+            unsafe
+            {
+                using var pin = buffer.AsMemory().Pin();
+                keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
+                Debug.Assert(keyLength >= 0);
+
+                return buffer.AsMemory().Slice(0, keyLength);
             }
         }
 
@@ -235,15 +245,26 @@ namespace LLama.Native
         /// <param name="index">The index to get</param>
         /// <param name="buffer">A temporary buffer to store value characters in. Must be large enough to contain the value.</param>
         /// <returns>The value, null if there is no such value or if the buffer was too small</returns>
-        public Memory<byte>? MetadataValueByIndex(int index, Memory<byte> buffer)
+        public Memory<byte>? MetadataValueByIndex(int index)
         {
+            int valueLength;
             unsafe
             {
-                using var pin = buffer.Pin();
-                var keyLength = NativeApi.llama_model_meta_val_str_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
-                if (keyLength < 0)
+                // Check if the key exists, without getting any bytes of data
+                valueLength = NativeApi.llama_model_meta_val_str_by_index(this, index, (byte*)0, 0);
+                if (valueLength < 0)
                     return null;
-                return buffer.Slice(0, keyLength);
+            }
+
+            // get a buffer large enough to hold it
+            var buffer = new byte[valueLength + 1];
+            unsafe
+            {
+                using var pin = buffer.AsMemory().Pin();
+                valueLength = NativeApi.llama_model_meta_val_str_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
+                Debug.Assert(valueLength >= 0);
+
+                return buffer.AsMemory().Slice(0, valueLength);
             }
         }
 
@@ -251,29 +272,19 @@ namespace LLama.Native
         {
             var result = new Dictionary<string, string>();
 
-            var dest = ArrayPool<byte>.Shared.Rent(1024);
-            try
+            for (var i = 0; i < MetadataCount; i++)
             {
-                for (var i = 0; i < MetadataCount; i++)
-                {
-                    Array.Clear(dest, 0, dest.Length);
+                var keyBytes = MetadataKeyByIndex(i);
+                if (keyBytes == null)
+                    continue;
+                var key = Encoding.UTF8.GetStringFromSpan(keyBytes.Value.Span);
 
-                    var keyBytes = MetadataKeyByIndex(i, dest.AsMemory());
-                    if (keyBytes == null)
-                        continue;
-                    var key = Encoding.UTF8.GetStringFromSpan(keyBytes.Value.Span);
+                var valBytes = MetadataValueByIndex(i);
+                if (valBytes == null)
+                    continue;
+                var val = Encoding.UTF8.GetStringFromSpan(valBytes.Value.Span);
 
-                    var valBytes = MetadataValueByIndex(i, dest.AsMemory());
-                    if (valBytes == null)
-                        continue;
-                    var val = Encoding.UTF8.GetStringFromSpan(valBytes.Value.Span);
-
-                    result[key] = val;
-                }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(dest);
+                result[key] = val;
             }
 
             return result;
