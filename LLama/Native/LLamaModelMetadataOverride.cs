@@ -21,22 +21,28 @@ public unsafe struct LLamaModelMetadataOverride
     public LLamaModelKvOverrideType Tag;
 
     /// <summary>
-    /// Value, **must** only be used if Tag == LLAMA_KV_OVERRIDE_INT
+    /// Add 4 bytes of padding, to align the next fields to 8 bytes
     /// </summary>
     [FieldOffset(132)]
+    private readonly int PADDING;
+
+    /// <summary>
+    /// Value, **must** only be used if Tag == LLAMA_KV_OVERRIDE_INT
+    /// </summary>
+    [FieldOffset(136)]
     public long IntValue;
 
     /// <summary>
     /// Value, **must** only be used if Tag == LLAMA_KV_OVERRIDE_FLOAT
     /// </summary>
-    [FieldOffset(132)]
+    [FieldOffset(136)]
     public double FloatValue;
 
     /// <summary>
     /// Value, **must** only be used if Tag == LLAMA_KV_OVERRIDE_BOOL
     /// </summary>
-    [FieldOffset(132)]
-    public int BoolValue;
+    [FieldOffset(136)]
+    public long BoolValue;
 }
 
 /// <summary>

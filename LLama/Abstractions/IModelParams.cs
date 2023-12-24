@@ -269,7 +269,7 @@ namespace LLama.Abstractions
                     dest.FloatValue = _valueFloat;
                     break;
                 case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
-                    dest.BoolValue = _valueBool ? -1 : 0;
+                    dest.BoolValue = _valueBool ? -1L : 0;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
