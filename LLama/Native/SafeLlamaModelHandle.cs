@@ -16,44 +16,33 @@ namespace LLama.Native
         /// <summary>
         /// Total number of tokens in vocabulary of this model
         /// </summary>
-        public int VocabCount { get; }
+        public int VocabCount => NativeApi.llama_n_vocab(this);
 
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize { get; }
+        public int ContextSize => NativeApi.llama_n_ctx_train(this);
 
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingSize { get; }
+        public int EmbeddingSize => NativeApi.llama_n_embd(this);
 
         /// <summary>
         /// Get the size of this model in bytes
         /// </summary>
-        public ulong SizeInBytes { get; }
+        public ulong SizeInBytes => NativeApi.llama_model_size(this);
 
         /// <summary>
         /// Get the number of parameters in this model
         /// </summary>
-        public ulong ParameterCount { get; }
+        public ulong ParameterCount => NativeApi.llama_model_n_params(this);
 
         /// <summary>
         /// Get the number of metadata key/value pairs
         /// </summary>
         /// <returns></returns>
-        public int MetadataCount { get; }
-
-        internal SafeLlamaModelHandle(IntPtr handle)
-            : base(handle)
-        {
-            VocabCount = NativeApi.llama_n_vocab(this);
-            ContextSize = NativeApi.llama_n_ctx_train(this);
-            EmbeddingSize = NativeApi.llama_n_embd(this);
-            SizeInBytes = NativeApi.llama_model_size(this);
-            ParameterCount = NativeApi.llama_model_n_params(this);
-            MetadataCount = NativeApi.llama_model_meta_count(this);
-        }
+        public int MetadataCount => NativeApi.llama_model_meta_count(this);
 
         /// <inheritdoc />
         protected override bool ReleaseHandle()
@@ -73,10 +62,10 @@ namespace LLama.Native
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
             var model_ptr = NativeApi.llama_load_model_from_file(modelPath, lparams);
-            if (model_ptr == IntPtr.Zero)
+            if (model_ptr == null)
                 throw new RuntimeError($"Failed to load model {modelPath}.");
 
-            return new SafeLlamaModelHandle(model_ptr);
+            return model_ptr;
         }
 
         #region LoRA
@@ -114,14 +103,8 @@ namespace LLama.Native
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
         public int TokenToSpan(int llama_token, Span<byte> dest)
         {
-            unsafe
-            {
-                fixed (byte* destPtr = dest)
-                {
-                    var length = NativeApi.llama_token_to_piece(this, llama_token, destPtr, dest.Length);
-                    return Math.Abs(length);
-                }
-            }
+            var length = NativeApi.llama_token_to_piece(this, llama_token, dest);
+            return Math.Abs(length);
         }
 
         /// <summary>
