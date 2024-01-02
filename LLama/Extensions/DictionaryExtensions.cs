@@ -15,6 +15,7 @@ namespace LLama.Extensions
 
         internal static TValue GetValueOrDefaultImpl<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
         {
+            // ReSharper disable once CanSimplifyDictionaryTryGetValueWithGetValueOrDefault (this is a shim for  that method!)
             return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
         }
     }

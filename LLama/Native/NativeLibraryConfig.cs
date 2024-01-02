@@ -29,10 +29,11 @@ namespace LLama.Native
         private bool _allowFallback = true;
         private bool _skipCheck = false;
         private bool _logging = false;
+
         /// <summary>
         /// search directory -> priority level, 0 is the lowest.
         /// </summary>
-        private List<string> _searchDirectories = new List<string>();
+        private readonly List<string> _searchDirectories = new List<string>();
 
         private static void ThrowIfLoaded()
         {
@@ -159,9 +160,8 @@ namespace LLama.Native
         internal static Description CheckAndGatherDescription()
         {
             if (Instance._allowFallback && Instance._skipCheck)
-            {
                 throw new ArgumentException("Cannot skip the check when fallback is allowed.");
-            }
+            
             return new Description(
                 Instance._libraryPath, 
                 Instance._useCuda, 
@@ -169,7 +169,8 @@ namespace LLama.Native
                 Instance._allowFallback, 
                 Instance._skipCheck, 
                 Instance._logging, 
-                Instance._searchDirectories.Concat(new string[] { "./" }).ToArray());
+                Instance._searchDirectories.Concat(new[] { "./" }).ToArray()
+            );
         }
 
         internal static string AvxLevelToString(AvxLevel level)
@@ -204,7 +205,9 @@ namespace LLama.Native
             if (!System.Runtime.Intrinsics.X86.X86Base.IsSupported)
                 return false;
 
+            // ReSharper disable UnusedVariable (ebx is used when < NET8)
             var (_, ebx, ecx, _) = System.Runtime.Intrinsics.X86.X86Base.CpuId(7, 0);
+            // ReSharper restore UnusedVariable
 
             var vnni = (ecx & 0b_1000_0000_0000) != 0;
 

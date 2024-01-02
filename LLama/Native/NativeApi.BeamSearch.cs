@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace LLama.Native;
 
-public partial class NativeApi
+public static partial class NativeApi
 {
     /// <summary>
     /// Type of pointer to the beam_search_callback function.

@@ -64,7 +64,7 @@ namespace LLama
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; set; }
 
-        internal LLamaWeights(SafeLlamaModelHandle weights)
+        private LLamaWeights(SafeLlamaModelHandle weights)
         {
             NativeHandle = weights;
             Metadata = weights.ReadMetadata();

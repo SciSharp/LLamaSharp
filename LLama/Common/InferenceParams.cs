@@ -18,11 +18,13 @@ namespace LLama.Common
         /// number of tokens to keep from initial prompt
         /// </summary>
         public int TokensKeep { get; set; } = 0;
+
         /// <summary>
         /// how many new tokens to predict (n_predict), set to -1 to inifinitely generate response
         /// until it complete.
         /// </summary>
         public int MaxTokens { get; set; } = -1;
+
         /// <summary>
         /// logit bias for specific tokens
         /// </summary>

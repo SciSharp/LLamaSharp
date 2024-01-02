@@ -12,17 +12,15 @@ namespace LLama
     public sealed class LLamaEmbedder
         : IDisposable
     {
-        private readonly LLamaContext _ctx;
-
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingSize => _ctx.EmbeddingSize;
+        public int EmbeddingSize => Context.EmbeddingSize;
 
         /// <summary>
         /// LLama Context
         /// </summary>
-        public LLamaContext Context => this._ctx;
+        public LLamaContext Context { get; }
 
         /// <summary>
         /// Create a new embedder, using the given LLamaWeights
@@ -33,7 +31,7 @@ namespace LLama
         public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
             @params.EmbeddingMode = true;
-            _ctx = weights.CreateContext(@params, logger);
+            Context = weights.CreateContext(@params, logger);
         }
 
         /// <summary>
@@ -72,20 +70,20 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public float[] GetEmbeddings(string text, bool addBos)
         {
-            var embed_inp_array = _ctx.Tokenize(text, addBos);
+            var embed_inp_array = Context.Tokenize(text, addBos);
 
             // TODO(Rinne): deal with log of prompt
 
             if (embed_inp_array.Length > 0)
-                _ctx.Eval(embed_inp_array, 0);
+                Context.Eval(embed_inp_array, 0);
 
             unsafe
             {
-                var embeddings = NativeApi.llama_get_embeddings(_ctx.NativeHandle);
+                var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
                 if (embeddings == null)
                     return Array.Empty<float>();
 
-                return new Span<float>(embeddings, EmbeddingSize).ToArray();
+                return embeddings.ToArray();
             }
         }
 
@@ -94,7 +92,7 @@ namespace LLama
         /// </summary>
         public void Dispose()
         {
-            _ctx.Dispose();
+            Context.Dispose();
         }
 
     }

@@ -4,13 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace LLama.Native
 {
-    public partial class NativeApi
+    public static partial class NativeApi
     {
         static NativeApi()
         {
@@ -97,22 +96,13 @@ namespace LLama.Native
             }
 
             if (string.IsNullOrEmpty(version))
-            {
                 return -1;
-            }
-            else
-            {
-                version = version.Split('.')[0];
-                bool success = int.TryParse(version, out var majorVersion);
-                if (success)
-                {
-                    return majorVersion;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
+
+            version = version.Split('.')[0];
+            if (int.TryParse(version, out var majorVersion))
+                return majorVersion;
+
+            return -1;
         }
 
         private static string GetCudaVersionFromPath(string cudaPath)
@@ -129,7 +119,7 @@ namespace LLama.Native
                     {
                         return string.Empty;
                     }
-                    return versionNode.GetString();
+                    return versionNode.GetString() ?? "";
                 }
             }
             catch (Exception)
@@ -169,18 +159,14 @@ namespace LLama.Native
             {
                 platform = OSPlatform.OSX;
                 suffix = ".dylib";
-                if (System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported)
-                {
-                    prefix = "runtimes/osx-arm64/native/";
-                }
-                else
-                {
-                    prefix = "runtimes/osx-x64/native/";
-                }
+
+                prefix = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
+                       ? "runtimes/osx-arm64/native/"
+                       : "runtimes/osx-x64/native/";
             }
             else
             {
-                throw new RuntimeError($"Your system plarform is not supported, please open an issue in LLamaSharp.");
+                throw new RuntimeError("Your system plarform is not supported, please open an issue in LLamaSharp.");
             }
             Log($"Detected OS Platform: {platform}", LogLevel.Information);
 
@@ -275,15 +261,15 @@ namespace LLama.Native
 
             var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
 
-            string[] preferredPaths = configuration.SearchDirectories;
-            string[] possiblePathPrefix = new string[] {
-                System.AppDomain.CurrentDomain.BaseDirectory,
+            var preferredPaths = configuration.SearchDirectories;
+            var possiblePathPrefix = new[] {
+                AppDomain.CurrentDomain.BaseDirectory,
                 Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
             };
 
-            var tryFindPath = (string filename) =>
+            string TryFindPath(string filename)
             {
-                foreach(var path in preferredPaths)
+                foreach (var path in preferredPaths)
                 {
                     if (File.Exists(Path.Combine(path, filename)))
                     {
@@ -291,7 +277,7 @@ namespace LLama.Native
                     }
                 }
 
-                foreach(var path in possiblePathPrefix)
+                foreach (var path in possiblePathPrefix)
                 {
                     if (File.Exists(Path.Combine(path, filename)))
                     {
@@ -300,21 +286,19 @@ namespace LLama.Native
                 }
 
                 return filename;
-            };
+            }
 
             foreach (var libraryPath in libraryTryLoadOrder)
             {
-                var fullPath = tryFindPath(libraryPath);
+                var fullPath = TryFindPath(libraryPath);
                 var result = TryLoad(fullPath, true);
                 if (result is not null && result != IntPtr.Zero)
                 {
                     Log($"{fullPath} is selected and loaded successfully.", LogLevel.Information);
-                    return result ?? IntPtr.Zero;
+                    return (IntPtr)result;
                 }
-                else
-                {
-                    Log($"Tried to load {fullPath} but failed.", LogLevel.Information);
-                }
+
+                Log($"Tried to load {fullPath} but failed.", LogLevel.Information);
             }
 
             if (!configuration.AllowFallback)

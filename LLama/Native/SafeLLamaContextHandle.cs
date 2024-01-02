@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Text;
 using LLama.Exceptions;
 
@@ -51,8 +50,6 @@ namespace LLama.Native
             _model.DangerousAddRef(ref success);
             if (!success)
                 throw new RuntimeError("Failed to increment model refcount");
-
-            
         }
 
         /// <inheritdoc />

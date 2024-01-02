@@ -14,7 +14,7 @@ public struct LLamaKvCacheViewCell
     /// May be negative if the cell is not populated.
     /// </summary>
     public LLamaPos pos;
-};
+}
 
 /// <summary>
 /// An updateable view of the KV cache (llama_kv_cache_view)
@@ -130,7 +130,7 @@ public class LLamaKvCacheViewSafeHandle
     }
 }
 
-partial class NativeApi
+public static partial class NativeApi
 {
     /// <summary>
     /// Create an empty KV cache view. (use only for debugging purposes)
