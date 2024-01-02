@@ -70,7 +70,7 @@ namespace LLama
         /// </summary>
         protected float? MirostatMu { get; set; }
 
-        private StreamingTokenDecoder _decoder;
+        private readonly StreamingTokenDecoder _decoder;
 
         /// <summary>
         /// 

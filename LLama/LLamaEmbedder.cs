@@ -77,14 +77,11 @@ namespace LLama
             if (embed_inp_array.Length > 0)
                 Context.Eval(embed_inp_array, 0);
 
-            unsafe
-            {
-                var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-                if (embeddings == null)
-                    return Array.Empty<float>();
+            var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
+            if (embeddings == null)
+                return Array.Empty<float>();
 
-                return embeddings.ToArray();
-            }
+            return embeddings.ToArray();
         }
 
         /// <summary>

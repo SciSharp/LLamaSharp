@@ -175,7 +175,7 @@ namespace LLama.Native
         /// <param name="n_token_count_out"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, llama_token[] tokens_out, ulong n_token_capacity, ulong* n_token_count_out);
+        public static extern bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, llama_token[] tokens_out, ulong n_token_capacity, out ulong n_token_count_out);
 
         /// <summary>
         /// Save session file
@@ -439,24 +439,44 @@ namespace LLama.Native
         /// <summary>
         /// Get metadata key name by index
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="index"></param>
-        /// <param name="buf"></param>
-        /// <param name="buf_size"></param>
+        /// <param name="model">Model to fetch from</param>
+        /// <param name="index">Index of key to fetch</param>
+        /// <param name="dest">buffer to write result into</param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_model_meta_key_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+        public static int llama_model_meta_key_by_index(SafeLlamaModelHandle model, int index, Span<byte> dest)
+        {
+            unsafe
+            {
+                fixed (byte* destPtr = &dest[0])
+                {
+                    return llama_model_meta_key_by_index_native(model, index, destPtr, dest.Length);
+                }
+            }
+
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_key_by_index")]
+            static extern unsafe int llama_model_meta_key_by_index_native(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+        }
 
         /// <summary>
         /// Get metadata value as a string by index
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="index"></param>
-        /// <param name="buf"></param>
-        /// <param name="buf_size"></param>
+        /// <param name="model">Model to fetch from</param>
+        /// <param name="index">Index of val to fetch</param>
+        /// <param name="dest">Buffer to write result into</param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_model_meta_val_str_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+        public static int llama_model_meta_val_str_by_index(SafeLlamaModelHandle model, int index, Span<byte> dest)
+        {
+            unsafe
+            {
+                fixed (byte* destPtr = &dest[0])
+                {
+                    return llama_model_meta_val_str_by_index_native(model, index, destPtr, dest.Length);
+                }
+            }
+
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_val_str_by_index")]
+            static extern unsafe int llama_model_meta_val_str_by_index_native(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+        }
 
         /// <summary>
         /// Get a string describing the model type
