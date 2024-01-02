@@ -447,7 +447,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                fixed (byte* destPtr = &dest[0])
+                fixed (byte* destPtr = dest)
                 {
                     return llama_model_meta_key_by_index_native(model, index, destPtr, dest.Length);
                 }
@@ -468,7 +468,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                fixed (byte* destPtr = &dest[0])
+                fixed (byte* destPtr = dest)
                 {
                     return llama_model_meta_val_str_by_index_native(model, index, destPtr, dest.Length);
                 }
