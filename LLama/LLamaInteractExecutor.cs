@@ -13,14 +13,13 @@ using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
-    using llama_token = Int32;
     /// <summary>
     /// The LLama executor for interactive mode.
     /// </summary>
     public class InteractiveExecutor : StatefulExecutorBase
     {
         private bool _is_prompt_run = true;
-        private readonly llama_token _llama_token_newline;
+        private readonly LLamaToken _llama_token_newline;
 
         /// <summary>
         /// 
@@ -63,7 +62,7 @@ namespace LLama
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
                 _embeds = state.Embeds;
-                _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
+                _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens);
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
@@ -189,7 +188,7 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                llama_token id;
+                LLamaToken id;
                 if (inferenceParams.SamplingPipeline is not null)
                 {
                     id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), _last_n_tokens.ToArray());

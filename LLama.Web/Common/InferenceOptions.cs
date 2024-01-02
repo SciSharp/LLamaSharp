@@ -17,7 +17,7 @@ namespace LLama.Web.Common
         public int MaxTokens { get; set; } = -1;
 
         /// <inheritdoc />
-        public Dictionary<int, float>? LogitBias { get; set; } = null;
+        public Dictionary<LLamaToken, float>? LogitBias { get; set; } = null;
 
         /// <inheritdoc />
         public IReadOnlyList<string> AntiPrompts { get; set; } = Array.Empty<string>();

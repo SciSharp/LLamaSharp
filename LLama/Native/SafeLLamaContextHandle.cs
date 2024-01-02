@@ -137,19 +137,19 @@ namespace LLama.Native
         /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public int[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
+        public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             ThrowIfDisposed();
 
             if (string.IsNullOrEmpty(text) && !add_bos)
-                return Array.Empty<int>();
+                return Array.Empty<LLamaToken>();
 
             // Calculate number of bytes in string, this is a pessimistic estimate of token count. It can't
             // possibly be more than this.
             var count = encoding.GetByteCount(text) + (add_bos ? 1 : 0);
 
             // "Rent" an array to write results into (avoiding an allocation of a large array)
-            var temporaryArray = ArrayPool<int>.Shared.Rent(count);
+            var temporaryArray = ArrayPool<LLamaToken>.Shared.Rent(count);
             try
             {
                 // Do the actual conversion
@@ -161,14 +161,14 @@ namespace LLama.Native
                 }
 
                 // Copy the results from the rented into an array which is exactly the right size
-                var result = new int[n];
+                var result = new LLamaToken[n];
                 Array.ConstrainedCopy(temporaryArray, 0, result, 0, n);
 
                 return result;
             }
             finally
             {
-                ArrayPool<int>.Shared.Return(temporaryArray);
+                ArrayPool<LLamaToken>.Shared.Return(temporaryArray);
             }
         }
 
@@ -191,11 +191,11 @@ namespace LLama.Native
         /// <param name="n_past">the number of tokens to use from previous eval calls</param>
         /// <returns>Returns true on success</returns>
         [Obsolete("use llama_decode() instead")]
-        public bool Eval(ReadOnlySpan<int> tokens, int n_past)
+        public bool Eval(ReadOnlySpan<LLamaToken> tokens, int n_past)
         {
             unsafe
             {
-                fixed (int* pinned = tokens)
+                fixed (LLamaToken* pinned = tokens)
                 {
                     // the entire `eval` system needs replacing with the new batch system!
                     var ret = NativeApi.llama_eval(this, pinned, tokens.Length, n_past);

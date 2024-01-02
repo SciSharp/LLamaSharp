@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Native;
 
 namespace LLama.Unittest
 {
@@ -37,7 +38,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("The quick brown fox", true);
 
-            Assert.Equal(new[] { 1, 450, 4996, 17354, 1701, 29916 }, tokens);
+            Assert.Equal([ 1, 450, 4996, 17354, 1701, 29916 ], tokens);
         }
 
         [Fact]
@@ -45,7 +46,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("The quick brown fox", false);
 
-            Assert.Equal(new[] { 450, 4996, 17354, 1701, 29916 }, tokens);
+            Assert.Equal([450, 4996, 17354, 1701, 29916], tokens);
         }
 
         [Fact]
@@ -53,7 +54,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("", false);
 
-            Assert.Equal(Array.Empty<int>(), tokens);
+            Assert.Equal(Array.Empty<LLamaToken>(), tokens);
         }
     }
 }

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-    using llama_token = Int32;
-
     public static partial class NativeApi
     {
         /// <summary>
@@ -21,7 +18,7 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe void llama_sample_repetition_penalties(SafeLLamaContextHandle ctx,
                                                                     ref LLamaTokenDataArrayNative candidates,
-                                                                    llama_token* last_tokens, ulong last_tokens_size,
+                                                                    LLamaToken* last_tokens, ulong last_tokens_size,
                                                                     float penalty_repeat,
                                                                     float penalty_freq,
                                                                     float penalty_present);
@@ -115,7 +112,7 @@ namespace LLama.Native
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, int m, ref float mu);
+        public static extern LLamaToken llama_sample_token_mirostat(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, int m, ref float mu);
 
         /// <summary>
         /// Mirostat 2.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
@@ -127,7 +124,7 @@ namespace LLama.Native
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, ref float mu);
+        public static extern LLamaToken llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float tau, float eta, ref float mu);
 
         /// <summary>
         /// Selects the token with the highest probability.
@@ -136,7 +133,7 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_sample_token_greedy(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
+        public static extern LLamaToken llama_sample_token_greedy(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
 
         /// <summary>
         /// Randomly selects a token from the candidates based on their probabilities.
@@ -145,6 +142,6 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern llama_token llama_sample_token(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
+        public static extern LLamaToken llama_sample_token(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
     }
 }

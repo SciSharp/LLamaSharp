@@ -119,7 +119,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="token"></param>
-        public void AcceptToken(SafeLLamaContextHandle ctx, int token)
+        public void AcceptToken(SafeLLamaContextHandle ctx, LLamaToken token)
         {
             NativeApi.llama_grammar_accept_token(ctx, this, token);
         }

@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
-    using llama_token = Int32;
     /// <summary>
     /// The LLama executor for instruct mode.
     /// </summary>
@@ -22,8 +21,8 @@ namespace LLama
     {
         private bool _is_prompt_run = true;
         private readonly string _instructionPrefix;
-        private llama_token[] _inp_pfx;
-        private llama_token[] _inp_sfx;
+        private LLamaToken[] _inp_pfx;
+        private LLamaToken[] _inp_sfx;
 
         /// <summary>
         /// 
@@ -75,7 +74,7 @@ namespace LLama
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
                 _embeds = state.Embeds;
-                _last_n_tokens = new FixedSizeQueue<llama_token>(state.LastTokensCapacity, state.LastTokens);
+                _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens);
                 _inp_pfx = state.InputPrefixTokens;
                 _inp_sfx = state.InputSuffixTokens;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
@@ -210,7 +209,7 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                llama_token id;
+                LLamaToken id;
                 if (inferenceParams.SamplingPipeline is not null)
                 {
                     id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), _last_n_tokens.ToArray());
@@ -266,12 +265,12 @@ namespace LLama
             /// Instruction prefix tokens.
             /// </summary>
             [JsonPropertyName("inp_pfx")]
-            public llama_token[] InputPrefixTokens { get; set; }
+            public LLamaToken[] InputPrefixTokens { get; set; }
             /// <summary>
             /// Instruction suffix tokens.
             /// </summary>
             [JsonPropertyName("inp_sfx")]
-            public llama_token[] InputSuffixTokens { get; set; }
+            public LLamaToken[] InputSuffixTokens { get; set; }
         }
     }
 }

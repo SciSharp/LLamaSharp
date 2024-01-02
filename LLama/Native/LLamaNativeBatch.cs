@@ -1,9 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace LLama.Native;
-
-using llama_token = Int32;
 
 /// <summary>
 /// Input data for llama_decode
@@ -21,7 +18,7 @@ public unsafe struct LLamaNativeBatch
     /// <summary>
     /// Either `n_tokens` of `llama_token`, or `NULL`, depending on how this batch was created
     /// </summary>
-    public llama_token* token;
+    public LLamaToken* token;
 
     /// <summary>
     /// Either `n_tokens * embd * sizeof(float)` or `NULL`, depending on how this batch was created

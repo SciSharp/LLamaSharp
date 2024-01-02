@@ -130,6 +130,15 @@ namespace LLama
         }
 
         /// <summary>
+        /// Add a single token to the decoder
+        /// </summary>
+        /// <param name="token"></param>
+        public void Add(LLamaToken token)
+        {
+            Add((int)token);
+        }
+
+        /// <summary>
         /// Add all tokens in the given enumerable
         /// </summary>
         /// <param name="tokens"></param>
@@ -137,6 +146,16 @@ namespace LLama
         {
             foreach (var item in tokens)
                 Add(item);
+        }
+
+        /// <summary>
+        /// Add all tokens in the given enumerable
+        /// </summary>
+        /// <param name="tokens"></param>
+        public void AddRange(IEnumerable<LLamaToken> tokens)
+        {
+            foreach (var item in tokens)
+                Add((int)item);
         }
 
         /// <summary>

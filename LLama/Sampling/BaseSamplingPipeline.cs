@@ -15,7 +15,7 @@ public abstract class BaseSamplingPipeline
     private (int index, float logit)[]? _savedLogits;
 
     /// <inheritdoc/>
-    public int Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<int> lastTokens)
+    public LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
     {
         var protectedLogits = GetProtectedTokens(ctx);
         _savedLogitsCount = protectedLogits.Count;
@@ -26,8 +26,8 @@ public abstract class BaseSamplingPipeline
             for (var i = 0; i < protectedLogits.Count; i++)
             {
                 var index = protectedLogits[i];
-                var value = logits[index];
-                _savedLogits[i] = (index, value);
+                var value = logits[index.Value];
+                _savedLogits[i] = (index.Value, value);
             }
 
             // Process raw logits
@@ -58,7 +58,7 @@ public abstract class BaseSamplingPipeline
     /// Get all of the "protected" tokens that cannot be changed by ProcessLogits
     /// </summary>
     /// <returns></returns>
-    protected abstract IReadOnlyList<int> GetProtectedTokens(SafeLLamaContextHandle ctx);
+    protected abstract IReadOnlyList<LLamaToken> GetProtectedTokens(SafeLLamaContextHandle ctx);
 
     /// <summary>
     /// Restore the value of the "protected" tokens which were saved before the call to ProcessLogits
@@ -96,7 +96,7 @@ public abstract class BaseSamplingPipeline
     /// <param name="ctx">The context being sampled from</param>
     /// <param name="logits">The logits produced by the model</param>
     /// <param name="lastTokens">A list of tokens recently returned by the model</param>
-    protected abstract void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<int> lastTokens);
+    protected abstract void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
 
     /// <summary>
     /// Process the LLamaTokenDataArray and select a single token
@@ -105,7 +105,7 @@ public abstract class BaseSamplingPipeline
     /// <param name="candidates">The LLamaTokenDataArray data produced by the model</param>
     /// <param name="lastTokens">A list of tokens recently returned by the model</param>
     /// <returns></returns>
-    protected abstract int ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<int> lastTokens);
+    protected abstract LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens);
 
     /// <summary>
     /// Choose the final token from the candidates
@@ -113,7 +113,7 @@ public abstract class BaseSamplingPipeline
     /// <param name="ctx"></param>
     /// <param name="candidates"></param>
     /// <returns></returns>
-    protected abstract int ChooseToken(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates);
+    protected abstract LLamaToken ChooseToken(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates);
 
     /// <inheritdoc/>
     public virtual void Reset()

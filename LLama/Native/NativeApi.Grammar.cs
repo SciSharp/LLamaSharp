@@ -3,8 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-    using llama_token = Int32;
-
 	public static partial class NativeApi
     {
 		/// <summary>
@@ -48,6 +46,6 @@ namespace LLama.Native
 		/// <param name="grammar"></param>
 		/// <param name="token"></param>
 		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, llama_token token);
+        public static extern void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, LLamaToken token);
 	}
 }
