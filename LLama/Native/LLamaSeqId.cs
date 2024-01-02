@@ -6,7 +6,7 @@ namespace LLama.Native;
 /// ID for a sequence in a batch
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct LLamaSeqId
+public record struct LLamaSeqId
 {
     /// <summary>
     /// The raw value
@@ -17,7 +17,7 @@ public struct LLamaSeqId
     /// Create a new LLamaSeqId 
     /// </summary>
     /// <param name="value"></param>
-    public LLamaSeqId(int value)
+    private LLamaSeqId(int value)
     {
         Value = value;
     }

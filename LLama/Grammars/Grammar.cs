@@ -15,7 +15,7 @@ namespace LLama.Grammars
         /// <summary>
         /// Index of the initial rule to start from
         /// </summary>
-        public ulong StartRuleIndex { get; set; }
+        public ulong StartRuleIndex { get; }
 
         /// <summary>
         /// The rules which make up this grammar
@@ -121,6 +121,12 @@ namespace LLama.Grammars
                         case LLamaGrammarElementType.CHAR_ALT:
                         case LLamaGrammarElementType.CHAR_RNG_UPPER:
                             break;
+
+                        case LLamaGrammarElementType.END:
+                        case LLamaGrammarElementType.ALT:
+                        case LLamaGrammarElementType.RULE_REF:
+                        case LLamaGrammarElementType.CHAR:
+                        case LLamaGrammarElementType.CHAR_NOT:
                         default:
                             output.Append("] ");
                             break;

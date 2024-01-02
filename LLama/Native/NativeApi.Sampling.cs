@@ -5,7 +5,7 @@ namespace LLama.Native
 {
     using llama_token = Int32;
 
-    public unsafe partial class NativeApi
+    public static partial class NativeApi
     {
         /// <summary>
         /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
@@ -19,7 +19,7 @@ namespace LLama.Native
         /// <param name="penalty_freq">Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</param>
         /// <param name="penalty_present">Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_sample_repetition_penalties(SafeLLamaContextHandle ctx,
+        public static extern unsafe void llama_sample_repetition_penalties(SafeLLamaContextHandle ctx,
                                                                     ref LLamaTokenDataArrayNative candidates,
                                                                     llama_token* last_tokens, ulong last_tokens_size,
                                                                     float penalty_repeat,

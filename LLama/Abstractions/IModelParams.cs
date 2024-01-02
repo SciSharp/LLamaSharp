@@ -214,7 +214,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// Get the key being overriden by this override
         /// </summary>
-        public string Key { get; init; }
+        public string Key { get; }
 
         internal LLamaModelKvOverrideType Type { get; }
 

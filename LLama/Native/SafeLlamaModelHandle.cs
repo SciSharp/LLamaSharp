@@ -214,7 +214,6 @@ namespace LLama.Native
         /// Get the metadata key for the given index
         /// </summary>
         /// <param name="index">The index to get</param>
-        /// <param name="buffer">A temporary buffer to store key characters in. Must be large enough to contain the key.</param>
         /// <returns>The key, null if there is no such key or if the buffer was too small</returns>
         public Memory<byte>? MetadataKeyByIndex(int index)
         {
@@ -243,7 +242,6 @@ namespace LLama.Native
         /// Get the metadata value for the given index
         /// </summary>
         /// <param name="index">The index to get</param>
-        /// <param name="buffer">A temporary buffer to store value characters in. Must be large enough to contain the value.</param>
         /// <returns>The value, null if there is no such value or if the buffer was too small</returns>
         public Memory<byte>? MetadataValueByIndex(int index)
         {

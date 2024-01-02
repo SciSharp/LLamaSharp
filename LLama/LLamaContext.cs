@@ -43,7 +43,7 @@ namespace LLama
         /// <summary>
         /// The context params set for this context
         /// </summary>
-        public IContextParams Params { get; set; }
+        public IContextParams Params { get; }
 
         /// <summary>
         /// The native handle, which is used to be passed to the native APIs
@@ -55,15 +55,6 @@ namespace LLama
         /// The encoding set for this model to deal with text input.
         /// </summary>
         public Encoding Encoding { get; }
-
-        internal LLamaContext(SafeLLamaContextHandle nativeContext, IContextParams @params, ILogger? logger = null)
-        {
-            Params = @params;
-
-            _logger = logger;
-            Encoding = @params.Encoding;
-            NativeHandle = nativeContext;
-        }
 
         /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights

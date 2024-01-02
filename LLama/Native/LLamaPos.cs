@@ -6,7 +6,7 @@ namespace LLama.Native;
 /// Indicates position in a sequence
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct LLamaPos
+public record struct LLamaPos
 {
     /// <summary>
     /// The raw value
@@ -17,7 +17,7 @@ public struct LLamaPos
     /// Create a new LLamaPos
     /// </summary>
     /// <param name="value"></param>
-    public LLamaPos(int value)
+    private LLamaPos(int value)
     {
         Value = value;
     }

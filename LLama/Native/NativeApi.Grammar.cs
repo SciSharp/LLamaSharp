@@ -5,7 +5,7 @@ namespace LLama.Native
 {
     using llama_token = Int32;
 
-	public unsafe partial class NativeApi
+	public static partial class NativeApi
     {
 		/// <summary>
 		/// Create a new grammar from the given set of grammar rules
@@ -15,7 +15,7 @@ namespace LLama.Native
 		/// <param name="start_rule_index"></param>
 		/// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
+        public static extern unsafe IntPtr llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
 
         /// <summary>
         /// Free all memory from the given SafeLLamaGrammarHandle

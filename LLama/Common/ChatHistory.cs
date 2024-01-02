@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -37,6 +36,7 @@ namespace LLama.Common
     /// </summary>
     public class ChatHistory
     {
+        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
         /// <summary>
         /// Chat message representation
@@ -96,12 +96,7 @@ namespace LLama.Common
         /// <returns></returns>
         public string ToJson()
         {
-            return JsonSerializer.Serialize(
-                this,
-                new JsonSerializerOptions()
-                {
-                    WriteIndented = true
-                });
+            return JsonSerializer.Serialize(this, _jsonOptions);
         }
 
         /// <summary>

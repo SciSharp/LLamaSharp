@@ -9,17 +9,6 @@ namespace LLama.Native
 {
     using llama_token = Int32;
 
-    public enum LLamaTokenType
-    {
-        LLAMA_TOKEN_TYPE_UNDEFINED = 0,
-        LLAMA_TOKEN_TYPE_NORMAL = 1,
-        LLAMA_TOKEN_TYPE_UNKNOWN = 2,
-        LLAMA_TOKEN_TYPE_CONTROL = 3,
-        LLAMA_TOKEN_TYPE_USER_DEFINED = 4,
-        LLAMA_TOKEN_TYPE_UNUSED = 5,
-        LLAMA_TOKEN_TYPE_BYTE = 6,
-    }
-
     /// <summary>
     /// Callback from llama.cpp with log messages
     /// </summary>
@@ -30,7 +19,7 @@ namespace LLama.Native
     /// <summary>
     /// Direct translation of the llama.cpp API
     /// </summary>
-	public unsafe partial class NativeApi
+	public static partial class NativeApi
     {
         /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
@@ -165,7 +154,7 @@ namespace LLama.Native
         /// <param name="dest"></param>
         /// <returns>the number of bytes copied</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong llama_copy_state_data(SafeLLamaContextHandle ctx, byte* dest);
+        public static extern unsafe ulong llama_copy_state_data(SafeLLamaContextHandle ctx, byte* dest);
 
         /// <summary>
         /// Set the state reading from the specified address
@@ -174,7 +163,7 @@ namespace LLama.Native
         /// <param name="src"></param>
         /// <returns>the number of bytes read</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong llama_set_state_data(SafeLLamaContextHandle ctx, byte* src);
+        public static extern unsafe ulong llama_set_state_data(SafeLLamaContextHandle ctx, byte* src);
 
         /// <summary>
         /// Load session file
@@ -186,7 +175,7 @@ namespace LLama.Native
         /// <param name="n_token_count_out"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, llama_token[] tokens_out, ulong n_token_capacity, ulong* n_token_count_out);
+        public static extern unsafe bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, llama_token[] tokens_out, ulong n_token_capacity, ulong* n_token_count_out);
 
         /// <summary>
         /// Save session file
@@ -211,7 +200,7 @@ namespace LLama.Native
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         [Obsolete("use llama_decode() instead")]
-        public static extern int llama_eval(SafeLLamaContextHandle ctx, llama_token* tokens, int n_tokens, int n_past);
+        public static extern unsafe int llama_eval(SafeLLamaContextHandle ctx, llama_token* tokens, int n_tokens, int n_past);
 
         /// <summary>
         /// Convert the provided text into tokens.
@@ -228,34 +217,37 @@ namespace LLama.Native
         /// </returns>
         public static int llama_tokenize(SafeLLamaContextHandle ctx, string text, Encoding encoding, llama_token[] tokens, int n_max_tokens, bool add_bos, bool special)
         {
-            // Calculate number of bytes in text and borrow an array that large (+1 for nul byte)
-            var byteCount = encoding.GetByteCount(text);
-            var array = ArrayPool<byte>.Shared.Rent(byteCount + 1);
-            try
+            unsafe
             {
-                // Convert to bytes
-                fixed (char* textPtr = text)
-                fixed (byte* arrayPtr = array)
+                // Calculate number of bytes in text and borrow an array that large (+1 for nul byte)
+                var byteCount = encoding.GetByteCount(text);
+                var array = ArrayPool<byte>.Shared.Rent(byteCount + 1);
+                try
                 {
-                    encoding.GetBytes(textPtr, text.Length, arrayPtr, array.Length);
+                    // Convert to bytes
+                    fixed (char* textPtr = text)
+                    fixed (byte* arrayPtr = array)
+                    {
+                        encoding.GetBytes(textPtr, text.Length, arrayPtr, array.Length);
+                    }
+
+                    // Add a zero byte to the end to terminate the string
+                    array[byteCount] = 0;
+
+                    // Do the actual tokenization
+                    fixed (byte* arrayPtr = array)
+                    fixed (llama_token* tokensPtr = tokens)
+                        return llama_tokenize(ctx.ModelHandle, arrayPtr, byteCount, tokensPtr, n_max_tokens, add_bos, special);
                 }
-
-                // Add a zero byte to the end to terminate the string
-                array[byteCount] = 0;
-
-                // Do the actual tokenization
-                fixed (byte* arrayPtr = array)
-                fixed (llama_token* tokensPtr = tokens)
-                    return llama_tokenize(ctx.ModelHandle, arrayPtr, byteCount, tokensPtr, n_max_tokens, add_bos, special);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(array);
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(array);
+                }
             }
         }
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte* llama_token_get_text(SafeLlamaModelHandle model, llama_token token);
+        public static extern unsafe byte* llama_token_get_text(SafeLlamaModelHandle model, llama_token token);
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float llama_token_get_score(SafeLlamaModelHandle model, llama_token token);
@@ -281,7 +273,7 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float* llama_get_logits(SafeLLamaContextHandle ctx);
+        public static extern unsafe float* llama_get_logits(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
@@ -290,16 +282,24 @@ namespace LLama.Native
         /// <param name="i"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
+        public static extern unsafe float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
 
         /// <summary>
         /// Get the embeddings for the input
-        /// shape: [n_embd] (1-dimensional)
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float* llama_get_embeddings(SafeLLamaContextHandle ctx);
+        public static Span<float> llama_get_embeddings(SafeLLamaContextHandle ctx)
+        {
+            unsafe
+            {
+                var ptr = llama_get_embeddings_native(ctx);
+                return new Span<float>(ptr, ctx.EmbeddingSize);
+            }
+
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_get_embeddings")]
+            static extern unsafe float* llama_get_embeddings_native(SafeLLamaContextHandle ctx);
+        }
 
         /// <summary>
         /// Get the "Beginning of sentence" token
@@ -426,7 +426,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_model_meta_val_str(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
+        public static extern unsafe int llama_model_meta_val_str(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
 
         /// <summary>
         /// Get the number of metadata key/value pairs
@@ -445,7 +445,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_model_meta_key_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+        public static extern unsafe int llama_model_meta_key_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
 
         /// <summary>
         /// Get metadata value as a string by index
@@ -456,7 +456,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_model_meta_val_str_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+        public static extern unsafe int llama_model_meta_val_str_by_index(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
 
         /// <summary>
         /// Get a string describing the model type
@@ -466,7 +466,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_model_desc(SafeLlamaModelHandle model, byte* buf, long buf_size);
+        public static extern unsafe int llama_model_desc(SafeLlamaModelHandle model, byte* buf, long buf_size);
 
         /// <summary>
         /// Get the size of the model in bytes
@@ -493,7 +493,7 @@ namespace LLama.Native
         /// <param name="length">size of the buffer</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_token_to_piece(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
+        public static extern unsafe int llama_token_to_piece(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
 
         /// <summary>
         /// Convert text into tokens
@@ -509,7 +509,7 @@ namespace LLama.Native
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, int* tokens, int n_max_tokens, bool add_bos, bool special);
+        public static extern unsafe int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, int* tokens, int n_max_tokens, bool add_bos, bool special);
 
         /// <summary>
         /// Register a callback to receive llama log messages

@@ -2,7 +2,7 @@
 
 namespace LLama.Native
 {
-    public partial class NativeApi
+    public static partial class NativeApi
     {
         /// <summary>
         /// Returns 0 on success
