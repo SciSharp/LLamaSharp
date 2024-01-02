@@ -71,15 +71,13 @@ namespace LLama.Native
         public static extern bool llama_mlock_supported();
 
         /// <summary>
-        /// Various functions for loading a ggml llama model.
-        /// Allocate (almost) all memory needed for the model.
-        /// Return NULL on failure
+        /// Load all of the weights of a model into memory.
         /// </summary>
         /// <param name="path_model"></param>
         /// <param name="params"></param>
-        /// <returns></returns>
+        /// <returns>The loaded model, or null on failure.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr llama_load_model_from_file(string path_model, LLamaModelParams @params);
+        public static extern SafeLlamaModelHandle llama_load_model_from_file(string path_model, LLamaModelParams @params);
 
         /// <summary>
         /// Create a new llama_context with the given model.
@@ -92,12 +90,11 @@ namespace LLama.Native
         public static extern IntPtr llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams @params);
 
         /// <summary>
-        /// not great API - very likely to change. 
         /// Initialize the llama + ggml backend
         /// Call once at the start of the program
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_backend_init(bool numa);
+        private static extern void llama_backend_init(bool numa);
 
         /// <summary>
         /// Frees all allocated memory in the given llama_context
@@ -510,10 +507,20 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
-        /// <param name="length">size of the buffer</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_token_to_piece(SafeLlamaModelHandle model, int llamaToken, byte* buffer, int length);
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, llama_token llamaToken, Span<byte> buffer)
+        {
+            unsafe
+            {
+                fixed (byte* bufferPtr = buffer)
+                {
+                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length);
+                }
+            }
+
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
+            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, llama_token llamaToken, byte* buffer, int length);
+        }
 
         /// <summary>
         /// Convert text into tokens
