@@ -70,7 +70,7 @@ namespace LLama
         /// </summary>
         protected float? MirostatMu { get; set; }
 
-        private StreamingTokenDecoder _decoder;
+        private readonly StreamingTokenDecoder _decoder;
 
         /// <summary>
         /// 
@@ -95,7 +95,7 @@ namespace LLama
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="RuntimeError"></exception>
-        public unsafe StatefulExecutorBase WithSessionFile(string filename)
+        public StatefulExecutorBase WithSessionFile(string filename)
         {
             _pathSession = filename;
             if (string.IsNullOrEmpty(filename))
@@ -105,9 +105,8 @@ namespace LLama
             if (File.Exists(filename))
             {
                 _logger?.LogInformation($"[LLamaExecutor] Attempting to load saved session from {filename}");
-                llama_token[] session_tokens = new llama_token[Context.ContextSize];
-                ulong n_token_count_out = 0;
-                if (!NativeApi.llama_load_session_file(Context.NativeHandle, _pathSession, session_tokens, (ulong)Context.ContextSize, &n_token_count_out))
+                var session_tokens = new llama_token[Context.ContextSize];
+                if (!NativeApi.llama_load_session_file(Context.NativeHandle, _pathSession, session_tokens, (ulong)Context.ContextSize, out var n_token_count_out))
                 {
                     _logger?.LogError($"[LLamaExecutor] Failed to load session file {filename}");
                     throw new RuntimeError($"Failed to load session file {_pathSession}");

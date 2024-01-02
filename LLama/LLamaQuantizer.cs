@@ -20,8 +20,7 @@ namespace LLama
         /// <param name="quantizeOutputTensor"></param>
         /// <returns>Whether the quantization is successful.</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static unsafe bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1, bool allowRequantize = true, 
-                                           bool quantizeOutputTensor = false)
+        public static bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1, bool allowRequantize = true, bool quantizeOutputTensor = false)
         {
             if (!ValidateFtype(ftype))
             {
@@ -34,7 +33,10 @@ namespace LLama
             quantizeParams.nthread = nthread;
             quantizeParams.allow_requantize = allowRequantize;
             quantizeParams.quantize_output_tensor = quantizeOutputTensor;
-            return NativeApi.llama_model_quantize(srcFileName, dstFilename, &quantizeParams) == 0;
+            unsafe
+            {
+                return NativeApi.llama_model_quantize(srcFileName, dstFilename, &quantizeParams) == 0;
+            }
         }
 
         /// <summary>

@@ -221,21 +221,17 @@ namespace LLama.Native
             unsafe
             {
                 // Check if the key exists, without getting any bytes of data
-                keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)0, 0);
+                keyLength = NativeApi.llama_model_meta_key_by_index(this, index, Array.Empty<byte>());
                 if (keyLength < 0)
                     return null;
             }
 
             // get a buffer large enough to hold it
             var buffer = new byte[keyLength + 1];
-            unsafe
-            {
-                using var pin = buffer.AsMemory().Pin();
-                keyLength = NativeApi.llama_model_meta_key_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
-                Debug.Assert(keyLength >= 0);
+            keyLength = NativeApi.llama_model_meta_key_by_index(this, index, buffer);
+            Debug.Assert(keyLength >= 0);
 
-                return buffer.AsMemory().Slice(0, keyLength);
-            }
+            return buffer.AsMemory().Slice(0, keyLength);
         }
 
         /// <summary>
@@ -245,25 +241,17 @@ namespace LLama.Native
         /// <returns>The value, null if there is no such value or if the buffer was too small</returns>
         public Memory<byte>? MetadataValueByIndex(int index)
         {
-            int valueLength;
-            unsafe
-            {
-                // Check if the key exists, without getting any bytes of data
-                valueLength = NativeApi.llama_model_meta_val_str_by_index(this, index, (byte*)0, 0);
-                if (valueLength < 0)
-                    return null;
-            }
+            // Check if the key exists, without getting any bytes of data
+            var valueLength = NativeApi.llama_model_meta_val_str_by_index(this, index, Array.Empty<byte>());
+            if (valueLength < 0)
+                return null;
 
             // get a buffer large enough to hold it
             var buffer = new byte[valueLength + 1];
-            unsafe
-            {
-                using var pin = buffer.AsMemory().Pin();
-                valueLength = NativeApi.llama_model_meta_val_str_by_index(this, index, (byte*)pin.Pointer, buffer.Length);
-                Debug.Assert(valueLength >= 0);
+            valueLength = NativeApi.llama_model_meta_val_str_by_index(this, index, buffer);
+            Debug.Assert(valueLength >= 0);
 
-                return buffer.AsMemory().Slice(0, valueLength);
-            }
+            return buffer.AsMemory().Slice(0, valueLength);
         }
 
         internal IReadOnlyDictionary<string, string> ReadMetadata()
