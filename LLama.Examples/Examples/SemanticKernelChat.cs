@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-using LLama.Common;
-using Microsoft.SemanticKernel.AI.ChatCompletion;
+﻿using LLama.Common;
 using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.ChatCompletion;
 
