@@ -34,5 +34,5 @@ public readonly record struct LLamaToken
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static explicit operator LLamaToken(int value) => new(value);
+    public static implicit operator LLamaToken(int value) => new(value);
 }
