@@ -11,7 +11,7 @@ public readonly record struct LLamaToken
     /// <summary>
     /// The raw value
     /// </summary>
-    public readonly int Value;
+    private readonly int Value;
 
     /// <summary>
     /// Create a new LLamaToken
@@ -34,5 +34,5 @@ public readonly record struct LLamaToken
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static implicit operator LLamaToken(int value) => new(value);
+    public static explicit operator LLamaToken(int value) => new(value);
 }

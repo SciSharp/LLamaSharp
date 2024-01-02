@@ -135,7 +135,7 @@ public sealed class LLamaBatchSafeHandle
     {
         unsafe
         {
-            NativeBatch.token[NativeBatch.n_tokens] = token.Value;
+            NativeBatch.token[NativeBatch.n_tokens] = token;
             NativeBatch.pos[NativeBatch.n_tokens] = pos;
             NativeBatch.n_seq_id[NativeBatch.n_tokens] = sequences.Length;
 

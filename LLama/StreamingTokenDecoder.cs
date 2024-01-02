@@ -69,7 +69,7 @@ namespace LLama
         /// Add a single token to the decoder
         /// </summary>
         /// <param name="token"></param>
-        public void Add(int token)
+        public void Add(LLamaToken token)
         {
             var charsArr = ArrayPool<char>.Shared.Rent(16);
             var bytesArr = ArrayPool<byte>.Shared.Rent(16);
@@ -108,7 +108,7 @@ namespace LLama
 
             // Converts a single token into bytes, using the `bytes` array as temporary storage.
             // If the `bytes` array is too small it will get a larger one from the ArrayPool.
-            static Span<byte> TokenToBytes(ref byte[] bytes, int token, SafeLlamaModelHandle model)
+            static Span<byte> TokenToBytes(ref byte[] bytes, LLamaToken token, SafeLlamaModelHandle model)
             {
                 // Try to get bytes
                 var l = model.TokenToSpan(token, bytes);
@@ -133,9 +133,9 @@ namespace LLama
         /// Add a single token to the decoder
         /// </summary>
         /// <param name="token"></param>
-        public void Add(LLamaToken token)
+        public void Add(int token)
         {
-            Add((int)token);
+            Add((LLamaToken)token);
         }
 
         /// <summary>

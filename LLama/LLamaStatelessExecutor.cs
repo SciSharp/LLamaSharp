@@ -71,7 +71,7 @@ namespace LLama
             var repeat_last_n = Math.Max(0, inferenceParams.RepeatLastTokensCount <0 ? _weights.ContextSize : inferenceParams.RepeatLastTokensCount);
             var lastTokens = new List<LLamaToken>(repeat_last_n);
             for (var i = 0; i < repeat_last_n; i++)
-                lastTokens.Add(0);
+                lastTokens.Add((LLamaToken)0);
 
             // Tokenize the prompt
             var tokens = Context.Tokenize(prompt).ToList();

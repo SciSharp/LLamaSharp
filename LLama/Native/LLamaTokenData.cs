@@ -11,7 +11,7 @@ public struct LLamaTokenData
     /// <summary>
     /// token id
     /// </summary>
-    public int id;
+    public LLamaToken id;
 
     /// <summary>
     /// log-odds of the token
@@ -29,7 +29,7 @@ public struct LLamaTokenData
     /// <param name="id"></param>
     /// <param name="logit"></param>
     /// <param name="p"></param>
-    public LLamaTokenData(int id, float logit, float p)
+    public LLamaTokenData(LLamaToken id, float logit, float p)
     {
         this.id = id;
         this.logit = logit;

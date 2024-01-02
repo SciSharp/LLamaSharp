@@ -309,12 +309,12 @@ namespace LLama
             if (logitBias is not null)
             {
                 foreach (var (key, value) in logitBias)
-                    logits[key.Value] += value;
+                    logits[(int)key] += value;
             }
 
             // Save the newline logit value
             var nl_token = NativeApi.llama_token_nl(NativeHandle.ModelHandle);
-            var nl_logit = logits[nl_token.Value];
+            var nl_logit = logits[(int)nl_token];
 
             // Convert logits into token candidates
             var candidates_p = LLamaTokenDataArray.Create(logits);

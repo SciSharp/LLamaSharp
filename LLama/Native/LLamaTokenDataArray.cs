@@ -39,7 +39,7 @@ namespace LLama.Native
         {
             var candidates = new LLamaTokenData[logits.Length];
             for (var token_id = 0; token_id < logits.Length; token_id++)
-                candidates[token_id] = new LLamaTokenData(token_id, logits[token_id], 0.0f);
+                candidates[token_id] = new LLamaTokenData((LLamaToken)token_id, logits[token_id], 0.0f);
 
             return new LLamaTokenDataArray(candidates);
         }
