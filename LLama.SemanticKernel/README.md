@@ -1,12 +1,12 @@
 # LLamaSharp.SemanticKernel
 
-LLamaSharp.SemanticKernel are connections for [SemanticKernel](https://github.com/microsoft/semantic-kernel): an SDK for intergrating various LLM interfaces into a single implementation. With this, you can add local LLaMa queries as another connection point with your existing connections.
+LLamaSharp.SemanticKernel are connections for [SemanticKernel](https://github.com/microsoft/semantic-kernel): an SDK for integrating various LLM interfaces into a single implementation. With this, you can add local LLaMa queries as another connection point with your existing connections.
 
 For reference on how to implement it, view the following examples: 
 
-- [SemanticKernelChat](../LLama.Examples/NewVersion/SemanticKernelChat.cs)
-- [SemanticKernelPrompt](../LLama.Examples/NewVersion/SemanticKernelPrompt.cs)
-- [SemanticKernelMemory](../LLama.Examples/NewVersion/SemanticKernelMemory.cs)
+- [SemanticKernelChat](../LLama.Examples/Examples/SemanticKernelChat.cs)
+- [SemanticKernelPrompt](../LLama.Examples/Examples/SemanticKernelPrompt.cs)
+- [SemanticKernelMemory](../LLama.Examples/Examples/SemanticKernelMemory.cs)
 
 ## ITextCompletion
 ```csharp
