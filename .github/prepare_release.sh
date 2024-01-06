@@ -44,7 +44,8 @@ if [[ $type == "minor" ]]; then
         updated_version="${version%%.*}.$b.0"
         echo "Updated version: $updated_version"
     else
-        echo "Invalid version format" exit 1
+        echo "Invalid version format"
+        exit 1
     fi
 elif [[ $type == "patch" ]]; then
     regex="([0-9]+)$"
