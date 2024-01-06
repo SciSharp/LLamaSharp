@@ -10,8 +10,7 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.kernel-memory?label=LLamaSharp.kernel-memory)](https://www.nuget.org/packages/LLamaSharp.kernel-memory)
 
 
-**The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides higher-level APIs to inference the LLaMA Models and deploy it on local device with C#/.NET. It works on 
-both Windows, Linux and MAC without requirement for compiling llama.cpp yourself. Even without a GPU or not enough GPU memory, you can still apply LLaMA models well with this repo. 🤗**
+**The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides higher-level APIs to inference the LLaMA Models and deploy it on local device with C#/.NET. It works on Windows, Linux and Mac without need to compile llama.cpp yourself. Even without a GPU or not enough GPU memory, you can still use LLaMA models! 🤗**
 
 **Furthermore, it provides integrations with other projects such as [semantic-kernel](https://github.com/microsoft/semantic-kernel), [kernel-memory](https://github.com/microsoft/kernel-memory) and [BotSharp](https://github.com/SciSharp/BotSharp) to provide higher-level applications.**
 
@@ -37,9 +36,9 @@ both Windows, Linux and MAC without requirement for compiling llama.cpp yourself
     <li><a href="#Contributing">Contributing</a></li>
     <li><a href="#Contact us">Contact us</a></li>
     <li>
-      <a href="#Apendix">Apendix</a>
+      <a href="#Appendix">Appendix</a>
       <ul>
-        <li><a href="#Mapping from LLamaSharp to llama.cpp">Mapping from LLamaSharp to llama.cpp</a></li>
+        <li><a href="#LLamaSharp and llama.cpp versions">LLamaSharp and llama.cpp versions</a></li>
       </ul>
     </li>
   </ul>
@@ -61,39 +60,27 @@ both Windows, Linux and MAC without requirement for compiling llama.cpp yourself
 
 ## Installation
 
-Firstly, search `LLamaSharp` in nuget package manager and install it.
+1. Install [`LLamaSharp`](https://www.nuget.org/packages/LLamaSharp) package in NuGet:
 
 ```
 PM> Install-Package LLamaSharp
 ```
 
-Then, search and install one of the following backends. (Please don't install two or more)
+2. Install **one** of these backends:
 
-```
-LLamaSharp.Backend.Cpu  # cpu for windows, linux and mac (mac metal is also supported)
-LLamaSharp.Backend.Cuda11  # cuda11 for windows and linux
-LLamaSharp.Backend.Cuda12  # cuda12 for windows and linux
-LLamaSharp.Backend.MacMetal  # Removed after v0.8.0, metal support has been moved to cpu version now
-```
+   - [`LLamaSharp.Backend.Cpu`](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu): Pure CPU for Windows & Linux. Metal for Mac.
+   - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA11 for Windows and Linux
+   - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)@ CUDA 12 for Windows and Linux
+   - If none of these backends is suitable you can compile [llama.cpp](https://github.com/ggerganov/llama.cpp) yourself. In this case, please **DO NOT** install the backend packages! Instead, add your DLL to your project and ensure it will be copied to the output directory when compiling your project. If you do this you must use exactly the correct llama.cpp commit, refer to the version table further down.
 
-We publish these backends because they are the most popular ones. If none of them matches, please compile the [llama.cpp](https://github.com/ggerganov/llama.cpp) yourself. In this case, please **DO NOT** install the backend packages, instead, add your DLL to your project and ensure it will be copied to the output directory when compiling your project. For more informations please refer to ([this guide](https://scisharp.github.io/LLamaSharp/0.5/ContributingGuide/)).
-
-For [microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, please search and install the following package:
-
-```
-LLamaSharp.semantic-kernel
-```
-
-For [microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration, please search and install the following package (currently kernel-memory only supports net6.0):
-
-```
-LLamaSharp.kernel-memory
-```
+3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
+4. (optional) For [Microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration, install the [LLamaSharp.kernel-memory](https://www.nuget.org/packages/LLamaSharp.kernel-memory) package (this package currently only supports `net6.0`).
 
 ### Tips for choosing a version
 
-In general, there may be some break changes between two minor releases, for example 0.5.1 and 0.6.0. On the contrary, we don't introduce API break changes in patch release. Therefore it's recommended to keep the highest patch version of a minor release. For example, keep 0.5.6 instead of 0.5.3.
+Llama.cpp is a fast moving project with frequent breaking changes, therefore breaking changes are expected frequently in LLamaSharp. LLamaSharp follows [semantic versioning](https://semver.org/) and will not introduce breaking API changes on patch versions.
 
+It is suggested to update to the latest patch version as soon as it is released, and to update to new major versions as soon as possible.
 
 ## Quick Start
 
@@ -142,7 +129,7 @@ session.SaveSession("SavedSessionPath");
 
 #### Quantization
 
-The following example shows how to quantize the model. With LLamaSharp you needn't to compile c++ project and run scripts to quantize the model, instead, just run it in C#.
+The following example shows how to quantize the model:
 
 ```cs
 string srcFilename = "<Your source path>";
@@ -158,13 +145,11 @@ else
 }
 ```
 
-For more usages, please refer to [Examples](./LLama.Examples).
+For more usage, please refer to [Examples](./LLama.Examples).
 
 #### Web API
 
-We provide [the integration of ASP.NET core](./LLama.WebAPI) and a [web app demo](./LLama.Web). Please clone the repo to have a try.
-
-Since we are in short of hands, if you're familiar with ASP.NET core, we'll appreciate it if you would like to help upgrading the Web API integration.
+We provide [an integration with ASP.NET core](./LLama.WebAPI) and a [web app demo](./LLama.Web). Since we are in short of hands, if you're familiar with ASP.NET core, we'll appreciate it if you would like to help upgrading the Web API integration.
 
 ## Features
 
@@ -174,29 +159,18 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 
 ---
 
-✅ LLaMa model inference
-
-✅ Embeddings generation, tokenization and detokenization
-
-✅ Chat session
-
-✅ Quantization
-
-✅ Grammar
-
-✅ State saving and loading
-
-⚠️ BotSharp Integration
-
-✅ ASP.NET core Integration
-
-✅ Semantic-kernel Integration
-
-🔳 Fine-tune
-
-✅ Local document search (enabled by kernel-memory now)
-
-🔳 MAUI Integration
+✅ LLaMa model inference<br />
+✅ Embeddings generation, tokenization and detokenization<br />
+✅ Chat session<br />
+✅ Quantization<br />
+✅ Grammar<br />
+✅ State saving and loading<br />
+⚠️ BotSharp Integration<br />
+✅ ASP.NET core Integration<br />
+✅ Semantic-kernel Integration<br />
+🔳 Fine-tune<br />
+✅ Local document search (enabled by kernel-memory)<br />
+🔳 MAUI Integration<br />
 
 ## Console Demo
 
@@ -205,14 +179,16 @@ Since we are in short of hands, if you're familiar with ASP.NET core, we'll appr
 ## FAQ
 
 1. GPU out of memory: Please try setting `n_gpu_layers` to a smaller number.
-2. Unsupported model: `llama.cpp` is under quick development and often has break changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or generate `gguf` format weights from original weights yourself.
-3. Cannot load native lirary: 1) ensure you installed one of the backend packages. 2) Run `NativeLibraryConfig.WithLogs()` at the very beginning of your code to print more informations. 3) check if your system supports avx2, which is the default settings of official runtimes now. If not, please compile llama.cpp yourself and specify it with `NativeLibraryConfig.WithLibrary`.
-4. How to find a model: Models in format `gguf` are valid for LLamaSharp (and `ggml` before v0.5.1). If you're new to LLM/LLaMA, it's a good choice to search `LLama` and `gguf` on [huggingface](https://huggingface.co/) to find a model. Another choice is generate gguf format file yourself with a pytorch weight (or any other), pleae refer to [convert.py](https://github.com/ggerganov/llama.cpp/blob/master/convert.py) and [convert-llama-ggml-to-gguf.py](https://github.com/ggerganov/llama.cpp/blob/master/convert-llama-ggml-to-gguf.py) to get gguf file through a ggml transformation.
+2. Unsupported model: `llama.cpp` is under quick development and often has breaking changes. Please check the release date of the model and find a suitable version of LLamaSharp to install, or generate `gguf` format weights from original weights yourself.
+3. Cannot load native library:
+   - Ensure you have installed one of the backend packages.
+   - Run `NativeLibraryConfig.WithLogs()` at the very beginning of your code to print more information.
+4. Models in GGUF format are compatible with LLamaSharp. It's a good idea to search for [`gguf` on huggingface](https://huggingface.co/models?search=gguf) to find a model. Another choice is generate a GGUF format file yourself, please refer to [convert.py](https://github.com/ggerganov/llama.cpp/blob/master/convert.py) for more information.
 
 
 ## Contributing
 
-Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interested one to start. Please read the [contributing guide](https://scisharp.github.io/LLamaSharp/latest/ContributingGuide/) for more informations. 
+Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interesting one to start. Please read the [contributing guide](https://scisharp.github.io/LLamaSharp/latest/ContributingGuide/) for more information. 
 
 You can also do one of the followings to help us make LLamaSharp better:
 
@@ -228,25 +204,24 @@ Join our chat on [Discord](https://discord.gg/7wNVU65ZDY) (please contact Rinne 
 
 Join [QQ group](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
 
-## Apendix
+## Appendix
 
-### Mapping from LLamaSharp to llama.cpp
-Here's the mapping of them and corresponding model samples provided by `LLamaSharp`. If you're not sure which model is available for a version, please try our sample model.
-
-The llama.cpp commit id will help if you want to compile a DLL yourself.
+### LLamaSharp and llama.cpp versions
+If you want to compile llama.cpp yourself you **must** use the exact commit ID listed for each version.
 
 | LLamaSharp | Verified Model Resources | llama.cpp commit id |
 | - | -- | - |
 | v0.2.0 | This version is not recommended to use. | - |
 | v0.2.1 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama), [Vicuna (filenames with "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | - |
-| v0.2.2, v0.2.3 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama_ggmlv2), [Vicuna (filenames without "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | 63d2046 |
-| v0.3.0, v0.4.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | 7e4ea5b |
-| v0.4.1-preview | [Open llama 3b](https://huggingface.co/SlyEcho/open_llama_3b_ggml), [Open Buddy](https://huggingface.co/OpenBuddy/openbuddy-llama-ggml)| aacdbd4 |
-|v0.4.2-preview | [Llama2 7b GGML](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGML)| 3323112 |
-| v0.5.1 | [Llama2 7b GGUF](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF)| 6b73ef1 |
-| v0.6.0 | | [cb33f43](https://github.com/ggerganov/llama.cpp/commit/cb33f43a2a9f5a5a5f8d290dd97c625d9ba97a2f) |
-| v0.7.0, v0.8.0 | [Thespis-13B](https://huggingface.co/TheBloke/Thespis-13B-v0.5-GGUF/tree/main?not-for-all-audiences=true), [LLaMA2-7B](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF) | [207b519](https://github.com/ggerganov/llama.cpp/commit/207b51900e15cc7f89763a3bb1c565fe11cbb45d) |
-| v0.8.1 | | [e937066](https://github.com/ggerganov/llama.cpp/commit/e937066420b79a757bf80e9836eb12b88420a218) |
+| v0.2.2, v0.2.3 | [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/previous_llama_ggmlv2), [Vicuna (filenames without "old")](https://huggingface.co/eachadea/ggml-vicuna-13b-1.1/tree/main) | `63d2046` |
+| v0.3.0, v0.4.0 | [LLamaSharpSamples v0.3.0](https://huggingface.co/AsakusaRinne/LLamaSharpSamples/tree/v0.3.0), [WizardLM](https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main) | `7e4ea5b` |
+| v0.4.1-preview | [Open llama 3b](https://huggingface.co/SlyEcho/open_llama_3b_ggml), [Open Buddy](https://huggingface.co/OpenBuddy/openbuddy-llama-ggml)| `aacdbd4` |
+|v0.4.2-preview | [Llama2 7B (GGML)](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGML)| `3323112` |
+| v0.5.1 | [Llama2 7B (GGUF)](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF)| `6b73ef1` |
+| v0.6.0 | | [`cb33f43`](https://github.com/ggerganov/llama.cpp/commit/cb33f43a2a9f5a5a5f8d290dd97c625d9ba97a2f) |
+| v0.7.0, v0.8.0 | [Thespis-13B](https://huggingface.co/TheBloke/Thespis-13B-v0.5-GGUF/tree/main?not-for-all-audiences=true), [LLaMA2-7B](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF) | [`207b519`](https://github.com/ggerganov/llama.cpp/commit/207b51900e15cc7f89763a3bb1c565fe11cbb45d) |
+| v0.8.1 | | [`e937066`](https://github.com/ggerganov/llama.cpp/commit/e937066420b79a757bf80e9836eb12b88420a218) |
+| v0.9.0 | [Mixtral-8x7B](https://huggingface.co/TheBloke/Mixtral-8x7B-v0.1-GGUF) | [`9fb13f9`](https://github.com/ggerganov/llama.cpp/blob/9fb13f95840c722ad419f390dc8a9c86080a3700) |
 
 ## License
 
