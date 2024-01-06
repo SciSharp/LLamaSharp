@@ -22,8 +22,7 @@ fi
 
 mkdir ./temp;
 mkdir ./temp/runtimes;
-# For sure it could be done better but cp -R did not work on osx
-cp  ./LLama/runtimes/*.* ./temp/runtimes/;
+cp ./LLama/runtimes ./temp/runtimes -R;
 cp ./LLama/runtimes/build/*.* ./temp/;
 
 # get the current version
