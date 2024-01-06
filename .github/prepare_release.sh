@@ -22,7 +22,7 @@ fi
 
 mkdir ./temp;
 mkdir ./temp/runtimes;
-cp ./LLama/runtimes ./temp/runtimes -R;
+cp ./LLama/runtimes ./temp -R;
 cp ./LLama/runtimes/build/*.* ./temp/;
 
 # get the current version
