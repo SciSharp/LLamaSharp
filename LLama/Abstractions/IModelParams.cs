@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -272,11 +273,11 @@ namespace LLama.Abstractions
                     dest.BoolValue = _valueBool ? -1L : 0;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new InvalidEnumArgumentException($"Unknown {nameof(LLamaModelKvOverrideType)} value: {Type}");
             }
         }
 
-        internal void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
+        internal void WriteValue(Utf8JsonWriter writer)
         {
             switch (Type)
             {
@@ -290,7 +291,7 @@ namespace LLama.Abstractions
                     writer.WriteBooleanValue(_valueBool);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new InvalidEnumArgumentException($"Unknown {nameof(LLamaModelKvOverrideType)} value: {Type}");
             }
         }
     }
@@ -323,7 +324,7 @@ namespace LLama.Abstractions
                 writer.WriteNumber("Type", (int)value.Type);
                 writer.WriteString("Key", value.Key);
                 writer.WritePropertyName("Value");
-                value.WriteValue(writer, options);
+                value.WriteValue(writer);
             }
             writer.WriteEndObject();
         }
