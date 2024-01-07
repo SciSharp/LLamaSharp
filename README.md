@@ -116,11 +116,11 @@ Console.Write(prompt);
 // run the inference in a loop to chat with LLM
 while (prompt != "stop")
 {
-    await foreach (var text in session.ChatAsync(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
+    await foreach (var text in session.ChatAsync(new ChatHistory.Message(AuthorRole.User, prompt), new InferenceParams { Temperature = 0.6f, AntiPrompts = [ "User:" ] }))
     {
         Console.Write(text);
     }
-    prompt = Console.ReadLine();
+    prompt = Console.ReadLine() ?? "";
 }
 
 // save the session
