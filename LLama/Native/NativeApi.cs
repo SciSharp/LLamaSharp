@@ -25,8 +25,10 @@ namespace LLama.Native
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
         /// </summary>
         /// <returns></returns>
-        [DllImport(libraryName, EntryPoint = "llama_mmap_supported", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool llama_empty_call();
+        public static void llama_empty_call()
+        {
+            llama_mmap_supported();
+        }
 
         /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
@@ -71,44 +73,11 @@ namespace LLama.Native
         public static extern bool llama_mlock_supported();
 
         /// <summary>
-        /// Load all of the weights of a model into memory.
-        /// </summary>
-        /// <param name="path_model"></param>
-        /// <param name="params"></param>
-        /// <returns>The loaded model, or null on failure.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SafeLlamaModelHandle llama_load_model_from_file(string path_model, LLamaModelParams @params);
-
-        /// <summary>
-        /// Create a new llama_context with the given model.
-        /// Return value should always be wrapped in SafeLLamaContextHandle!
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="params"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams @params);
-
-        /// <summary>
         /// Initialize the llama + ggml backend
         /// Call once at the start of the program
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_backend_init(bool numa);
-
-        /// <summary>
-        /// Frees all allocated memory in the given llama_context
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_free(IntPtr ctx);
-
-        /// <summary>
-        /// Frees all allocated memory associated with a model
-        /// </summary>
-        /// <param name="model"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_free_model(IntPtr model);
 
         /// <summary>
         /// Apply a LoRA adapter to a loaded model

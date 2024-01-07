@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 using LLama.Extensions;
@@ -10,6 +11,7 @@ namespace LLama.Native
     /// <summary>
     /// A reference to a set of llama model weights
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global (used implicitly in native API)
     public sealed class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
@@ -47,8 +49,7 @@ namespace LLama.Native
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
-            NativeApi.llama_free_model(DangerousGetHandle());
-            SetHandle(IntPtr.Zero);
+            llama_free_model(handle);
             return true;
         }
 
@@ -61,12 +62,36 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
-            var model_ptr = NativeApi.llama_load_model_from_file(modelPath, lparams);
-            if (model_ptr == null)
+            var model = llama_load_model_from_file(modelPath, lparams);
+            if (model == null)
                 throw new RuntimeError($"Failed to load model {modelPath}.");
 
-            return model_ptr;
+            return model;
         }
+
+        #region native API
+        static SafeLlamaModelHandle()
+        {
+            // This ensures that `NativeApi` has been loaded before calling the two native methods below
+            NativeApi.llama_empty_call();
+        }
+
+        /// <summary>
+        /// Load all of the weights of a model into memory.
+        /// </summary>
+        /// <param name="path_model"></param>
+        /// <param name="params"></param>
+        /// <returns>The loaded model, or null on failure.</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern SafeLlamaModelHandle llama_load_model_from_file(string path_model, LLamaModelParams @params);
+
+        /// <summary>
+        /// Frees all allocated memory associated with a model
+        /// </summary>
+        /// <param name="model"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_free_model(IntPtr model);
+        #endregion
 
         #region LoRA
 

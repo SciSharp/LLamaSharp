@@ -31,6 +31,6 @@ namespace LLama.Native
 
         /// <inheritdoc />
         public override string ToString()
-            => $"0x{handle.ToString("x16")}";
+            => $"0x{handle:x16}";
     }
 }

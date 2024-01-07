@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 
@@ -8,6 +9,7 @@ namespace LLama.Native
     /// <summary>
     /// A safe wrapper around a llama_context
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global (used implicitly in native API)
     public sealed class SafeLLamaContextHandle
         : SafeLLamaHandleBase
     {
@@ -36,26 +38,10 @@ namespace LLama.Native
         #endregion
 
         #region construction/destruction
-        /// <summary>
-        /// Create a new SafeLLamaContextHandle
-        /// </summary>
-        /// <param name="handle">pointer to an allocated llama_context</param>
-        /// <param name="model">the model which this context was created from</param>
-        public SafeLLamaContextHandle(IntPtr handle, SafeLlamaModelHandle model)
-            : base(handle)
-        {
-            // Increment the model reference count while this context exists
-            _model = model;
-            var success = false;
-            _model.DangerousAddRef(ref success);
-            if (!success)
-                throw new RuntimeError("Failed to increment model refcount");
-        }
-
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
-            NativeApi.llama_free(DangerousGetHandle());
+            llama_free(handle);
             SetHandle(IntPtr.Zero);
 
             // Decrement refcount on model
@@ -84,12 +70,42 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaContextParams lparams)
         {
-            var ctx_ptr = NativeApi.llama_new_context_with_model(model, lparams);
-            if (ctx_ptr == IntPtr.Zero)
+            var ctx = llama_new_context_with_model(model, lparams);
+            if (ctx == null)
                 throw new RuntimeError("Failed to create context from model");
 
-            return new(ctx_ptr, model);
+            // Increment the model reference count while this context exists.
+            // DangerousAddRef throws if it fails, so there is no need to check "success"
+            ctx._model = model;
+            var success = false;
+            ctx._model.DangerousAddRef(ref success);
+
+            return ctx;
         }
+        #endregion
+
+        #region Native API
+        static SafeLLamaContextHandle()
+        {
+            // This ensures that `NativeApi` has been loaded before calling the two native methods below
+            NativeApi.llama_empty_call();
+        }
+
+        /// <summary>
+        /// Create a new llama_context with the given model. **This should never be called directly! Always use SafeLLamaContextHandle.Create**!
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="params"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern SafeLLamaContextHandle llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams @params);
+
+        /// <summary>
+        /// Frees all allocated memory in the given llama_context
+        /// </summary>
+        /// <param name="ctx"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_free(IntPtr ctx);
         #endregion
 
         /// <summary>
