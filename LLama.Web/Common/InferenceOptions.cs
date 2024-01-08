@@ -4,6 +4,7 @@ using LLama.Common;
 using LLama.Abstractions;
 using LLama.Native;
 using LLama.Sampling;
+using LLama.Control;
 
 namespace LLama.Web.Common
 {
@@ -71,5 +72,8 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public ISamplingPipeline? SamplingPipeline { get; set; }
+
+        /// <inheritdoc />
+        public IGenerationControl? GenerationControl { get; set; }
     }
 }
