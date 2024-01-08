@@ -15,6 +15,7 @@ namespace LLama.Unittest
             _params = new ModelParams(Constants.ModelPath)
             {
                 ContextSize = 2048,
+                Seed = 92,
             };
             _model = LLamaWeights.LoadFromFile(_params);
         }
@@ -88,5 +89,64 @@ namespace LLama.Unittest
 
             Assert.Equal("cat", result[0]);
         }
+
+        //this test is flakey - it reproduces an error which appears to be a bug in llama.cpp
+        //[Fact]
+        //public async Task SampleTwiceWithGrammar()
+//        {
+//            var executor = new StatelessExecutor(_model, _params);
+
+//            var grammar = Grammar.Parse("""
+//root   ::= (object | array) endline?
+//endline ::= "<|im_end|>" ws
+//value  ::= object | array | string | number | ("true" | "false" | "null") ws
+
+//object ::=
+//"{" ws (
+//          string ":" ws value
+//  ("," ws string ":" ws value)*
+//)? "}" ws
+
+//array  ::=
+//"[" ws (
+//          value
+//  ("," ws value)*
+//)? "]" ws
+
+//string ::=
+//"\"" (
+//  [^"\\] |
+//  "\\" (["\\/bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F]) # escapes
+//)* "\"" ws
+
+//number ::= ("-"? ([0-9] | [1-9] [0-9]*)) ("." [0-9]+)? ([eE] [-+]? [0-9]+)? ws
+
+//# Optional space: by convention, applied in this grammar after literal chars when allowed
+//ws ::= ([ \t\n] ws)?
+//""",
+//                "root");
+
+//            using (var grammarInstance = grammar.CreateInstance())
+//            {
+//                var inferenceParams = new InferenceParams
+//                {
+//                    MaxTokens = 20,
+//                    AntiPrompts = new[] { ".", "Input:", "\n", "<|im_end|>" },
+//                    Grammar = grammarInstance,
+//                };
+//                var result = await executor.InferAsync("Write a JSON array with the first 6 positive numbers", inferenceParams).ToListAsync();
+//            }
+
+//            using (var grammarInstance2 = grammar.CreateInstance())
+//            {
+//                var inferenceParams2 = new InferenceParams
+//                {
+//                    MaxTokens = 20,
+//                    AntiPrompts = new[] { ".", "Input:", "\n" },
+//                    Grammar = grammarInstance2,
+//                };
+//                var result2 = await executor.InferAsync("Write a JSON array with the first 6 positive numbers", inferenceParams2).ToListAsync();
+//            }
+//        }
     }
 }
