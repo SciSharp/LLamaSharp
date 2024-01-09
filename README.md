@@ -165,7 +165,7 @@ We provide [an integration with ASP.NET core](./LLama.WebAPI) and a [web app dem
 ✅ Quantization<br />
 ✅ Grammar<br />
 ✅ State saving and loading<br />
-⚠️ BotSharp Integration<br />
+✅ BotSharp Integration [Online Demo](https://victorious-moss-007e11310.4.azurestaticapps.net/)<br />
 ✅ ASP.NET core Integration<br />
 ✅ Semantic-kernel Integration<br />
 🔳 Fine-tune<br />
