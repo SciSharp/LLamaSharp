@@ -113,19 +113,19 @@ namespace LLama
                 // Try to get bytes
                 var l = model.TokenToSpan(token, bytes);
 
-                // Negative length indicates that the output was too small. Expand it to twice that size and try again.
-                if (l < 0)
+                // Check if the length was larger than the buffer. If so expand the buffer and try again
+                if (l > bytes.Length)
                 {
                     // Return the old array to the pool and get a new one
                     ArrayPool<byte>.Shared.Return(bytes);
-                    bytes = ArrayPool<byte>.Shared.Rent(-l * 2);
+                    bytes = ArrayPool<byte>.Shared.Rent((int)(l * 2));
 
                     // Get bytes, this time it can't fail
                     l = model.TokenToSpan(token, bytes);
                 }
 
-                Debug.Assert(l >= 0);
-                return new Span<byte>(bytes, 0, l);
+                Debug.Assert(l <= bytes.Length);
+                return new Span<byte>(bytes, 0, (int)l);
             }
         }
 
