@@ -38,7 +38,7 @@ namespace LLama.Extensions
         /// <returns></returns>
         [Obsolete("Use an Antiprompt processor instead")]
         internal static bool TokensEndsWithAnyString<TTokens, TQueries>(this TTokens tokens, TQueries? queries, SafeLlamaModelHandle model, Encoding encoding)
-            where TTokens : IReadOnlyList<int>
+            where TTokens : IReadOnlyList<LLamaToken>
             where TQueries : IReadOnlyList<string>
         {
             if (queries == null || queries.Count == 0 || tokens.Count == 0)
@@ -79,7 +79,7 @@ namespace LLama.Extensions
         /// <returns></returns>
         [Obsolete("Use an Antiprompt processor instead")]
         internal static bool TokensEndsWithAnyString<TTokens>(this TTokens tokens, IList<string>? queries, SafeLlamaModelHandle model, Encoding encoding)
-            where TTokens : IReadOnlyList<int>
+            where TTokens : IReadOnlyList<LLamaToken>
         {
             if (queries == null || queries.Count == 0 || tokens.Count == 0)
                 return false;

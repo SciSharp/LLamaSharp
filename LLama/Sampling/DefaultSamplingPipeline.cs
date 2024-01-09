@@ -99,27 +99,27 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public bool PenalizeNewline { get; set; } = false;
 
-    private readonly int[] _newlineToken = new int[1];
+    private readonly LLamaToken[] _newlineToken = new LLamaToken[1];
 
     /// <inheritdoc />
-    protected override IReadOnlyList<int> GetProtectedTokens(SafeLLamaContextHandle ctx)
+    protected override IReadOnlyList<LLamaToken> GetProtectedTokens(SafeLLamaContextHandle ctx)
     {
         if (PenalizeNewline)
-            return Array.Empty<int>();
+            return Array.Empty<LLamaToken>();
 
         _newlineToken[0] = NativeApi.llama_token_nl(ctx.ModelHandle);
         return _newlineToken;
     }
 
     /// <inheritdoc />
-    protected override void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<int> lastTokens)
+    protected override void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
     {
         foreach (var (key, value) in LogitBias)
             logits[key] += value;
     }
 
     /// <inheritdoc />
-    protected override int ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<int> lastTokens)
+    protected override LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens)
     {
         // Apply penalties to candidates
         candidates.RepetitionPenalty(ctx, lastTokens, RepeatPenalty, AlphaFrequency, AlphaPresence);
@@ -142,7 +142,7 @@ public sealed class DefaultSamplingPipeline
     }
 
     /// <inheritdoc />
-    protected override int ChooseToken(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
+    protected override LLamaToken ChooseToken(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
     {
         return candidates.SampleToken(ctx);
     }

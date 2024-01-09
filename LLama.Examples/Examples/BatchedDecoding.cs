@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using LLama.Abstractions;
 using LLama.Common;
 using LLama.Native;
 
@@ -94,7 +93,7 @@ public class BatchedDecoding
         var n_cur = batch.NativeBatch.n_tokens;
         var n_decode = 0;
 
-        var streams = new List<int>[n_parallel];
+        var streams = new List<LLamaToken>[n_parallel];
         for (var i = 0; i < n_parallel; i++)
             streams[i] = new();
 

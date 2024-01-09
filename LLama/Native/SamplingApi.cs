@@ -4,8 +4,6 @@
 
 namespace LLama.Native
 {
-    using llama_token = Int32;
-
     /// <summary>
     /// Direct translation of the llama.cpp sampling API
     /// </summary>
@@ -110,7 +108,7 @@ namespace LLama.Native
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
         [Obsolete("use LLamaTokenDataArray SampleTokenMirostat() method")]
-        public static llama_token llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, int m, ref float mu)
+        public static LLamaToken llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, int m, ref float mu)
         {
             return candidates.SampleTokenMirostat(ctx, tau, eta, m, ref mu);
         }
@@ -125,7 +123,7 @@ namespace LLama.Native
         /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
         /// <returns></returns>
         [Obsolete("use LLamaTokenDataArray SampleTokenMirostat2() method")]
-        public static llama_token llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, ref float mu)
+        public static LLamaToken llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, float tau, float eta, ref float mu)
         {
             return candidates.SampleTokenMirostat2(ctx, tau, eta, ref mu);
         }
@@ -137,7 +135,7 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <returns></returns>
         [Obsolete("Use LLamaTokenDataArray SampleTokenGreedy() method")]
-        public static llama_token llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
+        public static LLamaToken llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
             return candidates.SampleTokenGreedy(ctx);
         }
@@ -149,7 +147,7 @@ namespace LLama.Native
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
         /// <returns></returns>
         [Obsolete("use LLamaTokenDataArray SampleToken() method")]
-        public static llama_token llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
+        public static LLamaToken llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
         {
             return candidates.SampleToken(ctx);
         }

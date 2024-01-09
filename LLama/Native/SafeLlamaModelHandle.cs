@@ -123,12 +123,12 @@ namespace LLama.Native
         /// <summary>
         /// Convert a single llama token into bytes
         /// </summary>
-        /// <param name="llama_token">Token to decode</param>
+        /// <param name="token">Token to decode</param>
         /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
-        public int TokenToSpan(int llama_token, Span<byte> dest)
+        public int TokenToSpan(LLamaToken token, Span<byte> dest)
         {
-            var length = NativeApi.llama_token_to_piece(this, llama_token, dest);
+            var length = NativeApi.llama_token_to_piece(this, token, dest);
             return Math.Abs(length);
         }
 
@@ -143,12 +143,10 @@ namespace LLama.Native
         /// filled with as many characters as possible, starting from the _last_ token.
         /// </returns>
         [Obsolete("Use a StreamingTokenDecoder instead")]
-        internal Span<char> TokensToSpan(IReadOnlyList<int> tokens, Span<char> dest, Encoding encoding)
+        internal Span<char> TokensToSpan(IReadOnlyList<LLamaToken> tokens, Span<char> dest, Encoding encoding)
         {
             var decoder = new StreamingTokenDecoder(encoding, this);
-
-            foreach (var token in tokens)
-                decoder.Add(token);
+            decoder.AddRange(tokens);
 
             var str = decoder.Read();
 
@@ -172,7 +170,7 @@ namespace LLama.Native
         /// <param name="encoding"></param>
         /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
-        public int[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
+        public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
@@ -191,11 +189,11 @@ namespace LLama.Native
                 fixed (byte* bytesPtr = &bytes[0])
                 {
                     // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                    var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (int*)IntPtr.Zero, 0, add_bos, special);
+                    var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, add_bos, special);
 
                     // Tokenize again, this time outputting into an array of exactly the right size
-                    var tokens = new int[count];
-                    fixed (int* tokensPtr = &tokens[0])
+                    var tokens = new LLamaToken[count];
+                    fixed (LLamaToken* tokensPtr = &tokens[0])
                     {
                         NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
                         return tokens;

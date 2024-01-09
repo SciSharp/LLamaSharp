@@ -15,8 +15,6 @@ using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
-    using llama_token = Int32;
-
     /// <summary>
     /// A llama_context, which holds all the context required to interact with a model
     /// </summary>
@@ -93,7 +91,7 @@ namespace LLama
         /// <param name="addBos">Whether to add a bos to the text.</param>
         /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
-        public llama_token[] Tokenize(string text, bool addBos = true, bool special = false)
+        public LLamaToken[] Tokenize(string text, bool addBos = true, bool special = false)
         {
             return NativeHandle.Tokenize(text, addBos, special, Encoding);
         }
@@ -104,7 +102,7 @@ namespace LLama
         /// <param name="tokens"></param>
         /// <returns></returns>
         [Obsolete("Use a `StreamingTokenDecoder` instead")]
-        public string DeTokenize(IReadOnlyList<llama_token> tokens)
+        public string DeTokenize(IReadOnlyList<LLamaToken> tokens)
         {
             // Do **not** use this method as an example of how to correctly use the StreamingTokenDecoder!
             // It should be kept around for the entire time you are decoding one stream of tokens.
@@ -219,7 +217,7 @@ namespace LLama
         /// <param name="pipeline">The pipeline to use to process the logits and to select a token</param>
         /// <param name="lastTokens">The tokens recently returned from the model</param>
         /// <returns>The selected token</returns>
-        public llama_token Sample(ISamplingPipeline pipeline, ReadOnlySpan<llama_token> lastTokens)
+        public LLamaToken Sample(ISamplingPipeline pipeline, ReadOnlySpan<LLamaToken> lastTokens)
         {
             return pipeline.Sample(NativeHandle, NativeHandle.GetLogits(), lastTokens);
         }
@@ -240,11 +238,11 @@ namespace LLama
         /// <param name="grammar"></param>
         /// <param name="minP"></param>
         /// <returns></returns>
-        public llama_token Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature, MirostatType mirostat, 
-                                  float mirostatTau, float mirostatEta, int topK, float topP, float tfsZ, float typicalP,
-                                  SafeLLamaGrammarHandle? grammar, float minP)
+        public LLamaToken Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature, MirostatType mirostat, 
+                                 float mirostatTau, float mirostatEta, int topK, float topP, float tfsZ, float typicalP,
+                                 SafeLLamaGrammarHandle? grammar, float minP)
         {
-            llama_token id;
+            LLamaToken id;
 
             if (grammar != null)
             {
@@ -301,7 +299,7 @@ namespace LLama
         /// <param name="alphaPresence"></param>
         /// <param name="penalizeNL"></param>
         /// <returns></returns>
-        public LLamaTokenDataArray ApplyPenalty(IEnumerable<llama_token> lastTokens, Dictionary<llama_token, float>? logitBias = null, 
+        public LLamaTokenDataArray ApplyPenalty(IEnumerable<LLamaToken> lastTokens, Dictionary<LLamaToken, float>? logitBias = null, 
             int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
             bool penalizeNL = true)
         {
@@ -311,12 +309,12 @@ namespace LLama
             if (logitBias is not null)
             {
                 foreach (var (key, value) in logitBias)
-                    logits[key] += value;
+                    logits[(int)key] += value;
             }
 
             // Save the newline logit value
-            var nl_token =  NativeApi.llama_token_nl(NativeHandle.ModelHandle);
-            var nl_logit = logits[nl_token];
+            var nl_token = NativeApi.llama_token_nl(NativeHandle.ModelHandle);
+            var nl_logit = logits[(int)nl_token];
 
             // Convert logits into token candidates
             var candidates_p = LLamaTokenDataArray.Create(logits);
@@ -353,7 +351,7 @@ namespace LLama
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
         [Obsolete("use llama_decode() instead")]
-        public int Eval(llama_token[] tokens, int pastTokensCount)
+        public int Eval(LLamaToken[] tokens, int pastTokensCount)
         {
             return Eval(tokens.AsSpan(), pastTokensCount);
         }
@@ -366,7 +364,7 @@ namespace LLama
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
         [Obsolete("use llama_decode() instead")]
-        public int Eval(List<llama_token> tokens, int pastTokensCount)
+        public int Eval(List<LLamaToken> tokens, int pastTokensCount)
         {
 #if NET5_0_OR_GREATER
             var span = CollectionsMarshal.AsSpan(tokens);
@@ -376,7 +374,7 @@ namespace LLama
             // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
             // avoid the copying.
 
-            var rented = System.Buffers.ArrayPool<llama_token>.Shared.Rent(tokens.Count);
+            var rented = System.Buffers.ArrayPool<LLamaToken>.Shared.Rent(tokens.Count);
             try
             {
                 tokens.CopyTo(rented, 0);
@@ -384,7 +382,7 @@ namespace LLama
             }
             finally
             {
-                System.Buffers.ArrayPool<llama_token>.Shared.Return(rented);
+                System.Buffers.ArrayPool<LLamaToken>.Shared.Return(rented);
             }
 #endif
         }
@@ -397,7 +395,7 @@ namespace LLama
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
         [Obsolete("use llama_decode() instead")]
-        public int Eval(ReadOnlyMemory<llama_token> tokens, int pastTokensCount)
+        public int Eval(ReadOnlyMemory<LLamaToken> tokens, int pastTokensCount)
         {
             return Eval(tokens.Span, pastTokensCount);
         }
@@ -410,7 +408,7 @@ namespace LLama
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
         [Obsolete("use llama_decode() instead")]
-        public int Eval(ReadOnlySpan<llama_token> tokens, int pastTokensCount)
+        public int Eval(ReadOnlySpan<LLamaToken> tokens, int pastTokensCount)
         {
             var total = tokens.Length;
             for(var i = 0; i < total; i += (int)Params.BatchSize)

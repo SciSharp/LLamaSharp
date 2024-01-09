@@ -12,8 +12,6 @@ using Microsoft.Extensions.Logging;
 
 namespace LLama
 {
-    using llama_token = Int32;
-
     /// <summary>
     /// This executor infer the input as one-time job. Previous inputs won't impact on the 
     /// response to current input.
@@ -71,9 +69,9 @@ namespace LLama
 
             // Keep track of the last N tokens emitted
             var repeat_last_n = Math.Max(0, inferenceParams.RepeatLastTokensCount <0 ? _weights.ContextSize : inferenceParams.RepeatLastTokensCount);
-            var lastTokens = new List<llama_token>(repeat_last_n);
+            var lastTokens = new List<LLamaToken>(repeat_last_n);
             for (var i = 0; i < repeat_last_n; i++)
-                lastTokens.Add(0);
+                lastTokens.Add((LLamaToken)0);
 
             // Tokenize the prompt
             var tokens = Context.Tokenize(prompt).ToList();
@@ -89,7 +87,7 @@ namespace LLama
             var max_tokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
             for(var i = 0; i < max_tokens && !cancellationToken.IsCancellationRequested; i++)
             {
-                llama_token id;
+                LLamaToken id;
                 if (inferenceParams.SamplingPipeline is not null)
                 {
                     id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), lastTokens);

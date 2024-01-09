@@ -2,8 +2,6 @@
 
 namespace LLama.Native;
 
-using llama_token = Int32;
-
 /// <summary>
 /// Input data for llama_decode. A llama_batch object can contain input about one or many sequences.
 /// </summary>
@@ -20,16 +18,16 @@ public sealed class LLamaBatchSafeHandle
     /// <summary>
     /// the token ids of the input (used when embd is NULL)
     /// </summary>
-    public Span<llama_token> Token
+    public Span<LLamaToken> Token
     {
         get
         {
             unsafe
             {
                 if (_embd != 0)
-                    return new Span<int>(null, 0);
+                    return new Span<LLamaToken>(null, 0);
                 else
-                    return new Span<int>(NativeBatch.token, NativeBatch.n_tokens);
+                    return new Span<LLamaToken>(NativeBatch.token, NativeBatch.n_tokens);
             }
         }
     }
@@ -37,7 +35,7 @@ public sealed class LLamaBatchSafeHandle
     /// <summary>
     /// token embeddings (i.e. float vector of size n_embd) (used when token is NULL)
     /// </summary>
-    public Span<llama_token> Embed
+    public Span<LLamaToken> Embed
     {
         get
         {
@@ -47,9 +45,9 @@ public sealed class LLamaBatchSafeHandle
                 // Otherwise, llama_batch.token will be allocated to store n_tokens llama_token
 
                 if (_embd != 0)
-                    return new Span<llama_token>(NativeBatch.embd, NativeBatch.n_tokens * _embd);
+                    return new Span<LLamaToken>(NativeBatch.embd, NativeBatch.n_tokens * _embd);
                 else
-                    return new Span<llama_token>(null, 0);
+                    return new Span<LLamaToken>(null, 0);
             }
         }
     }
@@ -133,7 +131,7 @@ public sealed class LLamaBatchSafeHandle
     /// <summary>
     /// https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L829C2-L829C2
     /// </summary>
-    public void LLamaBatchAdd(int token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
+    public void LLamaBatchAdd(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
     {
         unsafe
         {
