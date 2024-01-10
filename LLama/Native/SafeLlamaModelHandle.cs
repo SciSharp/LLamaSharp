@@ -126,10 +126,10 @@ namespace LLama.Native
         /// <param name="token">Token to decode</param>
         /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
-        public int TokenToSpan(LLamaToken token, Span<byte> dest)
+        public uint TokenToSpan(LLamaToken token, Span<byte> dest)
         {
             var length = NativeApi.llama_token_to_piece(this, token, dest);
-            return Math.Abs(length);
+            return (uint)Math.Abs(length);
         }
 
         /// <summary>
