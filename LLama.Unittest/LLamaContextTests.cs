@@ -42,6 +42,14 @@ namespace LLama.Unittest
         }
 
         [Fact]
+        public void TokenizeNewline()
+        {
+            var tokens = _context.Tokenize("\n");
+
+            Assert.Equal(new LLamaToken[] { 1, 29871, 13 }, tokens);
+        }
+
+        [Fact]
         public void TokenizeWithoutBOS()
         {
             var tokens = _context.Tokenize("The quick brown fox", false);

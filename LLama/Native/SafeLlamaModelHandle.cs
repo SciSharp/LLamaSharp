@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -172,33 +173,39 @@ namespace LLama.Native
         /// <returns></returns>
         public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
+            // Early exit if there's no work to do
+            if (text == "" && !add_bos)
+                return Array.Empty<LLamaToken>();
+
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
-            var bytes = new byte[bytesCount + 1];
-            unsafe
+            var bytes = ArrayPool<byte>.Shared.Rent(bytesCount + 1);
+            try
             {
-                fixed (char* charPtr = text)
-                fixed (byte* bytePtr = &bytes[0])
+                unsafe
                 {
-                    encoding.GetBytes(charPtr, text.Length, bytePtr, bytes.Length);
-                }
-            }
-
-            unsafe
-            {
-                fixed (byte* bytesPtr = &bytes[0])
-                {
-                    // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                    var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, add_bos, special);
-
-                    // Tokenize again, this time outputting into an array of exactly the right size
-                    var tokens = new LLamaToken[count];
-                    fixed (LLamaToken* tokensPtr = &tokens[0])
+                    fixed (char* textPtr = text)
+                    fixed (byte* bytesPtr = bytes)
                     {
-                        NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
-                        return tokens;
+                        // Convert text into bytes
+                        encoding.GetBytes(textPtr, text.Length, bytesPtr, bytes.Length);
+
+                        // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
+                        var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, add_bos, special);
+
+                        // Tokenize again, this time outputting into an array of exactly the right size
+                        var tokens = new LLamaToken[count];
+                        fixed (LLamaToken* tokensPtr = tokens)
+                        {
+                            NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
+                            return tokens;
+                        }
                     }
                 }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(bytes, true);
             }
         }
         #endregion

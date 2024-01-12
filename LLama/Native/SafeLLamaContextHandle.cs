@@ -155,37 +155,7 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
-            ThrowIfDisposed();
-
-            if (string.IsNullOrEmpty(text) && !add_bos)
-                return Array.Empty<LLamaToken>();
-
-            // Calculate number of bytes in string, this is a pessimistic estimate of token count. It can't
-            // possibly be more than this.
-            var count = encoding.GetByteCount(text) + (add_bos ? 1 : 0);
-
-            // "Rent" an array to write results into (avoiding an allocation of a large array)
-            var temporaryArray = ArrayPool<LLamaToken>.Shared.Rent(count);
-            try
-            {
-                // Do the actual conversion
-                var n = NativeApi.llama_tokenize(this, text, encoding, temporaryArray, count, add_bos, special);
-                if (n < 0)
-                {
-                    throw new RuntimeError("Error happened during tokenization. It's possibly caused by wrong encoding. Please try to " +
-                                           "specify the encoding.");
-                }
-
-                // Copy the results from the rented into an array which is exactly the right size
-                var result = new LLamaToken[n];
-                Array.ConstrainedCopy(temporaryArray, 0, result, 0, n);
-
-                return result;
-            }
-            finally
-            {
-                ArrayPool<LLamaToken>.Shared.Return(temporaryArray);
-            }
+            return ThrowIfDisposed().Tokenize(text, add_bos, special, encoding);
         }
 
         /// <summary>
