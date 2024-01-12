@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native;
 
@@ -6,6 +7,7 @@ namespace LLama.Native;
 /// A single token
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
+[DebuggerDisplay("Value")]
 public readonly record struct LLamaToken
 {
     /// <summary>
@@ -35,4 +37,10 @@ public readonly record struct LLamaToken
     /// <param name="value"></param>
     /// <returns></returns>
     public static implicit operator LLamaToken(int value) => new(value);
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
 }
