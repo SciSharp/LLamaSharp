@@ -106,6 +106,10 @@ namespace LLama
                     );
                 }
 
+                // Check if this is the EOS token
+                if (id == _weights.EndOfSentenceToken)
+                    break;
+
                 // Decode this token into text
                 decoder.Add(id);
                 var decoded = decoder.Read();
