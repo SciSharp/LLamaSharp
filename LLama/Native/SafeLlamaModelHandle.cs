@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -63,11 +64,16 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
-            var model = llama_load_model_from_file(modelPath, lparams);
-            if (model == null)
-                throw new RuntimeError($"Failed to load model {modelPath}.");
+            // Try to open the model file, this will check:
+            // - File exists (automatically throws FileNotFoundException)
+            // - File is readable (explicit check)
+            // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
+            using (var fs = new FileStream(modelPath, FileMode.Open))
+                if (!fs.CanRead)
+                    throw new InvalidOperationException($"Model file '{modelPath}' is not readable");
 
-            return model;
+            return llama_load_model_from_file(modelPath, lparams)
+                ?? throw new LoadWeightsFailedException($"Failed to load model {modelPath}.");
         }
 
         #region native API
