@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -63,6 +64,9 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
+            if (!File.Exists(modelPath))
+                throw new FileNotFoundException("Model file does not exist", modelPath);
+
             var model = llama_load_model_from_file(modelPath, lparams);
             if (model == null)
                 throw new RuntimeError($"Failed to load model {modelPath}.");
