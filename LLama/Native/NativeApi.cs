@@ -406,7 +406,7 @@ namespace LLama.Native
         /// <param name="model">Model to fetch from</param>
         /// <param name="index">Index of key to fetch</param>
         /// <param name="dest">buffer to write result into</param>
-        /// <returns>The length of the string on success, or -1 on failure</returns>
+        /// <returns>The length of the string on success (even if the buffer is too small). -1 is the key does not exist.</returns>
         public static int llama_model_meta_key_by_index(SafeLlamaModelHandle model, int index, Span<byte> dest)
         {
             unsafe
@@ -427,7 +427,7 @@ namespace LLama.Native
         /// <param name="model">Model to fetch from</param>
         /// <param name="index">Index of val to fetch</param>
         /// <param name="dest">Buffer to write result into</param>
-        /// <returns>The length of the string on success, or -1 on failure</returns>
+        /// <returns>The length of the string on success (even if the buffer is too small). -1 is the key does not exist.</returns>
         public static int llama_model_meta_val_str_by_index(SafeLlamaModelHandle model, int index, Span<byte> dest)
         {
             unsafe

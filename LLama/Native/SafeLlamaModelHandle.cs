@@ -230,14 +230,10 @@ namespace LLama.Native
         /// <returns>The key, null if there is no such key or if the buffer was too small</returns>
         public Memory<byte>? MetadataKeyByIndex(int index)
         {
-            int keyLength;
-            unsafe
-            {
-                // Check if the key exists, without getting any bytes of data
-                keyLength = NativeApi.llama_model_meta_key_by_index(this, index, Array.Empty<byte>());
-                if (keyLength < 0)
-                    return null;
-            }
+            // Check if the key exists, without getting any bytes of data
+            var keyLength = NativeApi.llama_model_meta_key_by_index(this, index, Array.Empty<byte>());
+            if (keyLength < 0)
+                return null;
 
             // get a buffer large enough to hold it
             var buffer = new byte[keyLength + 1];
