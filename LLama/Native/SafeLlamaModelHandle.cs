@@ -64,14 +64,16 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
-            if (!File.Exists(modelPath))
-                throw new FileNotFoundException("Model file does not exist", modelPath);
+            // Try to open the model file, this will check:
+            // - File exists (automatically throws FileNotFoundException)
+            // - File is readable (explicit check)
+            // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
+            using (var fs = new FileStream(modelPath, FileMode.Open))
+                if (!fs.CanRead)
+                    throw new InvalidOperationException($"Model file '{modelPath}' is not readable");
 
-            var model = llama_load_model_from_file(modelPath, lparams);
-            if (model == null)
-                throw new RuntimeError($"Failed to load model {modelPath}.");
-
-            return model;
+            return llama_load_model_from_file(modelPath, lparams)
+                ?? throw new LoadWeightsFailedException($"Failed to load model {modelPath}.");
         }
 
         #region native API

@@ -18,3 +18,22 @@ public class RuntimeError
 
     }
 }
+
+/// <summary>
+/// Loading model weights failed
+/// </summary>
+public class LoadWeightsFailedException
+    : RuntimeError
+{
+    /// <summary>
+    /// The model path which failed to load
+    /// </summary>
+    public string ModelPath { get; }
+
+    /// <inheritdoc />
+    public LoadWeightsFailedException(string modelPath)
+        : base($"Failed to load model '{modelPath}'")
+    {
+        ModelPath = modelPath;
+    }
+}
