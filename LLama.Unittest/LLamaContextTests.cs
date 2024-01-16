@@ -44,9 +44,32 @@ namespace LLama.Unittest
         [Fact]
         public void TokenizeNewline()
         {
-            var tokens = _context.Tokenize("\n");
+            var tokens = _context.Tokenize("\n", false, false);
 
-            Assert.Equal(new LLamaToken[] { 1, 29871, 13 }, tokens);
+            Assert.Equal(new LLamaToken[] { 29871, 13 }, tokens);
+        }
+
+        [Fact]
+        public void TokenizeRoundtripSpecialStrings()
+        {
+            var strings = new[]
+            {
+                "\t", "\t\t", "\t\t\t",
+                "\n\n", "\n\n\n", "\n\n\n\n",
+                "\t\n", "\t\n\t\n\n\n\n\t\t",
+                "\b", "\v", "\0"
+            };
+
+            foreach (var s in strings)
+            {
+                var tokens = _context.Tokenize(s, false, false);
+                var decoder = new StreamingTokenDecoder(_context);
+                decoder.AddRange(tokens);
+
+                var str = decoder.Read();
+
+                Assert.Equal(s, str.TrimStart(' '));
+            }
         }
 
         [Fact]
