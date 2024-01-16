@@ -7,7 +7,7 @@ namespace LLama.Native;
 /// A single token
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-[DebuggerDisplay("Value")]
+[DebuggerDisplay("{Value}")]
 public readonly record struct LLamaToken
 {
     /// <summary>
