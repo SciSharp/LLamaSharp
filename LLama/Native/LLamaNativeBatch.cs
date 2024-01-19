@@ -18,7 +18,7 @@ public unsafe struct LLamaNativeBatch
     /// <summary>
     /// Either `n_tokens` of `llama_token`, or `NULL`, depending on how this batch was created
     /// </summary>
-    public LLamaToken* token;
+    public LLamaToken* tokens;
 
     /// <summary>
     /// Either `n_tokens * embd * sizeof(float)` or `NULL`, depending on how this batch was created

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
@@ -198,9 +197,10 @@ namespace LLama.Native
         ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
         ///  - &lt; 0: error<br />
         /// </returns>
-        public int Decode(LLamaBatchSafeHandle batch)
+        public int Decode(LLamaBatch batch)
         {
-            return NativeApi.llama_decode(this, batch.NativeBatch);
+            using (batch.ToNativeBatch(out var nb))
+                return NativeApi.llama_decode(this, nb);
         }
 
         #region state
