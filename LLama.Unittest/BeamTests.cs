@@ -40,7 +40,7 @@ public sealed class BeamTests
 
         var initial_tokens = context.Tokenize(prompt);
         result.Append(prompt);
-        context.Eval(initial_tokens, 0);
+        context.Eval(initial_tokens.AsSpan(), 0);
 
         NativeApi.llama_beam_search(context.NativeHandle, (data, state) =>
         {
