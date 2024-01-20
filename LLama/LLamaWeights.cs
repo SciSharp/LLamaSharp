@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using LLama.Abstractions;
 using LLama.Extensions;
 using LLama.Native;
@@ -108,6 +109,19 @@ namespace LLama
         public LLamaContext CreateContext(IContextParams @params, ILogger? logger = null)
         {
             return new LLamaContext(this, @params, logger);
+        }
+
+        /// <summary>
+        /// Convert a string of text into tokens
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="add_bos"></param>
+        /// <param name="encoding"></param>
+        /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
+        /// <returns></returns>
+        public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
+        {
+            return NativeHandle.Tokenize(text, add_bos, special, encoding);
         }
     }
 }

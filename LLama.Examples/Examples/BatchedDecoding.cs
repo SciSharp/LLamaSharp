@@ -34,7 +34,7 @@ public class BatchedDecoding
         using var model = LLamaWeights.LoadFromFile(parameters);
 
         // Tokenize prompt
-        var prompt_tokens = model.NativeHandle.Tokenize(prompt, true, false, Encoding.UTF8);
+        var prompt_tokens = model.Tokenize(prompt, true, false, Encoding.UTF8);
         var n_kv_req = prompt_tokens.Length + (n_len - prompt_tokens.Length) * n_parallel;
 
         // Create a context
@@ -86,9 +86,9 @@ public class BatchedDecoding
         var n_cur = batch.TokenCount;
         var n_decode = 0;
 
-        var streams = new List<LLamaToken>[n_parallel];
+        var streams = new StreamingTokenDecoder[n_parallel];
         for (var i = 0; i < n_parallel; i++)
-            streams[i] = new();
+            streams[i] = new StreamingTokenDecoder(context);
 
         var eos = model.EndOfSentenceToken;
         var nl = model.NewlineToken;
@@ -159,7 +159,7 @@ public class BatchedDecoding
         var index = 0;
         foreach (var stream in streams)
         {
-            var text = context.DeTokenize(stream);
+            var text = stream.Read();
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write($"{index++}. {prompt}");
