@@ -9,6 +9,11 @@ namespace LLama.Native;
 public record struct LLamaSeqId
 {
     /// <summary>
+    /// LLamaSeqId with value 0
+    /// </summary>
+    public static readonly LLamaSeqId Zero = new LLamaSeqId(0);
+
+    /// <summary>
     /// The raw value
     /// </summary>
     public int Value;
