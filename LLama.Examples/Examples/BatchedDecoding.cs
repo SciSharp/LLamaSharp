@@ -52,13 +52,13 @@ public class BatchedDecoding
             return;
         }
 
-        var batch = new LLamaBatch(Math.Max(prompt_tokens.Length, n_parallel), 1);
+        var batch = new LLamaBatch(1);
 
         // evaluate the initial prompt
         for (var i = 0; i < prompt_tokens.Length; i++)
-            batch.LLamaBatchAdd(prompt_tokens[i], i, LLamaSeqId.Zero, i == prompt_tokens.Length - 1);
+            batch.Add(prompt_tokens[i], i, LLamaSeqId.Zero, i == prompt_tokens.Length - 1);
 
-        if (context.NativeHandle.Decode(batch) != 0)
+        if (await context.DecodeAsync(batch) != 0)
         {
             await Console.Error.WriteLineAsync("llama_decode failed");
             return;
@@ -97,7 +97,7 @@ public class BatchedDecoding
         timer.Start();
         while (n_cur <= n_len)
         {
-            batch.LLamaBatchClear();
+            batch.Clear();
 
             for (var i = 0; i < n_parallel; i++)
             {
@@ -129,7 +129,7 @@ public class BatchedDecoding
                 i_batch[i] = batch.TokenCount;
 
                 // push this new token for next evaluation
-                batch.LLamaBatchAdd(new_token_id, n_cur, new[] { (LLamaSeqId)i }, true);
+                batch.Add(new_token_id, n_cur, new[] { (LLamaSeqId)i }, true);
 
                 n_decode++;
             }
@@ -143,7 +143,7 @@ public class BatchedDecoding
             n_cur++;
 
             // evaluate the current batch with the transformer model
-            if (context.NativeHandle.Decode(batch) != 0)
+            if (await context.DecodeAsync(batch) != 0)
             {
                 await Console.Error.WriteLineAsync("failed to eval");
                 return;

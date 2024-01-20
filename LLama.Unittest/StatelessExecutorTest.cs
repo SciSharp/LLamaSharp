@@ -36,7 +36,7 @@ namespace LLama.Unittest
 
             var executor = new StatelessExecutor(_weights, _params);
 
-            const string question = "Question. what is a cat?\nAnswer: ";
+            const string question = "Question. what is a cat?\nAnswer:";
             var @params = new InferenceParams { MaxTokens = 32, AntiPrompts = new[] { "." }, SamplingPipeline = pipeline };
 
             var timer = new Stopwatch();

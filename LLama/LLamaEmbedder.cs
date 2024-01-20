@@ -75,7 +75,7 @@ namespace LLama
             // TODO(Rinne): deal with log of prompt
 
             if (embed_inp_array.Length > 0)
-                Context.Eval(embed_inp_array, 0);
+                Context.Eval(embed_inp_array.AsSpan(), 0);
 
             var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
             if (embeddings == null)

@@ -8,10 +8,12 @@ using System.IO;
 using System.IO.MemoryMappedFiles;
 using LLama.Common;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using LLama.Extensions;
 using LLama.Abstractions;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace LLama
 {
@@ -344,16 +346,30 @@ namespace LLama
 
         #region eval overloads
         /// <summary>
-        /// 
         /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="pastTokensCount"></param>
-        /// <returns>The updated `pastTokensCount`.</returns>
-        /// <exception cref="RuntimeError"></exception>
-        [Obsolete("use llama_decode() instead")]
-        public int Eval(LLamaToken[] tokens, int pastTokensCount)
+        /// <param name="batch"></param>
+        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
+        ///  - 0: success<br />
+        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
+        ///  - &lt; 0: error<br />
+        /// </returns>
+        public int Decode(LLamaBatch batch)
         {
-            return Eval(tokens.AsSpan(), pastTokensCount);
+            return NativeHandle.Decode(batch);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
+        ///  - 0: success<br />
+        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
+        ///  - &lt; 0: error<br />
+        /// </returns>
+        public Task<int> DecodeAsync(LLamaBatch batch, CancellationToken cancellationToken = default)
+        {
+            return Task.Run(() => NativeHandle.Decode(batch), cancellationToken);
         }
 
         /// <summary>
@@ -363,7 +379,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        [Obsolete("use llama_decode() instead")]
+        [Obsolete("use Decode() instead")]
         public int Eval(List<LLamaToken> tokens, int pastTokensCount)
         {
 #if NET5_0_OR_GREATER
@@ -394,20 +410,7 @@ namespace LLama
         /// <param name="pastTokensCount"></param>
         /// <returns>The updated `pastTokensCount`.</returns>
         /// <exception cref="RuntimeError"></exception>
-        [Obsolete("use llama_decode() instead")]
-        public int Eval(ReadOnlyMemory<LLamaToken> tokens, int pastTokensCount)
-        {
-            return Eval(tokens.Span, pastTokensCount);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="pastTokensCount"></param>
-        /// <returns>The updated `pastTokensCount`.</returns>
-        /// <exception cref="RuntimeError"></exception>
-        [Obsolete("use llama_decode() instead")]
+        [Obsolete("use Decode() instead")]
         public int Eval(ReadOnlySpan<LLamaToken> tokens, int pastTokensCount)
         {
             var total = tokens.Length;

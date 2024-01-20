@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LLama.Native;
 
@@ -7,14 +8,14 @@ namespace LLama.Native;
 /// </summary>
 public class LLamaBatch
 {
-    private readonly byte[] _logits;
+    private byte[] _logits;
 
-    private readonly LLamaToken[] _tokens;
-    private readonly LLamaPos[] _positions;
+    private LLamaToken[] _tokens;
+    private LLamaPos[] _positions;
 
-    private readonly int[] _sequenceIdCount;
-    private readonly LLamaSeqId[][] _sequenceIds;
-    private readonly IntPtr[] _sequenceIdsPtrs;
+    private int[] _sequenceIdCount;
+    private LLamaSeqId[][] _sequenceIds;
+    private IntPtr[] _sequenceIdsPtrs;
 
     /// <summary>
     /// The number of tokens in this batch
@@ -22,12 +23,27 @@ public class LLamaBatch
     public int TokenCount { get; private set; }
 
     /// <summary>
+    /// Maximum number of tokens that can be added to this batch
+    /// </summary>
+    private int TokenCapacity { get; set; }
+
+    /// <summary>
+    /// Maximum number of sequences a token can be assigned to
+    /// </summary>
+    public int MaxSequences { get; private set; }
+
+    /// <summary>
     /// Create a new batch for submitting inputs to llama.cpp
     /// </summary>
-    /// <param name="n_tokens"></param>
-    /// <param name="n_seq_max"></param>
-    public LLamaBatch(int n_tokens, int n_seq_max)
+    /// <param name="n_seq_max">Max number of sequences a token can be assigned to</param>
+    public LLamaBatch(int n_seq_max)
     {
+        // The number of tokens can be grown later, start off with a reasonable guess.
+        const int n_tokens = 64;
+
+        MaxSequences = n_seq_max;
+        TokenCapacity = n_tokens;
+
         _logits = new byte[n_tokens];
         _tokens = new LLamaToken[n_tokens];
         _positions = new LLamaPos[n_tokens];
@@ -37,7 +53,29 @@ public class LLamaBatch
 
         _sequenceIds = new LLamaSeqId[n_tokens][];
         for (var i = 0; i < _sequenceIds.Length; i++)
-            _sequenceIds[i] = new LLamaSeqId[n_seq_max];
+            _sequenceIds[i] = new LLamaSeqId[MaxSequences];
+    }
+
+    private void Grow()
+    {
+        var n_tokens = TokenCount * 2;
+        TokenCapacity = n_tokens;
+
+        Array.Resize(ref _logits, n_tokens);
+        Array.Resize(ref _tokens, n_tokens);
+        Array.Resize(ref _positions, n_tokens);
+
+        Array.Resize(ref _sequenceIdCount, n_tokens);
+        Array.Resize(ref _sequenceIdsPtrs, n_tokens);
+
+        Array.Resize(ref _sequenceIds, n_tokens);
+        for (int i = 0; i < _sequenceIds.Length; i++)
+        {
+            // Growing the array filled elements with null, temporarily violating the nullability contract!
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (_sequenceIds[i] == null)
+                _sequenceIds[i] = new LLamaSeqId[MaxSequences];
+        }
     }
 
     internal GroupDisposable ToNativeBatch(out LLamaNativeBatch batch)
@@ -79,8 +117,11 @@ public class LLamaBatch
     /// <param name="pos">The position to add it att</param>
     /// <param name="sequences">The set of sequences to add this token to</param>
     /// <param name="logits"></param>
-    public void LLamaBatchAdd(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
+    public void Add(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
     {
+        if (TokenCount == TokenCapacity)
+            Grow();
+
         _tokens[TokenCount] = token;
         _positions[TokenCount] = pos;
 
@@ -101,20 +142,20 @@ public class LLamaBatch
     /// <param name="pos">The position to add it att</param>
     /// <param name="sequence">The sequence to add this token to</param>
     /// <param name="logits"></param>
-    public void LLamaBatchAdd(LLamaToken token, LLamaPos pos, LLamaSeqId sequence, bool logits)
+    public void Add(LLamaToken token, LLamaPos pos, LLamaSeqId sequence, bool logits)
     {
         // Create a temporary span to contain 1 item without allocating
         Span<LLamaSeqId> sequences = stackalloc LLamaSeqId[1];
         sequences[0] = sequence;
 
         // Add it
-        LLamaBatchAdd(token, pos, sequences, logits);
+        Add(token, pos, sequences, logits);
     }
 
     /// <summary>
     /// Set TokenCount to zero for this batch
     /// </summary>
-    public void LLamaBatchClear()
+    public void Clear()
     {
         TokenCount = 0;
     }
