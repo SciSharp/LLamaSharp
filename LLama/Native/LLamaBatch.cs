@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace LLama.Native;
 
@@ -35,11 +34,11 @@ public class LLamaBatch
     /// <summary>
     /// Create a new batch for submitting inputs to llama.cpp
     /// </summary>
-    /// <param name="n_seq_max">Max number of sequences a token can be assigned to</param>
-    public LLamaBatch(int n_seq_max)
+    public LLamaBatch()
     {
-        // The number of tokens can be grown later, start off with a reasonable guess.
-        const int n_tokens = 64;
+        // These can both be grown later, start off with reasonable numbers.
+        const int n_tokens = 128;
+        const int n_seq_max = 1;
 
         MaxSequences = n_seq_max;
         TokenCapacity = n_tokens;
@@ -56,7 +55,7 @@ public class LLamaBatch
             _sequenceIds[i] = new LLamaSeqId[MaxSequences];
     }
 
-    private void Grow()
+    private void GrowTokenCapacity()
     {
         var n_tokens = TokenCount * 2;
         TokenCapacity = n_tokens;
@@ -76,6 +75,15 @@ public class LLamaBatch
             if (_sequenceIds[i] == null)
                 _sequenceIds[i] = new LLamaSeqId[MaxSequences];
         }
+    }
+
+    private void GrowMaxSequences(int atLeast)
+    {
+        var n_seq = Math.Max(MaxSequences * 2, atLeast);
+        MaxSequences = n_seq;
+
+        for (var i = 0; i < _sequenceIds.Length; i++)
+            Array.Resize(ref _sequenceIds[i], MaxSequences);
     }
 
     internal GroupDisposable ToNativeBatch(out LLamaNativeBatch batch)
@@ -120,7 +128,9 @@ public class LLamaBatch
     public void Add(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
     {
         if (TokenCount == TokenCapacity)
-            Grow();
+            GrowTokenCapacity();
+        if (sequences.Length > MaxSequences)
+            GrowMaxSequences(sequences.Length);
 
         _tokens[TokenCount] = token;
         _positions[TokenCount] = pos;
