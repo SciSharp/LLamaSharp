@@ -52,7 +52,7 @@ public class BatchedDecoding
             return;
         }
 
-        var batch = new LLamaBatch(1);
+        var batch = new LLamaBatch();
 
         // evaluate the initial prompt
         for (var i = 0; i < prompt_tokens.Length; i++)

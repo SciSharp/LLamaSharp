@@ -38,7 +38,7 @@ public class LLamaBatch
     {
         // These can both be grown later, start off with reasonable numbers.
         const int n_tokens = 128;
-        const int n_seq_max = 4;
+        const int n_seq_max = 1;
 
         MaxSequences = n_seq_max;
         TokenCapacity = n_tokens;
@@ -77,9 +77,9 @@ public class LLamaBatch
         }
     }
 
-    private void GrowMaxSequences()
+    private void GrowMaxSequences(int atLeast)
     {
-        var n_seq = MaxSequences * 2;
+        var n_seq = Math.Max(MaxSequences * 2, atLeast);
         MaxSequences = n_seq;
 
         for (var i = 0; i < _sequenceIds.Length; i++)
@@ -130,7 +130,7 @@ public class LLamaBatch
         if (TokenCount == TokenCapacity)
             GrowTokenCapacity();
         if (sequences.Length > MaxSequences)
-            GrowMaxSequences();
+            GrowMaxSequences(sequences.Length);
 
         _tokens[TokenCount] = token;
         _positions[TokenCount] = pos;
