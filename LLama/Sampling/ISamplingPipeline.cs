@@ -22,9 +22,22 @@ public interface ISamplingPipeline
     LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
 
     /// <summary>
+    /// Update the pipeline, with knowledge that a particular token was just accepted
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <param name="token"></param>
+    void Accept(SafeLLamaContextHandle ctx, LLamaToken token);
+
+    /// <summary>
     /// Reset all internal state of the sampling pipeline
     /// </summary>
     void Reset();
+
+    /// <summary>
+    /// Create a copy of this sampling pipeline
+    /// </summary>
+    /// <returns></returns>
+    ISamplingPipeline Clone();
 }
 
 /// <summary>

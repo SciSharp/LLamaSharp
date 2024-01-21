@@ -192,6 +192,7 @@ namespace LLama
                 if (inferenceParams.SamplingPipeline is not null)
                 {
                     id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), _last_n_tokens.ToArray());
+                    inferenceParams.SamplingPipeline.Accept(Context.NativeHandle, id);
                 }
                 else
                 {
