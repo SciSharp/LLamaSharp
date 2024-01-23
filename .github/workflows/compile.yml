@@ -261,6 +261,11 @@ jobs:
         with:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
+      - name: Upload Llava
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/libllava_shared.dylib
+          name: llava-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
         if: ${{ matrix.build != 'x64' }}
         uses: actions/upload-artifact@v4
@@ -301,8 +306,10 @@ jobs:
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/llama.dll
 
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
+          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
+          cp artifacts/llama-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
 
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
