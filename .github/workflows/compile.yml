@@ -264,7 +264,7 @@ jobs:
       - name: Upload Llava
         uses: actions/upload-artifact@v3
         with:
-          path: ./build/libllava_shared.dylib
+          path: ./build/examples/llava/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
         if: ${{ matrix.build != 'x64' }}
