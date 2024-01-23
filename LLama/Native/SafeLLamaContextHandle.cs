@@ -167,8 +167,9 @@ namespace LLama.Native
         {
             return ThrowIfDisposed().TokenToSpan(token, dest);
         }
-#endregion
+        #endregion
 
+        #region infer
         /// <summary>
         /// Run the llama inference to obtain the logits and probabilities for the next token.
         /// </summary>
@@ -202,6 +203,7 @@ namespace LLama.Native
             using (batch.ToNativeBatch(out var nb))
                 return NativeApi.llama_decode(this, nb);
         }
+        #endregion
 
         #region state
         /// <summary>
@@ -275,5 +277,73 @@ namespace LLama.Native
         {
             NativeApi.llama_set_rng_seed(this, seed);
         }
+
+        /// <summary>
+        /// Set the number of threads used for decoding
+        /// </summary>
+        /// <param name="threads">n_threads is the number of threads used for generation (single token)</param>
+        /// <param name="threadsBatch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
+        public void SetThreads(uint threads, uint threadsBatch)
+        {
+            NativeApi.llama_set_n_threads(this, threads, threadsBatch);
+        }
+
+        #region KV Cache Management
+        /// <summary>
+        /// Clear the KV cache
+        /// </summary>
+        public void KvCacheClear()
+        {
+            NativeApi.llama_kv_cache_clear(this);
+        }
+
+        /// <summary>
+        /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        public void KvCacheRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
+        {
+            NativeApi.llama_kv_cache_seq_rm(this, seq, p0, p1);
+        }
+
+        /// <summary>
+        /// Copy all tokens that belong to the specified sequence to another sequence. Note that
+        /// this does not allocate extra KV cache memory - it simply assigns the tokens to the
+        /// new sequence
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dest"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        public void KvCacheSequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
+        {
+            NativeApi.llama_kv_cache_seq_cp(this, src, dest, p0, p1);
+        }
+
+        /// <summary>
+        /// Removes all tokens that do not belong to the specified sequence
+        /// </summary>
+        /// <param name="seq"></param>
+        public void KvCacheSequenceKeep(LLamaSeqId seq)
+        {
+            NativeApi.llama_kv_cache_seq_keep(this, seq);
+        }
+
+        /// <summary>
+        /// Adds relative position "delta" to all tokens that belong to the specified sequence
+        /// and have positions in [p0, p1. If the KV cache is RoPEd, the KV data is updated
+        /// accordingly
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="delta"></param>
+        public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta)
+        {
+            NativeApi.llama_kv_cache_seq_shift(this, seq, p0, p1, delta);
+        }
+        #endregion
     }
 }
