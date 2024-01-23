@@ -97,7 +97,7 @@ jobs:
       - name: Upload Llava
         uses: actions/upload-artifact@v3
         with:
-          path: ./build/examples/llava/libllava_shared.dll
+          path: ./build/examples/llava/llava_shared.dll
           name: llava-bin-win-${{ matrix.build }}-x64.dll
 
   compile-clblast:
@@ -327,10 +327,10 @@ jobs:
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/libllama.dll
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
 
-          cp artifacts/llava-bin-win-noavx-x64.dll/libllava_shared.dll  deps/libllava_shared.dll
-          cp artifacts/llava-bin-win-avx-x64.dll/libllava_shared.dll    deps/avx/libllava_shared.dll
-          cp artifacts/llava-bin-win-avx2-x64.dll/libllava_shared.dll   deps/avx2/libllava_shared.dll
-          cp artifacts/llava-bin-win-avx512-x64.dll/libllava_shared.dll deps/avx512/libllava_shared.dll
+          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll  deps/llava_shared.dll
+          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
+          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
+          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll deps/avx512/llava_shared.dll
 
 
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
