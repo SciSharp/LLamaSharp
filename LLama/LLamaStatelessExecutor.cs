@@ -40,7 +40,7 @@ namespace LLama
             _weights = weights;
             _params = @params;
             _logger = logger;
-            _batch = new LLamaBatch(1);
+            _batch = new LLamaBatch();
 
             Context = _weights.CreateContext(_params, logger);
             Context.Dispose();
