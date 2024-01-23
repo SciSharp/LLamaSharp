@@ -97,7 +97,7 @@ jobs:
       - name: Upload Llava
         uses: actions/upload-artifact@v3
         with:
-          path: ./build/examples/llava/llava_shared.dll
+          path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-${{ matrix.build }}-x64.dll
 
   compile-clblast:
