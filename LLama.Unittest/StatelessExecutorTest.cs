@@ -19,6 +19,7 @@ namespace LLama.Unittest
             {
                 ContextSize = 60,
                 Seed = 1754,
+                BatchSize = 2,
             };
             _weights = LLamaWeights.LoadFromFile(_params);
         }
@@ -60,7 +61,7 @@ namespace LLama.Unittest
         {
             var executor = new StatelessExecutor(_weights, _params);
 
-            const string question = " Question. cats or dogs?\nAnswer: ";
+            const string question = " Question. cats or dogs?\nAnswer:";
 
             // The context size is set to 60. Generate more than that, forcing it to generate a coherent response
             // with a modified context

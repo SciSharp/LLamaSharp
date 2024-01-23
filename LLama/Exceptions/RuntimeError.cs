@@ -1,4 +1,5 @@
 ﻿using System;
+using LLama.Native;
 
 namespace LLama.Exceptions;
 
@@ -35,5 +36,24 @@ public class LoadWeightsFailedException
         : base($"Failed to load model '{modelPath}'")
     {
         ModelPath = modelPath;
+    }
+}
+
+/// <summary>
+/// `llama_decode` return a non-zero status code
+/// </summary>
+public class LLamaDecodeError
+    : RuntimeError
+{
+    /// <summary>
+    /// The return status code
+    /// </summary>
+    public DecodeResult ReturnCode { get; }
+
+    /// <inheritdoc />
+    public LLamaDecodeError(DecodeResult returnCode)
+        : base($"llama_decode failed: '{returnCode}'")
+    {
+        ReturnCode = returnCode;
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
+using LLama.Exceptions;
 using LLama.Native;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
@@ -22,6 +22,7 @@ namespace LLama
         private readonly LLamaWeights _weights;
         private readonly IContextParams _params;
         private readonly ILogger? _logger;
+        private readonly LLamaBatch _batch;
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -39,6 +40,7 @@ namespace LLama
             _weights = weights;
             _params = @params;
             _logger = logger;
+            _batch = new LLamaBatch(1);
 
             Context = _weights.CreateContext(_params, logger);
             Context.Dispose();
@@ -71,16 +73,29 @@ namespace LLama
             var repeat_last_n = Math.Max(0, inferenceParams.RepeatLastTokensCount <0 ? _weights.ContextSize : inferenceParams.RepeatLastTokensCount);
             var lastTokens = new List<LLamaToken>(repeat_last_n);
             for (var i = 0; i < repeat_last_n; i++)
-                lastTokens.Add((LLamaToken)0);
+                lastTokens.Add(0);
 
             // Tokenize the prompt
             var tokens = Context.Tokenize(prompt).ToList();
             lastTokens.AddRange(tokens);
-            var n_past = 1 + tokens.Count;
 
-            // Evaluate the prompt
-            await Task.Run(() => { Context.Eval(tokens, 1); }, cancellationToken)
-                      .ConfigureAwait(false);
+            // Evaluate the prompt, in chunks smaller than the max batch size
+            var n_past = 0;
+            var batchSize = (int)Context.Params.BatchSize;
+            for (var i = 0; i < tokens.Count; i += batchSize)
+            {
+                var n_eval = tokens.Count - i;
+                if (n_eval > batchSize)
+                    n_eval = batchSize;
+
+                _batch.Clear();
+                for (var j = 0; j < n_eval; j++)
+                    _batch.Add(tokens[i + j], n_past++, LLamaSeqId.Zero, (i + j) == tokens.Count - 1);
+
+                var returnCode = await Context.DecodeAsync(_batch, cancellationToken);
+                if (returnCode != 0)
+                    throw new LLamaDecodeError(returnCode);
+            }
 
             // Begin loop, evaluating one token at a time
             var mu = (float?)null;
@@ -90,12 +105,12 @@ namespace LLama
                 LLamaToken id;
                 if (inferenceParams.SamplingPipeline is not null)
                 {
-                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), lastTokens);
+                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogitsIth(_batch.TokenCount - 1), lastTokens);
                 }
                 else
                 {
                     // Penalize the generated tokens by various penalties
-                    var tokenDataArray = Context.ApplyPenalty(lastTokens, inferenceParams.LogitBias, repeat_last_n,
+                    var tokenDataArray = Context.ApplyPenalty(_batch.TokenCount - 1, lastTokens, inferenceParams.LogitBias, repeat_last_n,
                         inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
                     // Sample a single token
@@ -136,9 +151,12 @@ namespace LLama
                     n_past -= n_discard;
                 }
 
-                // ReSharper disable once AccessToModifiedClosure (Justification: n_past is modified inside and outside the capture, but not concurrently)
-                n_past = await Task.Run(() => Context.Eval(tokens, n_past), cancellationToken)
-                                   .ConfigureAwait(false);
+                // Evaluate with this new token
+                _batch.Clear();
+                _batch.Add(id, n_past++, LLamaSeqId.Zero, true);
+                var returnCode = await context.DecodeAsync(_batch, cancellationToken);
+                if (returnCode != 0)
+                    throw new LLamaDecodeError(returnCode);
             }
         }
     }

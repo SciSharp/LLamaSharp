@@ -105,12 +105,7 @@ public class BatchedDecoding
                 if (i_batch[i] < 0)
                     continue;
 
-                var n_vocab = model.VocabCount;
-                LLamaTokenDataArray candidates;
-                unsafe
-                {
-                    candidates = LLamaTokenDataArray.Create(new Span<float>(NativeApi.llama_get_logits_ith(context.NativeHandle, i_batch[i]), n_vocab));
-                }
+                var candidates = LLamaTokenDataArray.Create(context.NativeHandle.GetLogitsIth(i_batch[i]));
 
                 candidates.TopK(context.NativeHandle, top_k);
                 candidates.TopP(context.NativeHandle, top_p);

@@ -293,6 +293,7 @@ namespace LLama
         /// <summary>
         /// Apply the penalty for the tokens. Please don't use it unless you fully know what it does.
         /// </summary>
+        /// <param name="logits_i"></param>
         /// <param name="lastTokens"></param>
         /// <param name="logitBias"></param>
         /// <param name="repeatLastTokensCount"></param>
@@ -301,11 +302,11 @@ namespace LLama
         /// <param name="alphaPresence"></param>
         /// <param name="penalizeNL"></param>
         /// <returns></returns>
-        public LLamaTokenDataArray ApplyPenalty(IEnumerable<LLamaToken> lastTokens, Dictionary<LLamaToken, float>? logitBias = null, 
-            int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
-            bool penalizeNL = true)
+        public LLamaTokenDataArray ApplyPenalty(int logits_i, IEnumerable<LLamaToken> lastTokens, Dictionary<LLamaToken, float>? logitBias = null, 
+                                                int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
+                                                bool penalizeNL = true)
         {
-            var logits = NativeHandle.GetLogits();
+            var logits = NativeHandle.GetLogitsIth(logits_i);
 
             // Apply params.logit_bias map
             if (logitBias is not null)
@@ -348,28 +349,23 @@ namespace LLama
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
-        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
-        ///  - 0: success<br />
-        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
-        ///  - &lt; 0: error<br />
-        /// </returns>
-        public int Decode(LLamaBatch batch)
+        public DecodeResult Decode(LLamaBatch batch)
         {
-            return NativeHandle.Decode(batch);
+            if (batch.TokenCount == 0)
+                return 0;
+            if (batch.TokenCount > Params.BatchSize)
+                throw new ArgumentException("Input contains more tokens than configured batch size", nameof(batch));
+
+            return (DecodeResult)NativeHandle.Decode(batch);
         }
 
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
-        ///  - 0: success<br />
-        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
-        ///  - &lt; 0: error<br />
-        /// </returns>
-        public Task<int> DecodeAsync(LLamaBatch batch, CancellationToken cancellationToken = default)
+        public Task<DecodeResult> DecodeAsync(LLamaBatch batch, CancellationToken cancellationToken = default)
         {
-            return Task.Run(() => NativeHandle.Decode(batch), cancellationToken);
+            return Task.Run(() => Decode(batch), cancellationToken);
         }
 
         /// <summary>
