@@ -112,7 +112,7 @@ public class LLamaKvCacheViewSafeHandle
     }
 
     /// <summary>
-    /// Count the number of tokens in the KV cache. If a token is assigned to multiple sequences it will be countered multiple times
+    /// Count the number of tokens in the KV cache. If a token is assigned to multiple sequences it will be counted multiple times
     /// </summary>
     /// <returns></returns>
     public int CountTokens()

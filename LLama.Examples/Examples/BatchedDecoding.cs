@@ -2,6 +2,7 @@
 using System.Text;
 using LLama.Common;
 using LLama.Native;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples;
 
@@ -13,10 +14,6 @@ public class BatchedDecoding
 {
     private const int n_parallel = 8;
     private const int n_len = 32;
-
-    private const int top_k = 80;
-    private const float top_p = 0.8f;
-    private const float temp = 0.75f;
 
     public static async Task Run()
     {
@@ -55,10 +52,9 @@ public class BatchedDecoding
         var batch = new LLamaBatch();
 
         // evaluate the initial prompt
-        for (var i = 0; i < prompt_tokens.Length; i++)
-            batch.Add(prompt_tokens[i], i, LLamaSeqId.Zero, i == prompt_tokens.Length - 1);
+        batch.AddRange(prompt_tokens, 0, LLamaSeqId.Zero, true);
 
-        if (await context.DecodeAsync(batch) != 0)
+        if (await context.DecodeAsync(batch) != DecodeResult.Ok)
         {
             await Console.Error.WriteLineAsync("llama_decode failed");
             return;
@@ -68,7 +64,7 @@ public class BatchedDecoding
         // this way, the parallel sequences will "reuse" the prompt tokens without having to copy them
         for (var i = 1; i < n_parallel; ++i)
         {
-            NativeApi.llama_kv_cache_seq_cp(context.NativeHandle, (LLamaSeqId)0, (LLamaSeqId)i, 0, batch.TokenCount);
+            context.NativeHandle.KvCacheSequenceCopy((LLamaSeqId)0, (LLamaSeqId)i, 0, batch.TokenCount);
         }
 
         if (n_parallel > 1)
@@ -83,15 +79,21 @@ public class BatchedDecoding
         for (var i = 0; i < n_parallel; i++)
             i_batch.Add(batch.TokenCount - 1);
 
+        // Create per-stream decoder and sampler
+        var decoders = new StreamingTokenDecoder[n_parallel];
+        var samplers = new ISamplingPipeline[n_parallel];
+        for (var i = 0; i < n_parallel; i++)
+        {
+            decoders[i] = new StreamingTokenDecoder(context);
+            samplers[i] = new DefaultSamplingPipeline
+            {
+                Temperature = 0.1f + (float)i / n_parallel,
+                MinP = 0.25f,
+            };
+        }
+
         var n_cur = batch.TokenCount;
         var n_decode = 0;
-
-        var streams = new StreamingTokenDecoder[n_parallel];
-        for (var i = 0; i < n_parallel; i++)
-            streams[i] = new StreamingTokenDecoder(context);
-
-        var eos = model.EndOfSentenceToken;
-        var nl = model.NewlineToken;
 
         var timer = new Stopwatch();
         timer.Start();
@@ -105,31 +107,33 @@ public class BatchedDecoding
                 if (i_batch[i] < 0)
                     continue;
 
-                var candidates = LLamaTokenDataArray.Create(context.NativeHandle.GetLogitsIth(i_batch[i]));
+                // Use the sampling pipeline to select a token
+                var new_token_id = samplers[i].Sample(
+                    context.NativeHandle,
+                    context.NativeHandle.GetLogitsIth(i_batch[i]),
+                    Array.Empty<LLamaToken>()
+                );
 
-                candidates.TopK(context.NativeHandle, top_k);
-                candidates.TopP(context.NativeHandle, top_p);
-                candidates.Temperature(context.NativeHandle, temp);
-                var new_token_id = candidates.SampleToken(context.NativeHandle);
-
-                if (new_token_id == eos || new_token_id == nl)
+                // Finish this stream early if necessary
+                if (new_token_id == model.EndOfSentenceToken || new_token_id == model.NewlineToken)
                 {
                     i_batch[i] = -1;
                     Console.WriteLine($"Completed Stream {i} early");
                     continue;
                 }
 
-                streams[i].Add(new_token_id);
+                // Add this token to the decoder, so it will be turned into text
+                decoders[i].Add(new_token_id);
 
                 i_batch[i] = batch.TokenCount;
 
                 // push this new token for next evaluation
-                batch.Add(new_token_id, n_cur, new[] { (LLamaSeqId)i }, true);
+                batch.Add(new_token_id, n_cur, (LLamaSeqId)i, true);
 
                 n_decode++;
             }
 
-            // all streams are finished
+            // Check if all streams are finished
             if (batch.TokenCount == 0)
             {
                 break;
@@ -152,7 +156,7 @@ public class BatchedDecoding
         Console.WriteLine($"Rate: {n_decode / timer.Elapsed.TotalSeconds:##.000} tokens/second");
 
         var index = 0;
-        foreach (var stream in streams)
+        foreach (var stream in decoders)
         {
             var text = stream.Read();
 

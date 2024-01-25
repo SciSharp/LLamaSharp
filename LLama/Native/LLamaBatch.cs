@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native;
 
@@ -22,14 +24,14 @@ public class LLamaBatch
     public int TokenCount { get; private set; }
 
     /// <summary>
-    /// Maximum number of tokens that can be added to this batch
+    /// Maximum number of tokens that can be added to this batch (automatically grows if exceeded)
     /// </summary>
     private int TokenCapacity { get; set; }
 
     /// <summary>
-    /// Maximum number of sequences a token can be assigned to
+    /// Maximum number of sequences a token can be assigned to (automatically grows if exceeded)
     /// </summary>
-    public int MaxSequences { get; private set; }
+    public int SequenceCapacity { get; private set; }
 
     /// <summary>
     /// Create a new batch for submitting inputs to llama.cpp
@@ -40,7 +42,7 @@ public class LLamaBatch
         const int n_tokens = 128;
         const int n_seq_max = 1;
 
-        MaxSequences = n_seq_max;
+        SequenceCapacity = n_seq_max;
         TokenCapacity = n_tokens;
 
         _logits = new byte[n_tokens];
@@ -52,9 +54,10 @@ public class LLamaBatch
 
         _sequenceIds = new LLamaSeqId[n_tokens][];
         for (var i = 0; i < _sequenceIds.Length; i++)
-            _sequenceIds[i] = new LLamaSeqId[MaxSequences];
+            _sequenceIds[i] = new LLamaSeqId[SequenceCapacity];
     }
 
+    #region grow
     private void GrowTokenCapacity()
     {
         var n_tokens = TokenCount * 2;
@@ -73,18 +76,19 @@ public class LLamaBatch
             // Growing the array filled elements with null, temporarily violating the nullability contract!
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (_sequenceIds[i] == null)
-                _sequenceIds[i] = new LLamaSeqId[MaxSequences];
+                _sequenceIds[i] = new LLamaSeqId[SequenceCapacity];
         }
     }
 
     private void GrowMaxSequences(int atLeast)
     {
-        var n_seq = Math.Max(MaxSequences * 2, atLeast);
-        MaxSequences = n_seq;
+        var n_seq = Math.Max(SequenceCapacity * 2, atLeast);
+        SequenceCapacity = n_seq;
 
         for (var i = 0; i < _sequenceIds.Length; i++)
-            Array.Resize(ref _sequenceIds[i], MaxSequences);
+            Array.Resize(ref _sequenceIds[i], SequenceCapacity);
     }
+    #endregion
 
     internal GroupDisposable ToNativeBatch(out LLamaNativeBatch batch)
     {
@@ -117,6 +121,7 @@ public class LLamaBatch
         return group;
     }
 
+    #region add
     /// <summary>
     /// Add a single token to the batch at the same position in several sequences
     /// </summary>
@@ -129,7 +134,7 @@ public class LLamaBatch
     {
         if (TokenCount == TokenCapacity)
             GrowTokenCapacity();
-        if (sequences.Length > MaxSequences)
+        if (sequences.Length > SequenceCapacity)
             GrowMaxSequences(sequences.Length);
 
         _tokens[TokenCount] = token;
@@ -142,6 +147,37 @@ public class LLamaBatch
         _logits[TokenCount] = Convert.ToByte(logits);
 
         TokenCount++;
+    }
+
+    /// <summary>
+    /// Add a single token to the batch at the same position in several sequences
+    /// </summary>
+    /// <remarks>https://github.com/ggerganov/llama.cpp/blob/ad939626577cd25b462e8026cc543efb71528472/common/common.cpp#L829C2-L829C2</remarks>
+    /// <param name="token">The token to add</param>
+    /// <param name="pos">The position to add it att</param>
+    /// <param name="sequences">The set of sequences to add this token to</param>
+    /// <param name="logits"></param>
+    public void Add(LLamaToken token, LLamaPos pos, List<LLamaSeqId> sequences, bool logits)
+    {
+#if NET5_0_OR_GREATER
+        var seqSpan = CollectionsMarshal.AsSpan(sequences);
+        Add(token, pos, seqSpan, logits);
+#else
+        // on netstandard2.0 we can't use CollectionsMarshal to get directly at the internal memory of
+        // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
+        // avoid the copying.
+
+        var rented = System.Buffers.ArrayPool<LLamaSeqId>.Shared.Rent(sequences.Count);
+        try
+        {
+            sequences.CopyTo(rented, 0);
+            Add(token, pos, rented.AsSpan(0, sequences.Count), logits);
+        }
+        finally
+        {
+            System.Buffers.ArrayPool<LLamaSeqId>.Shared.Return(rented);
+        }
+#endif
     }
 
     /// <summary>
@@ -161,6 +197,23 @@ public class LLamaBatch
         // Add it
         Add(token, pos, sequences, logits);
     }
+
+    /// <summary>
+    /// Add a range of tokens to a single sequence, start at the given position.
+    /// </summary>
+    /// <param name="tokens">The tokens to add</param>
+    /// <param name="start">The starting position to add tokens at</param>
+    /// <param name="sequence">The sequence to add this token to</param>
+    /// <param name="logitsLast">Whether the final token should generate logits</param>
+    public void AddRange(ReadOnlySpan<LLamaToken> tokens, LLamaPos start, LLamaSeqId sequence, bool logitsLast)
+    {
+        for (var i = 0; i < tokens.Length; i++)
+        {
+            var logits = (i == tokens.Length - 1) & logitsLast;
+            Add(tokens[i], start.Value + i, sequence, logits);
+        }
+    }
+#endregion
 
     /// <summary>
     /// Set TokenCount to zero for this batch
