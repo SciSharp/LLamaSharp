@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
+  <Import Project="..\LLavaSharp\LLavaSharp.Runtime.targets" /> 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LLama.Unittest</RootNamespace>

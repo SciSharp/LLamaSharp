@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0;</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Version>0.8.0</Version>
+        <Authors>José Luis Santiago</Authors>
+        <Company>SciSharp STACK</Company>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+        <RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+        <PackageTags>LLama, LLaVa, LLM, GPT, ChatGPT, NLP, AI, Chat Bot, SciSharp</PackageTags>
+        <Description>
+            The .NET binding of LLaVa in llama.cpp, making LLM inference and deployment easy and fast. For model
+            weights to run, please go to https://github.com/SciSharp/LLamaSharp for more information.
+        </Description>
+        <PackageReleaseNotes>
+            LLamaSharp 0.8.0 supports automatically device feature detection, adds integration with kernel-memory and fixes some performance issues.
+        </PackageReleaseNotes>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageOutputPath>packages</PackageOutputPath>
+        <Platforms>AnyCPU;x64;Arm64</Platforms>
+        <PackageId>LLavaSharp</PackageId>
+        <Configurations>Debug;Release</Configurations>
+        <RootNamespace>LLava</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Extensions\" />
+    </ItemGroup>
+
+</Project>

@@ -26,6 +26,7 @@ public class Runner
         { "Batched Executor (Fork)", BatchedExecutorFork.Run },
         { "Batched Executor (Rewind)", BatchedExecutorRewind.Run },
         { "SK Kernel Memory.", KernelMemory.Run },
+        { "LLava Multimodal.", LLavaExample.Run },
         { "Exit", async () => Environment.Exit(0) }
     };
 
