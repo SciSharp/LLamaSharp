@@ -222,6 +222,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.7.0, v0.8.0 | [Thespis-13B](https://huggingface.co/TheBloke/Thespis-13B-v0.5-GGUF/tree/main?not-for-all-audiences=true), [LLaMA2-7B](https://huggingface.co/TheBloke/llama-2-7B-Guanaco-QLoRA-GGUF) | [`207b519`](https://github.com/ggerganov/llama.cpp/commit/207b51900e15cc7f89763a3bb1c565fe11cbb45d) |
 | v0.8.1 | | [`e937066`](https://github.com/ggerganov/llama.cpp/commit/e937066420b79a757bf80e9836eb12b88420a218) |
 | v0.9.0, v0.9.1 | [Mixtral-8x7B](https://huggingface.co/TheBloke/Mixtral-8x7B-v0.1-GGUF) | [`9fb13f9`](https://github.com/ggerganov/llama.cpp/blob/9fb13f95840c722ad419f390dc8a9c86080a3700) |
+| v10.0.0 | [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF) | [`a1d6df1`](https://github.com/ggerganov/llama.cpp/tree/a1d6df129bcd3d42cda38c09217d8d4ec4ea3bdd) |
 
 ## License
 
