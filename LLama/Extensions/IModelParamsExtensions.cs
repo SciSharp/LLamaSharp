@@ -32,6 +32,7 @@ public static class IModelParamsExtensions
 
         result = NativeApi.llama_model_default_params();
         result.main_gpu = @params.MainGpu;
+        result.split_mode = @params.SplitMode;
         result.n_gpu_layers = @params.GpuLayerCount;
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;

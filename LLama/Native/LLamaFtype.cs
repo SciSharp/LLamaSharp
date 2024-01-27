@@ -107,6 +107,26 @@
         LLAMA_FTYPE_MOSTLY_Q6_K = 18,
 
         /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ2_XXS,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ2_XS,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_Q2_K_S,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_Q3_K_XS,
+
+        /// <summary>
         /// File type was not specified
         /// </summary>
         LLAMA_FTYPE_GUESSED = 1024
