@@ -136,7 +136,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CLBLAS=ON
+          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CLBLAST=ON
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
