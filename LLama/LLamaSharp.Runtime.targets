@@ -4,29 +4,29 @@
     </PropertyGroup>
     <ItemGroup Condition="'$(IncludeBuiltInRuntimes)' == 'true'">
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/noavx/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/noavx/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/avx/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx2/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/avx2/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx512/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/avx512/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/cuda11/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda12/libllama.dll</Link>
+        <Link>runtimes/win-x64/native/cuda12/llama.dll</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">

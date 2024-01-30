@@ -16,7 +16,7 @@ When building from source, please add `-DBUILD_SHARED_LIBS=ON` to the cmake inst
 cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
 ```
 
-After running `cmake --build . --config Release`, you could find the `llama.dll`, `llama.so` or `llama.dylib` in your build directory. After pasting it to `LLamaSharp/LLama/runtimes` and renaming it to `libllama.dll`, `libllama.so` or  `libllama.dylib`, you can use it as the native library in LLamaSharp.
+After running `cmake --build . --config Release`, you could find the `llama.dll`, `llama.so` or `llama.dylib` in your build directory. After pasting it to `LLamaSharp/LLama/runtimes` , you can use it as the native library in LLamaSharp.
 
 
 ## Add a new feature to LLamaSharp

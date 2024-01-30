@@ -129,31 +129,33 @@ namespace LLama.Native
         }
 
 #if NET6_0_OR_GREATER
-        private static string GetAvxLibraryPath(NativeLibraryConfig.AvxLevel avxLevel, string prefix, string suffix)
+        private static string GetAvxLibraryPath(NativeLibraryConfig.AvxLevel avxLevel, string prefix, string suffix, string libraryNamePrefix)
         {
             var avxStr = NativeLibraryConfig.AvxLevelToString(avxLevel);
             if (!string.IsNullOrEmpty(avxStr))
             {
                 avxStr += "/";
             }
-            return $"{prefix}{avxStr}{libraryName}{suffix}";
+            return $"{prefix}{avxStr}{libraryNamePrefix}{libraryName}{suffix}";
         }
 
         private static List<string> GetLibraryTryOrder(NativeLibraryConfig.Description configuration)
         {
             OSPlatform platform;
-            string prefix, suffix;
+            string prefix, suffix, libraryNamePrefix;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 platform = OSPlatform.Windows;
                 prefix = "runtimes/win-x64/native/";
                 suffix = ".dll";
+                libraryNamePrefix = "";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 platform = OSPlatform.Linux;
                 prefix = "runtimes/linux-x64/native/";
                 suffix = ".so";
+                libraryNamePrefix = "lib";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
@@ -163,6 +165,7 @@ namespace LLama.Native
                 prefix = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
                        ? "runtimes/osx-arm64/native/"
                        : "runtimes/osx-x64/native/";
+                libraryNamePrefix = "lib";
             }
             else
             {
@@ -181,8 +184,8 @@ namespace LLama.Native
                     // if check skipped, we just try to load cuda libraries one by one.
                     if (configuration.SkipCheck)
                     {
-                        result.Add($"{prefix}cuda12/{libraryName}{suffix}");
-                        result.Add($"{prefix}cuda11/{libraryName}{suffix}");
+                        result.Add($"{prefix}cuda12/{libraryNamePrefix}{libraryName}{suffix}");
+                        result.Add($"{prefix}cuda11/{libraryNamePrefix}{libraryName}{suffix}");
                     }
                     else
                     {
@@ -209,25 +212,25 @@ namespace LLama.Native
             // use cpu (or mac possibly with metal)
             if (!configuration.AllowFallback && platform != OSPlatform.OSX)
             {
-                result.Add(GetAvxLibraryPath(configuration.AvxLevel, prefix, suffix));
+                result.Add(GetAvxLibraryPath(configuration.AvxLevel, prefix, suffix, libraryNamePrefix));
             }
             else if (platform != OSPlatform.OSX) // in macos there's absolutely no avx
             {
                 if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx512)
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx512, prefix, suffix));
+                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx512, prefix, suffix, libraryNamePrefix));
 
                 if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx2)
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx2, prefix, suffix));
+                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx2, prefix, suffix, libraryNamePrefix));
                 
                 if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx)
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix));
+                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix, libraryNamePrefix));
 
-                result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.None, prefix, suffix));
+                result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.None, prefix, suffix, libraryNamePrefix));
             }
 
             if (platform == OSPlatform.OSX)
             {
-                result.Add($"{prefix}{libraryName}{suffix}");
+                result.Add($"{prefix}{libraryNamePrefix}{libraryName}{suffix}");
             }
 
             return result;
@@ -329,7 +332,7 @@ namespace LLama.Native
 #endif
         }
 
-        internal const string libraryName = "libllama";
+        internal const string libraryName = "llama";
         private const string cudaVersionFile = "version.json";
         private const string loggingPrefix = "[LLamaSharp Native]";
         private static bool enableLogging = false;

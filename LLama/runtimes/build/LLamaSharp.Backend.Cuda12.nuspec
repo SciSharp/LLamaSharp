@@ -18,7 +18,7 @@
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.props" />
     
-    <file src="runtimes/deps/cu12.1.0/libllama.dll" target="runtimes\win-x64\native\cuda12\libllama.dll" />
+    <file src="runtimes/deps/cu12.1.0/llama.dll" target="runtimes\win-x64\native\cuda12\llama.dll" />
     <file src="runtimes/deps/cu12.1.0/libllama.so" target="runtimes\linux-x64\native\cuda12\libllama.so" />
     
     <file src="icon512.png" target="icon512.png" />
