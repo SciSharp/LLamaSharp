@@ -109,7 +109,7 @@ jobs:
           repository: ggerganov/llama.cpp
       - name: Download dependencies - Windows
         id: get_opencl
-        if: ${{ matrix.os == "windows-latest' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           curl.exe -o $env:RUNNER_TEMP/opencl.zip -L "https://github.com/KhronosGroup/OpenCL-SDK/releases/download/v${env:OPENCL_VERSION}/OpenCL-SDK-v${env:OPENCL_VERSION}-Win-x64.zip"
           mkdir $env:RUNNER_TEMP/opencl
