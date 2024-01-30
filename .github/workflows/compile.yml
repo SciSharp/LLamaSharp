@@ -199,17 +199,8 @@ jobs:
         run: |
           ls -R
 
-          mkdir deps
-
-          mkdir deps/avx
-          mkdir deps/avx2
-          mkdir deps/avx512
-
-          mkdir deps/osx-arm64
-          mkdir deps/osx-x64
-
-          mkdir deps/cu11.7.1
-          mkdir deps/cu12.1.0
+          # Make all directories at once
+          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,cu11.7.1,cu12.1.0,clblast}
 
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
