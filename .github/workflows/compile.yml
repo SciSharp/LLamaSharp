@@ -2,7 +2,11 @@ name: Update Binaries
 
 on:
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      llama_cpp_commit:
+        description: 'Branch, tag, or commit to use for llama.cpp'
+        required: true
+        default: 'master'
   push:
     branches: [cron_job]
   #schedule:
@@ -11,6 +15,7 @@ on:
 env:
   # Compiler defines common to all platforms
   COMMON_DEFINE: -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
+  LLAMA_CPP_COMMIT: '${{ github.input.events.llama_cpp_commit }}'
 
 jobs:
   compile-linux:
@@ -32,6 +37,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: ${{ env.LLAMA_CPP_COMMIT }}
       - name: Build
         id: cmake_build
         run: |
@@ -63,6 +70,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: ${{ env.LLAMA_CPP_COMMIT }}
 
       - name: Build
         id: cmake_build
@@ -92,6 +101,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: ${{ env.LLAMA_CPP_COMMIT }}
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         if: runner.os == 'Windows'
@@ -146,6 +157,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: ${{ env.LLAMA_CPP_COMMIT }}
       - name: Dependencies
         continue-on-error: true
         run: |
