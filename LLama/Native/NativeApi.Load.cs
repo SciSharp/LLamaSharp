@@ -195,12 +195,12 @@ namespace LLama.Native
                 else if (cudaVersion == 11)
                 {
                     Log($"Detected cuda major version {cudaVersion}.", LogLevel.Information);
-                    result.Add($"{prefix}cuda11/{libraryName}{suffix}");
+                    result.Add($"{prefix}cuda11/{libraryNamePrefix}{libraryName}{suffix}");
                 }
                 else if (cudaVersion == 12)
                 {
                     Log($"Detected cuda major version {cudaVersion}.", LogLevel.Information);
-                    result.Add($"{prefix}cuda12/{libraryName}{suffix}");
+                    result.Add($"{prefix}cuda12/{libraryNamePrefix}{libraryName}{suffix}");
                 }
                 else if (cudaVersion > 0)
                 {
