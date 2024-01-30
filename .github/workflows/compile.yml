@@ -250,7 +250,8 @@ jobs:
       "compile-linux",
       "compile-macos",
       "compile-windows",
-      "compile-cublas"
+      "compile-cublas",
+      "compile-clblast"
     ]
     steps:      
       - uses: actions/download-artifact@v3
