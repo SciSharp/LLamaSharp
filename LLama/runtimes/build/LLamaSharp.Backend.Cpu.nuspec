@@ -18,10 +18,10 @@
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
 
-    <file src="runtimes/deps/libllama.dll" target="runtimes\win-x64\native\libllama.dll" />
-    <file src="runtimes/deps/avx/libllama.dll" target="runtimes\win-x64\native\avx\libllama.dll" />
-    <file src="runtimes/deps/avx2/libllama.dll" target="runtimes\win-x64\native\avx2\libllama.dll" />
-    <file src="runtimes/deps/avx512/libllama.dll" target="runtimes\win-x64\native\avx512\libllama.dll" />
+    <file src="runtimes/deps/llama.dll" target="runtimes\win-x64\native\llama.dll" />
+    <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
+    <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />
+    <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
 
     <file src="runtimes/deps/libllama.so" target="runtimes\linux-x64\native\libllama.so" />
     <file src="runtimes/deps/avx/libllama.so" target="runtimes\linux-x64\native\avx\libllama.so" />
