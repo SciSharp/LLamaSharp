@@ -37,7 +37,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: '${{ github.input.events.llama_cpp_commit }}'
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
       - name: Build
         id: cmake_build
         run: |
@@ -70,7 +70,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: '${{ github.input.events.llama_cpp_commit }}'
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
 
       - name: Build
         id: cmake_build
@@ -101,7 +101,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: '${{ github.input.events.llama_cpp_commit }}'
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         if: runner.os == 'Windows'
@@ -157,7 +157,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: '${{ github.input.events.llama_cpp_commit }}'
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
       - name: Dependencies
         continue-on-error: true
         run: |
