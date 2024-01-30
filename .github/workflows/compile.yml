@@ -15,7 +15,6 @@ on:
 env:
   # Compiler defines common to all platforms
   COMMON_DEFINE: -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
-  LLAMA_CPP_COMMIT: '${{ github.input.events.llama_cpp_commit }}'
 
 jobs:
   compile-linux:
@@ -38,7 +37,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: ${{ env.LLAMA_CPP_COMMIT }}
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
       - name: Build
         id: cmake_build
         run: |
@@ -71,7 +70,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: ${{ env.LLAMA_CPP_COMMIT }}
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
 
       - name: Build
         id: cmake_build
@@ -102,7 +101,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: ${{ env.LLAMA_CPP_COMMIT }}
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
 
       - uses: Jimver/cuda-toolkit@v0.2.11
         if: runner.os == 'Windows'
@@ -158,7 +157,7 @@ jobs:
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
-          ref: ${{ env.LLAMA_CPP_COMMIT }}
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
       - name: Dependencies
         continue-on-error: true
         run: |
