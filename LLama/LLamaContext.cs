@@ -443,7 +443,7 @@ namespace LLama
             : SafeLLamaHandleBase
         {
             internal State(IntPtr memory)
-                : base(memory)
+                : base(memory, true)
             {
             }
 
