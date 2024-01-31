@@ -14,12 +14,6 @@ namespace LLama.Native
         {
         }
 
-        private protected SafeLLamaHandleBase(IntPtr handle)
-            : base(IntPtr.Zero, ownsHandle: true)
-        {
-            SetHandle(handle);
-        }
-
         private protected SafeLLamaHandleBase(IntPtr handle, bool ownsHandle)
             : base(IntPtr.Zero, ownsHandle)
         {
@@ -30,7 +24,6 @@ namespace LLama.Native
         public override bool IsInvalid => handle == IntPtr.Zero;
 
         /// <inheritdoc />
-        public override string ToString()
-            => $"0x{handle:x16}";
+        public override string ToString() => handle.ToString();
     }
 }

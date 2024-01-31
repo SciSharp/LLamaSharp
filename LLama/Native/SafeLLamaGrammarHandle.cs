@@ -21,7 +21,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="handle"></param>
         internal SafeLLamaGrammarHandle(IntPtr handle)
-            : base(handle)
+            : base(handle, true)
         {
         }
 
