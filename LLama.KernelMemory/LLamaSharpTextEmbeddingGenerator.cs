@@ -1,14 +1,7 @@
 ﻿using LLama;
-using LLama.Abstractions;
 using LLama.Common;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
-using Microsoft.SemanticKernel.AI.Embeddings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LLamaSharp.KernelMemory
 {
@@ -80,24 +73,24 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <inheritdoc/>
-        public Task<IList<ReadOnlyMemory<float>>> GenerateEmbeddingsAsync(IList<string> data, CancellationToken cancellationToken = default)
+        public async Task<IList<ReadOnlyMemory<float>>> GenerateEmbeddingsAsync(IList<string> data, CancellationToken cancellationToken = default)
         {
             IList<ReadOnlyMemory<float>> results = new List<ReadOnlyMemory<float>>();
 
             foreach (var d in data)
             {
-                var embeddings = _embedder.GetEmbeddings(d);
+                var embeddings = await _embedder.GetEmbeddings(d, cancellationToken);
                 results.Add(new ReadOnlyMemory<float>(embeddings));
             }
 
-            return Task.FromResult(results);
+            return results;
         }
 
         /// <inheritdoc/>
-        public Task<Embedding> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
+        public async Task<Embedding> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
         {
-            var embeddings = _embedder.GetEmbeddings(text);
-            return Task.FromResult(new Embedding(embeddings));
+            var embeddings = await _embedder.GetEmbeddings(text, cancellationToken);
+            return new Embedding(embeddings);
         }
 
         /// <inheritdoc/>
