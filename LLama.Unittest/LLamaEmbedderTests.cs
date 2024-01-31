@@ -9,7 +9,10 @@ public sealed class LLamaEmbedderTests
 
     public LLamaEmbedderTests()
     {
-        var @params = new ModelParams(Constants.ModelPath);
+        var @params = new ModelParams(Constants.ModelPath)
+        {
+            EmbeddingMode = true,
+        };
         using var weights = LLamaWeights.LoadFromFile(@params);
         _embedder = new(weights, @params);
     }

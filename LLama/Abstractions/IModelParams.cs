@@ -18,37 +18,37 @@ namespace LLama.Abstractions
         /// <summary>
         /// the GPU that is used for scratch and small tensors
         /// </summary>
-        int MainGpu { get; set; }
+        int MainGpu { get; }
 
         /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
         /// </summary>
-        int GpuLayerCount { get; set; }
+        int GpuLayerCount { get; }
 
         /// <summary>
         /// Use mmap for faster loads (use_mmap)
         /// </summary>
-        bool UseMemorymap { get; set; }
+        bool UseMemorymap { get; }
 
         /// <summary>
         /// Use mlock to keep model in memory (use_mlock)
         /// </summary>
-        bool UseMemoryLock { get; set; }
+        bool UseMemoryLock { get; }
 
         /// <summary>
         /// Model path (model)
         /// </summary>
-        string ModelPath { get; set; }
+        string ModelPath { get; }
 
         /// <summary>
         /// how split tensors should be distributed across GPUs
         /// </summary>
-        TensorSplitsCollection TensorSplits { get; set; }
+        TensorSplitsCollection TensorSplits { get; }
 
         /// <summary>
         /// Load vocab only (no weights)
         /// </summary>
-        bool VocabOnly { get; set; }
+        bool VocabOnly { get; }
 
         /// <summary>
         /// List of LoRA adapters to apply
@@ -58,7 +58,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// base model path for the lora adapter (lora_base)
         /// </summary>
-        string LoraBase { get; set; }
+        string LoraBase { get; }
 
         /// <summary>
         /// Override specific metadata items in the model

@@ -11,91 +11,91 @@ public interface IContextParams
     /// <summary>
     /// Model context size (n_ctx)
     /// </summary>
-    uint? ContextSize { get; set; }
+    uint? ContextSize { get; }
 
     /// <summary>
     /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
     /// </summary>
-    uint BatchSize { get; set; }
+    uint BatchSize { get; }
 
     /// <summary>
     /// Seed for the random number generator (seed)
     /// </summary>
-    uint Seed { get; set; }
+    uint Seed { get; }
 
     /// <summary>
     /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
     /// The LLamaModel won't produce text response anymore.
     /// </summary>
-    bool EmbeddingMode { get; set; }
+    bool EmbeddingMode { get; }
 
     /// <summary>
     /// RoPE base frequency (null to fetch from the model)
     /// </summary>
-    float? RopeFrequencyBase { get; set; }
+    float? RopeFrequencyBase { get; }
 
     /// <summary>
     /// RoPE frequency scaling factor (null to fetch from the model)
     /// </summary>
-    float? RopeFrequencyScale { get; set; }
+    float? RopeFrequencyScale { get; }
 
     /// <summary>
     /// The encoding to use for models
     /// </summary>
-    Encoding Encoding { get; set; }
+    Encoding Encoding { get; }
 
     /// <summary>
     /// Number of threads (null = autodetect) (n_threads)
     /// </summary>
-    uint? Threads { get; set; }
+    uint? Threads { get; }
 
     /// <summary>
     /// Number of threads to use for batch processing (null = autodetect) (n_threads)
     /// </summary>
-    uint? BatchThreads { get; set; }
+    uint? BatchThreads { get; }
 
     /// <summary>
     /// YaRN extrapolation mix factor (null = from model)
     /// </summary>
-    float? YarnExtrapolationFactor { get; set; }
+    float? YarnExtrapolationFactor { get; }
 
     /// <summary>
     /// YaRN magnitude scaling factor (null = from model)
     /// </summary>
-    float? YarnAttentionFactor { get; set; }
+    float? YarnAttentionFactor { get; }
 
     /// <summary>
     /// YaRN low correction dim (null = from model)
     /// </summary>
-    float? YarnBetaFast { get; set; }
+    float? YarnBetaFast { get; }
 
     /// <summary>
     /// YaRN high correction dim (null = from model)
     /// </summary>
-    float? YarnBetaSlow { get; set; }
+    float? YarnBetaSlow { get; }
 
     /// <summary>
     /// YaRN original context length (null = from model)
     /// </summary>
-    uint? YarnOriginalContext { get; set; }
+    uint? YarnOriginalContext { get; }
 
     /// <summary>
     /// YaRN scaling method to use.
     /// </summary>
-    RopeScalingType? YarnScalingType { get; set; }
+    RopeScalingType? YarnScalingType { get; }
 
     /// <summary>
     /// Override the type of the K cache
     /// </summary>
-    GGMLType? TypeK { get; set; }
+    GGMLType? TypeK { get; }
 
     /// <summary>
     /// Override the type of the V cache
     /// </summary>
-    GGMLType? TypeV { get; set; }
+    GGMLType? TypeV { get; }
 
     /// <summary>
     /// Whether to disable offloading the KQV cache to the GPU
     /// </summary>
-    bool NoKqvOffload { get; set; }
+    bool NoKqvOffload { get; }
 }
