@@ -30,7 +30,9 @@ namespace LLama
         /// <param name="logger"></param>
         public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            @params.EmbeddingMode = true;
+            if (!@params.EmbeddingMode)
+                throw new ArgumentException("EmbeddingMode must be true", nameof(@params));
+
             Context = weights.CreateContext(@params, logger);
         }
 

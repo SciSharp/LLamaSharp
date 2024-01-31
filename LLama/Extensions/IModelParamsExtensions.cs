@@ -25,14 +25,12 @@ public static class IModelParamsExtensions
             throw new NotSupportedException("'UseMemoryLock' is not supported (llama_mlock_supported() == false)");
         if (@params.UseMemorymap && !NativeApi.llama_mmap_supported())
             throw new NotSupportedException("'UseMemorymap' is not supported (llama_mmap_supported() == false)");
-        if (@params.GpuLayerCount < 0)
-            @params.GpuLayerCount = int.MaxValue;
 
         var disposer = new GroupDisposable();
 
         result = NativeApi.llama_model_default_params();
         result.main_gpu = @params.MainGpu;
-        result.n_gpu_layers = @params.GpuLayerCount;
+        result.n_gpu_layers = @params.GpuLayerCount < 0 ? int.MaxValue : @params.GpuLayerCount;
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;
         result.vocab_only = @params.VocabOnly;
