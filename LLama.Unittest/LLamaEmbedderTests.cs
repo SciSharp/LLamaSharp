@@ -1,14 +1,17 @@
 ﻿using LLama.Common;
+using Xunit.Abstractions;
 
 namespace LLama.Unittest;
 
 public sealed class LLamaEmbedderTests
     : IDisposable
 {
+    private readonly ITestOutputHelper _testOutputHelper;
     private readonly LLamaEmbedder _embedder;
 
-    public LLamaEmbedderTests()
+    public LLamaEmbedderTests(ITestOutputHelper testOutputHelper)
     {
+        _testOutputHelper = testOutputHelper;
         var @params = new ModelParams(Constants.ModelPath)
         {
             EmbeddingMode = true,
@@ -41,21 +44,23 @@ public sealed class LLamaEmbedderTests
     }
 
     [Fact]
-    public void EmbedCompare()
+    public async Task EmbedCompare()
     {
-        var cat = _embedder.GetEmbeddings("cat");
-        var kitten = _embedder.GetEmbeddings("kitten");
-        var spoon = _embedder.GetEmbeddings("spoon");
+        var cat = await _embedder.GetEmbeddings("cat");
+        var kitten = await _embedder.GetEmbeddings("kitten");
+        var spoon = await _embedder.GetEmbeddings("spoon");
 
         Normalize(cat);
         Normalize(kitten);
         Normalize(spoon);
 
-        var close = Dot(cat, kitten);
-        var far = Dot(cat, spoon);
+        var close = 1 - Dot(cat, kitten);
+        var far = 1 - Dot(cat, spoon);
 
-        // This comparison seems backwards, but remember that with a
-        // dot product 1.0 means **identical** and 0.0 means **completely opposite**!
-        Assert.True(close > far);
+        Assert.True(close < far);
+
+        _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
+        _testOutputHelper.WriteLine($"Kitten = [{string.Join(",", kitten.AsMemory().Slice(0, 7).ToArray())}...]");
+        _testOutputHelper.WriteLine($"Spoon  = [{string.Join(",", spoon.AsMemory().Slice(0, 7).ToArray())}...]");
     }
 }

@@ -6,7 +6,7 @@ namespace LLamaSharp.SemanticKernel.TextEmbedding;
 
 public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationService
 {
-    private LLamaEmbedder _embedder;
+    private readonly LLamaEmbedder _embedder;
 
     private readonly Dictionary<string, object?> _attributes = new();
 
@@ -20,7 +20,11 @@ public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationServ
     /// <inheritdoc/>
     public async Task<IList<ReadOnlyMemory<float>>> GenerateEmbeddingsAsync(IList<string> data, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
-        var embeddings = data.Select(text => new ReadOnlyMemory<float>(_embedder.GetEmbeddings(text))).ToList();
-        return await Task.FromResult(embeddings);
+        var result = new List<ReadOnlyMemory<float>>();
+
+        foreach (var item in data)
+            result.Add(await _embedder.GetEmbeddings(item, cancellationToken));
+
+        return result;
     }
 }

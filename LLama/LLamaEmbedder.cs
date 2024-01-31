@@ -3,6 +3,8 @@ using System;
 using LLama.Exceptions;
 using LLama.Abstractions;
 using Microsoft.Extensions.Logging;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LLama
 {
@@ -40,27 +42,12 @@ namespace LLama
         /// Get the embeddings of the text.
         /// </summary>
         /// <param name="text"></param>
-        /// <param name="threads">unused</param>
-        /// <param name="addBos">Add bos to the text.</param>
-        /// <param name="encoding">unused</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        [Obsolete("'threads' and 'encoding' parameters are no longer used")]
-        // ReSharper disable once MethodOverloadWithOptionalParameter
-        public float[] GetEmbeddings(string text, int threads = -1, bool addBos = true, string encoding = "UTF-8")
+        public Task<float[]> GetEmbeddings(string text, CancellationToken cancellationToken = default)
         {
-            return GetEmbeddings(text, addBos);
-        }
-
-        /// <summary>
-        /// Get the embeddings of the text.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        /// <exception cref="RuntimeError"></exception>
-        public float[] GetEmbeddings(string text)
-        {
-            return GetEmbeddings(text, true);
+            return GetEmbeddings(text, true, cancellationToken);
         }
 
         /// <summary>
@@ -68,22 +55,48 @@ namespace LLama
         /// </summary>
         /// <param name="text"></param>
         /// <param name="addBos">Add bos to the text.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public float[] GetEmbeddings(string text, bool addBos)
+        public async Task<float[]> GetEmbeddings(string text, bool addBos, CancellationToken cancellationToken = default)
         {
-            var embed_inp_array = Context.Tokenize(text, addBos);
+            var tokens = Context.Tokenize(text, addBos);
+            if (tokens.Length > Context.ContextSize)
+                throw new ArgumentException($"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})", nameof(text));
 
-            // TODO(Rinne): deal with log of prompt
+            // Evaluate prompt in batch-size chunks
+            var n_past = 0;
+            var batch = new LLamaBatch();
+            var batchSize = (int)Context.Params.BatchSize;
+            for (var i = 0; i < tokens.Length; i += batchSize)
+            {
+                var n_eval = tokens.Length - i;
+                if (n_eval > batchSize)
+                    n_eval = batchSize;
 
-            if (embed_inp_array.Length > 0)
-                Context.Eval(embed_inp_array.AsSpan(), 0);
+                batch.Clear();
+                for (var j = 0; j < n_eval; j++)
+                    batch.Add(tokens[i + j], n_past++, LLamaSeqId.Zero, false);
 
-            var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-            if (embeddings == null)
-                return Array.Empty<float>();
+                var returnCode = await Context.DecodeAsync(batch, cancellationToken);
+                if (returnCode != 0)
+                    throw new LLamaDecodeError(returnCode);
+            }
 
-            return embeddings.ToArray();
+            var embeddings = GetEmbeddingsArray();
+
+            // Remove everything we just evaluated from the context cache
+            Context.NativeHandle.KvCacheClear();
+
+            return embeddings;
+
+            float[] GetEmbeddingsArray()
+            {
+                var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
+                if (embeddings == null)
+                    return Array.Empty<float>();
+                return embeddings.ToArray();
+            }
         }
 
         /// <summary>
