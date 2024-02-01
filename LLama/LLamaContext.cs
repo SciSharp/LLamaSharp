@@ -33,7 +33,7 @@ namespace LLama
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize => NativeHandle.ContextSize;
+        public uint ContextSize => NativeHandle.ContextSize;
 
         /// <summary>
         /// Dimension of embedding vectors
@@ -323,7 +323,7 @@ namespace LLama
             var candidates_p = LLamaTokenDataArray.Create(logits);
 
             // Extract most recently returned tokens
-            var last_n_repeat = Math.Min(ContextSize, repeatLastTokensCount);
+            var last_n_repeat = Math.Min((int)ContextSize, repeatLastTokensCount);
             var last_n_array = lastTokens.TakeLast(last_n_repeat).ToArray();
 
             // Apply penalties to candidates

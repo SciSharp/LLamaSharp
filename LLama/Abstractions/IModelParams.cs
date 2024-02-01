@@ -16,9 +16,28 @@ namespace LLama.Abstractions
     public interface IModelParams
     {
         /// <summary>
-        /// the GPU that is used for scratch and small tensors
+        /// main_gpu interpretation depends on split_mode:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <term>None</term>
+        ///         <description>The GPU that is used for the entire mode.</description>
+        ///     </item>
+        ///     <item>
+        ///         <term>Row</term>
+        ///         <description>The GPU that is used for small tensors and intermediate results.</description>
+        ///     </item>
+        ///     <item>
+        ///         <term>Layer</term>
+        ///         <description>Ignored.</description>
+        ///     </item>
+        /// </list>
         /// </summary>
-        int MainGpu { get; }
+        int MainGpu { get; set; }
+
+        /// <summary>
+        /// How to split the model across multiple GPUs
+        /// </summary>
+        GPUSplitMode SplitMode { get; }
 
         /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)

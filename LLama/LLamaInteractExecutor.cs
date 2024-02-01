@@ -179,7 +179,7 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? Context.ContextSize : inferenceParams.RepeatLastTokensCount;
+                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? (int)Context.ContextSize : inferenceParams.RepeatLastTokensCount;
 
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)

@@ -6,6 +6,7 @@ namespace LLama.Native
     /// <summary>
     /// Quantizer parameters used in the native API
     /// </summary>
+    /// <remarks>llama_model_quantize_params</remarks>
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaModelQuantizeParams
     {
@@ -58,5 +59,10 @@ namespace LLama.Native
             set => _pure = Convert.ToSByte(value);
         }
         private sbyte _pure;
+
+        /// <summary>
+        /// pointer to importance matrix data
+        /// </summary>
+        public IntPtr imatrix;
     }
 }
