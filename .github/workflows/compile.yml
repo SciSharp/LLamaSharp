@@ -254,13 +254,13 @@ jobs:
       "compile-clblast"
     ]
     steps:      
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: List Files
+        run: ls -R
       - name: Rearrange Files
         run: |
-          ls -R
-
           # Make all directories at once
           mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,cu11.7.1,cu12.1.0,clblast}
 
