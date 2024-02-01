@@ -164,7 +164,7 @@ jobs:
           fetch-depth: 0
           ref: '${{ github.event.inputs.llama_cpp_commit }}'
 
-      - uses: Jimver/cuda-toolkit@v0.2.11
+      - uses: Jimver/cuda-toolkit@v0.2.14
         if: runner.os == 'Windows'
         id: cuda-toolkit-windows
         with:
@@ -172,7 +172,7 @@ jobs:
           method: 'network'
           sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
-      - uses: Jimver/cuda-toolkit@v0.2.11
+      - uses: Jimver/cuda-toolkit@v0.2.14
         if: runner.os == 'Linux'
         id: cuda-toolkit-linux
         with:
