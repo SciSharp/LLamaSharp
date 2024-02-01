@@ -45,7 +45,7 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
@@ -81,7 +81,7 @@ jobs:
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
@@ -142,7 +142,7 @@ jobs:
 
       - name: Upload artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-clblast-x64.dll
@@ -191,13 +191,13 @@ jobs:
 
       - name: Upload artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
       - name: Upload artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
@@ -231,13 +231,13 @@ jobs:
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
         if: ${{ matrix.build != 'x64' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/ggml-metal.metal
           name: ggml-metal.metal
@@ -286,7 +286,7 @@ jobs:
           cp artifacts/llama-bin-win-clblast-x64.dll/llama.dll deps/clblast/llama.dll
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: deps/
           name: deps
