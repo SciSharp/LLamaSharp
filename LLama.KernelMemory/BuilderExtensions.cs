@@ -80,7 +80,8 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 Seed = config?.Seed ?? 0,
-                GpuLayerCount = config?.GpuLayerCount ?? 20
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                EmbeddingMode = true
             };
             var weights = LLamaWeights.LoadFromFile(parameters);
             var context = weights.CreateContext(parameters);
