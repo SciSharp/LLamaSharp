@@ -92,7 +92,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-#          ubuntu-20.04, # This is not built in llalam.cpp, so for now we'll skip it
+          ubuntu-22.04,
           windows-latest
         ]
     env:
@@ -107,6 +107,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ggerganov/llama.cpp
+      - name: Download dependencies - Linux
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          sudo apt update
+          sudo apt install libopencl-clang-dev libclblast-dev
+
       - name: Download dependencies - Windows
         id: get_opencl
         if: ${{ matrix.os == 'windows-latest' }}
@@ -122,30 +128,42 @@ jobs:
             $txt = Get-Content -Path $f -Raw
             $txt.Replace('C:/vcpkg/packages/opencl_x64-windows/', "$($env:RUNNER_TEMP.Replace('\','/'))/opencl/") | Set-Content -Path $f -Encoding UTF8
           }
-#      - name: Download dependencies - Linux
-#        if: ${{ matrix.os == "ubuntu-20.04" }}
-#        run: |
-#          wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-#          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list http://packages.lunarg.com/vulkan/lunarg-vulkan-focal.list
-#          sudo add-apt-repository ppa:cnugteren/clblast
-#          sudo apt update
-#          sudo apt install vulkan-sdk libclblast-dev
 
       - name: Build
         id: cmake_build
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          copy $env:RUNNER_TEMP/clblast/lib/clblast.dll .\bin\Release\clblast.dll
           ls -R
-
+      - name: Build
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CLBLAST=ON
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cp $(ldconfig -p | grep libclblast.so | tail -n 1 | cut -d ' ' -f 4) ./
+          ls -R
       - name: Upload artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v4
         with:
-          path: .\build\bin\Release\llama.dll
+          path: |
+            .\build\bin\Release\llama.dll
+            .\build\bin\Release\clblast.dll
           name: llama-bin-win-clblast-x64.dll
+      - name: Upload artifacts (Windows)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            .\build\libllama.so
+            .\build\libclblast.so
+          name: llama-bin-linux-clblast-x64.so
           
   compile-cublas:
     name: Compile (cublas)
@@ -283,7 +301,8 @@ jobs:
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll    deps/cu12.1.0/llama.dll
           cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so deps/cu12.1.0/libllama.so
           
-          cp artifacts/llama-bin-win-clblast-x64.dll/llama.dll deps/clblast/llama.dll
+          cp artifacts/llama-bin-win-clblast-x64.dll/{llama,clblast}.dll deps/clblast/
+          cp artifacts/llama-bin-linux-clblast-x64.so/lib{llama,clblast}.so deps/clblast/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
