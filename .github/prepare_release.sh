@@ -71,10 +71,11 @@ dotnet pack ./LLama.KernelMemory/LLamaSharp.KernelMemory.csproj -c Release -o ./
 
 # pack the backends
 cd temp
-nuget pack LLamaSharp.Backend.Cpu.nuspec -version $updated_version
-nuget pack LLamaSharp.Backend.Cuda11.nuspec -version $updated_version
-nuget pack LLamaSharp.Backend.Cuda12.nuspec -version $updated_version
-
+for nuspec in *.nuspec
+do
+  echo "Packing $nuspec"
+  nuget pack $nuspec -version $updated_version
+done
 
 cd ..
 exit 0
