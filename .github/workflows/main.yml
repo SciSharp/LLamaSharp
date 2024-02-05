@@ -25,6 +25,13 @@ jobs:
             config: release
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Nerdbank.GitVersioning
+      uses: dotnet/nbgv@v0.4.2
+      id: nbgv
+    - name: Output NuGet version
+      run: echo "NuGet version = ${{steps.nbgv.outputs.NuGetPackageVersion}}"
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: | 
