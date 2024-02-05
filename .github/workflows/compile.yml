@@ -141,6 +141,9 @@ jobs:
           cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CLBLAST=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/clblast"
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           copy $env:RUNNER_TEMP/clblast/lib/clblast.dll .\bin\Release\clblast.dll
+          echo "78a8c98bcb2efe1a63318d901ab204d9ba96c3b29707b4ce0c4240bdcdc698d6  ./bin/Release/clblast.dll" >> tmp
+          sha256sum -c tmp || exit 255
+          rm tmp
           ls -R
       - name: Build
         if: ${{ matrix.os == 'ubuntu-22.04' }}
@@ -149,7 +152,8 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CLBLAST=ON
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-          cp $(ldconfig -p | grep libclblast.so | tail -n 1 | cut -d ' ' -f 4) ./
+          # if we ever want to pull libclblast.so back into the packages, just uncomment this line, and the one below for the upload
+          # cp $(ldconfig -p | grep libclblast.so | tail -n 1 | cut -d ' ' -f 4) ./
           ls -R
       - name: Upload artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -165,7 +169,7 @@ jobs:
         with:
           path: |
             ./build/libllama.so
-            ./build/libclblast.so
+            # ./build/libclblast.so
           name: llama-bin-linux-clblast-x64.so
           
   compile-cublas:
@@ -305,7 +309,7 @@ jobs:
           cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so deps/cu12.1.0/libllama.so
           
           cp artifacts/llama-bin-win-clblast-x64.dll/{llama,clblast}.dll deps/clblast/
-          cp artifacts/llama-bin-linux-clblast-x64.so/lib{llama,clblast}.so deps/clblast/
+          cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

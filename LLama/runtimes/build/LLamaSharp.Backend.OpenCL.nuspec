@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>LLamaSharp.Backend.OpenCL</id>
+    <version>$version$</version>
+    <title>LLamaSharp.Backend.OpenCL - OpenCL Backend for LLamaSharp</title>
+    <authors>llama.cpp Authors</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <icon>icon512.png</icon>
+    <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+    <description>LLamaSharp.Backend.OpenCL is a backend for LLamaSharp to use with OpenCL.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+    <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+  </metadata>
+
+  <files>
+    <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.OpenCL.props" />
+
+    <file src="runtimes/deps/clblast/llama.dll" target="runtimes\win-x64\native\clblast\llama.dll" />
+    <file src="runtimes/deps/clblast/clblast.dll" target="runtimes\win-x64\native\clblast\clblast.dll" />
+    <file src="runtimes/deps/clblast/libllama.so" target="runtimes\linux-x64\native\clblast\libllama.so" />
+
+    <file src="icon512.png" target="icon512.png" />
+  </files>
+</package>
