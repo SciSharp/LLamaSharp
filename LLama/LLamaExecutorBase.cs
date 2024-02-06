@@ -83,7 +83,7 @@ namespace LLama
             _pastTokensCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;
-            _last_n_tokens = new FixedSizeQueue<LLamaToken>(Context.ContextSize);
+            _last_n_tokens = new FixedSizeQueue<LLamaToken>((int)Context.ContextSize);
             _decoder = new StreamingTokenDecoder(context);
         }
 
@@ -170,7 +170,7 @@ namespace LLama
             _pastTokensCount = Math.Max(1, tokensToKeep);
 
             // insert n_left/2 tokens at the start of embed from last_n_tokens
-            _embeds.InsertRange(0, _last_n_tokens.Take(_last_n_tokens.Count - _embeds.Count).Skip(Context.ContextSize - n_left / 2 - _embeds.Count));
+            _embeds.InsertRange(0, _last_n_tokens.Take(_last_n_tokens.Count - _embeds.Count).Skip((int)Context.ContextSize - n_left / 2 - _embeds.Count));
 
             // stop saving session if we run out of context
             _pathSession = string.Empty;

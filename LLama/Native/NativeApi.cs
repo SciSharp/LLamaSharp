@@ -23,7 +23,7 @@ namespace LLama.Native
         /// <returns></returns>
         public static void llama_empty_call()
         {
-            llama_mmap_supported();
+            llama_max_devices();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_max_devices();
+        public static extern long llama_max_devices();
 
         /// <summary>
         /// Create a LLamaModelParams with default values
@@ -59,14 +59,21 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool llama_mmap_supported();
+        public static extern bool llama_supports_mmap();
 
         /// <summary>
-        /// Check if memory lockingis supported
+        /// Check if memory locking is supported
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool llama_mlock_supported();
+        public static extern bool llama_supports_mlock();
+
+        /// <summary>
+        /// Check if GPU offload is supported
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool llama_supports_gpu_offload();
 
         /// <summary>
         /// Initialize the llama + ggml backend
@@ -163,7 +170,10 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_n_ctx(SafeLLamaContextHandle ctx);
+        public static extern uint llama_n_ctx(SafeLLamaContextHandle ctx);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern uint llama_n_batch(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Token logits obtained from the last call to llama_eval()
@@ -379,6 +389,20 @@ namespace LLama.Native
         /// <param name="delta"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_kv_cache_seq_shift(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta);
+
+        /// <summary>
+        /// Integer division of the positions by factor of `d > 1`
+        /// If the KV cache is RoPEd, the KV data is updated accordingly
+        /// p0 &lt; 0 : [0,  p1]
+        /// p1 &lt; 0 : [p0, inf)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="seq"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="d"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_seq_div(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int d);
 
         /// <summary>
         /// Allocates a batch of tokens on the heap

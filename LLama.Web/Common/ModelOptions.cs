@@ -24,6 +24,9 @@ namespace LLama.Web.Common
         public int MainGpu { get; set; } = 0;
 
         /// <inheritdoc />
+        public GPUSplitMode SplitMode { get; set; } = GPUSplitMode.None;
+
+        /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
         /// <inheritdoc />

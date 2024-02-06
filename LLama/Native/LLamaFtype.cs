@@ -107,6 +107,31 @@
         LLAMA_FTYPE_MOSTLY_Q6_K = 18,
 
         /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ2_XXS = 19,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ2_XS = 20,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_Q2_K_S = 21,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_Q3_K_XS = 22,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ3_XXS = 23,
+
+        /// <summary>
         /// File type was not specified
         /// </summary>
         LLAMA_FTYPE_GUESSED = 1024

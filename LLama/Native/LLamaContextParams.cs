@@ -8,7 +8,8 @@ namespace LLama.Native
     /// </summary>
     /// <param name="progress"></param>
     /// <param name="ctx"></param>
-    public delegate void LlamaProgressCallback(float progress, IntPtr ctx);
+    /// <remarks>llama_progress_callback</remarks>
+    public delegate bool LlamaProgressCallback(float progress, IntPtr ctx);
 
     /// <summary>
     /// A C# representation of the llama.cpp `llama_context_params` struct
@@ -46,36 +47,45 @@ namespace LLama.Native
         /// </summary>
         public RopeScalingType rope_scaling_type;        
         
-
         /// <summary>
         /// RoPE base frequency, 0 = from model
         /// </summary>
-        public float    rope_freq_base;
+        public float rope_freq_base;
         /// <summary>
         /// RoPE frequency scaling factor, 0 = from model
         /// </summary>
-        public float    rope_freq_scale; 
+        public float rope_freq_scale; 
         /// <summary>
         /// YaRN extrapolation mix factor, negative = from model
         /// </summary>
-        public float    yarn_ext_factor;  
+        public float yarn_ext_factor;  
         /// <summary>
         /// YaRN magnitude scaling factor
         /// </summary>
-        public float    yarn_attn_factor; 
+        public float yarn_attn_factor; 
         /// <summary>
         /// YaRN low correction dim
         /// </summary>
-        public float    yarn_beta_fast;   
+        public float yarn_beta_fast;   
         /// <summary>
         /// YaRN high correction dim
         /// </summary>
-        public float    yarn_beta_slow;  
+        public float yarn_beta_slow;  
         
         /// <summary>
         /// YaRN original context size
         /// </summary>
         public uint yarn_orig_ctx;
+
+        /// <summary>
+        /// ggml_backend_sched_eval_callback
+        /// </summary>
+        public IntPtr cb_eval;
+
+        /// <summary>
+        /// User data passed into cb_eval
+        /// </summary>
+        public IntPtr cb_eval_user_data;
 
         /// <summary>
         /// data type for K cache

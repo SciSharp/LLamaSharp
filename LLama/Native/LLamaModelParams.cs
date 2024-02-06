@@ -15,6 +15,11 @@ namespace LLama.Native
         public int n_gpu_layers;
 
         /// <summary>
+        /// how to split the model across multiple GPUs
+        /// </summary>
+        public GPUSplitMode split_mode;
+
+        /// <summary>
         /// the GPU that is used for scratch and small tensors
         /// </summary>
         public int main_gpu;
@@ -25,7 +30,8 @@ namespace LLama.Native
         public float* tensor_split;
 
         /// <summary>
-        /// called with a progress value between 0 and 1, pass NULL to disable
+        /// called with a progress value between 0 and 1, pass NULL to disable. If the provided progress_callback
+        /// returns true, model loading continues. If it returns false, model loading is immediately aborted.
         /// </summary>
         public LlamaProgressCallback progress_callback;
 

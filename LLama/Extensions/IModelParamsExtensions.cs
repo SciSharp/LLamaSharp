@@ -21,15 +21,16 @@ public static class IModelParamsExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IDisposable ToLlamaModelParams(this IModelParams @params, out LLamaModelParams result)
     {
-        if (@params.UseMemoryLock && !NativeApi.llama_mlock_supported())
-            throw new NotSupportedException("'UseMemoryLock' is not supported (llama_mlock_supported() == false)");
-        if (@params.UseMemorymap && !NativeApi.llama_mmap_supported())
-            throw new NotSupportedException("'UseMemorymap' is not supported (llama_mmap_supported() == false)");
+        if (@params.UseMemoryLock && !NativeApi.llama_supports_mlock())
+            throw new NotSupportedException("'UseMemoryLock' is not supported (llama_supports_mlock() == false)");
+        if (@params.UseMemorymap && !NativeApi.llama_supports_mmap())
+            throw new NotSupportedException("'UseMemorymap' is not supported (llama_supports_mmap() == false)");
 
         var disposer = new GroupDisposable();
 
         result = NativeApi.llama_model_default_params();
         result.main_gpu = @params.MainGpu;
+        result.split_mode = @params.SplitMode;
         result.n_gpu_layers = @params.GpuLayerCount < 0 ? int.MaxValue : @params.GpuLayerCount;
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;

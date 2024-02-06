@@ -21,7 +21,7 @@ namespace LLama.Native
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public int ContextSize => NativeApi.llama_n_ctx(this);
+        public uint ContextSize => NativeApi.llama_n_ctx(this);
 
         /// <summary>
         /// Dimension of embedding vectors

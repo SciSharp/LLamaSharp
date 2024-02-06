@@ -36,6 +36,9 @@ namespace LLama.Extensions
             result.yarn_orig_ctx = @params.YarnOriginalContext ?? 0;
             result.rope_scaling_type = @params.YarnScalingType ?? RopeScalingType.LLAMA_ROPE_SCALING_UNSPECIFIED;
 
+            result.cb_eval = IntPtr.Zero;
+            result.cb_eval_user_data = IntPtr.Zero;
+
             result.type_k = @params.TypeK ?? GGMLType.GGML_TYPE_F16;
             result.type_k = @params.TypeV ?? GGMLType.GGML_TYPE_F16;
             result.offload_kqv = !@params.NoKqvOffload;
