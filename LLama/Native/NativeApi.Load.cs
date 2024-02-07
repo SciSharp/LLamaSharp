@@ -13,12 +13,14 @@ namespace LLama.Native
     {
         static NativeApi()
         {
-            // Try to load a preferred library, based on CPU feature detection
-            TryLoadLibrary();
-
             try
             {
-                llama_empty_call();
+                // Try to load libraries, paths are set based on configuration combined with hardware detection.
+                // On netstandard2.0, this always returns false.
+                if (TryLoadLibrariesWithImportResolver())
+                    return;
+                // if we get here, we've failed to load, and it's up to the native loader to give it one last shot.
+                llama_backend_init(false);
             }
             catch (DllNotFoundException)
             {
@@ -30,7 +32,7 @@ namespace LLama.Native
                     "4. Try to compile llama.cpp yourself to generate a libllama library, then use `LLama.Native.NativeLibraryConfig.WithLibrary` " +
                     "to specify it at the very beginning of your code. For more informations about compilation, please refer to LLamaSharp repo on github.\n");
             }
-            llama_backend_init(false);
+            
         }
 
         private static void Log(string message, LogLevel level)
@@ -127,54 +129,82 @@ namespace LLama.Native
                 return string.Empty;
             }
         }
+        
 
-#if NET6_0_OR_GREATER
-        private static string GetAvxLibraryPath(NativeLibraryConfig.AvxLevel avxLevel, string prefix, string suffix, string libraryNamePrefix)
+        
+        private static bool TryLoadLibrariesWithImportResolver()
         {
-            var avxStr = NativeLibraryConfig.AvxLevelToString(avxLevel);
-            if (!string.IsNullOrEmpty(avxStr))
+#if NET6_0_OR_GREATER
+            var configuration = NativeLibraryConfig.CheckAndGatherDescription();
+            enableLogging = configuration.Logging;
+            // We move the flag to avoid loading library when the variable is called else where.
+            NativeLibraryConfig.LibraryHasLoaded = true;
+            LlamaModuleInitializer.SearchPaths.AddRange(EnumerateSearchPaths(configuration));
+
+
+            while (LlamaModuleInitializer.SearchPaths.Count > 0)
             {
-                avxStr += "/";
+                try
+                {
+                    llama_backend_init(false);
+                    // Init complete. Make sure we only search that path (or the system default search paths) going forward.
+                    LlamaModuleInitializer.SearchPaths.Clear();
+                    var libraryLoadedFrom = LlamaModuleInitializer.CurrentPath;
+                    if (!string.IsNullOrWhiteSpace(LlamaModuleInitializer.CurrentPath))
+                    {
+                        Log($"Successfully loaded and initialized llama, using libraries found {libraryLoadedFrom}", LogLevel.Information);
+                        LlamaModuleInitializer.SearchPaths.Add(LlamaModuleInitializer.CurrentPath);
+                    }
+                    else
+                    {
+                        Log($"Successfully loaded and initialized llama", LogLevel.Information);
+                    }
+
+
+                    return true;
+                }
+                catch // Handle any exception, like if we've loaded OpenCL, but it's not installed or doesn't work.
+                {
+                    // Unload any libraries we've loaded so we can try again, if there are any paths left
+                    LlamaModuleInitializer.Reset();
+                    if (string.IsNullOrWhiteSpace(LlamaModuleInitializer.CurrentPath))
+                    {
+                        // We searched through all paths, and didn't find anything, so we're done now.
+                        LlamaModuleInitializer.SearchPaths.Clear();
+                    }
+                    else
+                    {
+                        // Remove the path we just tried to load from
+                        LlamaModuleInitializer.SearchPaths.Remove(LlamaModuleInitializer.CurrentPath);
+                    }
+                }
             }
-            return $"{prefix}{avxStr}{libraryNamePrefix}{libraryName}{suffix}";
+
+            Log("Failed to load libraries via DllImportResolver, falling back to .NET default library loading logic!", LogLevel.Warning);
+#else
+            Log("Skipping trying to load libraries manually due to netstandard2.0", LogLevel.Debug);
+#endif
+            return false;
         }
 
-        private static List<string> GetLibraryTryOrder(NativeLibraryConfig.Description configuration)
+#if NET6_0_OR_GREATER
+
+        private static IEnumerable<string> EnumerateSearchPaths(NativeLibraryConfig.Description configuration)
         {
-            OSPlatform platform;
-            string prefix, suffix, libraryNamePrefix;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            var prefix = $"runtimes/{RuntimeInformation.RuntimeIdentifier}/native";
+            if (!string.IsNullOrWhiteSpace(configuration.Path))
             {
-                platform = OSPlatform.Windows;
-                prefix = "runtimes/win-x64/native/";
-                suffix = ".dll";
-                libraryNamePrefix = "";
+                yield return Path.GetFileNameWithoutExtension(configuration.Path);
+                if (!configuration.AllowFallback)
+                    yield break;
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                platform = OSPlatform.Linux;
-                prefix = "runtimes/linux-x64/native/";
-                suffix = ".so";
-                libraryNamePrefix = "lib";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                platform = OSPlatform.OSX;
-                suffix = ".dylib";
 
-                prefix = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
-                       ? "runtimes/osx-arm64/native/"
-                       : "runtimes/osx-x64/native/";
-                libraryNamePrefix = "lib";
-            }
-            else
+            foreach (var path in configuration.SearchDirectories)
             {
-                throw new RuntimeError("Your system plarform is not supported, please open an issue in LLamaSharp.");
+                yield return path;
             }
-            Log($"Detected OS Platform: {platform}", LogLevel.Information);
 
-            List<string> result = new();
-            if (configuration.UseCuda && (platform == OSPlatform.Windows || platform == OSPlatform.Linux)) // no cuda on macos
+            if (configuration.UseCuda && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) // no cuda on macos
             {
                 int cudaVersion = GetCudaMajorVersion();
 
@@ -184,8 +214,8 @@ namespace LLama.Native
                     // if check skipped, we just try to load cuda libraries one by one.
                     if (configuration.SkipCheck)
                     {
-                        result.Add($"{prefix}cuda12/{libraryNamePrefix}{libraryName}{suffix}");
-                        result.Add($"{prefix}cuda11/{libraryNamePrefix}{libraryName}{suffix}");
+                        yield return Path.Combine(prefix, "cuda12");
+                        yield return Path.Combine(prefix, "cuda11");
                     }
                     else
                     {
@@ -195,142 +225,53 @@ namespace LLama.Native
                 else if (cudaVersion == 11)
                 {
                     Log($"Detected cuda major version {cudaVersion}.", LogLevel.Information);
-                    result.Add($"{prefix}cuda11/{libraryNamePrefix}{libraryName}{suffix}");
+                    yield return Path.Combine(prefix, "cuda11");
                 }
                 else if (cudaVersion == 12)
                 {
                     Log($"Detected cuda major version {cudaVersion}.", LogLevel.Information);
-                    result.Add($"{prefix}cuda12/{libraryNamePrefix}{libraryName}{suffix}");
+                    yield return Path.Combine(prefix, "cuda12");
                 }
                 else if (cudaVersion > 0)
                 {
-                    throw new RuntimeError($"Cuda version {cudaVersion} hasn't been supported by LLamaSharp, please open an issue for it.");
+                    if(!configuration.AllowFallback)
+                        throw new RuntimeError($"Cuda version {cudaVersion} hasn't been supported by LLamaSharp, please open an issue for it.");
+                    // Fallback allowed, just complain.
+                    Log($"Incompatible cuda version {cudaVersion} found, please open an issue with LlamaSharp to investigate supporting it.", LogLevel.Warning);
                 }
                 // otherwise no cuda detected but allow fallback
             }
-
-            // use cpu (or mac possibly with metal)
-            if (!configuration.AllowFallback && platform != OSPlatform.OSX)
+            
+            if (configuration.UseOpenCL && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                result.Add(GetAvxLibraryPath(configuration.AvxLevel, prefix, suffix, libraryNamePrefix));
+                yield return Path.Combine(prefix, "clblast");
+                if (!configuration.AllowFallback)
+                    yield break;
             }
-            else if (platform != OSPlatform.OSX) // in macos there's absolutely no avx
+            var avxLevel = configuration.AvxLevel;
+            if (RuntimeInformation.ProcessArchitecture > Architecture.X64)
             {
-                if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx512)
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx512, prefix, suffix, libraryNamePrefix));
-
-                if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx2)
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx2, prefix, suffix, libraryNamePrefix));
-                
-                if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx)
-                    result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix, libraryNamePrefix));
-
-                result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.None, prefix, suffix, libraryNamePrefix));
+                // AVX is x86/64 specific.
+                avxLevel = NativeLibraryConfig.AvxLevel.None;
             }
-
-            if (platform == OSPlatform.OSX)
-            {
-                result.Add($"{prefix}{libraryNamePrefix}{libraryName}{suffix}");
-            }
-
-            return result;
-        }
-#endif
-
-        /// <summary>
-        /// Try to load libllama, using CPU feature detection to try and load a more specialised DLL if possible
-        /// </summary>
-        /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
-        private static IntPtr TryLoadLibrary()
-        {
-#if NET6_0_OR_GREATER
-            var configuration = NativeLibraryConfig.CheckAndGatherDescription();
-            enableLogging = configuration.Logging;
-            // We move the flag to avoid loading library when the variable is called else where.
-            NativeLibraryConfig.LibraryHasLoaded = true;
-            Log(configuration.ToString(), LogLevel.Information);
-
-            if (!string.IsNullOrEmpty(configuration.Path))
-            {
-                // When loading the user specified library, there's no fallback.
-                var success = NativeLibrary.TryLoad(configuration.Path, out var result);
-                if (!success)
-                {
-                    throw new RuntimeError($"Failed to load the native library [{configuration.Path}] you specified.");
-                }
-                Log($"Successfully loaded the library [{configuration.Path}] specified by user", LogLevel.Information);
-                return result;
-            }
-
-            var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
-
-            var preferredPaths = configuration.SearchDirectories;
-            var possiblePathPrefix = new[] {
-                AppDomain.CurrentDomain.BaseDirectory,
-                Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
-            };
-
-            string TryFindPath(string filename)
-            {
-                foreach (var path in preferredPaths)
-                {
-                    if (File.Exists(Path.Combine(path, filename)))
-                    {
-                        return Path.Combine(path, filename);
-                    }
-                }
-
-                foreach (var path in possiblePathPrefix)
-                {
-                    if (File.Exists(Path.Combine(path, filename)))
-                    {
-                        return Path.Combine(path, filename);
-                    }
-                }
-
-                return filename;
-            }
-
-            foreach (var libraryPath in libraryTryLoadOrder)
-            {
-                var fullPath = TryFindPath(libraryPath);
-                var result = TryLoad(fullPath, true);
-                if (result is not null && result != IntPtr.Zero)
-                {
-                    Log($"{fullPath} is selected and loaded successfully.", LogLevel.Information);
-                    return (IntPtr)result;
-                }
-
-                Log($"Tried to load {fullPath} but failed.", LogLevel.Information);
-            }
-
             if (!configuration.AllowFallback)
             {
-                throw new RuntimeError("Failed to load the library that match your rule, please" +
-                    " 1) check your rule." +
-                    " 2) try to allow fallback." +
-                    " 3) or open an issue if it's expected to be successful.");
+                yield return Path.Combine(prefix, NativeLibraryConfig.AvxLevelToString(avxLevel));
+                yield break;
             }
-#endif
-
-            Log($"No library was loaded before calling native apis. " +
-                $"This is not an error under netstandard2.0 but needs attention with net6 or higher.", LogLevel.Warning);
-            return IntPtr.Zero;
-
-#if NET6_0_OR_GREATER
-            // Try to load a DLL from the path if supported. Returns null if nothing is loaded.
-            static IntPtr? TryLoad(string path, bool supported = true)
+            // We don't need to check for OS X, because OS X x64 does support AVX, and arm does not.
+            // So the arch check above kills two birds with one stone so to speak.
+                
+            while (avxLevel > NativeLibraryConfig.AvxLevel.None)
             {
-                if (!supported)
-                    return null;
-
-                if (NativeLibrary.TryLoad(path, out var handle))
-                    return handle;
-
-                return null;
+                yield return Path.Combine(prefix, NativeLibraryConfig.AvxLevelToString(avxLevel));
+                avxLevel--;
             }
-#endif
+
+            yield return prefix;
         }
+
+#endif
 
         internal const string libraryName = "llama";
         private const string cudaVersionFile = "version.json";

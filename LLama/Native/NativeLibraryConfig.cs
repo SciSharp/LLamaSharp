@@ -43,12 +43,12 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Load a specified native library as backend for LLamaSharp.
-        /// When this method is called, all the other configurations will be ignored.
+        /// Load a llama from a specified path. This must be a directory containing (lib?)llama.(so|dll|dylib) and
+        /// any associated dependencies
         /// </summary>
         /// <param name="libraryPath"></param>
         /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLibrary(string libraryPath)
+        public NativeLibraryConfig WithLibraryPath(string libraryPath)
         {
             ThrowIfLoaded();
 
@@ -185,11 +185,10 @@ namespace LLama.Native
         {
             return level switch
             {
+                > AvxLevel.Avx512 => throw new ArgumentOutOfRangeException(nameof(level),
+                    $"Unknown AvxLevel: '{level}'"),
                 AvxLevel.None => string.Empty,
-                AvxLevel.Avx => "avx",
-                AvxLevel.Avx2 => "avx2",
-                AvxLevel.Avx512 => "avx512",
-                _ => throw new ArgumentException($"Unknown AvxLevel '{level}'")
+                _ => level.ToString("G").ToLower()
             };
         }
 
