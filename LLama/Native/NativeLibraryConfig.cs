@@ -24,6 +24,7 @@ namespace LLama.Native
         public static bool LibraryHasLoaded { get; internal set; } = false;
 
         private string _libraryPath = string.Empty;
+        private bool _useOpenCL = true;
         private bool _useCuda = true;
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
@@ -52,6 +53,12 @@ namespace LLama.Native
             ThrowIfLoaded();
 
             _libraryPath = libraryPath;
+            return this;
+        }
+
+        public NativeLibraryConfig WithOpenCL(bool enable = true)
+        {
+            _useOpenCL = enable;
             return this;
         }
 
@@ -165,6 +172,7 @@ namespace LLama.Native
             return new Description(
                 Instance._libraryPath, 
                 Instance._useCuda, 
+                Instance._useOpenCL,
                 Instance._avxLevel, 
                 Instance._allowFallback, 
                 Instance._skipCheck, 
@@ -250,7 +258,7 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, string[] SearchDirectories)
+        internal record Description(string Path, bool UseCuda, bool UseOpenCL, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, string[] SearchDirectories)
         {
             public override string ToString()
             {
@@ -268,6 +276,7 @@ namespace LLama.Native
                 return $"NativeLibraryConfig Description:\n" +
                        $"- Path: {Path}\n" +
                        $"- PreferCuda: {UseCuda}\n" +
+                       $"- PreferOpenCL: {UseOpenCL}\n" +
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
