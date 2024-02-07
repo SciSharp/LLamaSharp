@@ -35,4 +35,24 @@ public record struct LLamaPos
     /// <param name="value"></param>
     /// <returns></returns>
     public static implicit operator LLamaPos(int value) => new(value);
+
+    /// <summary>
+    /// Increment this position
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    public static LLamaPos operator ++(LLamaPos pos)
+    {
+        return new LLamaPos(pos.Value + 1);
+    }
+
+    /// <summary>
+    /// Increment this position
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    public static LLamaPos operator --(LLamaPos pos)
+    {
+        return new LLamaPos(pos.Value - 1);
+    }
 }
