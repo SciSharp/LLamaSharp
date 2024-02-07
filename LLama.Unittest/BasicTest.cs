@@ -45,7 +45,7 @@ namespace LLama.Unittest
                 { "general.name", "LLaMA v2" },
                 { "general.architecture", "llama" },
                 { "general.quantization_version", "2" },
-                { "general.file_type", "2" },
+                { "general.file_type", "11" },
 
                 { "llama.context_length", "4096" },
                 { "llama.rope.dimension_count", "128" },
