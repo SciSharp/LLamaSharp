@@ -28,6 +28,14 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llama.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/clblast/llama.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/clblast/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/clblast/clblast.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/clblast/clblast.dll</Link>
+      </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -52,6 +60,10 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/clblast/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/clblast/libllama.so</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllama.dylib">
