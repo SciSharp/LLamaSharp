@@ -290,6 +290,35 @@ namespace LLama.Native
 
         #region KV Cache Management
         /// <summary>
+        /// Get a new KV cache view that can be used to debug the KV cache
+        /// </summary>
+        /// <param name="maxSequences"></param>
+        /// <returns></returns>
+        public LLamaKvCacheViewSafeHandle KvCacheGetDebugView(int maxSequences = 4)
+        {
+            return LLamaKvCacheViewSafeHandle.Allocate(this, maxSequences);
+        }
+
+        /// <summary>
+        /// Count the number of used cells in the KV cache (i.e. have at least one sequence assigned to them)
+        /// </summary>
+        /// <returns></returns>
+        public int KvCacheCountCells()
+        {
+            return NativeApi.llama_get_kv_cache_used_cells(this);
+        }
+
+        /// <summary>
+        /// Returns the number of tokens in the KV cache (slow, use only for debug)
+        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
+        /// </summary>
+        /// <returns></returns>
+        public int KvCacheCountTokens()
+        {
+            return NativeApi.llama_get_kv_cache_token_count(this);
+        }
+
+        /// <summary>
         /// Clear the KV cache
         /// </summary>
         public void KvCacheClear()
@@ -343,6 +372,21 @@ namespace LLama.Native
         public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta)
         {
             NativeApi.llama_kv_cache_seq_shift(this, seq, p0, p1, delta);
+        }
+
+        /// <summary>
+        /// Integer division of the positions by factor of `d > 1`
+        /// If the KV cache is RoPEd, the KV data is updated accordingly
+        /// p0 &lt; 0 : [0,  p1]
+        /// p1 &lt; 0 : [p0, inf)
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="divisor"></param>
+        public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
+        {
+            NativeApi.llama_kv_cache_seq_div(this, seq, p0, p1, divisor);
         }
         #endregion
     }
