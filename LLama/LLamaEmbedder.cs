@@ -75,8 +75,8 @@ namespace LLama
                     n_eval = batchSize;
 
                 batch.Clear();
-                for (var j = 0; j < n_eval; j++)
-                    batch.Add(tokens[i + j], n_past++, LLamaSeqId.Zero, false);
+                batch.AddRange(tokens.AsSpan(i, n_eval), n_past, LLamaSeqId.Zero, false);
+                n_past += n_eval;
 
                 var returnCode = await Context.DecodeAsync(batch, cancellationToken);
                 if (returnCode != 0)
