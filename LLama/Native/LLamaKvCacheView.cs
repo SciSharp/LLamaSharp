@@ -74,7 +74,7 @@ public class LLamaKvCacheViewSafeHandle
     }
 
     /// <summary>
-    /// Allocate a new llama_kv_cache_view_free
+    /// Allocate a new KV cache view which can be used to inspect the KV cache
     /// </summary>
     /// <param name="ctx"></param>
     /// <param name="maxSequences">The maximum number of sequences visible in this view per cell</param>
@@ -100,24 +100,6 @@ public class LLamaKvCacheViewSafeHandle
     public void Update()
     {
         NativeApi.llama_kv_cache_view_update(_ctx, ref _view);
-    }
-
-    /// <summary>
-    /// Count the number of used cells in the KV cache
-    /// </summary>
-    /// <returns></returns>
-    public int CountCells()
-    {
-        return NativeApi.llama_get_kv_cache_used_cells(_ctx);
-    }
-
-    /// <summary>
-    /// Count the number of tokens in the KV cache. If a token is assigned to multiple sequences it will be counted multiple times
-    /// </summary>
-    /// <returns></returns>
-    public int CountTokens()
-    {
-        return NativeApi.llama_get_kv_cache_token_count(_ctx);
     }
 
     /// <summary>
