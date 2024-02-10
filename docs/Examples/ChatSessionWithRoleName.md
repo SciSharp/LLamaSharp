@@ -13,26 +13,51 @@ public class ChatSessionWithRoleName
     public static void Run()
     {
         Console.Write("Please input your model path: ");
-        string modelPath = Console.ReadLine();
-        var prompt = File.ReadAllText("Assets/chat-with-bob.txt").Trim();
-        InteractiveExecutor ex = new(new LLamaModel(new ModelParams(modelPath, contextSize: 1024, seed: 1337, gpuLayerCount: 5)));
-        ChatSession session = new ChatSession(ex); // The only change is to remove the transform for the output text stream.
+        var modelPath = Console.ReadLine();
+
+        var parameters = new ModelParams(modelPath)
+        {
+            ContextSize = 1024,
+            Seed = 1337,
+            GpuLayerCount = 5
+        };
+        using var model = LLamaWeights.LoadFromFile(parameters);
+        using var context = model.CreateContext(parameters);
+        var executor = new InteractiveExecutor(context);
+
+        var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
+        ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
+
+        ChatSession session = new(executor, chatHistory);
+
+        InferenceParams inferenceParams = new InferenceParams()
+        {
+            Temperature = 0.9f,
+            AntiPrompts = new List<string> { "User:" }
+        };
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("The chat session has started. In this example, the prompt is printed for better visual result.");
-        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("The chat session has started.");
 
         // show the prompt
-        Console.Write(prompt);
-        while (true)
+        Console.ForegroundColor = ConsoleColor.Green;
+        string userInput = Console.ReadLine() ?? "";
+
+        while (userInput != "exit")
         {
-            foreach (var text in session.Chat(prompt, new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } }))
+            await foreach (
+                var text
+                in session.ChatAsync(
+                    new ChatHistory.Message(AuthorRole.User, userInput),
+                    inferenceParams))
             {
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write(text);
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            prompt = Console.ReadLine();
+            userInput = Console.ReadLine() ?? "";
+
             Console.ForegroundColor = ConsoleColor.White;
         }
     }
