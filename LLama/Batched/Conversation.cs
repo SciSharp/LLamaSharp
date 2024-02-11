@@ -90,39 +90,17 @@ public sealed class Conversation
         if (RequiresInference)
             throw new CannotForkWhileRequiresInference();
 
-        // Assign tokens to the new sequence
-        var id2 = Executor.GetNextSequenceId();
-        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, id2, 0, _end);
-
         // Create a new conversation which references the current position in this one
-        var c = new Conversation(Executor, id2, _end)
+        var c = new Conversation(Executor, Executor.GetNextSequenceId(), _end)
         {
             _batchIndex = _batchIndex,
             _requiredEpoch = _requiredEpoch,
         };
 
+        // Assign tokens to the new sequence
+        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, c.ConversationId, 0, _end);
+
         return c;
-    }
-
-    /// <summary>
-    /// Rewind this conversation back to an earlier state
-    /// </summary>
-    /// <param name="tokens"></param>
-    /// <exception cref="ObjectDisposedException"></exception>
-    /// <exception cref="CannotForkWhileRequiresInference"></exception>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if `tokens` parameter is larger than NTokens</exception>
-    public void Rewind(int tokens)
-    {
-        AssertNotDisposed();
-
-        if (tokens > TokenCount)
-            throw new ArgumentOutOfRangeException(nameof(tokens), "Cannot rewind more than the total number of tokens");
-
-        // Remove those tokens from KV
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, _end.Value - tokens, _end);
-
-        // Adjust "end" marker back
-        _end = _end.Value - tokens;
     }
 
     #region sample
@@ -202,5 +180,90 @@ public sealed class Conversation
         // Mark this conversation as needing inference/sampling
         _requiredEpoch = Executor.Epoch + 1;
     }
+    #endregion
+
+    #region modify
+    /// <summary>
+    /// Directly modify the KV cache of this conversation
+    /// </summary>
+    /// <param name="modifier"></param>
+    /// <exception cref="CannotModifyWhileRequiresInference">Thrown if this method is called while <see cref="Conversation.RequiresInference"/> == true</exception>
+    public void Modify(ModifyKvCache modifier)
+    {
+        AssertNotDisposed();
+
+        if (RequiresInference)
+            throw new CannotModifyWhileRequiresInference();
+
+        // do whatever the modification is
+        _end = modifier.Invoke(_end, new KvAccessor(this));
+
+        // Set the epoch down to zero, this ensures that this conversation
+        // cannot be sampled until it is prompted again.
+        _requiredEpoch = 0;
+    }
+
+    /// <summary>
+    /// Provides direct access to the KV cache of a <see cref="Conversation"/>.
+    /// See <see cref="Modify"/> for how to use this.
+    /// </summary>
+    public readonly ref struct KvAccessor
+    {
+        private readonly Conversation _conversation;
+
+        internal KvAccessor(Conversation conversation)
+        {
+            _conversation = conversation;
+        }
+
+        #region remove
+        /// <summary>
+        /// Removes all tokens that have positions in [start, end)
+        /// </summary>
+        /// <param name="start">Start position (inclusive)</param>
+        /// <param name="end">End position (exclusive)</param>
+        public void Remove(LLamaPos start, LLamaPos end)
+        {
+            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, end);
+        }
+
+        /// <summary>
+        /// Removes all tokens starting from the given position
+        /// </summary>
+        /// <param name="start">Start position (inclusive)</param>
+        /// <param name="count">Number of tokens</param>
+        public void Remove(LLamaPos start, int count)
+        {
+            if (count <= 0)
+                return;
+
+            var end = start.Value + count;
+            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, end);
+        }
+        #endregion
+
+        #region shift
+        /// <summary>
+        /// Adds relative position "delta" to all tokens that have positions in [p0, p1).
+        /// If the KV cache is RoPEd, the KV data is updated
+        /// accordingly
+        /// </summary>
+        /// <param name="start">Start position (inclusive)</param>
+        /// <param name="end">End position (exclusive)</param>
+        /// <param name="delta">Amount to add on to each token position</param>
+        public void Shift(LLamaPos start, LLamaPos end, int delta)
+        {
+            _conversation.Executor.Context.NativeHandle.KvCacheSequenceShift(_conversation.ConversationId, start, end, delta);
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// A function which can temporarily access the KV cache of a <see cref="Conversation"/> to modify it directly
+    /// </summary>
+    /// <param name="end">The current end token of this conversation</param>
+    /// <param name="kv">An <see cref="KvAccessor"/> which allows direct access to modify the KV cache</param>
+    /// <returns>The new end token position</returns>
+    public delegate LLamaPos ModifyKvCache(LLamaPos end, KvAccessor kv);
     #endregion
 }

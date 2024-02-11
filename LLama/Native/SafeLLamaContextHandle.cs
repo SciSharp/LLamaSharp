@@ -369,7 +369,7 @@ namespace LLama.Native
         /// <param name="p0"></param>
         /// <param name="p1"></param>
         /// <param name="delta"></param>
-        public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta)
+        public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
         {
             NativeApi.llama_kv_cache_seq_shift(this, seq, p0, p1, delta);
         }

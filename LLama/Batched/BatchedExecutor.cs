@@ -45,9 +45,9 @@ public sealed class BatchedExecutor
     public BatchedExecutor(LLamaWeights model, IContextParams contextParams)
     {
         Model = model;
-
         Batch = new LLamaBatch();
         Context = model.CreateContext(contextParams);
+        Epoch = 1;
     }
 
     /// <summary>

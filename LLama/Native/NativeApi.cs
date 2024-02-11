@@ -388,7 +388,7 @@ namespace LLama.Native
         /// <param name="p1"></param>
         /// <param name="delta"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_kv_cache_seq_shift(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta);
+        public static extern void llama_kv_cache_seq_shift(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta);
 
         /// <summary>
         /// Integer division of the positions by factor of `d > 1`

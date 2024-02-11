@@ -57,7 +57,7 @@ public class CannotSampleRequiresPromptException
 }
 
 /// <summary>
-/// This exception is thrown when "Fork()" is called on a <see cref="Conversation"/> with <see cref="Conversation.RequiresInference"/> = true
+/// This exception is thrown when <see cref="Conversation.Fork"/> is called when <see cref="Conversation.RequiresInference"/> = true
 /// </summary>
 public class CannotForkWhileRequiresInference
     : ExperimentalBatchedExecutorException
@@ -69,13 +69,13 @@ public class CannotForkWhileRequiresInference
 }
 
 /// <summary>
-/// This exception is thrown when "Rewind()" is called on a <see cref="Conversation"/> with <see cref="Conversation.RequiresInference"/> = true
+/// This exception is thrown when <see cref="Conversation.Modify"/> is called when <see cref="Conversation.RequiresInference"/> = true
 /// </summary>
-public class CannotRewindWhileRequiresInference
+public class CannotModifyWhileRequiresInference
     : ExperimentalBatchedExecutorException
 {
-    internal CannotRewindWhileRequiresInference()
-        : base("Cannot `Rewind()` a conversation while RequiresInference is true")
+    internal CannotModifyWhileRequiresInference()
+        : base("Cannot `Modify()` a conversation while RequiresInference is true")
     {
     }
 }
