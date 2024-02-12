@@ -54,6 +54,11 @@ public sealed class Conversation
         _end = end;
     }
 
+    ~Conversation()
+    {
+        Dispose();
+    }
+
     /// <summary>
     /// End this conversation, freeing all resources used by it
     /// </summary>
@@ -66,6 +71,9 @@ public sealed class Conversation
 
         // Remove this conversation from the KV cache
         Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _end);
+
+        // Prevent finalizer from running
+        GC.SuppressFinalize(this);
     }
 
     private void AssertNotDisposed()
