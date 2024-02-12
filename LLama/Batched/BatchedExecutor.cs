@@ -15,6 +15,11 @@ public sealed class BatchedExecutor
     private int _nextSequenceId;
 
     internal LLamaBatch Batch { get; }
+
+    /// <summary>
+    /// Epoch is incremented every time Infer is called. Conversations can use this to keep track of
+    /// whether they're waiting for inference, or can be sampled.
+    /// </summary>
     internal ulong Epoch { get; private set; }
 
     /// <summary>
@@ -48,6 +53,11 @@ public sealed class BatchedExecutor
         Batch = new LLamaBatch();
         Context = model.CreateContext(contextParams);
         Epoch = 1;
+    }
+
+    ~BatchedExecutor()
+    {
+        Dispose();
     }
 
     /// <summary>
@@ -96,6 +106,8 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             return;
         IsDisposed = true;
+
+        GC.SuppressFinalize(this);
 
         Context.Dispose();
     }
