@@ -375,9 +375,9 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Integer division of the positions by factor of `d > 1`
-        /// If the KV cache is RoPEd, the KV data is updated accordingly
-        /// p0 &lt; 0 : [0,  p1]
+        /// Integer division of the positions by factor of `d > 1`.
+        /// If the KV cache is RoPEd, the KV data is updated accordingly.<br />
+        /// p0 &lt; 0 : [0,  p1]<br />
         /// p1 &lt; 0 : [p0, inf)
         /// </summary>
         /// <param name="seq"></param>

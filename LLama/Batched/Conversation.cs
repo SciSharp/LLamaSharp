@@ -264,6 +264,23 @@ public sealed class Conversation
             _conversation.Executor.Context.NativeHandle.KvCacheSequenceShift(_conversation.ConversationId, start, end, delta);
         }
         #endregion
+
+        #region divide
+        /// <summary>
+        /// Integer division of the positions by factor of `d > 1`.
+        /// If the KV cache is RoPEd, the KV data is updated accordingly.
+        /// </summary>
+        /// <param name="start">Start position (inclusive). If less than zero, it is clamped to zero.</param>
+        /// <param name="end">End position (exclusive). If less than zero, it is treated as "infinity".</param>
+        /// <param name="divisor">Amount to divide each position by.</param>
+        public void Divide(LLamaPos start, LLamaPos end, int divisor)
+        {
+            if (divisor <= 0)
+                throw new ArgumentOutOfRangeException(nameof(divisor));
+
+            _conversation.Executor.Context.NativeHandle.KvCacheSequenceDivide(_conversation.ConversationId, start, end, divisor);
+        }
+        #endregion
     }
 
     /// <summary>
