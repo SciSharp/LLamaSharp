@@ -88,20 +88,35 @@ namespace LLama
             // Remove everything we just evaluated from the context cache
             Context.NativeHandle.KvCacheClear();
 
-            return embeddings;
+            // Normalize the embeddings vector
+            // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
+            Normalize(embeddings);
 
-            float[] GetEmbeddingsArray()
-            {
-                var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-                if (embeddings == null)
-                    return Array.Empty<float>();
-                return embeddings.ToArray();
-            }
+            return embeddings;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        private float[] GetEmbeddingsArray()
+        {
+            var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
+            if (embeddings == null)
+                return Array.Empty<float>();
+            return embeddings.ToArray();
+        }
+
+        private static void Normalize(Span<float> embeddings)
+        {
+            // Calculate length
+            var lengthSqr = 0.0;
+            foreach (var value in embeddings)
+                lengthSqr += value * value;
+            var length = (float)Math.Sqrt(lengthSqr);
+
+            // Normalize
+            for (var i = 0; i < embeddings.Length; i++)
+                embeddings[i] /= length;
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             Context.Dispose();
