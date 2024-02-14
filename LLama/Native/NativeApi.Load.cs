@@ -209,6 +209,12 @@ namespace LLama.Native
                 // otherwise no cuda detected but allow fallback
             }
 
+            if (configuration.UseVulkan && (platform == OSPlatform.Windows || platform == OSPlatform.Linux)) // no vulkan on macos
+            {
+                string vulkanLibraryPath = $"{prefix}vulkan/{libraryNamePrefix}{libraryName}{suffix}";
+                result.Add(vulkanLibraryPath);
+            }
+
             // use cpu (or mac possibly with metal)
             if (!configuration.AllowFallback && platform != OSPlatform.OSX)
             {
