@@ -7,7 +7,7 @@
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.8.0</Version>
+    <Version>0.10.0</Version>
     <Authors>Yaohui Liu, Martin Evans, Haiping Chen</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -21,7 +21,7 @@
       weights to run, please go to https://github.com/SciSharp/LLamaSharp for more information.
     </Description>
     <PackageReleaseNotes>
-      LLamaSharp 0.8.0 supports automatically device feature detection, adds integration with kernel-memory and fixes some performance issues.
+      LLamaSharp 0.10.0 supports automatically device feature detection, adds integration with kernel-memory and fixes some performance issues.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
