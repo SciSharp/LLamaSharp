@@ -25,18 +25,6 @@ public sealed class LLamaEmbedderTests
         _embedder.Dispose();
     }
 
-    private static float Magnitude(float[] a)
-    {
-        return MathF.Sqrt(a.Zip(a, (x, y) => x * y).Sum());
-    }
-
-    private static void Normalize(float[] a)
-    {
-        var mag = Magnitude(a);
-        for (var i = 0; i < a.Length; i++)
-            a[i] /= mag;
-    }
-
     private static float Dot(float[] a, float[] b)
     {
         Assert.Equal(a.Length, b.Length);
@@ -46,21 +34,16 @@ public sealed class LLamaEmbedderTests
     [Fact]
     public async Task EmbedCompare()
     {
-        var cat = await _embedder.GetEmbeddings("cat");
-        var kitten = await _embedder.GetEmbeddings("kitten");
-        var spoon = await _embedder.GetEmbeddings("spoon");
-
-        Normalize(cat);
-        Normalize(kitten);
-        Normalize(spoon);
-
-        var close = 1 - Dot(cat, kitten);
-        var far = 1 - Dot(cat, spoon);
-
-        Assert.True(close < far);
+        var cat = await _embedder.GetEmbeddings("The cat is cute");
+        var kitten = await _embedder.GetEmbeddings("The kitten is kawaii");
+        var spoon = await _embedder.GetEmbeddings("The spoon is not real");
 
         _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
         _testOutputHelper.WriteLine($"Kitten = [{string.Join(",", kitten.AsMemory().Slice(0, 7).ToArray())}...]");
         _testOutputHelper.WriteLine($"Spoon  = [{string.Join(",", spoon.AsMemory().Slice(0, 7).ToArray())}...]");
+
+        var close = 1 - Dot(cat, kitten);
+        var far = 1 - Dot(cat, spoon);
+        Assert.True(close < far);
     }
 }
