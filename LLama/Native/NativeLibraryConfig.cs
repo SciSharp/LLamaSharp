@@ -25,7 +25,7 @@ namespace LLama.Native
 
         private string _libraryPath = string.Empty;
         private bool _useCuda = true;
-        private bool _useVulkan = true;
+        private bool _useVulkan = false;
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
