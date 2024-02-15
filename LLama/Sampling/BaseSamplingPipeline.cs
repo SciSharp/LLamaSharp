@@ -40,10 +40,7 @@ public abstract class BaseSamplingPipeline
             var candidates = LLamaTokenDataArray.Create(logits);
 
             // Process token data array
-            ProcessTokenDataArray(ctx, candidates, lastTokens);
-
-            // Choose the final value
-            return ChooseToken(ctx, candidates);
+            return ProcessTokenDataArray(ctx, candidates, lastTokens);
         }
         finally
         {
@@ -52,6 +49,9 @@ public abstract class BaseSamplingPipeline
             _savedLogitsCount = 0;
         }
     }
+
+    /// <inheritdoc />
+    public abstract void Accept(SafeLLamaContextHandle ctx, LLamaToken token);
 
     #region protected tokens
     /// <summary>
@@ -107,18 +107,13 @@ public abstract class BaseSamplingPipeline
     /// <returns></returns>
     protected abstract LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens);
 
-    /// <summary>
-    /// Choose the final token from the candidates
-    /// </summary>
-    /// <param name="ctx"></param>
-    /// <param name="candidates"></param>
-    /// <returns></returns>
-    protected abstract LLamaToken ChooseToken(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates);
-
     /// <inheritdoc/>
     public virtual void Reset()
     {
     }
+
+    /// <inheritdoc />
+    public abstract ISamplingPipeline Clone();
 
     /// <inheritdoc/>
     public virtual void Dispose()

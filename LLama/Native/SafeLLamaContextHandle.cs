@@ -369,15 +369,15 @@ namespace LLama.Native
         /// <param name="p0"></param>
         /// <param name="p1"></param>
         /// <param name="delta"></param>
-        public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, LLamaPos delta)
+        public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
         {
             NativeApi.llama_kv_cache_seq_shift(this, seq, p0, p1, delta);
         }
 
         /// <summary>
-        /// Integer division of the positions by factor of `d > 1`
-        /// If the KV cache is RoPEd, the KV data is updated accordingly
-        /// p0 &lt; 0 : [0,  p1]
+        /// Integer division of the positions by factor of `d > 1`.
+        /// If the KV cache is RoPEd, the KV data is updated accordingly.<br />
+        /// p0 &lt; 0 : [0,  p1]<br />
         /// p1 &lt; 0 : [p0, inf)
         /// </summary>
         /// <param name="seq"></param>

@@ -141,9 +141,31 @@ public sealed class DefaultSamplingPipeline
         return id;
     }
 
-    /// <inheritdoc />
-    protected override LLamaToken ChooseToken(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
+    public override void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
     {
-        return candidates.SampleToken(ctx);
+        Grammar?.AcceptToken(ctx, token);
+    }
+
+    /// <inheritdoc />
+    public override ISamplingPipeline Clone()
+    {
+        var clone = new DefaultSamplingPipeline();
+
+        foreach (var (k, v) in LogitBias)
+            clone.LogitBias.Add(k, v);
+
+        clone.Grammar = Grammar?.Clone();
+        clone.RepeatPenalty = RepeatPenalty;
+        clone.AlphaFrequency = AlphaFrequency;
+        clone.AlphaPresence = AlphaPresence;
+        clone.Temperature = Temperature;
+        clone.TopK = TopK;
+        clone.TailFreeZ = TailFreeZ;
+        clone.TypicalP = TypicalP;
+        clone.TopP = TopP;
+        clone.MinP = MinP;
+        clone.PenalizeNewline = PenalizeNewline;
+
+        return clone;
     }
 }

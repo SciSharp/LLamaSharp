@@ -221,7 +221,9 @@ namespace LLama
         /// <returns>The selected token</returns>
         public LLamaToken Sample(ISamplingPipeline pipeline, ReadOnlySpan<LLamaToken> lastTokens)
         {
-            return pipeline.Sample(NativeHandle, NativeHandle.GetLogits(), lastTokens);
+            var token = pipeline.Sample(NativeHandle, NativeHandle.GetLogits(), lastTokens);
+            pipeline.Accept(NativeHandle, token);
+            return token;
         }
 
         /// <summary>

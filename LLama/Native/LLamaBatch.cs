@@ -19,6 +19,11 @@ public class LLamaBatch
     private IntPtr[] _sequenceIdsPtrs;
 
     /// <summary>
+    /// Keep track of the index of existing token/position combos in the batch
+    /// </summary>
+    private readonly Dictionary<(LLamaToken, LLamaPos), int> _index = new();
+
+    /// <summary>
     /// The number of tokens in this batch
     /// </summary>
     public int TokenCount { get; private set; }
@@ -130,23 +135,44 @@ public class LLamaBatch
     /// <param name="pos">The position to add it att</param>
     /// <param name="sequences">The set of sequences to add this token to</param>
     /// <param name="logits"></param>
-    public void Add(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
+    /// <returns>The index that the token was added at. Use this for GetLogitsIth</returns>
+    public int Add(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
     {
+        // Try to find this (token, position) combo somewhere in the batch to re-use it
+        if (_index.TryGetValue((token, pos), out var existingIndex))
+        {
+            if (_sequenceIdCount[existingIndex] + sequences.Length > SequenceCapacity)
+                GrowMaxSequences(_sequenceIdCount[existingIndex] + sequences.Length);
+
+            foreach (var sequence in sequences)
+            {
+                _sequenceIds[existingIndex][_sequenceIdCount[existingIndex]] = sequence;
+                _sequenceIdCount[existingIndex]++;
+            }
+
+            return existingIndex;
+        }
+
+        // Couldn't find this it in the batch, add a new item
+
+        // Frow capacity as necessary
         if (TokenCount == TokenCapacity)
             GrowTokenCapacity();
         if (sequences.Length > SequenceCapacity)
             GrowMaxSequences(sequences.Length);
 
+        // Store the position in the index, so it can be found later
+        _index.Add((token, pos), TokenCount);
+
+        // Add the items to the arrays
         _tokens[TokenCount] = token;
         _positions[TokenCount] = pos;
-
         _sequenceIdCount[TokenCount] = sequences.Length;
         for (var i = 0; i < sequences.Length; i++)
             _sequenceIds[TokenCount][i] = sequences[i];
-
         _logits[TokenCount] = Convert.ToByte(logits);
 
-        TokenCount++;
+        return TokenCount++;
     }
 
     /// <summary>
@@ -157,11 +183,12 @@ public class LLamaBatch
     /// <param name="pos">The position to add it att</param>
     /// <param name="sequences">The set of sequences to add this token to</param>
     /// <param name="logits"></param>
-    public void Add(LLamaToken token, LLamaPos pos, List<LLamaSeqId> sequences, bool logits)
+    /// <returns>The index that the token was added at. Use this for GetLogitsIth</returns>
+    public int Add(LLamaToken token, LLamaPos pos, List<LLamaSeqId> sequences, bool logits)
     {
 #if NET5_0_OR_GREATER
         var seqSpan = CollectionsMarshal.AsSpan(sequences);
-        Add(token, pos, seqSpan, logits);
+        return Add(token, pos, seqSpan, logits);
 #else
         // on netstandard2.0 we can't use CollectionsMarshal to get directly at the internal memory of
         // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
@@ -171,7 +198,7 @@ public class LLamaBatch
         try
         {
             sequences.CopyTo(rented, 0);
-            Add(token, pos, rented.AsSpan(0, sequences.Count), logits);
+            return Add(token, pos, rented.AsSpan(0, sequences.Count), logits);
         }
         finally
         {
@@ -188,14 +215,15 @@ public class LLamaBatch
     /// <param name="pos">The position to add it att</param>
     /// <param name="sequence">The sequence to add this token to</param>
     /// <param name="logits"></param>
-    public void Add(LLamaToken token, LLamaPos pos, LLamaSeqId sequence, bool logits)
+    /// <returns>The index that the token was added at. Use this for GetLogitsIth</returns>
+    public int Add(LLamaToken token, LLamaPos pos, LLamaSeqId sequence, bool logits)
     {
         // Create a temporary span to contain 1 item without allocating
         Span<LLamaSeqId> sequences = stackalloc LLamaSeqId[1];
         sequences[0] = sequence;
 
         // Add it
-        Add(token, pos, sequences, logits);
+        return Add(token, pos, sequences, logits);
     }
 
     /// <summary>
@@ -205,13 +233,17 @@ public class LLamaBatch
     /// <param name="start">The starting position to add tokens at</param>
     /// <param name="sequence">The sequence to add this token to</param>
     /// <param name="logitsLast">Whether the final token should generate logits</param>
-    public void AddRange(ReadOnlySpan<LLamaToken> tokens, LLamaPos start, LLamaSeqId sequence, bool logitsLast)
+    /// <returns>The index that the final token was added at. Use this for GetLogitsIth</returns>
+    public int AddRange(ReadOnlySpan<LLamaToken> tokens, LLamaPos start, LLamaSeqId sequence, bool logitsLast)
     {
+        var last = -1;
         for (var i = 0; i < tokens.Length; i++)
         {
             var logits = (i == tokens.Length - 1) & logitsLast;
-            Add(tokens[i], start.Value + i, sequence, logits);
+            last = Add(tokens[i], start.Value + i, sequence, logits);
         }
+
+        return last;
     }
 #endregion
 
@@ -221,5 +253,6 @@ public class LLamaBatch
     public void Clear()
     {
         TokenCount = 0;
+        _index.Clear();
     }
 }

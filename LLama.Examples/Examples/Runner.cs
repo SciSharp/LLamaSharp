@@ -23,7 +23,8 @@ public class Runner
         { "Semantic Kernel Chat.", SemanticKernelChat.Run },
         { "Semantic Kernel Memory.", SemanticKernelMemory.Run },
         { "Coding Assistant.", CodingAssistant.Run },
-        { "Batch Decoding.", BatchedDecoding.Run },
+        { "Batched Executor (Fork)", BatchedExecutorFork.Run },
+        { "Batched Executor (Rewind)", BatchedExecutorRewind.Run },
         { "SK Kernel Memory.", KernelMemory.Run },
         { "Exit", async () => Environment.Exit(0) }
     };
