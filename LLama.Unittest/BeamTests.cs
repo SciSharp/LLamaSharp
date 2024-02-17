@@ -47,14 +47,24 @@ public sealed class BeamTests
             for (var i = 0; i < state.Beams.Length; i++)
             {
                 ref var view = ref state.Beams[i];
-                var tokens = context.DeTokenize(view.Tokens.ToArray());
+
+                var decoder = new StreamingTokenDecoder(context);
+                decoder.AddRange(view.Tokens);
+                var tokens = decoder.Read();
+
                 _testOutputHelper.WriteLine($"B{i} ({view.CumulativeProbability}) => '{tokens}'");
             }
 
             if (state.CommonPrefixLength > 0)
             {
                 var view = state.Beams[0];
-                result.Append(context.DeTokenize(view.Tokens.Slice(0, (int)state.CommonPrefixLength).ToArray()));
+
+                var decoder = new StreamingTokenDecoder(context);
+                decoder.AddRange(view.Tokens.Slice(0, (int)state.CommonPrefixLength));
+                var tokens = decoder.Read();
+
+                result.Append(tokens);
+                
             }
 
         }, IntPtr.Zero, num_beams, initial_tokens.Length, n_predict, Math.Max(1, Environment.ProcessorCount / 2));

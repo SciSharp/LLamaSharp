@@ -172,6 +172,11 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint llama_n_ctx(SafeLLamaContextHandle ctx);
 
+        /// <summary>
+        /// Get the batch size for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint llama_n_batch(SafeLLamaContextHandle ctx);
 

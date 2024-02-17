@@ -36,12 +36,12 @@ namespace LLama.Abstractions
 		/// </summary>
 		public int TopK { get; set; }
 
-		/// <summary>llama_eval
+		/// <summary>
 		/// 1.0 = disabled
 		/// </summary>
 		public float TopP { get; set; }
 
-        /// <summary>llama_eval
+        /// <summary>
         /// 0.0 = disabled
         /// </summary>
         public float MinP { get; set; }

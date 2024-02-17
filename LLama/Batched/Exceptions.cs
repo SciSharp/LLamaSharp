@@ -59,10 +59,10 @@ public class CannotSampleRequiresPromptException
 /// <summary>
 /// This exception is thrown when <see cref="Conversation.Fork"/> is called when <see cref="Conversation.RequiresInference"/> = true
 /// </summary>
-public class CannotForkWhileRequiresInference
+public class CannotForkWhileRequiresInferenceException
     : ExperimentalBatchedExecutorException
 {
-    internal CannotForkWhileRequiresInference()
+    internal CannotForkWhileRequiresInferenceException()
         : base("Cannot `Fork()` a conversation while RequiresInference is true")
     {
     }
@@ -71,10 +71,10 @@ public class CannotForkWhileRequiresInference
 /// <summary>
 /// This exception is thrown when <see cref="Conversation.Modify"/> is called when <see cref="Conversation.RequiresInference"/> = true
 /// </summary>
-public class CannotModifyWhileRequiresInference
+public class CannotModifyWhileRequiresInferenceException
     : ExperimentalBatchedExecutorException
 {
-    internal CannotModifyWhileRequiresInference()
+    internal CannotModifyWhileRequiresInferenceException()
         : base("Cannot `Modify()` a conversation while RequiresInference is true")
     {
     }
