@@ -155,7 +155,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embeds.Count > 0)
             {
@@ -238,6 +238,8 @@ namespace LLama
                     }
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

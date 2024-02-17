@@ -142,20 +142,21 @@ namespace LLama
         /// Add all tokens in the given enumerable
         /// </summary>
         /// <param name="tokens"></param>
-        public void AddRange(IEnumerable<int> tokens)
-        {
-            foreach (var item in tokens)
-                Add(item);
-        }
-
-        /// <summary>
-        /// Add all tokens in the given enumerable
-        /// </summary>
-        /// <param name="tokens"></param>
-        public void AddRange(IEnumerable<LLamaToken> tokens)
+        public void AddRange<T>(T tokens)
+            where T : IEnumerable<LLamaToken>
         {
             foreach (var item in tokens)
                 Add((int)item);
+        }
+
+        /// <summary>
+        /// Add all tokens in the given span
+        /// </summary>
+        /// <param name="tokens"></param>
+        public void AddRange(ReadOnlySpan<LLamaToken> tokens)
+        {
+            foreach (var item in tokens)
+                Add(item);
         }
 
         /// <summary>

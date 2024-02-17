@@ -54,6 +54,9 @@ public sealed class Conversation
         _end = end;
     }
 
+    /// <summary>
+    /// Finalizer for Conversation
+    /// </summary>
     ~Conversation()
     {
         Dispose();
@@ -96,7 +99,7 @@ public sealed class Conversation
         AssertNotDisposed();
 
         if (RequiresInference)
-            throw new CannotForkWhileRequiresInference();
+            throw new CannotForkWhileRequiresInferenceException();
 
         // Create a new conversation which references the current position in this one
         var c = new Conversation(Executor, Executor.GetNextSequenceId(), _end)
@@ -195,13 +198,13 @@ public sealed class Conversation
     /// Directly modify the KV cache of this conversation
     /// </summary>
     /// <param name="modifier"></param>
-    /// <exception cref="CannotModifyWhileRequiresInference">Thrown if this method is called while <see cref="Conversation.RequiresInference"/> == true</exception>
+    /// <exception cref="CannotModifyWhileRequiresInferenceException">Thrown if this method is called while <see cref="Conversation.RequiresInference"/> == true</exception>
     public void Modify(ModifyKvCache modifier)
     {
         AssertNotDisposed();
 
         if (RequiresInference)
-            throw new CannotModifyWhileRequiresInference();
+            throw new CannotModifyWhileRequiresInferenceException();
 
         // do whatever the modification is
         _end = modifier.Invoke(_end, new KvAccessor(this));

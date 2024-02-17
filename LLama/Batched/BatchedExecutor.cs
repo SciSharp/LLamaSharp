@@ -55,6 +55,9 @@ public sealed class BatchedExecutor
         Epoch = 1;
     }
 
+    /// <summary>
+    /// Finalizer for BatchedExecutor
+    /// </summary>
     ~BatchedExecutor()
     {
         Dispose();
