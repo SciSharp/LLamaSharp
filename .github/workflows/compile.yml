@@ -172,7 +172,85 @@ jobs:
             ./build/libllama.so
             # ./build/libclblast.so
           name: llama-bin-linux-clblast-x64.so
-          
+  
+  compile-vulkan:
+    name: Compile (vulkan) - ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+          ubuntu-22.04,
+          windows-latest
+        ]
+    env:
+      OPENBLAS_VERSION: 0.3.23
+      OPENCL_VERSION: 2023.04.17
+      CLBLAST_VERSION: 1.6.0
+      VULKAN_VERSION: 1.3.261.1
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ggerganov/llama.cpp
+
+      - name: Download dependencies - Linux
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+          sudo apt update
+          sudo apt install vulkan-sdk
+
+      - name: Download dependencies - Windows
+        id: get_vulkan
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          curl.exe -o $env:RUNNER_TEMP/VulkanSDK-Installer.exe -L "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VERSION}/windows/VulkanSDK-${env:VULKAN_VERSION}-Installer.exe"
+          & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
+          Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
+          Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
+
+      - name: Build
+        id: cmake_build
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_VULKAN=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/vulkan"
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          #copy $env:RUNNER_TEMP/clblast/lib/clblast.dll .\bin\Release\clblast.dll
+          # # We should probably generate a sha256 sum in a file, and use that.
+          # echo "78a8c98bcb2efe1a63318d901ab204d9ba96c3b29707b4ce0c4240bdcdc698d6  ./bin/Release/clblast.dll" >> tmp
+          # sha256sum -c tmp || exit 255
+          # rm tmp
+          ls -R
+      - name: Build
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_VULKAN=ON -DBUILD_SHARED_LIBS=ON
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          # if we ever want to pull libvulkan.so back into the packages, just uncomment this line, and the one below for the upload
+          # cp $(ldconfig -p | grep libvulkan.so | tail -n 1 | cut -d ' ' -f 4) ./
+          ls -R
+      - name: Upload artifacts (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            .\build\bin\Release\llama.dll
+          name: llama-bin-win-vulkan-x64.dll
+      - name: Upload artifacts (linux)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            ./build/libllama.so
+          name: llama-bin-linux-vulkan-x64.so
+  
   compile-cublas:
     name: Compile (cublas)
     strategy:
@@ -277,7 +355,8 @@ jobs:
       "compile-macos",
       "compile-windows",
       "compile-cublas",
-      "compile-clblast"
+      "compile-clblast",
+      "compile-vulkan"
     ]
     steps:      
       - uses: actions/download-artifact@v4
@@ -288,7 +367,7 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,cu11.7.1,cu12.1.0,clblast}
+          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,cu11.7.1,cu12.1.0,clblast,vulkan}
 
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
@@ -311,6 +390,9 @@ jobs:
           
           cp artifacts/llama-bin-win-clblast-x64.dll/{llama,clblast}.dll deps/clblast/
           cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
+
+          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll deps/vulkan/
+          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
