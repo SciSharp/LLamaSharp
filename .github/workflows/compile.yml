@@ -183,9 +183,6 @@ jobs:
           windows-latest
         ]
     env:
-      OPENBLAS_VERSION: 0.3.23
-      OPENCL_VERSION: 2023.04.17
-      CLBLAST_VERSION: 1.6.0
       VULKAN_VERSION: 1.3.261.1
     runs-on: ${{ matrix.os }}
     steps:
