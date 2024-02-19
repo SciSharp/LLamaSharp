@@ -196,7 +196,7 @@ public class ChatSession
             if (lastMessage is null
                 || lastMessage.AuthorRole != AuthorRole.User)
             {
-                throw new ArgumentException("Assistant message must be preceeded with a user message", nameof(message));
+                throw new ArgumentException("Assistant message must be preceded with a user message", nameof(message));
             }
         }
 
