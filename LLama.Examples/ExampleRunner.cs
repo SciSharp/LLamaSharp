@@ -1,6 +1,5 @@
 ﻿using Spectre.Console;
-
-namespace LLama.Examples.Examples;
+using LLama.Examples.Examples;
 
 public class Runner
 {
