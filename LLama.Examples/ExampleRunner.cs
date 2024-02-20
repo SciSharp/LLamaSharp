@@ -1,7 +1,7 @@
 ﻿using Spectre.Console;
 using LLama.Examples.Examples;
 
-public class Runner
+public class ExampleRunner
 {
     private static readonly Dictionary<string, Func<Task>> Examples = new()
     {
@@ -25,7 +25,7 @@ public class Runner
         { "Batched Executor (Fork)", BatchedExecutorFork.Run },
         { "Batched Executor (Rewind)", BatchedExecutorRewind.Run },
         { "SK Kernel Memory.", KernelMemory.Run },
-        { "Exit", async () => Environment.Exit(0) }
+        { "Exit", () => { Environment.Exit(0); return Task.CompletedTask; } }
     };
 
     public static async Task Run()

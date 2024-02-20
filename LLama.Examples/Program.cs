@@ -21,4 +21,4 @@ NativeLibraryConfig
    .WithCuda()
    .WithLogs();
 
-await Runner.Run();
+await ExampleRunner.Run();
