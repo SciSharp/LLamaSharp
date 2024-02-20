@@ -14,7 +14,8 @@ public class GetEmbeddings
     {
         Console.Write("Please input your model path: ");
         string modelPath = Console.ReadLine();
-        var embedder = new LLamaEmbedder(new ModelParams(modelPath));
+        var modelParams = new ModelParams(modelPath) { EmbeddingMode = true };
+        var embedder = new LLamaEmbedder(modelParams);
 
         while (true)
         {
