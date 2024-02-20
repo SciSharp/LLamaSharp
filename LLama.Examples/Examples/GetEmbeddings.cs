@@ -6,8 +6,14 @@ namespace LLama.Examples.Examples
     {
         public static void Run()
         {
+            Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Please input your model path: ");
             var modelPath = Console.ReadLine();
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            var @params = new ModelParams(modelPath) { EmbeddingMode = true };
+            using var weights = LLamaWeights.LoadFromFile(@params);
+            var embedder = new LLamaEmbedder(weights, @params);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(
@@ -19,11 +25,6 @@ namespace LLama.Examples.Examples
                 This allows machine learning models to efficiently understand and process complex data.
                 Embeddings of a text in LLM is sometimes useful, for example, to train other MLP models.
                 """); // NOTE: this description was AI generated
-
-            var @params = new ModelParams(modelPath) { EmbeddingMode = true };
-
-            using var weights = LLamaWeights.LoadFromFile(@params);
-            var embedder = new LLamaEmbedder(weights, @params);
 
             while (true)
             {
