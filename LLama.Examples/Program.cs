@@ -21,4 +21,6 @@ NativeLibraryConfig
    .WithCuda()
    .WithLogs();
 
+NativeApi.llama_empty_call();
+
 await ExampleRunner.Run();
