@@ -10,7 +10,7 @@ Console.WriteLine("=============================================================
 NativeLibraryConfig
    .Instance
    .WithCuda()
-   .WithLogs();
+   .WithLogs(LLamaLogLevel.Warning);
 
 NativeApi.llama_empty_call();
 Console.WriteLine();
