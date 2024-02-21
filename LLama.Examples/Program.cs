@@ -19,7 +19,7 @@ Console.WriteLine(
 NativeLibraryConfig
    .Instance
    .WithCuda()
-   .WithLogs();
+   .WithLogs(false);
 
 NativeApi.llama_empty_call();
 
