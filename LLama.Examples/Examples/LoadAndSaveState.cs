@@ -6,8 +6,8 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
+
             var prompt = (await File.ReadAllTextAsync("Assets/chat-with-bob.txt")).Trim();
 
             var parameters = new ModelParams(modelPath)
@@ -21,9 +21,10 @@ namespace LLama.Examples.Examples
             var ex = new InteractiveExecutor(context);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, " +
+                "the maximum tokens is set to 64 and the context size is 256. (an example for small scale usage)");
 
+            Console.ForegroundColor = ConsoleColor.White;
             Console.Write(prompt);
 
             var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "User:" } };

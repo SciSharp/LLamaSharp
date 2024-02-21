@@ -7,8 +7,7 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
 
             var parameters = new ModelParams(modelPath)
             {
