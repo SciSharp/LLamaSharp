@@ -18,7 +18,6 @@ internal static class UserSettings
 
     private static void WriteDefaultModelPath(string path)
     {
-        Console.WriteLine($"!!!!WROTE!!!!!!: {SettingsFilePath}");
         File.WriteAllText(SettingsFilePath, path);
     }
 
