@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -57,6 +58,51 @@ namespace LLama.Native
             Console.ForegroundColor = color;
             Console.WriteLine($"{loggingPrefix} {levelPrefix} {message}");
             Console.ResetColor();
+        }
+
+        private static string GetVulkanVersion()
+        {
+          var apiVersionString = string.Empty;
+          try
+          {
+            ProcessStartInfo start = new()
+            {
+              FileName = "vulkaninfo",
+              Arguments = "--summary",
+              RedirectStandardOutput = true,
+              UseShellExecute = false,
+              CreateNoWindow = true
+            };
+
+            Process process = new()
+            {
+              StartInfo = start
+            };
+            process.Start();
+            
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            var lines = output.Split('\n');
+            int apiVersionLineIndex = lines.ToList().FindIndex(line => line.Contains("apiVersion"));
+            if (apiVersionLineIndex >= 0)
+            {
+                var apiVersionline = lines[apiVersionLineIndex];
+                //apiVersionline ="	apiVersion         = 1.3.260";
+                //apiVersionline ="        apiVersion         = 4206830 (1.3.238)";
+                if(apiVersionline.Contains('=') && apiVersionline.Length > apiVersionline.IndexOf('=')+1)
+                {
+                  apiVersionString = apiVersionline.Substring(apiVersionline.IndexOf('=')+1).Trim();
+                  if(apiVersionString.Contains('(') && apiVersionString.Contains(')') && apiVersionString.IndexOf(')') > apiVersionString.IndexOf('('))
+                  {
+                    apiVersionString = apiVersionString.Substring(apiVersionString.IndexOf('(')+1,apiVersionString.IndexOf(')')-apiVersionString.IndexOf('(')-1);
+                  }
+                  return apiVersionString;
+                } 
+            }
+          }
+          catch {}
+          return apiVersionString;
         }
 
         private static int GetCudaMajorVersion()
@@ -207,6 +253,17 @@ namespace LLama.Native
                     throw new RuntimeError($"Cuda version {cudaVersion} hasn't been supported by LLamaSharp, please open an issue for it.");
                 }
                 // otherwise no cuda detected but allow fallback
+            }
+
+            if (configuration.UseVulkan && (platform == OSPlatform.Windows || platform == OSPlatform.Linux)) // no vulkan on macos
+            {
+                string vulkanVersion = GetVulkanVersion();
+                if(!string.IsNullOrEmpty(vulkanVersion))
+                {
+                  Log($"Detected device supporting vulkan version {vulkanVersion}.", LogLevel.Information);
+                  string vulkanLibraryPath = $"{prefix}vulkan/{libraryNamePrefix}{libraryName}{suffix}";
+                  result.Add(vulkanLibraryPath);
+                }
             }
 
             // use cpu (or mac possibly with metal)

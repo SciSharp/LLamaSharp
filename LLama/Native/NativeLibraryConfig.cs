@@ -25,6 +25,7 @@ namespace LLama.Native
 
         private string _libraryPath = string.Empty;
         private bool _useCuda = true;
+        private bool _useVulkan = true;
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
@@ -66,6 +67,20 @@ namespace LLama.Native
             ThrowIfLoaded();
 
             _useCuda = enable;
+            return this;
+        }
+
+        /// <summary>
+        /// Configure whether to use vulkan backend if possible.
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
+        public NativeLibraryConfig WithVulkan(bool enable = true)
+        {
+            ThrowIfLoaded();
+
+            _useVulkan = enable;
             return this;
         }
 
@@ -164,7 +179,8 @@ namespace LLama.Native
             
             return new Description(
                 Instance._libraryPath, 
-                Instance._useCuda, 
+                Instance._useCuda,
+                Instance._useVulkan,
                 Instance._avxLevel, 
                 Instance._allowFallback, 
                 Instance._skipCheck, 
@@ -250,7 +266,7 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, string[] SearchDirectories)
+        internal record Description(string Path, bool UseCuda,bool UseVulkan, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, string[] SearchDirectories)
         {
             public override string ToString()
             {
@@ -268,6 +284,7 @@ namespace LLama.Native
                 return $"NativeLibraryConfig Description:\n" +
                        $"- Path: {Path}\n" +
                        $"- PreferCuda: {UseCuda}\n" +
+                       $"- PreferVulkan: {UseVulkan}\n" +
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
