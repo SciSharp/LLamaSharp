@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using LLama.Common;
+﻿using LLama.Common;
 using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
 using LLamaSharp.SemanticKernel.TextCompletion;
@@ -12,9 +11,11 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/README.md");
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("This example is from: " +
+                "https://github.com/microsoft/semantic-kernel/blob/main/dotnet/README.md");
 
             // Load weights into memory
             var parameters = new ModelParams(modelPath);

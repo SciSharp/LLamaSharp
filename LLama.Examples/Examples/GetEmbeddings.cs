@@ -6,9 +6,7 @@ namespace LLama.Examples.Examples
     {
         public static void Run()
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
             var @params = new ModelParams(modelPath) { EmbeddingMode = true };

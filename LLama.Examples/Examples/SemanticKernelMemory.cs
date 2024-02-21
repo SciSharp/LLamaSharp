@@ -1,9 +1,6 @@
 ﻿using LLama.Common;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using LLamaSharp.SemanticKernel.TextEmbedding;
-using Microsoft.SemanticKernel.AI.Embeddings;
-using Microsoft.SemanticKernel.Plugins.Memory;
 
 namespace LLama.Examples.Examples
 {
@@ -13,10 +10,10 @@ namespace LLama.Examples.Examples
 
         public static async Task Run()
         {
-            var loggerFactory = ConsoleLogger.LoggerFactory;
-            Console.WriteLine("Example from: https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs");
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
+
+            Console.WriteLine("This example is from: \n" +
+                "https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs");
 
             var seed = 1337u;
             // Load weights into memory

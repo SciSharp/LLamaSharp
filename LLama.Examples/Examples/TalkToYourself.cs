@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 using LLama.Abstractions;
 using LLama.Common;
 
@@ -9,8 +8,7 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
 
             // Load weights into memory
             var @params = new ModelParams(modelPath);

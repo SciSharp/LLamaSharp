@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
-using LLama.Common;
+﻿using LLama.Common;
 
 namespace LLama.Examples.Examples
 {
@@ -7,8 +6,8 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
+
             var prompt = (await File.ReadAllTextAsync("Assets/chat-with-bob.txt")).Trim();
 
             var parameters = new ModelParams(modelPath)

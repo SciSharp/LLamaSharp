@@ -4,8 +4,7 @@
     {
         public static void Run()
         {
-            Console.Write("Please input your original model path: ");
-            var inputPath = Console.ReadLine();
+            string inputPath = UserSettings.GetModelPath();
 
             Console.Write("Please input your output model path: ");
             var outputPath = Console.ReadLine();

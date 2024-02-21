@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LLamaSharp.KernelMemory;
+﻿using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Configuration;
-using Microsoft.KernelMemory.Handlers;
 
 namespace LLama.Examples.Examples
 {
@@ -14,14 +8,18 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            Console.WriteLine("Example from: https://github.com/microsoft/kernel-memory/blob/main/examples/101-using-core-nuget/Program.cs");
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            string modelPath = UserSettings.GetModelPath();
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("This example is from : \n" +
+                "https://github.com/microsoft/kernel-memory/blob/main/examples/101-using-core-nuget/Program.cs");
+
             var searchClientConfig = new SearchClientConfig
             {
                 MaxMatchesCount = 1,
                 AnswerTokens = 100,
             };
+
             var memory = new KernelMemoryBuilder()
                     .WithLLamaSharpDefaults(new LLamaSharpConfig(modelPath)
                     {

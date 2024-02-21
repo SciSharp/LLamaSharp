@@ -7,11 +7,10 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            var gbnf = (await File.ReadAllTextAsync("Assets/json.gbnf")).Trim();
-            var grammar = Grammar.Parse(gbnf, "root");
+            string modelPath = UserSettings.GetModelPath();
 
-            Console.Write("Please input your model path: ");
-            var modelPath = Console.ReadLine();
+            var gbnf = File.ReadAllText("Assets/json.gbnf").Trim();
+            var grammar = Grammar.Parse(gbnf, "root");
 
             var parameters = new ModelParams(modelPath)
             {
@@ -27,10 +26,10 @@ namespace LLama.Examples.Examples
             Console.ForegroundColor = ConsoleColor.White;
 
             using var grammarInstance = grammar.CreateInstance();
-            var inferenceParams = new InferenceParams() 
-            { 
-                Temperature = 0.6f, 
-                AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" }, 
+            var inferenceParams = new InferenceParams()
+            {
+                Temperature = 0.6f,
+                AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" },
                 MaxTokens = 50,
                 Grammar = grammarInstance
             };
