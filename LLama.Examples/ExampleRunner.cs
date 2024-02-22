@@ -44,8 +44,10 @@ public class ExampleRunner
                 AnsiConsole.Write(new Rule(choice));
                 await example();
             }
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+
+            Console.WriteLine("Press ENTER to go to the main menu...");
+            Console.ReadLine();
+
             AnsiConsole.Clear();
         }
     }
