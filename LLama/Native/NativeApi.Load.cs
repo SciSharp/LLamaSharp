@@ -35,8 +35,12 @@ namespace LLama.Native
 
         private static void Log(string message, LogLevel level)
         {
-            if (!enableLogging) return;
-            Debug.Assert(level is LogLevel.Information or LogLevel.Error or LogLevel.Warning);
+            if (!enableLogging)
+                return;
+
+            if ((int)level < (int)logLevel)
+                return;
+
             ConsoleColor color;
             string levelPrefix;
             if (level == LogLevel.Information)
@@ -221,7 +225,7 @@ namespace LLama.Native
 
                 if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx2)
                     result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx2, prefix, suffix, libraryNamePrefix));
-                
+
                 if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx)
                     result.Add(GetAvxLibraryPath(NativeLibraryConfig.AvxLevel.Avx, prefix, suffix, libraryNamePrefix));
 
@@ -246,6 +250,7 @@ namespace LLama.Native
 #if NET6_0_OR_GREATER
             var configuration = NativeLibraryConfig.CheckAndGatherDescription();
             enableLogging = configuration.Logging;
+            logLevel = configuration.LogLevel;
             // We move the flag to avoid loading library when the variable is called else where.
             NativeLibraryConfig.LibraryHasLoaded = true;
             Log(configuration.ToString(), LogLevel.Information);
@@ -336,5 +341,6 @@ namespace LLama.Native
         private const string cudaVersionFile = "version.json";
         private const string loggingPrefix = "[LLamaSharp Native]";
         private static bool enableLogging = false;
+        private static LLamaLogLevel logLevel = LLamaLogLevel.Info;
     }
 }
