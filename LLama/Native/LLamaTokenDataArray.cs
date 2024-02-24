@@ -186,6 +186,63 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="guidanceLogits">Logits extracted from a separate context from the same model.
+        /// Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</param>
+        /// <param name="guidance">Guidance strength. 0 means no guidance, higher values applies stronger guidance</param>
+        public void Guidance(SafeLLamaContextHandle context, ReadOnlySpan<float> guidanceLogits, float guidance)
+        {
+            if (guidanceLogits.Length != data.Length)
+                throw new ArgumentException("Guidance logits count must equal vocabulary size", nameof(guidanceLogits));
+
+            if (guidance < 0)
+                throw new ArgumentOutOfRangeException(nameof(guidance), "Guidance strength must be greater than or equal to zero");
+
+            // this method accepts 0 (no guidance), higher means more. llama.cpp expects 1 (no guidance), higher means more
+            // Add one to move up to the llama.cpp baseline.
+            guidance += 1;
+
+            // We need logits array, which we don't have at this point.
+            // Copy them to a temporary array, apply guidance, then copy them back.
+            var logits = ArrayPool<float>.Shared.Rent(context.VocabCount);
+            try
+            {
+                // Copy logits into a temporary array
+                for (var i = 0; i < data.Length; i++)
+                {
+                    ref var item = ref data.Span[i];
+                    logits[(int)item.id] = item.logit;
+                }
+
+                // Apply guidance
+                unsafe
+                {
+                    fixed (float* logitsPtr = logits)
+                    fixed (float* guidanceLogitsPtr = guidanceLogits)
+                    {
+                        NativeApi.llama_sample_apply_guidance(context, logitsPtr, guidanceLogitsPtr, guidance);
+                    }
+                }
+
+                // Copy logits back into data array
+                for (var i = 0; i < data.Length; i++)
+                {
+                    ref var item = ref data.Span[i];
+                    item.logit = logits[(int)item.id];
+                }
+
+                // No longer sorted since we just mutated logits!
+                sorted = false;
+            }
+            finally
+            {
+                ArrayPool<float>.Shared.Return(logits);
+            }
+        }
+
+        /// <summary>
         /// Sample with temperature.
         /// As temperature increases, the prediction becomes more diverse but also vulnerable to hallucinations -- generating tokens that are sensible but not factual
         /// </summary>
