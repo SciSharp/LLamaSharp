@@ -8,7 +8,7 @@ namespace LLama.Examples.Examples;
 
 /// <summary>
 /// This demonstrates using a batch to generate two sequences and then using one
-/// sequence as the negative guidance ("context free guidance") for the other.
+/// sequence as the negative guidance ("classifier free guidance") for the other.
 /// </summary>
 public class BatchedExecutorGuidance
 {
