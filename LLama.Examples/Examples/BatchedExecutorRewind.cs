@@ -2,6 +2,7 @@
 using LLama.Common;
 using LLama.Native;
 using LLama.Sampling;
+using Spectre.Console;
 
 namespace LLama.Examples.Examples;
 
@@ -21,10 +22,7 @@ public class BatchedExecutorRewind
         var parameters = new ModelParams(modelPath);
         using var model = LLamaWeights.LoadFromFile(parameters);
 
-        Console.WriteLine("Prompt (leave blank to select automatically):");
-        var prompt = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(prompt))
-            prompt = "Not many people know that";
+        var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
 
         // Create an executor that can evaluate a batch of conversations together
         var executor = new BatchedExecutor(model, parameters);

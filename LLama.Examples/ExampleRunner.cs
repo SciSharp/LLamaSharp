@@ -46,7 +46,8 @@ public class ExampleRunner
                 await example();
             }
 
-            Console.WriteLine("Press ENTER to go to the main menu...");
+            AnsiConsole.Reset();
+            AnsiConsole.MarkupLine("Press ENTER to go to the main menu...");
             Console.ReadLine();
 
             AnsiConsole.Clear();

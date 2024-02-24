@@ -1,4 +1,6 @@
-﻿namespace LLama.Examples;
+﻿using Spectre.Console;
+
+namespace LLama.Examples;
 
 internal static class UserSettings
 {
@@ -23,51 +25,33 @@ internal static class UserSettings
 
     public static string GetModelPath(bool alwaysPrompt = false)
     {
-        string? defaultPath = ReadDefaultModelPath();
-        return defaultPath is null || alwaysPrompt
+        var defaultPath = ReadDefaultModelPath();
+        var path = defaultPath is null || alwaysPrompt
             ? PromptUserForPath()
             : PromptUserForPathWithDefault(defaultPath);
+
+        if (File.Exists(path))
+            WriteDefaultModelPath(path);
+
+        return path;
     }
 
     private static string PromptUserForPath()
     {
-        while (true)
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Please input your model path: ");
-            string? path = Console.ReadLine();
-
-            if (File.Exists(path))
-            {
-                WriteDefaultModelPath(path);
-                return path;
-            }
-
-            Console.WriteLine("ERROR: invalid model file path\n");
-        }
+        return AnsiConsole.Prompt(
+            new TextPrompt<string>("Please input your model path:")
+               .PromptStyle("white")
+               .Validate(File.Exists, "[red]ERROR: invalid model file path - file does not exist[/]")
+        );
     }
 
     private static string PromptUserForPathWithDefault(string defaultPath)
     {
-        while (true)
-        {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"Default model: {defaultPath}");
-            Console.Write($"Please input a model path (or ENTER for default): ");
-            string? path = Console.ReadLine();
-
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return defaultPath;
-            }
-
-            if (File.Exists(path))
-            {
-                WriteDefaultModelPath(path);
-                return path;
-            }
-
-            Console.WriteLine("ERROR: invalid model file path\n");
-        }
+        return AnsiConsole.Prompt(
+            new TextPrompt<string>("Please input your model path (or ENTER for default):")
+               .DefaultValue(defaultPath)
+               .PromptStyle("white")
+               .Validate(File.Exists, "[red]ERROR: invalid model file path - file does not exist[/]")
+        );
     }
 }
