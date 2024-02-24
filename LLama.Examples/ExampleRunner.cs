@@ -26,6 +26,7 @@ public class ExampleRunner
         { "Semantic Kernel: Store", SemanticKernelMemory.Run },
         { "Batched Executor: Fork", BatchedExecutorFork.Run },
         { "Batched Executor: Rewind", BatchedExecutorRewind.Run },
+        { "Batched Executor: Guidance", BatchedExecutorGuidance.Run },
         { "Exit", () => { Environment.Exit(0); return Task.CompletedTask; } }
     };
 
