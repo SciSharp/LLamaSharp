@@ -217,14 +217,7 @@ namespace LLama.Native
                 }
 
                 // Apply guidance
-                unsafe
-                {
-                    fixed (float* logitsPtr = logits)
-                    fixed (float* guidanceLogitsPtr = guidanceLogits)
-                    {
-                        NativeApi.llama_sample_apply_guidance(context, logitsPtr, guidanceLogitsPtr, guidance);
-                    }
-                }
+                NativeApi.llama_sample_apply_guidance(context, logits, guidanceLogits, guidance);
 
                 // Copy logits back into data array
                 for (var i = 0; i < data.Length; i++)
