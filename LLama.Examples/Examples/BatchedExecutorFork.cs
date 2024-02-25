@@ -32,24 +32,39 @@ public class BatchedExecutorFork
 
         // Evaluate the initial prompt to create one conversation
         var start = executor.Prompt(prompt);
-        await executor.Infer();
+
+        // Run inference to evaluate prompts
+        await AnsiConsole
+             .Status()
+             .Spinner(Spinner.Known.Line)
+             .StartAsync("Evaluating Prompt...", _ => executor.Infer());
 
         // Create the root node of the tree
         var root = new Node(start);
 
-        // Run inference loop
-        for (var i = 0; i < n_len; i++)
-        {
-            if (i != 0)
-                await executor.Infer();
+        await AnsiConsole
+             .Progress()
+             .StartAsync(async progress =>
+              {
+                  var reporter = progress.AddTask("Running Inference", maxValue: n_len);
 
-            // Occasionally fork all the active conversations
-            if (i != 0 && i % n_split == 0)
-                root.Split();
+                  // Run inference loop
+                  for (var i = 0; i < n_len; i++)
+                  {
+                      if (i != 0)
+                          await executor.Infer();
 
-            // Sample all active conversations
-            root.Sample();
-        }
+                      // Occasionally fork all the active conversations
+                      if (i != 0 && i % n_split == 0)
+                          root.Split();
+
+                      // Sample all active conversations
+                      root.Sample();
+
+                      // Update progress bar
+                      reporter.Increment(1);
+                  }
+              });
 
         Console.WriteLine($"{prompt}...");
         root.Print(1);

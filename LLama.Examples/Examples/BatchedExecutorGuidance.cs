@@ -78,6 +78,7 @@ public class BatchedExecutorGuidance
                     if (g == model.EndOfSentenceToken)
                         break;
 
+                    // Update progress bar
                     reporter.Increment(1);
                 }
             });
