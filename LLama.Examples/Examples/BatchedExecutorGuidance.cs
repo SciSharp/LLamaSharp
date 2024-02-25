@@ -23,6 +23,7 @@ public class BatchedExecutorGuidance
 
         var positivePrompt = AnsiConsole.Ask("Positive Prompt (or ENTER for default):", "My favourite colour is").Trim();
         var negativePrompt = AnsiConsole.Ask("Negative Prompt (or ENTER for default):", "I hate the colour red. My favourite colour is").Trim();
+        var weight = AnsiConsole.Ask("Guidance Weight (or ENTER for default):", 2.0f);
 
         // Create an executor that can evaluate a batch of conversations together
         var executor = new BatchedExecutor(model, parameters);
@@ -45,9 +46,9 @@ public class BatchedExecutorGuidance
         var unguided = guided.Fork();
 
         // Run inference loop
-        var unguidedSampler = new GuidedSampler(null);
+        var unguidedSampler = new GuidedSampler(null, weight);
         var unguidedDecoder = new StreamingTokenDecoder(executor.Context);
-        var guidedSampler = new GuidedSampler(guidance);
+        var guidedSampler = new GuidedSampler(guidance, weight);
         var guidedDecoder = new StreamingTokenDecoder(executor.Context);
         await AnsiConsole
            .Progress()
@@ -85,7 +86,7 @@ public class BatchedExecutorGuidance
         AnsiConsole.MarkupLine($"[green]Guided:[/][white]{guidedDecoder.Read()}[/]");
     }
 
-    private class GuidedSampler(Conversation? guidance)
+    private class GuidedSampler(Conversation? guidance, float weight)
         : BaseSamplingPipeline
     {
         public override void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
@@ -108,7 +109,7 @@ public class BatchedExecutorGuidance
             var guidanceLogits = guidance.Sample();
 
             // Use those logits to guide this sequence
-            NativeApi.llama_sample_apply_guidance(ctx, logitsCopy, guidanceLogits, 2);
+            NativeApi.llama_sample_apply_guidance(ctx, logitsCopy, guidanceLogits, weight);
 
             return logitsCopy;
         }
