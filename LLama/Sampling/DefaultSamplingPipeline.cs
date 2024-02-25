@@ -146,6 +146,7 @@ public sealed class DefaultSamplingPipeline
         return id;
     }
 
+    /// <inheritdoc />
     public override void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
     {
         Grammar?.AcceptToken(ctx, token);

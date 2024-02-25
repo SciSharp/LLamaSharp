@@ -13,22 +13,12 @@ public abstract class BaseSamplingPipeline
 {
     private int _savedLogitsCount;
     private (LLamaToken index, float logit)[]? _savedLogits;
+
     private float[]? _logits;
 
     /// <inheritdoc/>
     public LLamaToken Sample(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logitsIn, ReadOnlySpan<LLamaToken> lastTokens)
     {
-        // Fast path if logits are not modified directly
-        if (!ShouldProcessLogits)
-            return ProcessTokenDataArray(ctx, LLamaTokenDataArray.Create(logitsIn), lastTokens);
-
-        // Logit input is a readonly span, copy to an array so it can be modified
-        if (_logits == null || _logits.Length < logitsIn.Length)
-        {
-            _logits = new float[logitsIn.Length];
-            logitsIn.CopyTo(_logits);
-        }
-
         var protectedLogits = GetProtectedTokens(ctx);
         _savedLogitsCount = protectedLogits.Count;
         _savedLogits = ArrayPool<(LLamaToken, float)>.Shared.Rent(_savedLogitsCount);
@@ -38,15 +28,33 @@ public abstract class BaseSamplingPipeline
             for (var i = 0; i < protectedLogits.Count; i++)
             {
                 var index = protectedLogits[i];
-                var value = _logits[(int)index];
+                var value = logitsIn[(int)index];
                 _savedLogits[i] = (index, value);
             }
 
-            // Process raw logits
-            ProcessLogits(ctx, _logits, lastTokens);
+            if (ShouldProcessLogits)
+            {
+                // Logit input is a readonly span, copy to an array so it can be modified
+                if (_logits == null || _logits.Length < logitsIn.Length)
+                {
+                    _logits = new float[logitsIn.Length];
+                    logitsIn.CopyTo(_logits);
+                }
 
-            // Automatically restore saved logit values after processing
-            RestoreProtectedTokens(_logits);
+                // Process raw logits
+                ProcessLogits(ctx, _logits, lastTokens);
+
+                // Automatically restore saved logit values after processing
+                RestoreProtectedTokens(_logits);
+
+                // Process token data array to select a final token
+                return ProcessTokenDataArray(ctx, LLamaTokenDataArray.Create(_logits), lastTokens);
+            }
+            else
+            {
+                // We skipped modifying logits, so process the input logits directly
+                return ProcessTokenDataArray(ctx, LLamaTokenDataArray.Create(logitsIn), lastTokens);
+            }
         }
         finally
         {
@@ -54,9 +62,6 @@ public abstract class BaseSamplingPipeline
             _savedLogits = null;
             _savedLogitsCount = 0;
         }
-
-        // Process token data array to select a final token
-        return ProcessTokenDataArray(ctx, LLamaTokenDataArray.Create(_logits), lastTokens);
     }
 
     /// <inheritdoc />
