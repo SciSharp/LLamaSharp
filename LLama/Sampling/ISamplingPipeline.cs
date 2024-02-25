@@ -19,7 +19,7 @@ public interface ISamplingPipeline
     /// <param name="logits">The logits produced by the model</param>
     /// <param name="lastTokens">A span of tokens recently returned by the model</param>
     /// <returns></returns>
-    LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
+    LLamaToken Sample(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
 
     /// <summary>
     /// Update the pipeline, with knowledge that a particular token was just accepted
@@ -53,7 +53,7 @@ public static class ISamplingPipelineExtensions
     /// <param name="logits">The logits produced by the model</param>
     /// <param name="lastTokens">A list of tokens recently returned by the model</param>
     /// <returns></returns>
-    public static LLamaToken Sample(this ISamplingPipeline pipeline, SafeLLamaContextHandle ctx, Span<float> logits, List<LLamaToken> lastTokens)
+    public static LLamaToken Sample(this ISamplingPipeline pipeline, SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, List<LLamaToken> lastTokens)
     {
 #if NET5_0_OR_GREATER
         var span = CollectionsMarshal.AsSpan(lastTokens);

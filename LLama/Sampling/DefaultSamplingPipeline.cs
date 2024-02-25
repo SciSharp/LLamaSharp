@@ -99,6 +99,11 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public bool PenalizeNewline { get; set; } = false;
 
+    /// <summary>
+    /// Default sampling pipeline only applies logit bias in logit processing. Skip logit processing if possible.
+    /// </summary>
+    protected override bool ShouldProcessLogits => LogitBias.Count > 0;
+
     private readonly LLamaToken[] _newlineToken = new LLamaToken[1];
 
     /// <inheritdoc />
