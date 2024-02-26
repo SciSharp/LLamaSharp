@@ -26,15 +26,15 @@ public class BatchedExecutorGuidance
         var weight = AnsiConsole.Ask("Guidance Weight (or ENTER for default):", 2.0f);
 
         // Create an executor that can evaluate a batch of conversations together
-        var executor = new BatchedExecutor(model, parameters);
+        using var executor = new BatchedExecutor(model, parameters);
 
         // Print some info
         var name = executor.Model.Metadata.GetValueOrDefault("general.name", "unknown model name");
         Console.WriteLine($"Created executor with model: {name}");
 
         // Load the two prompts into two conversations
-        var guided = executor.Prompt(positivePrompt);
-        var guidance = executor.Prompt(negativePrompt);
+        using var guided = executor.Prompt(positivePrompt);
+        using var guidance = executor.Prompt(negativePrompt);
 
         // Run inference to evaluate prompts
         await AnsiConsole
@@ -43,7 +43,7 @@ public class BatchedExecutorGuidance
              .StartAsync("Evaluating Prompts...", _ => executor.Infer());
 
         // Fork the "guided" conversation. We'll run this one without guidance for comparison
-        var unguided = guided.Fork();
+        using var unguided = guided.Fork();
 
         // Run inference loop
         var unguidedSampler = new GuidedSampler(null, weight);
@@ -62,12 +62,12 @@ public class BatchedExecutorGuidance
                         await executor.Infer();
 
                     // Sample from the "unguided" conversation
-                    var u = unguidedSampler.Sample(executor.Context.NativeHandle, unguided.Sample().ToArray(), Array.Empty<LLamaToken>());
+                    var u = unguidedSampler.Sample(executor.Context.NativeHandle, unguided.Sample(), Array.Empty<LLamaToken>());
                     unguidedDecoder.Add(u);
                     unguided.Prompt(u);
 
                     // Sample form the "guided" conversation
-                    var g = guidedSampler.Sample(executor.Context.NativeHandle, guided.Sample().ToArray(), Array.Empty<LLamaToken>());
+                    var g = guidedSampler.Sample(executor.Context.NativeHandle, guided.Sample(), Array.Empty<LLamaToken>());
                     guidedDecoder.Add(g);
 
                     // Use this token to advance both guided _and_ guidance. Keeping them in sync (except for the initial prompt).

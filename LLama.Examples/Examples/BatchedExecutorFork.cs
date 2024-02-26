@@ -24,14 +24,14 @@ public class BatchedExecutorFork
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
 
         // Create an executor that can evaluate a batch of conversations together
-        var executor = new BatchedExecutor(model, parameters);
+        using var executor = new BatchedExecutor(model, parameters);
 
         // Print some info
         var name = executor.Model.Metadata.GetValueOrDefault("general.name", "unknown model name");
         Console.WriteLine($"Created executor with model: {name}");
 
         // Evaluate the initial prompt to create one conversation
-        var start = executor.Prompt(prompt);
+        using var start = executor.Prompt(prompt);
         await executor.Infer();
 
         // Create the root node of the tree
