@@ -91,8 +91,7 @@ public class BatchedExecutorFork
 
             // Sample one token
             var ctx = _conversation.Executor.Context.NativeHandle;
-            var logitsCopy = _conversation.Sample().ToArray();
-            var token = _sampler.Sample(ctx, logitsCopy, Array.Empty<LLamaToken>());
+            var token = _sampler.Sample(ctx, _conversation.Sample(), Array.Empty<LLamaToken>());
             _sampler.Accept(ctx, token);
             _decoder.Add(token);
 

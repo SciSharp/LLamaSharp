@@ -147,8 +147,9 @@ namespace LLama
         }
 
         /// <summary>
-        /// Get the state data as an opaque handle
+        /// Get the state data as an opaque handle, which can be loaded later using <see cref="LoadState(State)"/>
         /// </summary>
+        /// <remarks>Use <see cref="SaveState"/> if you intend to save this state to disk.</remarks>
         /// <returns></returns>
         public State GetState()
         {

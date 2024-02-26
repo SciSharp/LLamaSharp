@@ -88,7 +88,7 @@ public class BatchedExecutorRewind
 
         public LLamaToken Sample(Conversation conversation)
         {
-            var token = Sampler.Sample(_context.NativeHandle, conversation.Sample().ToArray(), Array.Empty<LLamaToken>());
+            var token = Sampler.Sample(_context.NativeHandle, conversation.Sample(), Array.Empty<LLamaToken>());
             _tokens.Add(token);
             return token;
         }
@@ -100,14 +100,12 @@ public class BatchedExecutorRewind
             for (var i = 0; i < _tokens.Count - n_rewind; i++)
                 decoder.Add(_tokens[i]);
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(new string(' ', depth * 3) + decoder.Read().ReplaceLineEndings(" "));
+            AnsiConsole.MarkupLine($"[green]{new string(' ', depth * 3) + decoder.Read().ReplaceLineEndings(" ")}[/]");
 
             for (var i = _tokens.Count - n_rewind; i < _tokens.Count; i++)
                 decoder.Add(_tokens[i]);
 
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(decoder.Read().ReplaceLineEndings(" "));
+            AnsiConsole.MarkupLine($"[maroon]{decoder.Read().ReplaceLineEndings(" ")}[/]");
         }
 
         public LLamaToken GetToken(int index)
