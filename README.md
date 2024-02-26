@@ -56,7 +56,7 @@
 - [Official Console Examples](./LLama.Examples/)
 - [Unity Demo](https://github.com/eublefar/LLAMASharpUnityDemo)
 - [LLamaStack (with WPF and Web support)](https://github.com/saddam213/LLamaStack)
-
+- [Blazor Demo (with Model Explorer)](https://github.com/alexhiggins732/BLlamaSharp.ChatGpt.Blazor)
 
 ## Installation
 
