@@ -61,12 +61,14 @@ public class BatchedExecutorGuidance
                     if (i != 0)
                         await executor.Infer();
 
-                    // Sample from the "unguided" conversation
+                    // Sample from the "unguided" conversation. This is just a conversation using the same prompt, without any
+                    // guidance. This serves as a comparison to show the effect of guidance.
                     var u = unguidedSampler.Sample(executor.Context.NativeHandle, unguided.Sample(), Array.Empty<LLamaToken>());
                     unguidedDecoder.Add(u);
                     unguided.Prompt(u);
 
-                    // Sample form the "guided" conversation
+                    // Sample from the "guided" conversation. This sampler will internally use the "guidance" conversation
+                    // to steer the conversation. See how this is done in GuidedSampler.ProcessLogits (bottom of this file).
                     var g = guidedSampler.Sample(executor.Context.NativeHandle, guided.Sample(), Array.Empty<LLamaToken>());
                     guidedDecoder.Add(g);
 
