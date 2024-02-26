@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
@@ -22,6 +23,33 @@ namespace LLama.Native
                                                                     float penalty_repeat,
                                                                     float penalty_freq,
                                                                     float penalty_present);
+
+        /// <summary>
+        /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="logits">Logits extracted from the original generation context.</param>
+        /// <param name="logits_guidance">Logits extracted from a separate context from the same model.
+        /// Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</param>
+        /// <param name="scale">Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.</param>
+        public static void llama_sample_apply_guidance(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<float> logits_guidance, float scale)
+        {
+            if (logits == null)
+                throw new ArgumentNullException(nameof(logits));
+            if (logits_guidance == null)
+                throw new ArgumentNullException(nameof(logits_guidance));
+            if (logits.Length != ctx.VocabCount)
+                throw new ArgumentException("Logits count must have equal context vocab size", nameof(logits));
+            if (logits_guidance.Length != ctx.VocabCount)
+                throw new ArgumentException("Guidance logits count must have equal context vocab size", nameof(logits_guidance));
+
+            unsafe
+            {
+                fixed (float* logitsPtr = logits)
+                fixed (float* logitsGuidancePtr = logits_guidance)
+                    llama_sample_apply_guidance(ctx, logitsPtr, logitsGuidancePtr, scale);
+            }
+        }
 
         /// <summary>
         /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806

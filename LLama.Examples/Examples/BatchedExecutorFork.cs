@@ -12,7 +12,7 @@ namespace LLama.Examples.Examples;
 public class BatchedExecutorFork
 {
     private const int n_split = 16;
-    private const int n_len = 64;
+    private const int n_len = 72;
 
     public static async Task Run()
     {
@@ -24,41 +24,51 @@ public class BatchedExecutorFork
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
 
         // Create an executor that can evaluate a batch of conversations together
-        var executor = new BatchedExecutor(model, parameters);
+        using var executor = new BatchedExecutor(model, parameters);
 
         // Print some info
         var name = executor.Model.Metadata.GetValueOrDefault("general.name", "unknown model name");
         Console.WriteLine($"Created executor with model: {name}");
 
         // Evaluate the initial prompt to create one conversation
-        var start = executor.Prompt(prompt);
+        using var start = executor.Prompt(prompt);
         await executor.Infer();
 
         // Create the root node of the tree
         var root = new Node(start);
 
-        // Run inference loop
-        for (var i = 0; i < n_len; i++)
-        {
-            if (i != 0)
-                await executor.Infer();
+        await AnsiConsole
+            .Progress()
+            .StartAsync(async progress =>
+            {
+                var reporter = progress.AddTask("Running Inference (1)", maxValue: n_len);
 
-            // Occasionally fork all the active conversations
-            if (i != 0 && i % n_split == 0)
-                root.Split();
+                // Run inference loop
+                for (var i = 0; i < n_len; i++)
+                {
+                    if (i != 0)
+                        await executor.Infer();
 
-            // Sample all active conversations
-            root.Sample();
-        }
+                    // Occasionally fork all the active conversations
+                    if (i != 0 && i % n_split == 0)
+                        root.Split();
 
-        Console.WriteLine($"{prompt}...");
-        root.Print(1);
+                    // Sample all active conversations
+                    root.Sample();
 
-        Console.WriteLine("Press any key to exit demo");
-        Console.ReadKey(true);
+                    // Update progress bar
+                    reporter.Increment(1);
+                    reporter.Description($"Running Inference ({root.ActiveConversationCount})");
+                }
+
+                // Display results
+                var display = new Tree(prompt);
+                root.Display(display);
+                AnsiConsole.Write(display);
+            });
     }
 
-    class Node
+    private class Node
     {
         private readonly StreamingTokenDecoder _decoder;
 
@@ -116,19 +126,18 @@ public class BatchedExecutorFork
             }
         }
 
-        public void Print(int indendation)
+        public void Display<T>(T tree, int depth = 0)
+            where T : IHasTreeNodes
         {
-            var colors = new[] { ConsoleColor.Red, ConsoleColor.Green, ConsoleColor.Blue, ConsoleColor.Yellow, ConsoleColor.White };
-            Console.ForegroundColor = colors[indendation % colors.Length];
+            var colors = new[] { "red", "green", "blue", "yellow", "white" };
+            var color = colors[depth % colors.Length];
 
             var message = _decoder.Read().ReplaceLineEndings("");
 
-            var prefix = new string(' ', indendation * 3);
-            var suffix = _conversation == null ? "..." : "";
-            Console.WriteLine($"{prefix}...{message}{suffix}");
+            var n = tree.AddNode($"[{color}]{message}[/]");
 
-            _left?.Print(indendation + 2);
-            _right?.Print(indendation + 2);
+            _left?.Display(n, depth + 1);
+            _right?.Display(n, depth + 1);
         }
     }
 }
