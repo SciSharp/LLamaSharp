@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Json.More;
 using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Handlers;
 using LLava;
 using LLama.Common;
+using LLama.Examples.Extensions;
 
 namespace LLama.Examples.Examples
 {
-  
     public class LLavaExample
     {
         public static async Task Run()
@@ -31,18 +33,11 @@ namespace LLama.Examples.Examples
             Console.WriteLine("Please input a image file (path+filename): ");
             var exampleImage = Console.ReadLine();
             
-            byte[] imageArray = System.IO.File.ReadAllBytes(exampleImage);
-            string base64ImageRepresentation = Convert.ToBase64String(imageArray);
-
-            string imageText = "<img src=\"data:image/jpeg;base64," + base64ImageRepresentation + "\">";
             
-            // LLaVa chat format is "<system_prompt>\nUSER:<image_embeddings>\n<textual_prompt>\nASSISTANT:"
-            var prompt = "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions.\nUSER:"+ imageText + "  \nDescribe the image\nASSISTANT:";
-
-            
+            // Mistral llava 1.6
             var parameters = new ModelParams(modelPath)
             {
-                ContextSize = 2048,
+                ContextSize = 4096,
                 Seed = 1337,
                 GpuLayerCount = 5
             };
@@ -53,29 +48,25 @@ namespace LLama.Examples.Examples
 
             var executor = new LLavaInteractExecutor(context, clipModel );
 
-            var session = new ChatSession(executor);
-
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The chat session has started. In this example, the prompt is printed for better visual result.");
             Console.ForegroundColor = ConsoleColor.White;
-
-            prompt = "";
             
-            // show the prompt
-            Console.Write(prompt);
-            
-            var inferenceParams = new InferenceParams() { Temperature = 0.1f, AntiPrompts = new List<string> { "USER:" }, MaxTokens = 128 };
+            var inferenceParams = new InferenceParams() { Temperature = 0.2f, AntiPrompts = new List<string> { "USER:" }, MaxTokens = 5000 };
 
-            while (true)
+            Console.Write("USER: ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            string userPrompt = Console.ReadLine();
+            Console.WriteLine("");      
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            
+            var prompt = new Prompt( userPrompt, System.IO.File.ReadAllBytes(exampleImage)); 
+            await foreach (var text in executor.InferAsync(JsonSerializer.Serialize(prompt), inferenceParams))
             {
-                await foreach (var text in executor.InferAsync(prompt, inferenceParams))
-                {
-                    Console.Write(text);
-                }
-                Console.ForegroundColor = ConsoleColor.Green;
-                prompt = Console.ReadLine();
-                Console.ForegroundColor = ConsoleColor.White;
-            }            
+                Console.Write(text);
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+                    
         }            
     }
 }
