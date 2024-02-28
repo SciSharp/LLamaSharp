@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -27,6 +29,11 @@ namespace LLama.Native
         /// Dimension of embedding vectors
         /// </summary>
         public int EmbeddingSize => ThrowIfDisposed().EmbeddingSize;
+
+        /// <summary>
+        /// Get the maximum batch size for this context
+        /// </summary>
+        public uint BatchSize => NativeApi.llama_n_batch(this);
 
         /// <summary>
         /// Get the model which this context is using
@@ -108,7 +115,7 @@ namespace LLama.Native
         #endregion
 
         /// <summary>
-        /// Token logits obtained from the last call to llama_eval()
+        /// Token logits obtained from the last call to llama_decode
         /// The logits for the last token are stored in the last row
         /// Can be mutated in order to change the probabilities of the next token.<br />
         /// Rows: n_tokens<br />
@@ -171,26 +178,6 @@ namespace LLama.Native
 
         #region infer
         /// <summary>
-        /// Run the llama inference to obtain the logits and probabilities for the next token.
-        /// </summary>
-        /// <param name="tokens">The provided batch of new tokens to process</param>
-        /// <param name="n_past">the number of tokens to use from previous eval calls</param>
-        /// <returns>Returns true on success</returns>
-        [Obsolete("use llama_decode() instead")]
-        public bool Eval(ReadOnlySpan<LLamaToken> tokens, int n_past)
-        {
-            unsafe
-            {
-                fixed (LLamaToken* pinned = tokens)
-                {
-                    // the entire `eval` system needs replacing with the new batch system!
-                    var ret = NativeApi.llama_eval(this, pinned, tokens.Length, n_past);
-                    return ret == 0;
-                }
-            }
-        }
-
-        /// <summary>
         /// </summary>
         /// <param name="batch"></param>
         /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
@@ -198,10 +185,44 @@ namespace LLama.Native
         ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
         ///  - &lt; 0: error<br />
         /// </returns>
-        public int Decode(LLamaBatch batch)
+        public DecodeResult Decode(LLamaBatch batch)
         {
             using (batch.ToNativeBatch(out var nb))
-                return NativeApi.llama_decode(this, nb);
+                return (DecodeResult)NativeApi.llama_decode(this, nb);
+        }
+
+        /// <summary>
+        /// Decode a set of tokens in batch-size chunks.
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="id"></param>
+        /// <param name="batch"></param>
+        /// <param name="n_past"></param>
+        /// <returns>A tuple, containing the decode result and the number of tokens that have <b>not</b> been decoded yet.</returns>
+        internal (DecodeResult, int) Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, ref int n_past)
+        {
+            var batchSize = checked((int)BatchSize);
+
+            // Evaluate the prompt, in chunks smaller than the max batch size
+            var n_left = tokens.Count;
+            for (var i = 0; i < tokens.Count; i += batchSize)
+            {
+                var n_eval = tokens.Count - i;
+                if (n_eval > batchSize)
+                    n_eval = batchSize;
+
+                batch.Clear();
+                for (var j = 0; j < n_eval; j++)
+                    batch.Add(tokens[i + j], n_past++, id, (i + j) == tokens.Count - 1);
+
+                var returnCode = Decode(batch);
+                if (returnCode != DecodeResult.Ok)
+                    return (returnCode, n_left);
+
+                n_left -= n_eval;
+            }
+
+            return (DecodeResult.Ok, 0);
         }
         #endregion
 

@@ -141,20 +141,6 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_save_session_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
 
-        /// <summary>
-        /// Run the llama inference to obtain the logits and probabilities for the next token.
-        /// tokens + n_tokens is the provided batch of new tokens to process
-        /// n_past is the number of tokens to use from previous eval calls
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="tokens"></param>
-        /// <param name="n_tokens"></param>
-        /// <param name="n_past"></param>
-        /// <returns>Returns 0 on success</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [Obsolete("use llama_decode() instead")]
-        public static extern unsafe int llama_eval(SafeLLamaContextHandle ctx, LLamaToken* tokens, int n_tokens, int n_past);
-
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe byte* llama_token_get_text(SafeLlamaModelHandle model, LLamaToken token);
 
@@ -181,7 +167,7 @@ namespace LLama.Native
         public static extern uint llama_n_batch(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Token logits obtained from the last call to llama_eval()
+        /// Token logits obtained from the last call to llama_decode
         /// The logits for the last token are stored in the last row
         /// Can be mutated in order to change the probabilities of the next token.<br />
         /// Rows: n_tokens<br />
