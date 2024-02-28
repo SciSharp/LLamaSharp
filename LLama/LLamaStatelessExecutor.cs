@@ -81,21 +81,9 @@ namespace LLama
 
             // Evaluate the prompt, in chunks smaller than the max batch size
             var n_past = 0;
-            var batchSize = (int)Context.Params.BatchSize;
-            for (var i = 0; i < tokens.Count; i += batchSize)
-            {
-                var n_eval = tokens.Count - i;
-                if (n_eval > batchSize)
-                    n_eval = batchSize;
-
-                _batch.Clear();
-                for (var j = 0; j < n_eval; j++)
-                    _batch.Add(tokens[i + j], n_past++, LLamaSeqId.Zero, (i + j) == tokens.Count - 1);
-
-                var returnCode = await Context.DecodeAsync(_batch, cancellationToken);
-                if (returnCode != 0)
-                    throw new LLamaDecodeError(returnCode);
-            }
+            var (r, _) = Context.NativeHandle.Decode(tokens, LLamaSeqId.Zero, _batch, ref n_past);
+            if (r != DecodeResult.Ok)
+                throw new LLamaDecodeError(r);
 
             // Begin loop, evaluating one token at a time
             var mu = (float?)null;

@@ -370,67 +370,6 @@ namespace LLama
         {
             return Task.Run(() => Decode(batch), cancellationToken);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="pastTokensCount"></param>
-        /// <returns>The updated `pastTokensCount`.</returns>
-        /// <exception cref="RuntimeError"></exception>
-        [Obsolete("use Decode() instead")]
-        public int Eval(List<LLamaToken> tokens, int pastTokensCount)
-        {
-#if NET5_0_OR_GREATER
-            var span = CollectionsMarshal.AsSpan(tokens);
-            return Eval(span, pastTokensCount);
-#else
-            // on netstandard2.0 we can't use CollectionsMarshal to get directly at the internal memory of
-            // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
-            // avoid the copying.
-
-            var rented = System.Buffers.ArrayPool<LLamaToken>.Shared.Rent(tokens.Count);
-            try
-            {
-                tokens.CopyTo(rented, 0);
-                return Eval(rented.AsSpan(0, tokens.Count), pastTokensCount);
-            }
-            finally
-            {
-                System.Buffers.ArrayPool<LLamaToken>.Shared.Return(rented);
-            }
-#endif
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="pastTokensCount"></param>
-        /// <returns>The updated `pastTokensCount`.</returns>
-        /// <exception cref="RuntimeError"></exception>
-        [Obsolete("use Decode() instead")]
-        public int Eval(ReadOnlySpan<LLamaToken> tokens, int pastTokensCount)
-        {
-            var total = tokens.Length;
-            for(var i = 0; i < total; i += (int)Params.BatchSize)
-            {
-                var n_eval = total - i;
-                if (n_eval > Params.BatchSize)
-                {
-                    n_eval = (int)Params.BatchSize;
-                }
-
-                if (!NativeHandle.Eval(tokens.Slice(i, n_eval), pastTokensCount))
-                {
-                    _logger?.LogError("[LLamaContext] Failed to eval.");
-                    throw new RuntimeError("Failed to eval.");
-                }
-
-                pastTokensCount += n_eval;
-            }
-            return pastTokensCount;
-        }
         #endregion
 
         /// <inheritdoc />

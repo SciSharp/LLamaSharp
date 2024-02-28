@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using LLama.Exceptions;
 using LLama.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -157,6 +158,8 @@ namespace LLama
         /// <inheritdoc />
         protected override Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
+            var batch = new LLamaBatch();
+
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
@@ -166,7 +169,10 @@ namespace LLama
                 }
 
                 TryReuseMathingPrefix();
-                _pastTokensCount = Context.Eval(_embeds, _pastTokensCount);
+
+                var (result, _) = Context.NativeHandle.Decode(_embeds, LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                if (result != DecodeResult.Ok)
+                    throw new LLamaDecodeError(result);
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -191,12 +197,12 @@ namespace LLama
                 LLamaToken id;
                 if (inferenceParams.SamplingPipeline is not null)
                 {
-                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogits(), _last_n_tokens.ToArray());
+                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogitsIth(batch.TokenCount - 1), _last_n_tokens.ToArray());
                     inferenceParams.SamplingPipeline.Accept(Context.NativeHandle, id);
                 }
                 else
                 {
-                    var tokenDataArray = Context.ApplyPenalty(0, _last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
+                    var tokenDataArray = Context.ApplyPenalty(batch.TokenCount - 1, _last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
                         inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
 
                     var mu = MirostatMu;
