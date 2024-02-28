@@ -75,6 +75,13 @@ namespace LLama.Native
         public int MetadataCount => llama_model_meta_count(this);
 
         /// <inheritdoc />
+        public new void Dispose()
+        {
+            ReleaseHandle();
+            base.Dispose();
+        }
+
+        /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
             llama_free_model(handle);
