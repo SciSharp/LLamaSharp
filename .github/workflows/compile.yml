@@ -53,7 +53,7 @@ jobs:
           path: ./build/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
       - name: Upload Llava
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
           name: llava-bin-linux-${{ matrix.build }}-x64.so
@@ -95,7 +95,7 @@ jobs:
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
       - name: Upload Llava
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-${{ matrix.build }}-x64.dll
@@ -273,7 +273,7 @@ jobs:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Llava
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
