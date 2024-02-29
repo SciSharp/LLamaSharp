@@ -356,6 +356,6 @@ jobs:
         uses: geekyeggo/delete-artifact@v2
         with:
           name: |
-            # llama-*
-            # llava-*
+            llama-*
+            llava-*
             *.metal
