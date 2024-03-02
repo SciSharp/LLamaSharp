@@ -103,5 +103,11 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
+
+        /// <inheritdoc />
+        public float DefragThreshold { get; set; }
+
+        /// <inheritdoc />
+        public bool DoPooling { get; set; }
     }
 }

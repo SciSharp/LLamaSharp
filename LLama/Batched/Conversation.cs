@@ -262,9 +262,9 @@ public sealed class Conversation
         /// <param name="start">Start position (inclusive)</param>
         /// <param name="end">End position (exclusive)</param>
         /// <param name="delta">Amount to add on to each token position</param>
-        public void Shift(LLamaPos start, LLamaPos end, int delta)
+        public void Add(LLamaPos start, LLamaPos end, int delta)
         {
-            _conversation.Executor.Context.NativeHandle.KvCacheSequenceShift(_conversation.ConversationId, start, end, delta);
+            _conversation.Executor.Context.NativeHandle.KvCacheSequenceAdd(_conversation.ConversationId, start, end, delta);
         }
         #endregion
 

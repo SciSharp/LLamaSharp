@@ -98,4 +98,14 @@ public interface IContextParams
     /// Whether to disable offloading the KQV cache to the GPU
     /// </summary>
     bool NoKqvOffload { get; }
+
+    /// <summary>
+    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+    /// </summary>
+    float DefragThreshold { get; }
+
+    /// <summary>
+    /// Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+    /// </summary>
+    bool DoPooling { get; }
 }

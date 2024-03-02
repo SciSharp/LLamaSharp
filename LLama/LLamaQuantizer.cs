@@ -59,7 +59,7 @@ namespace LLama
         private static bool ValidateFtype(LLamaFtype ftype)
         {
             // Validation copies from here:
-            // https://github.com/ggerganov/llama.cpp/blob/d71ac90985854b0905e1abba778e407e17f9f887/llama.cpp#L9613
+            // https://github.com/ggerganov/llama.cpp/blob/3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6/llama.cpp#L10965
 
             switch (ftype)
             {
@@ -74,7 +74,7 @@ namespace LLama
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q2_K_S:
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q2_K:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_XS:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_K_XS:
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_S:
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_M:
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_L:
@@ -89,8 +89,18 @@ namespace LLama
 
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_XXS:
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_XS:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_S:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_M:
 
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_XXS:
+
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ1_S:
+
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ4_NL:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ4_XS:
+
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_S:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_M:
                     return true;
 
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1_SOME_F16:
