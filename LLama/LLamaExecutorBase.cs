@@ -250,6 +250,14 @@ namespace LLama
         /// <returns></returns>
         public abstract ExecutorBaseState GetStateData();
 
+        
+        /// <summary>
+        /// Resets the executor to its initial state.
+        /// Note: Does not affect the context and KV cache.
+        /// </summary>
+        /// <returns></returns>
+        public abstract void ResetState();
+
         /// <summary>
         /// Load the state from data.
         /// </summary>

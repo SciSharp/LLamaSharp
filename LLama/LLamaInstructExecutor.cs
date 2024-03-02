@@ -111,6 +111,22 @@ namespace LLama
         }
 
         /// <inheritdoc />
+        public override void ResetState()
+        {
+            _n_session_consumed = 0;
+            _embed_inps = new List<LLamaToken>();
+            _is_prompt_run = true;
+            _consumedTokensCount = 0;
+            _embeds = new List<LLamaToken>();
+            _last_n_tokens = new FixedSizeQueue<LLamaToken>((int) Context.ContextSize);
+            _n_matching_session_tokens = 0;
+            _pastTokensCount = 0;
+            _pathSession = null;
+            _session_tokens = new List<LLamaToken>();
+            MirostatMu = 0;
+        }   
+
+        /// <inheritdoc />
         protected override Task<bool> GetLoopCondition(InferStateArgs args)
         {
             return Task.FromResult(args.RemainedTokens != 0 || _is_prompt_run);

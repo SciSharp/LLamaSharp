@@ -24,6 +24,7 @@ namespace LLama
         : IDisposable
     {
         private readonly ILogger? _logger;
+        private readonly State _emptyState;
 
         /// <summary>
         /// Total number of tokens in vocabulary of this model
@@ -75,6 +76,7 @@ namespace LLama
 
             @params.ToLlamaContextParams(out var lparams);
             NativeHandle = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
+            _emptyState = GetState();
         }
 
         /// <summary>
@@ -212,6 +214,15 @@ namespace LLama
             {
                 NativeHandle.SetState((byte*)state.DangerousGetHandle().ToPointer());
             }
+        }
+
+        /// <summary>
+        /// Reset the context to the empty state.
+        /// </summary>
+        /// <exception cref="RuntimeError"></exception>
+        public void ResetState()
+        {
+            LoadState(_emptyState);
         }
 
         /// <summary>

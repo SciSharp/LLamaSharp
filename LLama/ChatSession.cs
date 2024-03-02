@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Common;
 using static LLama.InteractiveExecutor;
+using static LLama.LLamaContext;
+using static LLama.StatefulExecutorBase;
 
 namespace LLama;
 
@@ -132,6 +134,60 @@ public class ChatSession
 
         string historyFilepath = Path.Combine(path, _hsitoryFilename);
         File.WriteAllText(historyFilepath, History.ToJson());
+    }
+
+    /// <summary>
+    /// Get the session state.
+    /// </summary>
+    /// <returns>SessionState object representing session state in-memory</returns>
+    public SessionState GetSessionState()
+    {
+        return new()
+        {
+            ExecutorState = ((StatefulExecutorBase)Executor).GetStateData(),
+            ContextState = Executor.Context.GetState(),
+            InputTransformPipeline = InputTransformPipeline,
+            OutputTransform = OutputTransform,
+            HistoryTransform = HistoryTransform,
+            History = History.ToJson()
+        };
+    }
+
+    /// <summary>
+    /// Load a session from a session state.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public void LoadSession(SessionState state)
+    {
+        if (Executor is StatefulExecutorBase statefulExecutor)
+        {
+            if (state.ExecutorState is null)
+            {
+                statefulExecutor.ResetState();
+            }
+            else
+            {
+                statefulExecutor.LoadState(state.ExecutorState);
+            }
+        }
+        else
+        {
+            if (state.ExecutorState is not null)
+            {
+                throw new ArgumentException("Executor does not support state", nameof(state));
+            }
+        }
+        if (state.ContextState is null)
+        {
+            Executor.Context.ResetState();
+        }
+        else
+        {
+            Executor.Context.LoadState(state.ContextState);
+        }
+        History = ChatHistory.FromJson(state.History) ?? new();
     }
 
     /// <summary>
@@ -493,4 +549,40 @@ public class ChatSession
             yield return textToken;
         }
     }
+}
+
+/// <summary>
+/// The state of a chat session in-memory.
+/// </summary>
+public record SessionState
+{
+    /// <summary>
+    /// Saved executor state for the session.
+    /// </summary>
+    public ExecutorBaseState? ExecutorState { get; init; }
+
+    /// <summary>
+    /// Saved context state (KV cache) for the session.
+    /// </summary>
+    public State? ContextState { get; init; }
+
+    /// <summary>
+    /// The input transform pipeline used in this session.
+    /// </summary>
+    public List<ITextTransform> InputTransformPipeline { get; init; } = new();
+
+    /// <summary>
+    /// The output transform used in this session.
+    /// </summary>
+    public ITextStreamTransform OutputTransform { get; init; } = new LLamaTransforms.EmptyTextOutputStreamTransform();
+
+    /// <summary>
+    /// The history transform used in this session.
+    /// </summary>
+    public IHistoryTransform HistoryTransform { get; init; } = new LLamaTransforms.DefaultHistoryTransform();
+    
+    /// <summary>
+    /// The JSON representation of the chat history for this session.
+    /// </summary>
+    public string History { get; init; } = new ChatHistory().ToJson();
 }
