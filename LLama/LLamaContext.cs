@@ -222,7 +222,7 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public void ResetState()
         {
-            LoadState(_emptyState);
+            NativeApi.llama_kv_cache_clear(NativeHandle);
         }
 
         /// <summary>

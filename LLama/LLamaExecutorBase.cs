@@ -324,6 +324,34 @@ namespace LLama
         }
 
         /// <summary>
+        /// Asynchronously runs a prompt through the model to compute KV cache without generating any new tokens.
+        /// </summary>
+        /// <param name="prompt">Prompt to process</param>
+        /// <param name="cancellationToken">A cancellation token</param>
+        /// <returns></returns>
+        public virtual async Task AddPromptAsync(string prompt, CancellationToken cancellationToken = default)
+        {
+            var inferenceParams = new InferenceParams
+            {
+                MaxTokens = 0
+            };
+            var args = new InferStateArgs
+            {
+                Antiprompts = new List<string>(),
+                RemainedTokens = 0,
+                ReturnValue = false,
+                WaitForInput = true,
+                NeedToSaveSession = false
+            };
+
+            await PreprocessInputs(prompt, args);
+            // First run adds the prompt to the _embeds
+            await InferInternal(inferenceParams, args);
+            // Second run puts it through decode
+            await InferInternal(inferenceParams, args);
+        }   
+
+        /// <summary>
         /// State arguments that are used in single inference
         /// </summary>
         protected class InferStateArgs
