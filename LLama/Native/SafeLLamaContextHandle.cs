@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -112,8 +111,24 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_free(IntPtr ctx);
-        #endregion
 
+        /// <summary>
+        /// Set a callback which can abort computation
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="abort_callback"></param>
+        /// <param name="abort_callback_data"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe void llama_set_abort_callback(SafeLLamaContextHandle ctx, GgmlAbortCallback abort_callback, void* abort_callback_data);
+
+        /// <summary>
+        /// If this returns true computation is cancelled
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private unsafe delegate bool GgmlAbortCallback(void* data);
+        #endregion
+        
         /// <summary>
         /// Token logits obtained from the last call to llama_decode
         /// The logits for the last token are stored in the last row
