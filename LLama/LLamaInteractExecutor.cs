@@ -93,22 +93,6 @@ namespace LLama
             }
         }
 
-        /// <inheritdoc />
-        public override void ResetState()
-        {
-            _n_session_consumed = 0;
-            _embed_inps = new List<LLamaToken>();
-            _is_prompt_run = true;
-            _consumedTokensCount = 0;
-            _embeds = new List<LLamaToken>();
-            _last_n_tokens = new FixedSizeQueue<LLamaToken>((int)Context.ContextSize);
-            _n_matching_session_tokens = 0;
-            _pastTokensCount = 0;
-            _pathSession = null;
-            _session_tokens = new List<LLamaToken>();
-            MirostatMu = 0;
-        }
-
         /// <summary>
         /// Define whether to continue the loop to generate responses.
         /// </summary>

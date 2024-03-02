@@ -164,10 +164,8 @@ public class ChatSession
     /// <returns>SessionState object representing session state in-memory</returns>
     public SessionState GetSessionState()
     {
-        return new()
+        return new SessionState(Executor.Context.GetState(), ((StatefulExecutorBase)Executor).GetStateData())
         {
-            ExecutorState = JsonSerializer.Serialize(((StatefulExecutorBase)Executor).GetStateData()),
-            ContextState = Executor.Context.GetState(),
             InputTransformPipeline = InputTransformPipeline,
             OutputTransform = OutputTransform,
             HistoryTransform = HistoryTransform,
@@ -185,34 +183,17 @@ public class ChatSession
     {
         if (Executor is StatefulExecutorBase statefulExecutor)
         {
-            if (state.ExecutorState is null)
-            {
-                statefulExecutor.ResetState();
-            }
-            else
-            {
-                statefulExecutor.LoadState(
-                    JsonSerializer.Deserialize(
-                        state.ExecutorState, statefulExecutor.GetStateData().GetType()
-                    ) as ExecutorBaseState ?? throw new ArgumentException("Executor state is invalid", nameof(state))
-                );
-            }
+            statefulExecutor.LoadState(
+                JsonSerializer.Deserialize(
+                    state.ExecutorState, statefulExecutor.GetStateData().GetType()
+                ) as ExecutorBaseState ?? throw new ArgumentException("Executor state is invalid", nameof(state))
+            );
         }
         else
         {
-            if (state.ExecutorState is not null)
-            {
-                throw new ArgumentException("Executor does not support state", nameof(state));
-            }
+            throw new ArgumentException("Executor must be a StatefulExecutorBase to support loading of session state", nameof(state));
         }
-        if (state.ContextState is null)
-        {
-            Executor.Context.ResetState();
-        }
-        else
-        {
-            Executor.Context.LoadState(state.ContextState);
-        }
+        Executor.Context.LoadState(state.ContextState);
         History = ChatHistory.FromJson(state.History) ?? new();
     }
 
@@ -612,12 +593,12 @@ public record SessionState
     /// <summary>
     /// Saved executor state for the session in JSON format.
     /// </summary>
-    public string? ExecutorState { get; init; }
+    public string ExecutorState { get; init; }
 
     /// <summary>
     /// Saved context state (KV cache) for the session.
     /// </summary>
-    public State? ContextState { get; init; }
+    public State ContextState { get; init; }
 
     /// <summary>
     /// The input transform pipeline used in this session.
@@ -638,4 +619,15 @@ public record SessionState
     /// The JSON representation of the chat history for this session.
     /// </summary>
     public string History { get; init; } = new ChatHistory().ToJson();
+
+    /// <summary>
+    /// Create a new session state.
+    /// </summary>
+    /// <param name="contextState"></param>
+    /// <param name="executorState"></param>
+    public SessionState(State contextState, ExecutorBaseState executorState)
+    {
+        ContextState = contextState;
+        ExecutorState = JsonSerializer.Serialize(executorState);
+    }
 }
