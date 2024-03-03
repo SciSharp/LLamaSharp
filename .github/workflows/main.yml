@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [master]
+    branches: [master,LlavaAPI]
   pull_request:
     branches: [master]
 concurrency:
