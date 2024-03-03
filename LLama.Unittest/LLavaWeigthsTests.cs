@@ -3,6 +3,8 @@ using LLama.Native;
 
 namespace LLama.Unittest
 {
+    // Test the same things as llama model + image embedings
+    //
     public sealed class LLavaWeightTests
         : IDisposable
     {
@@ -12,10 +14,11 @@ namespace LLama.Unittest
         
         public LLavaWeightTests()
         {
-            var @params = new ModelParams(Constants.LLavaMmpPath)
+            var @params = new ModelParams(Constants.ModelPath)
             {
                 // Llava models requires big context
                 ContextSize = 4096,
+                Threads = 5,
             };
             _llamaWeights = LLamaWeights.LoadFromFile(@params);
             _lLavaWeights = LLavaWeights.LoadFromFile(Constants.LLavaMmpPath);
@@ -33,7 +36,7 @@ namespace LLama.Unittest
         [Fact]
         public void CheckProperties()
         {
-            Assert.Equal(768u, _context.ContextSize);
+            Assert.Equal(4096, (int)_context.ContextSize);
             Assert.Equal(4096, _context.EmbeddingSize);
             Assert.Equal(32000, _context.VocabCount);
         }
@@ -92,5 +95,22 @@ namespace LLama.Unittest
 
             Assert.Equal(Array.Empty<LLamaToken>(), tokens);
         }
+        
+        
+        [Fact]
+        public void EmbedImageAsFileName()
+        {
+            int n_past = 0;
+            Assert.True( _lLavaWeights.EmbedImage( _context, Constants.LLavaImage, out n_past ) );
+        }        
+        
+        [Fact]
+        public void EmbedImageAsBinary()
+        {
+            int n_past = 0;
+            byte[] image = System.IO.File.ReadAllBytes(Constants.LLavaImage);
+            Assert.True( _lLavaWeights.EmbedImage( _context, image, out n_past ) );
+        }        
+        
     }
 }
