@@ -34,8 +34,7 @@ public sealed class LLamaEmbedderTests
     }
 
 
-    // TODO: Review
-    [Fact(Skip = "This seems to not be working right now")]
+    [Fact]
     public async Task EmbedCompare()
     {
         var cat = await _embedder.GetEmbeddings("The cat is cute");
