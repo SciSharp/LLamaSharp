@@ -17,8 +17,7 @@ namespace LLama.Unittest
             var @params = new ModelParams(Constants.ModelPath)
             {
                 // Llava models requires big context
-                ContextSize = 4096,
-                Threads = 5,
+                ContextSize = 4096
             };
             _llamaWeights = LLamaWeights.LoadFromFile(@params);
             _lLavaWeights = LLavaWeights.LoadFromFile(Constants.LLavaMmpPath);

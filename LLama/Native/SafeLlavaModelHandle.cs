@@ -64,7 +64,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                var ptrImageEmbed = NativeApi.llava_image_embed_make_with_filename(this.handle,  (int) ctxLlama.Params.Threads, image);
+                var ptrImageEmbed = NativeApi.llava_image_embed_make_with_filename(this.handle,  (int) ctxLlama.BatchThreads, image);
                 bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ptrImageEmbed, (int)ctxLlama.Params.BatchSize, out n_past );
                 NativeApi.llava_image_embed_free(ptrImageEmbed);
                 return result;
@@ -82,7 +82,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                var ptrImageEmbed = NativeApi.llava_image_embed_make_with_bytes(this.handle, (int) ctxLlama.Params.Threads, image.ToArray(), image.Length);
+                var ptrImageEmbed = NativeApi.llava_image_embed_make_with_bytes(this.handle, (int) ctxLlama.BatchThreads, image.ToArray(), image.Length);
                 bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ptrImageEmbed, (int)ctxLlama.Params.BatchSize, out n_past );
                 NativeApi.llava_image_embed_free(ptrImageEmbed);
                 return result;
