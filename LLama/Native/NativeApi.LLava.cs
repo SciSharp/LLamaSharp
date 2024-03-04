@@ -98,6 +98,6 @@ public static unsafe partial class NativeApi
     /// <returns></returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_eval_image_embed", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctc_llama, llava_image_embed* embed,
-        int n_batch, out int n_past);
+        int n_batch, ref int n_past);
     
 }

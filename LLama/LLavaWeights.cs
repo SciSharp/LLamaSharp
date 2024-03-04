@@ -26,9 +26,9 @@ public sealed class LLavaWeights : IDisposable
     /// <param name="Image"></param>
     /// <param name="n_past"></param>
     /// <returns></returns>
-    public bool EmbedImage(LLamaContext ctxLlama, string Image, out int n_past )
+    public bool EmbedImage(LLamaContext ctxLlama, string Image, ref int n_past )
     {
-        return NativeClipHandle.EmbedImage(ctxLlama, Image, out n_past );
+        return NativeClipHandle.EmbedImage(ctxLlama, Image, ref n_past );
     }
 
     /// <summary>
@@ -38,9 +38,9 @@ public sealed class LLavaWeights : IDisposable
     /// <param name="Image"></param>
     /// <param name="n_past"></param>
     /// <returns></returns>
-    public bool EmbedImage(LLamaContext ctxLlama, Byte[] Image, out int n_past )
+    public bool EmbedImage(LLamaContext ctxLlama, Byte[] Image, ref int n_past )
     {
-        return NativeClipHandle.EmbedImage(ctxLlama, Image, out n_past );
+        return NativeClipHandle.EmbedImage(ctxLlama, Image, ref n_past );
     }
     
     public void Dispose()

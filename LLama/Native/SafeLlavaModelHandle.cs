@@ -60,12 +60,12 @@ namespace LLama.Native
         /// <param name="image"></param>
         /// <param name="n_past"></param>
         /// <returns></returns>
-        public bool EmbedImage(LLamaContext ctxLlama, string image, out int n_past)
+        public bool EmbedImage(LLamaContext ctxLlama, string image, ref int n_past)
         {
             unsafe
             {
                 var ptrImageEmbed = NativeApi.llava_image_embed_make_with_filename(this.handle,  (int) ctxLlama.BatchThreads, image);
-                bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ptrImageEmbed, (int)ctxLlama.Params.BatchSize, out n_past );
+                bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ptrImageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
                 NativeApi.llava_image_embed_free(ptrImageEmbed);
                 return result;
             }            
@@ -78,12 +78,12 @@ namespace LLama.Native
         /// <param name="image"></param>
         /// <param name="n_past"></param>
         /// <returns></returns>
-        public bool EmbedImage(LLamaContext ctxLlama, Byte[] image, out int n_past )
+        public bool EmbedImage(LLamaContext ctxLlama, Byte[] image, ref int n_past )
         {
             unsafe
             {
                 var ptrImageEmbed = NativeApi.llava_image_embed_make_with_bytes(this.handle, (int) ctxLlama.BatchThreads, image.ToArray(), image.Length);
-                bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ptrImageEmbed, (int)ctxLlama.Params.BatchSize, out n_past );
+                bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ptrImageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
                 NativeApi.llava_image_embed_free(ptrImageEmbed);
                 return result;
             }

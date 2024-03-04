@@ -100,7 +100,7 @@ namespace LLama.Unittest
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
-            Assert.True( _lLavaWeights.EmbedImage( _context, Constants.LLavaImage, out n_past ) );
+            Assert.True( _lLavaWeights.EmbedImage( _context, Constants.LLavaImage, ref n_past ) );
         }        
         
         [Fact]
@@ -108,7 +108,7 @@ namespace LLama.Unittest
         {
             int n_past = 0;
             byte[] image = System.IO.File.ReadAllBytes(Constants.LLavaImage);
-            Assert.True( _lLavaWeights.EmbedImage( _context, image, out n_past ) );
+            Assert.True( _lLavaWeights.EmbedImage( _context, image, ref n_past ) );
         }        
         
     }
