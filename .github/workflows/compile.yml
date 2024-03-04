@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
 
 jobs:
   compile-linux:
@@ -52,6 +52,11 @@ jobs:
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
+      - name: Upload Llava
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/examples/llava/libllava_shared.so
+          name: llava-bin-linux-${{ matrix.build }}-x64.so
 
   compile-windows:
     name: Compile (Windows)
@@ -88,6 +93,12 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
+
+      - name: Upload Llava
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\llava_shared.dll
+          name: llava-bin-win-${{ matrix.build }}-x64.dll
 
   compile-clblast:
     name: Compile (clblast) - ${{ matrix.os }}
@@ -261,6 +272,11 @@ jobs:
         with:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
+      - name: Upload Llava
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/examples/llava/libllava_shared.dylib
+          name: llava-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
         if: ${{ matrix.build != 'x64' }}
         uses: actions/upload-artifact@v4
@@ -300,9 +316,27 @@ jobs:
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/llama.dll
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/llama.dll
 
+          cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/libllava_shared.so
+          cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
+          cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
+          cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
+
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/libllama.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/libllama.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
+
+          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll  deps/llava_shared.dll
+          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
+          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
+          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll deps/avx512/llava_shared.dll
+
+
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
+          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
+          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
 
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
@@ -323,4 +357,5 @@ jobs:
         with:
           name: |
             llama-*
+            llava-*
             *.metal
