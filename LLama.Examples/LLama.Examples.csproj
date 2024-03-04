@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.29.240219.2" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.4.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.5.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.1.0-alpha" />
     <PackageReference Include="Spectre.Console" Version="0.48.0" />
   </ItemGroup>
