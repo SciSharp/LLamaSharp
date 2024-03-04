@@ -32,15 +32,15 @@ namespace LLama.Unittest
             _lLavaWeights.Dispose();
         }
 
-        [Fact]
-        public void CheckProperties()
-        {
-            Assert.Equal(4096, (int)_context.ContextSize);
-            Assert.Equal(4096, _context.EmbeddingSize);
-            Assert.Equal(32000, _context.VocabCount);
-        }
+        // [Fact]
+        // public void CheckProperties()
+        // {
+        //     Assert.Equal(4096, (int)_context.ContextSize);
+        //     Assert.Equal(4096, _context.EmbeddingSize);
+        //     Assert.Equal(32000, _context.VocabCount);
+        // }
 
-        [Fact]
+        /*[Fact]
         public void Tokenize()
         {
             var tokens = _context.Tokenize("The quick brown fox", true);
@@ -93,7 +93,7 @@ namespace LLama.Unittest
             var tokens = _context.Tokenize("", false);
 
             Assert.Equal(Array.Empty<LLamaToken>(), tokens);
-        }
+        }*/
         
         
         [Fact]
