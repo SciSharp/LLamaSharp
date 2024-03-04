@@ -22,8 +22,6 @@ public class MemoryDisposalTests
         if (dc > 0)
         {
             ulong totalmem = 0;
-            StringBuilder sb = new StringBuilder(1024 * 1024);
-            ggml_backend_cuda_get_device_description(0, sb, 1024 * 1024);
             ggml_backend_cuda_get_device_memory(0, out freemem, out totalmem);
         }
         return freemem;
