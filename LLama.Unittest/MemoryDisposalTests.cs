@@ -29,7 +29,7 @@ public class MemoryDisposalTests
         return freemem;
     }
 
-    [Fact]
+    [Fact(Skip = "CI does not use CUDA")]
     public void ModelDisposal()
     {
         ulong memS = GetGPUFreeMemory();
@@ -51,7 +51,7 @@ public class MemoryDisposalTests
         }
     }
 
-    [Fact]
+    [Fact(Skip = "CI does not use CUDA")]
     public void ContextDisposal()
     {
         ulong memS = GetGPUFreeMemory();
