@@ -338,6 +338,7 @@ namespace LLama.Native
         }
 
         internal const string libraryName = "llama";
+        internal const string llavaLibName = "llava_shared";
         private const string cudaVersionFile = "version.json";
         private const string loggingPrefix = "[LLamaSharp Native]";
         private static bool enableLogging = false;

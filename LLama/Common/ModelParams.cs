@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using LLama.Native;
 using System.Collections.Generic;
+using System;
 
 namespace LLama.Common
 {
@@ -43,7 +44,7 @@ namespace LLama.Common
         public string LoraBase { get; set; } = string.Empty;
 
         /// <inheritdoc />
-        public uint? Threads { get; set; }
+        public uint? Threads { get; set; } = GetNumPhysicalCores();
 
         /// <inheritdoc />
         public uint? BatchThreads { get; set; }
@@ -125,6 +126,12 @@ namespace LLama.Common
         {
             // This constructor (default parameterless constructor) is used by Newtonsoft to deserialize!
             ModelPath = "";
+        }
+
+        private static uint GetNumPhysicalCores()
+        {
+            int n_cores = Environment.ProcessorCount;
+            return (uint)(n_cores > 0 ? (n_cores <= 4 ? n_cores : n_cores / 2) : 4);
         }
     }
 }

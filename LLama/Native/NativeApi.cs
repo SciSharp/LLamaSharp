@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LLama.LLava;
+using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE1006 // Naming Styles
@@ -187,6 +189,7 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
 
+
         /// <summary>
         /// Get the embeddings for the input
         /// </summary>
@@ -330,7 +333,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="logCallback"></param>
 		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void llama_log_set(LLamaLogCallback logCallback);
+        public static extern void llama_log_set(LLamaLogCallback logCallback);
 
         /// <summary>
         /// Clear the KV cache
@@ -438,5 +441,69 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
+
+        /// <summary>
+        /// Get vocab type from model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public extern static LLamaVocabType llama_vocab_type(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="n_tokens"></param>
+        /// <param name="pos_0"></param>
+        /// <param name="seq_id"></param>
+        /// <returns></returns>
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        unsafe public extern static LLamaNativeBatch llama_batch_get_one(LLamaToken* tokens, int n_tokens, ref int pos_0, int seq_id);
+        /// <summary>
+        /// Set the Init time to ggml process
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ggml_time_init();
+
+        /// <summary>
+        /// Load clip model
+        /// </summary>
+        /// <param name="clip_model_path">Clip model path</param>
+        /// <param name="verbosity"></param>
+        /// <returns></returns>
+        [DllImport(llavaLibName, CallingConvention = CallingConvention.Cdecl)]
+        public extern static IntPtr clip_model_load(string clip_model_path, int verbosity = 1);
+
+        /// <summary>
+        /// Free the clip context
+        /// </summary>
+        /// <param name="ctx">Clip context</param>
+        [DllImport(llavaLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void clip_free(IntPtr ctx);
+
+        /// <summary>
+        /// Read an image from bytes
+        /// </summary>
+        /// <param name="ctx_clip"></param>
+        /// <param name="n_threads"></param>
+        /// <param name="bytes"></param>
+        /// <param name="image_bytes_length"></param>
+        /// <returns></returns>
+        [DllImport(llavaLibName, CallingConvention = CallingConvention.Cdecl)]
+        public extern static LLavaImageEmbed llava_image_embed_make_with_bytes(IntPtr ctx_clip, int n_threads, byte[] bytes, int image_bytes_length);
+
+        /// <summary>
+        /// Embed an image and get the token length
+        /// </summary>
+        /// <param name="ctx_llama"></param>
+        /// <param name="image_embed"></param>
+        /// <param name="n_batch"></param>
+        /// <param name="n_past"></param>
+        /// <returns></returns>
+        [DllImport(llavaLibName, CallingConvention = CallingConvention.Cdecl)]
+        public extern unsafe static bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, LLavaImageEmbed image_embed, int n_batch, ref int n_past);
+
     }
 }

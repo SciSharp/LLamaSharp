@@ -45,10 +45,13 @@ public unsafe struct LLamaNativeBatch
     /// </summary>
     public byte* logits;
 
+    /// <summary>
+    /// There is an error occured(_all_pos_1 get a wrong num) during using llama_batch_get_one in llama.dll, have to change private to public
+    /// </summary>
     // Note from llama.cpp:
     // > helpers for smooth API transition - can be deprecated in the future
     // > for future-proof code, use the above fields instead and ignore everything below
-    private LLamaPos _all_pos_0;
-    private LLamaPos _all_pos_1;
-    private LLamaSeqId _all_seq_id;
+    public LLamaPos _all_pos_0;
+    public LLamaPos _all_pos_1;
+    public LLamaSeqId _all_seq_id;
 }

@@ -99,8 +99,20 @@ namespace LLama.Native
         /// <param name="min_keep"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_sample_min_p(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float p, ulong min_keep);
-        
-        
+
+
+        /// <summary>
+        /// @details Dynamic temperature implementation described in the paper https://arxiv.org/abs/2309.02772.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
+        /// <param name="min_temp"></param>
+        /// <param name="max_temp"></param>
+        /// <param name="exponent_val"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_sample_entropy(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, float min_temp, float max_temp, float exponent_val);
+
+
         /// <summary>
         /// Tail Free Sampling described in https://www.trentonbricken.com/Tail-Free-Sampling/.
         /// </summary>
