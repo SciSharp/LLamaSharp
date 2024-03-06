@@ -251,7 +251,7 @@ namespace LLama.Abstractions
         {
             Key = key;
             _valueInt = value;
-            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT;
+            Type = LLamaModelKvOverrideType.Int;
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace LLama.Abstractions
         {
             Key = key;
             _valueFloat = value;
-            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT;
+            Type = LLamaModelKvOverrideType.Float;
         }
 
         /// <summary>
@@ -275,20 +275,20 @@ namespace LLama.Abstractions
         {
             Key = key;
             _valueBool = value;
-            Type = LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL;
+            Type = LLamaModelKvOverrideType.Bool;
         }
 
         internal void WriteValue(ref LLamaModelMetadataOverride dest)
         {
             switch (Type)
             {
-                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT:
+                case LLamaModelKvOverrideType.Int:
                     dest.IntValue = _valueInt;
                     break;
-                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT:
+                case LLamaModelKvOverrideType.Float:
                     dest.FloatValue = _valueFloat;
                     break;
-                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
+                case LLamaModelKvOverrideType.Bool:
                     dest.BoolValue = _valueBool ? -1L : 0;
                     break;
                 default:
@@ -300,13 +300,13 @@ namespace LLama.Abstractions
         {
             switch (Type)
             {
-                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT:
+                case LLamaModelKvOverrideType.Int:
                     writer.WriteNumberValue(_valueInt);
                     break;
-                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT:
+                case LLamaModelKvOverrideType.Float:
                     writer.WriteNumberValue(_valueFloat);
                     break;
-                case LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL:
+                case LLamaModelKvOverrideType.Bool:
                     writer.WriteBooleanValue(_valueBool);
                     break;
                 default:
@@ -328,9 +328,9 @@ namespace LLama.Abstractions
 
             return ((LLamaModelKvOverrideType)ktv.Type) switch
             {
-                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_INT => new MetadataOverride(ktv.Key, ktv.Value.GetInt32()),
-                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_FLOAT => new MetadataOverride(ktv.Key, ktv.Value.GetSingle()),
-                LLamaModelKvOverrideType.LLAMA_KV_OVERRIDE_BOOL => new MetadataOverride(ktv.Key, ktv.Value.GetBoolean()),
+                LLamaModelKvOverrideType.Int => new MetadataOverride(ktv.Key, ktv.Value.GetInt32()),
+                LLamaModelKvOverrideType.Float => new MetadataOverride(ktv.Key, ktv.Value.GetSingle()),
+                LLamaModelKvOverrideType.Bool => new MetadataOverride(ktv.Key, ktv.Value.GetBoolean()),
                 _ => throw new JsonException(),
             };
         }

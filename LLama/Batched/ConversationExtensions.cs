@@ -50,7 +50,7 @@ public static class ConversationExtensions
             kv.Remove(keep, count);
 
             // Shift the C's
-            kv.Shift(keep + count, end, -count);
+            kv.Add(keep + count, end, -count);
 
             // Update total count
             return end.Value - count;

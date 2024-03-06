@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -112,8 +111,24 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_free(IntPtr ctx);
-        #endregion
 
+        /// <summary>
+        /// Set a callback which can abort computation
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="abort_callback"></param>
+        /// <param name="abort_callback_data"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe void llama_set_abort_callback(SafeLLamaContextHandle ctx, GgmlAbortCallback abort_callback, void* abort_callback_data);
+
+        /// <summary>
+        /// If this returns true computation is cancelled
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private unsafe delegate bool GgmlAbortCallback(void* data);
+        #endregion
+        
         /// <summary>
         /// Token logits obtained from the last call to llama_decode
         /// The logits for the last token are stored in the last row
@@ -390,9 +405,9 @@ namespace LLama.Native
         /// <param name="p0"></param>
         /// <param name="p1"></param>
         /// <param name="delta"></param>
-        public void KvCacheSequenceShift(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
+        public void KvCacheSequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
         {
-            NativeApi.llama_kv_cache_seq_shift(this, seq, p0, p1, delta);
+            NativeApi.llama_kv_cache_seq_add(this, seq, p0, p1, delta);
         }
 
         /// <summary>

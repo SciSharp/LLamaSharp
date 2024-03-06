@@ -124,12 +124,47 @@
         /// <summary>
         /// except 1d tensors
         /// </summary>
-        LLAMA_FTYPE_MOSTLY_Q3_K_XS = 22,
+        LLAMA_FTYPE_MOSTLY_IQ3_K_XS = 22,
 
         /// <summary>
         /// except 1d tensors
         /// </summary>
         LLAMA_FTYPE_MOSTLY_IQ3_XXS = 23,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ1_S = 24,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ4_NL = 25,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ3_S = 26,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ3_M = 27,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ2_S = 28,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ2_M = 29,
+
+        /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_IQ4_XS = 30,
 
         /// <summary>
         /// File type was not specified
