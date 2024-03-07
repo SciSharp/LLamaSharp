@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using LLama;
@@ -15,7 +16,7 @@ namespace LLama.Native
         : SafeLLamaHandleBase
     {
 
-        internal protected SafeLlavaModelHandle(IntPtr handle)
+        public SafeLlavaModelHandle(IntPtr handle)
             : base(handle, true)
         {
         }
@@ -38,13 +39,29 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlavaModelHandle LoadFromFile(string modelPath, int verbosity )
         {
-            var ctxContext =  NativeApi.clip_model_load(modelPath, verbosity );            
+            
+            // Try to open the model file, this will check:
+            // - File exists (automatically throws FileNotFoundException)
+            // - File is readable (explicit check)
+            // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
+            using (var fs = new FileStream(modelPath, FileMode.Open))
+                if (!fs.CanRead)
+                    throw new InvalidOperationException($"Llava MMP Model file '{modelPath}' is not readable");
+            
+            var ctxContext =  NativeApi.clip_model_load(modelPath, verbosity ); 
+            
             if (ctxContext == IntPtr.Zero)
                 throw new RuntimeError($"Failed to load LLaVa model {modelPath}.");
 
             return new SafeLlavaModelHandle(ctxContext);
+            
         }
 
+        /// <summary>
+        /// Load and embed image
+        /// </summary>
+        /// <param name="imagePath">Image path on jpeg format</param>
+        /// <param name="threads"></param>
         public void LoadImage( string imagePath, int threads )
         {
             unsafe
@@ -75,7 +92,7 @@ namespace LLama.Native
         /// Embed the image from binary in llama context
         /// </summary>
         /// <param name="ctxLlama"></param>
-        /// <param name="image"></param>
+        /// <param name="image">jpeg image</param>
         /// <param name="n_past"></param>
         /// <returns></returns>
         public bool EmbedImage(LLamaContext ctxLlama, Byte[] image, ref int n_past )

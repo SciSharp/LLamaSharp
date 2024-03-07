@@ -6,11 +6,11 @@ namespace LLama;
 
 public sealed class LLavaWeights : IDisposable
 {
-    public SafeLlavaModelHandle NativeClipHandle { get; }   
+    public SafeLlavaModelHandle NativeHandle { get; }   
     
     internal LLavaWeights(SafeLlavaModelHandle weights)
     {
-        NativeClipHandle = weights;
+        NativeHandle = weights;
     }
     
     public static LLavaWeights LoadFromFile(string mmProject)
@@ -28,7 +28,7 @@ public sealed class LLavaWeights : IDisposable
     /// <returns></returns>
     public bool EmbedImage(LLamaContext ctxLlama, string Image, ref int n_past )
     {
-        return NativeClipHandle.EmbedImage(ctxLlama, Image, ref n_past );
+        return NativeHandle.EmbedImage(ctxLlama, Image, ref n_past );
     }
 
     /// <summary>
@@ -40,12 +40,12 @@ public sealed class LLavaWeights : IDisposable
     /// <returns></returns>
     public bool EmbedImage(LLamaContext ctxLlama, Byte[] Image, ref int n_past )
     {
-        return NativeClipHandle.EmbedImage(ctxLlama, Image, ref n_past );
+        return NativeHandle.EmbedImage(ctxLlama, Image, ref n_past );
     }
     
     public void Dispose()
     {
-        NativeClipHandle.Dispose();
+        NativeHandle.Dispose();
     }    
     
 }

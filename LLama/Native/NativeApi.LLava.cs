@@ -7,32 +7,6 @@ using clip_ctx = IntPtr;
 public static unsafe partial class NativeApi
 {
     
-    /*/// <summary>
-    /// Clip Vision Parameters
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct clip_vision_hparams
-    {
-        public Int32 image_size;
-        public Int32 patch_size;
-        public Int32 hidden_size;
-        public Int32 n_intermediate;
-        public Int32 projection_dim;
-        public Int32 n_head;
-        public Int32 n_layer;
-        public float eps;
-    };*/
-
-    /// <summary>
-    /// LLaVa Image embeddings 
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct llava_image_embed
-    {
-        public float* embed;
-        public int n_image_pos;
-    }
-
     /// <summary>
     /// Load MULTI MODAL PROJECTIONS model / Clip Model
     /// </summary>
@@ -51,7 +25,7 @@ public static unsafe partial class NativeApi
 
   
     /// <summary>
-    /// Sanity check for clip <-> llava embed size match
+    /// Sanity check for clip &lt;-&gt; llava embed size match
     /// </summary>
     /// <returns></returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_validate_embed_size", CallingConvention = CallingConvention.Cdecl)]
@@ -67,7 +41,7 @@ public static unsafe partial class NativeApi
     /// <returns></returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_image_embed_make_with_bytes",
         CallingConvention = CallingConvention.Cdecl)]
-    public static extern llava_image_embed* llava_image_embed_make_with_bytes(clip_ctx ctx_clip, int n_threads,
+    public static extern LLavaImageEmbed* llava_image_embed_make_with_bytes(clip_ctx ctx_clip, int n_threads,
         byte[] image_bytes, int image_bytes_length);
 
     /// <summary>
@@ -79,7 +53,7 @@ public static unsafe partial class NativeApi
     /// <returns></returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_image_embed_make_with_filename",
         CallingConvention = CallingConvention.Cdecl)]
-    public static extern llava_image_embed* llava_image_embed_make_with_filename(clip_ctx ctx_clip, int n_threads,
+    public static extern LLavaImageEmbed* llava_image_embed_make_with_filename(clip_ctx ctx_clip, int n_threads,
         [MarshalAs(UnmanagedType.LPStr)] string image_path);
 
     /// <summary>
@@ -88,7 +62,7 @@ public static unsafe partial class NativeApi
     /// <param name="embed"></param>
     /// <returns></returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_image_embed_free", CallingConvention = CallingConvention.Cdecl)]
-    public static extern llava_image_embed* llava_image_embed_free(llava_image_embed* embed);
+    public static extern LLavaImageEmbed* llava_image_embed_free(LLavaImageEmbed* embed);
 
     /// <summary>
     /// Write the image represented by embed into the llama context with batch size n_batch, starting at context
@@ -97,7 +71,7 @@ public static unsafe partial class NativeApi
     /// <param name="embed">ctx_llama</param>
     /// <returns></returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_eval_image_embed", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctc_llama, llava_image_embed* embed,
+    public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctc_llama, LLavaImageEmbed* embed,
         int n_batch, ref int n_past);
     
 }
