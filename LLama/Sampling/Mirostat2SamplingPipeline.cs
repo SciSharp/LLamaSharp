@@ -37,9 +37,8 @@ public class Mirostate2SamplingPipeline
     public float Eta { get; set; } = 0.1f;
 
     /// <inheritdoc />
-    protected override ReadOnlySpan<float> ProcessLogits(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+    protected override void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
     {
-        return logits;
     }
 
     /// <inheritdoc />

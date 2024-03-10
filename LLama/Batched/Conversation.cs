@@ -122,7 +122,7 @@ public sealed class Conversation
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="CannotSampleRequiresPromptException">Thrown if this conversation was not prompted before the previous call to infer</exception>
     /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
-    public ReadOnlySpan<float> Sample()
+    public Span<float> Sample()
     {
         AssertNotDisposed();
 
@@ -165,6 +165,10 @@ public sealed class Conversation
     public void Prompt(IReadOnlyList<LLamaToken> tokens)
     {
         AssertCanBePrompted();
+
+        // No point doing anything if there is no actual prompt!
+        if (tokens.Count == 0)
+            return;
 
         // Add the prompt to the batch
         for (var i = 0; i < tokens.Count; i++)

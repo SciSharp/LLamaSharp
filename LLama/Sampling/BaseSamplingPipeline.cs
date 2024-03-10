@@ -15,10 +15,10 @@ public abstract class BaseSamplingPipeline
     public SafeLLamaGrammarHandle? Grammar { get; set; }
 
     /// <inheritdoc/>
-    public LLamaToken Sample(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+    public LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
     {
         // Apply processing to raw logit values
-        logits = ProcessLogits(ctx, logits, lastTokens);
+        ProcessLogits(ctx, logits, lastTokens);
 
         // Process token data array to select a final token
         var candidates = LLamaTokenDataArray.Create(logits);
@@ -38,7 +38,7 @@ public abstract class BaseSamplingPipeline
     /// <param name="ctx">The context being sampled from</param>
     /// <param name="logits">The logits produced by the model</param>
     /// <param name="lastTokens">A list of tokens recently returned by the model</param>
-    protected abstract ReadOnlySpan<float> ProcessLogits(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
+    protected abstract void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
 
     /// <summary>
     /// Process the LLamaTokenDataArray and select a single token
