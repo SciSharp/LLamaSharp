@@ -10,9 +10,8 @@ public class GreedySamplingPipeline
     : BaseSamplingPipeline
 {
     /// <inheritdoc />
-    protected override ReadOnlySpan<float> ProcessLogits(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+    protected override void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
     {
-        return logits;
     }
 
     /// <inheritdoc />

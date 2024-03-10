@@ -94,28 +94,13 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public bool PenalizeNewline { get; set; } = false;
 
-    private float[]? _logits;
-
     /// <inheritdoc />
-    protected override ReadOnlySpan<float> ProcessLogits(SafeLLamaContextHandle ctx, ReadOnlySpan<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+    protected override void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
     {
-        // Skip work if possible
-        if (LogitBias.Count == 0)
-            return logits;
-
-        // Create a temporary array to hold logits
-        if (_logits == null || _logits.Length < logits.Length)
-            _logits = new float[logits.Length];
-
-        // Copy logits
-        logits.CopyTo(_logits);
-        var mutable = _logits.AsSpan(0, logits.Length);
-
         // Apply logit bias
         foreach (var (key, value) in LogitBias)
-            mutable[key] += value;
+            logits[key] += value;
 
-        return mutable;
     }
 
     /// <inheritdoc />
