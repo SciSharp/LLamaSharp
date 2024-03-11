@@ -8,6 +8,7 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda12?label=LLamaSharp.Backend.Cuda12)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.semantic-kernel?label=LLamaSharp.semantic-kernel)](https://www.nuget.org/packages/LLamaSharp.semantic-kernel)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.kernel-memory?label=LLamaSharp.kernel-memory)](https://www.nuget.org/packages/LLamaSharp.kernel-memory)
+[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.OpenCL?label=LLamaSharp.Backend.OpenCL)](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL)
 
 
 **The C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides higher-level APIs to inference the LLaMA Models and deploy it on local device with C#/.NET. It works on Windows, Linux and Mac without need to compile llama.cpp yourself. Even without a GPU or not enough GPU memory, you can still use LLaMA models! 🤗**
@@ -70,7 +71,8 @@ PM> Install-Package LLamaSharp
 
    - [`LLamaSharp.Backend.Cpu`](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu): Pure CPU for Windows & Linux. Metal for Mac.
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA11 for Windows and Linux
-   - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)@ CUDA 12 for Windows and Linux
+   - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows and Linux
+   - [`LLamaSharp.Backend.OpenCL`](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL): OpenCL for Windows and Linux
    - If none of these backends is suitable you can compile [llama.cpp](https://github.com/ggerganov/llama.cpp) yourself. In this case, please **DO NOT** install the backend packages! Instead, add your DLL to your project and ensure it will be copied to the output directory when compiling your project. If you do this you must use exactly the correct llama.cpp commit, refer to the version table further down.
 
 3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
