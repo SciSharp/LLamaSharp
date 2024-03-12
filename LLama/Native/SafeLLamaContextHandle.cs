@@ -192,6 +192,7 @@ namespace LLama.Native
         #endregion
 
         #region infer
+
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
@@ -203,7 +204,8 @@ namespace LLama.Native
         public DecodeResult Decode(LLamaBatch batch)
         {
             using (batch.ToNativeBatch(out var nb))
-                return (DecodeResult)NativeApi.llama_decode(this, nb);
+                lock (ModelHandle.ModelLockObject)
+                    return (DecodeResult)NativeApi.llama_decode(this, nb);
         }
 
         /// <summary>

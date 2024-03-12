@@ -18,6 +18,12 @@ namespace LLama.Native
         : SafeLLamaHandleBase
     {
         /// <summary>
+        /// Any contexts running inference with this model should lock this object first.
+        /// This is a workaround for some backends (notably CUDA) not being threadsafe on the llama.cpp side, see https://github.com/ggerganov/llama.cpp/issues/3960
+        /// </summary>
+        internal readonly object ModelLockObject = new();
+
+        /// <summary>
         /// Total number of tokens in vocabulary of this model
         /// </summary>
         public int VocabCount => llama_n_vocab(this);
