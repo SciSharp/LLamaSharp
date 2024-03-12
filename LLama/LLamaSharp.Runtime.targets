@@ -4,68 +4,68 @@
     </PropertyGroup>
     <ItemGroup Condition="'$(IncludeBuiltInRuntimes)' == 'true'">
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/noavx/llama.dll</Link>
+        <Link>runtimes/win-x64/native/llama-sharp/noavx/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/avx/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx/llama.dll</Link>
+        <Link>runtimes/win-x64/native/llama-sharp/avx/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/avx2/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx2/llama.dll</Link>
+        <Link>runtimes/win-x64/native/llama-sharp/avx2/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/avx512/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx512/llama.dll</Link>
+        <Link>runtimes/win-x64/native/llama-sharp/avx512/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/cu11.7.1/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/llama.dll</Link>
+        <Link>runtimes/win-x64/native/llama-sharp/cuda11/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/cu12.1.0/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda12/llama.dll</Link>
-      </None>
-
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/noavx/libllama.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/avx/libllama.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/avx2/libllama.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/avx512/libllama.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda11/libllama.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
+        <Link>runtimes/win-x64/native/llama-sharp/cuda12/llama.dll</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllama.dylib">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/noavx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-arm64/native/libllama.dylib</Link>
+        <Link>runtimes/linux-x64/native/llama-sharp/noavx/libllama.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/ggml-metal.metal">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/avx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-arm64/native/ggml-metal.metal</Link>
+        <Link>runtimes/linux-x64/native/llama-sharp/avx/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/avx2/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/llama-sharp/avx2/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/avx512/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/llama-sharp/avx512/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/cu11.7.1/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/llama-sharp/cuda11/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/cu12.1.0/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/llama-sharp/cuda12/libllama.so</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllama.dylib">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/osx-arm64/libllama.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-x64/native/libllama.dylib</Link>
+        <Link>runtimes/osx-arm64/native/llama-sharp/libllama.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/osx-arm64/ggml-metal.metal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-arm64/native/llama-sharp/ggml-metal.metal</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama-sharp/osx-x64/libllama.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/llama-sharp/libllama.dylib</Link>
       </None>
     </ItemGroup>
 </Project>

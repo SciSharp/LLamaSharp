@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -11,8 +12,26 @@ namespace LLama.Native
 {
     public static partial class NativeApi
     {
+#if NET6_0_OR_GREATER
+        internal static partial class Libraries
+        {
+            internal const string Odbc32 = "libodbc";
+        }
+        static nint MyDllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            Console.WriteLine("*********************************** got a native load of: " + libraryName);
+            if (libraryName == Libraries.Odbc32) 
+            { 
+                return NativeLibrary.Load(libraryName, assembly, default); 
+            } 
+            return default; 
+        }
+#endif
         static NativeApi()
         {
+#if NET6_0_OR_GREATER
+            //NativeLibrary.SetDllImportResolver(typeof(NativeApi).Assembly, MyDllImportResolver);
+#endif
             // Try to load a preferred library, based on CPU feature detection
             TryLoadLibrary();
 
@@ -188,23 +207,23 @@ namespace LLama.Native
                     // if check skipped, we just try to load cuda libraries one by one.
                     if (configuration.SkipCheck)
                     {
-                        result.Add($"{prefix}cuda12/{libraryNamePrefix}{libraryName}{suffix}");
-                        result.Add($"{prefix}cuda11/{libraryNamePrefix}{libraryName}{suffix}");
+                        result.Add($"{prefix}llama-sharp/cuda12/{libraryNamePrefix}{libraryName}{suffix}");
+                        result.Add($"{prefix}llama-sharp/cuda11/{libraryNamePrefix}{libraryName}{suffix}");
                     }
                     else
                     {
-                        throw new RuntimeError("Configured to load a cuda library but no cuda detected on your device.");
+                        throw new RuntimeError("Configured to load a cuda library strictly but no cuda component detected on your device.");
                     }
                 }
                 else if (cudaVersion == 11)
                 {
                     Log($"Detected cuda major version {cudaVersion}.", LogLevel.Information);
-                    result.Add($"{prefix}cuda11/{libraryNamePrefix}{libraryName}{suffix}");
+                    result.Add($"{prefix}llama-sharp/cuda11/{libraryNamePrefix}{libraryName}{suffix}");
                 }
                 else if (cudaVersion == 12)
                 {
                     Log($"Detected cuda major version {cudaVersion}.", LogLevel.Information);
-                    result.Add($"{prefix}cuda12/{libraryNamePrefix}{libraryName}{suffix}");
+                    result.Add($"{prefix}llama-sharp/cuda12/{libraryNamePrefix}{libraryName}{suffix}");
                 }
                 else if (cudaVersion > 0)
                 {
@@ -255,6 +274,8 @@ namespace LLama.Native
             NativeLibraryConfig.LibraryHasLoaded = true;
             Log(configuration.ToString(), LogLevel.Information);
 
+            Console.WriteLine("########################### begin to find path: " + configuration.Path);
+
             if (!string.IsNullOrEmpty(configuration.Path))
             {
                 // When loading the user specified library, there's no fallback.
@@ -267,6 +288,8 @@ namespace LLama.Native
                 return result;
             }
 
+            Console.WriteLine("########################### begin to apply strategy");
+
             var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
 
             var preferredPaths = configuration.SearchDirectories;
@@ -274,6 +297,24 @@ namespace LLama.Native
                 AppDomain.CurrentDomain.BaseDirectory,
                 Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
             };
+
+            Console.WriteLine("===============================libraryTryLoadOrder========================================");
+            foreach(var item in libraryTryLoadOrder)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("================================preferredPaths=======================================");
+            foreach(var item in preferredPaths)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("================================possiblePathPrefix=======================================");
+            foreach (var item in possiblePathPrefix)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("=========================================================================================");
+
 
             string TryFindPath(string filename)
             {
@@ -329,7 +370,7 @@ namespace LLama.Native
                 if (!supported)
                     return null;
 
-                if (NativeLibrary.TryLoad(path, out var handle))
+                if (NativeLibrary.TryLoad(path, typeof(NativeApi).Assembly, null, out var handle))
                     return handle;
 
                 return null;

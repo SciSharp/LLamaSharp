@@ -194,10 +194,10 @@ namespace LLama.Native
         {
             return level switch
             {
-                AvxLevel.None => string.Empty,
-                AvxLevel.Avx => "avx",
-                AvxLevel.Avx2 => "avx2",
-                AvxLevel.Avx512 => "avx512",
+                AvxLevel.None => "llama-sharp/noavx",
+                AvxLevel.Avx => "llama-sharp/avx",
+                AvxLevel.Avx2 => "llama-sharp/avx2",
+                AvxLevel.Avx512 => "llama-sharp/avx512",
                 _ => throw new ArgumentException($"Unknown AvxLevel '{level}'")
             };
         }
