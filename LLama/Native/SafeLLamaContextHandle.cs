@@ -192,6 +192,17 @@ namespace LLama.Native
         #endregion
 
         #region infer
+        /// <summary>
+        /// This object exists to ensure there is only ever 1 inference running at a time. This is a workaround for thread safety issues in llama.cpp itself.
+        /// Most notably CUDA, which seems to use some global singleton resources and will crash if multiple inferences are run (even against different models).
+        /// 
+        /// For more information see these issues:
+        ///  - https://github.com/SciSharp/LLamaSharp/issues/596
+        ///  - https://github.com/ggerganov/llama.cpp/issues/3960
+        ///
+        /// If these are ever resolved this lock can probably be removed.
+        /// </summary>
+        private static readonly object GlobalInferenceLock = new();
 
         /// <summary>
         /// </summary>
@@ -203,8 +214,8 @@ namespace LLama.Native
         /// </returns>
         public DecodeResult Decode(LLamaBatch batch)
         {
-            using (batch.ToNativeBatch(out var nb))
-                lock (ModelHandle.ModelLockObject)
+            lock (GlobalInferenceLock)
+                using (batch.ToNativeBatch(out var nb))
                     return (DecodeResult)NativeApi.llama_decode(this, nb);
         }
 
