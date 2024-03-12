@@ -12,26 +12,8 @@ namespace LLama.Native
 {
     public static partial class NativeApi
     {
-#if NET6_0_OR_GREATER
-        internal static partial class Libraries
-        {
-            internal const string Odbc32 = "libodbc";
-        }
-        static nint MyDllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
-        {
-            Console.WriteLine("*********************************** got a native load of: " + libraryName);
-            if (libraryName == Libraries.Odbc32) 
-            { 
-                return NativeLibrary.Load(libraryName, assembly, default); 
-            } 
-            return default; 
-        }
-#endif
         static NativeApi()
         {
-#if NET6_0_OR_GREATER
-            //NativeLibrary.SetDllImportResolver(typeof(NativeApi).Assembly, MyDllImportResolver);
-#endif
             // Try to load a preferred library, based on CPU feature detection
             TryLoadLibrary();
 
