@@ -67,5 +67,51 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libllama.dylib</Link>
       </None>
+      
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/noavx/llava_shared.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx/llava_shared.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx2/llava_shared.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx512/llava_shared.dll</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/noavx/libllava_shared.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx/libllava_shared.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx2/libllava_shared.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx512/libllava_shared.so</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllava_shared.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-arm64/native/libllava_shared.dylib</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllava_shared.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
+      </None>      
+      
+      
     </ItemGroup>
 </Project>

@@ -48,12 +48,12 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
       - name: Upload Llava
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ./build/examples/llava/libllava_shared.so
           name: llava-bin-linux-${{ matrix.build }}-x64.so
@@ -89,13 +89,13 @@ jobs:
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
 
       - name: Upload Llava
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-${{ matrix.build }}-x64.dll
@@ -169,20 +169,35 @@ jobs:
           ls -R
       - name: Upload artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: |
             .\build\bin\Release\llama.dll
             .\build\bin\Release\clblast.dll
           name: llama-bin-win-clblast-x64.dll
+      - name: Upload llava artifacts (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            .\build\bin\Release\llava_shared.dll
+          name: llava-bin-win-clblast-x64.dll
       - name: Upload artifacts (linux)
         if: ${{ matrix.os == 'ubuntu-22.04' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: |
             ./build/libllama.so
             # ./build/libclblast.so
           name: llama-bin-linux-clblast-x64.so
+      - name: Upload llava artifacts (linux)
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            ./build/examples/llava/libllava_shared.so
+          name: llava-bin-linux-clblast-x64.so
+
           
   compile-cublas:
     name: Compile (cublas)
@@ -228,16 +243,29 @@ jobs:
 
       - name: Upload artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+      - name: Upload llava artifacts (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: .\build\bin\Release\llava_shared.dll
+          name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
       - name: Upload artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+      - name: Upload llava artifacts (Linux)
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/examples/llava/libllava_shared.so
+          name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+ 
     
   compile-macos:
     name: Compile (MacOS)
@@ -268,18 +296,18 @@ jobs:
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Llava
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ./build/examples/llava/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
         if: ${{ matrix.build != 'x64' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ./build/bin/ggml-metal.metal
           name: ggml-metal.metal
@@ -347,10 +375,11 @@ jobs:
           cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: deps/
           name: deps
+
 
       - name: Remove Artifacts
         uses: geekyeggo/delete-artifact@v2

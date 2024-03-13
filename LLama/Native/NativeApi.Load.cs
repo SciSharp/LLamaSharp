@@ -235,6 +235,7 @@ namespace LLama.Native
             if (platform == OSPlatform.OSX)
             {
                 result.Add($"{prefix}{libraryNamePrefix}{libraryName}{suffix}");
+                result.Add($"{prefix}{libraryNamePrefix}{llavaLibraryName}{suffix}");
             }
 
             return result;
@@ -303,6 +304,11 @@ namespace LLama.Native
                 if (result is not null && result != IntPtr.Zero)
                 {
                     Log($"{fullPath} is selected and loaded successfully.", LogLevel.Information);
+                    
+                    // One we have clear the detection and that llama loads successfully we load LLaVa if exist on the
+                    // same path. 
+                    TryLoad( libraryPath.Replace("llama", "llava_shared"), true);
+                    
                     return (IntPtr)result;
                 }
 
@@ -338,6 +344,7 @@ namespace LLama.Native
         }
 
         internal const string libraryName = "llama";
+        internal const string llavaLibraryName = "llava_shared";        
         private const string cudaVersionFile = "version.json";
         private const string loggingPrefix = "[LLamaSharp Native]";
         private static bool enableLogging = false;

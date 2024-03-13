@@ -14,6 +14,8 @@ public sealed class LLamaEmbedderTests
         _testOutputHelper = testOutputHelper;
         var @params = new ModelParams(Constants.ModelPath)
         {
+            ContextSize = 4096,
+            Threads = 5,
             EmbeddingMode = true,
         };
         using var weights = LLamaWeights.LoadFromFile(@params);
@@ -30,6 +32,7 @@ public sealed class LLamaEmbedderTests
         Assert.Equal(a.Length, b.Length);
         return a.Zip(b, (x, y) => x * y).Sum();
     }
+
 
     [Fact]
     public async Task EmbedCompare()

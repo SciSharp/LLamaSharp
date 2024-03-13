@@ -28,14 +28,14 @@ jobs:
             os: windows-2019
             config: release
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: | 
           7.0.x
           8.0.x
     - name: Cache Packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: "unit_test_models"
         path: LLama.Unittest/Models
