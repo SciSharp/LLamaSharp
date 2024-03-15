@@ -378,6 +378,9 @@ jobs:
           cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so deps/cu12.1.0/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu12.1.0-x64.so/libllava_shared.so deps/cu12.1.0/libllava_shared.so
           
+          cp artifacts/llama-bin-win-clblast-x64.dll/{llama,clblast}.dll deps/clblast/
+          
+          cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
 
 
       - name: Upload artifacts
