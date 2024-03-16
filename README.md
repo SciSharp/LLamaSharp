@@ -94,56 +94,49 @@ LLamaSharp provides two ways to run inference: `LLamaExecutor` and `ChatSession`
 using LLama.Common;
 using LLama;
 
-string modelPath = "<Your model path>"; // change it to your own model path
-var prompt = "Transcript of a dialog, where the User interacts with an Assistant named Bob. Bob is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.\r\n\r\nUser: Hello, Bob.\r\nBob: Hello. How may I help you today?\r\nUser: Please tell me the largest city in Europe.\r\nBob: Sure. The largest city in Europe is Moscow, the capital of Russia.\r\nUser:"; // use the "chat-with-bob" prompt here.
+string modelPath = @"<Your Model Path>"; // change it to your own model path.
 
-// Load a model
 var parameters = new ModelParams(modelPath)
 {
-    ContextSize = 1024,
-    Seed = 1337,
-    GpuLayerCount = 5
+    ContextSize = 1024, // The longest length of chat as memory.
+    GpuLayerCount = 5 // How many layers to offload to GPU. Please adjust it according to your GPU memory.
 };
 using var model = LLamaWeights.LoadFromFile(parameters);
-
-// Initialize a chat session
 using var context = model.CreateContext(parameters);
-var ex = new InteractiveExecutor(context);
-ChatSession session = new ChatSession(ex);
+var executor = new InteractiveExecutor(context);
 
-// show the prompt
-Console.WriteLine();
-Console.Write(prompt);
+// Add chat histories as prompt to tell AI how to act.
+var chatHistory = new ChatHistory();
+chatHistory.AddMessage(AuthorRole.System, "Transcript of a dialog, where the User interacts with an Assistant named Bob. Bob is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.");
+chatHistory.AddMessage(AuthorRole.User, "Hello, Bob.");
+chatHistory.AddMessage(AuthorRole.Assistant, "Hello. How may I help you today?");
 
-// run the inference in a loop to chat with LLM
-while (prompt != "stop")
+ChatSession session = new(executor, chatHistory);
+
+InferenceParams inferenceParams = new InferenceParams()
 {
-    await foreach (var text in session.ChatAsync(new ChatHistory.Message(AuthorRole.User, prompt), new InferenceParams { Temperature = 0.6f, AntiPrompts = [ "User:" ] }))
+    MaxTokens = 256, // No more than 256 tokens should appear in answer. Remove it if antiprompt is enough for control.
+    AntiPrompts = new List<string> { "User:" } // Stop generation once antiprompts appear.
+};
+
+Console.ForegroundColor = ConsoleColor.Yellow;
+Console.Write("The chat session has started.\nUser: ");
+Console.ForegroundColor = ConsoleColor.Green;
+string userInput = Console.ReadLine() ?? "";
+
+while (userInput != "exit")
+{
+    await foreach ( // Generate the response streamingly.
+        var text
+        in session.ChatAsync(
+            new ChatHistory.Message(AuthorRole.User, userInput),
+            inferenceParams))
     {
+        Console.ForegroundColor = ConsoleColor.White;
         Console.Write(text);
     }
-    prompt = Console.ReadLine() ?? "";
-}
-
-// save the session
-session.SaveSession("SavedSessionPath");
-```
-
-#### Quantization
-
-The following example shows how to quantize the model:
-
-```cs
-string srcFilename = "<Your source path>";
-string dstFilename = "<Your destination path>";
-string ftype = "q4_0";
-if(Quantizer.Quantize(srcFileName, dstFilename, ftype))
-{
-    Console.WriteLine("Quantization succeed!");
-}
-else
-{
-    Console.WriteLine("Quantization failed!");
+    Console.ForegroundColor = ConsoleColor.Green;
+    userInput = Console.ReadLine() ?? "";
 }
 ```
 
