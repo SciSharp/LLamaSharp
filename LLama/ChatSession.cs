@@ -214,7 +214,7 @@ public class ChatSession
     {
         var state = SessionState.Load(path);
         // Handle non-polymorphic serialization of executor state
-        if (state.ExecutorState is ExecutorBaseState)
+        if (state.ExecutorState is null)
         {
             var executorPath = Path.Combine(path, EXECUTOR_STATE_FILENAME);
             ((StatefulExecutorBase) Executor).LoadState(filename: executorPath); 
@@ -588,7 +588,7 @@ public record SessionState
     /// <summary>
     /// Saved executor state for the session in JSON format.
     /// </summary>
-    public ExecutorBaseState ExecutorState { get; set; }
+    public ExecutorBaseState? ExecutorState { get; set; }
 
     /// <summary>
     /// Saved context state (KV cache) for the session.
@@ -702,8 +702,7 @@ public record SessionState
             : null;
 
         string executorStateFilepath = Path.Combine(path, ChatSession.EXECUTOR_STATE_FILENAME);
-        var executorState = JsonSerializer.Deserialize<ExecutorBaseState>(File.ReadAllText(executorStateFilepath))
-            ?? throw new ArgumentException("Executor state file is invalid", nameof(path));
+        var executorState = JsonSerializer.Deserialize<ExecutorBaseState>(File.ReadAllText(executorStateFilepath));
 
         string historyFilepath = Path.Combine(path, ChatSession.HISTORY_STATE_FILENAME);
         string historyJson = File.ReadAllText(historyFilepath);

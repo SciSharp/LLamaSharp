@@ -20,7 +20,7 @@ namespace LLama.Common
                 throw new JsonException();
             string? propertyName = reader.GetString();
             if (propertyName != "Name")
-                throw new JsonException();
+                return default;
             reader.Read();
             if (reader.TokenType != JsonTokenType.String)
                 throw new JsonException();
