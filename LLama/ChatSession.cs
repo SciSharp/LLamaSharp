@@ -163,9 +163,11 @@ public class ChatSession
     /// <returns>SessionState object representing session state in-memory</returns>
     public SessionState GetSessionState()
     {
+        var executorState = ((StatefulExecutorBase)Executor).GetStateData();
         return new SessionState(
-            Executor.Context.GetState(),
-            ((StatefulExecutorBase)Executor).GetStateData(),
+            executorState.PastTokensCount > 0 
+            ? Executor.Context.GetState() : null,
+            executorState,
             History,
             InputTransformPipeline,
             OutputTransform,
@@ -188,7 +190,14 @@ public class ChatSession
         {
             throw new ArgumentException("Executor must be a StatefulExecutorBase to support loading of session state", nameof(state));
         }
-        Executor.Context.LoadState(state.ContextState);
+        if (state.ContextState is null)
+        {
+            Executor.Context.NativeHandle.KvCacheClear();
+        }
+        else
+        {
+            Executor.Context.LoadState(state.ContextState);
+        }
         History = new ChatHistory(state.History);
         InputTransformPipeline = state.InputTransformPipeline.Select(t => t.Clone()).ToList();
         OutputTransform = state.OutputTransform.Clone();
@@ -584,7 +593,7 @@ public record SessionState
     /// <summary>
     /// Saved context state (KV cache) for the session.
     /// </summary>
-    public State ContextState { get; set; }
+    public State? ContextState { get; set; }
 
     /// <summary>
     /// The input transform pipeline used in this session.
@@ -616,7 +625,7 @@ public record SessionState
     /// <param name="outputTransform"></param>
     /// <param name="historyTransform"></param>
     public SessionState(
-        State contextState, ExecutorBaseState executorState, 
+        State? contextState, ExecutorBaseState executorState, 
         ChatHistory history, List<ITextTransform> inputTransformPipeline,
         ITextStreamTransform outputTransform, IHistoryTransform historyTransform)
     {
@@ -647,8 +656,11 @@ public record SessionState
         Directory.CreateDirectory(path);
 
         string modelStateFilePath = Path.Combine(path, ChatSession.MODEL_STATE_FILENAME);
-        var bytes = ContextState.ToByteArray();
-        File.WriteAllBytes(modelStateFilePath, bytes);
+        var bytes = ContextState?.ToByteArray();
+        if (bytes is not null)
+        {
+            File.WriteAllBytes(modelStateFilePath, bytes);
+        }
 
         string executorStateFilepath = Path.Combine(path, ChatSession.EXECUTOR_STATE_FILENAME);
         File.WriteAllText(executorStateFilepath, JsonSerializer.Serialize(ExecutorState));
@@ -685,7 +697,9 @@ public record SessionState
         }
 
         string modelStateFilePath = Path.Combine(path, ChatSession.MODEL_STATE_FILENAME);
-        var contextState = State.FromByteArray(File.ReadAllBytes(modelStateFilePath));
+        var contextState = File.Exists(modelStateFilePath) ? 
+            State.FromByteArray(File.ReadAllBytes(modelStateFilePath))
+            : null;
 
         string executorStateFilepath = Path.Combine(path, ChatSession.EXECUTOR_STATE_FILENAME);
         var executorState = JsonSerializer.Deserialize<ExecutorBaseState>(File.ReadAllText(executorStateFilepath))
