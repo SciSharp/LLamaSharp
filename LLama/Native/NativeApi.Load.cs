@@ -275,7 +275,7 @@ namespace LLama.Native
         {
             GetPlatformPathParts(out _, out var os, out var fileExtension, out var libPrefix);
 
-            return $"{os}{libPrefix}{libraryName}{fileExtension}";
+            return $"runtimes/{os}/native/{libPrefix}{libraryName}{fileExtension}";
         }
 
         /// <summary>
