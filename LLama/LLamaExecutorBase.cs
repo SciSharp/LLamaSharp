@@ -388,13 +388,13 @@ namespace LLama
             public string? SessionFilePath { get; set; }
 
             [JsonPropertyName("embd")]
-            public List<LLamaToken> Embeds { get; set; }
+            public LLamaToken[] Embeds { get; set; }
 
             [JsonPropertyName("embd_inps")]
-            public List<LLamaToken> EmbedInps { get; set; }
+            public LLamaToken[] EmbedInps { get; set; }
 
             [JsonPropertyName("session_tokens")]
-            public List<LLamaToken> SessionTokens { get; set; }
+            public LLamaToken[] SessionTokens { get; set; }
 
             [JsonPropertyName("last_n_tokens")]
             public LLamaToken[] LastTokens { get; set; }
