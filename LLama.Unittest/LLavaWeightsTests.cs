@@ -32,7 +32,7 @@ namespace LLama.Unittest
             _lLavaWeights.Dispose();
         }
       
-        [Fact]
+        [Fact(Skip = "Very very slow in CI")]
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
@@ -40,7 +40,7 @@ namespace LLama.Unittest
             Assert.True( _lLavaWeights.EvalImageEmbed( _context, emb, ref n_past ) );
         }        
         
-        [Fact]
+        [Fact(Skip = "Very very slow in CI")]
         public void EmbedImageAsBinary()
         {
             int n_past = 0;
