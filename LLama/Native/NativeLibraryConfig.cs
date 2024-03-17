@@ -11,19 +11,19 @@ namespace LLama.Native
     /// </summary>
     public sealed class NativeLibraryConfig
     {
-        private static readonly Lazy<NativeLibraryConfig> _instance = new(() => new NativeLibraryConfig());
-
         /// <summary>
         /// Get the config instance
         /// </summary>
-        public static NativeLibraryConfig Instance => _instance.Value;
+        public static NativeLibraryConfig Instance { get; } = new();
 
         /// <summary>
-        /// Whether there's already a config for native library.
+        /// Check if the native library has already been loaded. Configuration cannot be modified if this is true.
         /// </summary>
         public static bool LibraryHasLoaded { get; internal set; } = false;
 
-        private string _libraryPath = string.Empty;
+        private string? _libraryPath;
+        private string? _libraryPathLLava;
+
         private bool _useCuda = true;
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
@@ -42,17 +42,20 @@ namespace LLama.Native
                 throw new InvalidOperationException("NativeLibraryConfig must be configured before using **any** other LLamaSharp methods!");
         }
 
+        #region configurators
         /// <summary>
         /// Load a specified native library as backend for LLamaSharp.
         /// When this method is called, all the other configurations will be ignored.
         /// </summary>
-        /// <param name="libraryPath"></param>
+        /// <param name="llamaPath">The full path to the llama library to load.</param>
+        /// <param name="llavaPath">The full path to the llava library to load.</param>
         /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLibrary(string libraryPath)
+        public NativeLibraryConfig WithLibrary(string? llamaPath, string? llavaPath)
         {
             ThrowIfLoaded();
 
-            _libraryPath = libraryPath;
+            _libraryPath = llamaPath;
+            _libraryPathLLava = llavaPath;
             return this;
         }
 
@@ -172,14 +175,23 @@ namespace LLama.Native
             _searchDirectories.Add(directory);
             return this;
         }
+        #endregion
 
-        internal static Description CheckAndGatherDescription()
+        internal static Description CheckAndGatherDescription(LibraryName library)
         {
             if (Instance._allowFallback && Instance._skipCheck)
                 throw new ArgumentException("Cannot skip the check when fallback is allowed.");
 
+            var path = library switch
+            {
+                LibraryName.Llama => Instance._libraryPath,
+                LibraryName.LlavaShared => Instance._libraryPathLLava,
+                _ => throw new ArgumentException($"Unknown library name '{library}'", nameof(library)),
+            };
+
             return new Description(
-                Instance._libraryPath,
+                path,
+                library,
                 Instance._useCuda,
                 Instance._avxLevel,
                 Instance._allowFallback,
@@ -267,7 +279,7 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string Path, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, LLamaLogLevel LogLevel, string[] SearchDirectories)
+        internal record Description(string? Path, LibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, LLamaLogLevel LogLevel, string[] SearchDirectories)
         {
             public override string ToString()
             {
@@ -283,7 +295,8 @@ namespace LLama.Native
                 string searchDirectoriesString = "{ " + string.Join(", ", SearchDirectories) + " }";
 
                 return $"NativeLibraryConfig Description:\n" +
-                       $"- Path: {Path}\n" +
+                       $"- LibraryName: {Library}\n" +
+                       $"- Path: '{Path}'\n" +
                        $"- PreferCuda: {UseCuda}\n" +
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
@@ -295,4 +308,26 @@ namespace LLama.Native
         }
     }
 #endif
+
+    internal enum LibraryName
+    {
+        Llama,
+        LlavaShared
+    }
+
+    internal static class LibraryNameExtensions
+    {
+        public static string GetLibraryName(this LibraryName name)
+        {
+            switch (name)
+            {
+                case LibraryName.Llama:
+                    return NativeApi.libraryName;
+                case LibraryName.LlavaShared:
+                    return NativeApi.llavaLibraryName;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(name), name, null);
+            }
+        }
+    }
 }
