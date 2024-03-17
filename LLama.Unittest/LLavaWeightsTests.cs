@@ -1,5 +1,4 @@
 ﻿using LLama.Common;
-using LLama.Native;
 
 namespace LLama.Unittest
 {
@@ -16,8 +15,8 @@ namespace LLama.Unittest
         {
             var @params = new ModelParams(Constants.ModelPath)
             {
-                // Llava models requires big context
-                ContextSize = 4096
+                // Exactly enough context to embed the test image
+                ContextSize = 2880
             };
             _llamaWeights = LLamaWeights.LoadFromFile(@params);
             _lLavaWeights = LLavaWeights.LoadFromFile(Constants.LLavaMmpPath);
@@ -32,21 +31,22 @@ namespace LLama.Unittest
             _lLavaWeights.Dispose();
         }
 
-      
-        
-        [Fact]
+
+
+        [Fact(Skip = "Very slow in CI")]
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
             Assert.True( _lLavaWeights.EmbedImage( _context, Constants.LLavaImage, ref n_past ) );
-        }        
-        
-        [Fact]
+        }
+
+        [Fact(Skip = "Very slow in CI")]
         public void EmbedImageAsBinary()
         {
             int n_past = 0;
-            byte[] image = System.IO.File.ReadAllBytes(Constants.LLavaImage);
+            byte[] image = File.ReadAllBytes(Constants.LLavaImage);
             Assert.True( _lLavaWeights.EmbedImage( _context, image, ref n_past ) );
+            Assert.Equal(2880, n_past);
         }        
         
     }

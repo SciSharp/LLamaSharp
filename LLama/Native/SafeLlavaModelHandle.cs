@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using LLama;
 using LLama.Exceptions;
 
 
@@ -37,12 +33,11 @@ namespace LLama.Native
         /// Load a model from the given file path into memory
         /// </summary>
         /// <param name="modelPath"></param>
-        /// <param name="lparams"></param>
+        /// <param name="verbosity"></param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public static SafeLlavaModelHandle LoadFromFile(string modelPath, int verbosity )
+        public static SafeLlavaModelHandle LoadFromFile(string modelPath, int verbosity)
         {
-            
             // Try to open the model file, this will check:
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
@@ -76,7 +71,7 @@ namespace LLama.Native
         /// <param name="image">jpeg image</param>
         /// <param name="n_past"></param>
         /// <returns></returns>
-        public bool EmbedImage(LLamaContext ctxLlama, Byte[] image, ref int n_past )
+        public bool EmbedImage(LLamaContext ctxLlama, byte[] image, ref int n_past )
         {
             var ImageEmbed = SafeLlavaImageEmbedHandle.CreateFromMemory(this, ctxLlama, image );
             bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ImageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
