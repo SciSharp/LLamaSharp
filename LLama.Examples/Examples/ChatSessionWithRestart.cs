@@ -37,7 +37,8 @@ public class ChatSessionWithRestart
         };
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("The chat session has started.");
+        Console.WriteLine("The chat session has started. Write `save` to save session in memory."
+            + " Write `reset` to start from the last saved checkpoint");
 
         // show the prompt
         Console.ForegroundColor = ConsoleColor.Green;
@@ -48,13 +49,13 @@ public class ChatSessionWithRestart
             if(userInput == "reset")
             {
                 session.LoadSession(resetState);
-                Console.WriteLine($"History: {session.HistoryTransform.HistoryToText(session.History)}");
+                Console.WriteLine($"Reset to history:\n{session.HistoryTransform.HistoryToText(session.History)}");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session reset.");
             }
             else if (userInput == "save")
             {
-                session.SaveSession("Assets/chat-with-bob");
+                resetState = session.GetSessionState();
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session saved.");
             }

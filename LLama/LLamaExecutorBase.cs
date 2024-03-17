@@ -370,6 +370,7 @@ namespace LLama
             public bool NeedToSaveSession { get; set; }
         }
 
+        [JsonConverter(typeof(PolymorphicJSONConverter<ExecutorBaseState>))]
         public class ExecutorBaseState
         {
             [JsonPropertyName("n_past")]

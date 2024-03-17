@@ -1,10 +1,12 @@
 ﻿using LLama.Common;
+using System.Text.Json.Serialization;
 
 namespace LLama.Abstractions
 {
     /// <summary>
     /// Transform history to plain text and vice versa.
     /// </summary>
+    [JsonConverter(typeof(PolymorphicJSONConverter<IHistoryTransform>))]
     public interface IHistoryTransform
     {
         /// <summary>

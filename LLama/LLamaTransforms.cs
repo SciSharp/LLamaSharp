@@ -3,6 +3,7 @@ using LLama.Common;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace LLama
 {
@@ -28,6 +29,12 @@ namespace LLama
             private readonly string _systemName;
             private readonly string _unknownName;
             private readonly bool _isInstructMode;
+
+            public string UserName => _userName;
+            public string AssistantName => _assistantName;
+            public string SystemName => _systemName;
+            public string UnknownName => _unknownName;
+            public bool IsInstructMode => _isInstructMode;
 
             /// <summary>
             /// 
@@ -157,6 +164,42 @@ namespace LLama
             private readonly HashSet<string> _keywords;
             private readonly int _maxKeywordLength;
             private readonly bool _removeAllMatchedTokens;
+
+            /// <summary>
+            /// Keywords that you want to remove from the response.
+            /// This property is used for JSON serialization.
+            /// </summary>
+            [JsonPropertyName("keywords")]
+            public HashSet<string> Keywords => _keywords;
+
+            /// <summary>
+            /// Maximum length of the keywords.
+            /// This property is used for JSON serialization.
+            /// </summary>
+            [JsonPropertyName("maxKeywordLength")]
+            public int MaxKeywordLength => _maxKeywordLength;
+
+            /// <summary>
+            /// If set to true, when getting a matched keyword, all the related tokens will be removed. 
+            /// Otherwise only the part of keyword will be removed.
+            /// This property is used for JSON serialization.
+            /// </summary>
+            [JsonPropertyName("removeAllMatchedTokens")]
+            public bool RemoveAllMatchedTokens => _removeAllMatchedTokens;
+
+            /// <summary>
+            /// JSON constructor.
+            /// </summary>
+            [JsonConstructor]
+            public KeywordTextOutputStreamTransform(
+                HashSet<string> keywords,
+                int maxKeywordLength,
+                bool removeAllMatchedTokens)
+            {
+                _keywords = new(keywords);
+                _maxKeywordLength = maxKeywordLength;
+                _removeAllMatchedTokens = removeAllMatchedTokens;
+            }
 
             /// <summary>
             /// 

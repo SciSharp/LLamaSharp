@@ -61,6 +61,12 @@ public class ChatSessionWithHistory
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session saved.");
             }
+            else if (userInput == "load")
+            {
+                session.LoadSession("Assets/chat-with-bob");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Session loaded.");
+            }
             else if (userInput == "regenerate")
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
