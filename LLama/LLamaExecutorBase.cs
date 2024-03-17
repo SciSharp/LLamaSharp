@@ -317,11 +317,11 @@ namespace LLama
 
         /// <summary>
         /// Asynchronously runs a prompt through the model to compute KV cache without generating any new tokens.
+        /// It could reduce the latency of the first time response if the first input from the user is not immediate.
         /// </summary>
         /// <param name="prompt">Prompt to process</param>
-        /// <param name="cancellationToken">A cancellation token</param>
         /// <returns></returns>
-        public virtual async Task AddPromptAsync(string prompt, CancellationToken cancellationToken = default)
+        public virtual async Task PrefillPromptAsync(string prompt)
         {
             var inferenceParams = new InferenceParams
             {
