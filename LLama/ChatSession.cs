@@ -189,9 +189,9 @@ public class ChatSession
         }
         Executor.Context.LoadState(state.ContextState);
         History = new ChatHistory(state.History);
-        InputTransformPipeline = state.InputTransformPipeline.ToList();
-        OutputTransform = state.OutputTransform;
-        HistoryTransform = state.HistoryTransform;
+        InputTransformPipeline = state.InputTransformPipeline.Select(t => t.Clone()).ToList();
+        OutputTransform = state.OutputTransform.Clone();
+        HistoryTransform = state.HistoryTransform.Clone();
     }
 
     /// <summary>
@@ -634,8 +634,8 @@ public record SessionState
         ContextState = contextState;
         ExecutorState = executorState;
         History = history.Messages.ToArray();
-        InputTransformPipeline = inputTransformPipeline.ToArray();
-        OutputTransform = outputTransform;
-        HistoryTransform = historyTransform;
+        InputTransformPipeline = inputTransformPipeline.Select(t => t.Clone()).ToArray();
+        OutputTransform = outputTransform.Clone();
+        HistoryTransform = historyTransform.Clone();
     }
 }

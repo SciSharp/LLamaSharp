@@ -13,5 +13,11 @@ namespace LLama.Abstractions
         /// <param name="tokens"></param>
         /// <returns></returns>
         IAsyncEnumerable<string> TransformAsync(IAsyncEnumerable<string> tokens);
+
+        /// <summary>
+        /// Copy the transform.
+        /// </summary>
+        /// <returns></returns>
+        ITextStreamTransform Clone();
     }
 }

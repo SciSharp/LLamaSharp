@@ -17,5 +17,11 @@
         /// <param name="text"></param>
         /// <returns></returns>
         string Transform(string text);
+
+        /// <summary>
+        /// Copy the transform.
+        /// </summary>
+        /// <returns></returns>
+        ITextTransform Clone();
     }
 }

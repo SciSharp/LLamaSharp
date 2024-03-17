@@ -21,5 +21,11 @@ namespace LLama.Abstractions
         /// <param name="text">The chat history as plain text.</param>
         /// <returns>The updated history.</returns>
         ChatHistory TextToHistory(AuthorRole role, string text);
+
+        /// <summary>
+        /// Copy the transform.
+        /// </summary>
+        /// <returns></returns>
+        IHistoryTransform Clone();
     }
 }

@@ -48,6 +48,12 @@ namespace LLama
             }
 
             /// <inheritdoc />
+            public IHistoryTransform Clone()
+            {
+                return new DefaultHistoryTransform(_userName, _assistantName, _systemName, _unknownName, _isInstructMode);
+            }
+
+            /// <inheritdoc />
             public virtual string HistoryToText(ChatHistory history)
             {
                 StringBuilder sb = new();
@@ -116,6 +122,12 @@ namespace LLama
             {
                 return text.Trim();
             }
+
+            /// <inheritdoc />
+            public ITextTransform Clone()
+            {
+                return new NaiveTextInputTransform();
+            }
         }
 
         /// <summary>
@@ -128,6 +140,12 @@ namespace LLama
             public IAsyncEnumerable<string> TransformAsync(IAsyncEnumerable<string> tokens)
             {
                 return tokens;
+            }
+
+            /// <inheritdoc />
+            public ITextStreamTransform Clone()
+            {
+                return new EmptyTextOutputStreamTransform();
             }
         }
 
@@ -155,6 +173,12 @@ namespace LLama
                 _maxKeywordLength = _keywords.Max(x => x.Length) + redundancyLength;
                 _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
+            }
+
+            /// <inheritdoc />
+            public ITextStreamTransform Clone()
+            {
+                return new KeywordTextOutputStreamTransform(_keywords, _maxKeywordLength, _removeAllMatchedTokens);
             }
 
             /// <inheritdoc />
