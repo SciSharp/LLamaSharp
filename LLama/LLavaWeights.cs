@@ -19,30 +19,21 @@ public sealed class LLavaWeights : IDisposable
         return new LLavaWeights(weights);
     }
 
-    /// <summary>
-    /// Embed the image from file into llama context
-    /// </summary>
-    /// <param name="ctxLlama"></param>
-    /// <param name="Image"></param>
-    /// <param name="n_past"></param>
-    /// <returns></returns>
-    public bool EmbedImage(LLamaContext ctxLlama, string Image, ref int n_past )
+    public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, Byte[] image )
     {
-        return NativeHandle.EmbedImage(ctxLlama, Image, ref n_past );
+        return NativeHandle.CreateImageEmbeddings(ctxLlama, image  );
     }
 
-    /// <summary>
-    /// Embed the image from binary into llama context.
-    /// </summary>
-    /// <param name="ctxLlama"></param>
-    /// <param name="Image"></param>
-    /// <param name="n_past"></param>
-    /// <returns></returns>
-    public bool EmbedImage(LLamaContext ctxLlama, Byte[] Image, ref int n_past )
+    public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, string image )
     {
-        return NativeHandle.EmbedImage(ctxLlama, Image, ref n_past );
+        return NativeHandle.CreateImageEmbeddings(ctxLlama, image  );
     }
-    
+
+    public bool EvalImageEmbed(LLamaContext ctxLlama, SafeLlavaImageEmbedHandle imageEmbed, ref int n_past)
+    {
+        return NativeHandle.EvalImageEmbed( ctxLlama, imageEmbed,  ref n_past );
+    }
+
     public void Dispose()
     {
         NativeHandle.Dispose();

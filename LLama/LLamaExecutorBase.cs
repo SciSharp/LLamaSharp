@@ -64,6 +64,18 @@ namespace LLama
         /// </summary>
         public LLamaContext Context { get; }
 
+        // LLava Section
+        public bool IsMultiModal
+        {
+            get
+            {
+                return ClipModel != null && !string.IsNullOrEmpty(ImagePath);
+            }
+        }
+        public bool MultiModalProject { get;  }
+        public LLavaWeights? ClipModel { get;  }        
+        public string ImagePath { get; set; }        
+        
         /// <summary>
         /// Current "mu" value for mirostat sampling
         /// </summary>
@@ -85,6 +97,13 @@ namespace LLama
             _n_session_consumed = 0;
             _last_n_tokens = new FixedSizeQueue<LLamaToken>((int)Context.ContextSize);
             _decoder = new StreamingTokenDecoder(context);
+        }
+        
+        public StatefulExecutorBase(LLamaContext context, LLavaWeights lLavaWeights, ILogger? logger = null) : 
+                        this( context, logger )
+        {
+            ClipModel = lLavaWeights;
+            MultiModalProject = true;
         }
 
         /// <summary>
