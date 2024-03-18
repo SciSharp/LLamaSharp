@@ -31,7 +31,8 @@ public class BatchedExecutorFork
         Console.WriteLine($"Created executor with model: {name}");
 
         // Evaluate the initial prompt to create one conversation
-        using var start = executor.Prompt(prompt);
+        using var start = executor.Create();
+        start.Prompt(prompt);
         await executor.Infer();
 
         // Create the root node of the tree

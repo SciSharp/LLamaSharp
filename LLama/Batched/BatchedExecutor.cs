@@ -64,19 +64,15 @@ public sealed class BatchedExecutor
     }
 
     /// <summary>
-    /// Start a new <see cref="Conversation"/> with the given prompt
+    /// Start a new <see cref="Conversation"/>
     /// </summary>
-    /// <param name="prompt"></param>
     /// <returns></returns>
-    public Conversation Prompt(string prompt)
+    public Conversation Create()
     {
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
-        var conversation = new Conversation(this, GetNextSequenceId(), 0);
-        conversation.Prompt(prompt);
-
-        return conversation;
+        return new Conversation(this, GetNextSequenceId(), 0);
     }
 
     /// <summary>

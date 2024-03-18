@@ -32,7 +32,8 @@ public class BatchedExecutorRewind
         Console.WriteLine($"Created executor with model: {name}");
 
         // Evaluate the initial prompt to create one conversation
-        using var conversation = executor.Prompt(prompt);
+        using var conversation = executor.Create();
+        conversation.Prompt(prompt);
         
         // Create the start node wrapping the conversation
         var node = new Node(executor.Context);
