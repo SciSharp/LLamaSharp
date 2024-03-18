@@ -14,10 +14,20 @@ namespace LLama.Abstractions
         public LLamaContext Context { get; }
         
         // LLava Section
+        //
+        /// <summary>
+        /// Identify if it's a multi-modal model and there is a image to process.
+        /// </summary>
         public bool IsMultiModal { get; }
-        public bool MultiModalProject { get;  }
+        /// <summary>
+        /// Muti-Modal Projections / Clip Model weights
+        /// </summary>
         public LLavaWeights? ClipModel { get;  }        
-        public string ImagePath { get; set; }
+        
+        /// <summary>
+        /// Image filename and path (jpeg images).
+        /// </summary>
+        public string? ImagePath { get; set; }
         
         
         /// <summary>

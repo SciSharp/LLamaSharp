@@ -64,17 +64,22 @@ namespace LLama
         /// </summary>
         public LLamaContext Context { get; }
 
-        // LLava Section
+        // LLava Section 
+        //
+        /// <inheritdoc />
         public bool IsMultiModal
         {
             get
             {
-                return ClipModel != null && !string.IsNullOrEmpty(ImagePath);
+                return ClipModel != null && ImagePath != null;
             }
         }
-        public bool MultiModalProject { get;  }
-        public LLavaWeights? ClipModel { get;  }        
-        public string ImagePath { get; set; }        
+        
+        /// <inheritdoc />
+        public LLavaWeights? ClipModel { get;  }      
+        
+        /// <inheritdoc />
+        public string? ImagePath { get; set; }        
         
         /// <summary>
         /// Current "mu" value for mirostat sampling
@@ -103,7 +108,6 @@ namespace LLama
                         this( context, logger )
         {
             ClipModel = lLavaWeights;
-            MultiModalProject = true;
         }
 
         /// <summary>
