@@ -10,39 +10,42 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-    <Version>0.8.0</Version>
-    <Authors>Tim Miller, Xbotter</Authors>
-    <Company>SciSharp STACK</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
-    <RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
-    <PackageTags>LLama, LLM, GPT, ChatGPT, semantic-kernel, SciSharp</PackageTags>
-    <Description>
-      The integration of LLamaSharp and Microsoft semantic-kernel.
-    </Description>
-    <PackageReleaseNotes>
-      Support integration with semantic-kernel
-    </PackageReleaseNotes>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageOutputPath>packages</PackageOutputPath>
-    <Platforms>AnyCPU;x64;Arm64</Platforms>
-    <PackageId>LLamaSharp.semantic-kernel</PackageId>
-    <Configurations>Debug;Release;GPU</Configurations>
-	<NoWarn>SKEXP0001,SKEXP0052</NoWarn>
+		<Version>0.8.0</Version>
+		<Authors>Tim Miller, Xbotter</Authors>
+		<Company>SciSharp STACK</Company>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+		<RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+		<PackageTags>LLama, LLM, GPT, ChatGPT, semantic-kernel, SciSharp</PackageTags>
+		<Description>
+			The integration of LLamaSharp and Microsoft semantic-kernel.
+		</Description>
+		<PackageReleaseNotes>
+			Support integration with semantic-kernel
+		</PackageReleaseNotes>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageOutputPath>packages</PackageOutputPath>
+		<Platforms>AnyCPU;x64;Arm64</Platforms>
+		<PackageId>LLamaSharp.semantic-kernel</PackageId>
+		<Configurations>Debug;Release;GPU</Configurations>
+		<NoWarn>SKEXP0001,SKEXP0052</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.6.2" />
+		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.6.2" />
 	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Memory" Version="4.5.5" PrivateAssets="all" />
-  </ItemGroup>
-  
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="System.Memory" Version="4.5.5" PrivateAssets="all" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Llama.Unittest"/>
 	</ItemGroup>
 
 </Project>
