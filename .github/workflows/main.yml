@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: [LlavaExecutor]
+    branches: [master]
   pull_request:
-    branches: [LlavaExecutor]
+    branches: [master]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
