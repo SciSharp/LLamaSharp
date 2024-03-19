@@ -169,13 +169,14 @@ public sealed class Conversation
         // No point doing anything if there is no actual prompt!
         if (tokens.Count == 0)
             return;
-
+        ulong requiredEpochs = 0;
         // Add the prompt to the batch
         for (var i = 0; i < tokens.Count; i++)
-            _batchIndex = Executor.Batch.Add(tokens[i], _end++, ConversationId, i == tokens.Count - 1);
+            (_batchIndex, requiredEpochs) = Executor.AddTokenToConversation(
+                tokens[i], _end++, ConversationId, i == tokens.Count - 1);
 
         // Mark this conversation as needing inference/sampling
-        _requiredEpoch = Executor.Epoch + 1;
+        _requiredEpoch = Executor.Epoch + requiredEpochs;
     }
 
     /// <summary>
@@ -190,10 +191,10 @@ public sealed class Conversation
         AssertCanBePrompted();
 
         // Add this token as input
-        _batchIndex = Executor.Batch.Add(token, _end++, ConversationId, true);
+        (_batchIndex, var requiredEpochs) = Executor.AddTokenToConversation(token, _end++, ConversationId, true);
 
         // Mark this conversation as needing inference/sampling
-        _requiredEpoch = Executor.Epoch + 1;
+        _requiredEpoch = Executor.Epoch + requiredEpochs;
     }
     #endregion
 
