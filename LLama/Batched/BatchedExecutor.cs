@@ -214,11 +214,6 @@ public sealed class BatchedExecutor
         {
             return logits;
         }
-        else
-        {
-            Console.WriteLine($"Epoch: {epoch}, BatchIndex: {batchIndex}, ConversationId: {conversationId}");
-            Console.WriteLine($"Cache: {string.Join(", ", _logitCache.Keys.Select(k => $"Epoch: {k.Epoch}, BatchIndex: {k.BatchIndex}, ConversationId: {k.ConversationId}"))}");
-        }
         throw new InvalidOperationException("Logits not found in cache");
     }
 
@@ -269,6 +264,7 @@ public sealed class BatchedExecutor
 
     internal void CopyConversationCache(LLamaSeqId from, LLamaSeqId dest, LLamaPos end)
     {
+        _mutex.Wait();
         // Assign tokens to the new sequence
         NativeApi.llama_kv_cache_seq_cp(Context.NativeHandle, from, dest, 0, end);
 
@@ -286,10 +282,12 @@ public sealed class BatchedExecutor
                 _logitCache.TryAdd(newKey, entry.Value);
             }
         }
+        _mutex.Release();
     }
 
     internal void RemoveFromCache(LLamaSeqId conversationId, LLamaPos end)
     {
+        _mutex.Wait();
         foreach (var key in _logitCache.Keys)
         {
             if (key.ConversationId == conversationId)
@@ -298,6 +296,7 @@ public sealed class BatchedExecutor
             }
         }
         Context.NativeHandle.KvCacheRemove(conversationId, 0, end);
+        _mutex.Release();
     }
 
     private void AddToLogitCache(LLamaBatch batch)
