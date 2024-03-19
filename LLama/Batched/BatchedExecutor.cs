@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Native;
-using System.Collections.Generic;
 
 namespace LLama.Batched;
 
@@ -14,12 +13,6 @@ public sealed class BatchedExecutor
     : IDisposable
 {
     private int _nextSequenceId;
-
-    /// <summary>
-    /// Store a reference to conversations created from this executor. Storing them as weak references allows
-    /// the garbage collector to clean them up if Dispose is not properly called.
-    /// </summary>
-    private readonly List<WeakReference<Conversation>> _conversations = new();
 
     internal LLamaBatch Batch { get; }
 
@@ -43,18 +36,6 @@ public sealed class BatchedExecutor
     /// Get the number of tokens in the batch, waiting for <see cref="Infer"/> to be called
     /// </summary>
     public int BatchedTokenCount => Batch.TokenCount;
-
-    /// <summary>
-    /// Get the number of conversations in this batch
-    /// </summary>
-    public int ConversationCount
-    {
-        get
-        {
-            TrimConversationReferences();
-            return _conversations.Count;
-        }
-    }
 
     /// <summary>
     /// Check if this executor has been disposed.
@@ -83,16 +64,6 @@ public sealed class BatchedExecutor
     }
 
     /// <summary>
-    /// Remove all conversation references which are no longer valid
-    /// </summary>
-    private void TrimConversationReferences()
-    {
-        for (var i = _conversations.Count - 1; i >= 0; i--)
-            if (!_conversations[i].TryGetTarget(out var c) || c.IsDisposed)
-                _conversations.RemoveAt(i);
-    }
-
-    /// <summary>
     /// Start a new <see cref="Conversation"/> with the given prompt
     /// </summary>
     /// <param name="prompt"></param>
@@ -118,12 +89,7 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
-        var conversation = new Conversation(this, GetNextSequenceId(), 0);
-
-        TrimConversationReferences();
-        _conversations.Add(new WeakReference<Conversation>(conversation));
-
-        return conversation;
+        return new Conversation(this, GetNextSequenceId(), 0);
     }
 
     /// <summary>
