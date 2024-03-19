@@ -15,6 +15,10 @@ public sealed class Conversation
     private int _batchIndex;
     private bool _disposed;
 
+    private ulong _lastSampledEpoch = 0UL;
+    private int _lastSampledBatchIndex = -1;
+    private float[] _lastSampledLogits = Array.Empty<float>();
+
     /// <summary>
     /// The executor which this conversation belongs to
     /// </summary>
@@ -72,8 +76,8 @@ public sealed class Conversation
             return;
         _disposed = true;
 
-        // Remove this conversation from the KV cache
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _end);
+        // Remove this conversation from the Executor cache
+        Executor.RemoveFromCache(ConversationId, _end);
 
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
@@ -108,9 +112,7 @@ public sealed class Conversation
             _requiredEpoch = _requiredEpoch,
         };
 
-        // Assign tokens to the new sequence
-        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, c.ConversationId, 0, _end);
-
+        Executor.CopyConversationCache(ConversationId, c.ConversationId, _end);
         return c;
     }
 
@@ -130,8 +132,13 @@ public sealed class Conversation
             throw new CannotSampleRequiresPromptException();
         if (_requiredEpoch > Executor.Epoch)
             throw new CannotSampleRequiresInferenceException();
-
-        return Executor.GetLogits(_requiredEpoch, _batchIndex);
+        if (_lastSampledEpoch == _requiredEpoch && _lastSampledBatchIndex == _batchIndex)
+            return _lastSampledLogits;
+        var logits = Executor.SampleLogits(_requiredEpoch, _batchIndex, ConversationId);
+        _lastSampledEpoch = _requiredEpoch;
+        _lastSampledBatchIndex = _batchIndex;
+        _lastSampledLogits = logits;
+        return logits;
     }
     #endregion
 

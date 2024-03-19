@@ -53,12 +53,32 @@ struct AsyncMutex : IDisposable
 public sealed class BatchedExecutor
     : IDisposable
 {
+    private struct LogitCacheKey
+    {
+        public ulong Epoch;
+        public int BatchIndex;
+        public LLamaSeqId ConversationId;
+
+        public override readonly bool Equals(object? obj)
+        {
+            return obj is LogitCacheKey key &&
+                   Epoch == key.Epoch &&
+                   BatchIndex == key.BatchIndex &&
+                   ConversationId == key.ConversationId;
+        }
+
+        public override readonly int GetHashCode()
+        {
+            return (Epoch, BatchIndex, ConversationId).GetHashCode();
+        }
+    }
+
     private int _nextSequenceId;
 
     private readonly AsyncMutex _mutex = new AsyncMutex();
 
     private ConcurrentQueue<LLamaBatch> _batchQueue;
-    private readonly ConcurrentDictionary<(ulong Epoch, int BatchIndex), float[]> _logitCache;
+    private readonly ConcurrentDictionary<LogitCacheKey, float[]> _logitCache;
 
     /// <summary>
     /// Epoch is incremented every time Infer is called. Conversations can use this to keep track of
@@ -106,7 +126,7 @@ public sealed class BatchedExecutor
         _batchQueue = new ConcurrentQueue<LLamaBatch>();
         Context = model.CreateContext(contextParams);
         Epoch = 1;
-        _logitCache = new ConcurrentDictionary<(ulong Epoch, int BatchIndex), float[]>();
+        _logitCache = new ConcurrentDictionary<LogitCacheKey, float[]>();
     }
 
     /// <summary>
@@ -182,17 +202,29 @@ public sealed class BatchedExecutor
         return status;
     }
 
-    internal float[] GetLogits(ulong epoch, int batchIndex)
+    internal float[] SampleLogits(ulong epoch, int batchIndex, LLamaSeqId conversationId)
     {
-        if (_logitCache.TryGetValue((epoch, batchIndex), out var logits))
+        var cacheKey = new LogitCacheKey
+        {
+            Epoch = epoch,
+            BatchIndex = batchIndex,
+            ConversationId = conversationId
+        };
+        if (_logitCache.TryRemove(cacheKey, out var logits))
+        {
             return logits;
+        }
+        else
+        {
+            Console.WriteLine($"Epoch: {epoch}, BatchIndex: {batchIndex}, ConversationId: {conversationId}");
+            Console.WriteLine($"Cache: {string.Join(", ", _logitCache.Keys.Select(k => $"Epoch: {k.Epoch}, BatchIndex: {k.BatchIndex}, ConversationId: {k.ConversationId}"))}");
+        }
         throw new InvalidOperationException("Logits not found in cache");
     }
 
     /// <summary>
     /// Add a token to the batch for the given conversation.
     /// </summary>
-    /// <param name="conversation"></param>
     /// <param name="token"></param>
     /// <param name="endIndex"></param>
     /// <param name="ConversationId"></param>
@@ -235,16 +267,58 @@ public sealed class BatchedExecutor
         return id;
     }
 
+    internal void CopyConversationCache(LLamaSeqId from, LLamaSeqId dest, LLamaPos end)
+    {
+        // Assign tokens to the new sequence
+        NativeApi.llama_kv_cache_seq_cp(Context.NativeHandle, from, dest, 0, end);
+
+        // Copy logits to the new sequence
+        foreach (var entry in _logitCache)
+        {
+            if (entry.Key.ConversationId == from)
+            {
+                var newKey = new LogitCacheKey
+                {
+                    Epoch = entry.Key.Epoch,
+                    BatchIndex = entry.Key.BatchIndex,
+                    ConversationId = dest
+                };
+                _logitCache.TryAdd(newKey, entry.Value);
+            }
+        }
+    }
+
+    internal void RemoveFromCache(LLamaSeqId conversationId, LLamaPos end)
+    {
+        foreach (var key in _logitCache.Keys)
+        {
+            if (key.ConversationId == conversationId)
+            {
+                _logitCache.TryRemove(key, out _);
+            }
+        }
+        Context.NativeHandle.KvCacheRemove(conversationId, 0, end);
+    }
+
     private void AddToLogitCache(LLamaBatch batch)
     {
-        foreach (var kv in batch.Logits.Select((v, k) => (Key: k, Value: v)))
+        for(var i = 0; i < batch.Logits.Length; i++)
         {
-            if (kv.Value)
+            if (batch.Logits[i])
             {
-                _logitCache.TryAdd(
-                    (Epoch, kv.Key),
-                    Context.NativeHandle.GetLogitsIth(kv.Key).ToArray()
-                );
+                foreach (var seqId in batch.SequenceIds[i])
+                {
+                    var cacheKey = new LogitCacheKey
+                    {
+                        Epoch = Epoch,
+                        BatchIndex = i,
+                        ConversationId = seqId
+                    };
+                    _logitCache.TryAdd(
+                        cacheKey,
+                        Context.NativeHandle.GetLogitsIth(i).ToArray()
+                    );
+                }
             }
         }
     }
