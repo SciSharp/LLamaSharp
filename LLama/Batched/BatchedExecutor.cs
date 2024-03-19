@@ -53,32 +53,12 @@ struct AsyncMutex : IDisposable
 public sealed class BatchedExecutor
     : IDisposable
 {
-    private struct LogitCacheKey
-    {
-        public ulong Epoch;
-        public int BatchIndex;
-        public LLamaSeqId ConversationId;
-
-        public override readonly bool Equals(object? obj)
-        {
-            return obj is LogitCacheKey key &&
-                   Epoch == key.Epoch &&
-                   BatchIndex == key.BatchIndex &&
-                   ConversationId == key.ConversationId;
-        }
-
-        public override readonly int GetHashCode()
-        {
-            return (Epoch, BatchIndex, ConversationId).GetHashCode();
-        }
-    }
-
     private int _nextSequenceId;
 
     private readonly AsyncMutex _mutex = new AsyncMutex();
 
     private ConcurrentQueue<LLamaBatch> _batchQueue;
-    private readonly ConcurrentDictionary<LogitCacheKey, float[]> _logitCache;
+    private readonly ConcurrentDictionary<LLamaSeqId, float[]> _logitCache;
 
     /// <summary>
     /// Epoch is incremented every time Infer is called. Conversations can use this to keep track of
@@ -126,7 +106,7 @@ public sealed class BatchedExecutor
         _batchQueue = new ConcurrentQueue<LLamaBatch>();
         Context = model.CreateContext(contextParams);
         Epoch = 1;
-        _logitCache = new ConcurrentDictionary<LogitCacheKey, float[]>();
+        _logitCache = new ConcurrentDictionary<LLamaSeqId, float[]>();
     }
 
     /// <summary>
@@ -202,15 +182,9 @@ public sealed class BatchedExecutor
         return status;
     }
 
-    internal float[] SampleLogits(ulong epoch, int batchIndex, LLamaSeqId conversationId)
+    internal float[] SampleLogits(LLamaSeqId conversationId)
     {
-        var cacheKey = new LogitCacheKey
-        {
-            Epoch = epoch,
-            BatchIndex = batchIndex,
-            ConversationId = conversationId
-        };
-        if (_logitCache.TryRemove(cacheKey, out var logits))
+        if (_logitCache.TryGetValue(conversationId, out var logits))
         {
             return logits;
         }
@@ -269,32 +243,14 @@ public sealed class BatchedExecutor
         NativeApi.llama_kv_cache_seq_cp(Context.NativeHandle, from, dest, 0, end);
 
         // Copy logits to the new sequence
-        foreach (var entry in _logitCache)
-        {
-            if (entry.Key.ConversationId == from)
-            {
-                var newKey = new LogitCacheKey
-                {
-                    Epoch = entry.Key.Epoch,
-                    BatchIndex = entry.Key.BatchIndex,
-                    ConversationId = dest
-                };
-                _logitCache.TryAdd(newKey, entry.Value);
-            }
-        }
+        _logitCache[dest] = _logitCache[from];
         _mutex.Release();
     }
 
     internal void RemoveFromCache(LLamaSeqId conversationId, LLamaPos end)
     {
         _mutex.Wait();
-        foreach (var key in _logitCache.Keys)
-        {
-            if (key.ConversationId == conversationId)
-            {
-                _logitCache.TryRemove(key, out _);
-            }
-        }
+        _logitCache.TryRemove(conversationId, out _);
         Context.NativeHandle.KvCacheRemove(conversationId, 0, end);
         _mutex.Release();
     }
@@ -307,18 +263,14 @@ public sealed class BatchedExecutor
             {
                 foreach (var seqId in batch.SequenceIds[i])
                 {
-                    var cacheKey = new LogitCacheKey
-                    {
-                        Epoch = Epoch,
-                        BatchIndex = i,
-                        ConversationId = seqId
-                    };
-                    _logitCache.TryAdd(
-                        cacheKey,
-                        Context.NativeHandle.GetLogitsIth(i).ToArray()
-                    );
+                    _logitCache[seqId] = Context.NativeHandle.GetLogitsIth(i).ToArray();
                 }
             }
+        }
+        Console.WriteLine("Logit cache:");
+        foreach (var pair in _logitCache)
+        {
+            Console.WriteLine($"{pair.Key} -> {string.Join(", ", pair.Value.Take(4))}");
         }
     }
 }

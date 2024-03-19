@@ -15,10 +15,6 @@ public sealed class Conversation
     private int _batchIndex;
     private bool _disposed;
 
-    private ulong _lastSampledEpoch = 0UL;
-    private int _lastSampledBatchIndex = -1;
-    private float[] _lastSampledLogits = Array.Empty<float>();
-
     /// <summary>
     /// The executor which this conversation belongs to
     /// </summary>
@@ -43,11 +39,6 @@ public sealed class Conversation
     /// Indicates if this conversation is waiting for inference to be run on the executor. "Prompt" and "Sample" cannot be called when this is true.
     /// </summary>
     public bool RequiresInference => _requiredEpoch > Executor.Epoch;
-
-    /// <summary>
-    /// Indicates that this conversation should be sampled.
-    /// </summary>
-    public bool RequiresSampling => _requiredEpoch == Executor.Epoch;
 
     #region construction/destruction
     internal Conversation(BatchedExecutor batch, LLamaSeqId id, LLamaPos end)
@@ -127,18 +118,17 @@ public sealed class Conversation
     public float[] Sample()
     {
         AssertNotDisposed();
-
-        if (_requiredEpoch < Executor.Epoch)
-            throw new CannotSampleRequiresPromptException();
         if (_requiredEpoch > Executor.Epoch)
             throw new CannotSampleRequiresInferenceException();
-        if (_lastSampledEpoch == _requiredEpoch && _lastSampledBatchIndex == _batchIndex)
-            return _lastSampledLogits;
-        var logits = Executor.SampleLogits(_requiredEpoch, _batchIndex, ConversationId);
-        _lastSampledEpoch = _requiredEpoch;
-        _lastSampledBatchIndex = _batchIndex;
-        _lastSampledLogits = logits;
-        return logits;
+        try
+        {
+            Console.WriteLine($"SampleLogits for conversation {ConversationId}");
+            return Executor.SampleLogits(ConversationId);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new CannotSampleRequiresPromptException();
+        }
     }
     #endregion
 
