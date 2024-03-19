@@ -39,6 +39,16 @@ public class LLamaBatch
     public int SequenceCapacity { get; private set; }
 
     /// <summary>
+    /// Compute logits flag for tokens
+    /// </summary>
+    public bool[] Logits => Array.ConvertAll(_logits, Convert.ToBoolean);
+
+    /// <summary>
+    /// Sequence IDs for tokens
+    /// </summary>
+    public LLamaSeqId[][] SequenceIds => _sequenceIds;
+
+    /// <summary>
     /// Create a new batch for submitting inputs to llama.cpp
     /// </summary>
     public LLamaBatch()

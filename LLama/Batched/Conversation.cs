@@ -40,11 +40,6 @@ public sealed class Conversation
     /// </summary>
     public bool RequiresInference => _requiredEpoch > Executor.Epoch;
 
-    /// <summary>
-    /// Indicates that this conversation should be sampled.
-    /// </summary>
-    public bool RequiresSampling => _requiredEpoch == Executor.Epoch;
-
     #region construction/destruction
     internal Conversation(BatchedExecutor batch, LLamaSeqId id, LLamaPos end)
     {
@@ -72,8 +67,8 @@ public sealed class Conversation
             return;
         _disposed = true;
 
-        // Remove this conversation from the KV cache
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _end);
+        // Remove this conversation from the Executor cache
+        Executor.RemoveFromCache(ConversationId, _end);
 
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
@@ -108,9 +103,7 @@ public sealed class Conversation
             _requiredEpoch = _requiredEpoch,
         };
 
-        // Assign tokens to the new sequence
-        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, c.ConversationId, 0, _end);
-
+        Executor.CopyConversationCache(ConversationId, c.ConversationId, _end);
         return c;
     }
 
@@ -122,16 +115,19 @@ public sealed class Conversation
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="CannotSampleRequiresPromptException">Thrown if this conversation was not prompted before the previous call to infer</exception>
     /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
-    public Span<float> Sample()
+    public float[] Sample()
     {
         AssertNotDisposed();
-
-        if (_requiredEpoch < Executor.Epoch)
-            throw new CannotSampleRequiresPromptException();
         if (_requiredEpoch > Executor.Epoch)
             throw new CannotSampleRequiresInferenceException();
-
-        return Executor.Context.NativeHandle.GetLogitsIth(_batchIndex);
+        try
+        {
+            return Executor.SampleLogits(ConversationId);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new CannotSampleRequiresPromptException();
+        }
     }
     #endregion
 
@@ -169,13 +165,14 @@ public sealed class Conversation
         // No point doing anything if there is no actual prompt!
         if (tokens.Count == 0)
             return;
-
+        ulong requiredEpochs = 0;
         // Add the prompt to the batch
         for (var i = 0; i < tokens.Count; i++)
-            _batchIndex = Executor.Batch.Add(tokens[i], _end++, ConversationId, i == tokens.Count - 1);
+            (_batchIndex, requiredEpochs) = Executor.AddTokenToConversation(
+                tokens[i], _end++, ConversationId, i == tokens.Count - 1);
 
         // Mark this conversation as needing inference/sampling
-        _requiredEpoch = Executor.Epoch + 1;
+        _requiredEpoch = Executor.Epoch + requiredEpochs;
     }
 
     /// <summary>
@@ -190,10 +187,10 @@ public sealed class Conversation
         AssertCanBePrompted();
 
         // Add this token as input
-        _batchIndex = Executor.Batch.Add(token, _end++, ConversationId, true);
+        (_batchIndex, var requiredEpochs) = Executor.AddTokenToConversation(token, _end++, ConversationId, true);
 
         // Mark this conversation as needing inference/sampling
-        _requiredEpoch = Executor.Epoch + 1;
+        _requiredEpoch = Executor.Epoch + requiredEpochs;
     }
     #endregion
 
