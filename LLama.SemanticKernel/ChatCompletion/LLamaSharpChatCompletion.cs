@@ -16,7 +16,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 /// </summary>
 public sealed class LLamaSharpChatCompletion : IChatCompletionService
 {
-    private readonly StatelessExecutor _model;
+    private readonly ILLamaExecutor _model;
     private ChatRequestSettings defaultRequestSettings;
     private readonly IHistoryTransform historyTransform;
     private readonly ITextStreamTransform outputTransform;
@@ -36,7 +36,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
         };
     }
 
-    public LLamaSharpChatCompletion(StatelessExecutor model,
+    public LLamaSharpChatCompletion(ILLamaExecutor model,
         ChatRequestSettings? defaultRequestSettings = default,
         IHistoryTransform? historyTransform = null,
         ITextStreamTransform? outputTransform = null)
