@@ -86,6 +86,11 @@ namespace LLama
         }
 
         /// <summary>
+        /// Get the maximum batch size for this context
+        /// </summary>
+        public uint BatchSize => NativeHandle.BatchSize;
+
+        /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
         /// </summary>
         /// <param name="model"></param>
