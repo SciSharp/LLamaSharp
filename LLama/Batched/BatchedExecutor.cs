@@ -148,7 +148,7 @@ public sealed class BatchedExecutor
                 while (_batchQueue.TryPeek(out var batch))
                 {
                     status = await Context.DecodeAsync(batch, cancellation);
-                    if (status == DecodeResult.NoKvSlot)
+                    if (status != DecodeResult.Ok)
                         break;
                     if (status == DecodeResult.Ok)
                     {
