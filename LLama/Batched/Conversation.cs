@@ -122,7 +122,7 @@ public sealed class Conversation
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="CannotSampleRequiresPromptException">Thrown if this conversation was not prompted before the previous call to infer</exception>
     /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
-    public Span<float> Sample()
+    public float[] Sample()
     {
         AssertNotDisposed();
 
@@ -131,7 +131,7 @@ public sealed class Conversation
         if (_requiredEpoch > Executor.Epoch)
             throw new CannotSampleRequiresInferenceException();
 
-        return Executor.Context.NativeHandle.GetLogitsIth(_batchIndex);
+        return Executor.GetLogits(_requiredEpoch, _batchIndex);
     }
     #endregion
 

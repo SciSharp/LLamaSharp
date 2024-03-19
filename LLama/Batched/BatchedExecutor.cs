@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
@@ -56,6 +58,7 @@ public sealed class BatchedExecutor
     private readonly AsyncMutex _mutex = new AsyncMutex();
 
     private ConcurrentQueue<LLamaBatch> _batchQueue;
+    private readonly ConcurrentDictionary<(ulong Epoch, int BatchIndex), float[]> _logitCache;
 
     /// <summary>
     /// Epoch is incremented every time Infer is called. Conversations can use this to keep track of
@@ -103,6 +106,7 @@ public sealed class BatchedExecutor
         _batchQueue = new ConcurrentQueue<LLamaBatch>();
         Context = model.CreateContext(contextParams);
         Epoch = 1;
+        _logitCache = new ConcurrentDictionary<(ulong Epoch, int BatchIndex), float[]>();
     }
 
     /// <summary>
@@ -154,6 +158,7 @@ public sealed class BatchedExecutor
                     {
                         Epoch++;
                         _batchQueue.TryDequeue(out _);
+                        AddToLogitCache(batch);
                         batch.Clear();
                     }
                 }
@@ -168,12 +173,20 @@ public sealed class BatchedExecutor
                     {
                         Epoch++;
                         _batchQueue.TryDequeue(out _);
+                        AddToLogitCache(batch);
                         batch.Clear();
                     }
                 }
             }
         });
         return status;
+    }
+
+    internal float[] GetLogits(ulong epoch, int batchIndex)
+    {
+        if (_logitCache.TryGetValue((epoch, batchIndex), out var logits))
+            return logits;
+        throw new InvalidOperationException("Logits not found in cache");
     }
 
     /// <summary>
@@ -220,5 +233,19 @@ public sealed class BatchedExecutor
         var id = checked((LLamaSeqId)_nextSequenceId);
         Interlocked.Increment(ref _nextSequenceId);
         return id;
+    }
+
+    private void AddToLogitCache(LLamaBatch batch)
+    {
+        foreach (var kv in batch.Logits.Select((v, k) => (Key: k, Value: v)))
+        {
+            if (kv.Value)
+            {
+                _logitCache.TryAdd(
+                    (Epoch, kv.Key),
+                    Context.NativeHandle.GetLogitsIth(kv.Key).ToArray()
+                );
+            }
+        }
     }
 }
