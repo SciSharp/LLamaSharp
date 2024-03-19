@@ -267,10 +267,5 @@ public sealed class BatchedExecutor
                 }
             }
         }
-        Console.WriteLine("Logit cache:");
-        foreach (var pair in _logitCache)
-        {
-            Console.WriteLine($"{pair.Key} -> {string.Join(", ", pair.Value.Take(4))}");
-        }
     }
 }

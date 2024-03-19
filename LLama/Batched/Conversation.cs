@@ -122,7 +122,6 @@ public sealed class Conversation
             throw new CannotSampleRequiresInferenceException();
         try
         {
-            Console.WriteLine($"SampleLogits for conversation {ConversationId}");
             return Executor.SampleLogits(ConversationId);
         }
         catch (InvalidOperationException)
