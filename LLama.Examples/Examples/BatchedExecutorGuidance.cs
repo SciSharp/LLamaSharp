@@ -33,8 +33,10 @@ public class BatchedExecutorGuidance
         Console.WriteLine($"Created executor with model: {name}");
 
         // Load the two prompts into two conversations
-        using var guided = executor.Prompt(positivePrompt);
-        using var guidance = executor.Prompt(negativePrompt);
+        using var guided = executor.Create();
+        guided.Prompt(positivePrompt);
+        using var guidance = executor.Create();
+        guidance.Prompt(negativePrompt);
 
         // Run inference to evaluate prompts
         await AnsiConsole

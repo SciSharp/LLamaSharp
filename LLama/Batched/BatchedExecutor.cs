@@ -68,15 +68,28 @@ public sealed class BatchedExecutor
     /// </summary>
     /// <param name="prompt"></param>
     /// <returns></returns>
+    [Obsolete("Use BatchedExecutor.Create instead")]
     public Conversation Prompt(string prompt)
     {
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
-        var conversation = new Conversation(this, GetNextSequenceId(), 0);
+        var conversation = Create();
         conversation.Prompt(prompt);
 
         return conversation;
+    }
+
+    /// <summary>
+    /// Start a new <see cref="Conversation"/>
+    /// </summary>
+    /// <returns></returns>
+    public Conversation Create()
+    {
+        if (IsDisposed)
+            throw new ObjectDisposedException(nameof(BatchedExecutor));
+
+        return new Conversation(this, GetNextSequenceId(), 0);
     }
 
     /// <summary>
