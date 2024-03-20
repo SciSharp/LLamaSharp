@@ -89,7 +89,7 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
-        return new Conversation(this, GetNextSequenceId(), 0);
+        return new Conversation(this, GetNextSequenceId());
     }
 
     /// <summary>
