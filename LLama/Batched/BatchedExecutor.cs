@@ -56,14 +56,6 @@ public sealed class BatchedExecutor
     }
 
     /// <summary>
-    /// Finalizer for BatchedExecutor
-    /// </summary>
-    ~BatchedExecutor()
-    {
-        Dispose();
-    }
-
-    /// <summary>
     /// Start a new <see cref="Conversation"/> with the given prompt
     /// </summary>
     /// <param name="prompt"></param>
@@ -89,7 +81,7 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
-        return new Conversation(this, GetNextSequenceId(), 0);
+        return new Conversation(this, GetNextSequenceId());
     }
 
     /// <summary>
@@ -122,8 +114,6 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             return;
         IsDisposed = true;
-
-        GC.SuppressFinalize(this);
 
         Context.Dispose();
     }
