@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,31 @@ namespace LLamaSharp.KernelMemory
         /// </summary>
         public int? GpuLayerCount { get; set; }
 
+        /// <summary>
+        /// main_gpu interpretation depends on split_mode:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <term>None</term>
+        ///         <description>The GPU that is used for the entire mode.</description>
+        ///     </item>
+        ///     <item>
+        ///         <term>Row</term>
+        ///         <description>The GPU that is used for small tensors and intermediate results.</description>
+        ///     </item>
+        ///     <item>
+        ///         <term>Layer</term>
+        ///         <description>Ignored.</description>
+        ///     </item>
+        /// </list>
+        /// </summary>
+        /// <value></value>
+        public int MainGpu { get; set; } = 0;
+
+        /// <summary>
+        /// How to split the model across multiple GPUs
+        /// </summary>
+        /// <value></value>
+        public GPUSplitMode SplitMode { get; set; } = GPUSplitMode.None;
 
         /// <summary>
         /// Set the default inference parameters.

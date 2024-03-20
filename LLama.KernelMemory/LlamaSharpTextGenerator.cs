@@ -1,6 +1,7 @@
 ﻿using LLama;
 using LLama.Abstractions;
 using LLama.Common;
+using LLama.Native;
 using Microsoft.KernelMemory.AI;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,9 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 Seed = config?.Seed ?? 0,
-                GpuLayerCount = config?.GpuLayerCount ?? 20
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? GPUSplitMode.None
             };
             _weights = LLamaWeights.LoadFromFile(parameters);
             _context = _weights.CreateContext(parameters);

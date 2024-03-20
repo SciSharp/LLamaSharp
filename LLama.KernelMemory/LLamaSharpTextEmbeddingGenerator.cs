@@ -27,7 +27,12 @@ namespace LLamaSharp.KernelMemory
         public LLamaSharpTextEmbeddingGenerator(LLamaSharpConfig config)
         {
             this._config = config;
-            var @params = new ModelParams(_config.ModelPath) { EmbeddingMode = true };
+            var @params = new ModelParams(_config.ModelPath)
+            {
+                EmbeddingMode = true,
+                MainGpu = _config.MainGpu,
+                SplitMode = _config.SplitMode
+            };
             _weights = LLamaWeights.LoadFromFile(@params);
             _embedder = new LLamaEmbedder(_weights, @params);
             _ownsWeights = true;
@@ -42,7 +47,12 @@ namespace LLamaSharp.KernelMemory
         public LLamaSharpTextEmbeddingGenerator(LLamaSharpConfig config, LLamaWeights weights)
         {
             this._config = config;
-            var @params = new ModelParams(_config.ModelPath) { EmbeddingMode = true };
+            var @params = new ModelParams(_config.ModelPath)
+            {
+                EmbeddingMode = true,
+                MainGpu = _config.MainGpu,
+                SplitMode = _config.SplitMode
+            };
             _weights = weights;
             _embedder = new LLamaEmbedder(_weights, @params);
             _ownsEmbedder = true;
