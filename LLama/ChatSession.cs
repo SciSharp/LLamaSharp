@@ -262,33 +262,6 @@ public class ChatSession
         return this;
     }
 
-    
-    /// <summary>
-    /// Compute KV cache for the system message and add it to the chat history.
-    /// </summary>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    public async Task<ChatSession> ProcessSystemMessage(string content)
-    {
-        if (Executor is not StatefulExecutorBase statefulExecutor)
-        {
-            throw new InvalidOperationException("Executor must be a StatefulExecutorBase to support pre-processing of system messages.");
-        }
-        if (History.Messages.Count > 0)
-        {
-            throw new ArgumentException("Cannot add a system message after another message", nameof(content));
-        }        
-        foreach (var inputTransform in InputTransformPipeline)
-        {
-            content = inputTransform.Transform(content);
-        }
-
-        await statefulExecutor.PrefillPromptAsync(content);
-
-        History.AddMessage(AuthorRole.System, content);
-        return this;
-    }
-
     /// <summary>
     /// Add a system message to the chat history.
     /// </summary>
@@ -322,6 +295,49 @@ public class ChatSession
         History.Messages.RemoveAt(History.Messages.Count - 1);
         return this;
     }
+
+    /// <summary>
+    /// Compute KV cache for the message and add it to the chat history.
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task<ChatSession> AddAndProcessMessage(ChatHistory.Message message)
+    {
+        if (Executor is not StatefulExecutorBase statefulExecutor)
+        {
+            throw new InvalidOperationException("Executor must be a StatefulExecutorBase to support pre-processing of system messages.");
+        }
+        AddMessage(message);
+        var content = message.Content;
+        if (message.AuthorRole != AuthorRole.Assistant)
+        {
+            foreach (var inputTransform in InputTransformPipeline)
+            {
+                content = inputTransform.Transform(content);
+            }
+        }
+
+        await statefulExecutor.PrefillPromptAsync(content);
+        return this;
+    }
+
+    /// <summary>
+    /// Compute KV cache for the system message and add it to the chat history.
+    /// </summary>
+    public Task<ChatSession> AddAndProcessSystemMessage(string content)
+        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.System, content));
+
+    /// <summary>
+    /// Compute KV cache for the user message and add it to the chat history.
+    /// </summary>
+    public Task<ChatSession> AddAndProcessUserMessage(string content)
+        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.User, content));
+
+    /// <summary>
+    /// Compute KV cache for the assistant message and add it to the chat history.
+    /// </summary>
+    public Task<ChatSession> AddAndProcessAssistantMessage(string content)
+        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.Assistant, content));
 
     /// <summary>
     /// Replace a user message with a new message and remove all messages after the new message.

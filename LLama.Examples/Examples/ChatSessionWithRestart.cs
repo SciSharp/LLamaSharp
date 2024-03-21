@@ -37,8 +37,11 @@ public class ChatSessionWithRestart
         };
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("The chat session has started. Write `save` to save session in memory."
-            + " Write `reset` to start from the last saved checkpoint");
+        Console.WriteLine("The chat session has started. Starting point saved.");
+        Console.WriteLine("Type 'exit' to end the chat session.");
+        Console.WriteLine("Type 'save' to save chat session state in memory.");
+        Console.WriteLine("Type 'reset' to reset the chat session to its saved state.");
+        Console.WriteLine("Type 'answer for assistant' to add and process provided user and assistant messages.");
 
         // show the prompt
         Console.ForegroundColor = ConsoleColor.Green;
@@ -46,6 +49,7 @@ public class ChatSessionWithRestart
 
         while (userInput != "exit")
         {
+            // Load the session state from the reset state
             if(userInput == "reset")
             {
                 session.LoadSession(resetState);
@@ -53,25 +57,33 @@ public class ChatSessionWithRestart
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session reset.");
             }
+            // Assign new reset state.
             else if (userInput == "save")
             {
                 resetState = session.GetSessionState();
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session saved.");
             }
-            else if (userInput == "regenerate")
+            // Provide user and override assistant answer with your own.
+            else if (userInput == "answer for assistant")
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Regenerating last response ...");
+                Console.WriteLine("Provide user input: ");
 
-                await foreach (
-                    var text
-                    in session.RegenerateAssistantMessageAsync(
-                        inferenceParams))
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(text);
-                }
+                Console.ForegroundColor = ConsoleColor.Green;
+                string userInputOverride = Console.ReadLine() ?? "";
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Provide assistant input: ");
+                
+                Console.ForegroundColor = ConsoleColor.Green;
+                string assistantInputOverride = Console.ReadLine() ?? "";
+                
+                await session.AddAndProcessUserMessage(userInputOverride);
+                await session.AddAndProcessAssistantMessage(assistantInputOverride);
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("User and assistant messages processed. Provide next user message:");
             }
             else
             {
