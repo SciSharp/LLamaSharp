@@ -34,14 +34,14 @@ namespace LLama.Unittest
 
       
         
-        [Fact]
+        [Fact(Skip = "Very slow in CI")]
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
             Assert.True( _lLavaWeights.EmbedImage( _context, Constants.LLavaImage, ref n_past ) );
-        }        
-        
-        [Fact]
+        }
+
+        [Fact(Skip = "Very slow in CI")]
         public void EmbedImageAsBinary()
         {
             int n_past = 0;
