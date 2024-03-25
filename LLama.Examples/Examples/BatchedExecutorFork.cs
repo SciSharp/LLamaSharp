@@ -133,7 +133,7 @@ public class BatchedExecutorFork
             var colors = new[] { "red", "green", "blue", "yellow", "white" };
             var color = colors[depth % colors.Length];
 
-            var message = _decoder.Read().ReplaceLineEndings("");
+            var message = Markup.Escape(_decoder.Read().ReplaceLineEndings(""));
 
             var n = tree.AddNode($"[{color}]{message}[/]");
 

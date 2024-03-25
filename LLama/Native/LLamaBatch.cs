@@ -185,7 +185,6 @@ public class LLamaBatch
         for (var i = 0; i < sequences.Length; i++)
             _sequenceIds[TokenCount][i] = sequences[i];
         _logits[TokenCount] = Convert.ToByte(logits);
-        TokenCount++;
 
         // Store this position in the logits lookup if necessary
         if (logits)
@@ -194,7 +193,7 @@ public class LLamaBatch
                 _logitPositions.Add((sequence, TokenCount));
         }
 
-        return TokenCount;
+        return TokenCount++;
     }
 
     /// <summary>
@@ -267,7 +266,7 @@ public class LLamaBatch
 
         return last;
     }
-#endregion
+    #endregion
 
     /// <summary>
     /// Set TokenCount to zero for this batch
