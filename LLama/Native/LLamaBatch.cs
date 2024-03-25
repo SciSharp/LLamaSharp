@@ -24,6 +24,16 @@ public class LLamaBatch
     private readonly Dictionary<(LLamaToken, LLamaPos), int> _index = new();
 
     /// <summary>
+    /// Keep a list of where logits can be sampled from
+    /// </summary>
+    private readonly List<(LLamaSeqId, int)> _logitPositions = new();
+
+    /// <summary>
+    /// Get the number of logit positions that will be generated from this batch
+    /// </summary>
+    internal int LogitPositionCount => _logitPositions.Count;
+
+    /// <summary>
     /// The number of tokens in this batch
     /// </summary>
     public int TokenCount { get; private set; }
@@ -175,8 +185,16 @@ public class LLamaBatch
         for (var i = 0; i < sequences.Length; i++)
             _sequenceIds[TokenCount][i] = sequences[i];
         _logits[TokenCount] = Convert.ToByte(logits);
+        TokenCount++;
 
-        return TokenCount++;
+        // Store this position in the logits lookup if necessary
+        if (logits)
+        {
+            foreach (var sequence in sequences)
+                _logitPositions.Add((sequence, TokenCount));
+        }
+
+        return TokenCount;
     }
 
     /// <summary>
@@ -257,6 +275,20 @@ public class LLamaBatch
     public void Clear()
     {
         TokenCount = 0;
+
         _index.Clear();
+        _logitPositions.Clear();
+    }
+
+    /// <summary>
+    /// Get the positions where logits can be sampled from
+    /// </summary>
+    /// <returns></returns>
+    internal Span<(LLamaSeqId, int)> GetLogitPositions(Span<(LLamaSeqId, int)> dest)
+    {
+        for (var i = 0; i < _logitPositions.Count; i++)
+            dest[i] = _logitPositions[i];
+
+        return dest.Slice(0, _logitPositions.Count);
     }
 }
