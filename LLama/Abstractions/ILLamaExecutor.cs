@@ -25,9 +25,9 @@ namespace LLama.Abstractions
         public LLavaWeights? ClipModel { get;  }        
         
         /// <summary>
-        /// Image filename and path (jpeg images).
+        /// List of images: Image filename and path (jpeg images).
         /// </summary>
-        public string? ImagePath { get; set; }
+        public List<string> ImagePaths { get; set; }
         
         
         /// <summary>

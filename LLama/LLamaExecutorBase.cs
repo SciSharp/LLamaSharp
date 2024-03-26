@@ -71,7 +71,7 @@ namespace LLama
         {
             get
             {
-                return ClipModel != null && ImagePath != null;
+                return ClipModel != null;
             }
         }
         
@@ -79,7 +79,7 @@ namespace LLama
         public LLavaWeights? ClipModel { get;  }      
         
         /// <inheritdoc />
-        public string? ImagePath { get; set; }        
+        public List<string> ImagePaths { get; set; }        
         
         /// <summary>
         /// Current "mu" value for mirostat sampling
@@ -95,6 +95,7 @@ namespace LLama
         /// <param name="logger"></param>
         protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
         {
+            ImagePaths = new List<string>();
             _logger = logger;
             Context = context;
             _pastTokensCount = 0;
