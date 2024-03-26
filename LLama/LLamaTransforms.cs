@@ -3,6 +3,7 @@ using LLama.Common;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace LLama
 {
@@ -29,6 +30,12 @@ namespace LLama
             private readonly string _unknownName;
             private readonly bool _isInstructMode;
 
+            public string UserName => _userName;
+            public string AssistantName => _assistantName;
+            public string SystemName => _systemName;
+            public string UnknownName => _unknownName;
+            public bool IsInstructMode => _isInstructMode;
+
             /// <summary>
             /// 
             /// </summary>
@@ -45,6 +52,12 @@ namespace LLama
                 _systemName = systemName ?? defaultSystemName;
                 _unknownName = unknownName ?? defaultUnknownName;
                 _isInstructMode = isInstructMode;
+            }
+
+            /// <inheritdoc />
+            public IHistoryTransform Clone()
+            {
+                return new DefaultHistoryTransform(_userName, _assistantName, _systemName, _unknownName, _isInstructMode);
             }
 
             /// <inheritdoc />
@@ -116,6 +129,12 @@ namespace LLama
             {
                 return text.Trim();
             }
+
+            /// <inheritdoc />
+            public ITextTransform Clone()
+            {
+                return new NaiveTextInputTransform();
+            }
         }
 
         /// <summary>
@@ -129,6 +148,12 @@ namespace LLama
             {
                 return tokens;
             }
+
+            /// <inheritdoc />
+            public ITextStreamTransform Clone()
+            {
+                return new EmptyTextOutputStreamTransform();
+            }
         }
 
         /// <summary>
@@ -139,6 +164,42 @@ namespace LLama
             private readonly HashSet<string> _keywords;
             private readonly int _maxKeywordLength;
             private readonly bool _removeAllMatchedTokens;
+
+            /// <summary>
+            /// Keywords that you want to remove from the response.
+            /// This property is used for JSON serialization.
+            /// </summary>
+            [JsonPropertyName("keywords")]
+            public HashSet<string> Keywords => _keywords;
+
+            /// <summary>
+            /// Maximum length of the keywords.
+            /// This property is used for JSON serialization.
+            /// </summary>
+            [JsonPropertyName("maxKeywordLength")]
+            public int MaxKeywordLength => _maxKeywordLength;
+
+            /// <summary>
+            /// If set to true, when getting a matched keyword, all the related tokens will be removed. 
+            /// Otherwise only the part of keyword will be removed.
+            /// This property is used for JSON serialization.
+            /// </summary>
+            [JsonPropertyName("removeAllMatchedTokens")]
+            public bool RemoveAllMatchedTokens => _removeAllMatchedTokens;
+
+            /// <summary>
+            /// JSON constructor.
+            /// </summary>
+            [JsonConstructor]
+            public KeywordTextOutputStreamTransform(
+                HashSet<string> keywords,
+                int maxKeywordLength,
+                bool removeAllMatchedTokens)
+            {
+                _keywords = new(keywords);
+                _maxKeywordLength = maxKeywordLength;
+                _removeAllMatchedTokens = removeAllMatchedTokens;
+            }
 
             /// <summary>
             /// 
@@ -155,6 +216,12 @@ namespace LLama
                 _maxKeywordLength = _keywords.Max(x => x.Length) + redundancyLength;
                 _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
+            }
+
+            /// <inheritdoc />
+            public ITextStreamTransform Clone()
+            {
+                return new KeywordTextOutputStreamTransform(_keywords, _maxKeywordLength, _removeAllMatchedTokens);
             }
 
             /// <inheritdoc />

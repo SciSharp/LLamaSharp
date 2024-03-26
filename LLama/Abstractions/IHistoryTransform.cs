@@ -1,10 +1,12 @@
 ﻿using LLama.Common;
+using System.Text.Json.Serialization;
 
 namespace LLama.Abstractions
 {
     /// <summary>
     /// Transform history to plain text and vice versa.
     /// </summary>
+    [JsonConverter(typeof(PolymorphicJSONConverter<IHistoryTransform>))]
     public interface IHistoryTransform
     {
         /// <summary>
@@ -21,5 +23,11 @@ namespace LLama.Abstractions
         /// <param name="text">The chat history as plain text.</param>
         /// <returns>The updated history.</returns>
         ChatHistory TextToHistory(AuthorRole role, string text);
+
+        /// <summary>
+        /// Copy the transform.
+        /// </summary>
+        /// <returns></returns>
+        IHistoryTransform Clone();
     }
 }

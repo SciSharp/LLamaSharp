@@ -8,6 +8,7 @@ public class ExampleRunner
         { "Chat Session: History", ChatSessionWithHistory.Run },
         { "Chat Session: Role names", ChatSessionWithRoleName.Run },
         { "Chat Session: Role names stripped", ChatSessionStripRoleName.Run },
+        { "Chat Session: Pre-processing and reset", ChatSessionWithRestart.Run },
         { "Chat Session: Coding Assistant", CodingAssistant.Run },
         { "Chat Session: Automatic conversation", TalkToYourself.Run },
         { "Chat Session: Chinese characters", ChatChineseGB2312.Run },

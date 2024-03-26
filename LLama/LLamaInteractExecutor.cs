@@ -39,15 +39,15 @@ namespace LLama
             InteractiveExecutorState state = new()
             {
                 ConsumedSessionCount = _n_session_consumed,
-                EmbedInps = _embed_inps,
+                EmbedInps = _embed_inps.ToArray(),
                 IsPromptRun = _is_prompt_run,
                 ConsumedTokensCount = _consumedTokensCount,
-                Embeds = _embeds,
+                Embeds = _embeds.ToArray(),
                 LastTokens = _last_n_tokens.ToArray(),
                 MatchingSessionTokensCount = _n_matching_session_tokens,
                 PastTokensCount = _pastTokensCount,
                 SessionFilePath = _pathSession,
-                SessionTokens = _session_tokens,
+                SessionTokens = _session_tokens.ToArray(),
                 LastTokensCapacity = _last_n_tokens.Capacity,
                 MirostatMu = MirostatMu
             };
@@ -59,15 +59,15 @@ namespace LLama
             if (data is InteractiveExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
-                _embed_inps = state.EmbedInps;
+                _embed_inps = state.EmbedInps.ToList();
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
-                _embeds = state.Embeds;
+                _embeds = state.Embeds.ToList();
                 _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens);
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
-                _session_tokens = state.SessionTokens;
+                _session_tokens = state.SessionTokens.ToList();
             }
             else
                 throw new ArgumentException("Invalid state data type.");
