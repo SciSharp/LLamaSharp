@@ -8,6 +8,7 @@ using LLama;
 using LLama.Common;
 using Microsoft.KernelMemory.AI;
 using Microsoft.SemanticKernel.AI.Embeddings;
+using LLama.Native;
 
 namespace LLamaSharp.KernelMemory
 {
@@ -81,7 +82,9 @@ namespace LLamaSharp.KernelMemory
                 ContextSize = config?.ContextSize ?? 2048,
                 Seed = config?.Seed ?? 0,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                EmbeddingMode = true
+                EmbeddingMode = true,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? GPUSplitMode.None
             };
             var weights = LLamaWeights.LoadFromFile(parameters);
             var context = weights.CreateContext(parameters);
