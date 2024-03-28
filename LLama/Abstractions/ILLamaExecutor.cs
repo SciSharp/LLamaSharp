@@ -12,7 +12,24 @@ namespace LLama.Abstractions
         /// The loaded context for this executor.
         /// </summary>
         public LLamaContext Context { get; }
-
+        
+        // LLava Section
+        //
+        /// <summary>
+        /// Identify if it's a multi-modal model and there is a image to process.
+        /// </summary>
+        public bool IsMultiModal { get; }
+        /// <summary>
+        /// Muti-Modal Projections / Clip Model weights
+        /// </summary>
+        public LLavaWeights? ClipModel { get;  }        
+        
+        /// <summary>
+        /// List of images: Image filename and path (jpeg images).
+        /// </summary>
+        public List<string> ImagePaths { get; set; }
+        
+        
         /// <summary>
         /// Asynchronously infers a response from the model.
         /// </summary>
