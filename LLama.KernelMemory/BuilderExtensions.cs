@@ -94,5 +94,31 @@ namespace LLamaSharp.KernelMemory
             builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, context, executor, config?.DefaultInferenceParams));
             return builder;
         }
+		
+        /// <summary>
+        /// Adds LLamaSharpTextEmbeddingGeneration and LLamaSharpTextGeneration to the KernelMemoryBuilder. Using an already loaded model.
+        /// </summary>
+        /// <param name="builder">The KernelMemoryBuilder instance.</param>
+        /// <param name="weights"></param>
+        /// <param name="context"></param>		
+        /// <param name="config">The LLamaSharpConfig instance.</param>
+        /// <returns>The KernelMemoryBuilder instance with LLamaSharpTextEmbeddingGeneration and LLamaSharpTextGeneration added.</returns>		
+        public static IKernelMemoryBuilder WithLLamaSharpDefaults(this IKernelMemoryBuilder builder, LLamaWeights weights, LLamaContext context, LLamaSharpConfig config)
+        {
+            var parameters = new ModelParams(config.ModelPath)
+            {
+                ContextSize = config?.ContextSize ?? 2048,
+                Seed = config?.Seed ?? 0,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                EmbeddingMode = true,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? GPUSplitMode.None,
+            };
+            var executor = new StatelessExecutor(weights, parameters);
+            var embedder = new LLamaEmbedder(weights, parameters);
+            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(embedder));
+            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, context, executor, config?.DefaultInferenceParams));
+            return builder;
+        }		
     }
 }
