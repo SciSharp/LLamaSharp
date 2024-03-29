@@ -11,7 +11,7 @@ using LLama.Exceptions;
 namespace LLama.Native
 {
     /// <summary>
-    /// A reference to a set of llava model weights
+    /// A reference to a set of llava model weights.
     /// </summary>
     public sealed class SafeLlavaModelHandle
         : SafeLLamaHandleBase
@@ -36,9 +36,10 @@ namespace LLama.Native
         /// <summary>
         /// Load a model from the given file path into memory
         /// </summary>
-        /// <param name="modelPath"></param>
-        /// <param name="lparams"></param>
-        /// <returns></returns>
+        /// <param name="modelPath">MMP File (Multi-Modal Projections)</param>
+        /// <param name="verbosity">Verbosity level</param>
+        /// <returns>SafeHandle of the Clip Model</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlavaModelHandle LoadFromFile(string modelPath, int verbosity )
         {
@@ -56,31 +57,37 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Embed the image from file in llama context
+        /// Create the Image Embeddings.
         /// </summary>
-        /// <param name="ctxLlama"></param>
-        /// <param name="image"></param>
-        /// <param name="n_past"></param>
-        /// <returns></returns>
-        public bool EmbedImage(LLamaContext ctxLlama, string image, ref int n_past)
+        /// <param name="ctxLlama">LLama Context</param>
+        /// <param name="image">Image filename (it supports jpeg  format only)</param>
+        /// <returns>return the SafeHandle of these embeddings</returns>
+        public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, string image)
         {
-            var ImageEmbed = SafeLlavaImageEmbedHandle.CreateFromFileName(this, ctxLlama, image);
-            bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ImageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
-            return result;
+            return SafeLlavaImageEmbedHandle.CreateFromFileName(this, ctxLlama, image);
         }
         
         /// <summary>
-        /// Embed the image from binary in llama context
+        /// Create the Image Embeddings.
         /// </summary>
-        /// <param name="ctxLlama"></param>
-        /// <param name="image">jpeg image</param>
-        /// <param name="n_past"></param>
-        /// <returns></returns>
-        public bool EmbedImage(LLamaContext ctxLlama, Byte[] image, ref int n_past )
+        /// <param name="ctxLlama">LLama Context</param>
+        /// <param name="image">Image in binary format (it supports jpeg  format only)</param>
+        /// <returns>return the SafeHandle of these embeddings</returns>
+        public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, byte[] image )
         {
-            var ImageEmbed = SafeLlavaImageEmbedHandle.CreateFromMemory(this, ctxLlama, image );
-            bool result = NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, ImageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
-            return result;
+            return SafeLlavaImageEmbedHandle.CreateFromMemory(this, ctxLlama, image );
+        }
+
+        /// <summary>
+        /// Evaluates the image embeddings. 
+        /// </summary>
+        /// <param name="ctxLlama">Llama Context</param>
+        /// <param name="imageEmbed">The current embeddings to evaluate</param>
+        /// <param name="n_past"></param>
+        /// <returns>True on success</returns>
+        public bool EvalImageEmbed(LLamaContext ctxLlama, SafeLlavaImageEmbedHandle imageEmbed, ref int n_past)
+        {
+            return NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, imageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
         }
         
         /// <summary>
@@ -95,7 +102,7 @@ namespace LLama.Native
         /// <summary>
         /// Frees MULTI MODAL PROJECTIONS model / Clip Model
         /// </summary>
-        /// <param name="ctx"></param>
+        /// <param name="ctx">Internal Pointer to the model</param>
         [DllImport(NativeApi.llavaLibraryName, EntryPoint = "clip_free", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clip_free(IntPtr ctx);
         

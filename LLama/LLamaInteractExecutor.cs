@@ -21,6 +21,11 @@ namespace LLama
     {
         private bool _is_prompt_run = true;
         private readonly LLamaToken _llama_token_newline;
+        
+        // LLava
+        private int _EmbedImagePosition = -1;
+        private List<SafeLlavaImageEmbedHandle> _imageEmbedHandles = new List<SafeLlavaImageEmbedHandle>();
+        private bool _imageInPrompt = false;
 
         /// <summary>
         /// 
@@ -32,6 +37,12 @@ namespace LLama
         {
             _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle.ModelHandle);
         }
+        
+        public InteractiveExecutor(LLamaContext context, LLavaWeights clipModel, ILogger? logger = null)
+            : base(context, clipModel, logger)
+        {
+            _llama_token_newline = NativeApi.llama_token_nl(Context.NativeHandle.ModelHandle);
+        }        
 
         /// <inheritdoc />
         public override ExecutorBaseState GetStateData()
@@ -107,8 +118,15 @@ namespace LLama
         {
             if (_is_prompt_run)
             {
-                // When running the first input (prompt) in inteactive mode, we should specially process it.
-                _embed_inps = Context.Tokenize(text, true).ToList();
+                // When running the first input (prompt) in interactive mode, we should specially process it.
+                if (!this.IsMultiModal)
+                {
+                    _embed_inps = Context.Tokenize(text, true).ToList();
+                }
+                else
+                {
+                    PreprocessLlava(text, args, true );
+                }
             }
             else
             {
@@ -116,6 +134,7 @@ namespace LLama
                 {
                     text += "\n";
                 }
+
                 var line_inp = Context.Tokenize(text, false);
                 _embed_inps.AddRange(line_inp);
                 args.RemainedTokens -= line_inp.Length;
@@ -124,6 +143,37 @@ namespace LLama
             return Task.CompletedTask;
         }
 
+        private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true )
+        {
+            int usedTokens = 0;
+            // If the prompt contains the tag <image> extract this.
+            _imageInPrompt = text.Contains("<image>");
+            if (_imageInPrompt)
+            {
+                foreach (var image in ImagePaths)
+                {
+                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromFileName( ClipModel.NativeHandle, Context, image ) );
+                }
+                        
+                int imageIndex = text.IndexOf("<image>");
+                // Tokenize segment 1 (before <image> tag)
+                string preImagePrompt = text.Substring(0, imageIndex);
+                var segment1 = Context.Tokenize(preImagePrompt, addBos );
+                // Remember the position to add the image embeddings
+                _EmbedImagePosition = segment1.Length;
+                string postImagePrompt = text.Substring(imageIndex + 7);
+                var segment2 = Context.Tokenize(postImagePrompt, false);
+                _embed_inps.AddRange(segment1);
+                _embed_inps.AddRange(segment2);
+                usedTokens += (segment1.Length + segment2.Length);
+            }
+            else
+            {
+                _embed_inps = Context.Tokenize(text, true).ToList();
+            }
+            return Task.CompletedTask;
+        }
+        
         /// <summary>
         /// Return whether to break the generation.
         /// </summary>
@@ -170,9 +220,31 @@ namespace LLama
 
                 TryReuseMathingPrefix();
 
-                var (result, _) = Context.NativeHandle.Decode(_embeds, LLamaSeqId.Zero, batch, ref _pastTokensCount);
-                if (result != DecodeResult.Ok)
-                    throw new LLamaDecodeError(result);
+                // Changes to support Multi-Modal LLMs.
+                //
+                (DecodeResult, int) header, end, result;
+                if (IsMultiModal &&  _EmbedImagePosition > 0)
+                {
+                    // Tokens previous to the images
+                    header = Context.NativeHandle.Decode(_embeds.GetRange(0, _EmbedImagePosition), LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                    if (header.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(header.Item1);
+                   
+                    // Images
+                    foreach( var image in _imageEmbedHandles )
+                        ClipModel.EvalImageEmbed(Context, image, ref _pastTokensCount);
+                        
+                    // Post-image Tokens
+                    end = Context.NativeHandle.Decode(_embeds.GetRange(_EmbedImagePosition, _embeds.Count - _EmbedImagePosition), LLamaSeqId.Zero, batch, ref _pastTokensCount);
+
+                    _EmbedImagePosition = -1;
+                    _imageEmbedHandles.Clear();
+                }
+                else
+                {
+                    result = Context.NativeHandle.Decode(_embeds, LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                    if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
+                }
+                
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {

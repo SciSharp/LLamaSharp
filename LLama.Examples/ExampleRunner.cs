@@ -13,6 +13,7 @@ public class ExampleRunner
         { "Chat Session: Automatic conversation", TalkToYourself.Run },
         { "Chat Session: Chinese characters", ChatChineseGB2312.Run },
         { "Executor: Interactive mode chat", InteractiveModeExecute.Run },
+        { "Executor: Llava Interactive mode chat", LlavaInteractiveModeExecute.Run },
         { "Executor: Instruct mode chat", InstructModeExecute.Run },
         { "Executor: Stateless mode chat", StatelessModeExecute.Run },
         { "Save and Load: chat session", SaveAndLoadSession.Run },
