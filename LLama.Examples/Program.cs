@@ -16,11 +16,14 @@ AnsiConsole.MarkupLineInterpolated(
 
     """);
 
+// Configure native library to use
 NativeLibraryConfig
    .Instance
    .WithCuda()
-   .WithLogs(LLamaLogLevel.Warning);
+   .WithLogs(LLamaLogLevel.Info);
 
+// Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();
 
 await ExampleRunner.Run();
+

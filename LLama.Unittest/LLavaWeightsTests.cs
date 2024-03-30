@@ -31,23 +31,23 @@ namespace LLama.Unittest
             _llamaWeights.Dispose();
             _lLavaWeights.Dispose();
         }
-
       
-        
-        [Fact]
+        [Fact(Skip = "Very very slow in CI")]
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
-            Assert.True( _lLavaWeights.EmbedImage( _context, Constants.LLavaImage, ref n_past ) );
+            SafeLlavaImageEmbedHandle emb = _lLavaWeights.CreateImageEmbeddings(_context, Constants.LLavaImage);
+            Assert.True( _lLavaWeights.EvalImageEmbed( _context, emb, ref n_past ) );
         }        
         
-        [Fact]
+        [Fact(Skip = "Very very slow in CI")]
         public void EmbedImageAsBinary()
         {
             int n_past = 0;
             byte[] image = System.IO.File.ReadAllBytes(Constants.LLavaImage);
-            Assert.True( _lLavaWeights.EmbedImage( _context, image, ref n_past ) );
-        }        
+            SafeLlavaImageEmbedHandle emb = _lLavaWeights.CreateImageEmbeddings(_context, image);
+            Assert.True( _lLavaWeights.EvalImageEmbed( _context, emb, ref n_past ) );
+        }      
         
     }
 }

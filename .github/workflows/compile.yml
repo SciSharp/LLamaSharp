@@ -367,12 +367,21 @@ jobs:
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
 
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll    deps/cu11.7.1/llava_shared.dll
+
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so deps/cu11.7.1/libllama_shared.so
+          
           cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll    deps/cu12.1.0/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu12.1.0-x64.dll/llava_shared.dll    deps/cu12.1.0/llava_shared.dll
+
           cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so deps/cu12.1.0/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu12.1.0-x64.so/libllava_shared.so deps/cu12.1.0/libllava_shared.so
           
           cp artifacts/llama-bin-win-clblast-x64.dll/{llama,clblast}.dll deps/clblast/
+          
           cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
+
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3

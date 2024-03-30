@@ -23,7 +23,13 @@ namespace LLama
         private readonly IContextParams _params;
         private readonly ILogger? _logger;
         private readonly LLamaBatch _batch;
-
+        
+        // LLava Section
+        public bool IsMultiModal => false;
+        public bool MultiModalProject { get;  }
+        public LLavaWeights? ClipModel { get;  }        
+        public List<string> ImagePaths { get; set; } 
+        
         /// <summary>
         /// The context used by the executor when running the inference.
         /// </summary>
@@ -37,6 +43,7 @@ namespace LLama
         /// <param name="logger"></param>
         public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
+            ImagePaths = new List<string>();
             _weights = weights;
             _params = @params;
             _logger = logger;
@@ -45,6 +52,7 @@ namespace LLama
             Context = _weights.CreateContext(_params, logger);
             Context.Dispose();
         }
+
 
         /// <inheritdoc />
         public async IAsyncEnumerable<string> InferAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)

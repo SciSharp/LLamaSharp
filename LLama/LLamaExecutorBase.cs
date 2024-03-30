@@ -64,6 +64,23 @@ namespace LLama
         /// </summary>
         public LLamaContext Context { get; }
 
+        // LLava Section 
+        //
+        /// <inheritdoc />
+        public bool IsMultiModal
+        {
+            get
+            {
+                return ClipModel != null;
+            }
+        }
+        
+        /// <inheritdoc />
+        public LLavaWeights? ClipModel { get;  }      
+        
+        /// <inheritdoc />
+        public List<string> ImagePaths { get; set; }        
+        
         /// <summary>
         /// Current "mu" value for mirostat sampling
         /// </summary>
@@ -78,6 +95,7 @@ namespace LLama
         /// <param name="logger"></param>
         protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
         {
+            ImagePaths = new List<string>();
             _logger = logger;
             Context = context;
             _pastTokensCount = 0;
@@ -85,6 +103,12 @@ namespace LLama
             _n_session_consumed = 0;
             _last_n_tokens = new FixedSizeQueue<LLamaToken>((int)Context.ContextSize);
             _decoder = new StreamingTokenDecoder(context);
+        }
+        
+        public StatefulExecutorBase(LLamaContext context, LLavaWeights lLavaWeights, ILogger? logger = null) : 
+                        this( context, logger )
+        {
+            ClipModel = lLavaWeights;
         }
 
         /// <summary>
@@ -316,6 +340,34 @@ namespace LLama
         }
 
         /// <summary>
+        /// Asynchronously runs a prompt through the model to compute KV cache without generating any new tokens.
+        /// It could reduce the latency of the first time response if the first input from the user is not immediate.
+        /// </summary>
+        /// <param name="prompt">Prompt to process</param>
+        /// <returns></returns>
+        public virtual async Task PrefillPromptAsync(string prompt)
+        {
+            var inferenceParams = new InferenceParams
+            {
+                MaxTokens = 0
+            };
+            var args = new InferStateArgs
+            {
+                Antiprompts = new List<string>(),
+                RemainedTokens = 0,
+                ReturnValue = false,
+                WaitForInput = true,
+                NeedToSaveSession = false
+            };
+
+            await PreprocessInputs(prompt, args);
+            // First run adds the prompt to the _embeds
+            await InferInternal(inferenceParams, args);
+            // Second run puts it through decode
+            await InferInternal(inferenceParams, args);
+        }   
+
+        /// <summary>
         /// State arguments that are used in single inference
         /// </summary>
         protected class InferStateArgs
@@ -342,6 +394,7 @@ namespace LLama
             public bool NeedToSaveSession { get; set; }
         }
 
+        [JsonConverter(typeof(PolymorphicJSONConverter<ExecutorBaseState>))]
         public class ExecutorBaseState
         {
             [JsonPropertyName("n_past")]
@@ -360,13 +413,13 @@ namespace LLama
             public string? SessionFilePath { get; set; }
 
             [JsonPropertyName("embd")]
-            public List<LLamaToken> Embeds { get; set; }
+            public LLamaToken[] Embeds { get; set; }
 
             [JsonPropertyName("embd_inps")]
-            public List<LLamaToken> EmbedInps { get; set; }
+            public LLamaToken[] EmbedInps { get; set; }
 
             [JsonPropertyName("session_tokens")]
-            public List<LLamaToken> SessionTokens { get; set; }
+            public LLamaToken[] SessionTokens { get; set; }
 
             [JsonPropertyName("last_n_tokens")]
             public LLamaToken[] LastTokens { get; set; }

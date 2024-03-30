@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -79,6 +80,15 @@ namespace LLama.Common
         /// </summary>
         [JsonConstructor]
         public ChatHistory() { }
+
+        /// <summary>
+        /// Create a new instance of the chat history from array of messages
+        /// </summary>
+        /// <param name="messageHistory"></param>
+        public ChatHistory(Message[] messageHistory)
+        {
+            this.Messages = messageHistory.ToList();
+        }
 
         /// <summary>
         /// Add a message to the chat history

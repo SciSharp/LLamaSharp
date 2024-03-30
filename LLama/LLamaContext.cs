@@ -86,6 +86,11 @@ namespace LLama
         }
 
         /// <summary>
+        /// Get the maximum batch size for this context
+        /// </summary>
+        public uint BatchSize => NativeHandle.BatchSize;
+
+        /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
         /// </summary>
         /// <param name="model"></param>
@@ -199,7 +204,7 @@ namespace LLama
                 memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
 
                 // Wrap memory in a "state"
-                var state = new State(memory);
+                var state = new State(memory, actualSize);
 
                 // Set memory to zero, to prevent it being freed in finally block
                 memory = IntPtr.Zero;
@@ -417,9 +422,12 @@ namespace LLama
         public class State
             : SafeLLamaHandleBase
         {
-            internal State(IntPtr memory)
+            private ulong _size;
+
+            internal State(IntPtr memory, ulong size)
                 : base(memory, true)
             {
+                _size = size;
             }
 
             /// <inheritdoc />
@@ -427,6 +435,29 @@ namespace LLama
             {
                 Marshal.FreeHGlobal(handle);
                 return true;
+            }
+
+            /// <summary>
+            /// Convert this state to a byte array
+            /// </summary>
+            /// <returns></returns>
+            public byte[] ToByteArray()
+            {
+                var bytes = new byte[_size];
+                Marshal.Copy(handle, bytes, 0, (int)_size);
+                return bytes;
+            }
+
+            /// <summary>
+            /// Load state from a byte array
+            /// </summary>
+            /// <param name="bytes"></param>
+            /// <returns></returns>
+            public static State FromByteArray(byte[] bytes)
+            {
+                var memory = Marshal.AllocHGlobal(bytes.Length);
+                Marshal.Copy(bytes, 0, memory, bytes.Length);
+                return new State(memory, (ulong)bytes.Length);
             }
         }
     }

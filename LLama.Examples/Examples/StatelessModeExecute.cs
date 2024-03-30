@@ -21,7 +21,7 @@ namespace LLama.Examples.Examples
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the inference is an one-time job. That says, the previous input and response has " +
                 "no impact on the current response. Now you can ask it questions. Note that in this example, no prompt was set for LLM and the maximum response tokens is 50. " +
-                "It may not perform well because of lack of prompt. This is also an example that could indicate the improtance of prompt in LLM. To improve it, you can add " +
+                "It may not perform well because of lack of prompt. This is also an example that could indicate the importance of prompt in LLM. To improve it, you can add " +
                 "a prompt for it yourself!");
             Console.ForegroundColor = ConsoleColor.White;
 
