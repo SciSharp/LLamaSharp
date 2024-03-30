@@ -74,6 +74,15 @@ namespace LLama.Native
                 {
                     return -1;
                 }
+
+                //Ensuring cuda bin path is reachable. Especially for MAUI environment.
+                string cudaBinPath = Path.Combine(cudaPath, "bin");
+
+                if (Directory.Exists(cudaBinPath))
+                {
+                    AddDllDirectory(cudaBinPath);
+                }
+
                 version = GetCudaVersionFromPath(cudaPath);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
