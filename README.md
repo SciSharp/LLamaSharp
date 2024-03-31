@@ -11,7 +11,7 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.OpenCL?label=LLamaSharp.Backend.OpenCL)](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL)
 
 
-**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.**
+**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in your local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.**
 
 **Please star the repo to show your support for this project!🤗**
 
@@ -199,7 +199,7 @@ Please set anti-prompt or max-length when executing the inference.
 
 ## Contributing
 
-Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interesting one to start. Please read the [contributing guide](https://scisharp.github.io/LLamaSharp/latest/ContributingGuide/) for more information. 
+Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interesting one to start. Please read the [contributing guide](./CONTRIBUTING.md) for more information. 
 
 You can also do one of the followings to help us make LLamaSharp better:
 
@@ -232,6 +232,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.8.1 | | [`e937066`](https://github.com/ggerganov/llama.cpp/commit/e937066420b79a757bf80e9836eb12b88420a218) |
 | v0.9.0, v0.9.1 | [Mixtral-8x7B](https://huggingface.co/TheBloke/Mixtral-8x7B-v0.1-GGUF) | [`9fb13f9`](https://github.com/ggerganov/llama.cpp/blob/9fb13f95840c722ad419f390dc8a9c86080a3700) |
 | v0.10.0 | [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF) | [`d71ac90`](https://github.com/ggerganov/llama.cpp/tree/d71ac90985854b0905e1abba778e407e17f9f887) |
+| v0.11.0 | [LLaVA-v1.6](https://huggingface.co/ShadowBeast/llava-v1.6-mistral-7b-Q5_K_S-GGUF), [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF)| [`3ab8b3a`](3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6) |
 
 ## License
 
