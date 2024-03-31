@@ -77,5 +77,8 @@ do
   nuget pack $nuspec -version $updated_version
 done
 
+# write the version to the file
+echo $updated_version > version.txt
+
 cd ..
 exit 0
