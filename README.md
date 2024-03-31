@@ -11,12 +11,11 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.OpenCL?label=LLamaSharp.Backend.OpenCL)](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL)
 
 
-**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.**
+**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in your local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.**
 
 **Please star the repo to show your support for this project!🤗**
 
 ---
-
 
 
 <details>
@@ -24,24 +23,27 @@
   <ul>
     <li><a href="#Documentation">Documentation</a></li>
     <li><a href="#Console Demo">Console Demo</a></li>
-    <li><a href="#Toolkits & Examples">Toolkits & Examples</a></li>
+    <li><a href="#Integrations & Examples">Integrations & Examples</a></li>
     <li><a href="#Get started">Get started</a></li>
     <li><a href="#FAQ">FAQ</a></li>
     <li><a href="#Contributing">Contributing</a></li>
     <li><a href="#Join the community">Join the community</a></li>
+    <li><a href="#Star history">Star history</a></li>
+    <li><a href="#Contributor wall of fame">Contributor wall of fame</a></li>
     <li><a href="#Map of LLamaSharp and llama.cpp versions">Map of LLamaSharp and llama.cpp versions</a></li>
   </ul>
 </details>
 
-## Documentation
+## 📖Documentation
 
-- [Quick start](https://scisharp.github.io/LLamaSharp/latest/GetStarted/)
-- [Tricks for FAQ](https://scisharp.github.io/LLamaSharp/latest/Tricks/)
+- [Quick start](https://scisharp.github.io/LLamaSharp/latest/QuickStart/)
+- [FAQ](https://scisharp.github.io/LLamaSharp/latest/FAQ/)
+- [Tutorial](https://scisharp.github.io/LLamaSharp/latest/Tutorial/)
 - [Full documentation](https://scisharp.github.io/LLamaSharp/latest/)
 - [API reference](https://scisharp.github.io/LLamaSharp/latest/xmldocs/)
 
 
-## Console Demo
+## 📌Console Demo
 
 <table class="center">
     <tr style="line-height: 0">
@@ -55,7 +57,7 @@
 </table>
 
 
-## Toolkits & Examples
+## 🔗Integrations & Examples
 
 There are integarions for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
 
@@ -76,7 +78,7 @@ The following examples show how to build APPs with LLamaSharp.
 ![LLamaShrp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
 
-## Get started
+## 🚀Get started
 
 ### Installation
 
@@ -168,7 +170,7 @@ while (userInput != "exit")
 For more examples, please refer to [LLamaSharp.Examples](./LLama.Examples).
 
 
-## FAQ
+## 💡FAQ
 
 #### Why GPU is not used when I have installed CUDA
 
@@ -197,9 +199,9 @@ Generally, there are two possible cases for this problem:
 Please set anti-prompt or max-length when executing the inference.
 
 
-## Contributing
+## 🙌Contributing
 
-Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interesting one to start. Please read the [contributing guide](https://scisharp.github.io/LLamaSharp/latest/ContributingGuide/) for more information. 
+Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interesting one to start. Please read the [contributing guide](./CONTRIBUTING.md) for more information. 
 
 You can also do one of the followings to help us make LLamaSharp better:
 
@@ -214,6 +216,14 @@ You can also do one of the followings to help us make LLamaSharp better:
 Join our chat on [Discord](https://discord.gg/7wNVU65ZDY) (please contact Rinne to join the dev channel if you want to be a contributor).
 
 Join [QQ group](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=SciSharp/LLamaSharp)](https://star-history.com/#SciSharp/LLamaSharp&Date)
+
+## Contributor wall of fame
+
+[![LLamaSharp Contributors](https://contrib.rocks/image?repo=SciSharp/LLamaSharp)](https://github.com/SciSharp/LLamaSharp/graphs/contributors)
 
 ## Map of LLamaSharp and llama.cpp versions
 If you want to compile llama.cpp yourself you **must** use the exact commit ID listed for each version.
@@ -232,6 +242,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.8.1 | | [`e937066`](https://github.com/ggerganov/llama.cpp/commit/e937066420b79a757bf80e9836eb12b88420a218) |
 | v0.9.0, v0.9.1 | [Mixtral-8x7B](https://huggingface.co/TheBloke/Mixtral-8x7B-v0.1-GGUF) | [`9fb13f9`](https://github.com/ggerganov/llama.cpp/blob/9fb13f95840c722ad419f390dc8a9c86080a3700) |
 | v0.10.0 | [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF) | [`d71ac90`](https://github.com/ggerganov/llama.cpp/tree/d71ac90985854b0905e1abba778e407e17f9f887) |
+| v0.11.0 | [LLaVA-v1.6](https://huggingface.co/ShadowBeast/llava-v1.6-mistral-7b-Q5_K_S-GGUF), [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF)| [`3ab8b3a`](3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6) |
 
 ## License
 
