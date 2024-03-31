@@ -1,22 +1,17 @@
 name: auto-patch-release
 
-# on:
-#   workflow_run:
-#     workflows: ["release-patch-trigger"]
-#     types:
-#       - completed
-
 on:
-  push:
-    branches:
-      - 'doc_ci'
+  workflow_run:
+    workflows: ["release-patch-trigger"]
+    types:
+      - completed
 
 env:
   NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY }}
 
 jobs:
   patch_release_to_nuget:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -58,9 +53,10 @@ jobs:
         name: "drop-ci-packages"
         path: './temp'
 
-    # - name: Push LLamaSharp packages to nuget.org
-    #   run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
+    - name: Push LLamaSharp packages to nuget.org
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
 
+    # Deploy the documentation to GitHub Pages
     - uses: actions/setup-python@v5
       with:
         python-version: 3.x
@@ -74,7 +70,7 @@ jobs:
     - run: pip install mkdocs==1.4.3 mkdocs-material mike==1.1.2 setuptools
     - run: |
         git fetch origin gh-pages --depth=1
-        version=$(cat ./temp/version.txt | sed 's/.$/2/')
+        version=$(cat ./temp/version.txt)
         mike deploy --push --update-aliases --force $version latest
         mike set-default --push --force latest
 
