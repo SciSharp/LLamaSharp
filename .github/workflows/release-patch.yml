@@ -23,8 +23,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: Configure Git Credentials
       run: |
-        git config user.name github-actions[bot]
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+        git config user.name Rinne
+        git config user.email AsakusaRinne@gmail.com  
     - name: Setup NuGet
       uses: nuget/setup-nuget@v1
       with:
@@ -71,9 +71,9 @@ jobs:
         path: .cache
         restore-keys: |
           mkdocs-material-
-    - run: pip install mkdocs-material 
-    - run: pip install mike
+    - run: pip install mkdocs mkdocs-material mike
     - run: |
+        git fetch origin gh-pages --depth=1
         version=$(cat ./temp/version.txt)
         mike deploy --push --update-aliases $version latest
         mike set-default --push latest
