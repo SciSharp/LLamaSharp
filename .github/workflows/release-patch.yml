@@ -7,10 +7,9 @@ name: auto-patch-release
 #       - completed
 
 on:
-  pull_request:
-    branches: 
-      - master
-    types: [ opened ]
+  push:
+    branches:
+      - 'doc_ci'
 
 env:
   NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY }}
