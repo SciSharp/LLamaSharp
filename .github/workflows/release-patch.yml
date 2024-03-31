@@ -76,5 +76,5 @@ jobs:
         git fetch origin gh-pages --depth=1
         version=$(cat ./temp/version.txt)
         mike deploy --push --update-aliases $version latest --force
-        mike set-default --push latest --force
+        mike set-default --push latest
 
