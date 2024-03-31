@@ -18,30 +18,32 @@
 ---
 
 
-
 <details>
   <summary>Table of Contents</summary>
   <ul>
     <li><a href="#Documentation">Documentation</a></li>
     <li><a href="#Console Demo">Console Demo</a></li>
-    <li><a href="#Toolkits & Examples">Toolkits & Examples</a></li>
+    <li><a href="#Integrations & Examples">Integrations & Examples</a></li>
     <li><a href="#Get started">Get started</a></li>
     <li><a href="#FAQ">FAQ</a></li>
     <li><a href="#Contributing">Contributing</a></li>
     <li><a href="#Join the community">Join the community</a></li>
+    <li><a href="#Star history">Star history</a></li>
+    <li><a href="#Contributor wall of fame">Contributor wall of fame</a></li>
     <li><a href="#Map of LLamaSharp and llama.cpp versions">Map of LLamaSharp and llama.cpp versions</a></li>
   </ul>
 </details>
 
-## Documentation
+## 📖Documentation
 
-- [Quick start](https://scisharp.github.io/LLamaSharp/latest/GetStarted/)
-- [Tricks for FAQ](https://scisharp.github.io/LLamaSharp/latest/Tricks/)
+- [Quick start](https://scisharp.github.io/LLamaSharp/latest/QuickStart/)
+- [FAQ](https://scisharp.github.io/LLamaSharp/latest/FAQ/)
+- [Tutorial](https://scisharp.github.io/LLamaSharp/latest/Tutorial/)
 - [Full documentation](https://scisharp.github.io/LLamaSharp/latest/)
 - [API reference](https://scisharp.github.io/LLamaSharp/latest/xmldocs/)
 
 
-## Console Demo
+## 📌Console Demo
 
 <table class="center">
     <tr style="line-height: 0">
@@ -55,7 +57,7 @@
 </table>
 
 
-## Toolkits & Examples
+## 🔗Integrations & Examples
 
 There are integarions for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
 
@@ -76,7 +78,7 @@ The following examples show how to build APPs with LLamaSharp.
 ![LLamaShrp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
 
-## Get started
+## 🚀Get started
 
 ### Installation
 
@@ -168,7 +170,7 @@ while (userInput != "exit")
 For more examples, please refer to [LLamaSharp.Examples](./LLama.Examples).
 
 
-## FAQ
+## 💡FAQ
 
 #### Why GPU is not used when I have installed CUDA
 
@@ -197,7 +199,7 @@ Generally, there are two possible cases for this problem:
 Please set anti-prompt or max-length when executing the inference.
 
 
-## Contributing
+## 🙌Contributing
 
 Any contribution is welcomed! There's a TODO list in [LLamaSharp Dev Project](https://github.com/orgs/SciSharp/projects/5) and you could pick an interesting one to start. Please read the [contributing guide](./CONTRIBUTING.md) for more information. 
 
@@ -214,6 +216,14 @@ You can also do one of the followings to help us make LLamaSharp better:
 Join our chat on [Discord](https://discord.gg/7wNVU65ZDY) (please contact Rinne to join the dev channel if you want to be a contributor).
 
 Join [QQ group](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=SciSharp/LLamaSharp)](https://star-history.com/#SciSharp/LLamaSharp&Date)
+
+## Contributor wall of fame
+
+[![LLamaSharp Contributors](https://contrib.rocks/image?repo=SciSharp/LLamaSharp)](https://github.com/SciSharp/LLamaSharp/graphs/contributors)
 
 ## Map of LLamaSharp and llama.cpp versions
 If you want to compile llama.cpp yourself you **must** use the exact commit ID listed for each version.
