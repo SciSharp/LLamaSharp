@@ -73,7 +73,6 @@ jobs:
           mkdocs-material-
     - run: pip install mkdocs mkdocs-material mike
     - run: |
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/AsakusaRinne/LLamaSharp.git
         git fetch origin gh-pages --depth=1
         version=$(cat ./temp/version.txt)
         mike deploy --push --update-aliases $version latest
