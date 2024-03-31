@@ -18,6 +18,9 @@
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
 
+    <file src="runtimes/deps/libllava_shared.so" target="runtimes\win-x64\native\libllava_shared.so" />
+    <file src="runtimes/deps/llava_shared.dll" target="runtimes\win-x64\native\llava_shared.dll" />
+
     <file src="runtimes/deps/llama.dll" target="runtimes\win-x64\native\llama.dll" />
     <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
     <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />

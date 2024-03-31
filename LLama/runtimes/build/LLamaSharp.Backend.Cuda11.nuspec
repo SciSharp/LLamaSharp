@@ -17,6 +17,9 @@
 
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda11.props" />
+
+    <file src="runtimes/deps/libllava_shared.so" target="runtimes\win-x64\native\libllava_shared.so" />
+    <file src="runtimes/deps/llava_shared.dll" target="runtimes\win-x64\native\llava_shared.dll" />
     
     <file src="runtimes/deps/cu11.7.1/llama.dll" target="runtimes\win-x64\native\cuda11\llama.dll" />
     <file src="runtimes/deps/cu11.7.1/libllama.so" target="runtimes\linux-x64\native\cuda11\libllama.so" />
