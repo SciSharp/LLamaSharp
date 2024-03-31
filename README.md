@@ -11,7 +11,7 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.OpenCL?label=LLamaSharp.Backend.OpenCL)](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL)
 
 
-**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in your local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.**
+**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) on your local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.**
 
 **Please star the repo to show your support for this project!🤗**
 
@@ -38,7 +38,7 @@
 
 - [Quick start](https://scisharp.github.io/LLamaSharp/latest/QuickStart/)
 - [FAQ](https://scisharp.github.io/LLamaSharp/latest/FAQ/)
-- [Tutorial](https://scisharp.github.io/LLamaSharp/latest/Tutorial/)
+- [Tutorial](https://scisharp.github.io/LLamaSharp/latest/Tutorials/NativeLibraryConfig/)
 - [Full documentation](https://scisharp.github.io/LLamaSharp/latest/)
 - [API reference](https://scisharp.github.io/LLamaSharp/latest/xmldocs/)
 
