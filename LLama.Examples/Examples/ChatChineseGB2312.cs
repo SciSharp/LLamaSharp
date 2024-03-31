@@ -3,6 +3,7 @@ using LLama.Common;
 
 namespace LLama.Examples.Examples;
 
+// This example shows how to deal with Chinese input with gb2312 encoding.
 public class ChatChineseGB2312
 {
     private static string ConvertEncoding(string input, Encoding original, Encoding target)

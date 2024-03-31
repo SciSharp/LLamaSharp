@@ -47,3 +47,15 @@ The chat history as plain text.
 
 [ChatHistory](./llama.common.chathistory.md)<br>
 The updated history.
+
+### **Clone()**
+
+Copy the transform.
+
+```csharp
+IHistoryTransform Clone()
+```
+
+#### Returns
+
+[IHistoryTransform](./llama.abstractions.ihistorytransform.md)<br>

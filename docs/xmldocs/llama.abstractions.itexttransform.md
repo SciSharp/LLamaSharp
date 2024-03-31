@@ -31,3 +31,15 @@ string Transform(string text)
 #### Returns
 
 [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **Clone()**
+
+Copy the transform.
+
+```csharp
+ITextTransform Clone()
+```
+
+#### Returns
+
+[ITextTransform](./llama.abstractions.itexttransform.md)<br>

@@ -2,6 +2,8 @@
 
 namespace LLama.Examples.Examples;
 
+// When using chatsession, it's a common case that you want to strip the role names
+// rather than display them. This example shows how to use transforms to strip them.
 public class ChatSessionStripRoleName
 {
     public static async Task Run()

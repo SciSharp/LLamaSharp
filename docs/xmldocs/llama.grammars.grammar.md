@@ -18,7 +18,7 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 Index of the initial rule to start from
 
 ```csharp
-public ulong StartRuleIndex { get; set; }
+public ulong StartRuleIndex { get; }
 ```
 
 #### Property Value
