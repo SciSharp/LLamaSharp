@@ -71,7 +71,7 @@ jobs:
         path: .cache
         restore-keys: |
           mkdocs-material-
-    - run: pip install mkdocs mkdocs-material mike==1.1.2
+    - run: pip install mkdocs==1.4.3 mkdocs-material mike==1.1.2 pkg_resources
     - run: |
         git fetch origin gh-pages --depth=1
         version=$(cat ./temp/version.txt)
