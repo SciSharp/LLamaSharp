@@ -2,6 +2,7 @@
 
 namespace LLama.Examples.Examples
 {
+    // This example shows how to use InstructExecutor to generate the response.
     public class InstructModeExecute
     {
         public static async Task Run()

@@ -12,23 +12,23 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 
 ## Methods
 
-### **ToLlamaContextParams(IModelParams, LLamaContextParams&)**
+### **ToLlamaModelParams(IModelParams, LLamaModelParams&)**
 
-Convert the given `IModelParams` into a `LLamaContextParams`
+Convert the given `IModelParams` into a `LLamaModelParams`
 
 ```csharp
-public static MemoryHandle ToLlamaContextParams(IModelParams params, LLamaContextParams& result)
+public static IDisposable ToLlamaModelParams(IModelParams params, LLamaModelParams& result)
 ```
 
 #### Parameters
 
 `params` [IModelParams](./llama.abstractions.imodelparams.md)<br>
 
-`result` [LLamaContextParams&](./llama.native.llamacontextparams&.md)<br>
+`result` [LLamaModelParams&](./llama.native.llamamodelparams&.md)<br>
 
 #### Returns
 
-[MemoryHandle](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.memoryhandle)<br>
+[IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
 
 #### Exceptions
 

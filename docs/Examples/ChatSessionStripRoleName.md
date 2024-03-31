@@ -1,19 +1,17 @@
-﻿# Use chat session and strip role names
+# ChatSession - stripping role names
 
 ```cs
 using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
+namespace LLama.Examples.Examples;
+
+// When using chatsession, it's a common case that you want to strip the role names
+// rather than display them. This example shows how to use transforms to strip them.
 public class ChatSessionStripRoleName
 {
-    public static void Run()
+    public static async Task Run()
     {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
+        string modelPath = UserSettings.GetModelPath();
 
         var parameters = new ModelParams(modelPath)
         {
@@ -65,4 +63,5 @@ public class ChatSessionStripRoleName
         }
     }
 }
+
 ```

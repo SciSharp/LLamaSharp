@@ -2,6 +2,8 @@
 
 Namespace: LLama.Native
 
+A single token along with probability of this token being selected
+
 ```csharp
 public struct LLamaTokenData
 ```
@@ -15,7 +17,7 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 token id
 
 ```csharp
-public int id;
+public LLamaToken id;
 ```
 
 ### **logit**
@@ -36,15 +38,17 @@ public float p;
 
 ## Constructors
 
-### **LLamaTokenData(Int32, Single, Single)**
+### **LLamaTokenData(LLamaToken, Single, Single)**
+
+Create a new LLamaTokenData
 
 ```csharp
-LLamaTokenData(int id, float logit, float p)
+LLamaTokenData(LLamaToken id, float logit, float p)
 ```
 
 #### Parameters
 
-`id` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`id` [LLamaToken](./llama.native.llamatoken.md)<br>
 
 `logit` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 

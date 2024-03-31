@@ -1,16 +1,16 @@
-# Chat session with history
+# ChatSession - with history
 
 ```cs
 using LLama.Common;
 
 namespace LLama.Examples.Examples;
 
+// This example shows how to save the state and history of chat session and load it again.
 public class ChatSessionWithHistory
 {
     public static async Task Run()
     {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
+        string modelPath = UserSettings.GetModelPath();
 
         var parameters = new ModelParams(modelPath)
         {
@@ -52,6 +52,10 @@ public class ChatSessionWithHistory
 
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("The chat session has started.");
+        Console.WriteLine("Type 'exit' to end the chat session.");
+        Console.WriteLine("Type 'save' to save the chat session to disk.");
+        Console.WriteLine("Type 'load' to load the chat session from disk.");
+        Console.WriteLine("Type 'regenerate' to regenerate the last response.");
 
         // show the prompt
         Console.ForegroundColor = ConsoleColor.Green;
@@ -59,11 +63,19 @@ public class ChatSessionWithHistory
 
         while (userInput != "exit")
         {
+            // Save the chat state to disk
             if (userInput == "save")
             {
                 session.SaveSession("Assets/chat-with-bob");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session saved.");
+            }
+            // Load the chat state from disk
+            else if (userInput == "load")
+            {
+                session.LoadSession("Assets/chat-with-bob");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Session loaded.");
             }
             else if (userInput == "regenerate")
             {
@@ -99,6 +111,4 @@ public class ChatSessionWithHistory
         }
     }
 }
-
-
 ```

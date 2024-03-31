@@ -2,6 +2,8 @@
 
 Namespace: LLama.Exceptions
 
+Base class for LLamaSharp runtime errors (i.e. errors produced by llama.cpp, converted into exceptions)
+
 ```csharp
 public class RuntimeError : System.Exception, System.Runtime.Serialization.ISerializable
 ```
@@ -93,13 +95,9 @@ public string StackTrace { get; }
 
 ## Constructors
 
-### **RuntimeError()**
-
-```csharp
-public RuntimeError()
-```
-
 ### **RuntimeError(String)**
+
+Create a new RuntimeError
 
 ```csharp
 public RuntimeError(string message)

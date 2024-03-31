@@ -2,6 +2,8 @@
 
 ## LLama
 
+[AntipromptProcessor](./llama.antipromptprocessor.md)
+
 [ChatSession](./llama.chatsession.md)
 
 [InstructExecutor](./llama.instructexecutor.md)
@@ -18,13 +20,21 @@
 
 [LLamaWeights](./llama.llamaweights.md)
 
+[LLavaWeights](./llama.llavaweights.md)
+
+[SessionState](./llama.sessionstate.md)
+
 [StatefulExecutorBase](./llama.statefulexecutorbase.md)
 
 [StatelessExecutor](./llama.statelessexecutor.md)
 
-[Utils](./llama.utils.md)
+[StreamingTokenDecoder](./llama.streamingtokendecoder.md)
 
 ## LLama.Abstractions
+
+[AdapterCollection](./llama.abstractions.adaptercollection.md)
+
+[IContextParams](./llama.abstractions.icontextparams.md)
 
 [IHistoryTransform](./llama.abstractions.ihistorytransform.md)
 
@@ -32,11 +42,43 @@
 
 [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)
 
+[ILLamaParams](./llama.abstractions.illamaparams.md)
+
 [IModelParams](./llama.abstractions.imodelparams.md)
 
 [ITextStreamTransform](./llama.abstractions.itextstreamtransform.md)
 
 [ITextTransform](./llama.abstractions.itexttransform.md)
+
+[LoraAdapter](./llama.abstractions.loraadapter.md)
+
+[MetadataOverride](./llama.abstractions.metadataoverride.md)
+
+[MetadataOverrideConverter](./llama.abstractions.metadataoverrideconverter.md)
+
+[TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)
+
+[TensorSplitsCollectionConverter](./llama.abstractions.tensorsplitscollectionconverter.md)
+
+## LLama.Batched
+
+[AlreadyPromptedConversationException](./llama.batched.alreadypromptedconversationexception.md)
+
+[BatchedExecutor](./llama.batched.batchedexecutor.md)
+
+[CannotForkWhileRequiresInferenceException](./llama.batched.cannotforkwhilerequiresinferenceexception.md)
+
+[CannotModifyWhileRequiresInferenceException](./llama.batched.cannotmodifywhilerequiresinferenceexception.md)
+
+[CannotSampleRequiresInferenceException](./llama.batched.cannotsamplerequiresinferenceexception.md)
+
+[CannotSampleRequiresPromptException](./llama.batched.cannotsamplerequirespromptexception.md)
+
+[Conversation](./llama.batched.conversation.md)
+
+[ConversationExtensions](./llama.batched.conversationextensions.md)
+
+[ExperimentalBatchedExecutorException](./llama.batched.experimentalbatchedexecutorexception.md)
 
 ## LLama.Common
 
@@ -46,11 +88,7 @@
 
 [FixedSizeQueue&lt;T&gt;](./llama.common.fixedsizequeue-1.md)
 
-[ILLamaLogger](./llama.common.illamalogger.md)
-
 [InferenceParams](./llama.common.inferenceparams.md)
-
-[LLamaDefaultLogger](./llama.common.llamadefaultlogger.md)
 
 [MirostatType](./llama.common.mirostattype.md)
 
@@ -78,13 +116,17 @@
 
 [GrammarUnknownEscapeCharacter](./llama.exceptions.grammarunknownescapecharacter.md)
 
+[LLamaDecodeError](./llama.exceptions.llamadecodeerror.md)
+
+[LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)
+
 [RuntimeError](./llama.exceptions.runtimeerror.md)
 
 ## LLama.Extensions
 
-[IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)
+[IContextParamsExtensions](./llama.extensions.icontextparamsextensions.md)
 
-[KeyValuePairExtensions](./llama.extensions.keyvaluepairextensions.md)
+[IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)
 
 ## LLama.Grammars
 
@@ -94,6 +136,20 @@
 
 ## LLama.Native
 
+[DecodeResult](./llama.native.decoderesult.md)
+
+[GGMLType](./llama.native.ggmltype.md)
+
+[GPUSplitMode](./llama.native.gpusplitmode.md)
+
+[LLamaBatch](./llama.native.llamabatch.md)
+
+[LLamaBeamsState](./llama.native.llamabeamsstate.md)
+
+[LLamaBeamView](./llama.native.llamabeamview.md)
+
+[LLamaChatMessage](./llama.native.llamachatmessage.md)
+
 [LLamaContextParams](./llama.native.llamacontextparams.md)
 
 [LLamaFtype](./llama.native.llamaftype.md)
@@ -102,7 +158,33 @@
 
 [LLamaGrammarElementType](./llama.native.llamagrammarelementtype.md)
 
+[LLamaKvCacheView](./llama.native.llamakvcacheview.md)
+
+[LLamaKvCacheViewCell](./llama.native.llamakvcacheviewcell.md)
+
+[LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)
+
+[LLamaLogLevel](./llama.native.llamaloglevel.md)
+
+[LLamaModelKvOverrideType](./llama.native.llamamodelkvoverridetype.md)
+
+[LLamaModelMetadataOverride](./llama.native.llamamodelmetadataoverride.md)
+
+[LLamaModelParams](./llama.native.llamamodelparams.md)
+
 [LLamaModelQuantizeParams](./llama.native.llamamodelquantizeparams.md)
+
+[LLamaNativeBatch](./llama.native.llamanativebatch.md)
+
+[LLamaPoolingType](./llama.native.llamapoolingtype.md)
+
+[LLamaPos](./llama.native.llamapos.md)
+
+[LLamaRopeType](./llama.native.llamaropetype.md)
+
+[LLamaSeqId](./llama.native.llamaseqid.md)
+
+[LLamaToken](./llama.native.llamatoken.md)
 
 [LLamaTokenData](./llama.native.llamatokendata.md)
 
@@ -110,7 +192,17 @@
 
 [LLamaTokenDataArrayNative](./llama.native.llamatokendataarraynative.md)
 
+[LLamaTokenType](./llama.native.llamatokentype.md)
+
+[LLamaVocabType](./llama.native.llamavocabtype.md)
+
+[LLavaImageEmbed](./llama.native.llavaimageembed.md)
+
 [NativeApi](./llama.native.nativeapi.md)
+
+[NativeLibraryConfig](./llama.native.nativelibraryconfig.md)
+
+[RopeScalingType](./llama.native.ropescalingtype.md)
 
 [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)
 
@@ -120,48 +212,22 @@
 
 [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)
 
-[SamplingApi](./llama.native.samplingapi.md)
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)
 
-## LLama.OldVersion
+[SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)
 
-[ChatCompletion](./llama.oldversion.chatcompletion.md)
+## LLama.Sampling
 
-[ChatCompletionChoice](./llama.oldversion.chatcompletionchoice.md)
+[BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md)
 
-[ChatCompletionChunk](./llama.oldversion.chatcompletionchunk.md)
+[DefaultSamplingPipeline](./llama.sampling.defaultsamplingpipeline.md)
 
-[ChatCompletionChunkChoice](./llama.oldversion.chatcompletionchunkchoice.md)
+[GreedySamplingPipeline](./llama.sampling.greedysamplingpipeline.md)
 
-[ChatCompletionChunkDelta](./llama.oldversion.chatcompletionchunkdelta.md)
+[ISamplingPipeline](./llama.sampling.isamplingpipeline.md)
 
-[ChatCompletionMessage](./llama.oldversion.chatcompletionmessage.md)
+[ISamplingPipelineExtensions](./llama.sampling.isamplingpipelineextensions.md)
 
-[ChatMessageRecord](./llama.oldversion.chatmessagerecord.md)
+[Mirostate2SamplingPipeline](./llama.sampling.mirostate2samplingpipeline.md)
 
-[ChatRole](./llama.oldversion.chatrole.md)
-
-[ChatSession&lt;T&gt;](./llama.oldversion.chatsession-1.md)
-
-[Completion](./llama.oldversion.completion.md)
-
-[CompletionChoice](./llama.oldversion.completionchoice.md)
-
-[CompletionChunk](./llama.oldversion.completionchunk.md)
-
-[CompletionLogprobs](./llama.oldversion.completionlogprobs.md)
-
-[CompletionUsage](./llama.oldversion.completionusage.md)
-
-[Embedding](./llama.oldversion.embedding.md)
-
-[EmbeddingData](./llama.oldversion.embeddingdata.md)
-
-[EmbeddingUsage](./llama.oldversion.embeddingusage.md)
-
-[IChatModel](./llama.oldversion.ichatmodel.md)
-
-[LLamaEmbedder](./llama.oldversion.llamaembedder.md)
-
-[LLamaModel](./llama.oldversion.llamamodel.md)
-
-[LLamaParams](./llama.oldversion.llamaparams.md)
+[MirostateSamplingPipeline](./llama.sampling.mirostatesamplingpipeline.md)

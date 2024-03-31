@@ -47,19 +47,35 @@ LLamaGrammarElement(LLamaGrammarElementType type, uint value)
 
 ## Methods
 
-### **Equals(LLamaGrammarElement)**
+### **IsCharElement()**
 
 ```csharp
-bool Equals(LLamaGrammarElement other)
+bool IsCharElement()
 ```
-
-#### Parameters
-
-`other` [LLamaGrammarElement](./llama.native.llamagrammarelement.md)<br>
 
 #### Returns
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **ToString()**
+
+```csharp
+string ToString()
+```
+
+#### Returns
+
+[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **GetHashCode()**
+
+```csharp
+int GetHashCode()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **Equals(Object)**
 
@@ -75,21 +91,15 @@ bool Equals(object obj)
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **GetHashCode()**
+### **Equals(LLamaGrammarElement)**
 
 ```csharp
-int GetHashCode()
+bool Equals(LLamaGrammarElement other)
 ```
 
-#### Returns
+#### Parameters
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **IsCharElement()**
-
-```csharp
-bool IsCharElement()
-```
+`other` [LLamaGrammarElement](./llama.native.llamagrammarelement.md)<br>
 
 #### Returns
 

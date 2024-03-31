@@ -17,15 +17,15 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 RNG seed, -1 for random
 
 ```csharp
-public int seed;
+public uint seed;
 ```
 
 ### **n_ctx**
 
-text context
+text context, 0 = from model
 
 ```csharp
-public int n_ctx;
+public uint n_ctx;
 ```
 
 ### **n_batch**
@@ -33,37 +33,36 @@ public int n_ctx;
 prompt processing batch size
 
 ```csharp
-public int n_batch;
+public uint n_batch;
 ```
 
-### **n_gpu_layers**
+### **n_threads**
 
-number of layers to store in VRAM
+number of threads to use for generation
 
 ```csharp
-public int n_gpu_layers;
+public uint n_threads;
 ```
 
-### **main_gpu**
+### **n_threads_batch**
 
-the GPU that is used for scratch and small tensors
+number of threads to use for batch processing
 
 ```csharp
-public int main_gpu;
+public uint n_threads_batch;
 ```
 
-### **tensor_split**
+### **rope_scaling_type**
 
-how to split layers across multiple GPUs
+RoPE scaling type, from `enum llama_rope_scaling_type`
 
 ```csharp
-public IntPtr tensor_split;
+public RopeScalingType rope_scaling_type;
 ```
 
 ### **rope_freq_base**
 
-ref: https://github.com/ggerganov/llama.cpp/pull/2054
- RoPE base frequency
+RoPE base frequency, 0 = from model
 
 ```csharp
 public float rope_freq_base;
@@ -71,114 +70,93 @@ public float rope_freq_base;
 
 ### **rope_freq_scale**
 
-ref: https://github.com/ggerganov/llama.cpp/pull/2054
- RoPE frequency scaling factor
+RoPE frequency scaling factor, 0 = from model
 
 ```csharp
 public float rope_freq_scale;
 ```
 
-### **progress_callback**
+### **yarn_ext_factor**
 
-called with a progress value between 0 and 1, pass NULL to disable
+YaRN extrapolation mix factor, negative = from model
 
 ```csharp
-public IntPtr progress_callback;
+public float yarn_ext_factor;
 ```
 
-### **progress_callback_user_data**
+### **yarn_attn_factor**
 
-context pointer passed to the progress callback
+YaRN magnitude scaling factor
 
 ```csharp
-public IntPtr progress_callback_user_data;
+public float yarn_attn_factor;
+```
+
+### **yarn_beta_fast**
+
+YaRN low correction dim
+
+```csharp
+public float yarn_beta_fast;
+```
+
+### **yarn_beta_slow**
+
+YaRN high correction dim
+
+```csharp
+public float yarn_beta_slow;
+```
+
+### **yarn_orig_ctx**
+
+YaRN original context size
+
+```csharp
+public uint yarn_orig_ctx;
+```
+
+### **defrag_threshold**
+
+defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+
+```csharp
+public float defrag_threshold;
+```
+
+### **cb_eval**
+
+ggml_backend_sched_eval_callback
+
+```csharp
+public IntPtr cb_eval;
+```
+
+### **cb_eval_user_data**
+
+User data passed into cb_eval
+
+```csharp
+public IntPtr cb_eval_user_data;
+```
+
+### **type_k**
+
+data type for K cache
+
+```csharp
+public GGMLType type_k;
+```
+
+### **type_v**
+
+data type for V cache
+
+```csharp
+public GGMLType type_v;
 ```
 
 ## Properties
-
-### **low_vram**
-
-if true, reduce VRAM usage at the cost of performance
-
-```csharp
-public bool low_vram { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **mul_mat_q**
-
-if true, use experimental mul_mat_q kernels
-
-```csharp
-public bool mul_mat_q { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **f16_kv**
-
-use fp16 for KV cache
-
-```csharp
-public bool f16_kv { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **logits_all**
-
-the llama_eval() call computes all logits, not just the last one
-
-```csharp
-public bool logits_all { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **vocab_only**
-
-only load the vocabulary, no weights
-
-```csharp
-public bool vocab_only { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **use_mmap**
-
-use mmap if possible
-
-```csharp
-public bool use_mmap { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **use_mlock**
-
-force system to keep model in RAM
-
-```csharp
-public bool use_mlock { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **embedding**
 
@@ -186,6 +164,30 @@ embedding mode only
 
 ```csharp
 public bool embedding { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **offload_kqv**
+
+whether to offload the KQV ops (including the KV cache) to GPU
+
+```csharp
+public bool offload_kqv { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **do_pooling**
+
+Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+
+```csharp
+public bool do_pooling { get; set; }
 ```
 
 #### Property Value

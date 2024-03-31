@@ -5,6 +5,8 @@ using Spectre.Console;
 
 namespace LLama.Examples.Examples
 {
+    // This example shows how to chat with LLaVA model with both image and text as input.
+    // It uses the interactive executor to inference.
     public class LlavaInteractiveModeExecute
     {
         public static async Task Run()

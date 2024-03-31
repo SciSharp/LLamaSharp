@@ -2,6 +2,7 @@
 
 namespace LLama.Examples.Examples
 {
+    // This is an example which shows how to chat with LLM with InteractiveExecutor.
     public class InteractiveModeExecute
     {
         public static async Task Run()

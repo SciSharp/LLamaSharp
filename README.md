@@ -82,7 +82,7 @@ The following examples show how to build APPs with LLamaSharp.
 
 To gain high performance, LLamaSharp interacts with a native library compiled from c++, which is called `backend`. We provide backend packages for Windows, Linux and MAC with CPU, Cuda, Metal and OpenCL. You **don't** need to handle anything about c++ but just install the backend packages.
 
-If no published backend match your device, please open an issue to let us know. If compiling c++ code is not difficult for you, you could also follow [this guide]() to compile a backend and run LLamaSharp with it.
+If no published backend match your device, please open an issue to let us know. If compiling c++ code is not difficult for you, you could also follow [this guide](./docs/ContributingGuide.md) to compile a backend and run LLamaSharp with it.
 
 1.  Install [LLamaSharp](https://www.nuget.org/packages/LLamaSharp) package on NuGet:
 
@@ -102,7 +102,7 @@ PM> Install-Package LLamaSharp
 
 ### Model preparation
 
-There are two popular format of model file of LLM now, which are PyTorch format (.bin) and Huggingface format (.safetensors). LLamaSharp uses `GGUF` format file, which could be converted from these two formats. To get `GGUF` file, there are two options:
+There are two popular format of model file of LLM now, which are PyTorch format (.pth) and Huggingface format (.bin). LLamaSharp uses `GGUF` format file, which could be converted from these two formats. To get `GGUF` file, there are two options:
 
 1. Search model name + 'gguf' in [Huggingface](https://huggingface.co), you will find lots of model files that have already been converted to GGUF format. Please take care of the publishing time of them because some old ones could only work with old version of LLamaSharp.
 
