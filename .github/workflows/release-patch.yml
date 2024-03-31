@@ -72,7 +72,6 @@ jobs:
         restore-keys: |
           mkdocs-material-
     - run: pip install mkdocs-material 
-    - run: mkdocs gh-deploy --force
     - run: |
         version=$(cat ./temp/LLamaSharp.version)
         mike deploy --push --update-aliases $version latest
