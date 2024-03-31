@@ -1,19 +1,16 @@
-﻿# Use chat session without removing role names
+# ChatSession - Basic
 
 ```cs
 using LLama.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
+namespace LLama.Examples.Examples;
+
+// The basic example for using ChatSession
 public class ChatSessionWithRoleName
 {
-    public static void Run()
+    public static async Task Run()
     {
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
+        string modelPath = UserSettings.GetModelPath();
 
         var parameters = new ModelParams(modelPath)
         {
@@ -62,4 +59,5 @@ public class ChatSessionWithRoleName
         }
     }
 }
+
 ```

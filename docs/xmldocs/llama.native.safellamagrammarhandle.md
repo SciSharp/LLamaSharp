@@ -95,3 +95,29 @@ index of the start rule of the grammar
 #### Exceptions
 
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
+
+### **Clone()**
+
+Create a copy of this grammar instance
+
+```csharp
+public SafeLLamaGrammarHandle Clone()
+```
+
+#### Returns
+
+[SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
+
+### **AcceptToken(SafeLLamaContextHandle, LLamaToken)**
+
+Accepts the sampled token into the grammar
+
+```csharp
+public void AcceptToken(SafeLLamaContextHandle ctx, LLamaToken token)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>

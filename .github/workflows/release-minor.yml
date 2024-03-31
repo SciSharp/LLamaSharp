@@ -15,7 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Configure Git Credentials
+      run: |
+        git config user.name Rinne
+        git config user.email AsakusaRinne@gmail.com  
     - name: Setup NuGet
       uses: nuget/setup-nuget@v1
       with:
@@ -51,3 +55,22 @@ jobs:
 
     - name: Push LLamaSharp packages to nuget.org
       run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
+
+    # Deploy the documentation to GitHub Pages
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.x
+    - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
+    - uses: actions/cache@v4
+      with:
+        key: mkdocs-material-${{ env.cache_id }}
+        path: .cache
+        restore-keys: |
+          mkdocs-material-
+    - run: pip install mkdocs==1.4.3 mkdocs-material mike==1.1.2 setuptools
+    - run: |
+        git fetch origin gh-pages --depth=1
+        version=$(cat ./temp/version.txt)
+        mike deploy --push --update-aliases --force $version latest
+        mike set-default --push --force latest
+        

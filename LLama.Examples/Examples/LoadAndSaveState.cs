@@ -2,6 +2,7 @@
 
 namespace LLama.Examples.Examples
 {
+    // This example shows how to save/load state of the executor.
     public class LoadAndSaveState
     {
         public static async Task Run()

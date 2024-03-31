@@ -22,30 +22,43 @@ public abstract LLamaContext Context { get; }
 
 [LLamaContext](./llama.llamacontext.md)<br>
 
-## Methods
+### **IsMultiModal**
 
-### **Infer(String, IInferenceParams, CancellationToken)**
-
-Infers a response from the model.
+Identify if it's a multi-modal model and there is a image to process.
 
 ```csharp
-IEnumerable<string> Infer(string text, IInferenceParams inferenceParams, CancellationToken token)
+public abstract bool IsMultiModal { get; }
 ```
 
-#### Parameters
+#### Property Value
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-Your prompt
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
-Any additional parameters
+### **ClipModel**
 
-`token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
-A cancellation token.
+Muti-Modal Projections / Clip Model weights
 
-#### Returns
+```csharp
+public abstract LLavaWeights ClipModel { get; }
+```
 
-[IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
+#### Property Value
+
+[LLavaWeights](./llama.llavaweights.md)<br>
+
+### **ImagePaths**
+
+List of images: Image filename and path (jpeg images).
+
+```csharp
+public abstract List<string> ImagePaths { get; set; }
+```
+
+#### Property Value
+
+[List&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+## Methods
 
 ### **InferAsync(String, IInferenceParams, CancellationToken)**
 

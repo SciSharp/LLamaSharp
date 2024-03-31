@@ -30,12 +30,12 @@ public int VocabCount { get; }
 Total number of tokens in the context
 
 ```csharp
-public int ContextSize { get; }
+public uint ContextSize { get; }
 ```
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **EmbeddingSize**
 
@@ -48,6 +48,18 @@ public int EmbeddingSize { get; }
 #### Property Value
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **BatchSize**
+
+Get the maximum batch size for this context
+
+```csharp
+public uint BatchSize { get; }
+```
+
+#### Property Value
+
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **ModelHandle**
 
@@ -83,21 +95,11 @@ public bool IsClosed { get; }
 
 ## Constructors
 
-### **SafeLLamaContextHandle(IntPtr, SafeLlamaModelHandle)**
-
-Create a new SafeLLamaContextHandle
+### **SafeLLamaContextHandle()**
 
 ```csharp
-public SafeLLamaContextHandle(IntPtr handle, SafeLlamaModelHandle model)
+public SafeLLamaContextHandle()
 ```
-
-#### Parameters
-
-`handle` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-pointer to an allocated llama_context
-
-`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-the model which this context was created from
 
 ## Methods
 
@@ -133,52 +135,9 @@ public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaCon
 
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
 
-### **Clone(LLamaContextParams)**
-
-Create a new llama context with a clone of the current llama context state
-
-```csharp
-public SafeLLamaContextHandle Clone(LLamaContextParams lparams)
-```
-
-#### Parameters
-
-`lparams` [LLamaContextParams](./llama.native.llamacontextparams.md)<br>
-
-#### Returns
-
-[SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-### **Tokenize(String, Boolean, Encoding)**
-
-Convert the given text into tokens
-
-```csharp
-public Int32[] Tokenize(string text, bool add_bos, Encoding encoding)
-```
-
-#### Parameters
-
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-The text to tokenize
-
-`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-Whether the "BOS" token should be added
-
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
-Encoding to use for the text
-
-#### Returns
-
-[Int32[]](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-#### Exceptions
-
-[RuntimeError](./llama.exceptions.runtimeerror.md)<br>
-
 ### **GetLogits()**
 
-Token logits obtained from the last call to llama_eval()
+Token logits obtained from the last call to llama_decode
  The logits for the last token are stored in the last row
  Can be mutated in order to change the probabilities of the next token.<br>
  Rows: n_tokens<br>
@@ -192,54 +151,63 @@ public Span<float> GetLogits()
 
 [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
-### **TokenToString(Int32, Encoding)**
+### **GetLogitsIth(Int32)**
 
-Convert a token into a string
+Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
 
 ```csharp
-public string TokenToString(int token, Encoding encoding)
+public Span<float> GetLogitsIth(int i)
 ```
 
 #### Parameters
 
-`token` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Token to decode into a string
-
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`i` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
-### **TokenToString(Int32, Encoding, StringBuilder)**
+### **Tokenize(String, Boolean, Boolean, Encoding)**
 
-Append a single llama token to a string builder
+Convert the given text into tokens
 
 ```csharp
-public void TokenToString(int token, Encoding encoding, StringBuilder dest)
+public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
 ```
 
 #### Parameters
 
-`token` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Token to decode
+`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+The text to tokenize
+
+`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Whether the "BOS" token should be added
+
+`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.
 
 `encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+Encoding to use for the text
 
-`dest` [StringBuilder](https://docs.microsoft.com/en-us/dotnet/api/system.text.stringbuilder)<br>
-string builder to append the result to
+#### Returns
 
-### **TokenToSpan(Int32, Span&lt;Byte&gt;)**
+[LLamaToken[]](./llama.native.llamatoken.md)<br>
+
+#### Exceptions
+
+[RuntimeError](./llama.exceptions.runtimeerror.md)<br>
+
+### **TokenToSpan(LLamaToken, Span&lt;Byte&gt;)**
 
 Convert a single llama token into bytes
 
 ```csharp
-public int TokenToSpan(int token, Span<byte> dest)
+public uint TokenToSpan(LLamaToken token, Span<byte> dest)
 ```
 
 #### Parameters
 
-`token` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
 Token to decode
 
 `dest` [Span&lt;Byte&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
@@ -247,31 +215,51 @@ A span to attempt to write into. If this is too small nothing will be written
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 The size of this token. **nothing will be written** if this is larger than `dest`
 
-### **Eval(ReadOnlySpan&lt;Int32&gt;, Int32, Int32)**
+### **Decode(LLamaBatch)**
 
-Run the llama inference to obtain the logits and probabilities for the next token.
+
 
 ```csharp
-public bool Eval(ReadOnlySpan<int> tokens, int n_past, int n_threads)
+public DecodeResult Decode(LLamaBatch batch)
 ```
 
 #### Parameters
 
-`tokens` [ReadOnlySpan&lt;Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
-The provided batch of new tokens to process
-
-`n_past` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-the number of tokens to use from previous eval calls
-
-`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-Returns true on success
+[DecodeResult](./llama.native.decoderesult.md)<br>
+Positive return values does not mean a fatal error, but rather a warning:<br>
+ - 0: success<br>
+ - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br>
+ - &lt; 0: error<br>
+
+### **Decode(List&lt;LLamaToken&gt;, LLamaSeqId, LLamaBatch, Int32&)**
+
+Decode a set of tokens in batch-size chunks.
+
+```csharp
+internal ValueTuple<DecodeResult, int> Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, Int32& n_past)
+```
+
+#### Parameters
+
+`tokens` [List&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+`id` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
+
+`n_past` [Int32&](https://docs.microsoft.com/en-us/dotnet/api/system.int32&)<br>
+
+#### Returns
+
+[ValueTuple&lt;DecodeResult, Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.valuetuple-2)<br>
+A tuple, containing the decode result and the number of tokens that have not been decoded yet.
 
 ### **GetStateSize()**
 
@@ -372,3 +360,169 @@ The pointer to read the state from
 
 [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 Number of bytes read from the src pointer
+
+### **SetSeed(UInt32)**
+
+Set the RNG seed
+
+```csharp
+public void SetSeed(uint seed)
+```
+
+#### Parameters
+
+`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **SetThreads(UInt32, UInt32)**
+
+Set the number of threads used for decoding
+
+```csharp
+public void SetThreads(uint threads, uint threadsBatch)
+```
+
+#### Parameters
+
+`threads` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+n_threads is the number of threads used for generation (single token)
+
+`threadsBatch` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)
+
+### **KvCacheGetDebugView(Int32)**
+
+Get a new KV cache view that can be used to debug the KV cache
+
+```csharp
+public LLamaKvCacheViewSafeHandle KvCacheGetDebugView(int maxSequences)
+```
+
+#### Parameters
+
+`maxSequences` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+#### Returns
+
+[LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)<br>
+
+### **KvCacheCountCells()**
+
+Count the number of used cells in the KV cache (i.e. have at least one sequence assigned to them)
+
+```csharp
+public int KvCacheCountCells()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **KvCacheCountTokens()**
+
+Returns the number of tokens in the KV cache (slow, use only for debug)
+ If a KV cell has multiple sequences assigned to it, it will be counted multiple times
+
+```csharp
+public int KvCacheCountTokens()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **KvCacheClear()**
+
+Clear the KV cache
+
+```csharp
+public void KvCacheClear()
+```
+
+### **KvCacheRemove(LLamaSeqId, LLamaPos, LLamaPos)**
+
+Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
+
+```csharp
+public void KvCacheRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+### **KvCacheSequenceCopy(LLamaSeqId, LLamaSeqId, LLamaPos, LLamaPos)**
+
+Copy all tokens that belong to the specified sequence to another sequence. Note that
+ this does not allocate extra KV cache memory - it simply assigns the tokens to the
+ new sequence
+
+```csharp
+public void KvCacheSequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
+```
+
+#### Parameters
+
+`src` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`dest` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+### **KvCacheSequenceKeep(LLamaSeqId)**
+
+Removes all tokens that do not belong to the specified sequence
+
+```csharp
+public void KvCacheSequenceKeep(LLamaSeqId seq)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+### **KvCacheSequenceAdd(LLamaSeqId, LLamaPos, LLamaPos, Int32)**
+
+Adds relative position "delta" to all tokens that belong to the specified sequence
+ and have positions in [p0, p1. If the KV cache is RoPEd, the KV data is updated
+ accordingly
+
+```csharp
+public void KvCacheSequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`delta` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **KvCacheSequenceDivide(LLamaSeqId, LLamaPos, LLamaPos, Int32)**
+
+Integer division of the positions by factor of `d &gt; 1`.
+ If the KV cache is RoPEd, the KV data is updated accordingly.<br>
+ p0 &lt; 0 : [0, p1]<br>
+ p1 &lt; 0 : [p0, inf)
+
+```csharp
+public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`divisor` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>

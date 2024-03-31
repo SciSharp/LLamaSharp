@@ -2,27 +2,30 @@
 
 ![logo](./media/LLamaSharpLogo.png)
 
-LLamaSharp is the C#/.NET binding of [llama.cpp](https://github.com/ggerganov/llama.cpp). It provides APIs to inference the LLaMa Models and deploy it on native environment or Web. It could help C# developers to deploy the LLM (Large Language Model) locally and integrate with C# apps.
-
-## Main features
-
-- Model inference
-- Model quantization
-- Generating embeddings
-- Grammar parse
-- Interactive/Instruct/Stateless executor mode
-- Chat session APIs
-- Save/load the state
-- Integration with other applications like BotSharp and semantic-kernel
+LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.
 
 ## Essential insights for novice learners
 
 If you are new to LLM, here're some tips for you to help you to get start with `LLamaSharp`. If you are experienced in this field, we'd still recommend you to take a few minutes to read it because some things perform differently compared to cpp/python.
 
-1. The main ability of LLamaSharp is to provide an efficient way to run inference of LLM (Large Language Model) locally (and fine-tune model in the future). The model weights, however, need to be downloaded from other resources such as [huggingface](https://huggingface.co).
-2. Since LLamaSharp supports multiple platforms, The nuget package is split into `LLamaSharp` and `LLama.Backend`. After installing `LLamaSharp`, please install one of `LLama.Backend.Cpu`, `LLama.Backend.Cuda11` or `LLama.Backend.Cuda12`. If you use the source code, dynamic libraries can be found in `LLama/Runtimes`.
-3. `LLaMa` originally refers to the weights released by Meta (Facebook Research). After that, many models are fine-tuned based on it, such as `Vicuna`, `GPT4All`, and `Pyglion`. Though all of these models are supported by LLamaSharp, some steps are necessary with different file formats. There're mainly three kinds of files, which are `.pth`, `.bin (ggml)`, `.bin (quantized)`. If you have the `.bin (quantized)` file, it could be used directly by LLamaSharp. If you have the `.bin (ggml)` file, you could use it directly but get higher inference speed after the quantization. If you have the `.pth` file, you need to follow [the instructions in llama.cpp](https://github.com/ggerganov/llama.cpp#prepare-data--run) to convert it to `.bin (ggml)` file at first.
-4. LLamaSharp supports GPU acceleration, but it requires cuda installation. Please install cuda 11 or cuda 12 on your system before using LLamaSharp to enable GPU. If you have another cuda version, you could compile llama.cpp from source to get the dll. For building from source, please refer to [issue #5](https://github.com/SciSharp/LLamaSharp/issues/5).
+1. The main ability of LLamaSharp is to provide an efficient way to run inference of LLM on your device (and fine-tune model in the future). The model weights, however, need to be downloaded from other resources such as [huggingface](https://huggingface.co).
+2. To gain high performance, LLamaSharp interacts with a native library compiled from c++, which is called `backend`. We provide backend packages for Windows, Linux and MAC with CPU, Cuda, Metal and OpenCL. You **don't** need to handle anything about c++ but just install the backend packages. If no published backend match your device, please open an issue to let us know. If compiling c++ code is not difficult for you, you could also follow [this guide]() to compile a backend and run LLamaSharp with it.
+3. `LLaMA` originally refers to the weights released by Meta (Facebook Research). After that, many models are fine-tuned based on it, such as `Vicuna`, `GPT4All`, and `Pyglion`. There are two popular file format of these model now, which are PyTorch format (.pth) and Huggingface format (.bin). LLamaSharp uses `GGUF` format file, which could be converted from these two formats. There are two options for you to get GGUF format file. a) Search model name + 'gguf' in [Huggingface](https://huggingface.co), you will find lots of model files that have already been converted to GGUF format. Please take care of the publishing time of them because some old ones could only work with old version of LLamaSharp. b) Convert PyTorch or Huggingface format to GGUF format yourself. Please follow the instructions of [this part of llama.cpp readme](https://github.com/ggerganov/llama.cpp?tab=readme-ov-file#prepare-and-quantize) to convert them with the python scripts.
+4. LLamaSharp supports multi-modal, which means that the model could take both text and image as input. Note that there are two model files requied for using multi-modal (LLaVA), which are main model and mm-proj model. Here is a huggingface repo which shows that: [link](https://huggingface.co/ShadowBeast/llava-v1.6-mistral-7b-Q5_K_S-GGUF/tree/main).
+
+
+
+## Integrations
+
+There are integarions for the following libraries, which help to expand the application of LLamaSharp. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
+
+- [semantic-kernel](https://github.com/microsoft/semantic-kernel): an SDK that integrates LLM like OpenAI, Azure OpenAI, and Hugging Face.
+- [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
+- [BotSharp](https://github.com/SciSharp/BotSharp): an open source machine learning framework for AI Bot platform builder.
+- [Langchain](https://github.com/tryAGI/LangChain): a framework for developing applications powered by language models.
+
+![LLamaShrp-Integrations](./media/LLamaSharp-Integrations.png)
+
 
 ## Welcome to join the development!
 
@@ -32,6 +35,6 @@ Community effort is always one of the most important things in open-source proje
 2. Open an PR if you've fixed something. Even if just correcting a typo, it also makes great sense.
 3. Help to optimize the documentation. 
 4. Write an example or blog about how to integrate LLamaSharp with your APPs.
-5. Ask for a missed feature and discuss with other developers.
+5. Ask for a missing feature and discuss with us.
 
-If you'd like to get deeply involved in development, please touch us in discord channel or send email to `AsakusaRinne@gmail.com`. :)
+If you'd like to get deeply involved in development, please touch us in discord channel or send email to `AsakusaRinne@gmail.com`. 🤗

@@ -20,6 +20,54 @@ The output transform used in this session.
 public ITextStreamTransform OutputTransform;
 ```
 
+### **MODEL_STATE_FILENAME**
+
+The filename for the serialized model state (KV cache, etc).
+
+```csharp
+public static string MODEL_STATE_FILENAME;
+```
+
+### **EXECUTOR_STATE_FILENAME**
+
+The filename for the serialized executor state.
+
+```csharp
+public static string EXECUTOR_STATE_FILENAME;
+```
+
+### **HISTORY_STATE_FILENAME**
+
+The filename for the serialized chat history.
+
+```csharp
+public static string HISTORY_STATE_FILENAME;
+```
+
+### **INPUT_TRANSFORM_FILENAME**
+
+The filename for the serialized input transform pipeline.
+
+```csharp
+public static string INPUT_TRANSFORM_FILENAME;
+```
+
+### **OUTPUT_TRANSFORM_FILENAME**
+
+The filename for the serialized output transform.
+
+```csharp
+public static string OUTPUT_TRANSFORM_FILENAME;
+```
+
+### **HISTORY_TRANSFORM_FILENAME**
+
+The filename for the serialized history transform.
+
+```csharp
+public static string HISTORY_TRANSFORM_FILENAME;
+```
+
 ## Properties
 
 ### **Executor**
@@ -27,7 +75,7 @@ public ITextStreamTransform OutputTransform;
 The executor for this session.
 
 ```csharp
-public ILLamaExecutor Executor { get; }
+public ILLamaExecutor Executor { get; private set; }
 ```
 
 #### Property Value
@@ -39,7 +87,7 @@ public ILLamaExecutor Executor { get; }
 The chat history for this session.
 
 ```csharp
-public ChatHistory History { get; }
+public ChatHistory History { get; private set; }
 ```
 
 #### Property Value
@@ -74,7 +122,7 @@ public List<ITextTransform> InputTransformPipeline { get; set; }
 
 ### **ChatSession(ILLamaExecutor)**
 
-
+Create a new chat session.
 
 ```csharp
 public ChatSession(ILLamaExecutor executor)
@@ -85,7 +133,41 @@ public ChatSession(ILLamaExecutor executor)
 `executor` [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)<br>
 The executor for this session
 
+### **ChatSession(ILLamaExecutor, ChatHistory)**
+
+Create a new chat session with a custom history.
+
+```csharp
+public ChatSession(ILLamaExecutor executor, ChatHistory history)
+```
+
+#### Parameters
+
+`executor` [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)<br>
+
+`history` [ChatHistory](./llama.common.chathistory.md)<br>
+
 ## Methods
+
+### **InitializeSessionFromHistoryAsync(ILLamaExecutor, ChatHistory)**
+
+Create a new chat session and preprocess history.
+
+```csharp
+public static Task<ChatSession> InitializeSessionFromHistoryAsync(ILLamaExecutor executor, ChatHistory history)
+```
+
+#### Parameters
+
+`executor` [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)<br>
+The executor for this session
+
+`history` [ChatHistory](./llama.common.chathistory.md)<br>
+History for this session
+
+#### Returns
+
+[Task&lt;ChatSession&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
 ### **WithHistoryTransform(IHistoryTransform)**
 
@@ -137,7 +219,7 @@ public ChatSession WithOutputTransform(ITextStreamTransform transform)
 
 ### **SaveSession(String)**
 
-
+Save a session from a directory.
 
 ```csharp
 public void SaveSession(string path)
@@ -146,53 +228,280 @@ public void SaveSession(string path)
 #### Parameters
 
 `path` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-The directory name to save the session. If the directory does not exist, a new directory will be created.
 
-### **LoadSession(String)**
+#### Exceptions
 
+[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
 
+### **GetSessionState()**
+
+Get the session state.
 
 ```csharp
-public void LoadSession(string path)
+public SessionState GetSessionState()
+```
+
+#### Returns
+
+[SessionState](./llama.sessionstate.md)<br>
+SessionState object representing session state in-memory
+
+### **LoadSession(SessionState, Boolean)**
+
+Load a session from a session state.
+
+```csharp
+public void LoadSession(SessionState state, bool loadTransforms)
+```
+
+#### Parameters
+
+`state` [SessionState](./llama.sessionstate.md)<br>
+
+`loadTransforms` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+If true loads transforms saved in the session state.
+
+#### Exceptions
+
+[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+### **LoadSession(String, Boolean)**
+
+Load a session from a directory.
+
+```csharp
+public void LoadSession(string path, bool loadTransforms)
 ```
 
 #### Parameters
 
 `path` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-The directory name to load the session.
 
-### **Chat(ChatHistory, IInferenceParams, CancellationToken)**
+`loadTransforms` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+If true loads transforms saved in the session state.
 
-Get the response from the LLama model with chat histories.
+#### Exceptions
+
+[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+### **AddMessage(Message)**
+
+Add a message to the chat history.
 
 ```csharp
-public IEnumerable<string> Chat(ChatHistory history, IInferenceParams inferenceParams, CancellationToken cancellationToken)
+public ChatSession AddMessage(Message message)
+```
+
+#### Parameters
+
+`message` [Message](./llama.common.chathistory.message.md)<br>
+
+#### Returns
+
+[ChatSession](./llama.chatsession.md)<br>
+
+### **AddSystemMessage(String)**
+
+Add a system message to the chat history.
+
+```csharp
+public ChatSession AddSystemMessage(string content)
+```
+
+#### Parameters
+
+`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[ChatSession](./llama.chatsession.md)<br>
+
+### **AddAssistantMessage(String)**
+
+Add an assistant message to the chat history.
+
+```csharp
+public ChatSession AddAssistantMessage(string content)
+```
+
+#### Parameters
+
+`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[ChatSession](./llama.chatsession.md)<br>
+
+### **AddUserMessage(String)**
+
+Add a user message to the chat history.
+
+```csharp
+public ChatSession AddUserMessage(string content)
+```
+
+#### Parameters
+
+`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[ChatSession](./llama.chatsession.md)<br>
+
+### **RemoveLastMessage()**
+
+Remove the last message from the chat history.
+
+```csharp
+public ChatSession RemoveLastMessage()
+```
+
+#### Returns
+
+[ChatSession](./llama.chatsession.md)<br>
+
+### **AddAndProcessMessage(Message)**
+
+Compute KV cache for the message and add it to the chat history.
+
+```csharp
+public Task<ChatSession> AddAndProcessMessage(Message message)
+```
+
+#### Parameters
+
+`message` [Message](./llama.common.chathistory.message.md)<br>
+
+#### Returns
+
+[Task&lt;ChatSession&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+
+### **AddAndProcessSystemMessage(String)**
+
+Compute KV cache for the system message and add it to the chat history.
+
+```csharp
+public Task<ChatSession> AddAndProcessSystemMessage(string content)
+```
+
+#### Parameters
+
+`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[Task&lt;ChatSession&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+
+### **AddAndProcessUserMessage(String)**
+
+Compute KV cache for the user message and add it to the chat history.
+
+```csharp
+public Task<ChatSession> AddAndProcessUserMessage(string content)
+```
+
+#### Parameters
+
+`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[Task&lt;ChatSession&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+
+### **AddAndProcessAssistantMessage(String)**
+
+Compute KV cache for the assistant message and add it to the chat history.
+
+```csharp
+public Task<ChatSession> AddAndProcessAssistantMessage(string content)
+```
+
+#### Parameters
+
+`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[Task&lt;ChatSession&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+
+### **ReplaceUserMessage(Message, Message)**
+
+Replace a user message with a new message and remove all messages after the new message.
+ This is useful when the user wants to edit a message. And regenerate the response.
+
+```csharp
+public ChatSession ReplaceUserMessage(Message oldMessage, Message newMessage)
+```
+
+#### Parameters
+
+`oldMessage` [Message](./llama.common.chathistory.message.md)<br>
+
+`newMessage` [Message](./llama.common.chathistory.message.md)<br>
+
+#### Returns
+
+[ChatSession](./llama.chatsession.md)<br>
+
+### **ChatAsync(Message, Boolean, IInferenceParams, CancellationToken)**
+
+Chat with the model.
+
+```csharp
+public IAsyncEnumerable<string> ChatAsync(Message message, bool applyInputTransformPipeline, IInferenceParams inferenceParams, CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+`message` [Message](./llama.common.chathistory.message.md)<br>
+
+`applyInputTransformPipeline` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
+#### Returns
+
+[IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+
+#### Exceptions
+
+[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+### **ChatAsync(Message, IInferenceParams, CancellationToken)**
+
+Chat with the model.
+
+```csharp
+public IAsyncEnumerable<string> ChatAsync(Message message, IInferenceParams inferenceParams, CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+`message` [Message](./llama.common.chathistory.message.md)<br>
+
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
+#### Returns
+
+[IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+
+### **ChatAsync(ChatHistory, Boolean, IInferenceParams, CancellationToken)**
+
+Chat with the model.
+
+```csharp
+public IAsyncEnumerable<string> ChatAsync(ChatHistory history, bool applyInputTransformPipeline, IInferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `history` [ChatHistory](./llama.common.chathistory.md)<br>
 
-`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
-
-`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
-
-#### Returns
-
-[IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
-
-### **Chat(String, IInferenceParams, CancellationToken)**
-
-Get the response from the LLama model. Note that prompt could not only be the preset words, 
- but also the question you want to ask.
-
-```csharp
-public IEnumerable<string> Chat(string prompt, IInferenceParams inferenceParams, CancellationToken cancellationToken)
-```
-
-#### Parameters
-
-`prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`applyInputTransformPipeline` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
@@ -200,11 +509,15 @@ public IEnumerable<string> Chat(string prompt, IInferenceParams inferenceParams,
 
 #### Returns
 
-[IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
+[IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+
+#### Exceptions
+
+[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
 
 ### **ChatAsync(ChatHistory, IInferenceParams, CancellationToken)**
 
-Get the response from the LLama model with chat histories.
+Chat with the model.
 
 ```csharp
 public IAsyncEnumerable<string> ChatAsync(ChatHistory history, IInferenceParams inferenceParams, CancellationToken cancellationToken)
@@ -222,22 +535,24 @@ public IAsyncEnumerable<string> ChatAsync(ChatHistory history, IInferenceParams 
 
 [IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
 
-### **ChatAsync(String, IInferenceParams, CancellationToken)**
+### **RegenerateAssistantMessageAsync(InferenceParams, CancellationToken)**
 
-Get the response from the LLama model with chat histories asynchronously.
+Regenerate the last assistant message.
 
 ```csharp
-public IAsyncEnumerable<string> ChatAsync(string prompt, IInferenceParams inferenceParams, CancellationToken cancellationToken)
+public IAsyncEnumerable<string> RegenerateAssistantMessageAsync(InferenceParams inferenceParams, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
-`prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+`inferenceParams` [InferenceParams](./llama.common.inferenceparams.md)<br>
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
 [IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+
+#### Exceptions
+
+[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>

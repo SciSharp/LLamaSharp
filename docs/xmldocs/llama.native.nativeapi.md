@@ -5,18 +5,10 @@ Namespace: LLama.Native
 Direct translation of the llama.cpp API
 
 ```csharp
-public class NativeApi
+public static class NativeApi
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [NativeApi](./llama.native.nativeapi.md)
-
-## Constructors
-
-### **NativeApi()**
-
-```csharp
-public NativeApi()
-```
 
 ## Methods
 
@@ -25,7 +17,7 @@ public NativeApi()
 Mirostat 1.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
 
 ```csharp
-public static int llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float tau, float eta, int m, Single& mu)
+public static LLamaToken llama_sample_token_mirostat(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float tau, float eta, int m, Single& mu)
 ```
 
 #### Parameters
@@ -49,14 +41,14 @@ Maximum cross-entropy. This value is initialized to be twice the target cross-en
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
 ### **llama_sample_token_mirostat_v2(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, Single, Single&)**
 
 Mirostat 2.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
 
 ```csharp
-public static int llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float tau, float eta, Single& mu)
+public static LLamaToken llama_sample_token_mirostat_v2(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float tau, float eta, Single& mu)
 ```
 
 #### Parameters
@@ -77,14 +69,14 @@ Maximum cross-entropy. This value is initialized to be twice the target cross-en
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
 ### **llama_sample_token_greedy(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)**
 
 Selects the token with the highest probability.
 
 ```csharp
-public static int llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates)
+public static LLamaToken llama_sample_token_greedy(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates)
 ```
 
 #### Parameters
@@ -96,14 +88,14 @@ Pointer to LLamaTokenDataArray
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
 ### **llama_sample_token(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)**
 
 Randomly selects a token from the candidates based on their probabilities.
 
 ```csharp
-public static int llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates)
+public static LLamaToken llama_sample_token(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates)
 ```
 
 #### Parameters
@@ -115,33 +107,12 @@ Pointer to LLamaTokenDataArray
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
-### **llama_token_to_str(SafeLLamaContextHandle, Int32)**
-
-Token Id -&gt; String. Uses the vocabulary in the provided context
+### **&lt;llama_get_embeddings&gt;g__llama_get_embeddings_native|30_0(SafeLLamaContextHandle)**
 
 ```csharp
-public static IntPtr llama_token_to_str(SafeLLamaContextHandle ctx, int token)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`token` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-#### Returns
-
-[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-Pointer to a string.
-
-### **llama_token_bos(SafeLLamaContextHandle)**
-
-Get the "Beginning of sentence" token
-
-```csharp
-public static int llama_token_bos(SafeLLamaContextHandle ctx)
+internal static Single* <llama_get_embeddings>g__llama_get_embeddings_native|30_0(SafeLLamaContextHandle ctx)
 ```
 
 #### Parameters
@@ -150,186 +121,103 @@ public static int llama_token_bos(SafeLLamaContextHandle ctx)
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Single*](https://docs.microsoft.com/en-us/dotnet/api/system.single*)<br>
 
-### **llama_token_eos(SafeLLamaContextHandle)**
-
-Get the "End of sentence" token
+### **&lt;llama_token_to_piece&gt;g__llama_token_to_piece_native|44_0(SafeLlamaModelHandle, LLamaToken, Byte*, Int32)**
 
 ```csharp
-public static int llama_token_eos(SafeLLamaContextHandle ctx)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **llama_token_nl(SafeLLamaContextHandle)**
-
-Get the "new line" token
-
-```csharp
-public static int llama_token_nl(SafeLLamaContextHandle ctx)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **llama_print_timings(SafeLLamaContextHandle)**
-
-Print out timing information for this context
-
-```csharp
-public static void llama_print_timings(SafeLLamaContextHandle ctx)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-### **llama_reset_timings(SafeLLamaContextHandle)**
-
-Reset all collected timing information for this context
-
-```csharp
-public static void llama_reset_timings(SafeLLamaContextHandle ctx)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-### **llama_print_system_info()**
-
-Print system information
-
-```csharp
-public static IntPtr llama_print_system_info()
-```
-
-#### Returns
-
-[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-### **llama_model_n_vocab(SafeLlamaModelHandle)**
-
-Get the number of tokens in the model vocabulary
-
-```csharp
-public static int llama_model_n_vocab(SafeLlamaModelHandle model)
+internal static int <llama_token_to_piece>g__llama_token_to_piece_native|44_0(SafeLlamaModelHandle model, LLamaToken llamaToken, Byte* buffer, int length)
 ```
 
 #### Parameters
 
 `model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **llama_model_n_ctx(SafeLlamaModelHandle)**
-
-Get the size of the context window for the model
-
-```csharp
-public static int llama_model_n_ctx(SafeLlamaModelHandle model)
-```
-
-#### Parameters
-
-`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **llama_model_n_embd(SafeLlamaModelHandle)**
-
-Get the dimension of embedding vectors from this model
-
-```csharp
-public static int llama_model_n_embd(SafeLlamaModelHandle model)
-```
-
-#### Parameters
-
-`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **llama_token_to_piece_with_model(SafeLlamaModelHandle, Int32, Byte*, Int32)**
-
-Convert a single token into text
-
-```csharp
-public static int llama_token_to_piece_with_model(SafeLlamaModelHandle model, int llamaToken, Byte* buffer, int length)
-```
-
-#### Parameters
-
-`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-
-`llamaToken` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`llamaToken` [LLamaToken](./llama.native.llamatoken.md)<br>
 
 `buffer` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
-buffer to write string into
 
 `length` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-size of the buffer
 
 #### Returns
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-The length writte, or if the buffer is too small a negative that indicates the length required
 
-### **llama_tokenize_with_model(SafeLlamaModelHandle, Byte*, Int32*, Int32, Boolean)**
-
-Convert text into tokens
+### **&lt;TryLoadLibraries&gt;g__TryLoad|84_0(String)**
 
 ```csharp
-public static int llama_tokenize_with_model(SafeLlamaModelHandle model, Byte* text, Int32* tokens, int n_max_tokens, bool add_bos)
+internal static IntPtr <TryLoadLibraries>g__TryLoad|84_0(string path)
+```
+
+#### Parameters
+
+`path` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+
+### **&lt;TryLoadLibraries&gt;g__TryFindPath|84_1(String, &lt;&gt;c__DisplayClass84_0&)**
+
+```csharp
+internal static string <TryLoadLibraries>g__TryFindPath|84_1(string filename, <>c__DisplayClass84_0& )
+```
+
+#### Parameters
+
+`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`` [&lt;&gt;c__DisplayClass84_0&](./llama.native.nativeapi.<>c__displayclass84_0&.md)<br>
+
+#### Returns
+
+[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **llama_set_n_threads(SafeLLamaContextHandle, UInt32, UInt32)**
+
+Set the number of threads used for decoding
+
+```csharp
+public static void llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`n_threads` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+n_threads is the number of threads used for generation (single token)
+
+`n_threads_batch` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)
+
+### **llama_vocab_type(SafeLlamaModelHandle)**
+
+```csharp
+public static LLamaVocabType llama_vocab_type(SafeLlamaModelHandle model)
 ```
 
 #### Parameters
 
 `model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 
-`text` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
-
-`tokens` [Int32*](https://docs.microsoft.com/en-us/dotnet/api/system.int32*)<br>
-
-`n_max_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Returns the number of tokens on success, no more than n_max_tokens.
- Returns a negative number on failure - the number of tokens that would have been returned
+[LLamaVocabType](./llama.native.llamavocabtype.md)<br>
 
-### **llama_log_set(LLamaLogCallback)**
-
-Register a callback to receive llama log messages
+### **llama_rope_type(SafeLlamaModelHandle)**
 
 ```csharp
-public static void llama_log_set(LLamaLogCallback logCallback)
+public static LLamaRopeType llama_rope_type(SafeLlamaModelHandle model)
 ```
 
 #### Parameters
 
-`logCallback` [LLamaLogCallback](./llama.native.llamalogcallback.md)<br>
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[LLamaRopeType](./llama.native.llamaropetype.md)<br>
 
 ### **llama_grammar_init(LLamaGrammarElement**, UInt64, UInt64)**
 
@@ -363,6 +251,22 @@ public static void llama_grammar_free(IntPtr grammar)
 
 `grammar` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
 
+### **llama_grammar_copy(SafeLLamaGrammarHandle)**
+
+Create a copy of an existing grammar instance
+
+```csharp
+public static IntPtr llama_grammar_copy(SafeLLamaGrammarHandle grammar)
+```
+
+#### Parameters
+
+`grammar` [SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
+
+#### Returns
+
+[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+
 ### **llama_sample_grammar(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, SafeLLamaGrammarHandle)**
 
 Apply constraints from grammar
@@ -379,12 +283,12 @@ public static void llama_sample_grammar(SafeLLamaContextHandle ctx, LLamaTokenDa
 
 `grammar` [SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
 
-### **llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, Int32)**
+### **llama_grammar_accept_token(SafeLLamaContextHandle, SafeLLamaGrammarHandle, LLamaToken)**
 
 Accepts the sampled token into the grammar
 
 ```csharp
-public static void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, int token)
+public static void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, LLamaToken token)
 ```
 
 #### Parameters
@@ -393,14 +297,125 @@ public static void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLL
 
 `grammar` [SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
 
-`token` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **llava_validate_embed_size(SafeLLamaContextHandle, SafeLlavaModelHandle)**
+
+Sanity check for clip &lt;-&gt; llava embed size match
+
+```csharp
+public static bool llava_validate_embed_size(SafeLLamaContextHandle ctxLlama, SafeLlavaModelHandle ctxClip)
+```
+
+#### Parameters
+
+`ctxLlama` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+LLama Context
+
+`ctxClip` [SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)<br>
+Llava Model
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+True if validate successfully
+
+### **llava_image_embed_make_with_bytes(SafeLlavaModelHandle, Int32, Byte[], Int32)**
+
+Build an image embed from image file bytes
+
+```csharp
+public static SafeLlavaImageEmbedHandle llava_image_embed_make_with_bytes(SafeLlavaModelHandle ctx_clip, int n_threads, Byte[] image_bytes, int image_bytes_length)
+```
+
+#### Parameters
+
+`ctx_clip` [SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)<br>
+SafeHandle to the Clip Model
+
+`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of threads
+
+`image_bytes` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
+Binary image in jpeg format
+
+`image_bytes_length` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Bytes lenght of the image
+
+#### Returns
+
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+SafeHandle to the Embeddings
+
+### **llava_image_embed_make_with_filename(SafeLlavaModelHandle, Int32, String)**
+
+Build an image embed from a path to an image filename
+
+```csharp
+public static SafeLlavaImageEmbedHandle llava_image_embed_make_with_filename(SafeLlavaModelHandle ctx_clip, int n_threads, string image_path)
+```
+
+#### Parameters
+
+`ctx_clip` [SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)<br>
+SafeHandle to the Clip Model
+
+`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of threads
+
+`image_path` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Image filename (jpeg) to generate embeddings
+
+#### Returns
+
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+SafeHandel to the embeddings
+
+### **llava_image_embed_free(IntPtr)**
+
+Free an embedding made with llava_image_embed_make_*
+
+```csharp
+public static void llava_image_embed_free(IntPtr embed)
+```
+
+#### Parameters
+
+`embed` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+Embeddings to release
+
+### **llava_eval_image_embed(SafeLLamaContextHandle, SafeLlavaImageEmbedHandle, Int32, Int32&)**
+
+Write the image represented by embed into the llama context with batch size n_batch, starting at context
+ pos n_past. on completion, n_past points to the next position in the context after the image embed.
+
+```csharp
+public static bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, SafeLlavaImageEmbedHandle embed, int n_batch, Int32& n_past)
+```
+
+#### Parameters
+
+`ctx_llama` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+Llama Context
+
+`embed` [SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+Embedding handle
+
+`n_batch` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`n_past` [Int32&](https://docs.microsoft.com/en-us/dotnet/api/system.int32&)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+True on success
 
 ### **llama_model_quantize(String, String, LLamaModelQuantizeParams*)**
 
 Returns 0 on success
 
 ```csharp
-public static int llama_model_quantize(string fname_inp, string fname_out, LLamaModelQuantizeParams* param)
+public static uint llama_model_quantize(string fname_inp, string fname_out, LLamaModelQuantizeParams* param)
 ```
 
 #### Parameters
@@ -413,95 +428,78 @@ public static int llama_model_quantize(string fname_inp, string fname_out, LLama
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 Returns 0 on success
 
-**Remarks:**
+### **llama_sample_repetition_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, LLamaToken*, UInt64, Single, Single, Single)**
 
-not great API - very likely to change
-
-### **llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative, SafeLLamaContextHandle, Single)**
-
-Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
+Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
+ Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
 
 ```csharp
-public static void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative candidates, SafeLLamaContextHandle guidanceCtx, float scale)
+public static void llama_sample_repetition_penalties(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, LLamaToken* last_tokens, ulong last_tokens_size, float penalty_repeat, float penalty_freq, float penalty_present)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`candidates` [LLamaTokenDataArrayNative](./llama.native.llamatokendataarraynative.md)<br>
-A vector of `llama_token_data` containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.
+`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
+Pointer to LLamaTokenDataArray
 
-`guidanceCtx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.
+`last_tokens` [LLamaToken*](./llama.native.llamatoken*.md)<br>
+
+`last_tokens_size` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+
+`penalty_repeat` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
+
+`penalty_freq` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
+
+`penalty_present` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
+
+### **llama_sample_apply_guidance(SafeLLamaContextHandle, Span&lt;Single&gt;, ReadOnlySpan&lt;Single&gt;, Single)**
+
+Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
+
+```csharp
+public static void llama_sample_apply_guidance(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<float> logits_guidance, float scale)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`logits` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+Logits extracted from the original generation context.
+
+`logits_guidance` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+Logits extracted from a separate context from the same model.
+ Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.
 
 `scale` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.
 
-### **llama_sample_repetition_penalty(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32*, UInt64, Single)**
-
-Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
-
-```csharp
-public static void llama_sample_repetition_penalty(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, Int32* last_tokens, ulong last_tokens_size, float penalty)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
-Pointer to LLamaTokenDataArray
-
-`last_tokens` [Int32*](https://docs.microsoft.com/en-us/dotnet/api/system.int32*)<br>
-
-`last_tokens_size` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
-
-`penalty` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
-
-### **llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Int32*, UInt64, Single, Single)**
-
-Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
-
-```csharp
-public static void llama_sample_frequency_and_presence_penalties(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, Int32* last_tokens, ulong last_tokens_size, float alpha_frequency, float alpha_presence)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
-Pointer to LLamaTokenDataArray
-
-`last_tokens` [Int32*](https://docs.microsoft.com/en-us/dotnet/api/system.int32*)<br>
-
-`last_tokens_size` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
-
-`alpha_frequency` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
-
-`alpha_presence` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
-
-### **llama_sample_classifier_free_guidance(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, SafeLLamaContextHandle, Single)**
+### **llama_sample_apply_guidance(SafeLLamaContextHandle, Single*, Single*, Single)**
 
 Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
 
 ```csharp
-public static void llama_sample_classifier_free_guidance(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, SafeLLamaContextHandle guidance_ctx, float scale)
+public static void llama_sample_apply_guidance(SafeLLamaContextHandle ctx, Single* logits, Single* logits_guidance, float scale)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
-A vector of `llama_token_data` containing the candidate tokens, the logits must be directly extracted from the original generation context without being sorted.
+`logits` [Single*](https://docs.microsoft.com/en-us/dotnet/api/system.single*)<br>
+Logits extracted from the original generation context.
 
-`guidance_ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-A separate context from the same model. Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.
+`logits_guidance` [Single*](https://docs.microsoft.com/en-us/dotnet/api/system.single*)<br>
+Logits extracted from a separate context from the same model.
+ Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.
 
 `scale` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 Guidance strength. 1.0f means no guidance. Higher values mean stronger guidance.
@@ -559,6 +557,25 @@ Pointer to LLamaTokenDataArray
 
 `min_keep` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
+### **llama_sample_min_p(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)**
+
+Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
+
+```csharp
+public static void llama_sample_min_p(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float p, ulong min_keep)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
+Pointer to LLamaTokenDataArray
+
+`p` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+`min_keep` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+
 ### **llama_sample_tail_free(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, UInt64)**
 
 Tail Free Sampling described in https://www.trentonbricken.com/Tail-Free-Sampling/.
@@ -597,12 +614,33 @@ Pointer to LLamaTokenDataArray
 
 `min_keep` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
-### **llama_sample_temperature(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single)**
+### **llama_sample_typical(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single, Single, Single)**
+
+Dynamic temperature implementation described in the paper https://arxiv.org/abs/2309.02772.
+
+```csharp
+public static void llama_sample_typical(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float min_temp, float max_temp, float exponent_val)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
+Pointer to LLamaTokenDataArray
+
+`min_temp` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+`max_temp` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+`exponent_val` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **llama_sample_temp(SafeLLamaContextHandle, LLamaTokenDataArrayNative&, Single)**
 
 Modify logits by temperature
 
 ```csharp
-public static void llama_sample_temperature(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float temp)
+public static void llama_sample_temp(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& candidates, float temp)
 ```
 
 #### Parameters
@@ -613,17 +651,667 @@ public static void llama_sample_temperature(SafeLLamaContextHandle ctx, LLamaTok
 
 `temp` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
+### **llama_get_embeddings(SafeLLamaContextHandle)**
+
+Get the embeddings for the input
+
+```csharp
+public static Span<float> llama_get_embeddings(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+#### Returns
+
+[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+
+### **llama_chat_apply_template(SafeLlamaModelHandle, Char*, LLamaChatMessage*, IntPtr, Boolean, Char*, Int32)**
+
+Apply chat template. Inspired by hf apply_chat_template() on python.
+ Both "model" and "custom_template" are optional, but at least one is required. "custom_template" has higher precedence than "model"
+ NOTE: This function does not use a jinja parser. It only support a pre-defined list of template. See more: https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
+
+```csharp
+public static int llama_chat_apply_template(SafeLlamaModelHandle model, Char* tmpl, LLamaChatMessage* chat, IntPtr n_msg, bool add_ass, Char* buf, int length)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+`tmpl` [Char*](https://docs.microsoft.com/en-us/dotnet/api/system.char*)<br>
+A Jinja template to use for this chat. If this is nullptr, the model’s default chat template will be used instead.
+
+`chat` [LLamaChatMessage*](./llama.native.llamachatmessage*.md)<br>
+Pointer to a list of multiple llama_chat_message
+
+`n_msg` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+Number of llama_chat_message in this chat
+
+`add_ass` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Whether to end the prompt with the token(s) that indicate the start of an assistant message.
+
+`buf` [Char*](https://docs.microsoft.com/en-us/dotnet/api/system.char*)<br>
+A buffer to hold the output formatted prompt. The recommended alloc size is 2 * (total number of characters of all messages)
+
+`length` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The size of the allocated buffer
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The total number of bytes of the formatted prompt. If is it larger than the size of buffer, you may need to re-alloc it and then re-apply the template.
+
+### **llama_token_bos(SafeLlamaModelHandle)**
+
+Get the "Beginning of sentence" token
+
+```csharp
+public static LLamaToken llama_token_bos(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **llama_token_eos(SafeLlamaModelHandle)**
+
+Get the "End of sentence" token
+
+```csharp
+public static LLamaToken llama_token_eos(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **llama_token_nl(SafeLlamaModelHandle)**
+
+Get the "new line" token
+
+```csharp
+public static LLamaToken llama_token_nl(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **llama_add_bos_token(SafeLlamaModelHandle)**
+
+Returns -1 if unknown, 1 for true or 0 for false.
+
+```csharp
+public static int llama_add_bos_token(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_add_eos_token(SafeLlamaModelHandle)**
+
+Returns -1 if unknown, 1 for true or 0 for false.
+
+```csharp
+public static int llama_add_eos_token(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_token_prefix(SafeLlamaModelHandle)**
+
+codellama infill tokens, Beginning of infill prefix
+
+```csharp
+public static int llama_token_prefix(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_token_middle(SafeLlamaModelHandle)**
+
+codellama infill tokens, Beginning of infill middle
+
+```csharp
+public static int llama_token_middle(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_token_suffix(SafeLlamaModelHandle)**
+
+codellama infill tokens, Beginning of infill suffix
+
+```csharp
+public static int llama_token_suffix(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_token_eot(SafeLlamaModelHandle)**
+
+codellama infill tokens, End of infill middle
+
+```csharp
+public static int llama_token_eot(SafeLlamaModelHandle model)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_print_timings(SafeLLamaContextHandle)**
+
+Print out timing information for this context
+
+```csharp
+public static void llama_print_timings(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+### **llama_reset_timings(SafeLLamaContextHandle)**
+
+Reset all collected timing information for this context
+
+```csharp
+public static void llama_reset_timings(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+### **llama_print_system_info()**
+
+Print system information
+
+```csharp
+public static IntPtr llama_print_system_info()
+```
+
+#### Returns
+
+[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+
+### **llama_token_to_piece(SafeLlamaModelHandle, LLamaToken, Span&lt;Byte&gt;)**
+
+Convert a single token into text
+
+```csharp
+public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+`llamaToken` [LLamaToken](./llama.native.llamatoken.md)<br>
+
+`buffer` [Span&lt;Byte&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+buffer to write string into
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The length written, or if the buffer is too small a negative that indicates the length required
+
+### **llama_tokenize(SafeLlamaModelHandle, Byte*, Int32, LLamaToken*, Int32, Boolean, Boolean)**
+
+Convert text into tokens
+
+```csharp
+public static int llama_tokenize(SafeLlamaModelHandle model, Byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, bool add_bos, bool special)
+```
+
+#### Parameters
+
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+`text` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
+
+`text_len` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`tokens` [LLamaToken*](./llama.native.llamatoken*.md)<br>
+
+`n_max_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext. Does not insert a leading space.
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Returns the number of tokens on success, no more than n_max_tokens.
+ Returns a negative number on failure - the number of tokens that would have been returned
+
+### **llama_log_set(LLamaLogCallback)**
+
+Register a callback to receive llama log messages
+
+```csharp
+public static void llama_log_set(LLamaLogCallback logCallback)
+```
+
+#### Parameters
+
+`logCallback` [LLamaLogCallback](./llama.native.llamalogcallback.md)<br>
+
+### **llama_kv_cache_clear(SafeLLamaContextHandle)**
+
+Clear the KV cache
+
+```csharp
+public static void llama_kv_cache_clear(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+### **llama_kv_cache_seq_rm(SafeLLamaContextHandle, LLamaSeqId, LLamaPos, LLamaPos)**
+
+Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
+
+```csharp
+public static void llama_kv_cache_seq_rm(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+### **llama_kv_cache_seq_cp(SafeLLamaContextHandle, LLamaSeqId, LLamaSeqId, LLamaPos, LLamaPos)**
+
+Copy all tokens that belong to the specified sequence to another sequence
+ Note that this does not allocate extra KV cache memory - it simply assigns the tokens to the new sequence
+
+```csharp
+public static void llama_kv_cache_seq_cp(SafeLLamaContextHandle ctx, LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`src` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`dest` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+### **llama_kv_cache_seq_keep(SafeLLamaContextHandle, LLamaSeqId)**
+
+Removes all tokens that do not belong to the specified sequence
+
+```csharp
+public static void llama_kv_cache_seq_keep(SafeLLamaContextHandle ctx, LLamaSeqId seq)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+### **llama_kv_cache_seq_add(SafeLLamaContextHandle, LLamaSeqId, LLamaPos, LLamaPos, Int32)**
+
+Adds relative position "delta" to all tokens that belong to the specified sequence and have positions in [p0, p1)
+ If the KV cache is RoPEd, the KV data is updated accordingly:
+ - lazily on next llama_decode()
+ - explicitly with llama_kv_cache_update()
+
+```csharp
+public static void llama_kv_cache_seq_add(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`delta` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_kv_cache_seq_div(SafeLLamaContextHandle, LLamaSeqId, LLamaPos, LLamaPos, Int32)**
+
+Integer division of the positions by factor of `d &gt; 1`
+ If the KV cache is RoPEd, the KV data is updated accordingly:
+ - lazily on next llama_decode()
+ - explicitly with llama_kv_cache_update()
+ <br>
+ p0 &lt; 0 : [0, p1]
+ <br>
+ p1 &lt; 0 : [p0, inf)
+
+```csharp
+public static void llama_kv_cache_seq_div(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int d)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+`p0` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`p1` [LLamaPos](./llama.native.llamapos.md)<br>
+
+`d` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_kv_cache_seq_pos_max(SafeLLamaContextHandle, LLamaSeqId)**
+
+Returns the largest position present in the KV cache for the specified sequence
+
+```csharp
+public static LLamaPos llama_kv_cache_seq_pos_max(SafeLLamaContextHandle ctx, LLamaSeqId seq)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+#### Returns
+
+[LLamaPos](./llama.native.llamapos.md)<br>
+
+### **llama_kv_cache_defrag(SafeLLamaContextHandle)**
+
+Defragment the KV cache. This will be applied:
+ - lazily on next llama_decode()
+ - explicitly with llama_kv_cache_update()
+
+```csharp
+public static LLamaPos llama_kv_cache_defrag(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+#### Returns
+
+[LLamaPos](./llama.native.llamapos.md)<br>
+
+### **llama_kv_cache_update(SafeLLamaContextHandle)**
+
+Apply the KV cache updates (such as K-shifts, defragmentation, etc.)
+
+```csharp
+public static void llama_kv_cache_update(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+### **llama_batch_init(Int32, Int32, Int32)**
+
+Allocates a batch of tokens on the heap
+ Each token can be assigned up to n_seq_max sequence ids
+ The batch has to be freed with llama_batch_free()
+ If embd != 0, llama_batch.embd will be allocated with size of n_tokens * embd * sizeof(float)
+ Otherwise, llama_batch.token will be allocated to store n_tokens llama_token
+ The rest of the llama_batch members are allocated with size n_tokens
+ All members are left uninitialized
+
+```csharp
+public static LLamaNativeBatch llama_batch_init(int n_tokens, int embd, int n_seq_max)
+```
+
+#### Parameters
+
+`n_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`embd` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`n_seq_max` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Each token can be assigned up to n_seq_max sequence ids
+
+#### Returns
+
+[LLamaNativeBatch](./llama.native.llamanativebatch.md)<br>
+
+### **llama_batch_free(LLamaNativeBatch)**
+
+Frees a batch of tokens allocated with llama_batch_init()
+
+```csharp
+public static void llama_batch_free(LLamaNativeBatch batch)
+```
+
+#### Parameters
+
+`batch` [LLamaNativeBatch](./llama.native.llamanativebatch.md)<br>
+
+### **llama_decode(SafeLLamaContextHandle, LLamaNativeBatch)**
+
+
+
+```csharp
+public static int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`batch` [LLamaNativeBatch](./llama.native.llamanativebatch.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Positive return values does not mean a fatal error, but rather a warning:<br>
+ - 0: success<br>
+ - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br>
+ - &lt; 0: error<br>
+
+### **llama_kv_cache_view_init(SafeLLamaContextHandle, Int32)**
+
+Create an empty KV cache view. (use only for debugging purposes)
+
+```csharp
+public static LLamaKvCacheView llama_kv_cache_view_init(SafeLLamaContextHandle ctx, int n_max_seq)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`n_max_seq` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+#### Returns
+
+[LLamaKvCacheView](./llama.native.llamakvcacheview.md)<br>
+
+### **llama_kv_cache_view_free(LLamaKvCacheView&)**
+
+Free a KV cache view. (use only for debugging purposes)
+
+```csharp
+public static void llama_kv_cache_view_free(LLamaKvCacheView& view)
+```
+
+#### Parameters
+
+`view` [LLamaKvCacheView&](./llama.native.llamakvcacheview&.md)<br>
+
+### **llama_kv_cache_view_update(SafeLLamaContextHandle, LLamaKvCacheView&)**
+
+Update the KV cache view structure with the current state of the KV cache. (use only for debugging purposes)
+
+```csharp
+public static void llama_kv_cache_view_update(SafeLLamaContextHandle ctx, LLamaKvCacheView& view)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`view` [LLamaKvCacheView&](./llama.native.llamakvcacheview&.md)<br>
+
+### **llama_get_kv_cache_token_count(SafeLLamaContextHandle)**
+
+Returns the number of tokens in the KV cache (slow, use only for debug)
+ If a KV cell has multiple sequences assigned to it, it will be counted multiple times
+
+```csharp
+public static int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_get_kv_cache_used_cells(SafeLLamaContextHandle)**
+
+Returns the number of used KV cells (i.e. have at least one sequence assigned to them)
+
+```csharp
+public static int llama_get_kv_cache_used_cells(SafeLLamaContextHandle ctx)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **llama_beam_search(SafeLLamaContextHandle, LLamaBeamSearchCallback, IntPtr, UInt64, Int32, Int32, Int32)**
+
+Deterministically returns entire sentence constructed by a beam search.
+
+```csharp
+public static void llama_beam_search(SafeLLamaContextHandle ctx, LLamaBeamSearchCallback callback, IntPtr callback_data, ulong n_beams, int n_past, int n_predict, int n_threads)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+Pointer to the llama_context.
+
+`callback` [LLamaBeamSearchCallback](./llama.native.nativeapi.llamabeamsearchcallback.md)<br>
+Invoked for each iteration of the beam_search loop, passing in beams_state.
+
+`callback_data` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+A pointer that is simply passed back to callback.
+
+`n_beams` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+Number of beams to use.
+
+`n_past` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of tokens already evaluated.
+
+`n_predict` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Maximum number of tokens to predict. EOS may occur earlier.
+
+`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of threads.
+
 ### **llama_empty_call()**
 
 A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
 
 ```csharp
-public static bool llama_empty_call()
+public static void llama_empty_call()
+```
+
+### **llama_max_devices()**
+
+Get the maximum number of devices supported by llama.cpp
+
+```csharp
+public static long llama_max_devices()
 ```
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Int64](https://docs.microsoft.com/en-us/dotnet/api/system.int64)<br>
+
+### **llama_model_default_params()**
+
+Create a LLamaModelParams with default values
+
+```csharp
+public static LLamaModelParams llama_model_default_params()
+```
+
+#### Returns
+
+[LLamaModelParams](./llama.native.llamamodelparams.md)<br>
 
 ### **llama_context_default_params()**
 
@@ -649,184 +1337,55 @@ public static LLamaModelQuantizeParams llama_model_quantize_default_params()
 
 [LLamaModelQuantizeParams](./llama.native.llamamodelquantizeparams.md)<br>
 
-### **llama_mmap_supported()**
+### **llama_supports_mmap()**
 
 Check if memory mapping is supported
 
 ```csharp
-public static bool llama_mmap_supported()
+public static bool llama_supports_mmap()
 ```
 
 #### Returns
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **llama_mlock_supported()**
+### **llama_supports_mlock()**
 
-Check if memory lockingis supported
+Check if memory locking is supported
 
 ```csharp
-public static bool llama_mlock_supported()
+public static bool llama_supports_mlock()
 ```
 
 #### Returns
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **llama_eval_export(SafeLLamaContextHandle, String)**
+### **llama_supports_gpu_offload()**
 
-Export a static computation graph for context of 511 and batch size of 1
- NOTE: since this functionality is mostly for debugging and demonstration purposes, we hardcode these
- parameters here to keep things simple
- IMPORTANT: do not use for anything else other than debugging and testing!
+Check if GPU offload is supported
 
 ```csharp
-public static int llama_eval_export(SafeLLamaContextHandle ctx, string fname)
+public static bool llama_supports_gpu_offload()
 ```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`fname` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **llama_load_model_from_file(String, LLamaContextParams)**
-
-Various functions for loading a ggml llama model.
- Allocate (almost) all memory needed for the model.
- Return NULL on failure
-
-```csharp
-public static IntPtr llama_load_model_from_file(string path_model, LLamaContextParams params)
-```
-
-#### Parameters
-
-`path_model` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-`params` [LLamaContextParams](./llama.native.llamacontextparams.md)<br>
-
-#### Returns
-
-[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-### **llama_new_context_with_model(SafeLlamaModelHandle, LLamaContextParams)**
-
-Create a new llama_context with the given model.
- Return value should always be wrapped in SafeLLamaContextHandle!
-
-```csharp
-public static IntPtr llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams params)
-```
-
-#### Parameters
-
-`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-
-`params` [LLamaContextParams](./llama.native.llamacontextparams.md)<br>
-
-#### Returns
-
-[IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-### **llama_backend_init(Boolean)**
-
-not great API - very likely to change. 
- Initialize the llama + ggml backend
- Call once at the start of the program
-
-```csharp
-public static void llama_backend_init(bool numa)
-```
-
-#### Parameters
-
-`numa` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **llama_free(IntPtr)**
-
-Frees all allocated memory in the given llama_context
-
-```csharp
-public static void llama_free(IntPtr ctx)
-```
-
-#### Parameters
-
-`ctx` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-### **llama_free_model(IntPtr)**
-
-Frees all allocated memory associated with a model
-
-```csharp
-public static void llama_free_model(IntPtr model)
-```
-
-#### Parameters
-
-`model` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-### **llama_model_apply_lora_from_file(SafeLlamaModelHandle, String, String, Int32)**
-
-Apply a LoRA adapter to a loaded model
- path_base_model is the path to a higher quality model to use as a base for
- the layers modified by the adapter. Can be NULL to use the current loaded model.
- The model needs to be reloaded before applying a new adapter, otherwise the adapter
- will be applied on top of the previous one
-
-```csharp
-public static int llama_model_apply_lora_from_file(SafeLlamaModelHandle model_ptr, string path_lora, string path_base_model, int n_threads)
-```
-
-#### Parameters
-
-`model_ptr` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-
-`path_lora` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-`path_base_model` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Returns 0 on success
-
-### **llama_get_kv_cache_token_count(SafeLLamaContextHandle)**
-
-Returns the number of tokens in the KV cache
-
-```csharp
-public static int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **llama_set_rng_seed(SafeLLamaContextHandle, Int32)**
+### **llama_set_rng_seed(SafeLLamaContextHandle, UInt32)**
 
 Sets the current rng seed.
 
 ```csharp
-public static void llama_set_rng_seed(SafeLLamaContextHandle ctx, int seed)
+public static void llama_set_rng_seed(SafeLLamaContextHandle ctx, uint seed)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`seed` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **llama_get_state_size(SafeLLamaContextHandle)**
 
@@ -865,26 +1424,6 @@ public static ulong llama_copy_state_data(SafeLLamaContextHandle ctx, Byte* dest
 [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 the number of bytes copied
 
-### **llama_copy_state_data(SafeLLamaContextHandle, Byte[])**
-
-Copies the state to the specified destination address.
- Destination needs to have allocated enough memory (see llama_get_state_size)
-
-```csharp
-public static ulong llama_copy_state_data(SafeLLamaContextHandle ctx, Byte[] dest)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`dest` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
-
-#### Returns
-
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
-the number of bytes copied
-
 ### **llama_set_state_data(SafeLLamaContextHandle, Byte*)**
 
 Set the state reading from the specified address
@@ -904,31 +1443,12 @@ public static ulong llama_set_state_data(SafeLLamaContextHandle ctx, Byte* src)
 [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 the number of bytes read
 
-### **llama_set_state_data(SafeLLamaContextHandle, Byte[])**
-
-Set the state reading from the specified address
-
-```csharp
-public static ulong llama_set_state_data(SafeLLamaContextHandle ctx, Byte[] src)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`src` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
-
-#### Returns
-
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
-the number of bytes read
-
-### **llama_load_session_file(SafeLLamaContextHandle, String, Int32[], UInt64, UInt64*)**
+### **llama_load_session_file(SafeLLamaContextHandle, String, LLamaToken[], UInt64, UInt64&)**
 
 Load session file
 
 ```csharp
-public static bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, Int32[] tokens_out, ulong n_token_capacity, UInt64* n_token_count_out)
+public static bool llama_load_session_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens_out, ulong n_token_capacity, UInt64& n_token_count_out)
 ```
 
 #### Parameters
@@ -937,22 +1457,22 @@ public static bool llama_load_session_file(SafeLLamaContextHandle ctx, string pa
 
 `path_session` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`tokens_out` [Int32[]](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`tokens_out` [LLamaToken[]](./llama.native.llamatoken.md)<br>
 
 `n_token_capacity` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
-`n_token_count_out` [UInt64*](https://docs.microsoft.com/en-us/dotnet/api/system.uint64*)<br>
+`n_token_count_out` [UInt64&](https://docs.microsoft.com/en-us/dotnet/api/system.uint64&)<br>
 
 #### Returns
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **llama_save_session_file(SafeLLamaContextHandle, String, Int32[], UInt64)**
+### **llama_save_session_file(SafeLLamaContextHandle, String, LLamaToken[], UInt64)**
 
 Save session file
 
 ```csharp
-public static bool llama_save_session_file(SafeLLamaContextHandle ctx, string path_session, Int32[] tokens, ulong n_token_count)
+public static bool llama_save_session_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count)
 ```
 
 #### Parameters
@@ -961,7 +1481,7 @@ public static bool llama_save_session_file(SafeLLamaContextHandle ctx, string pa
 
 `path_session` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`tokens` [Int32[]](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`tokens` [LLamaToken[]](./llama.native.llamatoken.md)<br>
 
 `n_token_count` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
@@ -969,136 +1489,60 @@ public static bool llama_save_session_file(SafeLLamaContextHandle ctx, string pa
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **llama_eval(SafeLLamaContextHandle, Int32[], Int32, Int32, Int32)**
-
-Run the llama inference to obtain the logits and probabilities for the next token.
- tokens + n_tokens is the provided batch of new tokens to process
- n_past is the number of tokens to use from previous eval calls
+### **llama_token_get_text(SafeLlamaModelHandle, LLamaToken)**
 
 ```csharp
-public static int llama_eval(SafeLLamaContextHandle ctx, Int32[] tokens, int n_tokens, int n_past, int n_threads)
+public static Byte* llama_token_get_text(SafeLlamaModelHandle model, LLamaToken token)
 ```
 
 #### Parameters
 
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 
-`tokens` [Int32[]](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`n_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`n_past` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Returns 0 on success
+[Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 
-### **llama_eval_with_pointer(SafeLLamaContextHandle, Int32*, Int32, Int32, Int32)**
-
-Run the llama inference to obtain the logits and probabilities for the next token.
- tokens + n_tokens is the provided batch of new tokens to process
- n_past is the number of tokens to use from previous eval calls
+### **llama_token_get_score(SafeLlamaModelHandle, LLamaToken)**
 
 ```csharp
-public static int llama_eval_with_pointer(SafeLLamaContextHandle ctx, Int32* tokens, int n_tokens, int n_past, int n_threads)
+public static float llama_token_get_score(SafeLlamaModelHandle model, LLamaToken token)
 ```
 
 #### Parameters
 
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 
-`tokens` [Int32*](https://docs.microsoft.com/en-us/dotnet/api/system.int32*)<br>
-
-`n_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`n_past` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`n_threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Returns 0 on success
+[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-### **llama_tokenize(SafeLLamaContextHandle, String, Encoding, Int32[], Int32, Boolean)**
-
-Convert the provided text into tokens.
+### **llama_token_get_type(SafeLlamaModelHandle, LLamaToken)**
 
 ```csharp
-public static int llama_tokenize(SafeLLamaContextHandle ctx, string text, Encoding encoding, Int32[] tokens, int n_max_tokens, bool add_bos)
+public static LLamaTokenType llama_token_get_type(SafeLlamaModelHandle model, LLamaToken token)
 ```
 
 #### Parameters
 
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
-
-`tokens` [Int32[]](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`n_max_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Returns the number of tokens on success, no more than n_max_tokens.
- Returns a negative number on failure - the number of tokens that would have been returned
-
-### **llama_tokenize_native(SafeLLamaContextHandle, Byte*, Int32*, Int32, Boolean)**
-
-Convert the provided text into tokens.
-
-```csharp
-public static int llama_tokenize_native(SafeLLamaContextHandle ctx, Byte* text, Int32* tokens, int n_max_tokens, bool add_bos)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`text` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
-
-`tokens` [Int32*](https://docs.microsoft.com/en-us/dotnet/api/system.int32*)<br>
-
-`n_max_tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Returns the number of tokens on success, no more than n_max_tokens.
- Returns a negative number on failure - the number of tokens that would have been returned
-
-### **llama_n_vocab(SafeLLamaContextHandle)**
-
-Get the number of tokens in the model vocabulary for this context
-
-```csharp
-public static int llama_n_vocab(SafeLLamaContextHandle ctx)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[LLamaTokenType](./llama.native.llamatokentype.md)<br>
 
 ### **llama_n_ctx(SafeLLamaContextHandle)**
 
 Get the size of the context window for the model for this context
 
 ```csharp
-public static int llama_n_ctx(SafeLLamaContextHandle ctx)
+public static uint llama_n_ctx(SafeLLamaContextHandle ctx)
 ```
 
 #### Parameters
@@ -1107,14 +1551,14 @@ public static int llama_n_ctx(SafeLLamaContextHandle ctx)
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
-### **llama_n_embd(SafeLLamaContextHandle)**
+### **llama_n_batch(SafeLLamaContextHandle)**
 
-Get the dimension of embedding vectors from the model for this context
+Get the batch size for this context
 
 ```csharp
-public static int llama_n_embd(SafeLLamaContextHandle ctx)
+public static uint llama_n_batch(SafeLLamaContextHandle ctx)
 ```
 
 #### Parameters
@@ -1123,11 +1567,11 @@ public static int llama_n_embd(SafeLLamaContextHandle ctx)
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **llama_get_logits(SafeLLamaContextHandle)**
 
-Token logits obtained from the last call to llama_eval()
+Token logits obtained from the last call to llama_decode
  The logits for the last token are stored in the last row
  Can be mutated in order to change the probabilities of the next token.<br>
  Rows: n_tokens<br>
@@ -1145,18 +1589,37 @@ public static Single* llama_get_logits(SafeLLamaContextHandle ctx)
 
 [Single*](https://docs.microsoft.com/en-us/dotnet/api/system.single*)<br>
 
-### **llama_get_embeddings(SafeLLamaContextHandle)**
+### **llama_get_logits_ith(SafeLLamaContextHandle, Int32)**
 
-Get the embeddings for the input
- shape: [n_embd] (1-dimensional)
+Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
 
 ```csharp
-public static Single* llama_get_embeddings(SafeLLamaContextHandle ctx)
+public static Single* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`i` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+#### Returns
+
+[Single*](https://docs.microsoft.com/en-us/dotnet/api/system.single*)<br>
+
+### **llama_get_embeddings_ith(SafeLLamaContextHandle, Int32)**
+
+Get the embeddings for the ith sequence. Equivalent to: llama_get_embeddings(ctx) + i*n_embd
+
+```csharp
+public static Single* llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i)
+```
+
+#### Parameters
+
+`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+`i` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 

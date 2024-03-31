@@ -5,11 +5,11 @@ Namespace: LLama.Common
 The paramters used for inference.
 
 ```csharp
-public class InferenceParams : LLama.Abstractions.IInferenceParams
+public class InferenceParams : LLama.Abstractions.IInferenceParams, System.IEquatable`1[[LLama.Common.InferenceParams, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [InferenceParams](./llama.common.inferenceparams.md)<br>
-Implements [IInferenceParams](./llama.abstractions.iinferenceparams.md)
+Implements [IInferenceParams](./llama.abstractions.iinferenceparams.md), [IEquatable&lt;InferenceParams&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
 
 ## Properties
 
@@ -43,64 +43,26 @@ public int MaxTokens { get; set; }
 logit bias for specific tokens
 
 ```csharp
-public Dictionary<int, float> LogitBias { get; set; }
+public Dictionary<LLamaToken, float> LogitBias { get; set; }
 ```
 
 #### Property Value
 
-[Dictionary&lt;Int32, Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2)<br>
+[Dictionary&lt;LLamaToken, Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2)<br>
 
 ### **AntiPrompts**
 
 Sequences where the model will stop generating further tokens.
 
 ```csharp
-public IEnumerable<string> AntiPrompts { get; set; }
+public IReadOnlyList<string> AntiPrompts { get; set; }
 ```
 
 #### Property Value
 
-[IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
-
-### **PathSession**
-
-path to file for saving/loading model eval state
-
-```csharp
-public string PathSession { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **InputSuffix**
-
-string to suffix user inputs with
-
-```csharp
-public string InputSuffix { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **InputPrefix**
-
-string to prefix user inputs with
-
-```csharp
-public string InputPrefix { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[IReadOnlyList&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlylist-1)<br>
 
 ### **TopK**
-
-0 or lower to use vocab size
 
 ```csharp
 public int TopK { get; set; }
@@ -112,8 +74,6 @@ public int TopK { get; set; }
 
 ### **TopP**
 
-1.0 = disabled
-
 ```csharp
 public float TopP { get; set; }
 ```
@@ -122,9 +82,17 @@ public float TopP { get; set; }
 
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-### **TfsZ**
+### **MinP**
 
-1.0 = disabled
+```csharp
+public float MinP { get; set; }
+```
+
+#### Property Value
+
+[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **TfsZ**
 
 ```csharp
 public float TfsZ { get; set; }
@@ -136,8 +104,6 @@ public float TfsZ { get; set; }
 
 ### **TypicalP**
 
-1.0 = disabled
-
 ```csharp
 public float TypicalP { get; set; }
 ```
@@ -147,8 +113,6 @@ public float TypicalP { get; set; }
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **Temperature**
-
-1.0 = disabled
 
 ```csharp
 public float Temperature { get; set; }
@@ -160,8 +124,6 @@ public float Temperature { get; set; }
 
 ### **RepeatPenalty**
 
-1.0 = disabled
-
 ```csharp
 public float RepeatPenalty { get; set; }
 ```
@@ -171,8 +133,6 @@ public float RepeatPenalty { get; set; }
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **RepeatLastTokensCount**
-
-last n tokens to penalize (0 = disable penalty, -1 = context size) (repeat_last_n)
 
 ```csharp
 public int RepeatLastTokensCount { get; set; }
@@ -184,9 +144,6 @@ public int RepeatLastTokensCount { get; set; }
 
 ### **FrequencyPenalty**
 
-frequency penalty coefficient
- 0.0 = disabled
-
 ```csharp
 public float FrequencyPenalty { get; set; }
 ```
@@ -196,9 +153,6 @@ public float FrequencyPenalty { get; set; }
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **PresencePenalty**
-
-presence penalty coefficient
- 0.0 = disabled
 
 ```csharp
 public float PresencePenalty { get; set; }
@@ -210,10 +164,6 @@ public float PresencePenalty { get; set; }
 
 ### **Mirostat**
 
-Mirostat uses tokens instead of words.
- algorithm described in the paper https://arxiv.org/abs/2007.14966.
- 0 = disabled, 1 = mirostat, 2 = mirostat 2.0
-
 ```csharp
 public MirostatType Mirostat { get; set; }
 ```
@@ -223,8 +173,6 @@ public MirostatType Mirostat { get; set; }
 [MirostatType](./llama.common.mirostattype.md)<br>
 
 ### **MirostatTau**
-
-target entropy
 
 ```csharp
 public float MirostatTau { get; set; }
@@ -236,8 +184,6 @@ public float MirostatTau { get; set; }
 
 ### **MirostatEta**
 
-learning rate
-
 ```csharp
 public float MirostatEta { get; set; }
 ```
@@ -247,8 +193,6 @@ public float MirostatEta { get; set; }
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **PenalizeNL**
-
-consider newlines as a repeatable token (penalize_nl)
 
 ```csharp
 public bool PenalizeNL { get; set; }
@@ -260,8 +204,6 @@ public bool PenalizeNL { get; set; }
 
 ### **Grammar**
 
-A grammar to constrain the possible tokens
-
 ```csharp
 public SafeLLamaGrammarHandle Grammar { get; set; }
 ```
@@ -270,6 +212,16 @@ public SafeLLamaGrammarHandle Grammar { get; set; }
 
 [SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
 
+### **SamplingPipeline**
+
+```csharp
+public ISamplingPipeline SamplingPipeline { get; set; }
+```
+
+#### Property Value
+
+[ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>
+
 ## Constructors
 
 ### **InferenceParams()**
@@ -277,3 +229,77 @@ public SafeLLamaGrammarHandle Grammar { get; set; }
 ```csharp
 public InferenceParams()
 ```
+
+## Methods
+
+### **ToString()**
+
+```csharp
+public string ToString()
+```
+
+#### Returns
+
+[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **PrintMembers(StringBuilder)**
+
+```csharp
+protected bool PrintMembers(StringBuilder builder)
+```
+
+#### Parameters
+
+`builder` [StringBuilder](https://docs.microsoft.com/en-us/dotnet/api/system.text.stringbuilder)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **GetHashCode()**
+
+```csharp
+public int GetHashCode()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **Equals(Object)**
+
+```csharp
+public bool Equals(object obj)
+```
+
+#### Parameters
+
+`obj` [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Equals(InferenceParams)**
+
+```csharp
+public bool Equals(InferenceParams other)
+```
+
+#### Parameters
+
+`other` [InferenceParams](./llama.common.inferenceparams.md)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **&lt;Clone&gt;$()**
+
+```csharp
+public InferenceParams <Clone>$()
+```
+
+#### Returns
+
+[InferenceParams](./llama.common.inferenceparams.md)<br>

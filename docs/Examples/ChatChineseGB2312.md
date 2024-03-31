@@ -1,9 +1,12 @@
-# Chat Chinese
+# Chinese LLM - with GB2312 encoding
 
 ```cs
 using System.Text;
 using LLama.Common;
 
+namespace LLama.Examples.Examples;
+
+// This example shows how to deal with Chinese input with gb2312 encoding.
 public class ChatChineseGB2312
 {
     private static string ConvertEncoding(string input, Encoding original, Encoding target)
@@ -23,8 +26,7 @@ public class ChatChineseGB2312
             " to use https://huggingface.co/hfl/chinese-alpaca-2-7b-gguf/blob/main/ggml-model-q5_0.gguf, which has been verified by LLamaSharp developers.");
         Console.ForegroundColor = ConsoleColor.White;
 
-        Console.Write("Please input your model path: ");
-        var modelPath = Console.ReadLine();
+        string modelPath = UserSettings.GetModelPath();
 
         var parameters = new ModelParams(modelPath)
         {
@@ -121,5 +123,4 @@ public class ChatChineseGB2312
         }
     }
 }
-
 ```

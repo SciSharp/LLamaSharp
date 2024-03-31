@@ -40,60 +40,24 @@ public abstract int MaxTokens { get; set; }
 logit bias for specific tokens
 
 ```csharp
-public abstract Dictionary<int, float> LogitBias { get; set; }
+public abstract Dictionary<LLamaToken, float> LogitBias { get; set; }
 ```
 
 #### Property Value
 
-[Dictionary&lt;Int32, Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2)<br>
+[Dictionary&lt;LLamaToken, Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2)<br>
 
 ### **AntiPrompts**
 
 Sequences where the model will stop generating further tokens.
 
 ```csharp
-public abstract IEnumerable<string> AntiPrompts { get; set; }
+public abstract IReadOnlyList<string> AntiPrompts { get; set; }
 ```
 
 #### Property Value
 
-[IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
-
-### **PathSession**
-
-path to file for saving/loading model eval state
-
-```csharp
-public abstract string PathSession { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **InputSuffix**
-
-string to suffix user inputs with
-
-```csharp
-public abstract string InputSuffix { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **InputPrefix**
-
-string to prefix user inputs with
-
-```csharp
-public abstract string InputPrefix { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[IReadOnlyList&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlylist-1)<br>
 
 ### **TopK**
 
@@ -113,6 +77,18 @@ public abstract int TopK { get; set; }
 
 ```csharp
 public abstract float TopP { get; set; }
+```
+
+#### Property Value
+
+[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **MinP**
+
+0.0 = disabled
+
+```csharp
+public abstract float MinP { get; set; }
 ```
 
 #### Property Value
@@ -266,3 +242,15 @@ public abstract SafeLLamaGrammarHandle Grammar { get; set; }
 #### Property Value
 
 [SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
+
+### **SamplingPipeline**
+
+Set a custom sampling pipeline to use. If this is set All other sampling parameters are ignored!
+
+```csharp
+public abstract ISamplingPipeline SamplingPipeline { get; set; }
+```
+
+#### Property Value
+
+[ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>

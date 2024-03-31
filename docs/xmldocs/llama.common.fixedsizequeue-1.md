@@ -6,7 +6,7 @@ A queue with fixed storage size.
  Currently it's only a naive implementation and needs to be further optimized in the future.
 
 ```csharp
-public class FixedSizeQueue<T> : , System.Collections.IEnumerable
+public class FixedSizeQueue<T> : , , , System.Collections.IEnumerable
 ```
 
 #### Type Parameters
@@ -14,9 +14,19 @@ public class FixedSizeQueue<T> : , System.Collections.IEnumerable
 `T`<br>
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [FixedSizeQueue&lt;T&gt;](./llama.common.fixedsizequeue-1.md)<br>
-Implements IEnumerable&lt;T&gt;, [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)
+Implements IReadOnlyList&lt;T&gt;, IReadOnlyCollection&lt;T&gt;, IEnumerable&lt;T&gt;, [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)
 
 ## Properties
+
+### **Item**
+
+```csharp
+public T Item { get; }
+```
+
+#### Property Value
+
+T<br>
 
 ### **Count**
 
@@ -72,24 +82,6 @@ public FixedSizeQueue(int size, IEnumerable<T> data)
 `data` IEnumerable&lt;T&gt;<br>
 
 ## Methods
-
-### **FillWith(T)**
-
-Replace every item in the queue with the given value
-
-```csharp
-public FixedSizeQueue<T> FillWith(T value)
-```
-
-#### Parameters
-
-`value` T<br>
-The value to replace all items with
-
-#### Returns
-
-[FixedSizeQueue&lt;T&gt;](./llama.common.fixedsizequeue-1.md)<br>
-returns this
 
 ### **Enqueue(T)**
 

@@ -5,7 +5,7 @@ Namespace: LLama.Grammars
 A single rule in a [Grammar](./llama.grammars.grammar.md)
 
 ```csharp
-public sealed class GrammarRule : System.IEquatable`1[[LLama.Grammars.GrammarRule, LLamaSharp, Version=0.5.0.0, Culture=neutral, PublicKeyToken=null]]
+public sealed class GrammarRule : System.IEquatable`1[[LLama.Grammars.GrammarRule, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [GrammarRule](./llama.grammars.grammarrule.md)<br>
