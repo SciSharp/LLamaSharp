@@ -74,7 +74,7 @@ jobs:
     - run: pip install mkdocs==1.4.3 mkdocs-material mike==1.1.2 setuptools
     - run: |
         git fetch origin gh-pages --depth=1
-        version=$(cat ./temp/version.txt)
+        version=$(cat ./temp/version.txt | sed 's/.$/2/')
         mike deploy --push --update-aliases --force $version latest
         mike set-default --push --force latest
 
