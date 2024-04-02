@@ -333,6 +333,9 @@ jobs:
         run: |
           # Make all directories at once
           mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,cu11.7.1,cu12.1.0,clblast}
+          ls artifacts
+          echo "================"
+          find artifacts -type f
 
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
