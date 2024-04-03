@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace LLama.Native
 {
@@ -89,41 +90,51 @@ namespace LLama.Native
 
         private static void Log(string message, LLamaLogLevel level)
         {
+            // Log to ILogger
+            if (NativeLibraryConfig.Instance.LoggerCallback != null)
+            {
+                NativeLibraryConfig.Instance.LoggerCallback.Log(level.ToLogLevel(), "{message}", message);
+                return;
+            }
+
+            // Skip other log methods unless enabled
             if (!enableLogging)
                 return;
-
             if ((int)level > (int)logLevel)
                 return;
 
+            // Log to callback
+            if (NativeLibraryConfig.Instance.LogCallback != null)
+            {
+                NativeLibraryConfig.Instance.LogCallback(level, message);
+                return;
+            }
+
+            // Log directly to console
             var fg = Console.ForegroundColor;
             var bg = Console.BackgroundColor;
             try
             {
                 ConsoleColor color;
-                string levelPrefix;
                 if (level == LLamaLogLevel.Debug)
                 {
                     color = ConsoleColor.Cyan;
-                    levelPrefix = "[Debug]";
                 }
                 else if (level == LLamaLogLevel.Info)
                 {
                     color = ConsoleColor.Green;
-                    levelPrefix = "[Info]";
                 }
                 else if (level == LLamaLogLevel.Error)
                 {
                     color = ConsoleColor.Red;
-                    levelPrefix = "[Error]";
                 }
                 else
                 {
                     color = ConsoleColor.Yellow;
-                    levelPrefix = "[UNK]";
                 }
 
                 Console.ForegroundColor = color;
-                Console.WriteLine($"{loggingPrefix} {levelPrefix} {message}");
+                Console.WriteLine($"[LLamaSharp Native] {level} {message}");
             }
             finally
             {
@@ -464,7 +475,6 @@ namespace LLama.Native
         internal const string libraryName = "llama";
         internal const string llavaLibraryName = "llava_shared";        
         private const string cudaVersionFile = "version.json";
-        private const string loggingPrefix = "[LLamaSharp Native]";
         private static bool enableLogging = false;
         private static LLamaLogLevel logLevel = LLamaLogLevel.Info;
     }

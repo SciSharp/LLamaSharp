@@ -1,11 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 
 namespace LLama.Native;
 
 /// <summary>
-/// Methods for configuring llama.cpp logging
+/// Configure llama.cpp logging
 /// </summary>
 public class NativeLogConfig
 {
@@ -62,23 +61,7 @@ public class NativeLogConfig
         // Bind a function that converts into the correct log level
         llama_log_set((level, message) =>
         {
-            switch (level)
-            {
-                case LLamaLogLevel.Error:
-                    logger.LogError("(llama.cpp): {message}", message);
-                    break;
-                case LLamaLogLevel.Warning:
-                    logger.LogWarning("(llama.cpp): {message}", message);
-                    break;
-                case LLamaLogLevel.Info:
-                    logger.LogInformation("(llama.cpp): {message}", message);
-                    break;
-                case LLamaLogLevel.Debug:
-                    logger.LogDebug("(llama.cpp): {message}", message);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(level), level, null);
-            }
+            logger.Log(level.ToLogLevel(), "(llama.cpp): {message}", message);
         });
     }
 }
