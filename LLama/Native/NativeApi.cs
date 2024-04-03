@@ -6,13 +6,6 @@ using System.Runtime.InteropServices;
 namespace LLama.Native
 {
     /// <summary>
-    /// Callback from llama.cpp with log messages
-    /// </summary>
-    /// <param name="level"></param>
-    /// <param name="message"></param>
-	public delegate void LLamaLogCallback(LLamaLogLevel level, string message);
-
-    /// <summary>
     /// Direct translation of the llama.cpp API
     /// </summary>
 	public static partial class NativeApi
@@ -364,8 +357,11 @@ namespace LLama.Native
         /// Register a callback to receive llama log messages
         /// </summary>
         /// <param name="logCallback"></param>
-		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void llama_log_set(LLamaLogCallback logCallback);
+        [Obsolete("Use `NativeLogConfig.llama_log_set` instead")]
+        public static void llama_log_set(NativeLogConfig.LLamaLogCallback logCallback)
+        {
+            NativeLogConfig.llama_log_set(logCallback);
+        }
 
         /// <summary>
         /// Clear the KV cache

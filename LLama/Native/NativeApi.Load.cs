@@ -36,6 +36,15 @@ namespace LLama.Native
 
             // Init llama.cpp backend
             llama_backend_init();
+
+            // Set flag to indicate that this has been done. No native library config can be done after this point.
+            NativeLibraryConfig.LibraryHasLoaded = true;
+
+            // Now that the "loaded" flag is set, configure logging in llama.cpp
+            if (NativeLibraryConfig.Instance.LogCallback != null)
+                NativeLogConfig.llama_log_set(NativeLibraryConfig.Instance.LogCallback);
+            if (NativeLibraryConfig.Instance.LoggerCallback != null)
+                NativeLogConfig.llama_log_set(NativeLibraryConfig.Instance.LoggerCallback);
         }
 
 #if NET5_0_OR_GREATER

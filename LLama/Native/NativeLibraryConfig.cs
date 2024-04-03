@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace LLama.Native
 {
@@ -9,18 +10,8 @@ namespace LLama.Native
     /// Allows configuration of the native llama.cpp libraries to load and use.
     /// All configuration must be done before using **any** other LLamaSharp methods!
     /// </summary>
-    public sealed class NativeLibraryConfig
+    public sealed partial class NativeLibraryConfig
     {
-        /// <summary>
-        /// Get the config instance
-        /// </summary>
-        public static NativeLibraryConfig Instance { get; } = new();
-
-        /// <summary>
-        /// Check if the native library has already been loaded. Configuration cannot be modified if this is true.
-        /// </summary>
-        public static bool LibraryHasLoaded { get; internal set; } = false;
-
         private string? _libraryPath;
         private string? _libraryPathLLava;
 
@@ -35,12 +26,6 @@ namespace LLama.Native
         /// search directory -> priority level, 0 is the lowest.
         /// </summary>
         private readonly List<string> _searchDirectories = new List<string>();
-
-        private static void ThrowIfLoaded()
-        {
-            if (LibraryHasLoaded)
-                throw new InvalidOperationException("NativeLibraryConfig must be configured before using **any** other LLamaSharp methods!");
-        }
 
         #region configurators
         /// <summary>
@@ -308,6 +293,56 @@ namespace LLama.Native
         }
     }
 #endif
+
+    public sealed partial class NativeLibraryConfig
+    {
+        /// <summary>
+        /// Get the config instance
+        /// </summary>
+        public static NativeLibraryConfig Instance { get; } = new();
+
+        /// <summary>
+        /// Check if the native library has already been loaded. Configuration cannot be modified if this is true.
+        /// </summary>
+        public static bool LibraryHasLoaded { get; internal set; }
+
+        internal NativeLogConfig.LLamaLogCallback? LogCallback;
+        internal ILogger? LoggerCallback;
+
+        private static void ThrowIfLoaded()
+        {
+            if (LibraryHasLoaded)
+                throw new InvalidOperationException("NativeLibraryConfig must be configured before using **any** other LLamaSharp methods!");
+        }
+
+        /// <summary>
+        /// Set the log callback that will be used for all llama.cpp log messages
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public NativeLibraryConfig WithLogCallback(NativeLogConfig.LLamaLogCallback? callback)
+        {
+            ThrowIfLoaded();
+
+            LogCallback = callback;
+            LoggerCallback = null;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the log callback that will be used for all llama.cpp log messages
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public NativeLibraryConfig WithLogCallback(ILogger? logger)
+        {
+            ThrowIfLoaded();
+
+            LogCallback = null;
+            LoggerCallback = logger;
+            return this;
+        }
+    }
 
     internal enum LibraryName
     {

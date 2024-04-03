@@ -20,7 +20,14 @@ AnsiConsole.MarkupLineInterpolated(
 NativeLibraryConfig
    .Instance
    .WithCuda()
-   .WithLogs(LLamaLogLevel.Info);
+   .WithLogs(LLamaLogLevel.Debug)
+   .WithLogCallback((level, message) =>
+    {
+        var bg = Console.BackgroundColor;
+        Console.BackgroundColor = ConsoleColor.Magenta;
+        Console.WriteLine($"[{level}]: {message}");
+        Console.BackgroundColor = bg;
+    });
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();
