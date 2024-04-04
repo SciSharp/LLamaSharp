@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace LLama.Native;
@@ -69,10 +70,24 @@ public static class NativeLogConfig
             return;
         }
 
-        // Bind a function that converts into the correct log level
+        var builder = new StringBuilder();
+
+        // Bind a function that combines messages until a newline is encountered, then logs it all as one message
         llama_log_set((level, message) =>
         {
-            logger.Log(level.ToLogLevel(), "{message}", message);
+            lock (builder)
+            {
+                builder.Append(message);
+
+                if (!message.EndsWith("\n"))
+                    return;
+
+                // Remove the newline from the end
+                builder.Remove(builder.Length - 1, 1);
+
+                logger.Log(level.ToLogLevel(), "{message}", builder.ToString());
+                builder.Clear();
+            }
         });
     }
 }

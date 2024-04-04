@@ -28,7 +28,7 @@ NativeLibraryConfig
    .WithLogCallback((level, message) =>
     {
         if (showLLamaCppLogs)
-            Console.WriteLine($"[llama {level}]: {message}");
+            Console.WriteLine($"[llama {level}]: {message.TrimEnd('\n')}");
     });
 
 // Calling this method forces loading to occur now.
