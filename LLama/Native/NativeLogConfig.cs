@@ -6,7 +6,7 @@ namespace LLama.Native;
 /// <summary>
 /// Configure llama.cpp logging
 /// </summary>
-public class NativeLogConfig
+public static class NativeLogConfig
 {
     /// <summary>
     /// Callback from llama.cpp with log messages
@@ -23,6 +23,11 @@ public class NativeLogConfig
     private static extern void native_llama_log_set(LLamaLogCallback? logCallback);
 
     /// <summary>
+    /// A GC handle for the current log callback to ensure the callback is not collected
+    /// </summary>
+    private static GCHandle? _currentLogCallbackHandle;
+
+    /// <summary>
     /// Register a callback to receive llama log messages
     /// </summary>
     /// <param name="logCallback"></param>
@@ -34,6 +39,12 @@ public class NativeLogConfig
         {
             // The library is loaded, just pass the callback directly to llama.cpp
             native_llama_log_set(logCallback);
+
+            // Save a GC handle, to ensure the callback is not collected
+            _currentLogCallbackHandle?.Free();
+            _currentLogCallbackHandle = null;
+            if (logCallback != null)
+                _currentLogCallbackHandle = GCHandle.Alloc(logCallback);
         }
         else
         {
