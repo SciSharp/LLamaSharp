@@ -72,7 +72,7 @@ public static class NativeLogConfig
         // Bind a function that converts into the correct log level
         llama_log_set((level, message) =>
         {
-            logger.Log(level.ToLogLevel(), "(llama.cpp): {message}", message);
+            logger.Log(level.ToLogLevel(), "{message}", message);
         });
     }
 }
