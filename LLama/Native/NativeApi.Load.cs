@@ -18,6 +18,9 @@ namespace LLama.Native
             // which llama.dll is used.
             SetDllImportResolver();
 
+            // Set flag to indicate that this point has been passed. No native library config can be done after this point.
+            NativeLibraryConfig.LibraryHasLoaded = true;
+
             // Immediately make a call which requires loading the llama DLL. This method call
             // can't fail unless the DLL hasn't been loaded.
             try
@@ -35,17 +38,14 @@ namespace LLama.Native
                     "to specify it at the very beginning of your code. For more informations about compilation, please refer to LLamaSharp repo on github.\n");
             }
 
-            // Init llama.cpp backend
-            llama_backend_init();
-
-            // Set flag to indicate that this has been done. No native library config can be done after this point.
-            NativeLibraryConfig.LibraryHasLoaded = true;
-
-            // Now that the "loaded" flag is set, configure logging in llama.cpp
+            // Now that the "loaded" flag is set configure logging in llama.cpp
             if (NativeLibraryConfig.Instance.LogCallback != null)
                 NativeLogConfig.llama_log_set(NativeLibraryConfig.Instance.LogCallback);
             if (NativeLibraryConfig.Instance.LoggerCallback != null)
                 NativeLogConfig.llama_log_set(NativeLibraryConfig.Instance.LoggerCallback);
+
+            // Init llama.cpp backend
+            llama_backend_init();
         }
 
 #if NET5_0_OR_GREATER
