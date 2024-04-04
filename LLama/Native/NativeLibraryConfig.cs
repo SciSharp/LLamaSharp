@@ -19,8 +19,6 @@ namespace LLama.Native
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
-        private bool _logging = false;
-        private LLamaLogLevel _logLevel = LLamaLogLevel.Info;
 
         /// <summary>
         /// search directory -> priority level, 0 is the lowest.
@@ -103,35 +101,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Whether to output the logs to console when loading the native library with your configuration.
-        /// </summary>
-        /// <param name="enable"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLogs(bool enable)
-        {
-            ThrowIfLoaded();
-
-            _logging = enable;
-            return this;
-        }
-
-        /// <summary>
-        /// Enable console logging with the specified log logLevel.
-        /// </summary>
-        /// <param name="logLevel"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLogs(LLamaLogLevel logLevel = LLamaLogLevel.Info)
-        {
-            ThrowIfLoaded();
-
-            _logging = true;
-            _logLevel = logLevel;
-            return this;
-        }
-
-        /// <summary>
         /// Add self-defined search directories. Note that the file stucture of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
@@ -181,8 +150,6 @@ namespace LLama.Native
                 Instance._avxLevel,
                 Instance._allowFallback,
                 Instance._skipCheck,
-                Instance._logging,
-                Instance._logLevel,
                 Instance._searchDirectories.Concat(new[] { "./" }).ToArray()
             );
         }
@@ -264,7 +231,7 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string? Path, LibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, LLamaLogLevel LogLevel, string[] SearchDirectories)
+        internal record Description(string? Path, LibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, string[] SearchDirectories)
         {
             public override string ToString()
             {
@@ -286,8 +253,6 @@ namespace LLama.Native
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
-                       $"- Logging: {Logging}\n" +
-                       $"- LogLevel: {LogLevel}\n" +
                        $"- SearchDirectories and Priorities: {searchDirectoriesString}";
             }
         }
@@ -307,7 +272,6 @@ namespace LLama.Native
         public static bool LibraryHasLoaded { get; internal set; }
 
         internal NativeLogConfig.LLamaLogCallback? LogCallback;
-        internal ILogger? LoggerCallback;
 
         private static void ThrowIfLoaded()
         {
@@ -325,7 +289,6 @@ namespace LLama.Native
             ThrowIfLoaded();
 
             LogCallback = callback;
-            LoggerCallback = null;
             return this;
         }
 
@@ -338,8 +301,9 @@ namespace LLama.Native
         {
             ThrowIfLoaded();
 
-            LogCallback = null;
-            LoggerCallback = logger;
+            // Redirect to llama_log_set. This will wrap the logger in a delegate and bind that as the log callback instead.
+            NativeLogConfig.llama_log_set(logger);
+
             return this;
         }
     }
