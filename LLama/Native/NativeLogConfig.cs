@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace LLama.Native;
@@ -70,24 +71,23 @@ public static class NativeLogConfig
             return;
         }
 
-        var builder = new StringBuilder();
+        var builderThread = new ThreadLocal<StringBuilder>(() => new StringBuilder());
 
         // Bind a function that combines messages until a newline is encountered, then logs it all as one message
         llama_log_set((level, message) =>
         {
-            lock (builder)
-            {
-                builder.Append(message);
+            var builder = builderThread.Value!;
 
-                if (!message.EndsWith("\n"))
-                    return;
+            builder.Append(message);
 
-                // Remove the newline from the end
-                builder.Remove(builder.Length - 1, 1);
+            if (!message.EndsWith("\n"))
+                return;
 
-                logger.Log(level.ToLogLevel(), "{message}", builder.ToString());
-                builder.Clear();
-            }
+            // Remove the newline from the end
+            builder.Remove(builder.Length - 1, 1);
+
+            logger.Log(level.ToLogLevel(), "{message}", builder.ToString());
+            builder.Clear();
         });
     }
 }

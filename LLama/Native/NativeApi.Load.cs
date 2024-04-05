@@ -87,6 +87,9 @@ namespace LLama.Native
 
         private static void Log(string message, LLamaLogLevel level)
         {
+            if (!message.EndsWith("\n"))
+                message += "\n";
+
             NativeLibraryConfig.Instance.LogCallback?.Invoke(level, message);
         }
 
