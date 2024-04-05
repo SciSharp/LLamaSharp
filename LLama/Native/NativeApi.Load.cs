@@ -17,6 +17,9 @@ namespace LLama.Native
             // which llama.dll is used.
             SetDllImportResolver();
 
+            // Set flag to indicate that this point has been passed. No native library config can be done after this point.
+            NativeLibraryConfig.LibraryHasLoaded = true;
+
             // Immediately make a call which requires loading the llama DLL. This method call
             // can't fail unless the DLL hasn't been loaded.
             try
@@ -33,6 +36,10 @@ namespace LLama.Native
                     "4. Try to compile llama.cpp yourself to generate a libllama library, then use `LLama.Native.NativeLibraryConfig.WithLibrary` " +
                     "to specify it at the very beginning of your code. For more informations about compilation, please refer to LLamaSharp repo on github.\n");
             }
+
+            // Now that the "loaded" flag is set configure logging in llama.cpp
+            if (NativeLibraryConfig.Instance.LogCallback != null)
+                NativeLogConfig.llama_log_set(NativeLibraryConfig.Instance.LogCallback);
 
             // Init llama.cpp backend
             llama_backend_init();
@@ -80,47 +87,10 @@ namespace LLama.Native
 
         private static void Log(string message, LLamaLogLevel level)
         {
-            if (!enableLogging)
-                return;
+            if (!message.EndsWith("\n"))
+                message += "\n";
 
-            if ((int)level > (int)logLevel)
-                return;
-
-            var fg = Console.ForegroundColor;
-            var bg = Console.BackgroundColor;
-            try
-            {
-                ConsoleColor color;
-                string levelPrefix;
-                if (level == LLamaLogLevel.Debug)
-                {
-                    color = ConsoleColor.Cyan;
-                    levelPrefix = "[Debug]";
-                }
-                else if (level == LLamaLogLevel.Info)
-                {
-                    color = ConsoleColor.Green;
-                    levelPrefix = "[Info]";
-                }
-                else if (level == LLamaLogLevel.Error)
-                {
-                    color = ConsoleColor.Red;
-                    levelPrefix = "[Error]";
-                }
-                else
-                {
-                    color = ConsoleColor.Yellow;
-                    levelPrefix = "[UNK]";
-                }
-
-                Console.ForegroundColor = color;
-                Console.WriteLine($"{loggingPrefix} {levelPrefix} {message}");
-            }
-            finally
-            {
-                Console.ForegroundColor = fg;
-                Console.BackgroundColor = bg;
-            }
+            NativeLibraryConfig.Instance.LogCallback?.Invoke(level, message);
         }
 
         #region CUDA version
@@ -362,8 +332,6 @@ namespace LLama.Native
         {
 #if NET6_0_OR_GREATER
             var configuration = NativeLibraryConfig.CheckAndGatherDescription(lib);
-            enableLogging = configuration.Logging;
-            logLevel = configuration.LogLevel;
 
             // Set the flag to ensure the NativeLibraryConfig can no longer be modified
             NativeLibraryConfig.LibraryHasLoaded = true;
@@ -455,8 +423,5 @@ namespace LLama.Native
         internal const string libraryName = "llama";
         internal const string llavaLibraryName = "llava_shared";        
         private const string cudaVersionFile = "version.json";
-        private const string loggingPrefix = "[LLamaSharp Native]";
-        private static bool enableLogging = false;
-        private static LLamaLogLevel logLevel = LLamaLogLevel.Info;
     }
 }

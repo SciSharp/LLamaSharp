@@ -1,8 +1,11 @@
-﻿namespace LLama.Native
-{   
-     /// <summary>
-     /// Severity level of a log message
-     /// </summary>
+﻿using System;
+using Microsoft.Extensions.Logging;
+
+namespace LLama.Native
+{
+    /// <summary>
+    /// Severity level of a log message
+    /// </summary>
     public enum LLamaLogLevel
     {
         /// <summary>
@@ -24,5 +27,20 @@
         /// Logs that are used for interactive investigation during development.
         /// </summary>
         Debug = 5,
+    }
+
+    internal static class LLamaLogLevelExtensions
+    {
+        public static LogLevel ToLogLevel(this LLamaLogLevel llama)
+        {
+            return (llama) switch
+            {
+                LLamaLogLevel.Error => LogLevel.Error,
+                LLamaLogLevel.Warning => LogLevel.Warning,
+                LLamaLogLevel.Info => LogLevel.Information,
+                LLamaLogLevel.Debug => LogLevel.Debug,
+                _ => throw new ArgumentOutOfRangeException(nameof(llama), llama, null)
+            };
+        }
     }
 }

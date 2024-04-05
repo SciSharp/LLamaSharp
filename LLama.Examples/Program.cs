@@ -16,11 +16,20 @@ AnsiConsole.MarkupLineInterpolated(
 
     """);
 
-// Configure native library to use
+// Configure native library to use. This must be done before any other llama.cpp methods are called!
 NativeLibraryConfig
    .Instance
-   .WithCuda()
-   .WithLogs(LLamaLogLevel.Info);
+   .WithCuda();
+
+// Configure logging. Change this to `true` to see log messages from llama.cpp
+var showLLamaCppLogs = false;
+NativeLibraryConfig
+   .Instance
+   .WithLogCallback((level, message) =>
+    {
+        if (showLLamaCppLogs)
+            Console.WriteLine($"[llama {level}]: {message.TrimEnd('\n')}");
+    });
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();

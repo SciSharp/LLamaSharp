@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace LLama.Native
 {
@@ -9,18 +10,8 @@ namespace LLama.Native
     /// Allows configuration of the native llama.cpp libraries to load and use.
     /// All configuration must be done before using **any** other LLamaSharp methods!
     /// </summary>
-    public sealed class NativeLibraryConfig
+    public sealed partial class NativeLibraryConfig
     {
-        /// <summary>
-        /// Get the config instance
-        /// </summary>
-        public static NativeLibraryConfig Instance { get; } = new();
-
-        /// <summary>
-        /// Check if the native library has already been loaded. Configuration cannot be modified if this is true.
-        /// </summary>
-        public static bool LibraryHasLoaded { get; internal set; } = false;
-
         private string? _libraryPath;
         private string? _libraryPathLLava;
 
@@ -28,19 +19,11 @@ namespace LLama.Native
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
-        private bool _logging = false;
-        private LLamaLogLevel _logLevel = LLamaLogLevel.Info;
 
         /// <summary>
         /// search directory -> priority level, 0 is the lowest.
         /// </summary>
         private readonly List<string> _searchDirectories = new List<string>();
-
-        private static void ThrowIfLoaded()
-        {
-            if (LibraryHasLoaded)
-                throw new InvalidOperationException("NativeLibraryConfig must be configured before using **any** other LLamaSharp methods!");
-        }
 
         #region configurators
         /// <summary>
@@ -118,35 +101,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Whether to output the logs to console when loading the native library with your configuration.
-        /// </summary>
-        /// <param name="enable"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLogs(bool enable)
-        {
-            ThrowIfLoaded();
-
-            _logging = enable;
-            return this;
-        }
-
-        /// <summary>
-        /// Enable console logging with the specified log logLevel.
-        /// </summary>
-        /// <param name="logLevel"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLogs(LLamaLogLevel logLevel = LLamaLogLevel.Info)
-        {
-            ThrowIfLoaded();
-
-            _logging = true;
-            _logLevel = logLevel;
-            return this;
-        }
-
-        /// <summary>
         /// Add self-defined search directories. Note that the file stucture of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
@@ -196,8 +150,6 @@ namespace LLama.Native
                 Instance._avxLevel,
                 Instance._allowFallback,
                 Instance._skipCheck,
-                Instance._logging,
-                Instance._logLevel,
                 Instance._searchDirectories.Concat(new[] { "./" }).ToArray()
             );
         }
@@ -279,7 +231,7 @@ namespace LLama.Native
             Avx512,
         }
 
-        internal record Description(string? Path, LibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, bool Logging, LLamaLogLevel LogLevel, string[] SearchDirectories)
+        internal record Description(string? Path, LibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, string[] SearchDirectories)
         {
             public override string ToString()
             {
@@ -301,13 +253,60 @@ namespace LLama.Native
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
-                       $"- Logging: {Logging}\n" +
-                       $"- LogLevel: {LogLevel}\n" +
                        $"- SearchDirectories and Priorities: {searchDirectoriesString}";
             }
         }
     }
 #endif
+
+    public sealed partial class NativeLibraryConfig
+    {
+        /// <summary>
+        /// Get the config instance
+        /// </summary>
+        public static NativeLibraryConfig Instance { get; } = new();
+
+        /// <summary>
+        /// Check if the native library has already been loaded. Configuration cannot be modified if this is true.
+        /// </summary>
+        public static bool LibraryHasLoaded { get; internal set; }
+
+        internal NativeLogConfig.LLamaLogCallback? LogCallback;
+
+        private static void ThrowIfLoaded()
+        {
+            if (LibraryHasLoaded)
+                throw new InvalidOperationException("NativeLibraryConfig must be configured before using **any** other LLamaSharp methods!");
+        }
+
+        /// <summary>
+        /// Set the log callback that will be used for all llama.cpp log messages
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public NativeLibraryConfig WithLogCallback(NativeLogConfig.LLamaLogCallback? callback)
+        {
+            ThrowIfLoaded();
+
+            LogCallback = callback;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the log callback that will be used for all llama.cpp log messages
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public NativeLibraryConfig WithLogCallback(ILogger? logger)
+        {
+            ThrowIfLoaded();
+
+            // Redirect to llama_log_set. This will wrap the logger in a delegate and bind that as the log callback instead.
+            NativeLogConfig.llama_log_set(logger);
+
+            return this;
+        }
+    }
 
     internal enum LibraryName
     {
