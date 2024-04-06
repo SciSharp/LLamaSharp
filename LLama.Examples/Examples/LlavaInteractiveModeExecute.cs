@@ -22,6 +22,7 @@ namespace LLama.Examples.Examples
             {
                 ContextSize = 4096,
                 Seed = 1337,
+                GpuLayerCount = 10
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
