@@ -84,6 +84,15 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx512/llava_shared.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/cuda11/llava_shared.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/cuda12/llava_shared.dll</Link>
+      </None>
+      
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -100,6 +109,14 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx512/libllava_shared.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/cuda11/libllava_shared.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/cuda12/libllava_shared.so</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllava_shared.dylib">
