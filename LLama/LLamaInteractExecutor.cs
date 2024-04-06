@@ -154,7 +154,12 @@ namespace LLama
                 {
                     _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromFileName( ClipModel.NativeHandle, Context, image ) );
                 }
-                        
+
+                foreach (var image in ImageBytes)
+                {
+                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, image));
+                }
+
                 int imageIndex = text.IndexOf("<image>");
                 // Tokenize segment 1 (before <image> tag)
                 string preImagePrompt = text.Substring(0, imageIndex);
