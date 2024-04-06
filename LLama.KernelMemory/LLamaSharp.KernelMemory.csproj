@@ -4,7 +4,7 @@
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.11.0</Version>
+    <Version>0.11.2</Version>
     <Authors>Xbotter</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -17,7 +17,7 @@
       The integration of LLamaSharp and Microsoft kernel-memory. It could make it easy to support document search for LLamaSharp model inference.
     </Description>
     <PackageReleaseNotes>
-      v0.11.0 updated the kernel-memory package and Fixed System.ArgumentException: EmbeddingMode must be true.
+      v0.11.2 followed the updating of LLamaSharp.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
