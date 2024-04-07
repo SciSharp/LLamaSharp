@@ -22,14 +22,13 @@ namespace LLama.Abstractions
         /// <summary>
         /// Muti-Modal Projections / Clip Model weights
         /// </summary>
-        public LLavaWeights? ClipModel { get;  }        
-        
+        public LLavaWeights? ClipModel { get;  }
+
         /// <summary>
-        /// List of images: Image filename and path (jpeg images).
+        /// List of images: Image filen path, uri or image byte array. See ImageData.
         /// </summary>
-        public List<string> ImagePaths { get; set; }
-        
-        
+        public List<ImageData> Images { get; }
+
         /// <summary>
         /// Asynchronously infers a response from the model.
         /// </summary>
@@ -38,5 +37,47 @@ namespace LLama.Abstractions
         /// <param name="token">A cancellation token.</param>
         /// <returns></returns>
         IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, CancellationToken token = default);
+    }
+
+    /// <summary>
+    /// Holds image data
+    /// </summary>
+    public class ImageData
+    {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="data"></param>
+        public ImageData(DataType type, object data) { Type = type; Data = data; }
+
+        /// <summary>
+        /// the possible types of image data
+        /// </summary>
+        public enum DataType 
+        { 
+            /// <summary>
+            /// file path
+            /// </summary>
+            ImagePath, 
+            /// <summary>
+            /// byte array
+            /// </summary>
+            ImageBytes, 
+            /// <summary>
+            /// uri
+            /// </summary>
+            ImageURL 
+        }
+
+        /// <summary>
+        /// the type of this image data
+        /// </summary>
+        public DataType Type { get; set; }
+
+        /// <summary>
+        /// the image data (string, byte array or uri)
+        /// </summary>
+        public object? Data { get; set; }
     }
 }
