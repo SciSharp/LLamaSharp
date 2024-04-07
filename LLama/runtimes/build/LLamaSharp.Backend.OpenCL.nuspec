@@ -16,7 +16,7 @@
   </metadata>
 
   <files>
-    <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.OpenCL.props" />
+    <file src="LLamaSharpBackend.props" target="build/LLamaSharp.Backend.OpenCL.props" />
 
     <file src="runtimes/deps/clblast/libllava_shared.so" target="runtimes\linux-x64\native\clblast\libllava_shared.so" />
     <file src="runtimes/deps/clblast/llava_shared.dll" target="runtimes\win-x64\native\clblast\llava_shared.dll" />
