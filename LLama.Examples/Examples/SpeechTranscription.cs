@@ -26,7 +26,7 @@ namespace LLama.Examples.Examples
             {
                 if (AudioTranscription.Contains("Artificial Intelligence", StringComparison.CurrentCultureIgnoreCase)) {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine($"Skipped text because it's not of interest {AudioTranscription}");
+                    Console.WriteLine($"Skipped text because it's not of interest: {AudioTranscription}");
                     Console.ForegroundColor = ConsoleColor.White;
                     return false;
                 }
@@ -121,7 +121,7 @@ If there are pauses, form paragraphs that leaves related parts together, and spl
                 }
             }
 
-            /// <summary> Requests a transcription and responds with the text. Whisper.net currently doesn't work well with parallelism. </summary>
+            /// <summary> Requests a transcription and responds with the text. </summary>
             async Task<string> ProcessAudio(byte[] bytes, string tempWavFilePath)
             {
                 var wavStream = new MemoryStream();
@@ -175,10 +175,10 @@ If there are pauses, form paragraphs that leaves related parts together, and spl
                     return null;
                 }
             }
-            public static async Task LoadPrint(string startText, Func<bool> ShouldContinue)
+            public static async Task LoadPrint(string initialText, Func<bool> ShouldContinue)
             {
                 var startTime = DateTime.Now;
-                Console.Write(startText);
+                Console.Write(initialText);
                 while (!ShouldContinue()) { Console.Write("."); await Task.Delay(100); }
                 Console.WriteLine($" Completed in {(DateTime.Now - startTime).TotalSeconds:f2}s.");
             }
