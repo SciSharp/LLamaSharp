@@ -44,7 +44,8 @@ namespace LLama.Examples.Examples
                 (audioServer = server).ServiceUsers.Add(this);
             }
 
-            bool IAudioServiceUser.IsOfInterest(string AudioTranscription) => !isModelResponding || AudioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase);
+			// Whisper is struggling with single words and very short phrases without context, so it's actually better to say something like "Ok, Stop!" to have it work better.
+			bool IAudioServiceUser.IsOfInterest(string AudioTranscription) => !isModelResponding || AudioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase);
             void IAudioServiceUser.ProcessText(string AudioTranscription)
             {
                 if (isModelResponding && AudioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase)) { canceled = true; }

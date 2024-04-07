@@ -49,7 +49,7 @@ namespace LLama.Examples.Examples
         public class AudioServer : IDisposable
         {
             const int clipLength = 250; // ms
-            const float voiceDetectionThreshold = 0.02f;
+            const float voiceDetectionThreshold = 0.01f;
             readonly string[] knownFalsePositives = ["[BLANK_AUDIO]", "Thank you", "[silence]"];
 
             WaveInEvent waveIn;
@@ -58,12 +58,11 @@ namespace LLama.Examples.Examples
 
             WhisperFactory? whisperFactory;
             WhisperProcessor? processor;
-            string whisperPrompt =
-"""
-The short audio comes from a non-native-english speaker/user that talks to an LLM in real time.
-Transcribe knowing this as a fact, and that multiple phrases or questions might appear together.
-If there are pauses, form paragraphs that leaves related parts together, and splits the next in new lines.
-""";
+            string whisperPrompt = """
+The short audio comes from a user that is speaking to an AI Language Model in real time.
+Pay extra attentions for commands like 'ok stop' or just 'stop'.
+In case of inaudible sentences that might be, assume they're saying 'stop'.
+""".Trim();
 
             // Tracked stats for Speech Recognition, Parsing, and Serving.
             int currentBlankClips;  // Ideally would work with milliseconds,
@@ -76,10 +75,11 @@ If there are pauses, form paragraphs that leaves related parts together, and spl
 
             public AudioServer(string modelPath)
             {
-                whisperFactory = WhisperFactory.FromPath(modelPath);
-                var builder = whisperFactory.CreateBuilder().WithThreads(16).WithPrompt(whisperPrompt).WithSingleSegment().WithLanguage("en");
-                (builder.WithBeamSearchSamplingStrategy() as BeamSearchSamplingStrategyBuilder)!.WithPatience(0.2f).WithBeamSize(5);
-                processor = builder.Build();
+                // Adjust the path based on your GPU's type. On your build you ideally want just the correct runtime build for your project, but here we're having all references, so it's getting confused.
+                var libPath = @$"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\.nuget\packages\whisper.net.runtime.cublas\1.5.0\build\win-x64\whisper.dll"; // Defaulting to cuBlas.
+                if (!File.Exists(libPath)) { Console.Error.WriteLine($"Could not find dll file at {libPath}.\nWhisper will load with the default runtime (possibly CPU)."); libPath = null; }
+                whisperFactory = WhisperFactory.FromPath(modelPath, libraryPath: libPath);
+                processor = whisperFactory.CreateBuilder().WithThreads(16).WithPrompt(whisperPrompt).WithLanguage("en").Build();
 
                 waveIn = new WaveInEvent() { BufferMilliseconds = clipLength, WaveFormat = waveFormat };
                 waveIn.DataAvailable += WaveIn_DataAvailable;
@@ -129,7 +129,8 @@ If there are pauses, form paragraphs that leaves related parts together, and spl
                 using (var fileStream = File.OpenRead(tempWavFilePath)) { await fileStream.CopyToAsync(wavStream); }
                 wavStream.Seek(0, SeekOrigin.Begin);
 
-                return string.Join(' ', await processor!.ProcessAsync(wavStream).Select(result => result.Text).ToListAsync()).Trim();
+                Console.Beep();
+                return string.Join(' ', await processor!.ProcessAsync(wavStream).Select(x => x.Text).ToListAsync());
             }
 
             void IDisposable.Dispose()
@@ -148,7 +149,7 @@ If there are pauses, form paragraphs that leaves related parts together, and spl
                 else if (models.Length != 0) {
                     for (int i = 0; i < models.Length; i++) {
                         Console.ForegroundColor = ConsoleColor.Blue;
-                        Console.Write($"{i}: ");
+                        Console.Write($"{i + 1}: ");
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine(models[i]["Assets\\".Length..]);
                     }
@@ -178,7 +179,7 @@ If there are pauses, form paragraphs that leaves related parts together, and spl
             public static async Task LoadPrint(string initialText, Func<bool> ShouldContinue)
             {
                 var startTime = DateTime.Now;
-                Console.Write(initialText);
+                Console.WriteLine(initialText);
                 while (!ShouldContinue()) { Console.Write("."); await Task.Delay(100); }
                 Console.WriteLine($" Completed in {(DateTime.Now - startTime).TotalSeconds:f2}s.");
             }
