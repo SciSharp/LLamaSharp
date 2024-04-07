@@ -26,10 +26,16 @@ namespace LLama
         
         // LLava Section
         public bool IsMultiModal => false;
+
+        /// <inheritdoc />
         public bool MultiModalProject { get;  }
-        public LLavaWeights? ClipModel { get;  }        
-        public List<string> ImagePaths { get; set; } 
-        
+
+        /// <inheritdoc />
+        public LLavaWeights? ClipModel { get;  }
+
+        /// <inheritdoc />
+        public List<ImageData> Images { get; set; }
+
         /// <summary>
         /// The context used by the executor when running the inference.
         /// </summary>
@@ -43,7 +49,7 @@ namespace LLama
         /// <param name="logger"></param>
         public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            ImagePaths = new List<string>();
+            Images = new List<ImageData>();
             _weights = weights;
             _params = @params;
             _logger = logger;

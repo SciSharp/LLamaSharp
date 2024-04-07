@@ -148,16 +148,22 @@ namespace LLama
             int usedTokens = 0;
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
-            if (_imageInPrompt)
+            if (_imageInPrompt && ClipModel != null)
             {
-                foreach (var image in ImagePaths)
+                foreach (var image in Images)
                 {
-                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromFileName( ClipModel.NativeHandle, Context, image ) );
-                }
-
-                foreach (var image in ImageBytes)
-                {
-                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, image));
+                    if (image.Type == ImageData.DataType.ImagePath && image.Data != null)
+                    {
+                        _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromFileName(ClipModel.NativeHandle, Context, image.Data.ToString()));
+                    }
+                    else if (image.Type == ImageData.DataType.ImageBytes && image.Data != null)
+                    {
+                        _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, (byte[])image.Data));
+                    }
+                    else if (image.Type == ImageData.DataType.ImageURL && image.Data != null)
+                    {
+                        throw new NotImplementedException();
+                    }
                 }
 
                 int imageIndex = text.IndexOf("<image>");
