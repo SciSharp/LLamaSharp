@@ -102,7 +102,7 @@ namespace LLama.Examples.Examples
                     //
                     foreach (var image in imagePaths)
                     {
-                        ex.Images.Add(new ImageData(ImageData.DataType.ImagePath, image));
+                        ex.Images.Add(File.ReadAllBytes(image));
                     }
                 }
 

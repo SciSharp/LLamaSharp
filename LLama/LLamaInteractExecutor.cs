@@ -153,24 +153,7 @@ namespace LLama
             {
                 foreach (var image in Images)
                 {
-                    if (image.Type == ImageData.DataType.ImagePath && image.Data != null)
-                    {
-                        _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromFileName(ClipModel.NativeHandle, Context, (string)image.Data));
-                    }
-                    else if (image.Type == ImageData.DataType.ImageBytes && image.Data != null)
-                    {
-                        _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, (byte[])image.Data));
-                    }
-                    else if (image.Type == ImageData.DataType.ImageURL && image.Data != null)
-                    {
-                        using var httpClient = new HttpClient();
-                        var uri = new Uri((string)image.Data);
-                        var imageBytes = httpClient.GetByteArrayAsync(uri).Result;
-                        if (imageBytes != null && imageBytes.Length > 0)
-                        {
-                            _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, imageBytes));
-                        }
-                    }
+                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, image));
                 }
 
                 int imageIndex = text.IndexOf("<image>");
