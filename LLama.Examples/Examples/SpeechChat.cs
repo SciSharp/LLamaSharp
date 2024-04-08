@@ -131,7 +131,7 @@ In case of inaudible sentences that might be, assume they're saying 'stop'.
             public SpeechRecognitionServer(string modelPath)
             {
                 // Adjust the path based on your GPU's type. On your build you ideally want just the correct runtime build for your project, but here we're having all references, so it's getting confused.
-                var libPath = @$"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\.nuget\packages\whisper.net.runtime.cublas\1.5.0\build\win-x64\whdisper.dll"; // Defaulting to cuBlas.
+                var libPath = @$"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\.nuget\packages\whisper.net.runtime.cublas\1.5.0\build\win-x64\whisper.dll"; // Defaulting to cuBlas.
                 if (!File.Exists(libPath)) { ConsoleStyleHelpers.WriteLine($"Could not find dll file at {libPath}.\nWhisper will load with the default runtime (possibly CPU).\nIf you own a non-Nvidia GPU, you need to adjust the library path based on your GPU's type.", ConsoleColor.Red); libPath = null; }
                 whisperFactory = WhisperFactory.FromPath(modelPath, libraryPath: libPath);
 
