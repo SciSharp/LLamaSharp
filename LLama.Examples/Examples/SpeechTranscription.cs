@@ -13,43 +13,43 @@ namespace LLama.Examples.Examples
             bool loadFinished = false;
             var loading = ConsoleStyleHelpers.LoadPrint("Loading model...", () => loadFinished);
 
-            using var audioServer = new AudioServer(model);
-            audioServer.ServiceUsers.Add(new AudioEchoer());
+            using var speechRecognitionServer = new SpeechRecognitionServer(model);
+            speechRecognitionServer.ServiceUsers.Add(new AudioEchoer());
 
             loadFinished = true; loading.Wait();
             await ConsoleStyleHelpers.WaitUntilExit();
         }
 
-        class AudioEchoer : IAudioServiceUser
+        class AudioEchoer : ISpeechRecognitionServiceUser
         {
-            bool IAudioServiceUser.IsOfInterest(string AudioTranscription)
+            bool ISpeechRecognitionServiceUser.IsOfInterest(string audioTranscription)
             {
-                if (AudioTranscription.Contains("Artificial Intelligence", StringComparison.CurrentCultureIgnoreCase)) {
+                if (audioTranscription.Contains("Artificial Intelligence", StringComparison.CurrentCultureIgnoreCase)) {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.WriteLine($"Skipped text because it's not of interest: {AudioTranscription}");
+                    Console.WriteLine($"Skipped text because it's not of interest: {audioTranscription}");
                     Console.ForegroundColor = ConsoleColor.White;
                     return false;
                 }
                 else { return true; }
             }
-            void IAudioServiceUser.ProcessText(string AudioTranscription)
+            void ISpeechRecognitionServiceUser.ProcessText(string audioTranscription)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(AudioTranscription);
+                Console.WriteLine(audioTranscription);
                 Console.ForegroundColor = ConsoleColor.White;
             }
         }
 
-        public interface IAudioServiceUser
+        public interface ISpeechRecognitionServiceUser
         {
             bool IsOfInterest(string AudioTranscription);
             void ProcessText(string AudioTranscription);
         }
 
-        public class AudioServer : IDisposable
+        public class SpeechRecognitionServer : IDisposable
         {
             const int clipLength = 250; // ms
-            const float voiceDetectionThreshold = 0.01f;
+            const float voiceDetectionThreshold = 0.01f; // Adjust as needed
             readonly string[] knownFalsePositives = ["[BLANK_AUDIO]", "Thank you", "[silence]"];
 
             WaveInEvent waveIn;
@@ -58,7 +58,8 @@ namespace LLama.Examples.Examples
 
             WhisperFactory? whisperFactory;
             WhisperProcessor? processor;
-            string whisperPrompt = """
+            string whisperPrompt =
+"""
 The short audio comes from a user that is speaking to an AI Language Model in real time.
 Pay extra attentions for commands like 'ok stop' or just 'stop'.
 In case of inaudible sentences that might be, assume they're saying 'stop'.
@@ -68,18 +69,21 @@ In case of inaudible sentences that might be, assume they're saying 'stop'.
             int currentBlankClips;  // Ideally would work with milliseconds,
             int totalNonBlankClips; // ..but for example's sake they work on a
             int nonIdleTime;        // ..clip-based quant-length (1 = clipLength).
-                                    // Default detection settings: A speech of 750ms, followed by pause of 500ms. (2x250ms)
             public (int minBlanksPerSeperation, int minNonBlanksForValidMessages) detectionSettings = (2, 3);
+            // Default detection settings: A speech of 750ms, followed by pause of 500ms. (2x250ms)
 
-            public HashSet<IAudioServiceUser> ServiceUsers = [];
+            public HashSet<ISpeechRecognitionServiceUser> ServiceUsers = [];
 
-            public AudioServer(string modelPath)
+            public SpeechRecognitionServer(string modelPath)
             {
                 // Adjust the path based on your GPU's type. On your build you ideally want just the correct runtime build for your project, but here we're having all references, so it's getting confused.
                 var libPath = @$"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\.nuget\packages\whisper.net.runtime.cublas\1.5.0\build\win-x64\whisper.dll"; // Defaulting to cuBlas.
                 if (!File.Exists(libPath)) { Console.Error.WriteLine($"Could not find dll file at {libPath}.\nWhisper will load with the default runtime (possibly CPU)."); libPath = null; }
                 whisperFactory = WhisperFactory.FromPath(modelPath, libraryPath: libPath);
-                processor = whisperFactory.CreateBuilder().WithThreads(16).WithPrompt(whisperPrompt).WithLanguage("en").Build();
+
+                var builder = whisperFactory.CreateBuilder().WithThreads(16).WithPrompt(whisperPrompt).WithSingleSegment().WithLanguage("en");
+                (builder.WithBeamSearchSamplingStrategy() as BeamSearchSamplingStrategyBuilder)!.WithPatience(0.2f).WithBeamSize(5);
+                processor = builder.Build();
 
                 waveIn = new WaveInEvent() { BufferMilliseconds = clipLength, WaveFormat = waveFormat };
                 waveIn.DataAvailable += WaveIn_DataAvailable;
@@ -105,7 +109,7 @@ In case of inaudible sentences that might be, assume they're saying 'stop'.
                 }
                 else if (++currentBlankClips < detectionSettings.minBlanksPerSeperation) { nonIdleTime++; }
                 else {
-                    if (totalNonBlankClips > detectionSettings.minNonBlanksForValidMessages) { SendTranscription(); }
+                    if (totalNonBlankClips >= detectionSettings.minNonBlanksForValidMessages) { SendTranscription(); }
                     else if (totalNonBlankClips > 0) { } // This might be case of a false-positive -- knock, noise, cough, anything.
                     (currentBlankClips, totalNonBlankClips, nonIdleTime) = (0, 0, 0);
                 }
@@ -116,7 +120,7 @@ In case of inaudible sentences that might be, assume they're saying 'stop'.
                     var bytesPerClip = waveFormat.BitsPerSample * clipLength * 2;
                     var capturedClipBytes = recordedBytes.TakeLast(bytesPerClip * (nonIdleTime + 2)).ToArray();
                     var transcribedText = await ProcessAudio(capturedClipBytes, "Assets\\temp.wav"); // Save to temporary file.
-                    if (knownFalsePositives.Contains(transcribedText)) { return; }					 // False positive.. yikes!
+                    if (knownFalsePositives.Contains(transcribedText)) { return; }                   // False positive.. yikes!
                     foreach (var user in ServiceUsers.Where(x => x.IsOfInterest(transcribedText))) { user.ProcessText(transcribedText); }
                 }
             }

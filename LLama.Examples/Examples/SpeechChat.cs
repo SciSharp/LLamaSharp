@@ -13,20 +13,20 @@ namespace LLama.Examples.Examples
             bool loadFinished = false;
             var loading = ConsoleStyleHelpers.LoadPrint("Loading transcription model...", () => loadFinished);
 
-            using var audioServer = new AudioServer(model);
+            using var speechRecognitionServer = new SpeechRecognitionServer(model);
             loadFinished = true; loading.Wait();
 
             Console.WriteLine("Audio model loaded. Insert path for language model.");
-            using var llamaServer = new LlamaServer(audioServer);
+            using var _ = new LlamaSession_SpeechListener(speechRecognitionServer);
 
             await ConsoleStyleHelpers.WaitUntilExit();
         }
 
 
-        class LlamaServer : IAudioServiceUser, IDisposable
+        class LlamaSession_SpeechListener : ISpeechRecognitionServiceUser, IDisposable
         {
             bool isModelResponding;
-            AudioServer audioServer;
+            SpeechRecognitionServer audioServer;
 
             LLamaWeights model;
             LLamaContext context;
@@ -35,7 +35,7 @@ namespace LLama.Examples.Examples
             string fullPrompt = "";
             bool canceled;
 
-            public LlamaServer(AudioServer server)
+            public LlamaSession_SpeechListener(SpeechRecognitionServer server)
             {
                 var parameters = new ModelParams(UserSettings.GetModelPath()) { ContextSize = 1024, Seed = 1337, GpuLayerCount = 99 };
                 model = LLamaWeights.LoadFromFile(parameters);
@@ -45,17 +45,17 @@ namespace LLama.Examples.Examples
             }
 
             // Whisper is struggling with single words and very short phrases without context, so it's actually better to say something like "Ok, Stop!" to have it work better.
-            bool IAudioServiceUser.IsOfInterest(string AudioTranscription) => !isModelResponding || AudioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase);
-            void IAudioServiceUser.ProcessText(string AudioTranscription)
+            bool ISpeechRecognitionServiceUser.IsOfInterest(string audioTranscription) => !isModelResponding || audioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase);
+            void ISpeechRecognitionServiceUser.ProcessText(string audioTranscription)
             {
-                if (isModelResponding && AudioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase)) { canceled = true; }
-                else if (!isModelResponding) { _ = SendMessage(AudioTranscription); }
+                if (isModelResponding && audioTranscription.Contains("stop", StringComparison.CurrentCultureIgnoreCase)) { canceled = true; }
+                else if (!isModelResponding) { _ = SendMessage(audioTranscription); }
             }
 
             async Task SendMessage(string newMessage)
             {
                 // While a response is queried, we want to detect short phrases/commands like 'stop',
-                audioServer.detectionSettings = (1, 1); // ..so we lower the min Speech Detection time.
+                audioServer.detectionSettings = (1, 2); // ..so we lower the min Speech Detection time.
 
                 isModelResponding = true;
                 AddToPrompt($"\n{newMessage}\n", ConsoleColor.Blue);
