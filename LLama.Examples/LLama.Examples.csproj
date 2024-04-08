@@ -18,8 +18,14 @@
     <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.34.240313.1" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.6.2" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.6.2-alpha" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Spectre.Console" Version="0.48.0" />
     <PackageReference Include="Spectre.Console.ImageSharp" Version="0.48.0" />
+    <PackageReference Include="Whisper.net" Version="1.5.0" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.5.0" />
+    <PackageReference Include="Whisper.net.Runtime.Clblast" Version="1.5.0" />
+    <PackageReference Include="Whisper.net.Runtime.CoreML" Version="1.5.0" />
+    <PackageReference Include="Whisper.net.Runtime.Cublas" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>
