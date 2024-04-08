@@ -29,7 +29,6 @@ public class ExampleRunner
         { "Batched Executor: Fork", BatchedExecutorFork.Run },
         { "Batched Executor: Rewind", BatchedExecutorRewind.Run },
         { "Batched Executor: Guidance", BatchedExecutorGuidance.Run },
-        { "Whisper.net: Speech Recognition", SpeechTranscription.Run },
         { "Whisper.net: Speech Chat", SpeechChat.Run },
         { "Exit", () => { Environment.Exit(0); return Task.CompletedTask; } }
     };
