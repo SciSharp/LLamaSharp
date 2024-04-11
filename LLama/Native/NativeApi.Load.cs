@@ -254,7 +254,7 @@ namespace LLama.Native
         {
             GetPlatformPathParts(out _, out var os, out var fileExtension, out var libPrefix);
 
-            return $"runtimes/{os}/native/{libPrefix}{libraryName}{fileExtension}";
+            return $"llama/{os}/native/{libPrefix}{libraryName}{fileExtension}";
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace LLama.Native
         {
             GetPlatformPathParts(out _, out var os, out var fileExtension, out var libPrefix);
 
-            return $"runtimes/{os}/native/{cuda}/{libPrefix}{libraryName}{fileExtension}";
+            return $"llama/{os}/native/{cuda}/{libPrefix}{libraryName}{fileExtension}";
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace LLama.Native
             if (!string.IsNullOrEmpty(avxStr))
                 avxStr += "/";
 
-            return $"runtimes/{os}/native/{avxStr}{libPrefix}{libraryName}{fileExtension}";
+            return $"llama/{os}/native/{avxStr}{libPrefix}{libraryName}{fileExtension}";
         }
 
         private static void GetPlatformPathParts(out OSPlatform platform, out string os, out string fileExtension, out string libPrefix)

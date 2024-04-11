@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>LLamaSharp.Backend.Cpu</id>
-    <version>$version$</version>
+    <version>0.11.2</version>
     <title>LLamaSharp.Backend.Cpu, the backend for LLamaSharp</title>
     <authors>llama.cpp Authors</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,38 +13,42 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
     <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+    <contentFiles>
+      <files include="any\any\llama\**\*.*" buildAction="None" copyToOutput="true" />
+    </contentFiles>
   </metadata>
 
   <files>
-    <file src="LLamaSharpBackend.props" target="build/LLamaSharp.Backend.Cpu.props" />
+    <file src="runtimes/deps/llama.dll" target="contentFiles\any\any\llama\win-x64\native\llama.dll" />
+    <file src="runtimes/deps/avx/llama.dll" target="contentFiles\any\any\llama\win-x64\native\avx\llama.dll" />
+    <file src="runtimes/deps/avx2/llama.dll" target="contentFiles\any\any\llama\win-x64\native\avx2\llama.dll" />
+    <file src="runtimes/deps/avx512/llama.dll" target="contentFiles\any\any\llama\win-x64\native\avx512\llama.dll" />
 
-    <file src="runtimes/deps/llama.dll" target="runtimes\win-x64\native\llama.dll" />
-    <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
-    <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />
-    <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
-
-    <file src="runtimes/deps/libllama.so" target="runtimes\linux-x64\native\libllama.so" />
-    <file src="runtimes/deps/avx/libllama.so" target="runtimes\linux-x64\native\avx\libllama.so" />
-    <file src="runtimes/deps/avx2/libllama.so" target="runtimes\linux-x64\native\avx2\libllama.so" />
-    <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
+    <file src="runtimes/deps/libllama.so" target="contentFiles\any\any\llama\linux-x64\native\libllama.so" />
+    <file src="runtimes/deps/avx/libllama.so" target="contentFiles\any\any\llama\linux-x64\native\avx\libllama.so" />
+    <file src="runtimes/deps/avx2/libllama.so" target="contentFiles\any\any\llama\linux-x64\native\avx2\libllama.so" />
+    <file src="runtimes/deps/avx512/libllama.so" target="contentFiles\any\any\llama\linux-x64\native\avx512\libllama.so" />
     
-    <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
-    <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
-    <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
+    <file src="runtimes/deps/osx-x64/libllama.dylib" target="contentFiles\any\any\llama\osx-x64\native\libllama.dylib" />
+    <file src="runtimes/deps/osx-arm64/libllama.dylib" target="contentFiles\any\any\llama\osx-arm64\native\libllama.dylib" />
+    <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="contentFiles\any\any\llama\osx-arm64\native\ggml-metal.metal" />
 
-    <file src="runtimes/deps/llava_shared.dll" target="runtimes\win-x64\native\llava_shared.dll" />
-    <file src="runtimes/deps/avx/llava_shared.dll" target="runtimes\win-x64\native\avx\llava_shared.dll" />
-    <file src="runtimes/deps/avx2/llava_shared.dll" target="runtimes\win-x64\native\avx2\llava_shared.dll" />
-    <file src="runtimes/deps/avx512/llava_shared.dll" target="runtimes\win-x64\native\avx512\llava_shared.dll" />
+    <file src="runtimes/deps/llava_shared.dll" target="contentFiles\any\any\llama\win-x64\native\llava_shared.dll" />
+    <file src="runtimes/deps/avx/llava_shared.dll" target="contentFiles\any\any\llama\win-x64\native\avx\llava_shared.dll" />
+    <file src="runtimes/deps/avx2/llava_shared.dll" target="contentFiles\any\any\llama\win-x64\native\avx2\llava_shared.dll" />
+    <file src="runtimes/deps/avx512/llava_shared.dll" target="contentFiles\any\any\llama\win-x64\native\avx512\llava_shared.dll" />
 
-    <file src="runtimes/deps/libllava_shared.so" target="runtimes\linux-x64\native\libllava_shared.so" />
-    <file src="runtimes/deps/avx/libllava_shared.so" target="runtimes\linux-x64\native\avx\libllava_shared.so" />
-    <file src="runtimes/deps/avx2/libllava_shared.so" target="runtimes\linux-x64\native\avx2\libllava_shared.so" />
-    <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
+    <file src="runtimes/deps/libllava_shared.so" target="contentFiles\any\any\llama\linux-x64\native\libllava_shared.so" />
+    <file src="runtimes/deps/avx/libllava_shared.so" target="contentFiles\any\any\llama\linux-x64\native\avx\libllava_shared.so" />
+    <file src="runtimes/deps/avx2/libllava_shared.so" target="contentFiles\any\any\llama\linux-x64\native\avx2\libllava_shared.so" />
+    <file src="runtimes/deps/avx512/libllava_shared.so" target="contentFiles\any\any\llama\linux-x64\native\avx512\libllava_shared.so" />
 
-    <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
-    <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
+    <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="contentFiles\any\any\llama\osx-x64\native\libllava_shared.dylib" />
+    <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="contentFiles\any\any\llama\osx-arm64\native\libllava_shared.dylib" />
     
     <file src="icon512.png" target="icon512.png" />
   </files>
+
+  
+
 </package>
