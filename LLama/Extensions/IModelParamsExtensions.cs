@@ -25,8 +25,6 @@ public static class IModelParamsExtensions
             throw new NotSupportedException("'UseMemoryLock' is not supported (llama_supports_mlock() == false)");
         if (@params.UseMemorymap && !NativeApi.llama_supports_mmap())
             throw new NotSupportedException("'UseMemorymap' is not supported (llama_supports_mmap() == false)");
-        if (@params.GpuLayerCount > 0 && !NativeApi.llama_supports_gpu_offload())
-            throw new NotSupportedException("'GpuLayerCount' is not supported (llama_supports_gpu_offload() == false)");
 
         var disposer = new GroupDisposable();
 
