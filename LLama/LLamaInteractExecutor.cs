@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using LLama.Exceptions;
 using LLama.Extensions;
 using Microsoft.Extensions.Logging;
+using System.Net.Http;
 
 namespace LLama
 {
@@ -148,13 +149,13 @@ namespace LLama
             int usedTokens = 0;
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
-            if (_imageInPrompt)
+            if (_imageInPrompt && ClipModel != null)
             {
-                foreach (var image in ImagePaths)
+                foreach (var image in Images)
                 {
-                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromFileName( ClipModel.NativeHandle, Context, image ) );
+                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, image));
                 }
-                        
+
                 int imageIndex = text.IndexOf("<image>");
                 // Tokenize segment 1 (before <image> tag)
                 string preImagePrompt = text.Substring(0, imageIndex);

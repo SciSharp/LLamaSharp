@@ -76,11 +76,11 @@ namespace LLama
         }
         
         /// <inheritdoc />
-        public LLavaWeights? ClipModel { get;  }      
-        
+        public LLavaWeights? ClipModel { get;  }
+
         /// <inheritdoc />
-        public List<string> ImagePaths { get; set; }        
-        
+        public List<byte[]> Images { get; set; }
+
         /// <summary>
         /// Current "mu" value for mirostat sampling
         /// </summary>
@@ -95,7 +95,7 @@ namespace LLama
         /// <param name="logger"></param>
         protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
         {
-            ImagePaths = new List<string>();
+            Images = new List<byte[]>();
             _logger = logger;
             Context = context;
             _pastTokensCount = 0;
@@ -105,6 +105,12 @@ namespace LLama
             _decoder = new StreamingTokenDecoder(context);
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="lLavaWeights"></param>
+        /// <param name="logger"></param>
         public StatefulExecutorBase(LLamaContext context, LLavaWeights lLavaWeights, ILogger? logger = null) : 
                         this( context, logger )
         {

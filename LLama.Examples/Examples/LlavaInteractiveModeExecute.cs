@@ -2,6 +2,7 @@
 using LLama.Batched;
 using LLama.Common;
 using Spectre.Console;
+using LLama.Abstractions;
 
 namespace LLama.Examples.Examples
 {
@@ -99,7 +100,10 @@ namespace LLama.Examples.Examples
 
                     // Initilize Images in executor
                     //
-                    ex.ImagePaths = imagePaths.ToList();
+                    foreach (var image in imagePaths)
+                    {
+                        ex.Images.Add(File.ReadAllBytes(image));
+                    }
                 }
 
                 Console.ForegroundColor = Color.White;

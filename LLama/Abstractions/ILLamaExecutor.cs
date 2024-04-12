@@ -22,14 +22,13 @@ namespace LLama.Abstractions
         /// <summary>
         /// Muti-Modal Projections / Clip Model weights
         /// </summary>
-        public LLavaWeights? ClipModel { get;  }        
-        
+        public LLavaWeights? ClipModel { get;  }
+
         /// <summary>
-        /// List of images: Image filename and path (jpeg images).
+        /// List of images: Image filen path, uri or image byte array. See ImageData.
         /// </summary>
-        public List<string> ImagePaths { get; set; }
-        
-        
+        public List<byte[]> Images { get; }
+
         /// <summary>
         /// Asynchronously infers a response from the model.
         /// </summary>
