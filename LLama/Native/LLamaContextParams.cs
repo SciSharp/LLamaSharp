@@ -160,6 +160,18 @@ namespace LLama.Native
         /// User data passed into abort_callback
         /// </summary>
         public IntPtr abort_callback_user_data;
+
+        /// <summary>
+        /// Get the default LLamaContextParams
+        /// </summary>
+        /// <returns></returns>
+        public static LLamaContextParams Default()
+        {
+            return llama_context_default_params();
+
+            [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+            static extern LLamaContextParams llama_context_default_params();
+        }
     }
 }
 

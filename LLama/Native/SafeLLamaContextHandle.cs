@@ -22,7 +22,7 @@ namespace LLama.Native
         /// <summary>
         /// Total number of tokens in the context
         /// </summary>
-        public uint ContextSize => NativeApi.llama_n_ctx(this);
+        public uint ContextSize => llama_n_ctx(this);
 
         /// <summary>
         /// Dimension of embedding vectors
@@ -32,12 +32,12 @@ namespace LLama.Native
         /// <summary>
         /// Get the maximum batch size for this context
         /// </summary>
-        public uint BatchSize => NativeApi.llama_n_batch(this);
+        public uint BatchSize => llama_n_batch(this);
 
         /// <summary>
         /// Get the physical maximum batch size for this context
         /// </summary>
-        public uint UBatchSize => NativeApi.llama_n_ubatch(this);
+        public uint UBatchSize => llama_n_ubatch(this);
 
         /// <summary>
         /// Get the model which this context is using
@@ -132,8 +132,83 @@ namespace LLama.Native
         /// <param name="data"></param>
         /// <returns></returns>
         private unsafe delegate bool GgmlAbortCallback(void* data);
+
+        /// <summary>
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="batch"></param>
+        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
+        ///  - 0: success<br />
+        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
+        ///  - &lt; 0: error<br />
+        /// </returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
+
+        /// <summary>
+        /// Set the number of threads used for decoding
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="n_threads">n_threads is the number of threads used for generation (single token)</param>
+        /// <param name="n_threads_batch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
+
+        /// <summary>
+        /// Token logits obtained from the last call to llama_decode
+        /// The logits for the last token are stored in the last row
+        /// Can be mutated in order to change the probabilities of the next token.<br />
+        /// Rows: n_tokens<br />
+        /// Cols: n_vocab
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe float* llama_get_logits(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Logits for the ith token. Equivalent to: llama_get_logits(ctx) + i*n_vocab
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe float* llama_get_logits_ith(SafeLLamaContextHandle ctx, int i);
+
+        /// <summary>
+        /// Get the size of the context window for the model for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_ctx(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Get the batch size for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_batch(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Get the ubatch size for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_ubatch(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Sets the current rng seed.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="seed"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_set_rng_seed(SafeLLamaContextHandle ctx, uint seed);
         #endregion
-        
+
         /// <summary>
         /// Token logits obtained from the last call to llama_decode
         /// The logits for the last token are stored in the last row
@@ -148,7 +223,7 @@ namespace LLama.Native
 
             unsafe
             {
-                var logits = NativeApi.llama_get_logits(this);
+                var logits = llama_get_logits(this);
                 return new Span<float>(logits, model.VocabCount);
             }
         }
@@ -164,7 +239,7 @@ namespace LLama.Native
 
             unsafe
             {
-                var logits = NativeApi.llama_get_logits_ith(this, i);
+                var logits = llama_get_logits_ith(this, i);
                 return new Span<float>(logits, model.VocabCount);
             }
         }
@@ -221,7 +296,7 @@ namespace LLama.Native
         {
             lock (GlobalInferenceLock)
                 using (batch.ToNativeBatch(out var nb))
-                    return (DecodeResult)NativeApi.llama_decode(this, nb);
+                    return (DecodeResult)llama_decode(this, nb);
         }
 
         /// <summary>
@@ -329,7 +404,7 @@ namespace LLama.Native
         /// <param name="seed"></param>
         public void SetSeed(uint seed)
         {
-            NativeApi.llama_set_rng_seed(this, seed);
+            llama_set_rng_seed(this, seed);
         }
 
         /// <summary>
@@ -339,7 +414,7 @@ namespace LLama.Native
         /// <param name="threadsBatch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
         public void SetThreads(uint threads, uint threadsBatch)
         {
-            NativeApi.llama_set_n_threads(this, threads, threadsBatch);
+            llama_set_n_threads(this, threads, threadsBatch);
         }
 
         #region KV Cache Management

@@ -79,5 +79,17 @@ namespace LLama.Native
         /// pointer to vector containing overrides
         /// </summary>
         public IntPtr kv_overrides;
+
+        /// <summary>
+        /// Create a LLamaModelQuantizeParams with default values
+        /// </summary>
+        /// <returns></returns>
+        public static LLamaModelQuantizeParams Default()
+        {
+            return llama_model_quantize_default_params();
+
+            [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+            static extern LLamaModelQuantizeParams llama_model_quantize_default_params();
+        }
     }
 }

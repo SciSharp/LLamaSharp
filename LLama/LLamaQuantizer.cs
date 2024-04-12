@@ -29,7 +29,7 @@ namespace LLama
                     $"to perform quantization.");
             }
 
-            var quantizeParams = NativeApi.llama_model_quantize_default_params();
+            var quantizeParams = LLamaModelQuantizeParams.Default();
             quantizeParams.ftype = ftype;
             quantizeParams.nthread = nthread;
             quantizeParams.allow_requantize = allowRequantize;

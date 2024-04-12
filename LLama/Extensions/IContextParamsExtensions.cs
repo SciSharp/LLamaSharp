@@ -20,7 +20,7 @@ namespace LLama.Extensions
         /// <exception cref="ArgumentException"></exception>
         public static void ToLlamaContextParams(this IContextParams @params, out LLamaContextParams result)
         {
-            result = NativeApi.llama_context_default_params();
+            result = LLamaContextParams.Default();
 
             result.n_ctx = @params.ContextSize ?? 0;
             result.n_batch = @params.BatchSize;
