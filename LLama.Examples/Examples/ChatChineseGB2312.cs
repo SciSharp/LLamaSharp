@@ -27,7 +27,6 @@ public class ChatChineseGB2312
 
         var parameters = new ModelParams(modelPath)
         {
-            ContextSize = 1024,
             Seed = 1337,
             GpuLayerCount = 5,
             Encoding = Encoding.UTF8
