@@ -207,6 +207,63 @@ namespace LLama.Native
         /// <param name="seed"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_set_rng_seed(SafeLLamaContextHandle ctx, uint seed);
+
+        /// <summary>
+        /// Returns the maximum size in bytes of the state (rng, logits, embedding
+        /// and kv_cache) - will often be smaller after compacting tokens
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern ulong llama_state_get_size(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Copies the state to the specified destination address.
+        /// Destination needs to have allocated enough memory.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="dest"></param>
+        /// <returns>the number of bytes copied</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe ulong llama_state_get_data(SafeLLamaContextHandle ctx, byte* dest);
+
+        /// <summary>
+        /// Set the state reading from the specified address
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="src"></param>
+        /// <returns>the number of bytes read</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe ulong llama_state_set_data(SafeLLamaContextHandle ctx, byte* src);
+
+        /// <summary>
+        /// Get the exact size needed to copy the KV cache of a single sequence
+        /// </summary>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern nuint llama_state_seq_get_size(SafeLLamaContextHandle ctx, LLamaSeqId seq_id);
+
+        /// <summary>
+        /// Copy the KV cache of a single sequence into the specified buffer
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="dst"></param>
+        /// <param name="seq_id"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe nuint llama_state_seq_get_data(SafeLLamaContextHandle ctx, byte* dst, LLamaSeqId seq_id);
+
+        /// <summary>
+        /// Copy the sequence data (originally copied with `llama_state_seq_get_data`) into the specified sequence
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="src"></param>
+        /// <param name="dest_seq_id"></param>
+        /// <returns>
+        ///  - Positive: Ok
+        ///  - Zero: Failed to load
+        /// </returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe nuint llama_state_seq_set_data(SafeLLamaContextHandle ctx, byte* src, LLamaSeqId dest_seq_id);
         #endregion
 
         /// <summary>
@@ -340,7 +397,17 @@ namespace LLama.Native
         /// </summary>
         public ulong GetStateSize()
         {
-            return NativeApi.llama_state_get_size(this);
+            return llama_state_get_size(this);
+        }
+
+        /// <summary>
+        /// Get the size of the KV cache for a single sequence ID, when saved as bytes
+        /// </summary>
+        /// <param name="sequence"></param>
+        /// <returns></returns>
+        public ulong GetStateSize(LLamaSeqId sequence)
+        {
+            return llama_state_seq_get_size(this, sequence);
         }
 
         /// <summary>
@@ -352,26 +419,30 @@ namespace LLama.Native
         /// <exception cref="ArgumentOutOfRangeException">Thrown if dest is too small</exception>
         public unsafe ulong GetState(byte* dest, ulong size)
         {
-            return GetState(new IntPtr(dest), size);
-        }
-
-        /// <summary>
-        /// Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
-        /// </summary>
-        /// <param name="dest">Destination to write to</param>
-        /// <param name="size">Number of bytes available to write to in dest (check required size with `GetStateSize()`)</param>
-        /// <returns>The number of bytes written to dest</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if dest is too small</exception>
-        public ulong GetState(IntPtr dest, ulong size)
-        {
             var required = GetStateSize();
             if (size < required)
                 throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
 
             unsafe
             {
-                return NativeApi.llama_state_get_data(this, (byte*)dest.ToPointer());
+                return llama_state_get_data(this, dest);
             }
+        }
+
+        /// <summary>
+        /// Get the raw state of a single sequence from this context, encoded as bytes. Data is written into the `dest` pointer.
+        /// </summary>
+        /// <param name="dest">Destination to write to</param>
+        /// <param name="size">Number of bytes available to write to in dest (check required size with `GetStateSize()`)</param>
+        /// <param name="sequence">The sequence to get state data for</param>
+        /// <returns>The number of bytes written to dest</returns>
+        public unsafe ulong GetState(byte* dest, ulong size, LLamaSeqId sequence)
+        {
+            var required = GetStateSize(sequence);
+            if (size < required)
+                throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
+
+            return llama_state_seq_get_data(this, dest, sequence);
         }
 
         /// <summary>
@@ -381,20 +452,18 @@ namespace LLama.Native
         /// <returns>Number of bytes read from the src pointer</returns>
         public unsafe ulong SetState(byte* src)
         {
-            return SetState(new IntPtr(src));
+            return llama_state_set_data(this, src);
         }
 
         /// <summary>
-        /// Set the raw state of this context
+        /// Set the raw state of a single sequence
         /// </summary>
         /// <param name="src">The pointer to read the state from</param>
+        /// <param name="sequence">Sequence ID to set</param>
         /// <returns>Number of bytes read from the src pointer</returns>
-        public ulong SetState(IntPtr src)
+        public unsafe ulong SetState(byte* src, LLamaSeqId sequence)
         {
-            unsafe
-            {
-                return NativeApi.llama_state_set_data(this, (byte*)src.ToPointer());
-            }
+            return llama_state_seq_set_data(this, src, sequence);
         }
         #endregion
 

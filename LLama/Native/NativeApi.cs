@@ -68,34 +68,6 @@ namespace LLama.Native
         //public static extern void llama_numa_init(ggml_numa_strategy numa);
 
         /// <summary>
-        /// Returns the maximum size in bytes of the state (rng, logits, embedding
-        /// and kv_cache) - will often be smaller after compacting tokens
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong llama_state_get_size(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Copies the state to the specified destination address.
-        /// Destination needs to have allocated enough memory.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="dest"></param>
-        /// <returns>the number of bytes copied</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe ulong llama_state_get_data(SafeLLamaContextHandle ctx, byte* dest);
-
-        /// <summary>
-        /// Set the state reading from the specified address
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="src"></param>
-        /// <returns>the number of bytes read</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe ulong llama_state_set_data(SafeLLamaContextHandle ctx, byte* src);
-
-        /// <summary>
         /// Load session file
         /// </summary>
         /// <param name="ctx"></param>
@@ -117,35 +89,6 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
-
-        /// <summary>
-        /// Get the exact size needed to copy the KV cache of a single sequence
-        /// </summary>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern nuint llama_state_seq_get_size(SafeLLamaContextHandle ctx, LLamaSeqId seq_id);
-
-        /// <summary>
-        /// Copy the KV cache of a single sequence into the specified buffer
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="dst"></param>
-        /// <param name="seq_id"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe nuint llama_state_seq_get_data(SafeLLamaContextHandle ctx, byte* dst, LLamaSeqId seq_id);
-
-        /// <summary>
-        /// Copy the sequence data (originally copied with `llama_state_seq_get_data`) into the specified sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="src"></param>
-        /// <param name="dest_seq_id"></param>
-        /// <returns>
-        ///  - Positive: Ok
-        ///  - Zero: Failed to load
-        /// </returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe nuint llama_state_seq_set_data(SafeLLamaContextHandle ctx, byte* src, LLamaSeqId dest_seq_id);
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_save_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId seq_id, LLamaToken* tokens, nuint n_token_count);
