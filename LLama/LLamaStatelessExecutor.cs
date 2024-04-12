@@ -118,7 +118,7 @@ namespace LLama
                 }
 
                 // Check if this is the EOS token
-                if (id == _weights.EndOfSentenceToken)
+                if (id == _weights.Tokens.EOS)
                     break;
 
                 // Decode this token into text

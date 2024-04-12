@@ -21,10 +21,13 @@ namespace LLama.Extensions
         public static void ToLlamaContextParams(this IContextParams @params, out LLamaContextParams result)
         {
             result = NativeApi.llama_context_default_params();
+
             result.n_ctx = @params.ContextSize ?? 0;
             result.n_batch = @params.BatchSize;
+            result.n_ubatch = @params.UBatchSize;
+            result.n_seq_max = @params.SeqMax;
             result.seed = @params.Seed;
-            result.embedding = @params.EmbeddingMode;
+            result.embeddings = @params.Embeddings;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
 
@@ -41,10 +44,13 @@ namespace LLama.Extensions
             result.cb_eval = IntPtr.Zero;
             result.cb_eval_user_data = IntPtr.Zero;
 
+            result.abort_callback = IntPtr.Zero;
+            result.abort_callback_user_data = IntPtr.Zero;
+
             result.type_k = @params.TypeK ?? GGMLType.GGML_TYPE_F16;
             result.type_k = @params.TypeV ?? GGMLType.GGML_TYPE_F16;
             result.offload_kqv = !@params.NoKqvOffload;
-            result.do_pooling = @params.DoPooling;
+            result.llama_pooling_type = @params.PoolingType;
 
             result.n_threads = Threads(@params.Threads);
             result.n_threads_batch = Threads(@params.BatchThreads);

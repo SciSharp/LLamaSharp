@@ -163,7 +163,7 @@ namespace LLama
                 File.Delete(filename);
 
             // Estimate size of state to write to disk, this is always equal to or greater than the actual size
-            var estimatedStateSize = (long)NativeApi.llama_get_state_size(NativeHandle);
+            var estimatedStateSize = (long)NativeApi.llama_state_get_size(NativeHandle);
 
             // Map the file and write the bytes directly to it. This saves copying the bytes into a C# array
             long writtenBytes;
@@ -174,7 +174,7 @@ namespace LLama
                 {
                     byte* ptr = null;
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
-                    writtenBytes = (long)NativeApi.llama_copy_state_data(NativeHandle, ptr);
+                    writtenBytes = (long)NativeApi.llama_state_get_data(NativeHandle, ptr);
                     view.SafeMemoryMappedViewHandle.ReleasePointer();
                 }
             }
@@ -233,7 +233,7 @@ namespace LLama
                 {
                     byte* ptr = null;
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
-                    NativeApi.llama_set_state_data(NativeHandle, ptr);
+                    NativeApi.llama_state_set_data(NativeHandle, ptr);
                     view.SafeMemoryMappedViewHandle.ReleasePointer();
                 }
             }
@@ -357,8 +357,8 @@ namespace LLama
             }
 
             // Save the newline logit value
-            var nl_token = NativeApi.llama_token_nl(NativeHandle.ModelHandle);
-            var nl_logit = logits[(int)nl_token];
+            var nl_token = NativeHandle.ModelHandle.Tokens.Newline;
+            var nl_logit = logits[(int?)nl_token ?? 0];
 
             // Convert logits into token candidates
             var candidates_p = LLamaTokenDataArray.Create(logits);
@@ -371,7 +371,7 @@ namespace LLama
             candidates_p.RepetitionPenalty(NativeHandle, last_n_array, repeatPenalty, alphaFrequency, alphaPresence);
 
             // Restore newline token logit value if necessary
-            if (!penalizeNL)
+            if (!penalizeNL && nl_token.HasValue)
             {
                 var candidatesSpan = candidates_p.data.Span;
                 for (var i = 0; i < candidates_p.data.Length; i++)

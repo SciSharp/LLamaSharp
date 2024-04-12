@@ -15,7 +15,7 @@ public sealed class BeamTests
     public BeamTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        _params = new ModelParams(Constants.ModelPath)
+        _params = new ModelParams(Constants.GenerativeModelPath)
         {
             ContextSize = 2048
         };

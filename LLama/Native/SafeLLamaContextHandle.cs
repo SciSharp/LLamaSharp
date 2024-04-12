@@ -35,6 +35,11 @@ namespace LLama.Native
         public uint BatchSize => NativeApi.llama_n_batch(this);
 
         /// <summary>
+        /// Get the physical maximum batch size for this context
+        /// </summary>
+        public uint UBatchSize => NativeApi.llama_n_ubatch(this);
+
+        /// <summary>
         /// Get the model which this context is using
         /// </summary>
         public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();
@@ -260,7 +265,7 @@ namespace LLama.Native
         /// </summary>
         public ulong GetStateSize()
         {
-            return NativeApi.llama_get_state_size(this);
+            return NativeApi.llama_state_get_size(this);
         }
 
         /// <summary>
@@ -290,7 +295,7 @@ namespace LLama.Native
 
             unsafe
             {
-                return NativeApi.llama_copy_state_data(this, (byte*)dest.ToPointer());
+                return NativeApi.llama_state_get_data(this, (byte*)dest.ToPointer());
             }
         }
 
@@ -313,7 +318,7 @@ namespace LLama.Native
         {
             unsafe
             {
-                return NativeApi.llama_set_state_data(this, (byte*)src.ToPointer());
+                return NativeApi.llama_state_set_data(this, (byte*)src.ToPointer());
             }
         }
         #endregion

@@ -12,7 +12,7 @@ public sealed class TokenTests
 
     public TokenTests()
     {
-        _params = new ModelParams(Constants.ModelPath)
+        _params = new ModelParams(Constants.GenerativeModelPath)
         {
             ContextSize = 2048
         };

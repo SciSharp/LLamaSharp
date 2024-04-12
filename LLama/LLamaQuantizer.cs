@@ -20,7 +20,8 @@ namespace LLama
         /// <param name="quantizeOutputTensor"></param>
         /// <returns>Whether the quantization is successful.</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static bool Quantize(string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1, bool allowRequantize = true, bool quantizeOutputTensor = false)
+        public static bool Quantize(
+            string srcFileName, string dstFilename, LLamaFtype ftype, int nthread = -1, bool allowRequantize = true, bool quantizeOutputTensor = false)
         {
             if (!ValidateFtype(ftype))
             {
@@ -33,6 +34,8 @@ namespace LLama
             quantizeParams.nthread = nthread;
             quantizeParams.allow_requantize = allowRequantize;
             quantizeParams.quantize_output_tensor = quantizeOutputTensor;
+            //todo: fill in other quantize params fields.
+
             unsafe
             {
                 return NativeApi.llama_model_quantize(srcFileName, dstFilename, &quantizeParams) == 0;
@@ -59,7 +62,7 @@ namespace LLama
         private static bool ValidateFtype(LLamaFtype ftype)
         {
             // Validation copies from here:
-            // https://github.com/ggerganov/llama.cpp/blob/3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6/llama.cpp#L10965
+            // https://github.com/ggerganov/llama.cpp/blob/f7001ccc5aa359fcf41bba19d1c99c3d25c9bcc7/llama.cpp#L13450
 
             switch (ftype)
             {
@@ -95,6 +98,7 @@ namespace LLama
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_XXS:
 
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ1_S:
+                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ1_M:
 
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ4_NL:
                 case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ4_XS:

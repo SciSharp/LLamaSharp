@@ -32,7 +32,7 @@ namespace LLama
         /// <param name="logger"></param>
         public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            if (!@params.EmbeddingMode)
+            if (!@params.Embeddings)
                 throw new ArgumentException("EmbeddingMode must be true", nameof(@params));
 
             Context = weights.CreateContext(@params, logger);
@@ -75,7 +75,7 @@ namespace LLama
                     n_eval = batchSize;
 
                 batch.Clear();
-                batch.AddRange(tokens.AsSpan(i, n_eval), n_past, LLamaSeqId.Zero, false);
+                batch.AddRange(tokens.AsSpan(i, n_eval), n_past, LLamaSeqId.Zero, true);
                 n_past += n_eval;
 
                 var returnCode = await Context.DecodeAsync(batch, cancellationToken);
@@ -97,9 +97,10 @@ namespace LLama
 
         private float[] GetEmbeddingsArray()
         {
-            var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-            if (embeddings == null)
+            var embeddings = NativeApi.llama_get_embeddings_seq(Context.NativeHandle, LLamaSeqId.Zero);
+            if (embeddings.Length == 0)
                 return Array.Empty<float>();
+
             return embeddings.ToArray();
         }
 
@@ -110,6 +111,9 @@ namespace LLama
             foreach (var value in embeddings)
                 lengthSqr += value * value;
             var length = (float)Math.Sqrt(lengthSqr);
+
+            if (length <= float.Epsilon)
+                return;
 
             // Normalize
             for (var i = 0; i < embeddings.Length; i++)

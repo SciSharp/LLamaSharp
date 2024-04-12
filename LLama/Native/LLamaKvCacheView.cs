@@ -28,7 +28,7 @@ public unsafe struct LLamaKvCacheView
     // Maximum number of sequences that can exist in a cell. It's not an error
     // if there are more sequences in a cell than this value, however they will
     // not be visible in the view cells_sequences.
-    int n_max_seq;
+    int n_seq_max;
 
     // Number of tokens in the cache. For example, if there are two populated
     // cells, the first with 1 sequence id in it and the second with 2 sequence
@@ -48,7 +48,7 @@ public unsafe struct LLamaKvCacheView
     // Information for an individual cell.
     LLamaKvCacheViewCell* cells;
 
-    // The sequences for each cell. There will be n_max_seq items per cell.
+    // The sequences for each cell. There will be n_seq_max items per cell.
     LLamaSeqId* cells_sequences;
 }
 
@@ -118,10 +118,10 @@ public static partial class NativeApi
     /// Create an empty KV cache view. (use only for debugging purposes)
     /// </summary>
     /// <param name="ctx"></param>
-    /// <param name="n_max_seq"></param>
+    /// <param name="n_seq_max"></param>
     /// <returns></returns>
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern LLamaKvCacheView llama_kv_cache_view_init(SafeLLamaContextHandle ctx, int n_max_seq);
+    public static extern LLamaKvCacheView llama_kv_cache_view_init(SafeLLamaContextHandle ctx, int n_seq_max);
 
     /// <summary>
     /// Free a KV cache view. (use only for debugging purposes)

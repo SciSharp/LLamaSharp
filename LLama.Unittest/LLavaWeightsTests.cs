@@ -14,7 +14,7 @@ namespace LLama.Unittest
         
         public LLavaWeightTests()
         {
-            var @params = new ModelParams(Constants.ModelPath)
+            var @params = new ModelParams(Constants.GenerativeModelPath)
             {
                 // Llava models requires big context
                 ContextSize = 4096

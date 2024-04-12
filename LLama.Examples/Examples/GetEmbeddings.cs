@@ -9,7 +9,7 @@ namespace LLama.Examples.Examples
             string modelPath = UserSettings.GetModelPath();
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            var @params = new ModelParams(modelPath) { EmbeddingMode = true };
+            var @params = new ModelParams(modelPath) { Embeddings = true };
             using var weights = LLamaWeights.LoadFromFile(@params);
             var embedder = new LLamaEmbedder(weights, @params);
 

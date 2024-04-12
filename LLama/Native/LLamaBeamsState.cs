@@ -19,7 +19,7 @@ public struct LLamaBeamsState
     /// <summary>
     /// Number of elements in beam_views
     /// </summary>
-    private nint n_beams;
+    private nuint n_beams;
 
     /// <summary>
     /// Current max length of prefix tokens shared by all beams.
