@@ -375,23 +375,6 @@ namespace LLama.Native
         public static extern LLamaPos llama_kv_cache_seq_pos_max(SafeLLamaContextHandle ctx, LLamaSeqId seq);
 
         /// <summary>
-        /// Defragment the KV cache. This will be applied:
-        ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_cache_update()
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern LLamaPos llama_kv_cache_defrag(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Apply the KV cache updates (such as K-shifts, defragmentation, etc.)
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
-
-        /// <summary>
         /// Allocates a batch of tokens on the heap
         /// Each token can be assigned up to n_seq_max sequence ids
         /// The batch has to be freed with llama_batch_free()

@@ -264,6 +264,23 @@ namespace LLama.Native
         /// </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe nuint llama_state_seq_set_data(SafeLLamaContextHandle ctx, byte* src, LLamaSeqId dest_seq_id);
+
+        /// <summary>
+        /// Defragment the KV cache. This will be applied:
+        ///   - lazily on next llama_decode()
+        ///   - explicitly with llama_kv_cache_update()
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_kv_cache_defrag(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Apply the KV cache updates (such as K-shifts, defragmentation, etc.)
+        /// </summary>
+        /// <param name="ctx"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
         #endregion
 
         /// <summary>
@@ -487,6 +504,25 @@ namespace LLama.Native
         }
 
         #region KV Cache Management
+        /// <summary>
+        /// Apply KV cache updates (such as K-shifts, defragmentation, etc.)
+        /// </summary>
+        public void KvCacheUpdate()
+        {
+            llama_kv_cache_update(this);
+        }
+
+        /// <summary>
+        /// Defragment the KV cache. This will be applied:
+        ///   - lazily on next llama_decode()
+        ///   - explicitly with llama_kv_cache_update()
+        /// </summary>
+        /// <returns></returns>
+        public void KvCacheDefrag()
+        {
+            llama_kv_cache_defrag(this);
+        }
+
         /// <summary>
         /// Get a new KV cache view that can be used to debug the KV cache
         /// </summary>
