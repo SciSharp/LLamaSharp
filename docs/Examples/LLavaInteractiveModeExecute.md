@@ -2,9 +2,9 @@
 
 ```cs
 using System.Text.RegularExpressions;
-using LLama.Batched;
 using LLama.Common;
 using Spectre.Console;
+using LLama.Native;
 
 namespace LLama.Examples.Examples
 {
@@ -21,11 +21,8 @@ namespace LLama.Examples.Examples
 
             var prompt = $"{{{modelImage}}}\nUSER:\nProvide a full description of the image.\nASSISTANT:\n";
 
-            var parameters = new ModelParams(modelPath)
-            {
-                ContextSize = 4096,
-                Seed = 1337,
-            };
+            var parameters = new ModelParams(modelPath);
+
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
             
@@ -48,16 +45,16 @@ namespace LLama.Examples.Examples
                 var imageMatches = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Value);
                 var imageCount = imageMatches.Count();
                 var hasImages = imageCount > 0;
-                byte[][] imageBytes = null;
 
                 if (hasImages)
                 {
                     var imagePathsWithCurlyBraces = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Value);
-                    var imagePaths = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Groups[1].Value);
+                    var imagePaths = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Groups[1].Value).ToList();
 
+                    List<byte[]> imageBytes;
                     try
                     {
-                        imageBytes = imagePaths.Select(File.ReadAllBytes).ToArray();
+                        imageBytes = imagePaths.Select(File.ReadAllBytes).ToList();
                     }
                     catch (IOException exception)
                     {
@@ -70,15 +67,17 @@ namespace LLama.Examples.Examples
                         break;
                     }
 
+                    // Each prompt with images we clear cache
+                    // When the prompt contains images we clear KV_CACHE to restart conversation
+                    // See:
+                    // https://github.com/ggerganov/llama.cpp/discussions/3620
+                    ex.Context.NativeHandle.KvCacheRemove( LLamaSeqId.Zero, -1, -1 );
 
                     int index = 0;
                     foreach (var path in imagePathsWithCurlyBraces)
                     {
                         // First image replace to tag <image, the rest of the images delete the tag
-                        if (index++ == 0)
-                            prompt = prompt.Replace(path, "<image>");
-                        else
-                            prompt = prompt.Replace(path, "");
+                        prompt = prompt.Replace(path, index++ == 0 ? "<image>" : "");
                     }
 
                   
@@ -101,7 +100,10 @@ namespace LLama.Examples.Examples
 
                     // Initilize Images in executor
                     //
-                    ex.ImagePaths = imagePaths.ToList();
+                    foreach (var image in imagePaths)
+                    {
+                        ex.Images.Add(await File.ReadAllBytesAsync(image));
+                    }
                 }
 
                 Console.ForegroundColor = Color.White;
@@ -116,7 +118,7 @@ namespace LLama.Examples.Examples
                 
                 // let the user finish with exit
                 //
-                if (prompt.Equals("/exit", StringComparison.OrdinalIgnoreCase))
+                if (prompt != null && prompt.Equals("/exit", StringComparison.OrdinalIgnoreCase))
                     break;
 
             }
