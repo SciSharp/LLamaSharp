@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using LLama.Exceptions;
 using LLama.Extensions;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
+
 
 namespace LLama
 {
@@ -136,20 +136,29 @@ namespace LLama
                     text += "\n";
                 }
 
-                var line_inp = Context.Tokenize(text, false);
-                _embed_inps.AddRange(line_inp);
-                args.RemainedTokens -= line_inp.Length;
+                if (!this.IsMultiModal)
+                {
+                    var line_inp = Context.Tokenize(text, false);
+                    _embed_inps.AddRange(line_inp);
+                    args.RemainedTokens -= line_inp.Length;
+                }
+                else
+                {
+                    PreprocessLlava(text, args, false);
+                }
             }
 
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
         private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true )
         {
             int usedTokens = 0;
+            
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
-            if (_imageInPrompt && ClipModel != null)
+            if (_imageInPrompt && IsMultiModal )
             {
                 foreach (var image in Images)
                 {
@@ -170,7 +179,16 @@ namespace LLama
             }
             else
             {
-                _embed_inps = Context.Tokenize(text, true).ToList();
+                if (addBos)
+                {
+                    _embed_inps = Context.Tokenize(text, true).ToList();
+                }
+                else
+                {
+                    var line_inp = Context.Tokenize(text, false);
+                    _embed_inps.AddRange(line_inp);
+                    args.RemainedTokens -= line_inp.Length;                    
+                }
             }
             return Task.CompletedTask;
         }
@@ -239,6 +257,7 @@ namespace LLama
 
                     _EmbedImagePosition = -1;
                     _imageEmbedHandles.Clear();
+                    Images.Clear();
                 }
                 else
                 {

@@ -3,6 +3,7 @@ using LLama.Batched;
 using LLama.Common;
 using Spectre.Console;
 using LLama.Abstractions;
+using LLama.Native;
 
 namespace LLama.Examples.Examples
 {
@@ -21,9 +22,6 @@ namespace LLama.Examples.Examples
 
             var parameters = new ModelParams(modelPath)
             {
-                ContextSize = 4096,
-                Seed = 1337,
-                GpuLayerCount = 10
             };
             using var model = LLamaWeights.LoadFromFile(parameters);
             using var context = model.CreateContext(parameters);
@@ -69,6 +67,9 @@ namespace LLama.Examples.Examples
                         break;
                     }
 
+                    // Each prompt with images we clear cache
+                    // When the prompt contains images we clear KV_CACHE to restart conversation
+                    ex.Context.NativeHandle.KvCacheRemove( LLamaSeqId.Zero, -1, -1 );
 
                     int index = 0;
                     foreach (var path in imagePathsWithCurlyBraces)
