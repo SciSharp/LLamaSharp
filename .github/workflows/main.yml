@@ -20,10 +20,6 @@ jobs:
           - build: linux-release
             os: ubuntu-latest
             config: release
-          # Disabled MacOS CI (2024-04-14) because it's been unstable for months. Try enabling this again in 6 months to see if it's working now.
-          #- build: osx-release
-          #  os: macos-latest
-          #  config: release
           - build: windows-release
             os: windows-2019
             config: release
