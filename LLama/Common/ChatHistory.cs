@@ -35,39 +35,65 @@ namespace LLama.Common
     /// <summary>
     /// The chat history class
     /// </summary>
-    public class ChatHistory
+    public class Message
     {
-        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+        /// <summary>
+        /// Role of the message author, e.g. user/assistant/system
+        /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("author_role")]
+        public AuthorRole AuthorRole { get; set; }
 
         /// <summary>
-        /// Chat message representation
+        /// Message content
         /// </summary>
-        public class Message
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Create a new instance
+        /// </summary>
+        /// <param name="authorRole">Role of message author</param>
+        /// <param name="content">Message content</param>
+        public Message(AuthorRole authorRole, string content)
         {
-            /// <summary>
-            /// Role of the message author, e.g. user/assistant/system
-            /// </summary>
-            [JsonConverter(typeof(JsonStringEnumConverter))]
-            [JsonPropertyName("author_role")]
-            public AuthorRole AuthorRole { get; set; }
-
-            /// <summary>
-            /// Message content
-            /// </summary>
-            [JsonPropertyName("content")]
-            public string Content { get; set; }
-
-            /// <summary>
-            /// Create a new instance
-            /// </summary>
-            /// <param name="authorRole">Role of message author</param>
-            /// <param name="content">Message content</param>
-            public Message(AuthorRole authorRole, string content)
-            {
-                this.AuthorRole = authorRole;
-                this.Content = content;
-            }
+            this.AuthorRole = authorRole;
+            this.Content = content;
         }
+    }
+
+    /// <summary>
+    /// Interface for chat history
+    /// </summary>
+    public interface IChatHistory
+    {
+        /// <summary>
+        /// List of messages in the chat
+        /// </summary>
+        List<Message> Messages { get; set; }
+
+        /// <summary>
+        /// Add a message to the chat history
+        /// </summary>
+        /// <param name="authorRole">Role of the message author</param>
+        /// <param name="content">Message content</param>
+        void AddMessage(AuthorRole authorRole, string content);
+
+        /// <summary>
+        /// Serialize the chat history to JSON
+        /// </summary>
+        /// <returns></returns>
+        string ToJson();
+    }
+
+
+    // copy from semantic-kernel
+    /// <summary>
+    /// The chat history class
+    /// </summary>
+    public class ChatHistory : IChatHistory
+    {
+        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
         /// <summary>
         /// List of messages in the chat

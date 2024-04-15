@@ -20,7 +20,7 @@ public class ChatSessionWithRestart
 
         var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
         ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
-        ChatSession prototypeSession = 
+        ChatSession prototypeSession =
             await ChatSession.InitializeSessionFromHistoryAsync(executor, chatHistory);
         prototypeSession.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
             new string[] { "User:", "Assistant:" },
@@ -50,7 +50,7 @@ public class ChatSessionWithRestart
         while (userInput != "exit")
         {
             // Load the session state from the reset state
-            if(userInput == "reset")
+            if (userInput == "reset")
             {
                 session.LoadSession(resetState);
                 Console.WriteLine($"Reset to history:\n{session.HistoryTransform.HistoryToText(session.History)}");
@@ -75,10 +75,10 @@ public class ChatSessionWithRestart
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Provide assistant input: ");
-                
+
                 Console.ForegroundColor = ConsoleColor.Green;
                 string assistantInputOverride = Console.ReadLine() ?? "";
-                
+
                 await session.AddAndProcessUserMessage(userInputOverride);
                 await session.AddAndProcessAssistantMessage(assistantInputOverride);
 
@@ -90,7 +90,7 @@ public class ChatSessionWithRestart
                 await foreach (
                     var text
                     in session.ChatAsync(
-                        new ChatHistory.Message(AuthorRole.User, userInput),
+                        new Message(AuthorRole.User, userInput),
                         inferenceParams))
                 {
                     Console.ForegroundColor = ConsoleColor.White;

@@ -105,7 +105,7 @@ public class ChatChineseGB2312
                 await foreach (
                     var text
                     in session.ChatAsync(
-                        new ChatHistory.Message(AuthorRole.User, userInput),
+                        new Message(AuthorRole.User, userInput),
                         inferenceParams))
                 {
                     Console.ForegroundColor = ConsoleColor.White;

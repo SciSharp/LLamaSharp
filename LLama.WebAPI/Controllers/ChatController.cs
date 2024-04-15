@@ -43,7 +43,7 @@ namespace LLama.WebAPI.Controllers
         {
             var history = new ChatHistory();
 
-            var messages = input.Messages.Select(m => new ChatHistory.Message(Enum.Parse<AuthorRole>(m.Role), m.Content));
+            var messages = input.Messages.Select(m => new Message(Enum.Parse<AuthorRole>(m.Role), m.Content));
 
             history.Messages.AddRange(messages);
 

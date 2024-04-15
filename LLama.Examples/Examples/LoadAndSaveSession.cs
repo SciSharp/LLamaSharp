@@ -33,7 +33,7 @@ namespace LLama.Examples.Examples
                 await foreach (
                     var text
                     in session.ChatAsync(
-                        new ChatHistory.Message(AuthorRole.User, prompt),
+                        new Message(AuthorRole.User, prompt),
                         new InferenceParams()
                         {
                             Temperature = 0.6f,
