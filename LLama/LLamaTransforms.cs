@@ -18,7 +18,7 @@ namespace LLama
         /// Uses plain text with the following format:
         /// [Author]: [Message]
         /// </summary>
-        public class DefaultHistoryTransform<T> : IHistoryTransform where T : IChatHistory
+        public class DefaultHistoryTransform : IHistoryTransform
         {
             private const string defaultUserName = "User";
             private const string defaultAssistantName = "Assistant";
@@ -58,7 +58,7 @@ namespace LLama
             /// <inheritdoc />
             public IHistoryTransform Clone()
             {
-                return (IHistoryTransform)new DefaultHistoryTransform<T>(_userName, _assistantName, _systemName, _unknownName, _isInstructMode);
+                return new DefaultHistoryTransform(_userName, _assistantName, _systemName, _unknownName, _isInstructMode);
             }
 
             /// <inheritdoc />
@@ -88,9 +88,9 @@ namespace LLama
             }
 
             /// <inheritdoc />
-            public virtual IChatHistory TextToHistory(AuthorRole role, string text)
+            public virtual IChatHistory TextToHistory(AuthorRole role, string text, Type type)
             {
-                T history = Activator.CreateInstance<T>();
+                IChatHistory history = (IChatHistory)(Activator.CreateInstance(type) ?? new ChatHistory());
                 history.AddMessage(role, TrimNamesFromText(text, role));
                 return history;
             }

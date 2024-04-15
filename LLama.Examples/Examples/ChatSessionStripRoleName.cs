@@ -21,7 +21,7 @@ public class ChatSessionStripRoleName
         var executor = new InteractiveExecutor(context);
 
         var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-        IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson) ?? new ChatHistory();
+        IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson, typeof(ChatHistory)) ?? new ChatHistory();
 
         ChatSession session = new(executor, chatHistory);
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(

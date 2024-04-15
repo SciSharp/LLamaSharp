@@ -28,7 +28,7 @@ public class StatefulChatService : IDisposable
         _context = new LLamaContext(weights, @params);
 
         _session = new ChatSession(new InteractiveExecutor(_context));
-        _session.History.AddMessage(Common.AuthorRole.System, SystemPrompt);
+        _session.SessionChatHistory.AddMessage(Common.AuthorRole.System, SystemPrompt);
     }
 
     public void Dispose()

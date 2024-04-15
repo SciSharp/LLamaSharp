@@ -19,7 +19,7 @@ public class ChatSessionWithRestart
         var executor = new InteractiveExecutor(context);
 
         var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-        IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson) ?? new ChatHistory();
+        IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson, typeof(ChatHistory)) ?? new ChatHistory();
         ChatSession prototypeSession =
             await ChatSession.InitializeSessionFromHistoryAsync(executor, chatHistory);
         prototypeSession.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
@@ -53,7 +53,7 @@ public class ChatSessionWithRestart
             if (userInput == "reset")
             {
                 session.LoadSession(resetState);
-                Console.WriteLine($"Reset to history:\n{session.HistoryTransform.HistoryToText(session.History)}");
+                Console.WriteLine($"Reset to history:\n{session.HistoryTransform.HistoryToText(session.SessionChatHistory)}");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Session reset.");
             }

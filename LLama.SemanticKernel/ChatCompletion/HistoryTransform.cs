@@ -7,7 +7,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 /// <summary>
 /// Default HistoryTransform Patch
 /// </summary>
-public class HistoryTransform : DefaultHistoryTransform<ChatHistory>
+public class HistoryTransform : DefaultHistoryTransform
 {
     /// <inheritdoc/>
     public string HistoryToText(global::LLama.Common.ChatHistory history)

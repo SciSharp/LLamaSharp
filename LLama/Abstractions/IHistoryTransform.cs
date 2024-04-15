@@ -1,4 +1,5 @@
 ﻿using LLama.Common;
+using System;
 using System.Text.Json.Serialization;
 
 namespace LLama.Abstractions
@@ -21,8 +22,9 @@ namespace LLama.Abstractions
         /// </summary>
         /// <param name="role">The role for the author.</param>
         /// <param name="text">The chat history as plain text.</param>
+        /// <param name="type">The type of the chat history.</param>
         /// <returns>The updated history.</returns>
-        IChatHistory TextToHistory(AuthorRole role, string text);
+        IChatHistory TextToHistory(AuthorRole role, string text, Type type);
 
         /// <summary>
         /// Copy the transform.

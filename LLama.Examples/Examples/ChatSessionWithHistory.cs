@@ -31,7 +31,7 @@ public class ChatSessionWithHistory
         else
         {
             var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-            IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson) ?? new ChatHistory();
+            IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson, typeof(ChatHistory)) ?? new ChatHistory();
 
             session = new ChatSession(executor, chatHistory);
         }

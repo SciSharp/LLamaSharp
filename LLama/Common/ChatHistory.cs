@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -140,10 +141,11 @@ namespace LLama.Common
         /// Deserialize a chat history from JSON
         /// </summary>
         /// <param name="json"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        public static IChatHistory? FromJson(string json)
+        public static IChatHistory? FromJson(string json, Type type)
         {
-            return JsonSerializer.Deserialize<IChatHistory>(json);
+            return JsonSerializer.Deserialize(json, type) as IChatHistory;
         }
     }
 }

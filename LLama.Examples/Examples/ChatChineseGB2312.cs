@@ -49,13 +49,13 @@ public class ChatChineseGB2312
         else
         {
             var chatHistoryJson = File.ReadAllText("Assets/chat-with-kunkun-chinese.json");
-            IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson) ?? new ChatHistory();
+            IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson, typeof(ChatHistory)) ?? new ChatHistory();
 
             session = new ChatSession(executor, chatHistory);
         }
 
         session
-            .WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform<ChatHistory>("用户", "坤坤"));
+            .WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform("用户", "坤坤"));
 
         InferenceParams inferenceParams = new InferenceParams()
         {
