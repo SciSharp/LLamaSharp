@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using LLama.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace LLama
         /// Uses plain text with the following format:
         /// [Author]: [Message]
         /// </summary>
-        public class DefaultHistoryTransform : IHistoryTransform
+        public class DefaultHistoryTransform<T> : IHistoryTransform where T : IChatHistory
         {
             private const string defaultUserName = "User";
             private const string defaultAssistantName = "Assistant";
@@ -44,7 +45,7 @@ namespace LLama
             /// <param name="systemName"></param>
             /// <param name="unknownName"></param>
             /// <param name="isInstructMode"></param>
-            public DefaultHistoryTransform(string? userName = null, string? assistantName = null, 
+            public DefaultHistoryTransform(string? userName = null, string? assistantName = null,
                 string? systemName = null, string? unknownName = null, bool isInstructMode = false)
             {
                 _userName = userName ?? defaultUserName;
@@ -57,11 +58,11 @@ namespace LLama
             /// <inheritdoc />
             public IHistoryTransform Clone()
             {
-                return new DefaultHistoryTransform(_userName, _assistantName, _systemName, _unknownName, _isInstructMode);
+                return (IHistoryTransform)new DefaultHistoryTransform<T>(_userName, _assistantName, _systemName, _unknownName, _isInstructMode);
             }
 
             /// <inheritdoc />
-            public virtual string HistoryToText(ChatHistory history)
+            public virtual string HistoryToText(IChatHistory history)
             {
                 StringBuilder sb = new();
                 foreach (var message in history.Messages)
@@ -87,9 +88,9 @@ namespace LLama
             }
 
             /// <inheritdoc />
-            public virtual ChatHistory TextToHistory(AuthorRole role, string text)
+            public virtual IChatHistory TextToHistory(AuthorRole role, string text)
             {
-                ChatHistory history = new ChatHistory();
+                T history = Activator.CreateInstance<T>();
                 history.AddMessage(role, TrimNamesFromText(text, role));
                 return history;
             }

@@ -19,7 +19,7 @@ public class ChatSessionWithRoleName
         var executor = new InteractiveExecutor(context);
 
         var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-        ChatHistory chatHistory = ChatHistorySerializer<ChatHistory>.FromJson(chatHistoryJson) ?? new ChatHistory();
+        IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson) ?? new ChatHistory();
 
         ChatSession session = new(executor, chatHistory);
 

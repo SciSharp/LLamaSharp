@@ -123,7 +123,7 @@ namespace LLama.Common
     /// <summary>
     /// Serializer for chat history
     /// </summary>
-    public class ChatHistorySerializer<T> where T : IChatHistory
+    public class ChatHistorySerializer
     {
         private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
@@ -131,7 +131,7 @@ namespace LLama.Common
         /// Serialize the chat history to JSON
         /// </summary>
         /// <returns></returns>
-        public static string ToJson(T chatHistory)
+        public static string ToJson(IChatHistory chatHistory)
         {
             return JsonSerializer.Serialize(chatHistory, _jsonOptions);
         }
@@ -141,9 +141,9 @@ namespace LLama.Common
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
-        public static T? FromJson(string json)
+        public static IChatHistory? FromJson(string json)
         {
-            return JsonSerializer.Deserialize<T>(json);
+            return JsonSerializer.Deserialize<IChatHistory>(json);
         }
     }
 }
