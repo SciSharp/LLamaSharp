@@ -216,7 +216,7 @@ namespace LLama
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
                     try
                     {
-                        writtenBytes = (long)NativeHandle.GetState(ptr, (ulong)estimatedStateSize);
+                        writtenBytes = (long)NativeHandle.GetState(ptr, (ulong)estimatedStateSize, sequence);
                     }
                     finally
                     {
