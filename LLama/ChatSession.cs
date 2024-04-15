@@ -686,7 +686,7 @@ public record SessionState
         File.WriteAllText(executorStateFilepath, JsonSerializer.Serialize(ExecutorState));
 
         string historyFilepath = Path.Combine(path, ChatSession.HISTORY_STATE_FILENAME);
-        File.WriteAllText(historyFilepath, new ChatHistory(History).ToJson());
+        File.WriteAllText(historyFilepath, ChatHistorySerializer<ChatHistory>.ToJson(new ChatHistory(History)));
 
         string inputTransformFilepath = Path.Combine(path, ChatSession.INPUT_TRANSFORM_FILENAME);
         File.WriteAllText(inputTransformFilepath, JsonSerializer.Serialize(InputTransformPipeline));
@@ -726,7 +726,7 @@ public record SessionState
 
         string historyFilepath = Path.Combine(path, ChatSession.HISTORY_STATE_FILENAME);
         string historyJson = File.ReadAllText(historyFilepath);
-        var history = ChatHistory.FromJson(historyJson)
+        var history = ChatHistorySerializer<ChatHistory>.FromJson(historyJson)
             ?? throw new ArgumentException("History file is invalid", nameof(path));
 
         string inputTransformFilepath = Path.Combine(path, ChatSession.INPUT_TRANSFORM_FILENAME);

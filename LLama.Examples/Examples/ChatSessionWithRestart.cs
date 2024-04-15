@@ -19,7 +19,7 @@ public class ChatSessionWithRestart
         var executor = new InteractiveExecutor(context);
 
         var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-        ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
+        ChatHistory chatHistory = ChatHistorySerializer<ChatHistory>.FromJson(chatHistoryJson) ?? new ChatHistory();
         ChatSession prototypeSession =
             await ChatSession.InitializeSessionFromHistoryAsync(executor, chatHistory);
         prototypeSession.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(

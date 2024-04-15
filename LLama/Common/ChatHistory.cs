@@ -33,7 +33,7 @@ namespace LLama.Common
 
     // copy from semantic-kernel
     /// <summary>
-    /// The chat history class
+    /// The message class
     /// </summary>
     public class Message
     {
@@ -78,14 +78,7 @@ namespace LLama.Common
         /// <param name="authorRole">Role of the message author</param>
         /// <param name="content">Message content</param>
         void AddMessage(AuthorRole authorRole, string content);
-
-        /// <summary>
-        /// Serialize the chat history to JSON
-        /// </summary>
-        /// <returns></returns>
-        string ToJson();
     }
-
 
     // copy from semantic-kernel
     /// <summary>
@@ -125,14 +118,22 @@ namespace LLama.Common
         {
             this.Messages.Add(new Message(authorRole, content));
         }
+    }
+
+    /// <summary>
+    /// Serializer for chat history
+    /// </summary>
+    public class ChatHistorySerializer<T> where T : IChatHistory
+    {
+        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
         /// <summary>
         /// Serialize the chat history to JSON
         /// </summary>
         /// <returns></returns>
-        public string ToJson()
+        public static string ToJson(T chatHistory)
         {
-            return JsonSerializer.Serialize(this, _jsonOptions);
+            return JsonSerializer.Serialize(chatHistory, _jsonOptions);
         }
 
         /// <summary>
@@ -140,9 +141,9 @@ namespace LLama.Common
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
-        public static ChatHistory? FromJson(string json)
+        public static T? FromJson(string json)
         {
-            return JsonSerializer.Deserialize<ChatHistory>(json);
+            return JsonSerializer.Deserialize<T>(json);
         }
     }
 }

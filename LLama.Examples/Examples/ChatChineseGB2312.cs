@@ -49,7 +49,7 @@ public class ChatChineseGB2312
         else
         {
             var chatHistoryJson = File.ReadAllText("Assets/chat-with-kunkun-chinese.json");
-            ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
+            ChatHistory chatHistory = ChatHistorySerializer<ChatHistory>.FromJson(chatHistoryJson) ?? new ChatHistory();
 
             session = new ChatSession(executor, chatHistory);
         }
