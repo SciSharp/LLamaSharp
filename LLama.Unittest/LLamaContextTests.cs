@@ -11,7 +11,7 @@ namespace LLama.Unittest
 
         public LLamaContextTests()
         {
-            var @params = new ModelParams(Constants.ModelPath)
+            var @params = new ModelParams(Constants.GenerativeModelPath)
             {
                 ContextSize = 768,
             };

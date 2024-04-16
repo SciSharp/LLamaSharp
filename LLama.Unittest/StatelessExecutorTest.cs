@@ -15,7 +15,7 @@ namespace LLama.Unittest
         public StatelessExecutorTest(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _params = new ModelParams(Constants.ModelPath)
+            _params = new ModelParams(Constants.GenerativeModelPath)
             {
                 ContextSize = 60,
                 Seed = 1754,

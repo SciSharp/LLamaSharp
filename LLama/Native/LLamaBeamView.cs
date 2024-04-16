@@ -10,7 +10,7 @@ namespace LLama.Native;
 public struct LLamaBeamView
 {
     private unsafe LLamaToken* tokens;
-    private nint n_tokens;
+    private nuint n_tokens;
 
     /// <summary>
     /// Cumulative beam probability (renormalized relative to all beams)

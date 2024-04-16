@@ -163,7 +163,7 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == NativeApi.llama_token_eos(Context.NativeHandle.ModelHandle))
+            if (_embeds.Count > 0 && _embeds.Last() == Context.NativeHandle.ModelHandle.Tokens.EOS)
             {
                 args.WaitForInput = true;
             }

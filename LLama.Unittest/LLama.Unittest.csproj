@@ -31,6 +31,9 @@
     <DownloadFile SourceUrl="https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q3_K_S.gguf" DestinationFolder="Models" DestinationFileName="llama-2-7b-chat.Q3_K_S.gguf" SkipUnchangedFiles="true"></DownloadFile>
     <DownloadFile SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q3_K_XS.gguf" DestinationFolder="Models" DestinationFileName="llava-v1.6-mistral-7b.Q3_K_XS.gguf" SkipUnchangedFiles="true"></DownloadFile>
     <DownloadFile SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/mmproj-model-f16.gguf" DestinationFolder="Models" DestinationFileName="mmproj-model-f16.gguf" SkipUnchangedFiles="true"></DownloadFile>
+    <DownloadFile SourceUrl="https://huggingface.co/leliuga/all-MiniLM-L12-v2-GGUF/resolve/main/all-MiniLM-L12-v2.Q8_0.gguf" DestinationFolder="Models" DestinationFileName="all-MiniLM-L12-v2.Q8_0.gguf" SkipUnchangedFiles="true"></DownloadFile>
+
+    
   </Target>
 
   <ItemGroup>
@@ -43,6 +46,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Models\all-MiniLM-L12-v2.Q8_0.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\llama-2-7b-chat.Q3_K_S.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

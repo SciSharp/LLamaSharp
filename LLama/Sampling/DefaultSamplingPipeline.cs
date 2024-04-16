@@ -133,18 +133,21 @@ public sealed class DefaultSamplingPipeline
 
     private static (int, float) GetNewlineLogit(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates)
     {
-        var nlToken = NativeApi.llama_token_nl(ctx.ModelHandle);
+        var nlToken = ctx.ModelHandle.Tokens.Newline;
 
-        // Try using the ID as an index
-        if (candidates.data.Span[(int)nlToken].id == nlToken)
-            return ((int)nlToken, candidates.data.Span[(int)nlToken].logit);
-        
-        // Exhaustive search
-        var span = candidates.data.Span;
-        for (var i = 0; i < span.Length; i++)
+        if (nlToken.HasValue)
         {
-            if (span[i].id == nlToken)
-                return (i, span[i].logit);
+            // Try using the ID as an index
+            if (candidates.data.Span[(int)nlToken].id == nlToken)
+                return ((int)nlToken, candidates.data.Span[(int)nlToken].logit);
+
+            // Exhaustive search
+            var span = candidates.data.Span;
+            for (var i = 0; i < span.Length; i++)
+            {
+                if (span[i].id == nlToken)
+                    return (i, span[i].logit);
+            }
         }
 
         return (-1, 0);
@@ -152,7 +155,9 @@ public sealed class DefaultSamplingPipeline
 
     private static void SetNewlineLogit(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, int indexHint, float logit)
     {
-        var nlToken = NativeApi.llama_token_nl(ctx.ModelHandle);
+        var nlToken = ctx.ModelHandle.Tokens.Newline;
+        if (!nlToken.HasValue)
+            return;
 
         // Try checking the index where we found it last time. It might not be there if `RepetitionPenalty` changed order
         if (indexHint >= 0 && candidates.data.Span[indexHint].id == nlToken)

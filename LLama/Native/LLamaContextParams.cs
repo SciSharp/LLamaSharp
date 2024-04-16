@@ -28,9 +28,19 @@ namespace LLama.Native
         public uint n_ctx;
 
         /// <summary>
-        /// prompt processing batch size
+        /// logical maximum batch size that can be submitted to llama_decode
         /// </summary>
         public uint n_batch;
+
+        /// <summary>
+        /// physical maximum batch size
+        /// </summary>
+        public uint n_ubatch;
+
+        /// <summary>
+        /// max number of sequences (i.e. distinct states for recurrent models)
+        /// </summary>
+        public uint n_seq_max;
 
         /// <summary>
         /// number of threads to use for generation
@@ -45,7 +55,12 @@ namespace LLama.Native
         /// <summary>
         /// RoPE scaling type, from `enum llama_rope_scaling_type` 
         /// </summary>
-        public RopeScalingType rope_scaling_type;        
+        public RopeScalingType rope_scaling_type;
+
+        /// <summary>
+        /// whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+        /// </summary>
+        public LLamaPoolingType llama_pooling_type;
         
         /// <summary>
         /// RoPE base frequency, 0 = from model
@@ -87,11 +102,13 @@ namespace LLama.Native
         /// </summary>
         public float defrag_threshold;
 
+        //todo: implement cb_eval callback support
         /// <summary>
         /// ggml_backend_sched_eval_callback
         /// </summary>
         public IntPtr cb_eval;
 
+        //todo: implement cb_eval callback support
         /// <summary>
         /// User data passed into cb_eval
         /// </summary>
@@ -113,14 +130,14 @@ namespace LLama.Native
         private sbyte _logits_all;
 
         /// <summary>
-        /// embedding mode only
+        /// if true, extract embeddings (together with logits)
         /// </summary>
-        public bool embedding
+        public bool embeddings
         { 
-            readonly get => Convert.ToBoolean(_embedding);
-            set => _embedding = Convert.ToSByte(value);
+            readonly get => Convert.ToBoolean(_embeddings);
+            set => _embeddings = Convert.ToSByte(value);
         }
-        private sbyte _embedding;
+        private sbyte _embeddings;
 
         /// <summary>
         /// whether to offload the KQV ops (including the KV cache) to GPU
@@ -132,15 +149,29 @@ namespace LLama.Native
         }
         private sbyte _offload_kqv;
 
+        //todo: implement abort callback support
         /// <summary>
-        /// Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+        /// ggml_abort_callback
         /// </summary>
-        public bool do_pooling
+        public IntPtr abort_callback;
+
+        //todo: implement abort callback support
+        /// <summary>
+        /// User data passed into abort_callback
+        /// </summary>
+        public IntPtr abort_callback_user_data;
+
+        /// <summary>
+        /// Get the default LLamaContextParams
+        /// </summary>
+        /// <returns></returns>
+        public static LLamaContextParams Default()
         {
-            readonly get => Convert.ToBoolean(_do_pooling);
-            set => _do_pooling = Convert.ToSByte(value);
+            return llama_context_default_params();
+
+            [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+            static extern LLamaContextParams llama_context_default_params();
         }
-        private sbyte _do_pooling;
     }
 }
 

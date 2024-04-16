@@ -135,7 +135,7 @@ namespace LLama
             {
                 _logger?.LogInformation($"[LLamaExecutor] Attempting to load saved session from {filename}");
                 var session_tokens = new LLamaToken[Context.ContextSize];
-                if (!NativeApi.llama_load_session_file(Context.NativeHandle, _pathSession, session_tokens, (ulong)Context.ContextSize, out var n_token_count_out))
+                if (!NativeApi.llama_state_load_file(Context.NativeHandle, _pathSession, session_tokens, (ulong)Context.ContextSize, out var n_token_count_out))
                 {
                     _logger?.LogError($"[LLamaExecutor] Failed to load session file {filename}");
                     throw new RuntimeError($"Failed to load session file {_pathSession}");
@@ -183,7 +183,7 @@ namespace LLama
         public void SaveSessionFile(string filename)
         {
             var session_token_array = _session_tokens.ToArray();
-            NativeApi.llama_save_session_file(Context.NativeHandle, filename, session_token_array, (ulong)session_token_array.Length);
+            NativeApi.llama_state_save_file(Context.NativeHandle, filename, session_token_array, (ulong)session_token_array.Length);
         }
 
         /// <summary>
