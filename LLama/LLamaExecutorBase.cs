@@ -79,7 +79,7 @@ namespace LLama
         public LLavaWeights? ClipModel { get;  }
 
         /// <inheritdoc />
-        public List<byte[]> Images { get; set; }
+        public List<byte[]> Images { get; }
 
         /// <summary>
         /// Current "mu" value for mirostat sampling
