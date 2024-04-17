@@ -15,11 +15,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [linux-release, windows-release]
+        build: [linux-release, windows-release, osx-release]
         include:
           - build: linux-release
             os: ubuntu-latest
             config: release
+          - build: osx-release  
+            os: macos-14 # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
+            config: release            
           - build: windows-release
             os: windows-2019
             config: release
