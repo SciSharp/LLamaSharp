@@ -17,7 +17,8 @@ namespace LLama.Unittest
             var @params = new ModelParams(Constants.GenerativeModelPath)
             {
                 // Llava models requires big context
-                ContextSize = 4096
+                ContextSize = 4096,
+                GpuLayerCount = 0                
             };
             _llamaWeights = LLamaWeights.LoadFromFile(@params);
             _lLavaWeights = LLavaWeights.LoadFromFile(Constants.LLavaMmpPath);
