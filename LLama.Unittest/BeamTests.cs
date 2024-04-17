@@ -28,7 +28,6 @@ public sealed class BeamTests
         _model.Dispose();
     }
 
-    //[Fact(Skip = "Very very slow in CI")]
     [Fact]
     public void BasicBeam()
     {
