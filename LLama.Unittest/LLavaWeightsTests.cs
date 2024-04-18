@@ -18,7 +18,7 @@ namespace LLama.Unittest
             {
                 // Llava models requires big context
                 ContextSize = 4096,
-                GpuLayerCount = 0                
+                GpuLayerCount = Constants.CIGpuLayerCount,                
             };
             _llamaWeights = LLamaWeights.LoadFromFile(@params);
             _lLavaWeights = LLavaWeights.LoadFromFile(Constants.LLavaMmpPath);

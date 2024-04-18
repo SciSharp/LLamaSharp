@@ -15,7 +15,7 @@ public sealed class TokenTests
         _params = new ModelParams(Constants.GenerativeModelPath)
         {
             ContextSize = 2048,
-            GpuLayerCount = 0,
+            GpuLayerCount = Constants.CIGpuLayerCount,
         };
         _model = LLamaWeights.LoadFromFile(_params);
     }

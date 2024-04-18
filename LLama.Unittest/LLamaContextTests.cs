@@ -14,7 +14,7 @@ namespace LLama.Unittest
             var @params = new ModelParams(Constants.GenerativeModelPath)
             {
                 ContextSize = 768,
-                GpuLayerCount = 0
+                GpuLayerCount = Constants.CIGpuLayerCount,
             };
             _weights = LLamaWeights.LoadFromFile(@params);
             _context = _weights.CreateContext(@params);
