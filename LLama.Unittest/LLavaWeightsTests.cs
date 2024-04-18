@@ -33,7 +33,7 @@ namespace LLama.Unittest
             _lLavaWeights.Dispose();
         }
       
-        [IgnoreOnCiFact]
+        [Fact,Trait("Category", "NoCI")]
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
@@ -41,7 +41,7 @@ namespace LLama.Unittest
             Assert.True( _lLavaWeights.EvalImageEmbed( _context, emb, ref n_past ) );
         }        
         
-        [IgnoreOnCiFact]
+        [Fact,Trait("Category", "NoCI")]
         public void EmbedImageAsBinary()
         {
             int n_past = 0;
