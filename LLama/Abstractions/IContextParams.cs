@@ -14,9 +14,19 @@ public interface IContextParams
     uint? ContextSize { get; }
 
     /// <summary>
-    /// batch size for prompt processing (must be >=32 to use BLAS) (n_batch)
+    /// maximum batch size that can be submitted at once (must be >=32 to use BLAS) (n_batch)
     /// </summary>
     uint BatchSize { get; }
+
+    /// <summary>
+    /// Physical batch size
+    /// </summary>
+    uint UBatchSize { get; }
+
+    /// <summary>
+    /// max number of sequences (i.e. distinct states for recurrent models)
+    /// </summary>
+    uint SeqMax { get; }
 
     /// <summary>
     /// Seed for the random number generator (seed)
@@ -24,10 +34,9 @@ public interface IContextParams
     uint Seed { get; }
 
     /// <summary>
-    /// Whether to use embedding mode. (embedding) Note that if this is set to true, 
-    /// The LLamaModel won't produce text response anymore.
+    /// If true, extract embeddings (together with logits).
     /// </summary>
-    bool EmbeddingMode { get; }
+    bool Embeddings { get; }
 
     /// <summary>
     /// RoPE base frequency (null to fetch from the model)
@@ -105,7 +114,7 @@ public interface IContextParams
     float DefragThreshold { get; }
 
     /// <summary>
-    /// Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+    /// How to pool (sum) embedding results by sequence id (ignored if no pooling layer)
     /// </summary>
-    bool DoPooling { get; }
+    LLamaPoolingType PoolingType { get; }
 }

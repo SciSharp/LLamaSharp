@@ -28,9 +28,9 @@ public interface ILLamaExecutor
     public LLavaWeights? ClipModel { get;  }        
 
     /// <summary>
-    /// List of images: Image filename and path (jpeg images).
+    /// List of images: List of images in byte array format.
     /// </summary>
-    public List<string> ImagePaths { get; set; }
+    public List<byte[]> Images { get; }
 
 
     /// <summary>

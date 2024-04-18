@@ -20,7 +20,7 @@ namespace LLama.Examples.Examples
             var parameters = new ModelParams(modelPath)
             {
                 Seed = seed,
-                EmbeddingMode = true
+                Embeddings = true
             };
 
             using var model = LLamaWeights.LoadFromFile(parameters);

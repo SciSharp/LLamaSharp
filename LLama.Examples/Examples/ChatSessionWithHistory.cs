@@ -10,7 +10,6 @@ public class ChatSessionWithHistory
 
         var parameters = new ModelParams(modelPath)
         {
-            ContextSize = 1024,
             Seed = 1337,
             GpuLayerCount = 5
         };

@@ -29,8 +29,12 @@ namespace LLama.Web.Common
         /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
+        public uint SeqMax { get; }
+
         /// <inheritdoc />
         public uint Seed { get; set; } = 1686349486;
+
+        public bool Embeddings { get; }
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
@@ -57,7 +61,7 @@ namespace LLama.Web.Common
         public uint BatchSize { get; set; } = 512;
 
         /// <inheritdoc />
-        public bool EmbeddingMode { get; set; } = false;
+        public uint UBatchSize { get; set; } = 512;
 
         /// <inheritdoc />
         public TensorSplitsCollection TensorSplits { get; set; } = new();
@@ -108,6 +112,6 @@ namespace LLama.Web.Common
         public float DefragThreshold { get; set; }
 
         /// <inheritdoc />
-        public bool DoPooling { get; set; }
+        public LLamaPoolingType PoolingType { get; set; }
     }
 }

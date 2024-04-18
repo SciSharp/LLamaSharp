@@ -21,7 +21,7 @@ namespace LLama.Examples.Examples
             var bob = new InteractiveExecutor(bobCtx);
 
             // Initial alice prompt
-            var alicePrompt = "Transcript of a dialog, where the Alice interacts a person named Bob. Alice is friendly, kind, honest and good at writing.\nAlice: Hello";
+            var alicePrompt = "Transcript of a dialog, where the Alice interacts with a person named Bob. Alice is friendly, kind, honest and good at writing.\nAlice: Hello";
             var aliceResponse = await Prompt(alice, ConsoleColor.Green, alicePrompt, false, false);
 
             // Initial bob prompt

@@ -25,7 +25,7 @@ namespace LLama.Abstractions
         public LLavaWeights? ClipModel { get;  }
 
         /// <summary>
-        /// List of images: Image filen path, uri or image byte array. See ImageData.
+        /// List of images: List of images in byte array format.
         /// </summary>
         public List<byte[]> Images { get; }
 

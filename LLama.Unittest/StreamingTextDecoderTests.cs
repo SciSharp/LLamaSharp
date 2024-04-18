@@ -14,7 +14,7 @@ public class StreamingTextDecoderTests
     public StreamingTextDecoderTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        _params = new ModelParams(Constants.ModelPath);
+        _params = new ModelParams(Constants.GenerativeModelPath);
         _model = LLamaWeights.LoadFromFile(_params);
     }
 
