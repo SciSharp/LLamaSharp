@@ -10,21 +10,6 @@ public sealed class LLamaEmbedderTests
     public LLamaEmbedderTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-
-        var @params = new ModelParams(Constants.EmbeddingModelPath)
-        {
-            ContextSize = 4096,
-            Threads = 5,
-            Embeddings = true,
-            GpuLayerCount = Constants.CIGpuLayerCount,
-        };
-        using var weights = LLamaWeights.LoadFromFile(@params);
-        _embedder = new(weights, @params);
-    }
-
-    public void Dispose()
-    {
-        _embedder.Dispose();
     }
 
     private static float Dot(float[] a, float[] b)
