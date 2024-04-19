@@ -17,7 +17,8 @@ public sealed class BeamTests
         _testOutputHelper = testOutputHelper;
         _params = new ModelParams(Constants.GenerativeModelPath)
         {
-            ContextSize = 2048
+            ContextSize = 2048,
+            GpuLayerCount = Constants.CIGpuLayerCount,
         };
         _model = LLamaWeights.LoadFromFile(_params);
     }
@@ -27,7 +28,6 @@ public sealed class BeamTests
         _model.Dispose();
     }
 
-    //[Fact(Skip = "Very very slow in CI")]
     [Fact]
     public void BasicBeam()
     {

@@ -17,7 +17,8 @@ namespace LLama.Unittest
             _testOutputHelper = testOutputHelper;
             _params = new ModelParams(Constants.GenerativeModelPath)
             {
-                ContextSize = 2048
+                ContextSize = 2048,
+                GpuLayerCount = Constants.CIGpuLayerCount
             };
             _model = LLamaWeights.LoadFromFile(_params);
         }
