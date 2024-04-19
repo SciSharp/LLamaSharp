@@ -97,13 +97,9 @@ namespace LLama
 
         private float[] GetEmbeddingsArray()
         {
-            var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-            if (embeddings == null || embeddings.Length == 0)
-            {
-                embeddings = NativeApi.llama_get_embeddings_seq(Context.NativeHandle, LLamaSeqId.Zero);
-                if (embeddings == null || embeddings.Length == 0)
-                    return Array.Empty<float>();
-            }
+            var embeddings = NativeApi.llama_get_embeddings_seq(Context.NativeHandle, LLamaSeqId.Zero);
+            if (embeddings.Length == 0)
+                return Array.Empty<float>();
 
             return embeddings.ToArray();
         }
