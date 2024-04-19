@@ -14,7 +14,7 @@ namespace LLama.Unittest
         /// <summary>
         /// Calculate GpuLayer Count to use in UnitTest
         /// </summary>
-        /// <returns> Defaults to 20 in all the cases, except IOS release (to disable METAL on github CI)</returns>
+        /// <returns> Defaults to 20 in all the cases, except MacOS/OSX release (to disable METAL on github CI)</returns>
         public static int CIGpuLayerCount
         {
             get
