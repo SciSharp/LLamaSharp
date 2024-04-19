@@ -25,6 +25,7 @@ public sealed class LLamaEmbedderTests
             ContextSize = 8,
             Threads = 4,
             Embeddings = true,
+            GpuLayerCount = Constants.CIGpuLayerCount,
         };
         using var weights = LLamaWeights.LoadFromFile(@params);
         using var embedder = new LLamaEmbedder(weights, @params);
