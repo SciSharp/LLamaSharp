@@ -1,19 +1,16 @@
-﻿using LLama.Common;
-using LLama.Native;
+using LLama.Common;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace LLama.Unittest;
 
 public sealed class LLamaEmbedderTests
-    : IDisposable
 {
     private readonly ITestOutputHelper _testOutputHelper;
-    private readonly LLamaEmbedder _embedder;
 
     public LLamaEmbedderTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+
         var @params = new ModelParams(Constants.EmbeddingModelPath)
         {
             ContextSize = 4096,
@@ -36,17 +33,24 @@ public sealed class LLamaEmbedderTests
         return a.Zip(b, (x, y) => x * y).Sum();
     }
 
-
-    [Fact]
-    public async Task EmbedCompare()
+    private async Task CompareEmbeddings(string modelPath)
     {
-        var cat = await _embedder.GetEmbeddings("The cat is cute");
+        var @params = new ModelParams(modelPath)
+        {
+            ContextSize = 8,
+            Threads = 4,
+            Embeddings = true,
+        };
+        using var weights = LLamaWeights.LoadFromFile(@params);
+        using var embedder = new LLamaEmbedder(weights, @params);
+
+        var cat = await embedder.GetEmbeddings("The cat is cute");
         Assert.DoesNotContain(float.NaN, cat);
 
-        var kitten = await _embedder.GetEmbeddings("The kitten is kawaii");
+        var kitten = await embedder.GetEmbeddings("The kitten is kawaii");
         Assert.DoesNotContain(float.NaN, kitten);
 
-        var spoon = await _embedder.GetEmbeddings("The spoon is not real");
+        var spoon = await embedder.GetEmbeddings("The spoon is not real");
         Assert.DoesNotContain(float.NaN, spoon);
 
         _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
@@ -61,5 +65,17 @@ public sealed class LLamaEmbedderTests
         _testOutputHelper.WriteLine($"Cat.Spoon  (Far):   {far:F4}");
 
         Assert.True(close < far);
+    }
+
+    [Fact]
+    public async Task EmbedCompareEmbeddingModel()
+    {
+        await CompareEmbeddings(Constants.EmbeddingModelPath);
+    }
+
+    [Fact]
+    public async Task EmbedCompareGenerateModel()
+    {
+        await CompareEmbeddings(Constants.GenerativeModelPath);
     }
 }
