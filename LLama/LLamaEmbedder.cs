@@ -97,18 +97,15 @@ namespace LLama
 
         private float[] GetEmbeddingsArray()
         {
-            unsafe
+            var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
+            if (embeddings == null || embeddings.Length == 0)
             {
-                var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-
-                if (embeddings == null)
-                    embeddings = NativeApi.llama_get_embeddings_seq(Context.NativeHandle, LLamaSeqId.Zero);
-
-                if (embeddings == null)
+                embeddings = NativeApi.llama_get_embeddings_seq(Context.NativeHandle, LLamaSeqId.Zero);
+                if (embeddings == null || embeddings.Length == 0)
                     return Array.Empty<float>();
-
-                return new Span<float>(embeddings, Context.EmbeddingSize).ToArray();
             }
+
+            return embeddings.ToArray();
         }
 
         private static void Normalize(Span<float> embeddings)
@@ -119,7 +116,6 @@ namespace LLama
                 lengthSqr += value * value;
             var length = (float)Math.Sqrt(lengthSqr);
 
-            // Do not divide by length if it is zero
             if (length <= float.Epsilon)
                 return;
 
