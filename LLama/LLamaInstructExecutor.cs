@@ -38,8 +38,8 @@ namespace LLama
                                 ILogger? logger = null)
             : base(context, logger)
         {
-            _inp_pfx = Context.Tokenize(instructionPrefix, true);
-            _inp_sfx = Context.Tokenize(instructionSuffix, false);
+            _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
+            _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
             _instructionPrefix = instructionPrefix;
         }
 
@@ -124,7 +124,7 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
-                _embed_inps = Context.Tokenize(text, true).ToList();
+                _embed_inps = Context.Tokenize(text, true, true).ToList();
             }
             else
             {
@@ -135,7 +135,7 @@ namespace LLama
                 _consumedTokensCount = _embed_inps.Count;
                 _embed_inps.AddRange(_inp_pfx);
 
-                var line_inp = Context.Tokenize(text, false);
+                var line_inp = Context.Tokenize(text, false, true);
                 _embed_inps.AddRange(line_inp);
 
                 _embed_inps.AddRange(_inp_sfx);

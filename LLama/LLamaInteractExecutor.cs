@@ -119,7 +119,7 @@ namespace LLama
                 // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (!this.IsMultiModal)
                 {
-                    _embed_inps = Context.Tokenize(text, true).ToList();
+                    _embed_inps = Context.Tokenize(text, true, true).ToList();
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace LLama
 
                 if (!this.IsMultiModal)
                 {
-                    var line_inp = Context.Tokenize(text, false);
+                    var line_inp = Context.Tokenize(text, false, true);
                     _embed_inps.AddRange(line_inp);
                     args.RemainedTokens -= line_inp.Length;
                 }
@@ -165,11 +165,11 @@ namespace LLama
                 int imageIndex = text.IndexOf("<image>");
                 // Tokenize segment 1 (before <image> tag)
                 string preImagePrompt = text.Substring(0, imageIndex);
-                var segment1 = Context.Tokenize(preImagePrompt, addBos );
+                var segment1 = Context.Tokenize(preImagePrompt, addBos, true);
                 // Remember the position to add the image embeddings
                 _EmbedImagePosition = segment1.Length;
                 string postImagePrompt = text.Substring(imageIndex + 7);
-                var segment2 = Context.Tokenize(postImagePrompt, false);
+                var segment2 = Context.Tokenize(postImagePrompt, false, true);
                 _embed_inps.AddRange(segment1);
                 _embed_inps.AddRange(segment2);
                 usedTokens += (segment1.Length + segment2.Length);
@@ -178,11 +178,11 @@ namespace LLama
             {
                 if (addBos)
                 {
-                    _embed_inps = Context.Tokenize(text, true).ToList();
+                    _embed_inps = Context.Tokenize(text, true, true).ToList();
                 }
                 else
                 {
-                    var line_inp = Context.Tokenize(text, false);
+                    var line_inp = Context.Tokenize(text, false, true);
                     _embed_inps.AddRange(line_inp);
                     args.RemainedTokens -= line_inp.Length;                    
                 }
