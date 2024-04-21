@@ -353,35 +353,20 @@ public sealed class Conversation
     #endregion
 
     #region save/load
-    /// <summary>
-    /// Load state from a file
-    /// This should only ever be called by the BatchedExecutor, on a newly created conversation object!
-    /// </summary>
-    /// <param name="filepath"></param>
-    /// <exception cref="InvalidOperationException"></exception>
-    internal void Load(string filepath)
+    private void AssertCanLoad()
     {
         AssertNotDisposed();
         if (_end.Value > 0)
             throw new InvalidOperationException("Cannot load into a non-empty conversation");
-
-        // Load the state from file into the KV cache
-        Executor.Context.LoadState(filepath, ConversationId, out var header);
-
-        // deserialize the extra state in the file header
-        var state = JsonSerializer.Deserialize<SerializedConversationState>(header);
-        if (state == null)
-        {
-            Dispose();
-            throw new InvalidOperationException("Failed to deserialize - deserialized header state was null");
-        }
-
-        if (state.Version != 1)
-            throw new InvalidOperationException("Failed to deserialize - mismatched version number");
-
-        // Load extra conversation state
-        _end = state.TokenCount;
     }
+
+    private void AssertCanSave()
+    {
+        AssertNotDisposed();
+        if (RequiresInference)
+            throw new CannotSaveWhileRequiresInferenceException();
+    }
+
 
     /// <summary>
     /// Save the complete state of this conversation to a file. if the file already exists it will be overwritten.
@@ -390,21 +375,144 @@ public sealed class Conversation
     /// <exception cref="CannotSaveWhileRequiresInferenceException"></exception>
     public void Save(string filepath)
     {
-        AssertNotDisposed();
-        if (RequiresInference)
-            throw new CannotSaveWhileRequiresInferenceException();
+        AssertCanSave();
 
         // Prepare extra state to put into file header
-        var state = new SerializedConversationState(
-            Version: 1,
-            TokenCount: TokenCount
-        );
+        var state = GetState();
         var bytes = JsonSerializer.SerializeToUtf8Bytes(state);
 
         // Save extra state along with the KV cache
         Executor.Context.SaveState(filepath, ConversationId, bytes);
     }
 
-    private record SerializedConversationState(int Version, int TokenCount);
+    /// <summary>
+    /// Save the complete state of this conversation in system memory.
+    /// </summary>
+    /// <returns></returns>
+    public State Save()
+    {
+        AssertCanSave();
+
+        return new PrivateState(
+            Executor.Context.GetState(ConversationId),
+            GetState()
+        );
+    }
+
+
+    /// <summary>
+    /// Load state from a file
+    /// This should only ever be called by the BatchedExecutor, on a newly created conversation object!
+    /// </summary>
+    /// <param name="filepath"></param>
+    /// <exception cref="InvalidOperationException"></exception>
+    internal void Load(string filepath)
+    {
+        AssertCanLoad();
+
+        // Load the state from file into the KV cache
+        Executor.Context.LoadState(filepath, ConversationId, out var header);
+
+        // deserialize the extra state in the file header
+        var state = JsonSerializer.Deserialize<SerializableConversationState>(header);
+        if (state == null)
+        {
+            Dispose();
+            throw new InvalidOperationException("Failed to deserialize - deserialized header state was null");
+        }
+
+        Load(state);
+    }
+
+    /// <summary>
+    /// Load state from a previously saved state.
+    /// This should only ever be called by the BatchedExecutor, on a newly created conversation object!
+    /// </summary>
+    /// <param name="state"></param>
+    internal void Load(State state)
+    {
+        AssertCanLoad();
+
+        // There is only one class that extends State and it is PrivateState, so this cast is safe.
+        var priv = (PrivateState)state;
+
+        // Load the state from file into the KV cache
+        Executor.Context.LoadState(priv.SequenceState, ConversationId);
+
+        Load(priv.ConversationState);
+    }
+
+
+    private void Load(SerializableConversationState state)
+    {
+        if (state.Version != 1)
+            throw new InvalidOperationException("Failed to deserialize - mismatched version number");
+
+        // Load extra conversation state
+        _end = state.TokenCount;
+    }
+
+    private SerializableConversationState GetState()
+    {
+        return new SerializableConversationState(
+            Version: 1,
+            TokenCount: TokenCount
+        );
+    }
+
+
+    private record SerializableConversationState(int Version, int TokenCount);
+
+    private sealed class PrivateState
+        : State
+    {
+        public readonly LLamaContext.SequenceState SequenceState;
+        public readonly SerializableConversationState ConversationState;
+
+        public override ulong Size => SequenceState.Size;
+
+        public PrivateState(LLamaContext.SequenceState sequenceState, SerializableConversationState conversationState)
+        {
+            SequenceState = sequenceState;
+            ConversationState = conversationState;
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(State));
+            IsDisposed = true;
+
+            SequenceState.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// In memory saved state of a <see cref="Conversation"/>
+    /// </summary>
+    public abstract class State
+        : IDisposable
+    {
+        /// <summary>
+        /// Indicates if this state has been disposed
+        /// </summary>
+        public bool IsDisposed { get; protected set; }
+
+        /// <summary>
+        /// Get the size in bytes of this state object
+        /// </summary>
+        public abstract ulong Size { get; }
+
+        /// <inheritdoc />
+        public abstract void Dispose();
+
+        /// <summary>
+        /// Internal constructor prevent anyone outside of LLamaSharp extending this class
+        /// </summary>
+        internal State()
+        {
+        }
+    }
     #endregion
 }

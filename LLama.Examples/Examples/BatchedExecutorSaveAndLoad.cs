@@ -36,22 +36,13 @@ public class BatchedExecutorSaveAndLoad
         // Run inference loop
         var decoder = new StreamingTokenDecoder(executor.Context);
         var sampler = new DefaultSamplingPipeline();
-        var lastToken = (LLamaToken)0;
-        for (var i = 0; i < n_len; i++)
-        {
-            await executor.Infer();
-
-            var token = sampler.Sample(executor.Context.NativeHandle, conversation.Sample(), ReadOnlySpan<LLamaToken>.Empty);
-            lastToken = token;
-            decoder.Add(token);
-            conversation.Prompt(token);
-        }
+        var lastToken = await GenerateTokens(executor, conversation, sampler, decoder, n_len);
 
         // Can't save a conversation while RequiresInference is true
         if (conversation.RequiresInference)
             await executor.Infer();
 
-        // Save this conversation and dispose it
+        // Save this conversation to a file and dispose it
         conversation.Save("demo_conversation.state");
         conversation.Dispose();
         AnsiConsole.WriteLine($"Saved state: {new FileInfo("demo_conversation.state").Length} bytes");
@@ -65,16 +56,53 @@ public class BatchedExecutorSaveAndLoad
         conversation.Prompt(lastToken);
 
         // Continue generating text
-        for (var i = 0; i < n_len; i++)
-        {
+        lastToken = await GenerateTokens(executor, conversation, sampler, decoder, n_len);
+
+        // Can't save a conversation while RequiresInference is true
+        if (conversation.RequiresInference)
             await executor.Infer();
 
-            var token = sampler.Sample(executor.Context.NativeHandle, conversation.Sample(), ReadOnlySpan<LLamaToken>.Empty);
-            decoder.Add(token);
-            conversation.Prompt(token);
+        // Save the conversation again, this time into system memory
+        using (var state = conversation.Save())
+        {
+            conversation.Dispose();
+            AnsiConsole.WriteLine($"Saved state to memory: {state.Size} bytes");
+
+            // Now create a new conversation by loading that state
+            conversation = executor.Load("demo_conversation.state");
+            AnsiConsole.WriteLine("Loaded state");
         }
+
+        // Prompt it again with the last token, so we can continue generating
+        conversation.Rewind(1);
+        conversation.Prompt(lastToken);
+
+        // Continue generating text
+        await GenerateTokens(executor, conversation, sampler, decoder, n_len);
 
         // Display final ouput
         AnsiConsole.MarkupLine($"[red]{prompt}{decoder.Read()}[/]");
+    }
+
+    private static async Task<LLamaToken> GenerateTokens(BatchedExecutor executor, Conversation conversation, ISamplingPipeline sampler, StreamingTokenDecoder decoder, int count = 15)
+    {
+        var token = (LLamaToken)0;
+
+        for (var i = 0; i < count; i++)
+        {
+            // Run inference
+            await executor.Infer();
+
+            // Use sampling pipeline to pick a token
+            token = sampler.Sample(executor.Context.NativeHandle, conversation.Sample(), ReadOnlySpan<LLamaToken>.Empty);
+
+            // Add it to the decoder, so it can be converted into text later
+            decoder.Add(token);
+
+            // Prompt the conversation with the token
+            conversation.Prompt(token);
+        }
+
+        return token;
     }
 }
