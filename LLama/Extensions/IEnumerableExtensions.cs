@@ -10,8 +10,13 @@ namespace LLama.Extensions
         {
             return TakeLastImpl(source, count);
         }
+
+        public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int count)
+        {
+            return SkipLastImpl(source, count);
+        }
 #elif !NET6_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
-    #error Target framework not supported!
+#error Target framework not supported!
 #endif
 
         internal static IEnumerable<T> TakeLastImpl<T>(IEnumerable<T> source, int count)
@@ -23,6 +28,11 @@ namespace LLama.Extensions
 
             list.RemoveRange(0, list.Count - count);
             return list;
+        }
+
+        internal static IEnumerable<T> SkipLastImpl<T>(IEnumerable<T> source, int count)
+        {
+            return source.Take(source.Count() - count);
         }
     }
 }

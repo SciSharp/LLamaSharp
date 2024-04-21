@@ -220,6 +220,18 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <returns></returns>
+        public DecodeResult Decode(LLamaNativeBatch batch)
+        {
+            // TODO: is global lock still necessary?
+            lock (GlobalInferenceLock)
+                return (DecodeResult)NativeApi.llama_decode(this, batch);
+        }
+
+        /// <summary>
         /// Decode a set of tokens in batch-size chunks.
         /// </summary>
         /// <param name="tokens"></param>

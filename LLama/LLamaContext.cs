@@ -400,6 +400,11 @@ namespace LLama
             return (DecodeResult)NativeHandle.Decode(batch);
         }
 
+        public DecodeResult Decode(LLamaNativeBatch batch)
+        {
+            return (DecodeResult)NativeHandle.Decode(batch);
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
