@@ -17,7 +17,8 @@ namespace LLama.Unittest
             var @params = new ModelParams(Constants.GenerativeModelPath)
             {
                 // Llava models requires big context
-                ContextSize = 4096
+                ContextSize = 4096,
+                GpuLayerCount = Constants.CIGpuLayerCount,                
             };
             _llamaWeights = LLamaWeights.LoadFromFile(@params);
             _lLavaWeights = LLavaWeights.LoadFromFile(Constants.LLavaMmpPath);
@@ -32,7 +33,7 @@ namespace LLama.Unittest
             _lLavaWeights.Dispose();
         }
       
-        [Fact(Skip = "Very very slow in CI")]
+        [Fact,Trait("Category", "NoCI")]
         public void EmbedImageAsFileName()
         {
             int n_past = 0;
@@ -40,7 +41,7 @@ namespace LLama.Unittest
             Assert.True( _lLavaWeights.EvalImageEmbed( _context, emb, ref n_past ) );
         }        
         
-        [Fact(Skip = "Very very slow in CI")]
+        [Fact,Trait("Category", "NoCI")]
         public void EmbedImageAsBinary()
         {
             int n_past = 0;

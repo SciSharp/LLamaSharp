@@ -9,7 +9,8 @@ public class MemoryDisposalTests
     {
         var @params = new ModelParams(Constants.GenerativeModelPath)
         {
-            ContextSize = 2048
+            ContextSize = 2048,
+            GpuLayerCount = 0,
         };
         var model = LLamaWeights.LoadFromFile(@params);
 
@@ -23,7 +24,8 @@ public class MemoryDisposalTests
     {
         var @params = new ModelParams(Constants.GenerativeModelPath)
         {
-            ContextSize = 2048
+            ContextSize = 2048,
+            GpuLayerCount = Constants.CIGpuLayerCount,            
         };
         var model = LLamaWeights.LoadFromFile(@params);
 

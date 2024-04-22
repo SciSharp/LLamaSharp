@@ -90,7 +90,7 @@ namespace LLama
                 lastTokens.Add(0);
 
             // Tokenize the prompt
-            var tokens = Context.Tokenize(prompt).ToList();
+            var tokens = Context.Tokenize(prompt, special: true).ToList();
             lastTokens.AddRange(tokens);
 
             // Evaluate the prompt, in chunks smaller than the max batch size

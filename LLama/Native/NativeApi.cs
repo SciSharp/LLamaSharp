@@ -137,41 +137,17 @@ namespace LLama.Native
         /// Get the embeddings for the a specific sequence.
         /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
         /// </summary>
-        /// <returns></returns>
-        public static Span<float> llama_get_embeddings_seq(SafeLLamaContextHandle ctx, LLamaSeqId id)
-        {
-            unsafe
-            {
-                var ptr = llama_get_embeddings_seq_native(ctx, id);
-                if (ptr == null)
-                    return Array.Empty<float>();
-
-                return new Span<float>(ptr, ctx.EmbeddingSize);
-            }
-
-            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_get_embeddings_seq")]
-            static extern unsafe float* llama_get_embeddings_seq_native(SafeLLamaContextHandle ctx, LLamaSeqId id);
-        }
+        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe float* llama_get_embeddings_seq(SafeLLamaContextHandle ctx, LLamaSeqId id);
 
         /// <summary>
         /// Get the embeddings for the ith sequence.
         /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
         /// </summary>
-        /// <returns></returns>
-        public static Span<float> llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i)
-        {
-            unsafe
-            {
-                var ptr = llama_get_embeddings_ith_native(ctx, i);
-                if (ptr == null)
-                    return Array.Empty<float>();
-
-                return new Span<float>(ptr, ctx.EmbeddingSize);
-            }
-
-            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_get_embeddings_ith")]
-            static extern unsafe float* llama_get_embeddings_ith_native(SafeLLamaContextHandle ctx, int i);
-        }
+        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe float* llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i);
 
         /// <summary>
         /// Get all output token embeddings.
@@ -182,20 +158,8 @@ namespace LLama.Native
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
-        public static Span<float> llama_get_embeddings(SafeLLamaContextHandle ctx)
-        {
-            unsafe
-            {
-                var ptr = llama_get_embeddings_native(ctx);
-                if (ptr == null)
-                    return Array.Empty<float>();
-
-                return new Span<float>(ptr, ctx.EmbeddingSize);
-            }
-
-            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_get_embeddings")]
-            static extern unsafe float* llama_get_embeddings_native(SafeLLamaContextHandle ctx);
-        }
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe float* llama_get_embeddings(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Apply chat template. Inspired by hf apply_chat_template() on python.

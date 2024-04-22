@@ -16,6 +16,7 @@ namespace LLama.Unittest
             {
                 ContextSize = 2048,
                 Seed = 92,
+                GpuLayerCount = Constants.CIGpuLayerCount,                
             };
             _model = LLamaWeights.LoadFromFile(_params);
         }
