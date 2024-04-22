@@ -153,8 +153,6 @@ namespace LLama
         }
 
         #region state load/save
-        
-
         /// <summary>
         /// Save the state to specified path.
         /// </summary>
