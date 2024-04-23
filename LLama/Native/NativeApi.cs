@@ -19,9 +19,6 @@ namespace LLama.Native
             llama_max_devices();
         }
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern int AddDllDirectory(string NewDirectory);
-
         /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
         /// </summary>

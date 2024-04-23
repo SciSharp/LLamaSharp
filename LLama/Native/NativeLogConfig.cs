@@ -37,7 +37,7 @@ public static class NativeLogConfig
     public static void llama_log_set(LLamaLogCallback? logCallback)
 #pragma warning restore IDE1006 // Naming Styles
     {
-        if (NativeLibraryConfig.LibraryHasLoaded)
+        if (NativeLibraryConfig.LLama.LibraryHasLoaded)
         {
             // The library is loaded, just pass the callback directly to llama.cpp
             native_llama_log_set(logCallback);
