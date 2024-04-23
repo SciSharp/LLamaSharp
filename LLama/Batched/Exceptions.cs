@@ -57,18 +57,6 @@ public class CannotSampleRequiresPromptException
 }
 
 /// <summary>
-/// This exception is thrown when <see cref="Conversation.Fork"/> is called when <see cref="Conversation.RequiresInference"/> = true
-/// </summary>
-public class CannotForkWhileRequiresInferenceException
-    : ExperimentalBatchedExecutorException
-{
-    internal CannotForkWhileRequiresInferenceException()
-        : base("Cannot `Fork()` a conversation while RequiresInference is true")
-    {
-    }
-}
-
-/// <summary>
 /// This exception is thrown when <see cref="Conversation.Modify"/> is called when <see cref="Conversation.RequiresInference"/> = true
 /// </summary>
 public class CannotModifyWhileRequiresInferenceException
@@ -76,6 +64,20 @@ public class CannotModifyWhileRequiresInferenceException
 {
     internal CannotModifyWhileRequiresInferenceException()
         : base("Cannot `Modify()` a conversation while RequiresInference is true")
+    {
+    }
+}
+
+/// <summary>
+/// This exception is thrown when "Save()" is called on a <see cref="Conversation"/> which has
+/// already been prompted and before "Infer()" has been called.
+/// <see cref="BatchedExecutor"/>.
+/// </summary>
+public class CannotSaveWhileRequiresInferenceException
+    : ExperimentalBatchedExecutorException
+{
+    internal CannotSaveWhileRequiresInferenceException()
+        : base("Must call `Infer()` before saving this Conversation")
     {
     }
 }

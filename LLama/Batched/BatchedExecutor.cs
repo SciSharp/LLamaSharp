@@ -85,6 +85,39 @@ public sealed class BatchedExecutor
     }
 
     /// <summary>
+    /// Load a conversation that was previously saved to a file. Once loaded the conversation will
+    /// need to be prompted.
+    /// </summary>
+    /// <param name="filepath"></param>
+    /// <returns></returns>
+    /// <exception cref="ObjectDisposedException"></exception>
+    public Conversation Load(string filepath)
+    {
+        if (IsDisposed)
+            throw new ObjectDisposedException(nameof(BatchedExecutor));
+
+        var conversation = Create();
+        conversation.Load(filepath);
+        return conversation;
+    }
+
+    /// <summary>
+    /// Load a conversation that was previously saved into memory. Once loaded the conversation will need to be prompted.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
+    /// <exception cref="ObjectDisposedException"></exception>
+    public Conversation Load(Conversation.State state)
+    {
+        if (IsDisposed)
+            throw new ObjectDisposedException(nameof(BatchedExecutor));
+
+        var conversation = Create();
+        conversation.Load(state);
+        return conversation;
+    }
+
+    /// <summary>
     /// Run inference for all conversations in the batch which have pending tokens.
     ///
     /// If the result is `NoKvSlot` then there is not enough memory for inference, try disposing some conversation
