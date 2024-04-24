@@ -29,9 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LLama.Experimental\LLama.Experimental.csproj" />
     <ProjectReference Include="..\LLama.KernelMemory\LLamaSharp.KernelMemory.csproj" />
     <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
-    <ProjectReference Include="..\LLamaSharp.Experimental\LLamaSharp.Experimental.csproj" />
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 
