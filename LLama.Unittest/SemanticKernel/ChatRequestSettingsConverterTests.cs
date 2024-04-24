@@ -1,4 +1,5 @@
-﻿using LLamaSharp.SemanticKernel.ChatCompletion;
+﻿using LLamaSharp.SemanticKernel;
+using LLamaSharp.SemanticKernel.ChatCompletion;
 using System.Text.Json;
 
 namespace LLama.Unittest.SemanticKernel
@@ -10,11 +11,11 @@ namespace LLama.Unittest.SemanticKernel
         {
             // Arrange
             var options = new JsonSerializerOptions();
-            options.Converters.Add(new ChatRequestSettingsConverter());
+            options.Converters.Add(new LLamaSharpPromptExecutionSettingsConverter());
             var json = "{}";
 
             // Act
-            var requestSettings = JsonSerializer.Deserialize<ChatRequestSettings>(json, options);
+            var requestSettings = JsonSerializer.Deserialize<LLamaSharpPromptExecutionSettings>(json, options);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -36,7 +37,7 @@ namespace LLama.Unittest.SemanticKernel
             // Arrange
             var options = new JsonSerializerOptions();
             options.AllowTrailingCommas = true;
-            options.Converters.Add(new ChatRequestSettingsConverter());
+            options.Converters.Add(new LLamaSharpPromptExecutionSettingsConverter());
             var json = @"{
     ""frequency_penalty"": 0.5,
     ""max_tokens"": 250,
@@ -49,7 +50,7 @@ namespace LLama.Unittest.SemanticKernel
 }";
 
             // Act
-            var requestSettings = JsonSerializer.Deserialize<ChatRequestSettings>(json, options);
+            var requestSettings = JsonSerializer.Deserialize<LLamaSharpPromptExecutionSettings>(json, options);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -73,7 +74,7 @@ namespace LLama.Unittest.SemanticKernel
             // Arrange
             var options = new JsonSerializerOptions();
             options.AllowTrailingCommas = true;
-            options.Converters.Add(new ChatRequestSettingsConverter());
+            options.Converters.Add(new LLamaSharpPromptExecutionSettingsConverter());
             var json = @"{
     ""FrequencyPenalty"": 0.5,
     ""MaxTokens"": 250,
@@ -86,7 +87,7 @@ namespace LLama.Unittest.SemanticKernel
 }";
 
             // Act
-            var requestSettings = JsonSerializer.Deserialize<ChatRequestSettings>(json, options);
+            var requestSettings = JsonSerializer.Deserialize<LLamaSharpPromptExecutionSettings>(json, options);
 
             // Assert
             Assert.NotNull(requestSettings);
