@@ -19,8 +19,6 @@ namespace LLama.Native
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
-        private bool _allowAutoDownload = false;
-        private NativeLibraryDownloadSettings _downloadSettings = NativeLibraryDownloadSettings.Create();
 
         /// <summary>
         /// search directory -> priority level, 0 is the lowest.
@@ -28,8 +26,6 @@ namespace LLama.Native
         private readonly List<string> _searchDirectories = new List<string>();
 
         internal INativeLibrarySelectingPolicy SelectingPolicy { get; private set; } = new DefaultNativeLibrarySelectingPolicy();
-
-        internal bool AllowAutoDownload => _allowAutoDownload;
 
         #region configurators
         /// <summary>
@@ -136,25 +132,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Set whether to download the best-matched native library file automatically if there's no backend or specified file to load.
-        /// You could add a setting here to customize the behavior of the download.
-        /// 
-        /// If auto-download is enabled, please call <see cref="DryRun"/> after you have finished setting your configurations.
-        /// </summary>
-        /// <param name="enable"></param>
-        /// <param name="settings"></param>
-        /// <returns></returns>
-        public NativeLibraryConfig WithAutoDownload(bool enable = true, NativeLibraryDownloadSettings? settings = null)
-        {
-            ThrowIfLoaded();
-
-            _allowAutoDownload = enable;
-            if (settings is not null)
-                _downloadSettings = settings;
-            return this;
-        }
-
-        /// <summary>
         /// Set the policy which decides how to select the desired native libraries and order them by priority. 
         /// By default we use <see cref="DefaultNativeLibrarySelectingPolicy"/>.
         /// </summary>
@@ -177,13 +154,6 @@ namespace LLama.Native
 
             var path = _libraryPath;
 
-            // Don't modify and pass the original object to `Description`, create a new one instead.
-            // Also, we need to set the default local directory if the user does not.
-            var defaultLocalDir = NativeLibraryDownloadSettings.GetDefaultLocalDir(GetCommitHash(_downloadSettings.Tag));
-            var downloadSettings = NativeLibraryDownloadSettings.Create()
-                .WithEndpoint(_downloadSettings.Endpoint).WithEndpointFallbacks(_downloadSettings.EndpointFallbacks ?? [])
-                .WithRepoId(_downloadSettings.RepoId).WithToken(_downloadSettings.Token).WithTag(_downloadSettings.Tag)
-                .WithTimeout(_downloadSettings.Timeout).WithLocalDir(_downloadSettings.LocalDir ?? defaultLocalDir);
 
             return new Description(
                 path,
@@ -192,9 +162,7 @@ namespace LLama.Native
                 _avxLevel,
                 _allowFallback,
                 _skipCheck,
-                _searchDirectories.Concat(new[] { "./" }).ToArray(), 
-                _allowAutoDownload, 
-                downloadSettings
+                _searchDirectories.Concat(new[] { "./" }).ToArray()
             );
         }
 
@@ -216,8 +184,6 @@ namespace LLama.Native
         private NativeLibraryConfig(NativeLibraryName nativeLibraryName)
         {
             NativeLibraryName = nativeLibraryName;
-            // This value should be changed when we're going to publish new release. (any better approach?)
-            _downloadSettings = new NativeLibraryDownloadSettings().WithTag(GetCommitHash("master"));
 
             // Automatically detect the highest supported AVX level
             if (System.Runtime.Intrinsics.X86.Avx.IsSupported)
@@ -263,10 +229,8 @@ namespace LLama.Native
         /// <param name="AllowFallback"></param>
         /// <param name="SkipCheck"></param>
         /// <param name="SearchDirectories"></param>
-        /// <param name="AllowAutoDownload"></param>
-        /// <param name="DownloadSettings"></param>
         public record Description(string? Path, NativeLibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, 
-            string[] SearchDirectories, bool AllowAutoDownload, NativeLibraryDownloadSettings DownloadSettings)
+            string[] SearchDirectories)
         {
             /// <inheritdoc/>
             public override string ToString()
@@ -289,9 +253,7 @@ namespace LLama.Native
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
-                       $"- SearchDirectories and Priorities: {searchDirectoriesString}" + 
-                       $"- AllowAutoDownload: {AllowAutoDownload}\n" + 
-                       $"- DownloadSettings: {DownloadSettings}\n";
+                       $"- SearchDirectories and Priorities: {searchDirectoriesString}";
             }
         }
     }
@@ -331,17 +293,10 @@ namespace LLama.Native
             {"master", "f7001c"}
         };
 
-        internal static string GetCommitHash(string version)
-        {
-            if(VersionMap.TryGetValue(version, out var hash))
-            {
-                return hash;
-            }
-            else
-            {
-                return version;
-            }
-        }
+        /// <summary>
+        /// The current version.
+        /// </summary>
+        public static readonly string CurrentVersion = "master"; // This should be changed before publishing new version. TODO: any better approach?
 
         static NativeLibraryConfig()
         {
@@ -363,11 +318,6 @@ namespace LLama.Native
         /// </summary>
         public bool LibraryHasLoaded { get; internal set; }
 
-        /// <summary>
-        /// Whether <see cref="DryRun"/> has been called.
-        /// </summary>
-        internal bool HasCalledDryRun { get; private set; } = false;
-
         internal NativeLibraryName NativeLibraryName { get; }
 
         internal NativeLogConfig.LLamaLogCallback? LogCallback { get; private set; } = null;
@@ -375,7 +325,10 @@ namespace LLama.Native
         private void ThrowIfLoaded()
         {
             if (LibraryHasLoaded)
-                throw new InvalidOperationException("NativeLibraryConfig must be configured before using **any** other LLamaSharp methods!");
+                throw new InvalidOperationException("The library has already loaded, you can't change the configurations. " +
+                    "Please finish the configuration setting before any call to LLamaSharp native APIs." +
+                    "Please use NativeLibraryConfig.DryRun if you want to see whether it's loaded " +
+                    "successfully but still have chance to modify the configurations.");
         }
 
         /// <summary>
@@ -416,7 +369,6 @@ namespace LLama.Native
         public bool DryRun()
         {
             LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {this.NativeLibraryName.GetLibraryName()}...");
-            HasCalledDryRun = true;
             return NativeLibraryUtils.TryLoadLibrary(this) != IntPtr.Zero;
         }
     }
@@ -424,9 +376,16 @@ namespace LLama.Native
     /// <summary>
     /// A class to set same configurations to multiple libraries at the same time.
     /// </summary>
-    public sealed partial class NativeLibraryConfigContainer
+    public sealed class NativeLibraryConfigContainer
     {
         private NativeLibraryConfig[] _configs;
+
+        /// <summary>
+        /// All the configurations in this container.
+        /// Please avoid calling this property explicitly, use <see cref="NativeLibraryConfig.LLama"/>
+        /// and <see cref="NativeLibraryConfig.LLavaShared"/> instead.
+        /// </summary>
+        public NativeLibraryConfig[] Configs => _configs;
 
         internal NativeLibraryConfigContainer(params NativeLibraryConfig[] configs)
         {
@@ -550,24 +509,6 @@ namespace LLama.Native
             foreach (var config in _configs)
             {
                 config.WithSearchDirectory(directory);
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Set whether to download the best-matched native library file automatically if there's no backend or specified file to load.
-        /// You could add a setting here to customize the behavior of the download.
-        /// 
-        /// If auto-download is enabled, please call <see cref="DryRun"/> after you have finished setting your configurations.
-        /// </summary>
-        /// <param name="enable"></param>
-        /// <param name="settings"></param>
-        /// <returns></returns>
-        public NativeLibraryConfigContainer WithAutoDownload(bool enable = true, NativeLibraryDownloadSettings? settings = null)
-        {
-            foreach (var config in _configs)
-            {
-                config.WithAutoDownload(enable, settings);
             }
             return this;
         }

@@ -13,7 +13,6 @@ namespace LLama.Native
         private NativeLibraryName _libraryName;
         private AvxLevel _avxLevel;
         private bool _skipCheck;
-        private NativeLibraryDownloadSettings _downloadSettings;
 
         /// <inheritdoc/>
         public NativeLibraryMetadata? Metadata
@@ -30,45 +29,33 @@ namespace LLama.Native
         /// <param name="libraryName"></param>
         /// <param name="avxLevel"></param>
         /// <param name="skipCheck"></param>
-        /// <param name="downloadSettings"></param>
-        public NativeLibraryWithAvx(NativeLibraryName libraryName, AvxLevel avxLevel, bool skipCheck, NativeLibraryDownloadSettings downloadSettings)
+        public NativeLibraryWithAvx(NativeLibraryName libraryName, AvxLevel avxLevel, bool skipCheck)
         {
             _libraryName = libraryName;
             _avxLevel = avxLevel;
             _skipCheck = skipCheck;
-            _downloadSettings = downloadSettings;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<string> Prepare(SystemInfo systemInfo, bool fromRemote, NativeLogConfig.LLamaLogCallback? logCallback)
+        public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             if (systemInfo.OSPlatform != OSPlatform.Windows && systemInfo.OSPlatform != OSPlatform.Linux && !_skipCheck)
             {
                 // Not supported on systems other than Windows and Linux.
                 return [];
             }
-            var path = GetAvxPath(systemInfo, _avxLevel, fromRemote, logCallback);
+            var path = GetAvxPath(systemInfo, _avxLevel, logCallback);
             return path is null ? [] : [path];
         }
 
-        private string? GetAvxPath(SystemInfo systemInfo, AvxLevel avxLevel, bool fromRemote, NativeLogConfig.LLamaLogCallback? logCallback)
+        private string? GetAvxPath(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
             var avxStr = NativeLibraryConfig.AvxLevelToString(avxLevel);
             if (!string.IsNullOrEmpty(avxStr))
                 avxStr += "/";
             var relativePath = $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
-
-            if (fromRemote)
-            {
-                // Download and return the local path.
-                // We make it sychronize because we c'd better not use async method when loading library later.
-                return NativeLibraryDownloadManager.DownloadLibraryFile(_downloadSettings, relativePath, logCallback).Result;
-            }
-            else
-            {
-                return relativePath;
-            }
+            return relativePath;
         }
     }
 #endif

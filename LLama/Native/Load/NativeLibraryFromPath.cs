@@ -23,9 +23,9 @@ namespace LLama.Native
         }
         
         /// <inheritdoc/>
-        public IEnumerable<string> Prepare(SystemInfo systemInfo, bool fromRemote, NativeLogConfig.LLamaLogCallback? logCallback)
+        public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
-            return fromRemote? [] : [_path];
+            return [_path];
         }
     }
 }

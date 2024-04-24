@@ -9,7 +9,7 @@ namespace LLama.Native
     public class DefaultNativeLibrarySelectingPolicy: INativeLibrarySelectingPolicy
     {
         /// <inheritdoc/>
-        public IEnumerable<INativeLibrary> Select(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
+        public IEnumerable<INativeLibrary> Apply(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             List<INativeLibrary> results = new();
 
@@ -25,7 +25,7 @@ namespace LLama.Native
             {
                 if (description.UseCuda)
                 {
-                    yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.SkipCheck, description.DownloadSettings);
+                    yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.SkipCheck);
                 }
 
                 if(!description.UseCuda || description.AllowFallback)
@@ -34,25 +34,25 @@ namespace LLama.Native
                     {
                         // Try all of the AVX levels we can support.
                         if (description.AvxLevel >= AvxLevel.Avx512)
-                            yield return new NativeLibraryWithAvx(description.Library, AvxLevel.Avx512, description.SkipCheck, description.DownloadSettings);
+                            yield return new NativeLibraryWithAvx(description.Library, AvxLevel.Avx512, description.SkipCheck);
 
                         if (description.AvxLevel >= AvxLevel.Avx2)
-                            yield return new NativeLibraryWithAvx(description.Library, AvxLevel.Avx2, description.SkipCheck, description.DownloadSettings);
+                            yield return new NativeLibraryWithAvx(description.Library, AvxLevel.Avx2, description.SkipCheck);
 
                         if (description.AvxLevel >= AvxLevel.Avx)
-                            yield return new NativeLibraryWithAvx(description.Library, AvxLevel.Avx, description.SkipCheck, description.DownloadSettings);
+                            yield return new NativeLibraryWithAvx(description.Library, AvxLevel.Avx, description.SkipCheck);
 
-                        yield return new NativeLibraryWithAvx(description.Library, AvxLevel.None, description.SkipCheck, description.DownloadSettings);
+                        yield return new NativeLibraryWithAvx(description.Library, AvxLevel.None, description.SkipCheck);
                     }
                     else
                     {
-                        yield return new NativeLibraryWithAvx(description.Library, description.AvxLevel, description.SkipCheck, description.DownloadSettings);
+                        yield return new NativeLibraryWithAvx(description.Library, description.AvxLevel, description.SkipCheck);
                     }
                 }
 
                 if(systemInfo.OSPlatform == OSPlatform.OSX || description.AllowFallback)
                 {
-                    yield return new NativeLibraryWithCpuOrMac(description.Library, description.SkipCheck, description.DownloadSettings);
+                    yield return new NativeLibraryWithMacOrFallback(description.Library, description.SkipCheck);
                 }
             }
         }

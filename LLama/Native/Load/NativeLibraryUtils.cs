@@ -33,12 +33,12 @@ namespace LLama.Native
             Log(description.ToString(), LLamaLogLevel.Info, config.LogCallback);
 
             // Get the libraries ordered by priority from the selecting policy.
-            var libraries = config.SelectingPolicy.Select(description, systemInfo, config.LogCallback);
+            var libraries = config.SelectingPolicy.Apply(description, systemInfo, config.LogCallback);
 
             foreach (var library in libraries)
             {
                 // Prepare the local library file and get the path.
-                var paths = library.Prepare(systemInfo, false, config.LogCallback);
+                var paths = library.Prepare(systemInfo, config.LogCallback);
                 foreach (var path in paths)
                 {
                     Log($"Got relative library path '{path}' from local with {library.Metadata}, trying to load it...", LLamaLogLevel.Debug, config.LogCallback);
@@ -47,33 +47,6 @@ namespace LLama.Native
                     if (result != IntPtr.Zero)
                     {
                         return result;
-                    }
-                }
-                // If we failed but auto-download is allowed, try to prepare the file from remote.
-                if (description.AllowAutoDownload)
-                {
-                    paths = library.Prepare(systemInfo, true, config.LogCallback);
-                    if (description.DownloadSettings.LocalDir is null)
-                    {
-                        // Null local directory is not expected here (it will make things more complex if we want to handle it).
-                        // It should always be set when gathering the description.
-                        throw new RuntimeError("Auto-download is enabled for native library but the `LocalDir` is null. " +
-                            "It's an unexpected behavior and please report an issue to LLamaSharp.");
-                    }
-                    // When using auto-download, this should be the only search directory.
-                    List<string> searchDirectoriesForDownload = [description.DownloadSettings.LocalDir];
-                    // unless extra search paths are added by the user.
-                    searchDirectoriesForDownload.AddRange(description.DownloadSettings.ExtraSearchDirectories ?? []);
-
-                    foreach (var path in paths)
-                    {
-                        Log($"Got relative library path '{path}' from remote with {library.Metadata}, trying to load it...", LLamaLogLevel.Debug, config.LogCallback);
-
-                        var result = TryLoad(path, searchDirectoriesForDownload, config.LogCallback);
-                        if (result != IntPtr.Zero)
-                        {
-                            return result;
-                        }
                     }
                 }
             }

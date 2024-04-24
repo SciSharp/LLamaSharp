@@ -8,12 +8,10 @@ namespace LLama.Native
     /// <summary>
     /// A native library compiled on Mac, or fallbacks from all other libraries in the selection.
     /// </summary>
-    public class NativeLibraryWithCpuOrMac
-        : INativeLibrary
+    public class NativeLibraryWithMacOrFallback : INativeLibrary
     {
         private NativeLibraryName _libraryName;
         private bool _skipCheck;
-        private NativeLibraryDownloadSettings _downloadSettings;
 
         /// <inheritdoc/>
         public NativeLibraryMetadata? Metadata
@@ -29,22 +27,20 @@ namespace LLama.Native
         /// </summary>
         /// <param name="libraryName"></param>
         /// <param name="skipCheck"></param>
-        /// <param name="downloadSettings"></param>
-        public NativeLibraryWithCpuOrMac(NativeLibraryName libraryName, bool skipCheck, NativeLibraryDownloadSettings downloadSettings)
+        public NativeLibraryWithMacOrFallback(NativeLibraryName libraryName, bool skipCheck)
         {
             _libraryName = libraryName;
             _skipCheck = skipCheck;
-            _downloadSettings = downloadSettings;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<string> Prepare(SystemInfo systemInfo, bool fromRemote, NativeLogConfig.LLamaLogCallback? logCallback)
+        public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
-            var path = GetPath(systemInfo, AvxLevel.None, fromRemote, logCallback);
+            var path = GetPath(systemInfo, AvxLevel.None, logCallback);
             return path is null ?[] : [path];
         }
 
-        private string? GetPath(SystemInfo systemInfo, AvxLevel avxLevel, bool fromRemote, NativeLogConfig.LLamaLogCallback? logCallback)
+        private string? GetPath(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
             string relativePath;
@@ -61,16 +57,7 @@ namespace LLama.Native
                 relativePath = $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
             }
 
-            if (fromRemote)
-            {
-                // Download and return the local path.
-                // We make it sychronize because we c'd better not use async method when loading library later.
-                return NativeLibraryDownloadManager.DownloadLibraryFile(_downloadSettings, relativePath, logCallback).Result;
-            }
-            else
-            {
-                return relativePath;
-            }
+            return relativePath;
         }
     }
 #endif

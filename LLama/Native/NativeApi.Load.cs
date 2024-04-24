@@ -64,12 +64,6 @@ namespace LLama.Native
                     if (_loadedLlamaHandle != IntPtr.Zero)
                         return _loadedLlamaHandle;
 
-                    // We don't allow downloading in static constructor to avoid potentially uncertain behaviors now.
-                    if (NativeLibraryConfig.LLama.AllowAutoDownload && !NativeLibraryConfig.LLama.HasCalledDryRun)
-                    {
-                        throw new RuntimeError("When using auto-download, please call NativeLibraryConfig.DryRun() right after finishing you configurations.");
-                    }
-
                     // Try to load a preferred library, based on CPU feature detection
                     _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama);
                     return _loadedLlamaHandle;
@@ -80,12 +74,6 @@ namespace LLama.Native
                     // If we've already loaded llava return the handle that was loaded last time.
                     if (_loadedLlavaSharedHandle != IntPtr.Zero)
                         return _loadedLlavaSharedHandle;
-
-                    // We don't allow downloading in static constructor to avoid potentially uncertain behaviors now.
-                    if (NativeLibraryConfig.LLavaShared.AllowAutoDownload && !NativeLibraryConfig.LLavaShared.HasCalledDryRun)
-                    {
-                        throw new RuntimeError("When using auto-download, please call NativeLibraryConfig.DryRun() right after finishing you configurations.");
-                    }
 
                     // Try to load a preferred library, based on CPU feature detection
                     _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLavaShared);

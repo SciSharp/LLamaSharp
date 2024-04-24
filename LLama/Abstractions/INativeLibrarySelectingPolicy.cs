@@ -18,7 +18,7 @@ namespace LLama.Abstractions
         /// <param name="systemInfo">The system information of the current machine.</param>
         /// <param name="logCallback">The log callback.</param>
         /// <returns>The information of the selected native library files, in order by priority from the beginning to the end.</returns>
-        IEnumerable<INativeLibrary> Select(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback = null);
+        IEnumerable<INativeLibrary> Apply(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback = null);
     }
 #endif
 }

@@ -14,7 +14,6 @@ namespace LLama.Native
         private NativeLibraryName _libraryName;
         private AvxLevel _avxLevel;
         private bool _skipCheck;
-        private NativeLibraryDownloadSettings _downloadSettings;
 
         /// <inheritdoc/>
         public NativeLibraryMetadata? Metadata
@@ -31,17 +30,15 @@ namespace LLama.Native
         /// <param name="majorCudaVersion"></param>
         /// <param name="libraryName"></param>
         /// <param name="skipCheck"></param>
-        /// <param name="downloadSettings"></param>
-        public NativeLibraryWithCuda(int majorCudaVersion, NativeLibraryName libraryName, bool skipCheck, NativeLibraryDownloadSettings downloadSettings)
+        public NativeLibraryWithCuda(int majorCudaVersion, NativeLibraryName libraryName, bool skipCheck)
         {
             _majorCudaVersion = majorCudaVersion;
             _libraryName = libraryName;
             _skipCheck = skipCheck;
-            _downloadSettings = downloadSettings;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<string> Prepare(SystemInfo systemInfo, bool fromRemote, NativeLogConfig.LLamaLogCallback? logCallback)
+        public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             // TODO: Avx level is ignored now, needs to be implemented in the future.
             if (systemInfo.OSPlatform == OSPlatform.Windows || systemInfo.OSPlatform == OSPlatform.Linux || _skipCheck)
@@ -49,12 +46,12 @@ namespace LLama.Native
                 if (_majorCudaVersion == -1 && _skipCheck)
                 {
                     // Currently only 11 and 12 are supported.
-                    var cuda12LibraryPath = GetCudaPath(systemInfo, 12, fromRemote, logCallback);
+                    var cuda12LibraryPath = GetCudaPath(systemInfo, 12, logCallback);
                     if (cuda12LibraryPath is not null)
                     {
                         yield return cuda12LibraryPath;
                     }
-                    var cuda11LibraryPath = GetCudaPath(systemInfo, 11, fromRemote, logCallback);
+                    var cuda11LibraryPath = GetCudaPath(systemInfo, 11, logCallback);
                     if (cuda11LibraryPath is not null)
                     {
                         yield return cuda11LibraryPath;
@@ -62,7 +59,7 @@ namespace LLama.Native
                 }
                 else if (_majorCudaVersion != -1)
                 {
-                    var cudaLibraryPath = GetCudaPath(systemInfo, _majorCudaVersion, fromRemote, logCallback);
+                    var cudaLibraryPath = GetCudaPath(systemInfo, _majorCudaVersion, logCallback);
                     if (cudaLibraryPath is not null)
                     {
                         yield return cudaLibraryPath;
@@ -71,20 +68,11 @@ namespace LLama.Native
             }
         }
 
-        private string? GetCudaPath(SystemInfo systemInfo, int cudaVersion, bool remote, NativeLogConfig.LLamaLogCallback? logCallback)
+        private string? GetCudaPath(SystemInfo systemInfo, int cudaVersion, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
             var relativePath = $"runtimes/{os}/native/cuda{cudaVersion}/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
-            if (remote)
-            {
-                // Download and return the local path.
-                // We make it sychronize because we c'd better not use async method when loading library later.
-                return NativeLibraryDownloadManager.DownloadLibraryFile(_downloadSettings, relativePath, logCallback).Result;
-            }
-            else
-            {
-                return relativePath;
-            }
+            return relativePath;
         }
     }
 #endif

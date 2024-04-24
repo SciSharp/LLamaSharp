@@ -20,11 +20,10 @@ namespace LLama.Abstractions
         /// If it's a relative path, LLamaSharp will search the path in the search directies you set.
         /// </summary>
         /// <param name="systemInfo">The system information of the current machine.</param>
-        /// <param name="fromRemote">Whether it's allowed to download from remote.</param>
         /// <param name="logCallback">The log callback.</param>
         /// <returns>
         /// The relative paths of the library. You could return multiple paths to try them one by one. If no file is available, please return an empty array.
         /// </returns>
-        IEnumerable<string> Prepare(SystemInfo systemInfo, bool fromRemote = false, NativeLogConfig.LLamaLogCallback? logCallback = null);
+        IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback = null);
     }
 }
