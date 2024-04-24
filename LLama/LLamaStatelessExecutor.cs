@@ -34,7 +34,7 @@ namespace LLama
         public LLavaWeights? ClipModel { get;  }
 
         /// <inheritdoc />
-        public List<byte[]> Images { get; set; }
+        public List<ImageData> Images { get; set; }
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -49,7 +49,7 @@ namespace LLama
         /// <param name="logger"></param>
         public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            Images = new List<byte[]>();
+            Images = new List<ImageData>();
             _weights = weights;
             _params = @params;
             _logger = logger;
