@@ -89,7 +89,7 @@ namespace LLama.Native
         public static unsafe SafeLLamaGrammarHandle Create(LLamaGrammarElement** rules, ulong nrules, ulong start_rule_index)
         {
             var grammar = NativeApi.llama_grammar_init(rules, nrules, start_rule_index);
-            if (grammar == null)
+            if (grammar is null)
                 throw new RuntimeError("Failed to create grammar from rules");
 
             return grammar;
