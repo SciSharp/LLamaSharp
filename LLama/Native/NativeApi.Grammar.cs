@@ -13,7 +13,7 @@ namespace LLama.Native
 		/// <param name="start_rule_index"></param>
 		/// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe IntPtr llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
+        public static extern unsafe SafeLLamaGrammarHandle llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
 
         /// <summary>
         /// Free all memory from the given SafeLLamaGrammarHandle
@@ -28,7 +28,7 @@ namespace LLama.Native
 		/// <param name="grammar"></param>
 		/// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr llama_grammar_copy(SafeLLamaGrammarHandle grammar);
+        public static extern SafeLLamaGrammarHandle llama_grammar_copy(SafeLLamaGrammarHandle grammar);
 
 		/// <summary>
 		/// Apply constraints from grammar
