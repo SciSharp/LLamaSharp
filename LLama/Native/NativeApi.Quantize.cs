@@ -12,6 +12,6 @@ namespace LLama.Native
         /// <param name="param"></param>
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe uint llama_model_quantize(string fname_inp, string fname_out, LLamaModelQuantizeParams* param);
+        public static extern uint llama_model_quantize(string fname_inp, string fname_out, ref LLamaModelQuantizeParams param);
     }
 }
