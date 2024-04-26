@@ -280,7 +280,7 @@ namespace LLama.Native
         /// <summary>
         /// Configuration for LLava native library
         /// </summary>
-        public static NativeLibraryConfig LLavaShared { get; }
+        public static NativeLibraryConfig LLava { get; }
 
 
         /// <summary>
@@ -300,8 +300,8 @@ namespace LLama.Native
         static NativeLibraryConfig()
         {
             LLama = new(NativeLibraryName.Llama);
-            LLavaShared = new(NativeLibraryName.LlavaShared);
-            All = new(LLama, LLavaShared);
+            LLava = new(NativeLibraryName.LlavaShared);
+            All = new(LLama, LLava);
         }
 
 #if NETSTANDARD2_0

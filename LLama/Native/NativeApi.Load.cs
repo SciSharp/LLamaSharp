@@ -19,7 +19,7 @@ namespace LLama.Native
 
             // Set flag to indicate that this point has been passed. No native library config can be done after this point.
             NativeLibraryConfig.LLama.LibraryHasLoaded = true;
-            NativeLibraryConfig.LLavaShared.LibraryHasLoaded = true;
+            NativeLibraryConfig.LLava.LibraryHasLoaded = true;
 
             // Immediately make a call which requires loading the llama DLL. This method call
             // can't fail unless the DLL hasn't been loaded.
@@ -76,7 +76,7 @@ namespace LLama.Native
                         return _loadedLlavaSharedHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLavaShared, out var _);
+                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out var _);
                     return _loadedLlavaSharedHandle;
                 }
 
