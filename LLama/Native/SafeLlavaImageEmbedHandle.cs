@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using LLama;
-using LLama.Exceptions;
 
 
 namespace LLama.Native
@@ -15,15 +10,6 @@ namespace LLama.Native
     public sealed class SafeLlavaImageEmbedHandle
         : SafeLLamaHandleBase
     {
-
-        private SafeLlavaImageEmbedHandle(IntPtr handle)
-            : base(handle, true)
-        {
-        }
-        
-        private SafeLlavaImageEmbedHandle()
-        {}
-
         /// <summary>
         /// Create an image embed from an image file
         /// </summary>

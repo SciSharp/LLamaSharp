@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using LLama;
 using LLama.Exceptions;
 
 
@@ -16,15 +12,6 @@ namespace LLama.Native
     public sealed class SafeLlavaModelHandle
         : SafeLLamaHandleBase
     {
-
-        private SafeLlavaModelHandle(IntPtr handle)
-            : base(handle, true)
-        {
-        }
-
-        private SafeLlavaModelHandle()
-        {}
-        
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
