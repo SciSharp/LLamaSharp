@@ -1,0 +1,35 @@
+name: Feature Request
+description: Request/Propose a new feature in LLamaSharp.
+title: "[Feature]: "
+labels: [feature-request]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature proposal/request is always welcomed!
+  - type: textarea
+    id: background
+    attributes:
+      label: Background & Description
+      description: Please describe the purpose and value of the new feature here.
+      placeholder: Background & Description
+    validations:
+      required: true
+  - type: textarea
+    id: api-proposal
+    attributes:
+      label: API & Usage
+      description: |
+        Please tell us the new APIs related to the feature, if any. Please describe when and how it is used.
+      placeholder: API & Usage
+    validations:
+      required: false
+  - type: textarea
+    id: implementation
+    attributes:
+      label: How to implement
+      description: |
+        Please describe how you think the feature should be implemented. It's okay leave it blank.
+      placeholder: How to implement
+    validations:
+      required: false
