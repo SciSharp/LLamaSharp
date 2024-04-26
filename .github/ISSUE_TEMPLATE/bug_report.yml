@@ -1,5 +1,5 @@
 name: BUG Report
-description: Report a BUG of Tensorflow.NET.
+description: Report a BUG of LLamaSharp.
 title: "[BUG]: "
 labels: [bug-report]
 body:
@@ -34,11 +34,11 @@ body:
         Please provide the information of your environment and configuration.
       placeholder: Environment & Configuration
       value: |
-        Operating system: 
-        .NET runtime version: 
-        LLamaSharp version:
-        CUDA version (if you are using cuda backend): 
-        CPU & GPU device: 
+        - Operating system: 
+        - .NET runtime version: 
+        - LLamaSharp version:
+        - CUDA version (if you are using cuda backend): 
+        - CPU & GPU device: 
     validations:
       required: true
   - type: textarea
