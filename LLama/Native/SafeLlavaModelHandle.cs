@@ -53,7 +53,7 @@ namespace LLama.Native
                     throw new InvalidOperationException($"Llava MMP Model file '{modelPath}' is not readable");
           
             return clip_model_load(modelPath, verbosity)
-                ?? throw new RuntimeError($"Failed to load LLaVa model {modelPath}.");          
+                ?? throw new LoadWeightsFailedException(modelPath);
         }
 
         /// <summary>
