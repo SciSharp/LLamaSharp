@@ -1,4 +1,5 @@
-﻿using LLama.Exceptions;
+﻿using LLama.Abstractions;
+using LLama.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ namespace LLama.Native
         /// Try to load libllama/llava_shared, using CPU feature detection to try and load a more specialised DLL if possible
         /// </summary>
         /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
-        internal static IntPtr TryLoadLibrary(NativeLibraryConfig config)
+        internal static IntPtr TryLoadLibrary(NativeLibraryConfig config, out INativeLibrary? loadedLibrary)
         {
 #if NET6_0_OR_GREATER
             var description = config.CheckAndGatherDescription();
@@ -46,6 +47,7 @@ namespace LLama.Native
                     var result = TryLoad(path, description.SearchDirectories, config.LogCallback);
                     if (result != IntPtr.Zero)
                     {
+                        loadedLibrary = library;
                         return result;
                     }
                 }
@@ -57,6 +59,9 @@ namespace LLama.Native
             {
                 throw new RuntimeError("Failed to load the native library. Please check the log for more information.");
             }
+            loadedLibrary = null;
+#else
+            loadedLibrary = new UnknownNativeLibrary();
 #endif
 
             Log($"No library was loaded before calling native apis. " +

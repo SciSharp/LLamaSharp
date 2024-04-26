@@ -65,7 +65,7 @@ namespace LLama.Native
                         return _loadedLlamaHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama);
+                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out var _);
                     return _loadedLlamaHandle;
                 }
 
@@ -76,7 +76,7 @@ namespace LLama.Native
                         return _loadedLlavaSharedHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLavaShared);
+                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLavaShared, out var _);
                     return _loadedLlavaSharedHandle;
                 }
 
