@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace LLama.Native
 {
     /// <summary>
-    /// A native library specified with a lcoal file path.
+    /// A native library specified with a local file path.
     /// </summary>
     public class NativeLibraryFromPath: INativeLibrary
     {
