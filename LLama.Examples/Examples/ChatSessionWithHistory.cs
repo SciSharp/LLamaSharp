@@ -30,7 +30,7 @@ public class ChatSessionWithHistory
         else
         {
             var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-            ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
+            IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson, typeof(ChatHistory)) ?? new ChatHistory();
 
             session = new ChatSession(executor, chatHistory);
         }
@@ -91,7 +91,7 @@ public class ChatSessionWithHistory
                 await foreach (
                     var text
                     in session.ChatAsync(
-                        new ChatHistory.Message(AuthorRole.User, userInput),
+                        new Message(AuthorRole.User, userInput),
                         inferenceParams))
                 {
                     Console.ForegroundColor = ConsoleColor.White;

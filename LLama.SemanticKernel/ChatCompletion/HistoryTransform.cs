@@ -10,7 +10,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 public class HistoryTransform : DefaultHistoryTransform
 {
     /// <inheritdoc/>
-    public override string HistoryToText(global::LLama.Common.ChatHistory history)
+    public string HistoryToText(global::LLama.Common.ChatHistory history)
     {
         return base.HistoryToText(history) + $"{AuthorRole.Assistant}: ";
     }

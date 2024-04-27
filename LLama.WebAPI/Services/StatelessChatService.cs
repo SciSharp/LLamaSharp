@@ -48,10 +48,9 @@ namespace LLama.WebAPI.Services
     }
     public class HistoryTransform : DefaultHistoryTransform
     {
-        public override string HistoryToText(ChatHistory history)
+        public override string HistoryToText(IChatHistory history)
         {
             return base.HistoryToText(history) + "\n Assistant:";
         }
-
     }
 }

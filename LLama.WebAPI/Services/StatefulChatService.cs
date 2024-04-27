@@ -28,7 +28,7 @@ public class StatefulChatService : IDisposable
         _context = new LLamaContext(weights, @params);
 
         _session = new ChatSession(new InteractiveExecutor(_context));
-        _session.History.AddMessage(Common.AuthorRole.System, SystemPrompt);
+        _session.SessionChatHistory.AddMessage(Common.AuthorRole.System, SystemPrompt);
     }
 
     public void Dispose()
@@ -46,7 +46,7 @@ public class StatefulChatService : IDisposable
         }
         _logger.LogInformation("Input: {text}", input.Text);
         var outputs = _session.ChatAsync(
-            new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text),
+            new Common.Message(Common.AuthorRole.User, input.Text),
             new Common.InferenceParams()
             {
                 RepeatPenalty = 1.0f,
@@ -74,7 +74,7 @@ public class StatefulChatService : IDisposable
         _logger.LogInformation(input.Text);
 
         var outputs = _session.ChatAsync(
-            new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text!)
+            new Common.Message(Common.AuthorRole.User, input.Text!)
             , new Common.InferenceParams()
             {
                 RepeatPenalty = 1.0f,

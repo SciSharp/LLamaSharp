@@ -48,7 +48,7 @@ public class ChatChineseGB2312
         else
         {
             var chatHistoryJson = File.ReadAllText("Assets/chat-with-kunkun-chinese.json");
-            ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
+            IChatHistory chatHistory = ChatHistorySerializer.FromJson(chatHistoryJson, typeof(ChatHistory)) ?? new ChatHistory();
 
             session = new ChatSession(executor, chatHistory);
         }
@@ -104,7 +104,7 @@ public class ChatChineseGB2312
                 await foreach (
                     var text
                     in session.ChatAsync(
-                        new ChatHistory.Message(AuthorRole.User, userInput),
+                        new Message(AuthorRole.User, userInput),
                         inferenceParams))
                 {
                     Console.ForegroundColor = ConsoleColor.White;

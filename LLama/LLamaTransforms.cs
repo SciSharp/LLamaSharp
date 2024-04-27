@@ -1,5 +1,6 @@
 ﻿using LLama.Abstractions;
 using LLama.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,7 +45,7 @@ namespace LLama
             /// <param name="systemName"></param>
             /// <param name="unknownName"></param>
             /// <param name="isInstructMode"></param>
-            public DefaultHistoryTransform(string? userName = null, string? assistantName = null, 
+            public DefaultHistoryTransform(string? userName = null, string? assistantName = null,
                 string? systemName = null, string? unknownName = null, bool isInstructMode = false)
             {
                 _userName = userName ?? defaultUserName;
@@ -61,7 +62,7 @@ namespace LLama
             }
 
             /// <inheritdoc />
-            public virtual string HistoryToText(ChatHistory history)
+            public virtual string HistoryToText(IChatHistory history)
             {
                 StringBuilder sb = new();
                 foreach (var message in history.Messages)
@@ -87,9 +88,9 @@ namespace LLama
             }
 
             /// <inheritdoc />
-            public virtual ChatHistory TextToHistory(AuthorRole role, string text)
+            public virtual IChatHistory TextToHistory(AuthorRole role, string text, Type type)
             {
-                ChatHistory history = new ChatHistory();
+                IChatHistory history = (IChatHistory)(Activator.CreateInstance(type) ?? new ChatHistory());
                 history.AddMessage(role, TrimNamesFromText(text, role));
                 return history;
             }

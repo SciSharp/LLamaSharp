@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -33,41 +34,60 @@ namespace LLama.Common
 
     // copy from semantic-kernel
     /// <summary>
-    /// The chat history class
+    /// The message class
     /// </summary>
-    public class ChatHistory
+    public class Message
     {
-        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+        /// <summary>
+        /// Role of the message author, e.g. user/assistant/system
+        /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("author_role")]
+        public AuthorRole AuthorRole { get; set; }
 
         /// <summary>
-        /// Chat message representation
+        /// Message content
         /// </summary>
-        public class Message
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Create a new instance
+        /// </summary>
+        /// <param name="authorRole">Role of message author</param>
+        /// <param name="content">Message content</param>
+        public Message(AuthorRole authorRole, string content)
         {
-            /// <summary>
-            /// Role of the message author, e.g. user/assistant/system
-            /// </summary>
-            [JsonConverter(typeof(JsonStringEnumConverter))]
-            [JsonPropertyName("author_role")]
-            public AuthorRole AuthorRole { get; set; }
-
-            /// <summary>
-            /// Message content
-            /// </summary>
-            [JsonPropertyName("content")]
-            public string Content { get; set; }
-
-            /// <summary>
-            /// Create a new instance
-            /// </summary>
-            /// <param name="authorRole">Role of message author</param>
-            /// <param name="content">Message content</param>
-            public Message(AuthorRole authorRole, string content)
-            {
-                this.AuthorRole = authorRole;
-                this.Content = content;
-            }
+            this.AuthorRole = authorRole;
+            this.Content = content;
         }
+    }
+
+    /// <summary>
+    /// Interface for chat history
+    /// </summary>
+    public interface IChatHistory
+    {
+        /// <summary>
+        /// List of messages in the chat
+        /// </summary>
+        List<Message> Messages { get; set; }
+
+        /// <summary>
+        /// Add a message to the chat history
+        /// </summary>
+        /// <param name="authorRole">Role of the message author</param>
+        /// <param name="content">Message content</param>
+        void AddMessage(AuthorRole authorRole, string content);
+    }
+
+    // copy from semantic-kernel
+    /// <summary>
+    /// The chat history class
+    /// </summary>
+    public class ChatHistory : IChatHistory
+    {
+        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
         /// <summary>
         /// List of messages in the chat
@@ -99,24 +119,33 @@ namespace LLama.Common
         {
             this.Messages.Add(new Message(authorRole, content));
         }
+    }
+
+    /// <summary>
+    /// Serializer for chat history
+    /// </summary>
+    public class ChatHistorySerializer
+    {
+        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
         /// <summary>
         /// Serialize the chat history to JSON
         /// </summary>
         /// <returns></returns>
-        public string ToJson()
+        public static string ToJson(IChatHistory chatHistory)
         {
-            return JsonSerializer.Serialize(this, _jsonOptions);
+            return JsonSerializer.Serialize(chatHistory, _jsonOptions);
         }
 
         /// <summary>
         /// Deserialize a chat history from JSON
         /// </summary>
         /// <param name="json"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        public static ChatHistory? FromJson(string json)
+        public static IChatHistory? FromJson(string json, Type type)
         {
-            return JsonSerializer.Deserialize<ChatHistory>(json);
+            return JsonSerializer.Deserialize(json, type) as IChatHistory;
         }
     }
 }

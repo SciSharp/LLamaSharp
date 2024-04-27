@@ -52,7 +52,7 @@ public class ChatSession
     /// <summary>
     /// The chat history for this session.
     /// </summary>
-    public ChatHistory History { get; private set; } = new();
+    public IChatHistory SessionChatHistory { get; private set; } = new ChatHistory();
 
     /// <summary>
     /// The history transform used in this session.
@@ -73,17 +73,17 @@ public class ChatSession
     /// Create a new chat session and preprocess history.
     /// </summary>
     /// <param name="executor">The executor for this session</param>
-    /// <param name="history">History for this session</param>
+    /// <param name="chatHistory">History for this session</param>
     /// <returns></returns>
     public static async Task<ChatSession> InitializeSessionFromHistoryAsync(
-        ILLamaExecutor executor, ChatHistory history)
+        ILLamaExecutor executor, IChatHistory chatHistory)
     {
         if (executor is not StatefulExecutorBase statefulExecutor)
         {
             throw new ArgumentException("Executor must have a StatefulExecutorBase", nameof(executor));
         }
-        var session = new ChatSession(executor, history);
-        await statefulExecutor.PrefillPromptAsync(session.HistoryTransform.HistoryToText(history));
+        var session = new ChatSession(executor, chatHistory);
+        await statefulExecutor.PrefillPromptAsync(session.HistoryTransform.HistoryToText(chatHistory));
         return session;
     }
 
@@ -107,10 +107,10 @@ public class ChatSession
     /// </summary>
     /// <param name="executor"></param>
     /// <param name="history"></param>
-    public ChatSession(ILLamaExecutor executor, ChatHistory history)
+    public ChatSession(ILLamaExecutor executor, IChatHistory history)
         : this(executor)
     {
-        History = history;
+        SessionChatHistory = history;
     }
 
     /// <summary>
@@ -165,10 +165,10 @@ public class ChatSession
     {
         var executorState = ((StatefulExecutorBase)Executor).GetStateData();
         return new SessionState(
-            executorState.PastTokensCount > 0 
+            executorState.PastTokensCount > 0
             ? Executor.Context.GetState() : null,
             executorState,
-            History,
+            SessionChatHistory,
             InputTransformPipeline,
             OutputTransform,
             HistoryTransform);
@@ -198,7 +198,7 @@ public class ChatSession
         {
             Executor.Context.LoadState(state.ContextState);
         }
-        History = new ChatHistory(state.History);
+        SessionChatHistory = state.SessionChatHistory;
         if (loadTransforms)
         {
             InputTransformPipeline = state.InputTransformPipeline.Select(t => t.Clone()).ToList();
@@ -216,12 +216,12 @@ public class ChatSession
     /// <exception cref="ArgumentException"></exception>
     public void LoadSession(string path, bool loadTransforms = true)
     {
-        var state = SessionState.Load(path);
+        var state = SessionState.Load(path, this.SessionChatHistory.GetType());
         // Handle non-polymorphic serialization of executor state
         if (state.ExecutorState is null)
         {
             var executorPath = Path.Combine(path, EXECUTOR_STATE_FILENAME);
-            ((StatefulExecutorBase) Executor).LoadState(filename: executorPath); 
+            ((StatefulExecutorBase)Executor).LoadState(filename: executorPath);
         }
         LoadSession(state, loadTransforms);
     }
@@ -231,10 +231,10 @@ public class ChatSession
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public ChatSession AddMessage(ChatHistory.Message message)
+    public ChatSession AddMessage(Message message)
     {
         // If current message is a system message, only allow the history to be empty
-        if (message.AuthorRole == AuthorRole.System && History.Messages.Count > 0)
+        if (message.AuthorRole == AuthorRole.System && SessionChatHistory.Messages.Count > 0)
         {
             throw new ArgumentException("Cannot add a system message after another message", nameof(message));
         }
@@ -243,7 +243,7 @@ public class ChatSession
         // or the previous message to be a system message or assistant message.
         if (message.AuthorRole == AuthorRole.User)
         {
-            ChatHistory.Message? lastMessage = History.Messages.LastOrDefault();
+            Message? lastMessage = SessionChatHistory.Messages.LastOrDefault();
             if (lastMessage is not null && lastMessage.AuthorRole == AuthorRole.User)
             {
                 throw new ArgumentException("Cannot add a user message after another user message", nameof(message));
@@ -254,7 +254,7 @@ public class ChatSession
         // the previous message must be a user message.
         if (message.AuthorRole == AuthorRole.Assistant)
         {
-            ChatHistory.Message? lastMessage = History.Messages.LastOrDefault();
+            Message? lastMessage = SessionChatHistory.Messages.LastOrDefault();
             if (lastMessage is null
                 || lastMessage.AuthorRole != AuthorRole.User)
             {
@@ -262,7 +262,7 @@ public class ChatSession
             }
         }
 
-        History.AddMessage(message.AuthorRole, message.Content);
+        SessionChatHistory.AddMessage(message.AuthorRole, message.Content);
         return this;
     }
 
@@ -272,7 +272,7 @@ public class ChatSession
     /// <param name="content"></param>
     /// <returns></returns>
     public ChatSession AddSystemMessage(string content)
-        => AddMessage(new ChatHistory.Message(AuthorRole.System, content));
+        => AddMessage(new Message(AuthorRole.System, content));
 
     /// <summary>
     /// Add an assistant message to the chat history.
@@ -280,7 +280,7 @@ public class ChatSession
     /// <param name="content"></param>
     /// <returns></returns>
     public ChatSession AddAssistantMessage(string content)
-        => AddMessage(new ChatHistory.Message(AuthorRole.Assistant, content));
+        => AddMessage(new Message(AuthorRole.Assistant, content));
 
     /// <summary>
     /// Add a user message to the chat history.
@@ -288,7 +288,7 @@ public class ChatSession
     /// <param name="content"></param>
     /// <returns></returns>
     public ChatSession AddUserMessage(string content)
-        => AddMessage(new ChatHistory.Message(AuthorRole.User, content));
+        => AddMessage(new Message(AuthorRole.User, content));
 
     /// <summary>
     /// Remove the last message from the chat history.
@@ -296,7 +296,7 @@ public class ChatSession
     /// <returns></returns>
     public ChatSession RemoveLastMessage()
     {
-        History.Messages.RemoveAt(History.Messages.Count - 1);
+        SessionChatHistory.Messages.RemoveAt(SessionChatHistory.Messages.Count - 1);
         return this;
     }
 
@@ -305,7 +305,7 @@ public class ChatSession
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public async Task<ChatSession> AddAndProcessMessage(ChatHistory.Message message)
+    public async Task<ChatSession> AddAndProcessMessage(Message message)
     {
         if (Executor is not StatefulExecutorBase statefulExecutor)
         {
@@ -329,19 +329,19 @@ public class ChatSession
     /// Compute KV cache for the system message and add it to the chat history.
     /// </summary>
     public Task<ChatSession> AddAndProcessSystemMessage(string content)
-        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.System, content));
+        => AddAndProcessMessage(new Message(AuthorRole.System, content));
 
     /// <summary>
     /// Compute KV cache for the user message and add it to the chat history.
     /// </summary>
     public Task<ChatSession> AddAndProcessUserMessage(string content)
-        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.User, content));
+        => AddAndProcessMessage(new Message(AuthorRole.User, content));
 
     /// <summary>
     /// Compute KV cache for the assistant message and add it to the chat history.
     /// </summary>
     public Task<ChatSession> AddAndProcessAssistantMessage(string content)
-        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.Assistant, content));
+        => AddAndProcessMessage(new Message(AuthorRole.Assistant, content));
 
     /// <summary>
     /// Replace a user message with a new message and remove all messages after the new message.
@@ -351,8 +351,8 @@ public class ChatSession
     /// <param name="newMessage"></param>
     /// <returns></returns>
     public ChatSession ReplaceUserMessage(
-        ChatHistory.Message oldMessage,
-        ChatHistory.Message newMessage)
+        Message oldMessage,
+        Message newMessage)
     {
         if (oldMessage.AuthorRole != AuthorRole.User)
         {
@@ -364,16 +364,16 @@ public class ChatSession
             throw new ArgumentException("New message must be a user message", nameof(newMessage));
         }
 
-        int index = History.Messages.IndexOf(oldMessage);
+        int index = SessionChatHistory.Messages.IndexOf(oldMessage);
         if (index == -1)
         {
             throw new ArgumentException("Old message does not exist in history", nameof(oldMessage));
         }
 
-        History.Messages[index] = newMessage;
+        SessionChatHistory.Messages[index] = newMessage;
 
         // Remove all message after the new message
-        History.Messages.RemoveRange(index + 1, History.Messages.Count - index - 1);
+        SessionChatHistory.Messages.RemoveRange(index + 1, SessionChatHistory.Messages.Count - index - 1);
 
         return this;
     }
@@ -388,7 +388,7 @@ public class ChatSession
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     public async IAsyncEnumerable<string> ChatAsync(
-        ChatHistory.Message message,
+        Message message,
         bool applyInputTransformPipeline,
         IInferenceParams? inferenceParams = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -424,14 +424,14 @@ public class ChatSession
             // If the session history was added as part of new chat session history,
             // convert the complete history includsing system message and manually added history
             // to a prompt that adhere to the prompt template specified in the HistoryTransform class implementation.
-            prompt = HistoryTransform.HistoryToText(History);
+            prompt = HistoryTransform.HistoryToText(SessionChatHistory);
         }
         else
         {
             // If the session was restored from a previous session,
             // convert only the current message to the prompt with the prompt template
             // specified in the HistoryTransform class implementation that is provided.
-            ChatHistory singleMessageHistory = HistoryTransform.TextToHistory(message.AuthorRole, message.Content);
+            IChatHistory singleMessageHistory = HistoryTransform.TextToHistory(message.AuthorRole, message.Content, SessionChatHistory.GetType());
             prompt = HistoryTransform.HistoryToText(singleMessageHistory);
         }
 
@@ -460,7 +460,7 @@ public class ChatSession
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public IAsyncEnumerable<string> ChatAsync(
-        ChatHistory.Message message,
+        Message message,
         IInferenceParams? inferenceParams = null,
         CancellationToken cancellationToken = default)
     {
@@ -481,16 +481,16 @@ public class ChatSession
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     public IAsyncEnumerable<string> ChatAsync(
-        ChatHistory history,
+        IChatHistory history,
         bool applyInputTransformPipeline,
         IInferenceParams? inferenceParams = null,
         CancellationToken cancellationToken = default)
     {
-        ChatHistory.Message lastMessage = history.Messages.LastOrDefault()
+        Message lastMessage = history.Messages.LastOrDefault()
             ?? throw new ArgumentException("History must contain at least one message", nameof(history));
 
         foreach (
-            ChatHistory.Message message
+            Message message
             in history.Messages.Take(history.Messages.Count - 1))
         {
             // Apply input transform pipeline
@@ -523,7 +523,7 @@ public class ChatSession
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public IAsyncEnumerable<string> ChatAsync(
-        ChatHistory history,
+        IChatHistory history,
         IInferenceParams? inferenceParams = null,
         CancellationToken cancellationToken = default)
     {
@@ -546,7 +546,7 @@ public class ChatSession
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         // Make sure the last message is an assistant message (reponse from the LLM).
-        ChatHistory.Message? lastAssistantMessage = History.Messages.LastOrDefault();
+        Message? lastAssistantMessage = SessionChatHistory.Messages.LastOrDefault();
 
         if (lastAssistantMessage is null
             || lastAssistantMessage.AuthorRole != AuthorRole.Assistant)
@@ -558,7 +558,7 @@ public class ChatSession
         RemoveLastMessage();
 
         // Get the last user message.
-        ChatHistory.Message? lastUserMessage = History.Messages.LastOrDefault();
+        Message? lastUserMessage = SessionChatHistory.Messages.LastOrDefault();
 
         if (lastUserMessage is null
             || lastUserMessage.AuthorRole != AuthorRole.User)
@@ -629,29 +629,29 @@ public record SessionState
     /// The history transform used in this session.
     /// </summary>
     public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
-    
+
     /// <summary>
     /// The the chat history messages for this session.
     /// </summary>
-    public ChatHistory.Message[] History { get; set; } = Array.Empty<ChatHistory.Message>();
+    public IChatHistory SessionChatHistory;
 
     /// <summary>
     /// Create a new session state.
     /// </summary>
     /// <param name="contextState"></param>
     /// <param name="executorState"></param>
-    /// <param name="history"></param>
+    /// <param name="chatHistory"></param>
     /// <param name="inputTransformPipeline"></param>
     /// <param name="outputTransform"></param>
     /// <param name="historyTransform"></param>
     public SessionState(
-        State? contextState, ExecutorBaseState executorState, 
-        ChatHistory history, List<ITextTransform> inputTransformPipeline,
+        State? contextState, ExecutorBaseState executorState,
+        IChatHistory chatHistory, List<ITextTransform> inputTransformPipeline,
         ITextStreamTransform outputTransform, IHistoryTransform historyTransform)
     {
         ContextState = contextState;
         ExecutorState = executorState;
-        History = history.Messages.ToArray();
+        SessionChatHistory = chatHistory;
         InputTransformPipeline = inputTransformPipeline.Select(t => t.Clone()).ToArray();
         OutputTransform = outputTransform.Clone();
         HistoryTransform = historyTransform.Clone();
@@ -686,7 +686,7 @@ public record SessionState
         File.WriteAllText(executorStateFilepath, JsonSerializer.Serialize(ExecutorState));
 
         string historyFilepath = Path.Combine(path, ChatSession.HISTORY_STATE_FILENAME);
-        File.WriteAllText(historyFilepath, new ChatHistory(History).ToJson());
+        File.WriteAllText(historyFilepath, ChatHistorySerializer.ToJson(new ChatHistory(SessionChatHistory.Messages.ToArray())));
 
         string inputTransformFilepath = Path.Combine(path, ChatSession.INPUT_TRANSFORM_FILENAME);
         File.WriteAllText(inputTransformFilepath, JsonSerializer.Serialize(InputTransformPipeline));
@@ -704,7 +704,7 @@ public record SessionState
     /// <param name="path"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Throws when session state is incorrect</exception>
-    public static SessionState Load(string path)
+    public static SessionState Load(string path, Type type)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -717,7 +717,7 @@ public record SessionState
         }
 
         string modelStateFilePath = Path.Combine(path, ChatSession.MODEL_STATE_FILENAME);
-        var contextState = File.Exists(modelStateFilePath) ? 
+        var contextState = File.Exists(modelStateFilePath) ?
             State.FromByteArray(File.ReadAllBytes(modelStateFilePath))
             : null;
 
@@ -726,14 +726,14 @@ public record SessionState
 
         string historyFilepath = Path.Combine(path, ChatSession.HISTORY_STATE_FILENAME);
         string historyJson = File.ReadAllText(historyFilepath);
-        var history = ChatHistory.FromJson(historyJson)
+        var history = ChatHistorySerializer.FromJson(historyJson, type)
             ?? throw new ArgumentException("History file is invalid", nameof(path));
 
         string inputTransformFilepath = Path.Combine(path, ChatSession.INPUT_TRANSFORM_FILENAME);
         ITextTransform[] inputTransforms;
         try
         {
-            inputTransforms = File.Exists(inputTransformFilepath) ? 
+            inputTransforms = File.Exists(inputTransformFilepath) ?
                 (JsonSerializer.Deserialize<ITextTransform[]>(File.ReadAllText(inputTransformFilepath))
                 ?? throw new ArgumentException("Input transform file is invalid", nameof(path)))
                 : Array.Empty<ITextTransform>();
@@ -744,11 +744,10 @@ public record SessionState
         }
 
         string outputTransformFilepath = Path.Combine(path, ChatSession.OUTPUT_TRANSFORM_FILENAME);
-        
         ITextStreamTransform outputTransform;
         try
         {
-            outputTransform = File.Exists(outputTransformFilepath) ? 
+            outputTransform = File.Exists(outputTransformFilepath) ?
             (JsonSerializer.Deserialize<ITextStreamTransform>(File.ReadAllText(outputTransformFilepath))
                        ?? throw new ArgumentException("Output transform file is invalid", nameof(path)))
             : new LLamaTransforms.EmptyTextOutputStreamTransform();
@@ -762,7 +761,7 @@ public record SessionState
         IHistoryTransform historyTransform;
         try
         {
-            historyTransform = File.Exists(historyTransformFilepath) ? 
+            historyTransform = File.Exists(historyTransformFilepath) ?
                 (JsonSerializer.Deserialize<IHistoryTransform>(File.ReadAllText(historyTransformFilepath))
                            ?? throw new ArgumentException("History transform file is invalid", nameof(path)))
                 : new LLamaTransforms.DefaultHistoryTransform();
