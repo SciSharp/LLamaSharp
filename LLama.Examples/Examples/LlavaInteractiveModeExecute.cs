@@ -20,7 +20,7 @@ namespace LLama.Examples.Examples
 
             var parameters = new ModelParams(modelPath);
 
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             using var context = model.CreateContext(parameters);
             
             // Llava Init

@@ -9,7 +9,7 @@ namespace LLama.Examples.Examples
         {
             string modelPath = UserSettings.GetModelPath();
 
-            var gbnf = File.ReadAllText("Assets/json.gbnf").Trim();
+            var gbnf = (await File.ReadAllTextAsync("Assets/json.gbnf")).Trim();
             var grammar = Grammar.Parse(gbnf, "root");
 
             var parameters = new ModelParams(modelPath)
@@ -17,7 +17,7 @@ namespace LLama.Examples.Examples
                 Seed = 1337,
                 GpuLayerCount = 5
             };
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             var ex = new StatelessExecutor(model, parameters);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
