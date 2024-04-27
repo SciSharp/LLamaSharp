@@ -24,9 +24,9 @@ namespace LLama.Examples.Examples
             using var context = model.CreateContext(parameters);
             
             // Llava Init
-            using var clipModel = LLavaWeights.LoadFromFile(multiModalProj);
+            using var clipModel = await LLavaWeights.LoadFromFileAsync(multiModalProj);
             
-            var ex = new InteractiveExecutor(context, clipModel );
+            var ex = new InteractiveExecutor(context, clipModel);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to {0} and the context size is {1}.", maxTokens, parameters.ContextSize );
