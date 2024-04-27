@@ -23,7 +23,7 @@ namespace LLama.Examples.Examples
                 Embeddings = true
             };
 
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             var embedding = new LLamaEmbedder(model, parameters);
 
             Console.WriteLine("====================================================");

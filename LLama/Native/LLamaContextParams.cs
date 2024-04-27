@@ -8,6 +8,8 @@ namespace LLama.Native
     /// </summary>
     /// <param name="progress"></param>
     /// <param name="ctx"></param>
+    /// <returns>If the provided progress_callback returns true, model loading continues.
+    /// If it returns false, model loading is immediately aborted.</returns>
     /// <remarks>llama_progress_callback</remarks>
     public delegate bool LlamaProgressCallback(float progress, IntPtr ctx);
 

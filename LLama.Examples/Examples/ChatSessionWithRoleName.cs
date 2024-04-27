@@ -13,11 +13,11 @@ public class ChatSessionWithRoleName
             Seed = 1337,
             GpuLayerCount = 5
         };
-        using var model = LLamaWeights.LoadFromFile(parameters);
+        using var model = await LLamaWeights.LoadFromFileAsync(parameters);
         using var context = model.CreateContext(parameters);
         var executor = new InteractiveExecutor(context);
 
-        var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
+        var chatHistoryJson = await File.ReadAllTextAsync("Assets/chat-with-bob.json");
         ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
 
         ChatSession session = new(executor, chatHistory);

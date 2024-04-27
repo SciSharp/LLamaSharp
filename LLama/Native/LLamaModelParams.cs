@@ -38,7 +38,7 @@ namespace LLama.Native
         // as NET Framework 4.8 does not play nice with the LlamaProgressCallback type
         public IntPtr progress_callback;
 #else
-        public LlamaProgressCallback progress_callback;
+        public LlamaProgressCallback? progress_callback;
 #endif
 
         /// <summary>

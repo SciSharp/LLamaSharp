@@ -19,7 +19,7 @@ namespace LLama.Examples.Examples
 
             // Load weights into memory
             var parameters = new ModelParams(modelPath);
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             var ex = new StatelessExecutor(model, parameters);
 
             var builder = Kernel.CreateBuilder();
