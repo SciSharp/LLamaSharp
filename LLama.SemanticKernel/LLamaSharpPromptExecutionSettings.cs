@@ -75,6 +75,12 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
     public IDictionary<int, int> TokenSelectionBiases { get; set; } = new Dictionary<int, int>();
 
     /// <summary>
+    /// Indicates the format of the response which can be used downstream to post-process the messages. Handlebars: handlebars_object. JSON: json_object, etc.
+    /// </summary>
+    [JsonPropertyName("response_format")]
+    public string ResponseFormat { get; set; } = string.Empty;
+
+    /// <summary>
     /// Create a new settings object with the values from another settings object.
     /// </summary>
     /// <param name="requestSettings">Template configuration</param>
