@@ -107,7 +107,7 @@ namespace LLama
             {
 #if !NETSTANDARD2_0
                 // Overwrite the progress callback with one which polls the cancellation token
-                //if (token.CanBeCanceled)
+                if (token.CanBeCanceled)
                 {
                     var internalCallback = lparams.progress_callback;
                     lparams.progress_callback = (progress, ctx) =>
