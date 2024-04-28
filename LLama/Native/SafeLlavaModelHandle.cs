@@ -39,8 +39,11 @@ namespace LLama.Native
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"Llava MMP Model file '{modelPath}' is not readable");
           
-            return clip_model_load(modelPath, verbosity)
-                ?? throw new LoadWeightsFailedException(modelPath);
+            var handle = clip_model_load(modelPath, verbosity);
+            if (handle.IsInvalid)
+                throw new LoadWeightsFailedException(modelPath);
+
+            return handle;
         }
 
         /// <summary>
