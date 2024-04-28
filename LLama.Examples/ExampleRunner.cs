@@ -5,6 +5,7 @@ public class ExampleRunner
 {
     private static readonly Dictionary<string, Func<Task>> Examples = new()
     {
+        { "Chat Session: LLama3", LLama3ChatSession.Run },
         { "Chat Session: History", ChatSessionWithHistory.Run },
         { "Chat Session: Role names", ChatSessionWithRoleName.Run },
         { "Chat Session: Role names stripped", ChatSessionStripRoleName.Run },
