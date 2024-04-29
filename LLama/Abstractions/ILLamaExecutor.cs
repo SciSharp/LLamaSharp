@@ -20,7 +20,7 @@ namespace LLama.Abstractions
         /// </summary>
         public bool IsMultiModal { get; }
         /// <summary>
-        /// Muti-Modal Projections / Clip Model weights
+        /// Multi-Modal Projections / Clip Model weights
         /// </summary>
         public LLavaWeights? ClipModel { get;  }
 

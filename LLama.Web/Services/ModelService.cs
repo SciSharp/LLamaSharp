@@ -8,7 +8,7 @@ namespace LLama.Web.Services
 {
 
     /// <summary>
-    /// Sercive for handling Models,Weights & Contexts
+    /// Service for handling Models,Weights & Contexts
     /// </summary>
     public class ModelService : IModelService
     {

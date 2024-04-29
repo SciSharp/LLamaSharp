@@ -2,7 +2,7 @@
 
 Namespace: LLama.Common
 
-The paramters used for inference.
+The parameters used for inference.
 
 ```csharp
 public class InferenceParams : LLama.Abstractions.IInferenceParams, System.IEquatable`1[[LLama.Common.InferenceParams, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]

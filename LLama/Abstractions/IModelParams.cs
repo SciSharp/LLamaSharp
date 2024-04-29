@@ -232,7 +232,7 @@ namespace LLama.Abstractions
     public sealed record MetadataOverride
     {
         /// <summary>
-        /// Get the key being overriden by this override
+        /// Get the key being overridden by this override
         /// </summary>
         public string Key { get; }
 

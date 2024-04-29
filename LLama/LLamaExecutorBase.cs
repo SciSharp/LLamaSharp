@@ -209,7 +209,7 @@ namespace LLama
         /// <summary>
         /// Try to reuse the matching prefix from the session file.
         /// </summary>
-        protected virtual void TryReuseMathingPrefix()
+        protected virtual void TryReuseMatchingPrefix()
         {
             if (_n_session_consumed < _session_tokens.Count)
             {

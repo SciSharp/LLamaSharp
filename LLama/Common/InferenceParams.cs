@@ -7,7 +7,7 @@ using LLama.Sampling;
 namespace LLama.Common
 {
     /// <summary>
-    /// The paramters used for inference.
+    /// The parameters used for inference.
     /// </summary>
     public record InferenceParams
         : IInferenceParams
