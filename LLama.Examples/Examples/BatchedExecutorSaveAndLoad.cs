@@ -80,7 +80,7 @@ public class BatchedExecutorSaveAndLoad
         // Continue generating text
         await GenerateTokens(executor, conversation, sampler, decoder, n_len);
 
-        // Display final ouput
+        // Display final output
         AnsiConsole.MarkupLine($"[red]{prompt}{decoder.Read()}[/]");
     }
 

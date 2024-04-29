@@ -628,7 +628,7 @@ namespace LLama
             }
 
             /// <summary>
-            /// Copy bytes to a desintation pointer.
+            /// Copy bytes to a destination pointer.
             /// </summary>
             /// <param name="dst">Destination to write to</param>
             /// <param name="length">Length of the destination buffer</param>

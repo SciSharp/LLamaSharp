@@ -1,7 +1,7 @@
 ﻿namespace LLama.Web.Async
 {
     /// <summary>
-    /// Create an Async locking using statment
+    /// Create an Async locking using statement
     /// </summary>
     public sealed class AsyncLock
     {

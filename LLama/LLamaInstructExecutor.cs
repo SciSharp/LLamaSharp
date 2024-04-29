@@ -189,7 +189,7 @@ namespace LLama
                     HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
-                TryReuseMathingPrefix();
+                TryReuseMatchingPrefix();
 
                 var (result, _) = Context.NativeHandle.Decode(_embeds, LLamaSeqId.Zero, batch, ref _pastTokensCount);
                 if (result != DecodeResult.Ok)
@@ -259,7 +259,7 @@ namespace LLama
             return Task.CompletedTask;
         }
         /// <summary>
-        /// The desciptor of the state of the instruct executor.
+        /// The descriptor of the state of the instruct executor.
         /// </summary>
         public class InstructExecutorState : ExecutorBaseState
         {

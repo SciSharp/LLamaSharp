@@ -34,14 +34,14 @@ namespace LLama.Web
         private static List<string> CombineCSV(List<string> list, string csv)
         {
             var results = list is null || list.Count == 0
-                ? CommaSeperatedToList(csv)
-                : CommaSeperatedToList(csv).Concat(list);
+                ? CommaSeparatedToList(csv)
+                : CommaSeparatedToList(csv).Concat(list);
             return results
                 .Distinct()
                 .ToList();
         }
 
-        private static List<string> CommaSeperatedToList(string value)
+        private static List<string> CommaSeparatedToList(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return new List<string>();

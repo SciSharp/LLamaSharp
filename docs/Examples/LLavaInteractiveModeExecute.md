@@ -98,7 +98,7 @@ namespace LLama.Examples.Examples
                     Console.WriteLine();
 
 
-                    // Initilize Images in executor
+                    // Initialize Images in executor
                     //
                     foreach (var image in imagePaths)
                     {

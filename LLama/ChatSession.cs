@@ -545,7 +545,7 @@ public class ChatSession
         InferenceParams? inferenceParams = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        // Make sure the last message is an assistant message (reponse from the LLM).
+        // Make sure the last message is an assistant message (response from the LLM).
         ChatHistory.Message? lastAssistantMessage = History.Messages.LastOrDefault();
 
         if (lastAssistantMessage is null

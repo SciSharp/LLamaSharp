@@ -30,7 +30,7 @@ namespace LLama.Web.Hubs
         {
             _logger.Log(LogLevel.Information, "[OnDisconnectedAsync], Id: {0}", Context.ConnectionId);
 
-            // Remove connections session on dissconnect
+            // Remove connections session on disconnect
             await _modelSessionService.CloseAsync(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);
         }
