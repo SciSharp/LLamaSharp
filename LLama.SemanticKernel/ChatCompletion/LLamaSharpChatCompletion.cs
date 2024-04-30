@@ -18,7 +18,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 public sealed class LLamaSharpChatCompletion : IChatCompletionService
 {
     private readonly ILLamaExecutor _model;
-    private ChatRequestSettings defaultRequestSettings;
+    private LLamaSharpPromptExecutionSettings defaultRequestSettings;
     private readonly IHistoryTransform historyTransform;
     private readonly ITextStreamTransform outputTransform;
 
@@ -27,9 +27,9 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
 
     public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
 
-    static ChatRequestSettings GetDefaultSettings()
+    static LLamaSharpPromptExecutionSettings GetDefaultSettings()
     {
-        return new ChatRequestSettings
+        return new LLamaSharpPromptExecutionSettings
         {
             MaxTokens = 256,
             Temperature = 0,
@@ -39,7 +39,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     }
 
     public LLamaSharpChatCompletion(ILLamaExecutor model,
-        ChatRequestSettings? defaultRequestSettings = default,
+        LLamaSharpPromptExecutionSettings? defaultRequestSettings = default,
         IHistoryTransform? historyTransform = null,
         ITextStreamTransform? outputTransform = null)
     {
@@ -68,7 +68,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
         var settings = executionSettings != null
-           ? ChatRequestSettings.FromRequestSettings(executionSettings)
+           ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
            : defaultRequestSettings;
 
         string prompt = this._getFormattedPrompt(chatHistory);
@@ -89,7 +89,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var settings = executionSettings != null
-          ? ChatRequestSettings.FromRequestSettings(executionSettings)
+          ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
           : defaultRequestSettings;
 
         string prompt = this._getFormattedPrompt(chatHistory);
