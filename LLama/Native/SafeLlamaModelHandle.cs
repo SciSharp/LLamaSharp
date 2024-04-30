@@ -411,7 +411,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="token">Token to decode</param>
         /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
-        /// <param name="special">If true, special charcters will be converted to text. If false they will be invisible.</param>
+        /// <param name="special">If true, special characters will be converted to text. If false they will be invisible.</param>
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
         public uint TokenToSpan(LLamaToken token, Span<byte> dest, bool special = false)
         {
