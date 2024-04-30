@@ -79,7 +79,7 @@ public class BatchedExecutorGuidance
                     guidance.Prompt(g);
 
                     // Early exit if we reach the natural end of the guided sentence
-                    if (g == model.Tokens.EOS)
+                    if (model.Tokens.IsEndOfGeneration(g))
                         break;
 
                     // Update progress bar

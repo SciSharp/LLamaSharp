@@ -176,7 +176,7 @@ namespace LLama.Native
         public static extern LLamaToken llama_sample_token_greedy(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
 
         /// <summary>
-        /// Randomly selects a token from the candidates based on their probabilities.
+        /// Randomly selects a token from the candidates based on their probabilities using the RNG of ctx.
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="candidates">Pointer to LLamaTokenDataArray</param>

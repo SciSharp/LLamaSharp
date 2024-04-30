@@ -43,6 +43,8 @@ public unsafe struct LLamaModelMetadataOverride
     /// </summary>
     [FieldOffset(136)]
     public long BoolValue;
+
+    //todo: char val_str[128];
 }
 
 /// <summary>
@@ -65,4 +67,9 @@ public enum LLamaModelKvOverrideType
     /// Overriding a bool value
     /// </summary>
     Bool = 2,
+
+    /// <summary>
+    /// Overriding a string value
+    /// </summary>
+    String = 3,
 }

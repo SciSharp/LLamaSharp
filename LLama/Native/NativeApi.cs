@@ -134,6 +134,14 @@ namespace LLama.Native
         public static extern uint llama_n_seq_max(SafeLLamaContextHandle ctx);
 
         /// <summary>
+        /// Get the pooling type for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LLamaPoolingType llama_pooling_type(SafeLLamaContextHandle ctx);
+
+        /// <summary>
         /// Get the embeddings for the a specific sequence.
         /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
         /// </summary>
@@ -218,19 +226,20 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
+        /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer)
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, bool special)
         {
             unsafe
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length);
+                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, special);
                 }
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length);
+            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, bool special);
         }
 
         /// <summary>
