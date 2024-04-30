@@ -44,7 +44,11 @@ public unsafe struct LLamaModelMetadataOverride
     [FieldOffset(136)]
     public long BoolValue;
 
-    //todo: char val_str[128];
+    /// <summary>
+    /// Value, **must** only be used if Tag == String
+    /// </summary>
+    [FieldOffset(136)]
+    public fixed byte StringValue[128];
 }
 
 /// <summary>
