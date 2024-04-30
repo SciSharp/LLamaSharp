@@ -34,6 +34,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_mmap();
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_mlock();
 
         /// <summary>
@@ -48,6 +50,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_gpu_offload();
 
         /// <summary>
@@ -77,6 +80,7 @@ namespace LLama.Native
         /// <param name="n_token_count_out"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_state_load_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens_out, ulong n_token_capacity, out ulong n_token_count_out);
 
         /// <summary>
@@ -88,6 +92,7 @@ namespace LLama.Native
         /// <param name="n_token_count"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -284,6 +289,7 @@ namespace LLama.Native
         /// <param name="p1"></param>
         /// <returns>Returns false if a partial sequence cannot be removed. Removing a whole sequence never fails</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_kv_cache_seq_rm(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1);
 
         /// <summary>

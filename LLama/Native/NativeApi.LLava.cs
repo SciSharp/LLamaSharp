@@ -13,6 +13,7 @@ public static unsafe partial class NativeApi
     /// <param name="ctxClip">Llava Model</param>
     /// <returns>True if validate successfully</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_validate_embed_size", CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.U1)]
     public static extern bool llava_validate_embed_size( SafeLLamaContextHandle ctxLlama, SafeLlavaModelHandle ctxClip);
 
     /// <summary>
@@ -56,7 +57,7 @@ public static unsafe partial class NativeApi
     /// <param name="embed">Embedding handle</param>
     /// <returns>True on success</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_eval_image_embed", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, SafeLlavaImageEmbedHandle embed,
-        int n_batch, ref int n_past);
+    [return: MarshalAs(UnmanagedType.U1)]
+    public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, SafeLlavaImageEmbedHandle embed, int n_batch, ref int n_past);
     
 }

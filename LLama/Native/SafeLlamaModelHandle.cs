@@ -369,6 +369,7 @@ namespace LLama.Native
         /// <param name="token"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_token_is_eog(SafeLlamaModelHandle model, LLamaToken token);
         #endregion
 
