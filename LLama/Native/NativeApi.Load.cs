@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Collections.Generic;
+using LLama.Abstractions;
 
 namespace LLama.Native
 {
@@ -65,7 +66,7 @@ namespace LLama.Native
                         return _loadedLlamaHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out var _);
+                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary);
                     return _loadedLlamaHandle;
                 }
 
@@ -76,7 +77,7 @@ namespace LLama.Native
                         return _loadedLlavaSharedHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out var _);
+                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary);
                     return _loadedLlavaSharedHandle;
                 }
 
@@ -86,8 +87,26 @@ namespace LLama.Native
 #endif
         }
 
+        /// <summary>
+        /// Get the loaded native library. If you are using netstandard2.0, it will always return null.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static INativeLibrary? GetLoadedNativeLibrary(NativeLibraryName name)
+        {
+            return name switch
+            {
+                NativeLibraryName.LLama => _loadedLLamaLibrary,
+                NativeLibraryName.LLava => _loadedLLavaLibrary,
+                _ => throw new ArgumentException($"Library name {name} is not found.")
+            };
+        }
+
         internal const string libraryName = "llama";
-        internal const string llavaLibraryName = "llava_shared";        
-        private const string cudaVersionFile = "version.json";
+        internal const string llavaLibraryName = "llava_shared";
+
+        private static INativeLibrary? _loadedLLamaLibrary = null;
+        private static INativeLibrary? _loadedLLavaLibrary = null;
     }
 }

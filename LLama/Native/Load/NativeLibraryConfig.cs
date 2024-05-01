@@ -299,8 +299,8 @@ namespace LLama.Native
 
         static NativeLibraryConfig()
         {
-            LLama = new(NativeLibraryName.Llama);
-            LLava = new(NativeLibraryName.LlavaShared);
+            LLama = new(NativeLibraryName.LLama);
+            LLava = new(NativeLibraryName.LLava);
             All = new(LLama, LLava);
         }
 
@@ -401,11 +401,11 @@ namespace LLama.Native
         {
             foreach(var config in _configs)
             {
-                if(config.NativeLibraryName == NativeLibraryName.Llama && llamaPath is not null)
+                if(config.NativeLibraryName == NativeLibraryName.LLama && llamaPath is not null)
                 {
                     config.WithLibrary(llamaPath);
                 }
-                if(config.NativeLibraryName == NativeLibraryName.LlavaShared && llavaPath is not null)
+                if(config.NativeLibraryName == NativeLibraryName.LLava && llavaPath is not null)
                 {
                     config.WithLibrary(llavaPath);
                 }
@@ -567,11 +567,11 @@ namespace LLama.Native
             foreach(var config in _configs)
             {
                 success &= config.DryRun(out var loadedLibrary);
-                if(config.NativeLibraryName == NativeLibraryName.Llama)
+                if(config.NativeLibraryName == NativeLibraryName.LLama)
                 {
                     loadedLLamaNativeLibrary = loadedLibrary;
                 }
-                else if(config.NativeLibraryName == NativeLibraryName.LlavaShared)
+                else if(config.NativeLibraryName == NativeLibraryName.LLava)
                 {
                     loadedLLavaNativeLibrary = loadedLibrary;
                 }
@@ -593,11 +593,11 @@ namespace LLama.Native
         /// <summary>
         /// The native library compiled from llama.cpp.
         /// </summary>
-        Llama,
+        LLama,
         /// <summary>
         /// The native library compiled from the LLaVA example of llama.cpp.
         /// </summary>
-        LlavaShared
+        LLava
     }
 
     internal static class LibraryNameExtensions
@@ -606,9 +606,9 @@ namespace LLama.Native
         {
             switch (name)
             {
-                case NativeLibraryName.Llama:
+                case NativeLibraryName.LLama:
                     return NativeApi.libraryName;
-                case NativeLibraryName.LlavaShared:
+                case NativeLibraryName.LLava:
                     return NativeApi.llavaLibraryName;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(name), name, null);
