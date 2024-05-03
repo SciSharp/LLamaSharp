@@ -19,7 +19,7 @@ namespace LLama.Native
         /// <inheritdoc/>
         public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback = null)
         {
-            throw new NotImplementedException("This class is only a placeholder and should not be used to load native library.");
+            throw new NotSupportedException("This class is only a placeholder and should not be used to load native library.");
         }
     }
 }
