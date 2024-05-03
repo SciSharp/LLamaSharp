@@ -6,7 +6,7 @@ using LLama.Sampling;
 namespace LLama.Abstractions
 {  
 	 /// <summary>
-	 /// The paramters used for inference.
+	 /// The parameters used for inference.
 	 /// </summary>
 	public interface IInferenceParams
     {

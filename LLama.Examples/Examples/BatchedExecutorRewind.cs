@@ -20,7 +20,7 @@ public class BatchedExecutorRewind
         string modelPath = UserSettings.GetModelPath();
 
         var parameters = new ModelParams(modelPath);
-        using var model = LLamaWeights.LoadFromFile(parameters);
+        using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
 

@@ -368,6 +368,9 @@ namespace LLama.Native
         /// </returns>
         public DecodeResult Decode(LLamaBatch batch)
         {
+            if (batch.TokenCount == 0)
+                return DecodeResult.Ok;
+
             lock (GlobalInferenceLock)
                 using (batch.ToNativeBatch(out var nb))
                     return (DecodeResult)llama_decode(this, nb);
@@ -383,6 +386,9 @@ namespace LLama.Native
         /// <returns>A tuple, containing the decode result and the number of tokens that have <b>not</b> been decoded yet.</returns>
         internal (DecodeResult, int) Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, ref int n_past)
         {
+            if (tokens.Count == 0)
+                return (DecodeResult.Ok, 0);
+
             var batchSize = checked((int)BatchSize);
 
             // Evaluate the prompt, in chunks smaller than the max batch size

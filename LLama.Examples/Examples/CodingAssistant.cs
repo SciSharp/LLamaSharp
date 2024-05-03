@@ -29,7 +29,7 @@
             {
                 ContextSize = 4096
             };
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             using var context = model.CreateContext(parameters);
             var executor = new InstructExecutor(context, InstructionPrefix, InstructionSuffix, null);
 

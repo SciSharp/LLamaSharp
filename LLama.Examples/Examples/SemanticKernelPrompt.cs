@@ -1,9 +1,9 @@
 ﻿using LLama.Common;
-using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
 using LLamaSharp.SemanticKernel.TextCompletion;
 using Microsoft.SemanticKernel.TextGeneration;
 using Microsoft.Extensions.DependencyInjection;
+using LLamaSharp.SemanticKernel;
 
 namespace LLama.Examples.Examples
 {
@@ -19,7 +19,7 @@ namespace LLama.Examples.Examples
 
             // Load weights into memory
             var parameters = new ModelParams(modelPath);
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             var ex = new StatelessExecutor(model, parameters);
 
             var builder = Kernel.CreateBuilder();
@@ -31,7 +31,7 @@ namespace LLama.Examples.Examples
 
 One line TLDR with the fewest words.";
 
-            ChatRequestSettings settings = new() { MaxTokens = 100 };
+            LLamaSharpPromptExecutionSettings settings = new() { MaxTokens = 100 };
             var summarize = kernel.CreateFunctionFromPrompt(prompt, settings);
 
             string text1 = @"

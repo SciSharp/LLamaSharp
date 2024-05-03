@@ -16,15 +16,6 @@ namespace LLama.Native
         : SafeLLamaHandleBase
     {
         #region construction/destruction
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="handle"></param>
-        internal SafeLLamaGrammarHandle(IntPtr handle)
-            : base(handle, true)
-        {
-        }
-
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
@@ -97,11 +88,11 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static unsafe SafeLLamaGrammarHandle Create(LLamaGrammarElement** rules, ulong nrules, ulong start_rule_index)
         {
-            var grammar_ptr = NativeApi.llama_grammar_init(rules, nrules, start_rule_index);
-            if (grammar_ptr == IntPtr.Zero)
+            var grammar = NativeApi.llama_grammar_init(rules, nrules, start_rule_index);
+            if (grammar is null)
                 throw new RuntimeError("Failed to create grammar from rules");
 
-            return new(grammar_ptr);
+            return grammar;
         }
         #endregion
 
@@ -111,7 +102,7 @@ namespace LLama.Native
         /// <returns></returns>
         public SafeLLamaGrammarHandle Clone()
         {
-            return new SafeLLamaGrammarHandle(NativeApi.llama_grammar_copy(this));
+            return NativeApi.llama_grammar_copy(this);
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ public interface ILLamaExecutor
     /// </summary>
     public bool IsMultiModal { get; }
     /// <summary>
-    /// Muti-Modal Projections / Clip Model weights
+    /// Multi-Modal Projections / Clip Model weights
     /// </summary>
     public LLavaWeights? ClipModel { get;  }        
 
@@ -110,7 +110,7 @@ At this time, by repeating the same mode of `Q: xxx? A: xxx.`, LLM outputs the a
 
 ## BatchedExecutor
 
-Different from other executors, `BatchedExecutor` could accept multiple inputs from different sessions and geneate outputs for them at the same time. Here is an example to use it.
+Different from other executors, `BatchedExecutor` could accept multiple inputs from different sessions and generate outputs for them at the same time. Here is an example to use it.
 
 ```cs
 using LLama.Batched;
@@ -249,7 +249,7 @@ Here is the parameters for LLamaSharp executors.
 
 ```cs
 /// <summary>
-/// The paramters used for inference.
+/// The parameters used for inference.
 /// </summary>
 public record InferenceParams
     : IInferenceParams

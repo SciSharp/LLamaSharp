@@ -14,7 +14,7 @@ namespace LLama.Examples.Examples
                 Seed = 1337,
                 GpuLayerCount = 5
             };
-            using var model = LLamaWeights.LoadFromFile(parameters);
+            using var model = await LLamaWeights.LoadFromFileAsync(parameters);
             var ex = new StatelessExecutor(model, parameters);
 
             Console.ForegroundColor = ConsoleColor.Yellow;

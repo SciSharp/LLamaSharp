@@ -120,8 +120,11 @@ namespace LLama.Native
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"Model file '{modelPath}' is not readable");
 
-            return llama_load_model_from_file(modelPath, lparams)
-                ?? throw new LoadWeightsFailedException($"Failed to load model {modelPath}.");
+            var handle = llama_load_model_from_file(modelPath, lparams);
+            if (handle.IsInvalid)
+                throw new LoadWeightsFailedException(modelPath);
+
+            return handle;
         }
 
         #region native API

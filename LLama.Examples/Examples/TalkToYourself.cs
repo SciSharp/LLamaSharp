@@ -12,7 +12,7 @@ namespace LLama.Examples.Examples
 
             // Load weights into memory
             var @params = new ModelParams(modelPath);
-            using var weights = LLamaWeights.LoadFromFile(@params);
+            using var weights = await LLamaWeights.LoadFromFileAsync(@params);
 
             // Create 2 contexts sharing the same weights
             using var aliceCtx = weights.CreateContext(@params);

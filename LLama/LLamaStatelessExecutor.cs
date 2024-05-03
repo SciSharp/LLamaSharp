@@ -63,7 +63,7 @@ namespace LLama
         /// <inheritdoc />
         public async IAsyncEnumerable<string> InferAsync(string prompt, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            // Ensure the context from last time is disposed (it always hould be)
+            // Ensure the context from last time is disposed (it always should be)
             if (!Context.NativeHandle.IsClosed)
                 Context.Dispose();
 

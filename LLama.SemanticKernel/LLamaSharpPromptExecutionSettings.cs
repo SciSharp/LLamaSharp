@@ -1,11 +1,22 @@
-﻿using Microsoft.SemanticKernel;
+﻿
+/* Unmerged change from project 'LLamaSharp.SemanticKernel (netstandard2.0)'
+Before:
+using Microsoft.SemanticKernel;
+After:
+using LLamaSharp;
+using LLamaSharp.SemanticKernel;
+using LLamaSharp.SemanticKernel;
+using LLamaSharp.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel;
+*/
+using LLamaSharp.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace LLamaSharp.SemanticKernel.ChatCompletion;
+namespace LLamaSharp.SemanticKernel;
 
-[Obsolete("Use LLamaSharpPromptExecutionSettings instead")]
-public class ChatRequestSettings : PromptExecutionSettings
+public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
 {
     /// <summary>
     /// Temperature controls the randomness of the completion.
@@ -64,35 +75,41 @@ public class ChatRequestSettings : PromptExecutionSettings
     public IDictionary<int, int> TokenSelectionBiases { get; set; } = new Dictionary<int, int>();
 
     /// <summary>
+    /// Indicates the format of the response which can be used downstream to post-process the messages. Handlebars: handlebars_object. JSON: json_object, etc.
+    /// </summary>
+    [JsonPropertyName("response_format")]
+    public string ResponseFormat { get; set; } = string.Empty;
+
+    /// <summary>
     /// Create a new settings object with the values from another settings object.
     /// </summary>
     /// <param name="requestSettings">Template configuration</param>
     /// <param name="defaultMaxTokens">Default max tokens</param>
     /// <returns>An instance of OpenAIRequestSettings</returns>
-    public static ChatRequestSettings FromRequestSettings(PromptExecutionSettings? requestSettings, int? defaultMaxTokens = null)
+    public static LLamaSharpPromptExecutionSettings FromRequestSettings(PromptExecutionSettings? requestSettings, int? defaultMaxTokens = null)
     {
         if (requestSettings is null)
         {
-            return new ChatRequestSettings()
+            return new LLamaSharpPromptExecutionSettings()
             {
                 MaxTokens = defaultMaxTokens
             };
         }
 
-        if (requestSettings is ChatRequestSettings requestSettingsChatRequestSettings)
+        if (requestSettings is LLamaSharpPromptExecutionSettings requestSettingsChatRequestSettings)
         {
             return requestSettingsChatRequestSettings;
         }
 
         var json = JsonSerializer.Serialize(requestSettings);
-        var chatRequestSettings = JsonSerializer.Deserialize<ChatRequestSettings>(json, s_options);
+        var chatRequestSettings = JsonSerializer.Deserialize<LLamaSharpPromptExecutionSettings>(json, s_options);
 
         if (chatRequestSettings is not null)
         {
             return chatRequestSettings;
         }
 
-        throw new ArgumentException($"Invalid request settings, cannot convert to {nameof(ChatRequestSettings)}", nameof(requestSettings));
+        throw new ArgumentException($"Invalid request settings, cannot convert to {nameof(LLamaSharpPromptExecutionSettings)}", nameof(requestSettings));
     }
 
     private static readonly JsonSerializerOptions s_options = CreateOptions();
@@ -106,7 +123,7 @@ public class ChatRequestSettings : PromptExecutionSettings
             AllowTrailingCommas = true,
             PropertyNameCaseInsensitive = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
-            Converters = { new ChatRequestSettingsConverter() }
+            Converters = { new LLamaSharpPromptExecutionSettingsConverter() }
         };
 
         return options;

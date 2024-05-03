@@ -34,12 +34,12 @@ namespace LLama
             quantizeParams.nthread = nthread;
             quantizeParams.allow_requantize = allowRequantize;
             quantizeParams.quantize_output_tensor = quantizeOutputTensor;
-            //todo: fill in other quantize params fields.
 
-            unsafe
-            {
-                return NativeApi.llama_model_quantize(srcFileName, dstFilename, &quantizeParams) == 0;
-            }
+            // todo: fill in other quantize params fields.
+            // This method could probably do with a redesign - passing in a config object (maybe directly
+            // expose `LLamaModelQuantizeParams`) instead of an ever growing list of method parameters!
+
+            return NativeApi.llama_model_quantize(srcFileName, dstFilename, ref quantizeParams) == 0;
         }
 
         /// <summary>

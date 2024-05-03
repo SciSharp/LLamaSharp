@@ -124,7 +124,7 @@ In case of inaudible sentences that might be, assume they're saying 'stop'.
             int totalNonBlankClips; // ..but for example's sake they work on a
             int nonIdleTime;        // ..clip-based quant-length (1 = clipLength).
             // Default detection settings: A speech of 750ms, followed by pause of 500ms. (2x250ms)
-            public (int minBlanksPerSeperation, int minNonBlanksForValidMessages) detectionSettings = (2, 3);
+            public (int minBlanksPerSeparation, int minNonBlanksForValidMessages) detectionSettings = (2, 3);
 
             public HashSet<ISpeechListener> ServiceUsers = [];
 
@@ -156,7 +156,7 @@ In case of inaudible sentences that might be, assume they're saying 'stop'.
 
                 // Compare the volume with the threshold and act accordingly. Once an interesting and 'full' set of clips pops up, serve it.
                 if (maxVolume >= voiceDetectionThreshold) { currentBlankClips = 0; totalNonBlankClips++; nonIdleTime++; }
-                else if (++currentBlankClips < detectionSettings.minBlanksPerSeperation) { nonIdleTime++; }
+                else if (++currentBlankClips < detectionSettings.minBlanksPerSeparation) { nonIdleTime++; }
                 else
                 {
                     if (totalNonBlankClips >= detectionSettings.minNonBlanksForValidMessages) { SendTranscription(); }

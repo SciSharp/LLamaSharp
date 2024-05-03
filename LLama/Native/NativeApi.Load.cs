@@ -36,7 +36,7 @@ namespace LLama.Native
                     "3. One of the dependency of the native library is missed. Please use `ldd` on linux, `dumpbin` on windows and `otool`" +
                     "to check if all the dependency of the native library is satisfied. Generally you could find the libraries under your output folder.\n" +
                     "4. Try to compile llama.cpp yourself to generate a libllama library, then use `LLama.Native.NativeLibraryConfig.WithLibrary` " +
-                    "to specify it at the very beginning of your code. For more informations about compilation, please refer to LLamaSharp repo on github.\n");
+                    "to specify it at the very beginning of your code. For more information about compilation, please refer to LLamaSharp repo on github.\n");
             }
 
             // Now that the "loaded" flag is set configure logging in llama.cpp

@@ -5,6 +5,7 @@ public class ExampleRunner
 {
     private static readonly Dictionary<string, Func<Task>> Examples = new()
     {
+        { "Chat Session: LLama3", LLama3ChatSession.Run },
         { "Chat Session: History", ChatSessionWithHistory.Run },
         { "Chat Session: Role names", ChatSessionWithRoleName.Run },
         { "Chat Session: Role names stripped", ChatSessionStripRoleName.Run },
@@ -26,6 +27,7 @@ public class ExampleRunner
         { "Semantic Kernel: Prompt", SemanticKernelPrompt.Run },
         { "Semantic Kernel: Chat", SemanticKernelChat.Run },
         { "Semantic Kernel: Store", SemanticKernelMemory.Run },
+        { "Batched Executor: Save/Load", BatchedExecutorSaveAndLoad.Run },
         { "Batched Executor: Fork", BatchedExecutorFork.Run },
         { "Batched Executor: Rewind", BatchedExecutorRewind.Run },
         { "Batched Executor: Guidance", BatchedExecutorGuidance.Run },

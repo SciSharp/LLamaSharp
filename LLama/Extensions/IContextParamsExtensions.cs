@@ -6,7 +6,7 @@ using LLama.Native;
 namespace LLama.Extensions
 {
     /// <summary>
-    /// Extention methods to the IContextParams interface
+    /// Extension methods to the IContextParams interface
     /// </summary>
     public static class IContextParamsExtensions
     {

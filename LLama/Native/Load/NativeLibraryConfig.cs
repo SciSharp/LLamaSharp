@@ -102,7 +102,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -117,7 +117,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -477,7 +477,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -493,7 +493,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>

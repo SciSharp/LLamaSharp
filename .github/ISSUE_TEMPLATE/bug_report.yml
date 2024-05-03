@@ -1,0 +1,52 @@
+name: BUG Report
+description: Report a BUG of LLamaSharp.
+title: "[BUG]: "
+labels: [bug-report]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        To help us fix your problem more quickly, please check the following steps at first.
+        - [ ] I have read the related documents.
+        - [ ] I have searched the keywords in the issues.
+  - type: textarea
+    id: background
+    attributes:
+      label: Description
+      description: Please share a clear description of the problem.
+      placeholder: Description
+    validations:
+      required: true
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Reproduction Steps
+      description: |
+        Please describe how to reproduce the problem here. A minimal example code is the best.
+      placeholder: Reproduction Steps
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Environment & Configuration
+      description: |
+        Please provide the information of your environment and configuration.
+      placeholder: Environment & Configuration
+      value: |
+        - Operating system: 
+        - .NET runtime version: 
+        - LLamaSharp version:
+        - CUDA version (if you are using cuda backend): 
+        - CPU & GPU device: 
+    validations:
+      required: true
+  - type: textarea
+    id: known-workarounds
+    attributes:
+      label: Known Workarounds
+      description: |
+        Please provide a description of the known workarounds, if any.
+      placeholder: Known Workarounds
+    validations:
+      required: false

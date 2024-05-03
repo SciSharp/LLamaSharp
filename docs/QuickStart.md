@@ -169,7 +169,7 @@ do
         Console.WriteLine();
 
 
-        // Initilize Images in executor
+        // Initialize Images in executor
         //
         ex.ImagePaths = imagePaths.ToList();
     }

@@ -1,8 +1,8 @@
 ﻿## LLama.Web - Basic ASP.NET Core examples of LLamaSharp in action
-LLama.Web has no heavy dependencies and no extra frameworks ove bootstrap and jquery to keep the examples clean and easy to copy over to your own project
+LLama.Web has no heavy dependencies and no extra frameworks over bootstrap and jquery to keep the examples clean and easy to copy over to your own project
 
 ## Websockets
-Using signalr websockets simplifys the streaming of responses and model per connection management
+Using signalr websockets simplifies the streaming of responses and model per connection management
 
 
 
@@ -23,7 +23,7 @@ Example:
  {
         "Name": "Alpaca",
         "Path": "D:\\Repositories\\AI\\Prompts\\alpaca.txt",
-        "Prompt": "Alternativly to can set a prompt text directly and omit the Path"
+        "Prompt": "Alternatively to can set a prompt text directly and omit the Path"
         "AntiPrompt": [
           "User:"
         ],

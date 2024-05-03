@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using LLama.Native;
 
 namespace LLama.Batched;
@@ -14,7 +15,7 @@ public sealed class Conversation
 {
     private ulong _requiredEpoch;
     private LLamaPos _end;
-    private int _batchIndex;
+    private int _batchSampleIndex;
     private bool _disposed;
     private bool _forked;
 
@@ -107,7 +108,7 @@ public sealed class Conversation
             // logits, so sampling one conversation may mess up the fork! Setting the "forked" flag on both sequences ensures
             // they both copy the logits before the next sampling run, to fix this issue.
             _requiredEpoch = _requiredEpoch,
-            _batchIndex = _batchIndex,
+            _batchSampleIndex = _batchSampleIndex,
             _forked = true,
 
             _end = _end,
@@ -140,7 +141,7 @@ public sealed class Conversation
         if (_requiredEpoch > Executor.Epoch)
             throw new CannotSampleRequiresInferenceException();
 
-        var span = Executor.Context.NativeHandle.GetLogitsIth(_batchIndex);
+        var span = Executor.Context.NativeHandle.GetLogitsIth(_batchSampleIndex);
 
         // If necessary copy the span, to protect it from modification. This is only done when
         // this conversation has been forked in this epoch.
@@ -220,7 +221,7 @@ public sealed class Conversation
 
         // Add the prompt to the batch
         for (var i = 0; i < tokens.Length; i++)
-            _batchIndex = Executor.Batch.Add(tokens[i], _end++, ConversationId, i == tokens.Length - 1);
+            _batchSampleIndex = Executor.Batch.Add(tokens[i], _end++, ConversationId, i == tokens.Length - 1);
 
         // Mark this conversation as needing inference/sampling
         _requiredEpoch = Executor.Epoch + 1;
@@ -349,5 +350,169 @@ public sealed class Conversation
     /// <param name="kv">An <see cref="KvAccessor"/> which allows direct access to modify the KV cache</param>
     /// <returns>The new end token position</returns>
     public delegate LLamaPos ModifyKvCache(LLamaPos end, KvAccessor kv);
+    #endregion
+
+    #region save/load
+    private void AssertCanLoad()
+    {
+        AssertNotDisposed();
+        if (_end.Value > 0)
+            throw new InvalidOperationException("Cannot load into a non-empty conversation");
+    }
+
+    private void AssertCanSave()
+    {
+        AssertNotDisposed();
+        if (RequiresInference)
+            throw new CannotSaveWhileRequiresInferenceException();
+    }
+
+
+    /// <summary>
+    /// Save the complete state of this conversation to a file. if the file already exists it will be overwritten.
+    /// </summary>
+    /// <param name="filepath"></param>
+    /// <exception cref="CannotSaveWhileRequiresInferenceException"></exception>
+    public void Save(string filepath)
+    {
+        AssertCanSave();
+
+        // Prepare extra state to put into file header
+        var state = GetState();
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(state);
+
+        // Save extra state along with the KV cache
+        Executor.Context.SaveState(filepath, ConversationId, bytes);
+    }
+
+    /// <summary>
+    /// Save the complete state of this conversation in system memory.
+    /// </summary>
+    /// <returns></returns>
+    public State Save()
+    {
+        AssertCanSave();
+
+        return new PrivateState(
+            Executor.Context.GetState(ConversationId),
+            GetState()
+        );
+    }
+
+
+    /// <summary>
+    /// Load state from a file
+    /// This should only ever be called by the BatchedExecutor, on a newly created conversation object!
+    /// </summary>
+    /// <param name="filepath"></param>
+    /// <exception cref="InvalidOperationException"></exception>
+    internal void Load(string filepath)
+    {
+        AssertCanLoad();
+
+        // Load the state from file into the KV cache
+        Executor.Context.LoadState(filepath, ConversationId, out var header);
+
+        // deserialize the extra state in the file header
+        var state = JsonSerializer.Deserialize<SerializableConversationState>(header);
+        if (state == null)
+        {
+            Dispose();
+            throw new InvalidOperationException("Failed to deserialize - deserialized header state was null");
+        }
+
+        Load(state);
+    }
+
+    /// <summary>
+    /// Load state from a previously saved state.
+    /// This should only ever be called by the BatchedExecutor, on a newly created conversation object!
+    /// </summary>
+    /// <param name="state"></param>
+    internal void Load(State state)
+    {
+        AssertCanLoad();
+
+        // There is only one class that extends State and it is PrivateState, so this cast is safe.
+        var priv = (PrivateState)state;
+
+        // Load the state from file into the KV cache
+        Executor.Context.LoadState(priv.SequenceState, ConversationId);
+
+        Load(priv.ConversationState);
+    }
+
+
+    private void Load(SerializableConversationState state)
+    {
+        if (state.Version != 1)
+            throw new InvalidOperationException("Failed to deserialize - mismatched version number");
+
+        // Load extra conversation state
+        _end = state.TokenCount;
+    }
+
+    private SerializableConversationState GetState()
+    {
+        return new SerializableConversationState(
+            Version: 1,
+            TokenCount: TokenCount
+        );
+    }
+
+
+    private record SerializableConversationState(int Version, int TokenCount);
+
+    private sealed class PrivateState
+        : State
+    {
+        public readonly LLamaContext.SequenceState SequenceState;
+        public readonly SerializableConversationState ConversationState;
+
+        public override ulong Size => SequenceState.Size;
+
+        public PrivateState(LLamaContext.SequenceState sequenceState, SerializableConversationState conversationState)
+        {
+            SequenceState = sequenceState;
+            ConversationState = conversationState;
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(State));
+            IsDisposed = true;
+
+            SequenceState.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// In memory saved state of a <see cref="Conversation"/>
+    /// </summary>
+    public abstract class State
+        : IDisposable
+    {
+        /// <summary>
+        /// Indicates if this state has been disposed
+        /// </summary>
+        public bool IsDisposed { get; protected set; }
+
+        /// <summary>
+        /// Get the size in bytes of this state object
+        /// </summary>
+        public abstract ulong Size { get; }
+
+        /// <inheritdoc />
+        public abstract void Dispose();
+
+        /// <summary>
+        /// Internal constructor prevent anyone outside of LLamaSharp extending this class
+        /// </summary>
+        internal State()
+        {
+        }
+    }
     #endregion
 }

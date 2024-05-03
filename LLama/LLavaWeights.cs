@@ -1,5 +1,7 @@
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using LLama.Native;
 
 namespace LLama;
@@ -13,9 +15,9 @@ public sealed class LLavaWeights : IDisposable
     /// The native handle, which is used in the native APIs
     /// </summary>
     /// <remarks>Be careful how you use this!</remarks>
-    public SafeLlavaModelHandle NativeHandle { get; }   
-    
-    internal LLavaWeights(SafeLlavaModelHandle weights)
+    public SafeLlavaModelHandle NativeHandle { get; }
+
+    private LLavaWeights(SafeLlavaModelHandle weights)
     {
         NativeHandle = weights;
     }
@@ -29,6 +31,17 @@ public sealed class LLavaWeights : IDisposable
     {
         var weights = SafeLlavaModelHandle.LoadFromFile(mmProject, 1);
         return new LLavaWeights(weights);
+    }
+
+    /// <summary>
+    /// Load weights into memory
+    /// </summary>
+    /// <param name="mmProject">path to the "mmproj" model file</param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public static Task<LLavaWeights> LoadFromFileAsync(string mmProject, CancellationToken token = default)
+    {
+        return Task.Run(() => LoadFromFile(mmProject), token);
     }
 
     /// <summary>

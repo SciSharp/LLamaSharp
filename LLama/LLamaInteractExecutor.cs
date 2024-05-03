@@ -234,7 +234,7 @@ namespace LLama
                     HandleRunOutOfContext(inferenceParams.TokensKeep);
                 }
 
-                TryReuseMathingPrefix();
+                TryReuseMatchingPrefix();
 
                 // Changes to support Multi-Modal LLMs.
                 //
