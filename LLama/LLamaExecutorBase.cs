@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
@@ -195,11 +195,11 @@ namespace LLama
             // if we run out of context:
             // - take the tokensToKeep first tokens from the original prompt (via n_past)
             // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
-            var n_left = _pastTokensCount - tokensToKeep - 1;
+            var n_left = _pastTokensCount - tokensToKeep;
             var n_discard = n_left / 2;
 
-            NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, (LLamaSeqId)0, tokensToKeep + 1, tokensToKeep + 1 + n_discard);
-            NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, (LLamaSeqId)0, tokensToKeep + 1 + n_discard, _pastTokensCount, -n_discard);
+            NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, (LLamaSeqId)0, tokensToKeep, tokensToKeep + n_discard);
+            NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, (LLamaSeqId)0, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
 
             _pastTokensCount -= n_discard;
             
