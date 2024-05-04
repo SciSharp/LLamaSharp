@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,6 +18,8 @@ namespace LLama.Native
         /// Total number of tokens in vocabulary of this model
         /// </summary>
         public int VocabCount => ThrowIfDisposed().VocabCount;
+
+        public LLamaVocabType LLamaVocabType => ThrowIfDisposed().VocabType;
 
         /// <summary>
         /// Total number of tokens in the context
