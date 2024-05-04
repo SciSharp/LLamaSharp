@@ -44,6 +44,9 @@
 
     <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
     <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
+      
+    <file src="runtimes/deps/android-arm64/libllama.so" target="runtimes\android-arm64\native\libllama.so" />
+    <file src="runtimes/deps/android-arm64/libllava_shared.so" target="runtimes\android-arm64\native\libllava_shared.so" />
     
     <file src="icon512.png" target="icon512.png" />
   </files>

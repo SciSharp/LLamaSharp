@@ -312,6 +312,41 @@ jobs:
         with:
           path: ./build/bin/ggml-metal.metal
           name: ggml-metal.metal
+
+  compile-android:
+    name: Compile (Android)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+          add-to-path: false
+      - name: Build
+        id: cmake_build
+        env:
+          CMAKE_FLAGS: '-DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-23'
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+      - name: Upload Llama
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/libllama.so
+          name: llama-bin-android-arm64.so
+      - name: Upload Llava
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/examples/llava/libllava_shared.so
+          name: llava-bin-android-arm64.so
+
   
   build-deps:
     runs-on: ubuntu-latest
@@ -321,6 +356,7 @@ jobs:
       "compile-linux",
       "compile-macos",
       "compile-windows",
+      "compile-android",
       "compile-cublas",
       "compile-clblast"
     ]
@@ -333,7 +369,7 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,cu11.7.1,cu12.1.0,clblast}
+          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,android-arm64,cu11.7.1,cu12.1.0,clblast}
 
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
@@ -384,6 +420,8 @@ jobs:
           cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
           cp artifacts/llava-bin-linux-clblast-x64.so/libllava_shared.so deps/clblast/libllava_shared.so
 
+          cp artifacts/llama-bin-android-arm64.so/libllama.so deps/android-arm64/libllama.so
+          cp artifacts/llava-bin-android-arm64.so/libllava_shared.so deps/android-arm64/libllava_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
