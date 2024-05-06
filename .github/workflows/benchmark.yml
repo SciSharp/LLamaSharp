@@ -62,7 +62,9 @@ jobs:
     - name: Restore packages
       run: dotnet restore LLamaSharp.sln
     - name: Build
-      run: dotnet build LLamaSharp.sln -c release --no-restore
+      run: | 
+        dotnet build LLama/LLamaSharp.csproj -c release --no-restore
+        dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c release --no-restore
     - name: Run benchmark test
       run: dotnet run LLama.Benchmark -c release
     - name: Upload artifacts
