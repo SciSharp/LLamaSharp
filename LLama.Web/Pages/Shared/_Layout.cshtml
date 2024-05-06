@@ -1,31 +1,59 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LLamaSharp.Web</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link href="~/lib/bootstrap/dist/css/bootstrap-icons.css" rel="stylesheet" />
+    <title>@ViewData["Title"] - LLamaSharp Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link href="~/lib/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LLama.Web.styles.css" asp-append-version="true" />
+    <link rel="icon" href="~/image/llama-sharp.png" sizes="32x32" type="image/png">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow ">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">LLamaSharp.Web</a>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow">
+            <div class="container-fluid">
+                <img src="~/image/llama-sharp.png" class="navbar-image" />
+                <a class="navbar-brand" asp-area="" asp-page="/Index">LLamaSharp Web</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Index"></a>
+                            <a class="nav-link" asp-page="/Index"></a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown pe-2">
+                            <button class="btn btn-link nav-link dropdown-toggle" id="bd-theme" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme" aria-expanded="false">
+                                Theme
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light">
+                                        <i class="bi bi-brightness-high pe-2"></i>
+                                        Light
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark">
+                                        <i class="bi bi-moon-stars pe-2"></i>
+                                        Dark
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto">
+                                        <i class="bi bi-circle-half pe-2"></i>
+                                        Auto
+                                    </button>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="https://github.com/SciSharp/LLamaSharp" target="_blank">
-
+                            <a class="nav-link" href="https://github.com/SciSharp/LLamaSharp" target="_blank">
                                 <div class="d-flex flex-row align-items-center">
                                     <h5 class="mb-0">
                                         <i class="bi bi-github"></i>
@@ -40,23 +68,17 @@
         </nav>
     </header>
 
-    <main class="container" role="main">
+    <main class="container-fluid" role="main">
         @RenderBody()
     </main>
 
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2023 - LLamaSharp.Web
-        </div>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/jquery.unobtrusive-ajax.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/mustache/mustache.js"></script>
     <script src="~/lib/signalr/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/theme.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

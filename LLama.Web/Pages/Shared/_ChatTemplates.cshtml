@@ -1,44 +1,42 @@
-﻿<script id="outputErrorTemplate" type="text/html">
-    <i class="form-control text-danger">{{text}}</i>
+<script id="outputErrorTemplate" type="text/html">
+    <div class="form-control text-danger">{{text}}</div>
 </script>
 
 <script id="outputInfoTemplate" type="text/html">
-    <i class="form-control text-success">{{text}}</i>
+    <div class="form-control text-bg-success">{{text}}</div>
 </script>
 
 <script id="outputUserTemplate" type="text/html">
-    <div class="d-flex flex-row form-control bg-light">
-         <div class="m-2 me-4">
-             <img src="~/image/human.png" width="60"/>
-         </div>
-        <div class="d-flex flex-column flex-fill justify-content-between">
-            <span class="content" style="resize:none" >{{text}}</span>
-             <div class="d-flex justify-content-end">
-                 <i>{{date}}</i>
+    <div class="entry">
+        <div class="d-flex justify-content-between entry-header">
+            <div class="participant">
+                <span class="participant-icon">
+                    <i class="bi bi-person"></i>
+                </span>
+                <span class="participant-name">User</span>
             </div>
+            <div class="entry-date">{{date}}</div>
         </div>
+        <div class="content">{{text}}</div>
     </div>
 </script>
 
 <script id="outputBotTemplate" type="text/html">
-     <div class="d-flex flex-row form-control">
-        <div class="m-2 me-4">
-            <img src="~/image/robot.png" width="60"/>
-        </div>
-        <div id="{{uniqueId}}" class="d-flex flex-column flex-fill justify-content-between">
-            <span class="content"><img src="~/image/loading.gif" width="30" /></span>
-            <div class="d-flex justify-content-end">
-                <div class="d-flex flex-column align-items-end">
-                    <i class="date"></i>
-                    <i>
-                        <small class="signature"></small>
-                    </i>
+    <div id="{{uniqueId}}" class="entry">
+        <div class="d-flex justify-content-between entry-header">
+            <div class="d-flex justify-content-start">
+                 <div class="participant">
+                    <span class="participant-icon">
+                        <i class="bi bi-robot"></i>
+                    </span>
+                    <span class="participant-name">Model</span>
                 </div>
             </div>
+            <div class="entry-date date"></div>
         </div>
+        <div class="content"><img src="~/image/loading.gif" width="30" /></div>
+        <div class="signature"></div>
     </div>
 </script>
 
-<script id="signatureTemplate" type="text/html">
-    <span>{{content}}</span>
-</script>
+<script id="signatureTemplate" type="text/html"><span>{{content}}</span></script>
