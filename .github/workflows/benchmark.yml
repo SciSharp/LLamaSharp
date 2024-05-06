@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   linux-benchmark-cuda:
-    if: contains(github.event.pull_request.labels.*.name, 'benchmark') && !contains(github.event.pull_request.labels.*.name, 'benchmark')
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark')
     runs-on: linux-x64-2080ti
 
     strategy:
