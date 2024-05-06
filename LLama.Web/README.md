@@ -36,5 +36,5 @@ Example:
 
 ## Interactive UI
 The interactive UI is a simple example of using LLammaSharp
-![web-ui-light](../Assets/web-light.png)
-![web-ui-dark](../Assets/web-dark.png)
+![web-ui-light](../Assets/web-ui-light.png)
+![web-ui-dark](../Assets/web-ui-dark.png)
