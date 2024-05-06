@@ -1,0 +1,67 @@
+name: Benchmark Test
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-benchmark
+  cancel-in-progress: true
+
+jobs:
+  linux-benchmark-cuda:
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark') && !contains(github.event.pull_request.labels.*.name, 'benchmark')
+    runs-on: linux-x64-2080ti
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [cuda11]
+        include:
+          - build: cuda11
+            image: nvidia/cuda:11.7.1-runtime-ubuntu22.04
+          # - build: cuda12
+          #   image: nvidia/cuda:12.1.1-runtime-ubuntu22.04
+
+    container:
+      image: ${{ matrix.image }}
+      env:
+        NODE_ENV: development
+      ports:
+        - 80
+      volumes:
+        - /llamasharp_ci:/llamasharp_ci
+      options: --gpus=all --ipc=host
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+
+    - name: DEBUG
+      run: | 
+        whoami
+        nvidia-smi
+        nvcc -V
+    - name: Cache Packages
+      uses: actions/cache@v4
+      with:
+        key: "benchmark_models"
+        path: LLama.Benchmark/Models
+
+    - name: Clear package cache
+      run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
+    - name: Restore packages
+      run: dotnet restore LLamaSharp.sln
+    - name: Build
+      run: dotnet build LLamaSharp.sln -c release --no-restore
+    - name: Run benchmark test
+      run: dotnet run LLama.Benchmark -c release
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        path: logs/ # TODO: change it
+        name: logs
