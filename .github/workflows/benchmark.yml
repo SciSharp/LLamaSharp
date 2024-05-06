@@ -31,7 +31,7 @@ jobs:
         - 80
       volumes:
         - /llamasharp_ci:/llamasharp_ci
-      options: --gpus=all --ipc=host
+      options: --gpus=all --ipc=host --runtime=nvidia
 
     steps:
     - name: DEBUG
@@ -43,7 +43,7 @@ jobs:
     - name: Install libraries
       run: |
         apt update
-        apt install curl
+        apt install -y curl
 
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
