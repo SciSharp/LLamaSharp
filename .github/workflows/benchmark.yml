@@ -43,7 +43,7 @@ jobs:
     - name: Install libraries
       run: |
         apt update
-        apt install -y curl
+        apt install -y curl libicu-dev
 
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
