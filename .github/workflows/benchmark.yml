@@ -11,7 +11,7 @@ concurrency:
 jobs:
   linux-benchmark-cuda:
     if: contains(github.event.pull_request.labels.*.name, 'benchmark')
-    runs-on: linux-x64-2080ti
+    runs-on: [self-hosted, linux, gpu]
 
     strategy:
       fail-fast: false
