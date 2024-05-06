@@ -19,7 +19,6 @@ builder.Services.AddLogging((loggingBuilder) => loggingBuilder.SetMinimumLevel(L
 
 // Load InteractiveOptions
 builder.Services.AddOptions<LLamaOptions>()
-    .PostConfigure(x => x.Initialize())
     .BindConfiguration(nameof(LLamaOptions));
 
 // Services DI
