@@ -35,6 +35,10 @@ Example:
 ```
 
 ## Interactive UI
-The interactive UI is a simple example of using LLammaSharp
+The interactive UI is a simple example of using LLamaSharp.
+
 ![web-ui-light](../Assets/web-ui-light.png)
+
+---
+
 ![web-ui-dark](../Assets/web-ui-dark.png)
