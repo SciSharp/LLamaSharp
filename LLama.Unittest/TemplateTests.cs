@@ -199,15 +199,21 @@ public sealed class TemplateTests
         templater.Add("user", "4b");
         templater.Add("assistant", "5");
 
-        Assert.Equal(("user", "4a"), templater[3]);
-        Assert.Equal(("assistant", "5"), templater[5]);
+        Assert.Equal("user", templater[3].Role);
+        Assert.Equal("4a", templater[3].Content);
+
+        Assert.Equal("assistant", templater[5].Role);
+        Assert.Equal("5", templater[5].Content);
 
         Assert.Equal(6, templater.Count);
         templater.RemoveAt(3);
         Assert.Equal(5, templater.Count);
 
-        Assert.Equal(("user", "4b"), templater[3]);
-        Assert.Equal(("assistant", "5"), templater[4]);
+        Assert.Equal("user", templater[3].Role);
+        Assert.Equal("4b", templater[3].Content);
+
+        Assert.Equal("assistant", templater[4].Role);
+        Assert.Equal("5", templater[4].Content);
     }
 
     [Fact]
@@ -226,7 +232,8 @@ public sealed class TemplateTests
         templater.RemoveAt(5);
         Assert.Equal(5, templater.Count);
 
-        Assert.Equal(("user", "4b"), templater[4]);
+        Assert.Equal("user", templater[4].Role);
+        Assert.Equal("4b", templater[4].Content);
     }
 
     [Fact]
