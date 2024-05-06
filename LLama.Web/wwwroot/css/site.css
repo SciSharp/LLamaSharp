@@ -34,6 +34,7 @@ footer {
 #scroll-container {
     flex: 1;
     overflow-y: auto;
+    border-radius: var(--bs-border-radius);
 }
 
 .slider-container > .slider {
@@ -55,8 +56,8 @@ footer {
     margin-right: 10px;
 }
 
-#scroll-container {
-    border-radius: var(--bs-border-radius);
+.nav-item.theme {
+    margin-top: 2px;
 }
 
 /* Dark theme values */
