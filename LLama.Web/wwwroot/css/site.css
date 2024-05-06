@@ -55,12 +55,17 @@ footer {
     margin-right: 10px;
 }
 
+#scroll-container {
+    border-radius: var(--bs-border-radius);
+}
+
 /* Dark theme values */
-[data-bs-theme=dark] html,
-[data-bs-theme=dark] body {
+[data-bs-theme=dark] #scroll-container {
     background-color: #202020;
 }
 
+[data-bs-theme=dark] html,
+[data-bs-theme=dark] body,
 [data-bs-theme=dark] #sidebar,
 [data-bs-theme=dark] header {
     background-color: #191919;
