@@ -16,15 +16,28 @@ public class LLamaModel : IDisposable
     private readonly ConcurrentDictionary<string, LLamaContext> _contexts;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LLamaModel"/> class.
+    /// Use the Create method to instantiate this class.
     /// </summary>
     /// <param name="modelParams">The model parameters.</param>
-    public LLamaModel(ModelOptions modelParams, ILogger llamaLogger)
+    /// <param name="llamaLogger">A logger class.</param>
+    /// <param name="weights">Model weights.</param>
+    private LLamaModel(ModelOptions modelParams, ILogger llamaLogger, LLamaWeights weights)
     {
         _config = modelParams;
         _llamaLogger = llamaLogger;
-        _weights = LLamaWeights.LoadFromFile(modelParams);
+        _weights = weights;
         _contexts = new ConcurrentDictionary<string, LLamaContext>();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LLamaModel"/> class.
+    /// </summary>
+    /// <param name="modelParams">The model parameters.</param>
+    /// <param name="llamaLogger">A logger class.</param>
+    public static async Task<LLamaModel> CreateAsync(ModelOptions modelParams, ILogger llamaLogger)
+    {
+        var weights = await LLamaWeights.LoadFromFileAsync(modelParams);
+        return new LLamaModel(modelParams, llamaLogger, weights);
     }
 
     /// <summary>
@@ -95,7 +108,6 @@ public class LLamaModel : IDisposable
         context?.Dispose();
         return Task.FromResult(true);
     }
-
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
