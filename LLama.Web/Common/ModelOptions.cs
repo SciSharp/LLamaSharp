@@ -13,7 +13,7 @@ public class ModelOptions
     public string Name { get; set; }
 
     /// <summary>
-    /// Max context insta=nces allowed per model
+    /// Max context instances allowed per model
     /// </summary>
     public int MaxInstances { get; set; }
 
