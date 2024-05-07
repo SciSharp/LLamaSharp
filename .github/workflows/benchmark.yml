@@ -54,8 +54,9 @@ jobs:
 
     - name: Prepare models
       run: | 
-        apt-get install -y python3.10
-        python -m ensurepip --upgrade
+        apt-get update
+        apt-get install -y python3.10 python3-pip
+        python3 --version
         pip install huggingface_hub
         python LLama.Benchmark/prepare_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
 
