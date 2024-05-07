@@ -71,5 +71,5 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        path: logs/ # TODO: change it
-        name: logs
+        name: Benchmark_Results
+        path: BenchmarkDotNet.Artifacts/results/*

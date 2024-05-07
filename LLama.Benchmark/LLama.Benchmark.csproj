@@ -29,6 +29,10 @@
         <None Update="Models\llama-2-7b-chat.Q3_K_S.gguf">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+
+        <None Update="Assets\TextCompletionPrompts.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>
