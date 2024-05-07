@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE1006 // Naming Styles
@@ -258,6 +258,23 @@ namespace LLama.Native
         {
             NativeLogConfig.llama_log_set(logCallback);
         }
+        
+        /// <summary>
+        /// Returns the number of tokens in the KV cache (slow, use only for debug)
+        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx);
+        
+        /// <summary>
+        /// Returns the number of used KV cells (i.e. have at least one sequence assigned to them)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_get_kv_cache_used_cells(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Clear the KV cache
