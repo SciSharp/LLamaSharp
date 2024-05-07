@@ -58,7 +58,7 @@ jobs:
         apt-get install -y python3.10 python3-pip
         python3 --version
         pip install huggingface_hub
-        python3 LLama.Benchmark/prepare_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
+        python3 .github/prepare_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
 
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
