@@ -20,6 +20,7 @@ jobs:
         include:
           - build: cuda11
             image: nvidia/cuda:11.7.1-devel-ubuntu22.04
+            model_dir: /llamasharp_ci/models_benchmark
           # - build: cuda12
           #   image: nvidia/cuda:12.1.1-runtime-ubuntu22.04
 
@@ -51,11 +52,13 @@ jobs:
         dotnet-version: |
           8.0.x
 
-    - name: Cache Packages
-      uses: actions/cache@v4
+    - name: Prepare models
+      uses: actions/setup-python@v5
       with:
-        key: "benchmark_models"
-        path: LLama.Benchmark/Models
+        python-version: '3.10' 
+      run: | 
+        pip install huggingface_hub
+        python3 LLama.Benchmark/prepare_models.py --model-dir ${{ matrix.model_dir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
 
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
@@ -66,7 +69,7 @@ jobs:
         dotnet build LLama/LLamaSharp.csproj -c release --no-restore
         dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c release --no-restore
     - name: Run benchmark test
-      run: dotnet run LLama.Benchmark/LLama.Benchmark.csproj -c release
+      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c release ${{ matrix.model_dir }}
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v3
