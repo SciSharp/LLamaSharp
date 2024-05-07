@@ -9,10 +9,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     with open(args.model_list, 'r') as f:
-        model_id, filename = f.readline().split(',')
+        repo_id, filename = f.readline().split(',')
     
     hf_hub_download(
-        model_id=model_id, 
+        repo_id=repo_id, 
         filename=filename, 
         local_dir=args.model_dir, 
         local_dir_use_symlinks=False, 
