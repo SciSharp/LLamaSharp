@@ -52,10 +52,12 @@ jobs:
         dotnet-version: |
           8.0.x
 
-    - name: Prepare models
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.10' 
+
+    - name: Prepare models
       run: | 
         pip install huggingface_hub
         python3 LLama.Benchmark/prepare_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
