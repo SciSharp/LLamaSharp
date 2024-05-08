@@ -6,6 +6,7 @@ using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using LLama.Abstractions;
 using LLama.Common;
+using LLama.Native;
 
 namespace LLama.Benchmark.LLamaExecutorBenchmark
 {
@@ -100,6 +101,17 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
         [GlobalSetup(Targets = [nameof(Basic)])]
         public void GlobalSetup()
         {
+            var showLLamaCppLogs = true;
+            NativeLibraryConfig
+               .Instance
+               .WithLogCallback((level, message) =>
+               {
+                   if (showLLamaCppLogs)
+                       Console.WriteLine($"[llama {level}]: {message.TrimEnd('\n')}");
+               }).WithCuda().SkipCheck().WithAutoFallback(false);
+
+            // Calling this method forces loading to occur now.
+            NativeApi.llama_empty_call();
             InitializeParamsAndModel();
         }
 
