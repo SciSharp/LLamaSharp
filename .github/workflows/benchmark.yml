@@ -21,8 +21,9 @@ jobs:
           - build: cuda11
             image: nvidia/cuda:11.7.1-devel-ubuntu22.04
             modeldir: /llamasharp_ci/models_benchmark
-          # - build: cuda12
-          #   image: nvidia/cuda:12.1.1-runtime-ubuntu22.04
+          - build: cuda12
+            image: nvidia/cuda:12.1.1-devel-ubuntu22.04
+            modeldir: /llamasharp_ci/models_benchmark
 
     container:
       image: ${{ matrix.image }}
