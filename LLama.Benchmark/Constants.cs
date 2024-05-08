@@ -9,12 +9,7 @@ namespace LLama.Benchmark
 {
     internal static class Constants
     {
-        public static string GetModelDir()
-        {
-            var res = Environment.GetEnvironmentVariable("LLAMA_BENCHMARK_MODEL_DIR") ?? "";
-            Console.WriteLine($"+++*************** Got env path: {res}");
-            return res;
-        }
+        public static string ModelDir { get; set; }
 
         public readonly static string Generative7BModelPath = "llama-2-7b-chat.Q3_K_S.gguf";
         public readonly static string EmbeddingModelPath = "all-MiniLM-L12-v2.Q8_0.gguf";

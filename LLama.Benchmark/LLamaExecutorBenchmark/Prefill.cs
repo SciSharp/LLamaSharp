@@ -14,12 +14,13 @@ using Microsoft.VisualBasic;
 
 namespace LLama.Benchmark.LLamaExecutorBenchmark
 {
-    [BenchmarkCategory("LLamaExecutor")]
-    [SimpleJob(RunStrategy.Monitoring, runtimeMoniker: RuntimeMoniker.Net80)]
-    [MinWarmupCount(1)]
-    [MaxWarmupCount(2)]
+    [BenchmarkCategory("Executor", "LLama")]
+    [SimpleJob(RunStrategy.ColdStart, runtimeMoniker: RuntimeMoniker.Net80)]
+    [NativeMemoryProfiler]
+    [MemoryDiagnoser]
     [MinIterationCount(1)]
     [MaxIterationCount(16)]
+    [RPlotExporter]
     public class PrefillBenchmark
     {
         /// <summary>
@@ -76,12 +77,12 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
 
         private void InitializeParamsAndModel()
         {
-            ModelParams = new ModelParams(Path.Combine(Constants.GetModelDir(), ModelAndGpuLayerCount.Item1))
+            ModelParams = new ModelParams(Path.Combine(Constants.ModelDir, ModelAndGpuLayerCount.Item1))
             {
                 ContextSize = PromptAndContextLength.Item2,
                 GpuLayerCount = ModelAndGpuLayerCount.Item2
             };
-            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}, prefix: {Constants.GetModelDir()}");
+            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}, prefix: {Constants.ModelDir}");
             Prompt = File.ReadAllText(Constants.TextCompletionPromptsFilePath).Substring(0, PromptAndContextLength.Item1);
             InferenceParams = new InferenceParams()
             {
