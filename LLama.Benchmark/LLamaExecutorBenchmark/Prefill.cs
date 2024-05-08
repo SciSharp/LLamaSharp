@@ -108,7 +108,7 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
                {
                    if (showLLamaCppLogs)
                        Console.WriteLine($"[llama {level}]: {message.TrimEnd('\n')}");
-               }).WithCuda().SkipCheck();
+               }).WithCuda().SkipCheck().WithAutoFallback(false);
 
             // Calling this method forces loading to occur now.
             NativeApi.llama_empty_call();
