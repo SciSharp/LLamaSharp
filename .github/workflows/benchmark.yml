@@ -77,7 +77,7 @@ jobs:
         dotnet build LLama/LLamaSharp.csproj -c Release --no-restore
         dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
     - name: Run benchmark test
-      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c Release -f '*'
+      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c Release --filter *
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v3
