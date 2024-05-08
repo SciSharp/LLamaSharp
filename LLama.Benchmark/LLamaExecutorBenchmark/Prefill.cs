@@ -11,13 +11,14 @@ using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 using LLama.Abstractions;
 using LLama.Common;
-using BenchmarkDotNet.Diagnostics.Windows.Configs;
 
 namespace LLama.Benchmark.LLamaExecutorBenchmark
 {
+#if WINDOWS
+    [BenchmarkDotNet.Diagnostics.Windows.Configs.NativeMemoryProfiler]
+#endif
     [BenchmarkCategory("Executor", "LLama")]
     [SimpleJob(RunStrategy.ColdStart, runtimeMoniker: RuntimeMoniker.Net80)]
-    [NativeMemoryProfiler]
     [MemoryDiagnoser]
     [MinIterationCount(1)]
     [MaxIterationCount(16)]
