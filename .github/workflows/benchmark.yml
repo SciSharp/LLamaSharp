@@ -71,6 +71,7 @@ jobs:
       run: dotnet restore LLamaSharp.sln
     - name: Build
       run: | 
+        dotnet clean
         dotnet build LLama/LLamaSharp.csproj -c release --no-restore
         dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c release --no-restore
     - name: Run benchmark test
