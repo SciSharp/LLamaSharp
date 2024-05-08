@@ -81,13 +81,14 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
                 ContextSize = PromptAndContextLength.Item2,
                 GpuLayerCount = ModelAndGpuLayerCount.Item2
             };
+            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}, prefix: {Constants.ModelDir}");
             Prompt = File.ReadAllText(Constants.TextCompletionPromptsFilePath).Substring(0, PromptAndContextLength.Item1);
             InferenceParams = new InferenceParams()
             {
                 Temperature = 0.6f,
                 MaxTokens = 1 // Only prefill, no generation here.
             };
-            
+
             LLamaWeights weights = LLamaWeights.LoadFromFile(ModelParams);
             LLamaContext context = weights.CreateContext(ModelParams);
             Executor = ExecutorType switch

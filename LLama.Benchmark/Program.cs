@@ -11,7 +11,7 @@ namespace LLama.Benchmark
             {
                 var modelDir = args[0];
                 Constants.ModelDir = modelDir;
-                Console.WriteLine($"#################### model dir: {modelDir}");
+                Console.WriteLine($"#################### model dir: {Constants.ModelDir}");
             }
 
             var summary = BenchmarkRunner.Run(typeof(Program).Assembly);

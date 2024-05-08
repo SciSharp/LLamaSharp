@@ -51,6 +51,7 @@ jobs:
       with:
         dotnet-version: |
           8.0.x
+        no-cdn: true
 
     - name: Prepare models
       run: | 
