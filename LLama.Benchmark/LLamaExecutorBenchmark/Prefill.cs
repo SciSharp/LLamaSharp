@@ -1,11 +1,6 @@
 #pragma warning disable CS8618
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
@@ -18,7 +13,7 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
     [BenchmarkDotNet.Diagnostics.Windows.Configs.NativeMemoryProfiler]
 #endif
     [BenchmarkCategory("Executor", "LLama")]
-    [SimpleJob(RunStrategy.ColdStart, runtimeMoniker: RuntimeMoniker.Net80)]
+    [SimpleJob(RunStrategy.Monitoring, runtimeMoniker: RuntimeMoniker.Net80)]
     [MemoryDiagnoser]
     [MinIterationCount(1)]
     [MaxIterationCount(16)]
@@ -84,7 +79,6 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
                 ContextSize = PromptAndContextLength.Item2,
                 GpuLayerCount = ModelAndGpuLayerCount.Item2
             };
-            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}, prefix: {Constants.ModelDir}");
             Prompt = File.ReadAllText(Constants.TextCompletionPromptsFilePath).Substring(0, PromptAndContextLength.Item1);
             InferenceParams = new InferenceParams()
             {
