@@ -77,16 +77,17 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'benchmark')
     runs-on: [self-hosted, windows, gpu]
 
-    env:
-      AGENT_TOOLSDIRECTORY: D:\Libs\github\runner-cache
-
     strategy:
       fail-fast: false
       matrix:
         build: [cuda11]
         include:
           - build: cuda11
-            modeldir: F:\Models
+            modeldir: F:\Models\LLamaSharpBenchmark
+
+    env:
+      AGENT_TOOLSDIRECTORY: D:\Libs\github\runner-cache
+      BENCHMARK_MODEL_DIR: ${{ matrix.modeldir }}
 
     steps:
     - name: Settings
@@ -95,17 +96,6 @@ jobs:
         set https_proxy=127.0.0.1:7891
 
     - uses: actions/checkout@v4
-
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Prepare models
-      run: | 
-        whoami
-        python --version
-        pip install huggingface_hub
-        python .github/download_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
 
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
