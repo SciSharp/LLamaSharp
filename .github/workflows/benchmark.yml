@@ -95,6 +95,7 @@ jobs:
     - name: Prepare models
       shell: pwsh
       run: | 
+        whoami
         conda --version
         conda activate base
         python --version
