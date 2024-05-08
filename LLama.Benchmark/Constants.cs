@@ -11,13 +11,13 @@ namespace LLama.Benchmark
     {
         public static string ModelDir { get; set; } = "";
 
-        public static string Generative7BModelPath => Path.Combine(ModelDir, "llama-2-7b-chat.Q3_K_S.gguf");
-        public static string EmbeddingModelPath => Path.Combine(ModelDir, "all-MiniLM-L12-v2.Q8_0.gguf");
+        public readonly static string Generative7BModelPath = "llama-2-7b-chat.Q3_K_S.gguf";
+        public readonly static string EmbeddingModelPath = "all-MiniLM-L12-v2.Q8_0.gguf";
 
-        public static string LLavaModelPath => Path.Combine(ModelDir, "llava-v1.6-mistral-7b.Q3_K_XS.gguf");
-        public static string LLavaMmpPath => Path.Combine(ModelDir, "mmproj-model-f16.gguf");
-        public static string LLavaImage => "Assets/extreme-ironing-taxi-610x427.jpg";
+        public readonly static string LLavaModelPath = "llava-v1.6-mistral-7b.Q3_K_XS.gguf";
+        public readonly static string LLavaMmpPath = "mmproj-model-f16.gguf";
+        public readonly static string LLavaImage = "Assets/extreme-ironing-taxi-610x427.jpg";
 
-        public static string TextCompletionPromptsFilePath = "Assets/TextCompletionPrompts.txt";
+        public readonly static string TextCompletionPromptsFilePath = "Assets/TextCompletionPrompts.txt";
     }
 }
