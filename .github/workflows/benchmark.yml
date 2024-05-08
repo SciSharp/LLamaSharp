@@ -27,7 +27,7 @@ jobs:
     container:
       image: ${{ matrix.image }}
       env:
-        NODE_ENV: development
+        LLAMA_BENCHMARK_MODEL_DIR: ${{ matrix.modeldir }}
       ports:
         - 80
       volumes:
@@ -74,7 +74,7 @@ jobs:
         dotnet build LLama/LLamaSharp.csproj -c release --no-restore
         dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c release --no-restore
     - name: Run benchmark test
-      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c release ${{ matrix.modeldir }}
+      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c release
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v3
