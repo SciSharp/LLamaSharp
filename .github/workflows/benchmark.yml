@@ -40,7 +40,6 @@ jobs:
     - name: DEBUG
       run: | 
         whoami
-        which dotnet
         nvidia-smi
         nvcc -V
     
