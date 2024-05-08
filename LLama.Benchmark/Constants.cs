@@ -14,7 +14,8 @@ namespace LLama.Benchmark
             get
             {
                 var res = Environment.GetEnvironmentVariable("LLAMA_BENCHMARK_MODEL_DIR") ?? "";
-                Console.WriteLine($"*************** Got env path: {res}");
+                Console.WriteLine($"+++*************** Got env path: {res}");
+                return res;
             }
         }
 
