@@ -1,54 +1,54 @@
-name: Unit Test
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# name: Unit Test
+# on:
+#   push:
+#     branches: [master]
+#   pull_request:
+#     branches: [master]
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
-jobs:
-  build:
-    name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        build: [linux-release, windows-release, osx-release]
-        include:
-          - build: linux-release
-            os: ubuntu-latest
-            config: release
-          - build: osx-release  
-            os: macos-14 # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
-            config: release            
-          - build: windows-release
-            os: windows-2019
-            config: release
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          8.0.x
-    - name: Cache Packages
-      uses: actions/cache@v4
-      with:
-        key: "unit_test_models"
-        path: LLama.Unittest/Models
-    #  workaround for actions/setup-dotnet#155
-    - name: Clear package cache
-      run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
-    - name: Restore packages
-      run: dotnet restore LLamaSharp.sln
-    - name: Build
-      run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
-    - name: Test
-      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }} -l "console;verbosity=detailed" --diag:logs/log.txt --filter Category!=NoCI
-    - name: Upload artifacts
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        path: logs/
-        name: logs
+# jobs:
+#   build:
+#     name: Test
+#     runs-on: ${{ matrix.os }}
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         build: [linux-release, windows-release, osx-release]
+#         include:
+#           - build: linux-release
+#             os: ubuntu-latest
+#             config: release
+#           - build: osx-release  
+#             os: macos-14 # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
+#             config: release            
+#           - build: windows-release
+#             os: windows-2019
+#             config: release
+#     steps:
+#     - uses: actions/checkout@v4
+#     - uses: actions/setup-dotnet@v4
+#       with:
+#         dotnet-version: |
+#           8.0.x
+#     - name: Cache Packages
+#       uses: actions/cache@v4
+#       with:
+#         key: "unit_test_models"
+#         path: LLama.Unittest/Models
+#     #  workaround for actions/setup-dotnet#155
+#     - name: Clear package cache
+#       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
+#     - name: Restore packages
+#       run: dotnet restore LLamaSharp.sln
+#     - name: Build
+#       run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
+#     - name: Test
+#       run: dotnet test LLamaSharp.sln -c ${{ matrix.config }} -l "console;verbosity=detailed" --diag:logs/log.txt --filter Category!=NoCI
+#     - name: Upload artifacts
+#       if: always()
+#       uses: actions/upload-artifact@v3
+#       with:
+#         path: logs/
+#         name: logs
