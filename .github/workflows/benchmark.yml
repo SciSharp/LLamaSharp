@@ -4,9 +4,9 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-benchmark
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}-benchmark
+#   cancel-in-progress: true
 
 jobs:
   linux-benchmark-cuda:
