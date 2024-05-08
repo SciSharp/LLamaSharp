@@ -38,9 +38,9 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
         public IEnumerable<(string, int)> ModelAndGpuLayerCounts => new (string, int)[]
         // TODO: specify the native library to load here to test cpu case better.
         {
-            (Constants.Generative7BModelPath, 0),
-            (Constants.Generative7BModelPath, 10),
-            (Constants.Generative7BModelPath, 20)
+            (Path.Combine(Constants.ModelDir, Constants.Generative7BModelPath), 0),
+            (Path.Combine(Constants.ModelDir, Constants.Generative7BModelPath), 10),
+            (Path.Combine(Constants.ModelDir, Constants.Generative7BModelPath), 20)
         };
 
         public IEnumerable<ExecutorType> ExecutorTypes => new ExecutorType[]
@@ -77,7 +77,7 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
 
         private void InitializeParamsAndModel()
         {
-            ModelParams = new ModelParams(Path.Combine(Constants.ModelDir, ModelAndGpuLayerCount.Item1))
+            ModelParams = new ModelParams(ModelAndGpuLayerCount.Item1)
             {
                 ContextSize = PromptAndContextLength.Item2,
                 GpuLayerCount = ModelAndGpuLayerCount.Item2

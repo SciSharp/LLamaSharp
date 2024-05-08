@@ -9,15 +9,15 @@ namespace LLama.Benchmark
 {
     internal static class Constants
     {
-        public readonly static string ModelDir = "/llamasharp_ci/models_benchmark";
+        public const string ModelDir = "/llamasharp_ci/models_benchmark";
 
-        public readonly static string Generative7BModelPath = "llama-2-7b-chat.Q3_K_S.gguf";
-        public readonly static string EmbeddingModelPath = "all-MiniLM-L12-v2.Q8_0.gguf";
+        public const string Generative7BModelPath = "llama-2-7b-chat.Q3_K_S.gguf";
+        public const string EmbeddingModelPath = "all-MiniLM-L12-v2.Q8_0.gguf";
 
-        public readonly static string LLavaModelPath = "llava-v1.6-mistral-7b.Q3_K_XS.gguf";
-        public readonly static string LLavaMmpPath = "mmproj-model-f16.gguf";
-        public readonly static string LLavaImage = "Assets/extreme-ironing-taxi-610x427.jpg";
+        public const string LLavaModelPath = "llava-v1.6-mistral-7b.Q3_K_XS.gguf";
+        public const string LLavaMmpPath = "mmproj-model-f16.gguf";
+        public const string LLavaImage = "Assets/extreme-ironing-taxi-610x427.jpg";
 
-        public readonly static string TextCompletionPromptsFilePath = "Assets/TextCompletionPrompts.txt";
+        public const string TextCompletionPromptsFilePath = "Assets/TextCompletionPrompts.txt";
     }
 }
