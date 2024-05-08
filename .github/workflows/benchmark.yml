@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [cuda11]
+        build: [cuda11, cuda12]
         include:
           - build: cuda11
             image: nvidia/cuda:11.7.1-devel-ubuntu22.04
