@@ -88,6 +88,7 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
                 MaxTokens = 1 // Only prefill, no generation here.
             };
 
+            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}");
             LLamaWeights weights = LLamaWeights.LoadFromFile(ModelParams);
             LLamaContext context = weights.CreateContext(ModelParams);
             Executor = ExecutorType switch
