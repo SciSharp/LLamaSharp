@@ -38,9 +38,9 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
         public IEnumerable<(string, int)> ModelAndGpuLayerCounts => new (string, int)[]
         // TODO: specify the native library to load here to test cpu case better.
         {
-            (Path.Combine(Constants.ModelDir, Constants.Generative7BModelPath), 0),
-            (Path.Combine(Constants.ModelDir, Constants.Generative7BModelPath), 10),
-            (Path.Combine(Constants.ModelDir, Constants.Generative7BModelPath), 20)
+            ("/llamasharp_ci/models_benchmark/llama-2-7b-chat.Q3_K_S.gguf", 0),
+            ("/llamasharp_ci/models_benchmark/llama-2-7b-chat.Q3_K_S.gguf", 10),
+            ("/llamasharp_ci/models_benchmark/llama-2-7b-chat.Q3_K_S.gguf", 20)
         };
 
         public IEnumerable<ExecutorType> ExecutorTypes => new ExecutorType[]
