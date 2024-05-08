@@ -9,14 +9,11 @@ namespace LLama.Benchmark
 {
     internal static class Constants
     {
-        public static string ModelDir 
+        public static string GetModelDir()
         {
-            get
-            {
-                var res = Environment.GetEnvironmentVariable("LLAMA_BENCHMARK_MODEL_DIR") ?? "";
-                Console.WriteLine($"+++*************** Got env path: {res}");
-                return res;
-            }
+            var res = Environment.GetEnvironmentVariable("LLAMA_BENCHMARK_MODEL_DIR") ?? "";
+            Console.WriteLine($"+++*************** Got env path: {res}");
+            return res;
         }
 
         public readonly static string Generative7BModelPath = "llama-2-7b-chat.Q3_K_S.gguf";

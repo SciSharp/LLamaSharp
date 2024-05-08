@@ -76,12 +76,12 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
 
         private void InitializeParamsAndModel()
         {
-            ModelParams = new ModelParams(Path.Combine(Constants.ModelDir, ModelAndGpuLayerCount.Item1))
+            ModelParams = new ModelParams(Path.Combine(Constants.GetModelDir(), ModelAndGpuLayerCount.Item1))
             {
                 ContextSize = PromptAndContextLength.Item2,
                 GpuLayerCount = ModelAndGpuLayerCount.Item2
             };
-            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}, prefix: {Constants.ModelDir}");
+            Console.WriteLine($"************ model params model path: {ModelParams.ModelPath}   specified path: {ModelAndGpuLayerCount.Item1}, prefix: {Constants.GetModelDir()}");
             Prompt = File.ReadAllText(Constants.TextCompletionPromptsFilePath).Substring(0, PromptAndContextLength.Item1);
             InferenceParams = new InferenceParams()
             {
