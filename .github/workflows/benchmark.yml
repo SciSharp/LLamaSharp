@@ -35,9 +35,12 @@ jobs:
       options: --gpus=all --ipc=host --runtime=nvidia
 
     steps:
+    - uses: actions/checkout@v4
+
     - name: DEBUG
       run: | 
         whoami
+        which dotnet
         nvidia-smi
         nvcc -V
     
