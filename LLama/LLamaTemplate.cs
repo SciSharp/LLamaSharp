@@ -13,6 +13,8 @@ namespace LLama;
 public sealed class LLamaTemplate
 {
     #region private state
+    private static readonly Encoding Encoding = Encoding.UTF8;
+
     /// <summary>
     /// The model this template is for. May be null if a custom template was supplied to the constructor.
     /// </summary>
@@ -127,7 +129,7 @@ public sealed class LLamaTemplate
     /// <param name="customTemplate"></param>
     public LLamaTemplate(string customTemplate)
     {
-        _customTemplate = Encoding.UTF8.GetBytes(customTemplate + "\0");
+        _customTemplate = Encoding.GetBytes(customTemplate + "\0");
     }
     #endregion
 
@@ -303,8 +305,8 @@ public sealed class LLamaTemplate
             if (!roleCache.TryGetValue(role, out var roleBytes))
             {
                 // Convert role. Add one to length so there is a null byte at the end.
-                var rArr = new byte[Encoding.UTF8.GetByteCount(role) + 1];
-                var encodedRoleLength = Encoding.UTF8.GetBytes(role.AsSpan(), rArr);
+                var rArr = new byte[Encoding.GetByteCount(role) + 1];
+                var encodedRoleLength = Encoding.GetBytes(role.AsSpan(), rArr);
                 Debug.Assert(rArr.Length == encodedRoleLength + 1);
 
                 // Add to cache for future use.
@@ -318,8 +320,8 @@ public sealed class LLamaTemplate
             RoleBytes = roleBytes;
 
             // Convert content. Add one to length so there is a null byte at the end.
-            var contentArray = new byte[Encoding.UTF8.GetByteCount(content) + 1];
-            var encodedContentLength = Encoding.UTF8.GetBytes(content.AsSpan(), contentArray);
+            var contentArray = new byte[Encoding.GetByteCount(content) + 1];
+            var encodedContentLength = Encoding.GetBytes(content.AsSpan(), contentArray);
             Debug.Assert(contentArray.Length == encodedContentLength + 1);
             ContentBytes = contentArray;
         }
