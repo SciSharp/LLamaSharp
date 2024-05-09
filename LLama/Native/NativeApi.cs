@@ -274,7 +274,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Clear the KV cache
+        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
         /// </summary>
         /// <param name="ctx"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
