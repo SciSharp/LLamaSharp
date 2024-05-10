@@ -6,7 +6,12 @@
 ///// <remarks>llama_vocab_pre_type</remarks>
 //public enum llama_vocab_pre_type
 //{
-//    LLAMA_VOCAB_PRE_TYPE_DEFAULT = 0,
+//    /// <summary>
+//    /// Default pre tokenization type
+//    /// </summary>
+//    /// <remark>LLAMA_VOCAB_PRE_TYPE_DEFAULT</remark>
+//    Default = 0,
+//
 //    LLAMA_VOCAB_PRE_TYPE_LLAMA3 = 1,
 //    LLAMA_VOCAB_PRE_TYPE_DEEPSEEK_LLM = 2,
 //    LLAMA_VOCAB_PRE_TYPE_DEEPSEEK_CODER = 3,
