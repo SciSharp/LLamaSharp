@@ -81,15 +81,15 @@ namespace LLamaSharp.KernelMemory
         {
             var parameters = new ModelParams(config.ModelPath)
             {
-                ContextSize = config?.ContextSize ?? 2048,
-                Seed = config?.Seed ?? 0,
-                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                ContextSize = config.ContextSize ?? 2048,
+                Seed = config.Seed ?? 0,
+                GpuLayerCount = config.GpuLayerCount ?? 20,
                 Embeddings = true,
-                MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? GPUSplitMode.None,
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode
             };
 
-            if (weights == null)
+            if (weights == null || context == null)
             {
                 weights = LLamaWeights.LoadFromFile(parameters);
                 context = weights.CreateContext(parameters);
