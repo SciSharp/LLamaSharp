@@ -1,5 +1,6 @@
-﻿using LLama;
+using LLama;
 using LLama.Common;
+using LLama.Native;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
 
@@ -29,9 +30,12 @@ namespace LLamaSharp.KernelMemory
             this._config = config;
             var @params = new ModelParams(_config.ModelPath)
             {
+                ContextSize = config?.ContextSize ?? 2048,
+                Seed = config?.Seed ?? 0,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
                 Embeddings = true,
-                MainGpu = _config.MainGpu,
-                SplitMode = _config.SplitMode
+                MainGpu = _config?.MainGpu ?? 0,
+                SplitMode = _config?.SplitMode ?? GPUSplitMode.None
             };
             _weights = LLamaWeights.LoadFromFile(@params);
             _embedder = new LLamaEmbedder(_weights, @params);
@@ -49,9 +53,12 @@ namespace LLamaSharp.KernelMemory
             this._config = config;
             var @params = new ModelParams(_config.ModelPath)
             {
+                ContextSize = config?.ContextSize ?? 2048,
+                Seed = config?.Seed ?? 0,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
                 Embeddings = true,
-                MainGpu = _config.MainGpu,
-                SplitMode = _config.SplitMode
+                MainGpu = _config?.MainGpu ?? 0,
+                SplitMode = _config?.SplitMode ?? GPUSplitMode.None
             };
             _weights = weights;
             _embedder = new LLamaEmbedder(_weights, @params);

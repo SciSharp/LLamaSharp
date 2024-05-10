@@ -1,4 +1,4 @@
-﻿using Microsoft.KernelMemory;
+using Microsoft.KernelMemory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,8 +96,7 @@ namespace LLamaSharp.KernelMemory
             }
 
             var executor = new StatelessExecutor(weights, parameters);
-            var embedder = new LLamaEmbedder(weights, parameters);
-            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(embedder));
+            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(config, weights));
             builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, context, executor, config?.DefaultInferenceParams));
             return builder;
         }		
