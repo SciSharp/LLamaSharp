@@ -1,4 +1,4 @@
-﻿using LLamaSharp.SemanticKernel.ChatCompletion;
+﻿using LLamaSharp.SemanticKernel;
 using Microsoft.SemanticKernel;
 
 namespace LLama.Unittest.SemanticKernel
@@ -10,7 +10,7 @@ namespace LLama.Unittest.SemanticKernel
         {
             // Arrange
             // Act
-            var requestSettings = ChatRequestSettings.FromRequestSettings(null, null);
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(null, null);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -31,7 +31,7 @@ namespace LLama.Unittest.SemanticKernel
         {
             // Arrange
             // Act
-            var requestSettings = ChatRequestSettings.FromRequestSettings(null, 200);
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(null, 200);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -51,7 +51,7 @@ namespace LLama.Unittest.SemanticKernel
         public void ChatRequestSettings_FromExistingRequestSettings()
         {
             // Arrange
-            var originalRequestSettings = new ChatRequestSettings()
+            var originalRequestSettings = new LLamaSharpPromptExecutionSettings()
             {
                 FrequencyPenalty = 0.5,
                 MaxTokens = 100,
@@ -64,7 +64,7 @@ namespace LLama.Unittest.SemanticKernel
             };
 
             // Act
-            var requestSettings = ChatRequestSettings.FromRequestSettings(originalRequestSettings);
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(originalRequestSettings);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -81,7 +81,7 @@ namespace LLama.Unittest.SemanticKernel
             };
 
             // Act
-            var requestSettings = ChatRequestSettings.FromRequestSettings(originalRequestSettings);
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(originalRequestSettings);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -109,7 +109,7 @@ namespace LLama.Unittest.SemanticKernel
             };
 
             // Act
-            var requestSettings = ChatRequestSettings.FromRequestSettings(originalRequestSettings);
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(originalRequestSettings);
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -148,7 +148,7 @@ namespace LLama.Unittest.SemanticKernel
             };
 
             // Act
-            var requestSettings = ChatRequestSettings.FromRequestSettings(originalRequestSettings);
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(originalRequestSettings);
 
             // Assert
             Assert.NotNull(requestSettings);

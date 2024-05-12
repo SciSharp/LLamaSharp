@@ -74,15 +74,21 @@ public class ChatSession
     /// </summary>
     /// <param name="executor">The executor for this session</param>
     /// <param name="history">History for this session</param>
-    /// <returns></returns>
+    /// <param name="transform">History Transform for this session</param>
+    /// <returns>A new chat session.</returns>
     public static async Task<ChatSession> InitializeSessionFromHistoryAsync(
-        ILLamaExecutor executor, ChatHistory history)
+        ILLamaExecutor executor, ChatHistory history, IHistoryTransform? transform = null)
     {
         if (executor is not StatefulExecutorBase statefulExecutor)
         {
             throw new ArgumentException("Executor must have a StatefulExecutorBase", nameof(executor));
         }
         var session = new ChatSession(executor, history);
+        if (transform != null)
+        {
+            session = session.WithHistoryTransform(transform);
+        }
+
         await statefulExecutor.PrefillPromptAsync(session.HistoryTransform.HistoryToText(history));
         return session;
     }

@@ -1,5 +1,4 @@
-﻿using LLamaSharp.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.ChatCompletion;
+﻿using Microsoft.SemanticKernel.ChatCompletion;
 namespace LLamaSharp.SemanticKernel;
 
 public static class ExtensionMethods
@@ -23,11 +22,11 @@ public static class ExtensionMethods
     }
 
     /// <summary>
-    /// Convert ChatRequestSettings to LLamaSharp InferenceParams
+    /// Convert LLamaSharpPromptExecutionSettings to LLamaSharp InferenceParams
     /// </summary>
     /// <param name="requestSettings"></param>
     /// <returns></returns>
-    internal static global::LLama.Common.InferenceParams ToLLamaSharpInferenceParams(this ChatRequestSettings requestSettings)
+    internal static global::LLama.Common.InferenceParams ToLLamaSharpInferenceParams(this LLamaSharpPromptExecutionSettings requestSettings)
     {
         if (requestSettings is null)
         {
