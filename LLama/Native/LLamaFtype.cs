@@ -172,6 +172,11 @@
         LLAMA_FTYPE_MOSTLY_IQ1_M = 31,
 
         /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_BF16 = 32,
+
+        /// <summary>
         /// File type was not specified
         /// </summary>
         LLAMA_FTYPE_GUESSED = 1024

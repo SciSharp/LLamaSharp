@@ -166,11 +166,12 @@ public sealed class Conversation
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public void Prompt(string input)
+    [Obsolete("Tokenize the text and pass the tokens instead")]
+    public void Prompt(string input, bool addBos, bool special)
     {
         AssertCanBePrompted();
 
-        Prompt(Executor.Context.Tokenize(input));
+        Prompt(Executor.Context.Tokenize(input, addBos, special));
     }
 
     /// <summary>

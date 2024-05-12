@@ -31,7 +31,7 @@ public class BatchedExecutorSaveAndLoad
 
         // Create a conversation
         var conversation = executor.Create();
-        conversation.Prompt(prompt);
+        conversation.Prompt(executor.Context.Tokenize(prompt));
 
         // Run inference loop
         var decoder = new StreamingTokenDecoder(executor.Context);

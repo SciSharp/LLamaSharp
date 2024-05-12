@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE1006 // Naming Styles
@@ -34,6 +34,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_mmap();
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_mlock();
 
         /// <summary>
@@ -48,6 +50,7 @@ namespace LLama.Native
         /// </summary>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_gpu_offload();
 
         /// <summary>
@@ -77,6 +80,7 @@ namespace LLama.Native
         /// <param name="n_token_count_out"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_state_load_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens_out, ulong n_token_capacity, out ulong n_token_count_out);
 
         /// <summary>
@@ -88,6 +92,7 @@ namespace LLama.Native
         /// <param name="n_token_count"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -134,6 +139,14 @@ namespace LLama.Native
         public static extern uint llama_n_seq_max(SafeLLamaContextHandle ctx);
 
         /// <summary>
+        /// Get the pooling type for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern LLamaPoolingType llama_pooling_type(SafeLLamaContextHandle ctx);
+
+        /// <summary>
         /// Get the embeddings for the a specific sequence.
         /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
         /// </summary>
@@ -174,8 +187,13 @@ namespace LLama.Native
         /// <param name="buf">A buffer to hold the output formatted prompt. The recommended alloc size is 2 * (total number of characters of all messages)</param>
         /// <param name="length">The size of the allocated buffer</param>
         /// <returns>The total number of bytes of the formatted prompt. If is it larger than the size of buffer, you may need to re-alloc it and then re-apply the template.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_get_embeddings")]
-        public static extern unsafe int llama_chat_apply_template(SafeLlamaModelHandle model, char* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, char* buf, int length);
+        public static unsafe int llama_chat_apply_template(SafeLlamaModelHandle? model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, byte* buf, int length)
+        {
+            return internal_llama_chat_apply_template(model?.DangerousGetHandle() ?? IntPtr.Zero, tmpl, chat, n_msg, add_ass, buf, length);
+
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_chat_apply_template")]
+            static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, byte* buf, int length);
+        }
 
         /// <summary>
         /// Returns -1 if unknown, 1 for true or 0 for false.
@@ -218,19 +236,20 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
+        /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer)
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, bool special)
         {
             unsafe
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length);
+                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, special);
                 }
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length);
+            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, bool special);
         }
 
         /// <summary>
@@ -258,9 +277,26 @@ namespace LLama.Native
         {
             NativeLogConfig.llama_log_set(logCallback);
         }
+        
+        /// <summary>
+        /// Returns the number of tokens in the KV cache (slow, use only for debug)
+        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx);
+        
+        /// <summary>
+        /// Returns the number of used KV cells (i.e. have at least one sequence assigned to them)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_get_kv_cache_used_cells(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Clear the KV cache
+        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
         /// </summary>
         /// <param name="ctx"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -275,6 +311,7 @@ namespace LLama.Native
         /// <param name="p1"></param>
         /// <returns>Returns false if a partial sequence cannot be removed. Removing a whole sequence never fails</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_kv_cache_seq_rm(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1);
 
         /// <summary>

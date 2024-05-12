@@ -34,9 +34,9 @@ public class BatchedExecutorGuidance
 
         // Load the two prompts into two conversations
         using var guided = executor.Create();
-        guided.Prompt(positivePrompt);
+        guided.Prompt(executor.Context.Tokenize(positivePrompt));
         using var guidance = executor.Create();
-        guidance.Prompt(negativePrompt);
+        guidance.Prompt(executor.Context.Tokenize(negativePrompt));
 
         // Run inference to evaluate prompts
         await AnsiConsole
@@ -79,7 +79,7 @@ public class BatchedExecutorGuidance
                     guidance.Prompt(g);
 
                     // Early exit if we reach the natural end of the guided sentence
-                    if (g == model.Tokens.EOS)
+                    if (model.Tokens.IsEndOfGeneration(g))
                         break;
 
                     // Update progress bar

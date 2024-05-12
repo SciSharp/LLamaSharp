@@ -32,7 +32,7 @@ public class BatchedExecutorFork
 
         // Evaluate the initial prompt to create one conversation
         using var start = executor.Create();
-        start.Prompt(prompt);
+        start.Prompt(executor.Context.Tokenize(prompt));
         await executor.Infer();
 
         // Create the root node of the tree

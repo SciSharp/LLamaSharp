@@ -1,4 +1,4 @@
-﻿using Microsoft.KernelMemory;
+using Microsoft.KernelMemory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,23 +81,22 @@ namespace LLamaSharp.KernelMemory
         {
             var parameters = new ModelParams(config.ModelPath)
             {
-                ContextSize = config?.ContextSize ?? 2048,
-                Seed = config?.Seed ?? 0,
-                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                ContextSize = config.ContextSize ?? 2048,
+                Seed = config.Seed ?? 0,
+                GpuLayerCount = config.GpuLayerCount ?? 20,
                 Embeddings = true,
-                MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? GPUSplitMode.None,
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode
             };
 
-            if (weights == null)
+            if (weights == null || context == null)
             {
                 weights = LLamaWeights.LoadFromFile(parameters);
                 context = weights.CreateContext(parameters);
             }
 
             var executor = new StatelessExecutor(weights, parameters);
-            var embedder = new LLamaEmbedder(weights, parameters);
-            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(embedder));
+            builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(config, weights));
             builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, context, executor, config?.DefaultInferenceParams));
             return builder;
         }		

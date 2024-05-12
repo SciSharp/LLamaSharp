@@ -361,6 +361,16 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_token_eot(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Check if the token is supposed to end generation (end-of-generation, eg. EOS, EOT, etc.)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_token_is_eog(SafeLlamaModelHandle model, LLamaToken token);
         #endregion
 
         #region LoRA
@@ -402,10 +412,11 @@ namespace LLama.Native
         /// </summary>
         /// <param name="token">Token to decode</param>
         /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
+        /// <param name="special">If true, special characters will be converted to text. If false they will be invisible.</param>
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
-        public uint TokenToSpan(LLamaToken token, Span<byte> dest)
+        public uint TokenToSpan(LLamaToken token, Span<byte> dest, bool special = false)
         {
-            var length = NativeApi.llama_token_to_piece(this, token, dest);
+            var length = NativeApi.llama_token_to_piece(this, token, dest, special);
             return (uint)Math.Abs(length);
         }
 
@@ -623,6 +634,16 @@ namespace LLama.Native
             /// Codellama end of infill middle
             /// </summary>
             public LLamaToken? EOT => Normalize(llama_token_eot(_model));
+
+            /// <summary>
+            /// Check if the given token should end generation
+            /// </summary>
+            /// <param name="token"></param>
+            /// <returns></returns>
+            public bool IsEndOfGeneration(LLamaToken token)
+            {
+                return llama_token_is_eog(_model, token);
+            }
         }
     }
 }

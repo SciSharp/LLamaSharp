@@ -71,6 +71,16 @@ namespace LLama.Native
         private sbyte _pure;
 
         /// <summary>
+        /// quantize to the same number of shards
+        /// </summary>
+        public bool keep_split
+        {
+            get => Convert.ToBoolean(_keep_split);
+            set => _keep_split = Convert.ToSByte(value);
+        }
+        private sbyte _keep_split;
+
+        /// <summary>
         /// pointer to importance matrix data
         /// </summary>
         public IntPtr imatrix;

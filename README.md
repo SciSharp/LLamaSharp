@@ -59,7 +59,7 @@
 
 ## 🔗Integrations & Examples
 
-There are integarions for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
+There are integrations for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
 
 - [semantic-kernel](https://github.com/microsoft/semantic-kernel): an SDK that integrates LLM like OpenAI, Azure OpenAI, and Hugging Face.
 - [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
@@ -243,6 +243,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.9.0, v0.9.1 | [Mixtral-8x7B](https://huggingface.co/TheBloke/Mixtral-8x7B-v0.1-GGUF) | [`9fb13f9`](https://github.com/ggerganov/llama.cpp/blob/9fb13f95840c722ad419f390dc8a9c86080a3700) |
 | v0.10.0 | [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF) | [`d71ac90`](https://github.com/ggerganov/llama.cpp/tree/d71ac90985854b0905e1abba778e407e17f9f887) |
 | v0.11.1, v0.11.2 | [LLaVA-v1.5](https://hf-mirror.com/jartine/llava-v1.5-7B-GGUF/blob/main/llava-v1.5-7b-mmproj-Q4_0.gguf), [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF)| [`3ab8b3a`](https://github.com/ggerganov/llama.cpp/tree/3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6) |
+| v0.12.0 | LLama3 | [`a743d76`](https://github.com/ggerganov/llama.cpp/tree/a743d76a01f23038b2c85af1e9048ee836767b44)
 
 ## License
 

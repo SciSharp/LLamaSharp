@@ -1,0 +1,117 @@
+name: Benchmark Test
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-benchmark
+  cancel-in-progress: true
+
+jobs:
+  linux-benchmark-cuda:
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark')
+    runs-on: [self-hosted, linux, gpu]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [cuda11, cuda12]
+        include:
+          - build: cuda11
+            image: nvidia/cuda:11.7.1-devel-ubuntu22.04
+            modeldir: /llamasharp_ci/models_benchmark
+          - build: cuda12
+            image: nvidia/cuda:12.1.1-devel-ubuntu22.04
+            modeldir: /llamasharp_ci/models_benchmark
+
+    container:
+      image: ${{ matrix.image }}
+      env:
+        BENCHMARK_MODEL_DIR: ${{ matrix.modeldir }}
+      ports:
+        - 80
+      volumes:
+        - /llamasharp_ci:/llamasharp_ci
+      options: --gpus=all --ipc=host --runtime=nvidia
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install libraries
+      run: |
+        apt update
+        apt install -y curl libicu-dev
+        apt-get install wget
+        wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+        dpkg -i packages-microsoft-prod.deb
+        rm packages-microsoft-prod.deb
+        apt-get update  && apt-get install -y dotnet-sdk-8.0
+
+    - name: Prepare models
+      run: | 
+        apt-get update
+        apt-get install -y python3.10 python3-pip
+        python3 --version
+        pip install huggingface_hub
+        python3 .github/download_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
+
+    - name: Clear package cache
+      run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
+    - name: Restore packages
+      run: dotnet restore LLamaSharp.sln
+    - name: Build
+      run: | 
+        dotnet clean
+        dotnet build LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
+    - name: Run benchmark test
+      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c Release --anyCategories LLama
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: Benchmark_Results
+        path: BenchmarkDotNet.Artifacts/results/*
+
+  windows-benchmark-cuda:
+    if: contains(github.event.pull_request.labels.*.name, 'benchmark')
+    runs-on: [self-hosted, windows, gpu]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [cuda11]
+        include:
+          - build: cuda11
+            modeldir: F:\Models\LLamaSharpBenchmark
+
+    env:
+      AGENT_TOOLSDIRECTORY: D:\Libs\github\runner-cache
+      BENCHMARK_MODEL_DIR: ${{ matrix.modeldir }}
+
+    steps:
+    - name: Settings
+      run: |
+        set http_proxy=127.0.0.1:7891
+        set https_proxy=127.0.0.1:7891
+
+    - uses: actions/checkout@v4
+
+    - name: Clear package cache
+      run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
+    - name: Restore packages
+      run: dotnet restore LLamaSharp.sln
+    - name: Build
+      run: | 
+        dotnet clean
+        dotnet build LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
+    - name: Run benchmark test
+      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c Release --anyCategories LLama
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: Benchmark_Results
+        path: BenchmarkDotNet.Artifacts/results/*

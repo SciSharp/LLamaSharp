@@ -346,4 +346,7 @@ site/
 /LLama.Unittest/Models/*.bin
 /LLama.Unittest/Models/*.gguf
 
-/LLama.Web/appsettings.Local.json
+/LLama.Benchmark/Models/*.bin
+/LLama.Benchmark/Models/*.gguf
+
+**/appsettings.Local.json
