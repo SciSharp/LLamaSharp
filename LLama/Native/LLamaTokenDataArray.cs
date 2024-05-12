@@ -49,7 +49,7 @@ namespace LLama.Native
         /// </summary>
         /// <remarks>The memory must not be modified while this <see cref="LLamaTokenDataArray"/> is in use.</remarks>
         /// <param name="logits"></param>
-        /// <param name="temporary">Temorary memory which will be used to work on these logits. Must be at least as large as logits array</param>
+        /// <param name="temporary">Temporary memory which will be used to work on these logits. Must be at least as large as logits array</param>
         /// <returns></returns>
         public static LLamaTokenDataArray Create(ReadOnlySpan<float> logits, Memory<LLamaTokenData> temporary)
         {
