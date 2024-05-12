@@ -151,6 +151,16 @@ namespace LLama.Native
         }
         private sbyte _offload_kqv;
 
+        /// <summary>
+        /// whether to use flash attention
+        /// </summary>
+        public bool flash_attention
+        {
+            readonly get => Convert.ToBoolean(_flash_attention);
+            set => _flash_attention = Convert.ToSByte(value);
+        }
+        private sbyte _flash_attention;
+
         //todo: implement abort callback support
         /// <summary>
         /// ggml_abort_callback

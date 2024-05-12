@@ -33,7 +33,7 @@ public class BatchedExecutorRewind
 
         // Evaluate the initial prompt to create one conversation
         using var conversation = executor.Create();
-        conversation.Prompt(prompt);
+        conversation.Prompt(executor.Context.Tokenize(prompt));
         
         // Create the start node wrapping the conversation
         var node = new Node(executor.Context);

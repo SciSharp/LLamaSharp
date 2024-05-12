@@ -1,4 +1,4 @@
-﻿using LLama.Exceptions;
+using LLama.Exceptions;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
@@ -519,6 +519,17 @@ namespace LLama
             }
 
             return candidates_p;
+        }
+
+        /// <summary>
+        /// Gets whether or not the Bos token should be added.
+        /// From common.cpp https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/common/common.cpp#L2417
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldAddBosToken()
+        {
+            var addBos = NativeApi.llama_add_bos_token(NativeHandle.ModelHandle);
+            return addBos != -1 ? Convert.ToBoolean(addBos) : NativeHandle.LLamaVocabType == LLamaVocabType.SentencePiece;
         }
 
         #region eval overloads

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Abstractions;
 using LLama.Native;
 
@@ -29,12 +29,14 @@ namespace LLama.Web.Common
         /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
-        public uint SeqMax { get; }
+        /// <inheritdoc />
+        public uint SeqMax { get; set; }
 
         /// <inheritdoc />
-        public uint Seed { get; set; } = 1686349486;
+        public uint? Seed { get; set; } = 1686349486;
 
-        public bool Embeddings { get; }
+        /// <inheritdoc />
+        public bool Embeddings { get; set; }
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
@@ -103,13 +105,16 @@ namespace LLama.Web.Common
         public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
+        public bool FlashAttention { get; set; }
+
+        /// <inheritdoc />
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
 
         /// <inheritdoc />
-        public float DefragThreshold { get; set; }
+        public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; }

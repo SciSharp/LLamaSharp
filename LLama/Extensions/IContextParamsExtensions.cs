@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using LLama.Abstractions;
 using LLama.Native;
@@ -26,7 +26,7 @@ namespace LLama.Extensions
             result.n_batch = @params.BatchSize;
             result.n_ubatch = @params.UBatchSize;
             result.n_seq_max = @params.SeqMax;
-            result.seed = @params.Seed;
+            result.seed = @params.Seed ?? 0xFFFFFFFF;
             result.embeddings = @params.Embeddings;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
@@ -39,7 +39,7 @@ namespace LLama.Extensions
             result.yarn_orig_ctx = @params.YarnOriginalContext ?? 0;
             result.rope_scaling_type = @params.YarnScalingType ?? RopeScalingType.Unspecified;
 
-            result.defrag_threshold = @params.DefragThreshold;
+            result.defrag_threshold = @params.DefragThreshold ?? -1;
 
             result.cb_eval = IntPtr.Zero;
             result.cb_eval_user_data = IntPtr.Zero;
@@ -50,6 +50,7 @@ namespace LLama.Extensions
             result.type_k = @params.TypeK ?? GGMLType.GGML_TYPE_F16;
             result.type_k = @params.TypeV ?? GGMLType.GGML_TYPE_F16;
             result.offload_kqv = !@params.NoKqvOffload;
+            result.flash_attention = @params.FlashAttention;
             result.llama_pooling_type = @params.PoolingType;
 
             result.n_threads = Threads(@params.Threads);

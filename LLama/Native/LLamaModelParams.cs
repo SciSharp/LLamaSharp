@@ -82,6 +82,16 @@ namespace LLama.Native
         private sbyte _use_mlock;
 
         /// <summary>
+        /// validate model tensor data
+        /// </summary>
+        public bool check_tensors
+        {
+            readonly get => Convert.ToBoolean(_check_tensors);
+            set => _check_tensors = Convert.ToSByte(value);
+        }
+        private sbyte _check_tensors;
+
+        /// <summary>
         /// Create a LLamaModelParams with default values
         /// </summary>
         /// <returns></returns>
