@@ -100,6 +100,10 @@ namespace LLama.Common
         public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
+
+        public bool FlashAttention { get; set; }
+
+        /// <inheritdoc />
         public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />

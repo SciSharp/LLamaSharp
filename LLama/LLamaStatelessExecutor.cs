@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using LLama.Exceptions;
 using LLama.Native;
@@ -123,8 +124,8 @@ namespace LLama
                     );
                 }
 
-                // Check if this is the EOS token
-                if (id == _weights.Tokens.EOS)
+                // Check if this token should end generation
+                if (_weights.Tokens.IsEndOfGeneration(id))
                     break;
 
                 // Decode this token into text

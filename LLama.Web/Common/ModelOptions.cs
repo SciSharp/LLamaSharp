@@ -29,12 +29,14 @@ namespace LLama.Web.Common
         /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
-        public uint SeqMax { get; }
+        /// <inheritdoc />
+        public uint SeqMax { get; set; }
 
         /// <inheritdoc />
         public uint? Seed { get; set; } = 1686349486;
 
-        public bool Embeddings { get; }
+        /// <inheritdoc />
+        public bool Embeddings { get; set; }
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
@@ -101,6 +103,9 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
+
+        /// <inheritdoc />
+        public bool FlashAttention { get; set; }
 
         /// <inheritdoc />
         public Encoding Encoding { get; set; } = Encoding.UTF8;

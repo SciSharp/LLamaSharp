@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LLama.Native;
@@ -241,6 +242,7 @@ namespace LLama.Abstractions
         private readonly int _valueInt;
         private readonly float _valueFloat;
         private readonly bool _valueBool;
+        private readonly byte[]? _valueString;
 
         /// <summary>
         /// Create a new override for an int key
@@ -278,6 +280,21 @@ namespace LLama.Abstractions
             Type = LLamaModelKvOverrideType.Bool;
         }
 
+        /// <summary>
+        /// Create a new override for a string key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public MetadataOverride(string key, string value)
+        {
+            Key = key;
+            _valueString = Encoding.UTF8.GetBytes(value); 
+            Type = LLamaModelKvOverrideType.String;
+
+            if (_valueString.Length > 128)
+                throw new ArgumentException("Value string is too long, must be < 128 UTF8 bytes", nameof(value));
+        }
+
         internal void WriteValue(ref LLamaModelMetadataOverride dest)
         {
             switch (Type)
@@ -290,6 +307,13 @@ namespace LLama.Abstractions
                     break;
                 case LLamaModelKvOverrideType.Bool:
                     dest.BoolValue = _valueBool ? -1L : 0;
+                    break;
+                case LLamaModelKvOverrideType.String:
+                    unsafe
+                    {
+                        fixed (byte* strValPtr = dest.StringValue)
+                            new Span<byte>(_valueString!).CopyTo(new Span<byte>(strValPtr, 128));
+                    }
                     break;
                 default:
                     throw new InvalidEnumArgumentException($"Unknown {nameof(LLamaModelKvOverrideType)} value: {Type}");
