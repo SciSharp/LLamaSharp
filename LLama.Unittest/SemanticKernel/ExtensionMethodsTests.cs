@@ -37,7 +37,7 @@ namespace LLamaSharp.SemanticKernel.Tests
         public void ToLLamaSharpInferenceParams_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
-            var requestSettings = new ChatRequestSettings();
+            var requestSettings = new LLamaSharpPromptExecutionSettings();
 
             // Act
             var result = ExtensionMethods.ToLLamaSharpInferenceParams(

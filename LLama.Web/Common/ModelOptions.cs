@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Abstractions;
 using LLama.Native;
 
@@ -33,7 +33,7 @@ namespace LLama.Web.Common
         public uint SeqMax { get; set; }
 
         /// <inheritdoc />
-        public uint Seed { get; set; } = 1686349486;
+        public uint? Seed { get; set; } = 1686349486;
 
         /// <inheritdoc />
         public bool Embeddings { get; set; }
@@ -114,7 +114,7 @@ namespace LLama.Web.Common
         public bool VocabOnly { get; set; }
 
         /// <inheritdoc />
-        public float DefragThreshold { get; set; }
+        public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; }

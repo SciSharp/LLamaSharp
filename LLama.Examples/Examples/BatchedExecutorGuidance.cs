@@ -34,9 +34,9 @@ public class BatchedExecutorGuidance
 
         // Load the two prompts into two conversations
         using var guided = executor.Create();
-        guided.Prompt(positivePrompt);
+        guided.Prompt(executor.Context.Tokenize(positivePrompt));
         using var guidance = executor.Create();
-        guidance.Prompt(negativePrompt);
+        guidance.Prompt(executor.Context.Tokenize(negativePrompt));
 
         // Run inference to evaluate prompts
         await AnsiConsole

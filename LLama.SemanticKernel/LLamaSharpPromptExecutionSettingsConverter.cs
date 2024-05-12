@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace LLamaSharp.SemanticKernel.ChatCompletion;
+namespace LLamaSharp.SemanticKernel;
 
 /// <summary>
 /// JSON converter for <see cref="OpenAIRequestSettings"/>
 /// </summary>
-[Obsolete("Use LLamaSharpPromptExecutionSettingsConverter instead")]
-public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
+public class LLamaSharpPromptExecutionSettingsConverter : JsonConverter<LLamaSharpPromptExecutionSettings>
 {
     /// <inheritdoc/>
-    public override ChatRequestSettings? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override LLamaSharpPromptExecutionSettings? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var requestSettings = new ChatRequestSettings();
+        var requestSettings = new LLamaSharpPromptExecutionSettings();
 
         while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
         {
@@ -78,7 +77,7 @@ public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
     }
 
     /// <inheritdoc/>
-    public override void Write(Utf8JsonWriter writer, ChatRequestSettings value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, LLamaSharpPromptExecutionSettings value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
 

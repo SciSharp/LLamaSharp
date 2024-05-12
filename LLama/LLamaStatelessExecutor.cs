@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using LLama.Common;
 using System;
 using System.Collections.Generic;
@@ -145,11 +145,25 @@ namespace LLama
                 // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L497
                 if (n_past + tokens.Count >= Context.ContextSize)
                 {
-                    var n_left = n_past - inferenceParams.TokensKeep - 1;
+                    var canAddBos = Context.ShouldAddBosToken();
+                    var tokensKeep = inferenceParams.TokensKeep;
+
+                    // number of tokens to keep when resetting context
+                    // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
+                    if (tokensKeep < 0 || tokensKeep > tokens.Count)
+                    {
+                        tokensKeep = tokens.Count;
+                    }
+                    else
+                    {
+                        tokensKeep += Convert.ToInt32(canAddBos);
+                    }
+
+                    var n_left = n_past - tokensKeep;
                     var n_discard = n_left / 2;
 
-                    NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, (LLamaSeqId)0, inferenceParams.TokensKeep + 1, inferenceParams.TokensKeep + n_discard + 1);
-                    NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, (LLamaSeqId)0, inferenceParams.TokensKeep + 1 + n_discard, n_past, -n_discard);
+                    NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, (LLamaSeqId)0, tokensKeep , tokensKeep + n_discard);
+                    NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, (LLamaSeqId)0, tokensKeep + n_discard, n_past, -n_discard);
 
                     n_past -= n_discard;
                 }

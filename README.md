@@ -59,7 +59,7 @@
 
 ## 🔗Integrations & Examples
 
-There are integarions for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
+There are integrations for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
 
 - [semantic-kernel](https://github.com/microsoft/semantic-kernel): an SDK that integrates LLM like OpenAI, Azure OpenAI, and Hugging Face.
 - [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.

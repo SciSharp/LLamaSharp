@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 #pragma warning disable IDE1006 // Naming Styles
@@ -187,8 +187,13 @@ namespace LLama.Native
         /// <param name="buf">A buffer to hold the output formatted prompt. The recommended alloc size is 2 * (total number of characters of all messages)</param>
         /// <param name="length">The size of the allocated buffer</param>
         /// <returns>The total number of bytes of the formatted prompt. If is it larger than the size of buffer, you may need to re-alloc it and then re-apply the template.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_get_embeddings")]
-        public static extern unsafe int llama_chat_apply_template(SafeLlamaModelHandle model, char* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, char* buf, int length);
+        public static unsafe int llama_chat_apply_template(SafeLlamaModelHandle? model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, byte* buf, int length)
+        {
+            return internal_llama_chat_apply_template(model?.DangerousGetHandle() ?? IntPtr.Zero, tmpl, chat, n_msg, add_ass, buf, length);
+
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_chat_apply_template")]
+            static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, byte* buf, int length);
+        }
 
         /// <summary>
         /// Returns -1 if unknown, 1 for true or 0 for false.
@@ -272,6 +277,23 @@ namespace LLama.Native
         {
             NativeLogConfig.llama_log_set(logCallback);
         }
+        
+        /// <summary>
+        /// Returns the number of tokens in the KV cache (slow, use only for debug)
+        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_get_kv_cache_token_count(SafeLLamaContextHandle ctx);
+        
+        /// <summary>
+        /// Returns the number of used KV cells (i.e. have at least one sequence assigned to them)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int llama_get_kv_cache_used_cells(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Clear the KV cache. Both cell info is erased and KV data is zeroed
