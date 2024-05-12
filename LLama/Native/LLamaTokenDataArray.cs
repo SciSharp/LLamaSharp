@@ -362,13 +362,28 @@ namespace LLama.Native
         /// A pointer to an array of LlamaTokenData
         /// </summary>
         /// <remarks>Memory must be pinned in place for all the time this LLamaTokenDataArrayNative is in use</remarks>
-        public unsafe LLamaTokenData* data;
+        private unsafe LLamaTokenData* _data;
 
         /// <summary>
         /// Number of LLamaTokenData in the array
         /// </summary>
         public ulong size;
-
+        
+        /// <summary>
+        /// A pointer to an array of LlamaTokenData
+        /// </summary>
+        /// <remarks>Memory must be pinned in place for all the time this LLamaTokenDataArrayNative is in use</remarks>
+        public Span<LLamaTokenData> data
+        {
+            get
+            {
+                unsafe
+                {
+                    return new Span<LLamaTokenData>(_data, checked((int)size));
+                }
+            }
+        }
+        
         /// <summary>
         /// Indicates if the items in the array are sorted
         /// </summary>
@@ -393,7 +408,7 @@ namespace LLama.Native
             {
                 native = new LLamaTokenDataArrayNative
                 {
-                    data = (LLamaTokenData*)handle.Pointer,
+                    _data = (LLamaTokenData*)handle.Pointer,
                     size = (ulong)array.Data.Length,
                     sorted = array.Sorted
                 };
