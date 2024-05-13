@@ -10,7 +10,7 @@ namespace LLama.Native
     /// A safe wrapper around a llama_context
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global (used implicitly in native API)
-    public sealed class SafeLLamaContextHandle
+    public sealed partial class SafeLLamaContextHandle
         : SafeLLamaHandleBase
     {
         #region properties and fields
@@ -103,6 +103,7 @@ namespace LLama.Native
             NativeApi.llama_empty_call();
         }
 
+#if !NETSTANDARD
         /// <summary>
         /// Create a new llama_context with the given model. **This should never be called directly! Always use SafeLLamaContextHandle.Create**!
         /// </summary>
@@ -283,6 +284,8 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
+#endif
+
         #endregion
 
         /// <summary>

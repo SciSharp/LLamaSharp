@@ -1,5 +1,9 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
+
+#if NETSTANDARD
+using NativeLibraryNetStandard;
+#endif
 
 namespace LLama.Native
 {
@@ -180,10 +184,19 @@ namespace LLama.Native
         public static LLamaContextParams Default()
         {
             return llama_context_default_params();
-
-            [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-            static extern LLamaContextParams llama_context_default_params();
         }
+
+#if NETSTANDARD
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern LLamaContextParams llama_context_default_params_r();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate LLamaContextParams llama_context_default_params_t();
+        static LLamaContextParams llama_context_default_params() => NativeLibraryConfig.DynamicLoadingDisabled ?
+            llama_context_default_params_r() : NativeApi.GetLLamaExport<llama_context_default_params_t>("llama_context_default_params")();
+#else
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern LLamaContextParams llama_context_default_params();
+#endif
     }
 }
 

@@ -1,9 +1,10 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
     public static partial class NativeApi
     {
+#if !NETSTANDARD
         /// <summary>
         /// Returns 0 on success
         /// </summary>
@@ -13,5 +14,6 @@ namespace LLama.Native
         /// <returns>Returns 0 on success</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint llama_model_quantize(string fname_inp, string fname_out, ref LLamaModelQuantizeParams param);
+#endif
     }
 }

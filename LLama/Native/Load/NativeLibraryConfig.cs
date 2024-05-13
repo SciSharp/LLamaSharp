@@ -1,15 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LLama.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace LLama.Native
 {
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Allows configuration of the native llama.cpp libraries to load and use.
-    /// All configuration must be done before using **any** other LLamaSharp methods!
+    /// <c>All configuration must be done before using **any** other LLamaSharp methods!</c>
     /// </summary>
     public sealed partial class NativeLibraryConfig
     {
@@ -24,6 +24,25 @@ namespace LLama.Native
         /// search directory -> priority level, 0 is the lowest.
         /// </summary>
         private readonly List<string> _searchDirectories = new List<string>();
+
+#if NETSTANDARD
+        internal static bool LLavaDisabled { get; private set; } = false;
+        internal static bool DynamicLoadingDisabled { get; private set; } = false;
+
+        /// <summary>
+        /// Disable the llava library. If this method is called, the llava library will not be loaded.
+        /// If the API related with LLava is called, An exception will be thrown.
+        /// <c>This method is only available with .NET standard 2.0.</c>
+        /// </summary>
+        public void DisableLLava() => LLavaDisabled = true;
+
+        /// <summary>
+        /// Disable the dynamic loading. It might fix some weird behaviors of native API calling and might slightly improve the performance.
+        /// However, if the dynamic loading is disabled, the native library can only be loaded from the default path, with no flexibility.
+        /// <c>This method is only available with .NET standard 2.0.</c>
+        /// </summary>
+        public void DisableDynamicLoading() => DynamicLoadingDisabled = true;
+#endif
 
         internal INativeLibrarySelectingPolicy SelectingPolicy { get; private set; } = new DefaultNativeLibrarySelectingPolicy();
 
@@ -153,7 +172,7 @@ namespace LLama.Native
                 throw new ArgumentException("Cannot skip the check when fallback is allowed.");
 
             var path = _libraryPath;
-
+            var assemblyDirectoryName = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             return new Description(
                 path,
@@ -162,7 +181,11 @@ namespace LLama.Native
                 _avxLevel,
                 _allowFallback,
                 _skipCheck,
-                _searchDirectories.Concat(new[] { "./" }).ToArray()
+                _searchDirectories.Concat(
+                    assemblyDirectoryName is null || assemblyDirectoryName == AppDomain.CurrentDomain.BaseDirectory ?
+                        new[] { AppDomain.CurrentDomain.BaseDirectory }
+                      : new[] { AppDomain.CurrentDomain.BaseDirectory, assemblyDirectoryName }
+                ).ToArray()
             );
         }
 
@@ -185,6 +208,10 @@ namespace LLama.Native
         {
             NativeLibraryName = nativeLibraryName;
 
+#if NETSTANDARD
+            // In .NET standard2.0 we don't have a way to get the system avx level so we set it as avx2 by default.
+            _avxLevel = AvxLevel.Avx2;
+#else
             // Automatically detect the highest supported AVX level
             if (System.Runtime.Intrinsics.X86.Avx.IsSupported)
                 _avxLevel = AvxLevel.Avx;
@@ -193,8 +220,10 @@ namespace LLama.Native
 
             if (CheckAVX512())
                 _avxLevel = AvxLevel.Avx512;
+#endif
         }
 
+#if !NETSTANDARD
         private static bool CheckAVX512()
         {
             if (!System.Runtime.Intrinsics.X86.X86Base.IsSupported)
@@ -218,6 +247,7 @@ namespace LLama.Native
 
             return vnni && vbmi && bw && f;
         }
+#endif
 
         /// <summary>
         /// The description of the native library configurations that's already specified.
@@ -257,7 +287,6 @@ namespace LLama.Native
             }
         }
     }
-#endif
 
     public sealed partial class NativeLibraryConfig
     {
@@ -304,13 +333,6 @@ namespace LLama.Native
             All = new(LLama, LLava);
         }
 
-#if NETSTANDARD2_0
-        private NativeLibraryConfig(NativeLibraryName nativeLibraryName)
-        {
-            NativeLibraryName = nativeLibraryName;
-        }
-#endif
-
         /// <summary>
         /// Check if the native library has already been loaded. Configuration cannot be modified if this is true.
         /// </summary>
@@ -356,7 +378,7 @@ namespace LLama.Native
 
             return this;
         }
-
+#if !NETSTANDARD
         /// <summary>
         /// Try to load the native library with the current configurations, 
         /// but do not actually set it to <see cref="NativeApi"/>.
@@ -371,8 +393,9 @@ namespace LLama.Native
         public bool DryRun(out INativeLibrary? loadedLibrary)
         {
             LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {this.NativeLibraryName.GetLibraryName()}...");
-            return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary) != IntPtr.Zero;
+            return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary, out var _) != IntPtr.Zero;
         }
+#endif
     }
 
     /// <summary>
@@ -389,7 +412,6 @@ namespace LLama.Native
 
         #region configurators
 
-#if NET6_0_OR_GREATER
         /// <summary>
         /// Load a specified native library as backend for LLamaSharp.
         /// When this method is called, all the other configurations will be ignored.
@@ -522,7 +544,6 @@ namespace LLama.Native
             }
             return this;
         }
-#endif
 
         /// <summary>
         /// Set the log callback that will be used for all llama.cpp log messages
@@ -554,6 +575,7 @@ namespace LLama.Native
 
         #endregion
 
+#if !NETSTANDARD
         /// <summary>
         /// Try to load the native library with the current configurations, 
         /// but do not actually set it to <see cref="NativeApi"/>.
@@ -583,6 +605,7 @@ namespace LLama.Native
             loadedLLamaNativeLibrary = loadedLLavaNativeLibrary = null;
             return success;
         }
+#endif
     }
 
     /// <summary>

@@ -1,29 +1,10 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
     public static partial class NativeApi
     {
-        /// <summary>
-        /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
-        /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
-        /// <param name="last_tokens"></param>
-        /// <param name="last_tokens_size"></param>
-        /// <param name="penalty_repeat">Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.</param>
-        /// <param name="penalty_freq">Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</param>
-        /// <param name="penalty_present">Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe void llama_sample_repetition_penalties(SafeLLamaContextHandle ctx,
-                                                                    ref LLamaTokenDataArrayNative candidates,
-                                                                    LLamaToken* last_tokens, ulong last_tokens_size,
-                                                                    float penalty_repeat,
-                                                                    float penalty_freq,
-                                                                    float penalty_present);
-
         /// <summary>
         /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
         /// </summary>
@@ -50,6 +31,26 @@ namespace LLama.Native
                     llama_sample_apply_guidance(ctx, logitsPtr, logitsGuidancePtr, scale);
             }
         }
+
+#if !NETSTANDARD
+        /// <summary>
+        /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
+        /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="candidates">Pointer to LLamaTokenDataArray</param>
+        /// <param name="last_tokens"></param>
+        /// <param name="last_tokens_size"></param>
+        /// <param name="penalty_repeat">Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.</param>
+        /// <param name="penalty_freq">Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</param>
+        /// <param name="penalty_present">Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.</param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe void llama_sample_repetition_penalties(SafeLLamaContextHandle ctx,
+                                                                    ref LLamaTokenDataArrayNative candidates,
+                                                                    LLamaToken* last_tokens, ulong last_tokens_size,
+                                                                    float penalty_repeat,
+                                                                    float penalty_freq,
+                                                                    float penalty_present);
 
         /// <summary>
         /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
@@ -183,5 +184,6 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern LLamaToken llama_sample_token(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
+#endif
     }
 }

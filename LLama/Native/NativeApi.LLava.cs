@@ -6,6 +6,7 @@ namespace LLama.Native;
 using clip_ctx = IntPtr;
 public static unsafe partial class NativeApi
 {
+#if !NETSTANDARD
     /// <summary>
     /// Sanity check for clip &lt;-&gt; llava embed size match
     /// </summary>
@@ -59,5 +60,5 @@ public static unsafe partial class NativeApi
     [DllImport(llavaLibraryName, EntryPoint = "llava_eval_image_embed", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.U1)]
     public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, SafeLlavaImageEmbedHandle embed, int n_batch, ref int n_past);
-    
+#endif
 }

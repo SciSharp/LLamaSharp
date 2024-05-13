@@ -1,10 +1,12 @@
-﻿using LLama.Exceptions;
+using LLama.Exceptions;
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Collections.Generic;
 using LLama.Abstractions;
+using System.Diagnostics;
+
+#if NETSTANDARD
+using NativeLibraryNetStandard;
+#endif
 
 namespace LLama.Native
 {
@@ -16,7 +18,7 @@ namespace LLama.Native
             // called by the runtime every time that a call into a DLL is required. The
             // resolver returns the loaded DLL handle. This allows us to take control of
             // which llama.dll is used.
-            SetDllImportResolver();
+            ResolveDllImport();
 
             // Set flag to indicate that this point has been passed. No native library config can be done after this point.
             NativeLibraryConfig.LLama.LibraryHasLoaded = true;
@@ -47,16 +49,11 @@ namespace LLama.Native
             llama_backend_init();
         }
 
-#if NET5_0_OR_GREATER
-        private static IntPtr _loadedLlamaHandle;
-        private static IntPtr _loadedLlavaSharedHandle;
-#endif
-
-        private static void SetDllImportResolver()
+        private static void ResolveDllImport()
         {
             // NativeLibrary is not available on older runtimes. We'll have to depend on
             // the normal runtime dll resolution there.
-#if NET5_0_OR_GREATER
+#if !NETSTANDARD
             NativeLibrary.SetDllImportResolver(typeof(NativeApi).Assembly, (name, _, _) =>
             {
                 if (name == "llama")
@@ -66,7 +63,7 @@ namespace LLama.Native
                         return _loadedLlamaHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary);
+                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary, out var _);
                     return _loadedLlamaHandle;
                 }
 
@@ -77,13 +74,45 @@ namespace LLama.Native
                         return _loadedLlavaSharedHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary);
+                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary, out var _);
                     return _loadedLlavaSharedHandle;
                 }
 
                 // Return null pointer to indicate that nothing was loaded.
                 return IntPtr.Zero;
             });
+#else
+            if(NativeLibraryConfig.DynamicLoadingDisabled)
+            {
+                NativeLibraryConfig.LLama.LogCallback?.Invoke(LLamaLogLevel.Info, "Dynamic loading is disabled, using the default loading instead.");
+                return;
+            }
+            // Resolve LLama native library
+            var llamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary, out var _);
+            if(llamaHandle == IntPtr.Zero)
+            {
+                throw new RuntimeError("Failed to resolve the llama native library with dynamic loading.");
+            }
+            else
+            {
+                _llamaNativeLibraryHolder = new NativeLibraryHolder(llamaHandle, autoFree:true);
+            }
+
+            if(!NativeLibraryConfig.LLavaDisabled)
+            {
+                var llavaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary, out var _);
+                if(llavaHandle == IntPtr.Zero)
+                {
+                    if(NativeLibraryConfig.LLama.LogCallback is not null)
+                    {
+                        throw new RuntimeError("Failed to resolve the llava native library with dynamic loading.");
+                    }
+                }
+                else
+                {
+                    _llavaNativeLibraryHolder = new NativeLibraryHolder(llavaHandle, autoFree:true);
+                }
+            }
 #endif
         }
 
@@ -108,5 +137,23 @@ namespace LLama.Native
 
         private static INativeLibrary? _loadedLLamaLibrary = null;
         private static INativeLibrary? _loadedLLavaLibrary = null;
+
+#if NETSTANDARD
+        private static NativeLibraryHolder? _llamaNativeLibraryHolder = null;
+        private static NativeLibraryHolder? _llavaNativeLibraryHolder = null;
+
+        internal static T GetLLamaExport<T>(string name) where T: Delegate
+        {
+            return _llamaNativeLibraryHolder!.LoadFunction<T>(name);
+        }
+
+        internal static T GetLLavaExport<T>(string name) where T: Delegate
+        {
+            return _llavaNativeLibraryHolder!.LoadFunction<T>(name);
+        }
+#else
+        private static IntPtr _loadedLlamaHandle;
+        private static IntPtr _loadedLlavaSharedHandle;
+#endif
     }
 }

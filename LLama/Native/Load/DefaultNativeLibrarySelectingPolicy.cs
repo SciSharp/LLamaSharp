@@ -1,10 +1,9 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-#if NET6_0_OR_GREATER
     /// <inheritdoc/>
     public class DefaultNativeLibrarySelectingPolicy: INativeLibrarySelectingPolicy
     {
@@ -65,5 +64,4 @@ namespace LLama.Native
             logCallback?.Invoke(level, message);
         }
     }
-#endif
 }

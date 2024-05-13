@@ -1,9 +1,13 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using LLama.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+
+#if NETSTANDARD
+using NativeLibraryNetStandard;
+#endif
 
 namespace LLama.Native
 {
@@ -12,10 +16,12 @@ namespace LLama.Native
         /// <summary>
         /// Try to load libllama/llava_shared, using CPU feature detection to try and load a more specialised DLL if possible
         /// </summary>
+        /// <param name="config"></param>
+        /// <param name="loadedLibrary">The loaded library, if successful.</param>
+        /// <param name="libraryPath">The file path of the loaded library, if successful.</param>
         /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
-        internal static IntPtr TryLoadLibrary(NativeLibraryConfig config, out INativeLibrary? loadedLibrary)
+        internal static IntPtr TryLoadLibrary(NativeLibraryConfig config, out INativeLibrary? loadedLibrary, out string? libraryPath)
         {
-#if NET6_0_OR_GREATER
             var description = config.CheckAndGatherDescription();
             var systemInfo = SystemInfo.Get();
             Log($"Loading library: '{config.NativeLibraryName.GetLibraryName()}'", LLamaLogLevel.Debug, config.LogCallback);
@@ -48,6 +54,7 @@ namespace LLama.Native
                     if (result != IntPtr.Zero)
                     {
                         loadedLibrary = library;
+                        libraryPath = path;
                         return result;
                     }
                 }
@@ -60,58 +67,42 @@ namespace LLama.Native
                 throw new RuntimeError("Failed to load the native library. Please check the log for more information.");
             }
             loadedLibrary = null;
-#else
-            loadedLibrary = new UnknownNativeLibrary();
-#endif
+            libraryPath = null;
 
-            Log($"No library was loaded before calling native apis. " +
-                $"This is not an error under netstandard2.0 but needs attention with net6 or higher.", LLamaLogLevel.Warning, config.LogCallback);
+            Log($"No library was loaded before calling native apis. ", LLamaLogLevel.Warning, config.LogCallback);
             return IntPtr.Zero;
 
-#if NET6_0_OR_GREATER
             // Try to load a DLL from the path.
             // Returns null if nothing is loaded.
             static IntPtr TryLoad(string path, IEnumerable<string> searchDirectories, NativeLogConfig.LLamaLogCallback? logCallback)
             {
-                var fullPath = TryFindPath(path, searchDirectories);
-                Log($"Found full path file '{fullPath}' for relative path '{path}'", LLamaLogLevel.Debug, logCallback);
-                if (NativeLibrary.TryLoad(fullPath, out var handle))
+                var fullPaths = TryFindPaths(path, searchDirectories);
+                Log($"Found full path files <{string.Join(",", fullPaths)}> for relative path '{path}'", LLamaLogLevel.Debug, logCallback);
+                foreach(var fullPath in fullPaths)
                 {
-                    Log($"Successfully loaded '{fullPath}'", LLamaLogLevel.Info, logCallback);
-                    return handle;
+                    if (NativeLibrary.TryLoad(fullPath, out var handle))
+                    {
+                        Log($"Successfully loaded '{fullPath}'", LLamaLogLevel.Info, logCallback);
+                        return handle;
+                    }
+                    Log($"Failed Loading '{fullPath}'", LLamaLogLevel.Info, logCallback);
                 }
-
-                Log($"Failed Loading '{fullPath}'", LLamaLogLevel.Info, logCallback);
+                
                 return IntPtr.Zero;
             }
-#endif
         }
 
         // Try to find the given file in any of the possible search paths
-        private static string TryFindPath(string filename, IEnumerable<string> searchDirectories)
+        private static IEnumerable<string> TryFindPaths(string filename, IEnumerable<string> searchDirectories)
         {
+            yield return filename;
             // Try the configured search directories in the configuration
             foreach (var path in searchDirectories)
             {
                 var candidate = Path.Combine(path, filename);
                 if (File.Exists(candidate))
-                    return candidate;
+                    yield return candidate;
             }
-
-            // Try a few other possible paths
-            var possiblePathPrefix = new[] {
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
-                };
-
-            foreach (var path in possiblePathPrefix)
-            {
-                var candidate = Path.Combine(path, filename);
-                if (File.Exists(candidate))
-                    return candidate;
-            }
-
-            return filename;
         }
 
         private static void Log(string message, LLamaLogLevel level, NativeLogConfig.LLamaLogCallback? logCallback)
@@ -122,7 +113,6 @@ namespace LLama.Native
             logCallback?.Invoke(level, message);
         }
 
-#if NET6_0_OR_GREATER
         public static void GetPlatformPathParts(OSPlatform platform, out string os, out string fileExtension, out string libPrefix)
         {
             if (platform == OSPlatform.Windows)
@@ -145,9 +135,16 @@ namespace LLama.Native
             {
                 fileExtension = ".dylib";
 
+#if NETSTANDARD
+                var arch = RuntimeInformation.OSArchitecture;
+                os = arch == Architecture.Arm64 || arch == Architecture.Arm
+                    ? "osx-arm64"
+                    : "osx-x64";
+#else
                 os = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
                     ? "osx-arm64"
                     : "osx-x64";
+#endif
                 libPrefix = "lib";
             }
             else
@@ -155,6 +152,5 @@ namespace LLama.Native
                 throw new RuntimeError("Your operating system is not supported, please open an issue in LLamaSharp.");
             }
         }
-#endif
     }
 }

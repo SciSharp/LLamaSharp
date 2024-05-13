@@ -1,10 +1,9 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-#if NET6_0_OR_GREATER
     /// <summary>
     /// A native library compiled with cublas/cuda.
     /// </summary>
@@ -46,34 +45,42 @@ namespace LLama.Native
                 if (_majorCudaVersion == -1 && _skipCheck)
                 {
                     // Currently only 11 and 12 are supported.
-                    var cuda12LibraryPath = GetCudaPath(systemInfo, 12, logCallback);
-                    if (cuda12LibraryPath is not null)
+                    foreach(var cuda12LibraryPath in GetCudaPaths(systemInfo, 12, logCallback))
                     {
-                        yield return cuda12LibraryPath;
+                        if (cuda12LibraryPath is not null)
+                        {
+                            yield return cuda12LibraryPath;
+                        }
                     }
-                    var cuda11LibraryPath = GetCudaPath(systemInfo, 11, logCallback);
-                    if (cuda11LibraryPath is not null)
+                    foreach (var cuda11LibraryPath in GetCudaPaths(systemInfo, 11, logCallback))
                     {
-                        yield return cuda11LibraryPath;
+                        if (cuda11LibraryPath is not null)
+                        {
+                            yield return cuda11LibraryPath;
+                        }
                     }
                 }
                 else if (_majorCudaVersion != -1)
                 {
-                    var cudaLibraryPath = GetCudaPath(systemInfo, _majorCudaVersion, logCallback);
-                    if (cudaLibraryPath is not null)
+                    foreach (var cudaLibraryPath in GetCudaPaths(systemInfo, _majorCudaVersion, logCallback))
                     {
-                        yield return cudaLibraryPath;
+                        if (cudaLibraryPath is not null)
+                        {
+                            yield return cudaLibraryPath;
+                        }
                     }
                 }
             }
         }
 
-        private string? GetCudaPath(SystemInfo systemInfo, int cudaVersion, NativeLogConfig.LLamaLogCallback? logCallback)
+        private IEnumerable<string> GetCudaPaths(SystemInfo systemInfo, int cudaVersion, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
-            var relativePath = $"runtimes/{os}/native/cuda{cudaVersion}/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
-            return relativePath;
+            yield return $"runtimes/{os}/native/cuda{cudaVersion}/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#if NETSTANDARD
+            // For .NET framework, the path might exclude `runtimes`.
+            yield return $"{os}/native/cuda{cudaVersion}/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#endif
         }
     }
-#endif
 }

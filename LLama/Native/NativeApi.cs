@@ -8,7 +8,7 @@ namespace LLama.Native
     /// <summary>
     /// Direct translation of the llama.cpp API
     /// </summary>
-	public static partial class NativeApi
+	public unsafe static partial class NativeApi
     {
         /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
@@ -16,9 +16,21 @@ namespace LLama.Native
         /// <returns></returns>
         public static void llama_empty_call()
         {
-            llama_max_devices();
+            var c = llama_max_devices();
+            Console.WriteLine($"Max device: {c}");
         }
 
+        /// <summary>
+        /// Register a callback to receive llama log messages
+        /// </summary>
+        /// <param name="logCallback"></param>
+        [Obsolete("Use `NativeLogConfig.llama_log_set` instead")]
+        public static void llama_log_set(NativeLogConfig.LLamaLogCallback logCallback)
+        {
+            NativeLogConfig.llama_log_set(logCallback);
+        }
+
+#if !NETSTANDARD
         /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
         /// </summary>
@@ -264,16 +276,6 @@ namespace LLama.Native
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, bool add_special, bool parse_special);
-
-        /// <summary>
-        /// Register a callback to receive llama log messages
-        /// </summary>
-        /// <param name="logCallback"></param>
-        [Obsolete("Use `NativeLogConfig.llama_log_set` instead")]
-        public static void llama_log_set(NativeLogConfig.LLamaLogCallback logCallback)
-        {
-            NativeLogConfig.llama_log_set(logCallback);
-        }
         
         /// <summary>
         /// Returns the number of tokens in the KV cache (slow, use only for debug)
@@ -437,5 +439,6 @@ namespace LLama.Native
         /// <returns>Returns the split_prefix length.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no, int split_count);
+#endif
     }
 }

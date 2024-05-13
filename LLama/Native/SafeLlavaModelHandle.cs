@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using LLama.Exceptions;
@@ -80,6 +80,40 @@ namespace LLama.Native
             return NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, imageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
         }
         
+#if NETSTANDARD
+        /// <summary>
+        /// Load MULTI MODAL PROJECTIONS model / Clip Model
+        /// </summary>
+        /// <param name="mmProj"> Model path/file</param>
+        /// <param name="verbosity">Verbosity level</param>
+        /// <returns>SafeLlavaModelHandle</returns>
+        [DllImport(NativeApi.llavaLibraryName, EntryPoint = "clip_model_load", CallingConvention = CallingConvention.Cdecl)]
+        private static extern SafeLlavaModelHandle clip_model_load_r(string mmProj, int verbosity);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate SafeLlavaModelHandle clip_model_load_t(string mmProj, int verbosity);
+        private static SafeLlavaModelHandle clip_model_load(string mmProj, int verbosity) => NativeLibraryConfig.DynamicLoadingDisabled ? 
+            clip_model_load_r(mmProj, verbosity) : NativeApi.GetLLavaExport<clip_model_load_t>("clip_model_load")(mmProj, verbosity);
+
+        /// <summary>
+        /// Frees MULTI MODAL PROJECTIONS model / Clip Model
+        /// </summary>
+        /// <param name="ctx">Internal Pointer to the model</param>
+        [DllImport(NativeApi.llavaLibraryName, EntryPoint = "clip_free", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void clip_free_r(IntPtr ctx);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void clip_free_t(IntPtr ctx);
+        private static void clip_free(IntPtr ctx)
+        {
+            if (NativeLibraryConfig.DynamicLoadingDisabled)
+            {
+                clip_free_r(ctx);
+            }
+            else
+            {
+                NativeApi.GetLLavaExport<clip_free_t>("clip_free")(ctx);
+            }
+        }
+#else
         /// <summary>
         /// Load MULTI MODAL PROJECTIONS model / Clip Model
         /// </summary>
@@ -95,6 +129,7 @@ namespace LLama.Native
         /// <param name="ctx">Internal Pointer to the model</param>
         [DllImport(NativeApi.llavaLibraryName, EntryPoint = "clip_free", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clip_free(IntPtr ctx);
+#endif
         
         
     }

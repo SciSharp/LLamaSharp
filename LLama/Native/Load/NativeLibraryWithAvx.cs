@@ -1,10 +1,9 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-#if NET6_0_OR_GREATER
     /// <summary>
     /// A native library compiled with avx support but without cuda/cublas.
     /// </summary>
@@ -44,19 +43,20 @@ namespace LLama.Native
                 // Not supported on systems other than Windows and Linux.
                 return [];
             }
-            var path = GetAvxPath(systemInfo, _avxLevel, logCallback);
-            return path is null ? [] : [path];
+            return GetAvxPaths(systemInfo, _avxLevel, logCallback);
         }
 
-        private string? GetAvxPath(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
+        private IEnumerable<string> GetAvxPaths(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
             var avxStr = NativeLibraryConfig.AvxLevelToString(avxLevel);
             if (!string.IsNullOrEmpty(avxStr))
                 avxStr += "/";
-            var relativePath = $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
-            return relativePath;
+            yield return $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#if NETSTANDARD
+            // For .NET framework, the path might exclude `runtimes`.
+            yield return $"{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#endif
         }
     }
-#endif
 }

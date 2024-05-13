@@ -14,7 +14,7 @@ namespace LLama.Native
     /// A reference to a set of llama model weights
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global (used implicitly in native API)
-    public sealed class SafeLlamaModelHandle
+    public sealed partial class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
         /// <summary>
@@ -133,6 +133,8 @@ namespace LLama.Native
             // Ensure that `NativeApi` has been loaded
             NativeApi.llama_empty_call();
         }
+
+#if !NETSTANDARD
 
         /// <summary>
         /// Load all of the weights of a model into memory.
@@ -371,6 +373,8 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_token_is_eog(SafeLlamaModelHandle model, LLamaToken token);
+#endif
+
         #endregion
 
         #region LoRA

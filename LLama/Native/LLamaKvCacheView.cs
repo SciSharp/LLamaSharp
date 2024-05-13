@@ -1,6 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
 
+#if NETSTANDARD
+using NativeLibraryNetStandard;
+#endif
+
 namespace LLama.Native;
 
 /// <summary>
@@ -151,6 +155,48 @@ public sealed class LLamaKvCacheViewSafeHandle
     }
 
     #region native API
+
+#if NETSTANDARD
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern NativeLLamaKvCacheView llama_kv_cache_view_init_r(SafeLLamaContextHandle ctx, int n_seq_max);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate NativeLLamaKvCacheView llama_kv_cache_view_init_t(SafeLLamaContextHandle ctx, int n_seq_max);
+    private static NativeLLamaKvCacheView llama_kv_cache_view_init(SafeLLamaContextHandle ctx, int n_seq_max) => 
+        NativeLibraryConfig.DynamicLoadingDisabled ? llama_kv_cache_view_init_r(ctx, n_seq_max) : NativeApi.GetLLamaExport<llama_kv_cache_view_init_t>("llama_kv_cache_view_init")(ctx, n_seq_max);
+
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern void llama_kv_cache_view_free_r(ref NativeLLamaKvCacheView view);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void llama_kv_cache_view_free_t(ref NativeLLamaKvCacheView view);
+    private static void llama_kv_cache_view_free(ref NativeLLamaKvCacheView view)
+    {
+        if (NativeLibraryConfig.DynamicLoadingDisabled)
+        {
+            llama_kv_cache_view_free_r(ref view);
+        }
+        else
+        {
+            NativeApi.GetLLamaExport<llama_kv_cache_view_free_t>("llama_kv_cache_view_free")(ref view);
+        }
+    }
+
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern void llama_kv_cache_view_update_r(SafeLLamaContextHandle ctx, ref NativeLLamaKvCacheView view);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void llama_kv_cache_view_update_t(SafeLLamaContextHandle ctx, ref NativeLLamaKvCacheView view);
+    private static void llama_kv_cache_view_update(SafeLLamaContextHandle ctx, ref NativeLLamaKvCacheView view)
+    {
+        if (NativeLibraryConfig.DynamicLoadingDisabled)
+        {
+            llama_kv_cache_view_update_r(ctx, ref view);
+        }
+        else
+        {
+            NativeApi.GetLLamaExport<llama_kv_cache_view_update_t>("llama_kv_cache_view_update")(ctx, ref view);
+        }
+    }
+
+#else
     /// <summary>
     /// Create an empty KV cache view. (use only for debugging purposes)
     /// </summary>
@@ -173,6 +219,7 @@ public sealed class LLamaKvCacheViewSafeHandle
     /// <param name="view"></param>
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     private static extern void llama_kv_cache_view_update(SafeLLamaContextHandle ctx, ref NativeLLamaKvCacheView view);
+#endif
     
     /// <summary>
     /// Information associated with an individual cell in the KV cache view (llama_kv_cache_view_cell)

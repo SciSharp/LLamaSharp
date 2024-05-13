@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
@@ -17,12 +17,30 @@ public static class NativeLogConfig
     /// <param name="message"></param>
     public delegate void LLamaLogCallback(LLamaLogLevel level, string message);
 
+#if NETSTANDARD
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_log_set")]
+    private static extern void native_llama_log_set_r(LLamaLogCallback? logCallback);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void native_llama_log_set_t(LLamaLogCallback? logCallback);
+    private static void native_llama_log_set(LLamaLogCallback? logCallback)
+    {
+        if (NativeLibraryConfig.DynamicLoadingDisabled)
+        {
+            native_llama_log_set_r(logCallback);
+        }
+        else
+        {
+            NativeApi.GetLLamaExport<native_llama_log_set_t>("llama_log_set")(logCallback);
+        }
+    }
+#else
     /// <summary>
     /// Register a callback to receive llama log messages
     /// </summary>
     /// <param name="logCallback"></param>
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_log_set")]
     private static extern void native_llama_log_set(LLamaLogCallback? logCallback);
+#endif
 
     /// <summary>
     /// A GC handle for the current log callback to ensure the callback is not collected
@@ -52,7 +70,7 @@ public static class NativeLogConfig
         {
             // We can't set the log method yet since that would cause the llama.dll to load.
             // Instead configure it to be set when the native library loading is done
-            NativeLibraryConfig.Instance.WithLogCallback(logCallback);
+            NativeLibraryConfig.LLama.WithLogCallback(logCallback);
         }
     }
 

@@ -1,10 +1,9 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
-#if NET6_0_OR_GREATER
     /// <summary>
     /// A native library compiled on Mac, or fallbacks from all other libraries in the selection.
     /// </summary>
@@ -36,17 +35,20 @@ namespace LLama.Native
         /// <inheritdoc/>
         public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
-            var path = GetPath(systemInfo, AvxLevel.None, logCallback);
-            return path is null ?[] : [path];
+            return GetPaths(systemInfo, AvxLevel.None, logCallback);
         }
 
-        private string? GetPath(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
+        private IEnumerable<string> GetPaths(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
             string relativePath;
             if (systemInfo.OSPlatform == OSPlatform.OSX)
             {
-                relativePath = $"runtimes/{os}/native/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+                yield return $"runtimes/{os}/native/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#if NETSTANDARD
+                // For .NET framework, the path might exclude `runtimes`.
+                yield return $"{os}/native/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#endif
             }
             else
             {
@@ -54,11 +56,12 @@ namespace LLama.Native
                 if (!string.IsNullOrEmpty(avxStr))
                     avxStr += "/";
 
-                relativePath = $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+                yield return $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#if NETSTANDARD
+                // For .NET framework, the path might exclude `runtimes`.
+                yield return $"{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+#endif
             }
-
-            return relativePath;
         }
     }
-#endif
 }

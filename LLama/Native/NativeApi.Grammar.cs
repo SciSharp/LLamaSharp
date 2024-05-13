@@ -1,17 +1,18 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
 	public static partial class NativeApi
     {
-		/// <summary>
-		/// Create a new grammar from the given set of grammar rules
-		/// </summary>
-		/// <param name="rules"></param>
-		/// <param name="n_rules"></param>
-		/// <param name="start_rule_index"></param>
-		/// <returns></returns>
+#if !NETSTANDARD
+        /// <summary>
+        /// Create a new grammar from the given set of grammar rules
+        /// </summary>
+        /// <param name="rules"></param>
+        /// <param name="n_rules"></param>
+        /// <param name="start_rule_index"></param>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe SafeLLamaGrammarHandle llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
 
@@ -47,5 +48,6 @@ namespace LLama.Native
 		/// <param name="token"></param>
 		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, LLamaToken token);
+#endif
 	}
 }

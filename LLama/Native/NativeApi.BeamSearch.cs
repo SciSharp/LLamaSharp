@@ -5,6 +5,7 @@ namespace LLama.Native;
 
 public static partial class NativeApi
 {
+#if !NETSTANDARD
     /// <summary>
     /// Type of pointer to the beam_search_callback function.
     /// </summary>
@@ -22,4 +23,5 @@ public static partial class NativeApi
     /// <param name="n_threads">Number of threads.</param>
     [DllImport(libraryName, EntryPoint = "llama_beam_search", CallingConvention = CallingConvention.Cdecl)]
     public static extern void llama_beam_search(SafeLLamaContextHandle ctx, LLamaBeamSearchCallback callback, IntPtr callback_data, ulong n_beams, int n_past, int n_predict, int n_threads);
+#endif
 }

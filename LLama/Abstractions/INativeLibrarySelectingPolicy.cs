@@ -1,11 +1,10 @@
-﻿using LLama.Native;
+using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace LLama.Abstractions
 {
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Decides the selected native library that should be loaded according to the configurations.
     /// </summary>
@@ -20,5 +19,4 @@ namespace LLama.Abstractions
         /// <returns>The information of the selected native library files, in order by priority from the beginning to the end.</returns>
         IEnumerable<INativeLibrary> Apply(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback = null);
     }
-#endif
 }
