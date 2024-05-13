@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.12.0" />
+    <PackageReference Include="LLamaSharp.Backend.Cuda11" Version="0.12.0" />
     <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.12.0" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageReference Include="Spectre.Console" Version="0.49.1" />

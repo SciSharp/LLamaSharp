@@ -386,14 +386,16 @@ namespace LLama.Native
         /// You can still modify the configuration after this calling but only before any call from <see cref="NativeApi"/>.
         /// </summary>
         /// <param name="loadedLibrary">
-        /// The loaded livrary. When the loading failed, this will be null. 
-        /// However if you are using .NET standard2.0, this will never return null.
+        /// The loaded library. When the loading failed, it will be null. 
+        /// </param>
+        /// <param name="libraryPath">
+        /// The path of the loaded library. When the loading failed, it will be null. 
         /// </param>
         /// <returns>Whether the running is successful.</returns>
-        public bool DryRun(out INativeLibrary? loadedLibrary)
+        public bool DryRun(out INativeLibrary? loadedLibrary, out string? libraryPath)
         {
             LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {this.NativeLibraryName.GetLibraryName()}...");
-            return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary, out var _) != IntPtr.Zero;
+            return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary, out libraryPath) != IntPtr.Zero;
         }
 #endif
     }
@@ -588,7 +590,7 @@ namespace LLama.Native
             bool success = true;
             foreach(var config in _configs)
             {
-                success &= config.DryRun(out var loadedLibrary);
+                success &= config.DryRun(out var loadedLibrary, out var _);
                 if(config.NativeLibraryName == NativeLibraryName.LLama)
                 {
                     loadedLLamaNativeLibrary = loadedLibrary;

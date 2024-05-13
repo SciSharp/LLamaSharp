@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +17,6 @@ namespace NetStandardTest
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine($"AppContext.BaseDirectory: {AppContext.BaseDirectory}");
             var showLLamaCppLogs = true;
             NativeLibraryConfig
               .All
@@ -63,9 +62,9 @@ namespace NetStandardTest
 
         private static async Task Run()
         {
-            string multiModalProj = @"/home/rinne/models/llava-v1.5-7b-mmproj-Q4_0.gguf";
-            string modelPath = @"/home/rinne/models/llava-v1.5-7b-Q4_K.gguf";
-            string modelImage = @"/home/rinne/code/forks/LLamaSharp/Assets/LLamaSharp-Integrations.png";
+            string multiModalProj = @"<path>/llava-v1.5-7b-mmproj-Q4_0.gguf";
+            string modelPath = @"<path>/llava-v1.5-7b-Q4_K.gguf";
+            string modelImage = @"<yours>.jpg";
             const int maxTokens = 1024;
 
             var prompt = $"{{{modelImage}}}\nUSER:\nProvide a full description of the image.\nASSISTANT:\n";
