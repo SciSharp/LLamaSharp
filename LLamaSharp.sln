@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLamaSharp.KernelMemory", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.Benchmark", "LLama.Benchmark\LLama.Benchmark.csproj", "{90D38FEE-68EA-459E-A4EE-268B9DFA1CD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetStandardTest", "NetStandardTest\NetStandardTest.csproj", "{39274239-7BBA-4589-821F-649E2E9F1954}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetAppTest", "NetAppTest\NetAppTest.csproj", "{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,6 +139,18 @@ Global
 		{39274239-7BBA-4589-821F-649E2E9F1954}.Release|Any CPU.Build.0 = Release|Any CPU
 		{39274239-7BBA-4589-821F-649E2E9F1954}.Release|x64.ActiveCfg = Release|Any CPU
 		{39274239-7BBA-4589-821F-649E2E9F1954}.Release|x64.Build.0 = Release|Any CPU
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Debug|Any CPU.Build.0 = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Debug|x64.ActiveCfg = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Debug|x64.Build.0 = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.GPU|Any CPU.ActiveCfg = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.GPU|Any CPU.Build.0 = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.GPU|x64.ActiveCfg = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.GPU|x64.Build.0 = Debug|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Release|Any CPU.ActiveCfg = Release|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Release|Any CPU.Build.0 = Release|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Release|x64.ActiveCfg = Release|x64
+		{39FC0DF3-CA3A-4448-AAEA-672752BA8B44}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

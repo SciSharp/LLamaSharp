@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,25 +17,25 @@ namespace NetStandardTest
     {
         public static void Main(string[] args)
         {
-            //Console.WriteLine($"AppContext.BaseDirectory: {AppContext.BaseDirectory}");
-            //var showLLamaCppLogs = true;
-            //NativeLibraryConfig
-            //   .All
-            //   .WithLogCallback((level, message) =>
-            //   {
-            //       if (showLLamaCppLogs)
-            //           Console.WriteLine($"[llama {level}]: {message.TrimEnd('\n')}");
-            //   });
+            Console.WriteLine($"AppContext.BaseDirectory: {AppContext.BaseDirectory}");
+            var showLLamaCppLogs = true;
+            NativeLibraryConfig
+              .All
+              .WithLogCallback((level, message) =>
+              {
+                  if (showLLamaCppLogs)
+                      Console.WriteLine($"[llama {level}]: {message.TrimEnd('\n')}");
+              });
 
-            //// Configure native library to use. This must be done before any other llama.cpp methods are called!
-            //NativeLibraryConfig
-            //   .All
-            //   .WithCuda();
-            //   //.WithAutoDownload() // An experimental feature
-            //   //.DryRun(out var loadedllamaLibrary, out var loadedLLavaLibrary);
+            // Configure native library to use. This must be done before any other llama.cpp methods are called!
+            NativeLibraryConfig
+              .All
+              .WithCuda();
+              //.WithAutoDownload() // An experimental feature
+              //.DryRun(out var loadedllamaLibrary, out var loadedLLavaLibrary);
 
-            //// Calling this method forces loading to occur now.
-            //NativeApi.llama_empty_call();
+            // Calling this method forces loading to occur now.
+            NativeApi.llama_empty_call();
 
             //string modelPath = @"D:\development\llama\weights\Wizard-Vicuna-7B-Uncensored.Q4_K_M.gguf";
 
@@ -63,9 +63,9 @@ namespace NetStandardTest
 
         private static async Task Run()
         {
-            string multiModalProj = @"D:\development\llama\weights\llava-v1.5\llava-v1.5-7b-mmproj-Q4_0.gguf";
-            string modelPath = @"D:\development\llama\weights\llava-v1.5\llava-v1.5-7b-Q4_K.gguf";
-            string modelImage = @"C:\Users\liu_y\Pictures\avatar\df84c46bddf845a0c12f56a64409b184310669994.jpg";
+            string multiModalProj = @"/home/rinne/models/llava-v1.5-7b-mmproj-Q4_0.gguf";
+            string modelPath = @"/home/rinne/models/llava-v1.5-7b-Q4_K.gguf";
+            string modelImage = @"/home/rinne/code/forks/LLamaSharp/Assets/LLamaSharp-Integrations.png";
             const int maxTokens = 1024;
 
             var prompt = $"{{{modelImage}}}\nUSER:\nProvide a full description of the image.\nASSISTANT:\n";

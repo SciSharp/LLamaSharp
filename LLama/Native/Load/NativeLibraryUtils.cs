@@ -94,12 +94,15 @@ namespace LLama.Native
 
         // Try to find the given file in any of the possible search paths
         private static IEnumerable<string> TryFindPaths(string filename, IEnumerable<string> searchDirectories)
-        {
+{
+#if !NETSTANDARD
+            // avoid return relative path under .NET standard2.0.
             yield return filename;
+#endif
             // Try the configured search directories in the configuration
             foreach (var path in searchDirectories)
             {
-                var candidate = Path.Combine(path, filename);
+                var candidate = Path.GetFullPath(Path.Combine(path, filename));
                 if (File.Exists(candidate))
                     yield return candidate;
             }
