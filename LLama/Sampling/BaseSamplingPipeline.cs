@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using LLama.Native;
 
 namespace LLama.Sampling;
@@ -13,6 +13,8 @@ public abstract class BaseSamplingPipeline
     /// Grammar to constrain valid tokens
     /// </summary>
     public SafeLLamaGrammarHandle? Grammar { get; set; }
+    
+    private LLamaTokenData[]? _temporarySampling;
 
     /// <inheritdoc/>
     public LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
@@ -20,8 +22,12 @@ public abstract class BaseSamplingPipeline
         // Apply processing to raw logit values
         ProcessLogits(ctx, logits, lastTokens);
 
+        // Allocate some temporary space
+        if (_temporarySampling == null || _temporarySampling.Length < logits.Length)
+            _temporarySampling = new LLamaTokenData[logits.Length];
+
         // Process token data array to select a final token
-        var candidates = LLamaTokenDataArray.Create(logits);
+        var candidates = LLamaTokenDataArray.Create(logits, _temporarySampling);
         candidates.ApplyGrammar(ctx, Grammar);
         return ProcessTokenDataArray(ctx, candidates, lastTokens);
     }

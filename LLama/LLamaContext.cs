@@ -89,6 +89,8 @@ namespace LLama
         /// Get the maximum batch size for this context
         /// </summary>
         public uint BatchSize => NativeHandle.BatchSize;
+        
+        private LLamaTokenData[]? _samplingBuffer;
 
         /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
@@ -496,7 +498,9 @@ namespace LLama
             var nl_logit = logits[(int?)nl_token ?? 0];
 
             // Convert logits into token candidates
-            var candidates_p = LLamaTokenDataArray.Create(logits);
+            if (_samplingBuffer == null || _samplingBuffer.Length < logits.Length)
+                _samplingBuffer = new LLamaTokenData[logits.Length];
+            var candidates_p = LLamaTokenDataArray.Create(logits, _samplingBuffer);
 
             // Extract most recently returned tokens
             var last_n_repeat = Math.Min((int)ContextSize, repeatLastTokensCount);
@@ -508,14 +512,14 @@ namespace LLama
             // Restore newline token logit value if necessary
             if (!penalizeNL && nl_token.HasValue)
             {
-                var candidatesSpan = candidates_p.data.Span;
-                for (var i = 0; i < candidates_p.data.Length; i++)
+                var candidatesSpan = candidates_p.Data.Span;
+                for (var i = 0; i < candidates_p.Data.Length; i++)
                 {
                     ref var item = ref candidatesSpan[i];
                     if (item.id == nl_token)
                         item.logit = nl_logit;
                 }
-                candidates_p.sorted = false;
+                candidates_p.Sorted = false;
             }
 
             return candidates_p;
