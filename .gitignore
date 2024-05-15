@@ -348,3 +348,5 @@ site/
 
 /LLama.Benchmark/Models/*.bin
 /LLama.Benchmark/Models/*.gguf
+
+**/appsettings.Local.json

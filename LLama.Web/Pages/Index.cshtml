@@ -1,62 +1,65 @@
-﻿@page
+@page
 @using LLama.Web.Common;
 
 @model IndexModel
 @{
-    ViewData["Title"] = "Inference Demo";
+    ViewData["Title"] = "Home";
 }
 
 @Html.AntiForgeryToken()
 <div class="d-flex flex-row h-100 pt-1 pb-1">
 
-    <div class="d-flex flex-column h-100 border me-1 w-25">
-        <div class="d-flex flex-row justify-content-between border-bottom p-1 align-items-center">
-            <div>
-                <span>@ViewData["Title"]</span>
-            </div>
-            <div>
-                <small>Socket: <b id="socket">Disconnected</b></small>
-            </div>
-        </div>
-
+    <div id="sidebar" class="d-flex flex-column h-100 pe-1 w-25">
         <div class="d-flex flex-column overflow-auto">
             <form id="SessionParameters">
                 <div class="d-flex flex-column m-1">
                     <div class="d-flex flex-column mb-2">
-                        <small>Model</small>
-                        @Html.DropDownListFor(m => m.SessionConfig.Model, new SelectList(Model.Options.Models, "Name", "Name"), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
+                        <div class="form-floating">
+                            @Html.DropDownListFor(m => m.SessionConfig.Model, new SelectList(Model.Options.Models, "Name", "Name"), new { @class = "form-select prompt-control", required = "required", autocomplete = "off" })
+                            @Html.LabelFor(m => m.SessionConfig.Model)
+                        </div>
                     </div>
                     <div class="d-flex flex-column mb-2">
-                        <small>Inference Type</small>
-                        @Html.DropDownListFor(m => m.SessionConfig.ExecutorType, Html.GetEnumSelectList<LLamaExecutorType>(), new {  @class = "form-control prompt-control" ,required="required", autocomplete="off"})
+                        <div class="form-floating">
+                            @Html.DropDownListFor(m => m.SessionConfig.ExecutorType, Html.GetEnumSelectList<LLamaExecutorType>(), new { @class = "form-select prompt-control", required = "required", autocomplete = "off" })
+                            @Html.LabelFor(m => m.SessionConfig.ExecutorType)
+                        </div>
                     </div>
-                    <nav>
-                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="nav-link active w-50" id="nav-prompt-tab" data-bs-toggle="tab" data-bs-target="#nav-prompt" type="button" role="tab">Prompt</button>
-                            <button class="nav-link w-50" id="nav-params-tab" data-bs-toggle="tab" data-bs-target="#nav-params" type="button" role="tab">Parameters</button>
+                    <div class="d-flex flex-column mb-2">
+                        <div class="form-floating">
+                            @Html.TextAreaFor(m => Model.SessionConfig.Prompt, new { @class = "form-control prompt-control", rows = 8 })
+                            @Html.LabelFor(m => m.SessionConfig.Prompt)
                         </div>
-                    </nav>
-                    <div class="tab-content" id="nav-tabContent">
-                        <div class="tab-pane fade show active" id="nav-prompt" role="tabpanel" aria-labelledby="nav-prompt-tab">
-                            <div class="d-flex flex-column mb-2">
-                                <small>Prompt</small>
-                                @Html.TextAreaFor(m => Model.SessionConfig.Prompt, new { @type="text", @class = "form-control prompt-control", rows=8})
-                            </div>
+                    </div>
 
-                            <div class="d-flex flex-column mb-2">
-                                <small>AntiPrompts</small>
-                                @Html.TextBoxFor(m => Model.SessionConfig.AntiPrompt, new { @type="text", @class = "form-control prompt-control"})
-                            </div>
-
-                            <div class="d-flex flex-column mb-2">
-                                <small>OutputFilter</small>
-                                @Html.TextBoxFor(m => Model.SessionConfig.OutputFilter, new { @type="text", @class = "form-control prompt-control"})
-                            </div>
+                    <div class="d-flex flex-column mb-2">
+                        <div class="form-floating">
+                            @Html.TextBoxFor(m => Model.SessionConfig.AntiPrompt, new { @type = "text", @class = "form-control prompt-control" })
+                            @Html.LabelFor(m => m.SessionConfig.AntiPrompt)
                         </div>
-                        <div class="tab-pane fade" id="nav-params" role="tabpanel" aria-labelledby="nav-params-tab">
-                            @{
-                                await Html.RenderPartialAsync("_Parameters", Model.InferenceOptions);
-                            }
+                    </div>
+
+                    <div class="d-flex flex-column mb-2">
+                        <div class="form-floating">
+                            @Html.TextBoxFor(m => Model.SessionConfig.OutputFilter, new { @type = "text", @class = "form-control prompt-control" })
+                            @Html.LabelFor(m => m.SessionConfig.OutputFilter)
+                        </div>
+                    </div>
+
+                    <div class="accordion" id="accordionSideBar">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseParameters" aria-expanded="false" aria-controls="collapseParameters">
+                                    Parameters
+                                </button>
+                            </h2>
+                            <div id="collapseParameters" class="accordion-collapse collapse" data-bs-parent="#accordionSideBar">
+                                <div class="accordion-body">
+                                    @{
+                                        await Html.RenderPartialAsync("_Parameters", Model.InferenceOptions);
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -64,17 +67,14 @@
         </div>
 
         <div class="d-flex flex-grow-1"></div>
-        <div id="session-details" class="m-1"></div>
         <div class="m-1">
-            <button class="btn btn-outline-success w-100" type="button" id="load">
-          
+            <button class="btn btn-primary w-100" type="button" id="load">
                 <div class="d-flex align-items-center justify-content-center">
                     <img class="spinner me-2" style="display:none" src="~/image/loading.gif" width="20" />
                     Begin Session
                 </div>
-
-                </button>
-            <button class="btn btn-outline-danger w-100" type="button" id="unload" style="display:none">End Session</button>
+            </button>
+            <button class="btn btn-danger w-100" type="button" id="unload" style="display:none">End Session</button>
         </div>
     </div>
 
@@ -82,28 +82,17 @@
         <div class="section-head">
         </div>
 
-        <div id="scroll-container" class="section-content border">
+        <div id="scroll-container" class="section-content">
             <div id="output-container" class="d-flex flex-column gap-1 p-1">
             </div>
         </div>
 
-        <div class="section-foot">
-            <div class="input-group mt-2">
-                <textarea id="input" type="text" class="form-control" value="what is a tree?" style="resize:none" rows="4">What is an apple?</textarea>
-                <div class="d-flex flex-column">
-                    <div class="d-flex flex-fill">
-                        <button class="btn btn-outline-secondary input-control w-100" type="button" id="send" disabled="disabled" autocomplete="off">Send Message</button>
-                    </div>
-                    <div class="d-flex">
-                        <button class="btn btn-outline-secondary w-100" type="button" id="cancel" autocomplete="off">
-                            <i class="bi-x-circle"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary input-control w-100" type="button" id="clear" disabled="disabled" autocomplete="off">
-                            <i class="bi-trash3"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="input-group mt-2">
+            <textarea id="input" type="text" class="form-control" value="what is a tree?" style="resize:none" rows="2">What is an apple?</textarea>
+            <button class="btn btn-primary input-control px-4" type="button" id="send" disabled="disabled" autocomplete="off">
+                Send
+                <i class="bi bi-caret-right-fill"></i>
+            </button>
         </div>
 
     </div>
