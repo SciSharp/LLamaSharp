@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -13,11 +13,10 @@ namespace LLama.Batched;
 public sealed class Conversation
     : IDisposable
 {
-    private ulong _requiredEpoch;
-    private LLamaPos _end;
-    private int _batchSampleIndex;
+    private Sequence _seq;
     private bool _disposed;
-    private bool _forked;
+    private ulong _requiredEpoch;
+    private int _batchSampleIndex;
 
     /// <summary>
     /// The executor which this conversation belongs to
@@ -32,7 +31,7 @@ public sealed class Conversation
     /// <summary>
     /// Total number of tokens in this conversation, cannot exceed the context length.
     /// </summary>
-    public int TokenCount => _end.Value;
+    public int TokenCount => _seq.TokenCount.Value;
 
     /// <summary>
     /// Indicates if this conversation has been disposed, nothing can be done with a disposed conversation
@@ -50,10 +49,19 @@ public sealed class Conversation
     public bool RequiresSampling => _requiredEpoch == Executor.Epoch;
 
     #region construction/destruction
-    internal Conversation(BatchedExecutor batch, LLamaSeqId id)
+    internal Conversation(BatchedExecutor batch, LLamaSeqId conversationId)
     {
-        ConversationId = id;
+        ConversationId = conversationId;
         Executor = batch;
+        // Currently we make the conversation id the same as the sequence id.
+        _seq = new Sequence(conversationId, forked:false);
+    }
+
+    private Conversation(BatchedExecutor batch, LLamaSeqId conversationId, Sequence seq)
+    {
+        ConversationId = conversationId;
+        Executor = batch;
+        _seq = seq;
     }
 
     /// <summary>
@@ -75,7 +83,7 @@ public sealed class Conversation
         _disposed = true;
 
         // Remove this conversation from the KV cache
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _end);
+        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _seq.TokenCount);
 
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
@@ -101,7 +109,8 @@ public sealed class Conversation
         AssertNotDisposed();
 
         // Create a new conversation which references the current position in this one
-        var c = new Conversation(Executor, Executor.GetNextSequenceId())
+        var nextId = Executor.GetNextSequenceId();
+        var c = new Conversation(Executor, nextId, new Sequence(nextId, forked:true, tokensCount:_seq.TokenCount))
         {
             // Because these values are copied to the forked conversation it means that it will share the exact same output
             // logits next time sampling is done. This is a problem, because the sampling process is allowed to modify those
@@ -109,17 +118,14 @@ public sealed class Conversation
             // they both copy the logits before the next sampling run, to fix this issue.
             _requiredEpoch = _requiredEpoch,
             _batchSampleIndex = _batchSampleIndex,
-            _forked = true,
-
-            _end = _end,
         };
 
         // Setting this flag means that logits will be copied next time sampling is called, ensuring that the forked
         // conversation doesn't share logits with this one.
-        _forked = true;
+        _seq.Forked = true;
 
         // Assign tokens to the new sequence
-        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, c.ConversationId, 0, _end);
+        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, c.ConversationId, 0, _seq.TokenCount);
 
         return c;
     }
@@ -145,7 +151,7 @@ public sealed class Conversation
 
         // If necessary copy the span, to protect it from modification. This is only done when
         // this conversation has been forked in this epoch.
-        if (_forked)
+        if (_seq.Forked)
             span = span.ToArray();
 
         return span;
@@ -222,14 +228,14 @@ public sealed class Conversation
 
         // Add the prompt to the batch
         for (var i = 0; i < tokens.Length; i++)
-            _batchSampleIndex = Executor.Batch.Add(tokens[i], _end++, ConversationId, i == tokens.Length - 1);
+            _batchSampleIndex = Executor.Batch.Add(tokens[i], _seq.TokenCount++, ConversationId, i == tokens.Length - 1);
 
         // Mark this conversation as needing inference/sampling
         _requiredEpoch = Executor.Epoch + 1;
 
         // Unset the forked flag. Since this conversation has just been prompted it's no longer
         // sharing anything with any other conversations.
-        _forked = false;
+        _seq.Forked = false;
     }
 
     /// <summary>
@@ -265,7 +271,7 @@ public sealed class Conversation
             throw new CannotModifyWhileRequiresInferenceException();
 
         // do whatever the modification is
-        _end = modifier.Invoke(_end, new KvAccessor(this));
+        _seq.TokenCount = modifier.Invoke(_seq.TokenCount, new KvAccessor(this));
 
         // Set the epoch down to zero, this ensures that this conversation
         // cannot be sampled until it is prompted again.
@@ -357,7 +363,7 @@ public sealed class Conversation
     private void AssertCanLoad()
     {
         AssertNotDisposed();
-        if (_end.Value > 0)
+        if (_seq.TokenCount.Value > 0)
             throw new InvalidOperationException("Cannot load into a non-empty conversation");
     }
 
@@ -450,7 +456,7 @@ public sealed class Conversation
             throw new InvalidOperationException("Failed to deserialize - mismatched version number");
 
         // Load extra conversation state
-        _end = state.TokenCount;
+        _seq.TokenCount = state.TokenCount;
     }
 
     private SerializableConversationState GetState()
