@@ -1,6 +1,6 @@
 # LLamaSharp.SemanticKernel
 
-LLamaSharp.SemanticKernel are connections for [SemanticKernel](https://github.com/microsoft/semantic-kernel): an SDK for integrating various LLM interfaces into a single implementation. With this, you can add local LLaMa queries as another connection point with your existing connections.
+LLamaSharp.SemanticKernel are connections for [SemanticKernel](https://github.com/microsoft/semantic-kernel): an SDK for integrating various LLM interfaces into a single implementation. With this, you can add local LLaMA queries as another connection point with your existing connections.
 
 For reference on how to implement it, view the following examples: 
 

@@ -1,4 +1,4 @@
-﻿using LLama.Batched;
+using LLama.Batched;
 using LLama.Common;
 using LLama.Native;
 using LLama.Sampling;
@@ -67,6 +67,13 @@ public class BatchedExecutorFork
                 root.Display(display);
                 AnsiConsole.Write(display);
             });
+
+        // Print some stats
+        var timings = executor.Context.NativeHandle.GetTimings();
+        AnsiConsole.MarkupLine($"Total Tokens Evaluated: {timings.TokensEvaluated}");
+        AnsiConsole.MarkupLine($"Total Tokens Sampled: {timings.TokensSampled}");
+        AnsiConsole.MarkupLine($"Eval Time: {(timings.Eval + timings.PromptEval).TotalMilliseconds}ms");
+        AnsiConsole.MarkupLine($"Sample Time: {timings.Sampling.TotalMilliseconds}ms");
     }
 
     private class Node

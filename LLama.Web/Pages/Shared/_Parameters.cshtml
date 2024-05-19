@@ -1,4 +1,4 @@
-﻿@page
+@page
 @using LLama.Common;
 @model LLama.Abstractions.IInferenceParams
 
@@ -6,7 +6,7 @@
     <div class="d-flex flex-column mb-2">
         <small>MaxTokens</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.MaxTokens, new { @type="range", @class = "slider", min="-1", max="2048", step="1" })
+            @Html.TextBoxFor(m => m.MaxTokens, new { @type = "range", @class = "slider", min = "-1", max = "2048", step = "1" })
             <label>0</label>
         </div>
     </div>
@@ -14,7 +14,7 @@
     <div class="d-flex flex-column mb-2">
         <small>TokensKeep</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TokensKeep, new { @type="range", @class = "slider", min="0", max="2048", step="1" })
+            @Html.TextBoxFor(m => m.TokensKeep, new { @type = "range", @class = "slider", min = "0", max = "2048", step = "1" })
             <label>0</label>
         </div>
     </div>
@@ -24,7 +24,7 @@
     <div class="d-flex flex-column mb-2">
         <small>TopK</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TopK, new { @type="range", @class = "slider", min="-1", max="100", step="1" })
+            @Html.TextBoxFor(m => m.TopK, new { @type = "range", @class = "slider", min = "-1", max = "100", step = "1" })
             <label>0</label>
         </div>
     </div>
@@ -32,19 +32,17 @@
     <div class="d-flex flex-column mb-2">
         <small>TopP</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TopP, new { @type="range", @class = "slider", min="0.0", max="1.0", step="0.01" })
+            @Html.TextBoxFor(m => m.TopP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
 </div>
 
-
-
 <div class="d-flex flex-row gap-3">
     <div class="d-flex flex-column mb-2">
         <small>TypicalP</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TypicalP, new { @type="range", @class = "slider", min="0.0", max="1.0", step="0.01" })
+            @Html.TextBoxFor(m => m.TypicalP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -52,7 +50,7 @@
     <div class="d-flex flex-column mb-2">
         <small>Temperature</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.Temperature, new { @type="range", @class = "slider", min="0.0", max="1.5", step="0.01" })
+            @Html.TextBoxFor(m => m.Temperature, new { @type = "range", @class = "slider", min = "0.0", max = "1.5", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -62,7 +60,7 @@
     <div class="d-flex flex-column mb-2">
         <small>RepeatPenalty</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.RepeatPenalty, new { @type="range", @class = "slider", min="0.0", max="2.0", step="0.01" })
+            @Html.TextBoxFor(m => m.RepeatPenalty, new { @type = "range", @class = "slider", min = "0.0", max = "2.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -70,7 +68,7 @@
     <div class="d-flex flex-column mb-2">
         <small>RepeatLastTokensCount</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.RepeatLastTokensCount, new { @type="range", @class = "slider", min="0", max="2048", step="1" })
+            @Html.TextBoxFor(m => m.RepeatLastTokensCount, new { @type = "range", @class = "slider", min = "0", max = "2048", step = "1" })
             <label>0</label>
         </div>
     </div>
@@ -80,7 +78,7 @@
     <div class="d-flex flex-column mb-2">
         <small>FrequencyPenalty</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.FrequencyPenalty, new { @type="range", @class = "slider", min="0.0", max="1.0", step="0.01" })
+            @Html.TextBoxFor(m => m.FrequencyPenalty, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -88,7 +86,7 @@
     <div class="d-flex flex-column mb-2">
         <small>PresencePenalty</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.PresencePenalty, new { @type="range", @class = "slider", min="0.0", max="1.0", step="0.01" })
+            @Html.TextBoxFor(m => m.PresencePenalty, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -98,7 +96,7 @@
     <div class="d-flex flex-column mb-2">
         <small>TfsZ</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TfsZ, new { @type="range", @class = "slider",min="0.0", max="1.0", step="0.01" })
+            @Html.TextBoxFor(m => m.TfsZ, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -113,15 +111,17 @@
 
 
 <div class="d-flex flex-column mb-2">
-    <small>Sampler Type</small>
-    @Html.DropDownListFor(m => m.Mirostat,  Html.GetEnumSelectList<MirostatType>(), new { @class = "form-control form-select" })
+    <div class="form-floating">
+        @Html.DropDownListFor(m => m.Mirostat, Html.GetEnumSelectList<MirostatType>(), new { @class = "form-control form-select" })
+        @Html.LabelFor(m => m.Mirostat)
+    </div>
 </div>
 
 <div class="d-flex flex-row gap-3">
     <div class="d-flex flex-column mb-2">
         <small>MirostatTau</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.MirostatTau, new { @type="range", @class = "slider", min="0.0", max="10.0", step="0.01" })
+            @Html.TextBoxFor(m => m.MirostatTau, new { @type = "range", @class = "slider", min = "0.0", max = "10.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -129,7 +129,7 @@
     <div class="d-flex flex-column mb-2">
         <small>MirostatEta</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.MirostatEta, new { @type="range", @class = "slider", min="0.0", max="1.0", step="0.01" })
+            @Html.TextBoxFor(m => m.MirostatEta, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0.0</label>
         </div>
     </div>

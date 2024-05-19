@@ -282,7 +282,21 @@ namespace LLama.Native
         /// </summary>
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
+        private static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// get performance information
+        /// </summary>
+        /// <param name="ctx"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern LLamaTimings llama_get_timings(SafeLLamaContextHandle ctx);
+        
+        /// <summary>
+        /// Reset performance information
+        /// </summary>
+        /// <param name="ctx"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_reset_timings(SafeLLamaContextHandle ctx);
         #endregion
 
         /// <summary>
@@ -510,6 +524,26 @@ namespace LLama.Native
         {
             llama_set_n_threads(this, threads, threadsBatch);
         }
+        
+        #region timing
+        /// <summary>
+        /// Get performance information
+        /// </summary>
+        /// <returns></returns>
+        public LLamaTimings GetTimings()
+        {
+            return llama_get_timings(this);
+        }
+        
+        /// <summary>
+        /// Reset all performance information for this context
+        /// </summary>
+        public void ResetTimings()
+        {
+            llama_reset_timings(this);
+        }
+        #endregion
+
 
         #region KV Cache Management
         /// <summary>
