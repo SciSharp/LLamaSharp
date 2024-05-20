@@ -46,9 +46,9 @@ Let's consider this case: you don't know your user's device when distributing yo
 
 ### Dry run your configuration
 
-In some conditions, you or your users are not sure if the native library could be successfully loaded with the configuration. To address this issue, `NativeLibraryConfig.All.DryRun` is provided to try to run the native library loading with the current configuration. It will return whether the loading is successfully, and the loaded library. However, the loaded library is not assigned to the handle of `NativeApi`. So you could try different configurations untils one of them could be loaded successfully.
+In some conditions, you or your users are not sure if the native library could be successfully loaded with the configuration. To address this issue, `NativeLibraryConfig.All.DryRun` is provided to try to run the native library loading with the current configuration. It will return whether the loading is successfully, and the loaded library. However, the loaded library is not assigned to the handle of `NativeApi`. So you could try different configurations until one of them could be loaded successfully.
 
-NOTE: Similar to other APIs, `NativeLibraryConfig.All.DryRun` is only available before calling an arbitary API in `NativeApi`, too.
+NOTE: Similar to other APIs, `NativeLibraryConfig.All.DryRun` is only available before calling an arbitrary API in `NativeApi`, too.
 
 ### Set the log level of native library loading
 
