@@ -1,4 +1,3 @@
-﻿using LLama.Native;
 using LLama.Experimental.Native;
 
 namespace LLama.Native
@@ -36,7 +35,7 @@ namespace LLama.Native
                 // Also, we need to set the default local directory if the user does not.
                 if (string.IsNullOrEmpty(settings.Tag))
                 {
-                    settings = settings.WithTag(GetCommitHash(NativeLibraryConfig.CurrentVersion));
+                    settings = settings.WithTag(GetNativeLibraryCommitHash());
                 }
                 var defaultLocalDir = NativeLibraryDownloadSettings.GetDefaultLocalDir(settings.Tag);
                 settings = settings.WithLocalDir(settings.LocalDir ?? defaultLocalDir);
@@ -52,17 +51,9 @@ namespace LLama.Native
             return config;
         }
 
-        private static string GetCommitHash(string version)
-        {
-            if (NativeLibraryConfig.VersionMap.TryGetValue(version, out var hash))
-            {
-                return hash;
-            }
-            else
-            {
-                return version;
-            }
-        }
+        private const string COMMIT_HASH = "a743d7";
+
+        private static string GetNativeLibraryCommitHash() => COMMIT_HASH;
 
         /// <summary>
         /// Set whether to download the best-matched native library file automatically if there's no backend or specified file to load.
@@ -77,10 +68,7 @@ namespace LLama.Native
         public static NativeLibraryConfigContainer WithAutoDownload(this NativeLibraryConfigContainer container,
             bool enable = true, NativeLibraryDownloadSettings? settings = null)
         {
-            foreach(var config in container.Configs)
-            {
-                config.WithAutoDownload(enable, settings);
-            }
+            container.ForEach((config) => config.WithAutoDownload(enable, settings));
             return container;
         }
     }

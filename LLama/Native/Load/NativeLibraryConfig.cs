@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LLama.Abstractions;
@@ -282,21 +282,6 @@ namespace LLama.Native
         /// </summary>
         public static NativeLibraryConfig LLava { get; }
 
-
-        /// <summary>
-        /// The current version.
-        /// </summary>
-        public static string CurrentVersion => VERSION; // This should be changed before publishing new version. TODO: any better approach?
-
-        private const string COMMIT_HASH = "f7001c";
-        private const string VERSION = "master";
-
-        /// <summary>
-        /// Get the llama.cpp commit hash of the current version.
-        /// </summary>
-        /// <returns></returns>
-        public static string GetNativeLibraryCommitHash() => COMMIT_HASH;
-
         static NativeLibraryConfig()
         {
             LLama = new(NativeLibraryName.LLama);
@@ -385,6 +370,18 @@ namespace LLama.Native
         internal NativeLibraryConfigContainer(params NativeLibraryConfig[] configs)
         {
             _configs = configs;
+        }
+
+        /// <summary>
+        /// Do an action for all the configs in this container.
+        /// </summary>
+        /// <param name="action"></param>
+        public void ForEach(Action<NativeLibraryConfig> action)
+        {
+            foreach (var config in _configs)
+            {
+                action(config);
+            }
         }
 
         #region configurators
