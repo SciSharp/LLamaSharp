@@ -1,4 +1,4 @@
-﻿using HuggingfaceHub;
+using HuggingfaceHub;
 
 namespace LLama.Native
 {
@@ -108,7 +108,7 @@ namespace LLama.Native
 
         /// <summary>
         /// Extra search directories. They will only be used when finding files downloaded from remote.
-        /// Generally it will be useful when you wnat to replace the downloading process with your custom implementation.
+        /// Generally it will be useful when you want to replace the downloading process with your custom implementation.
         /// If you are not sure how it works, please leave it empty.
         /// </summary>
         public string[]? ExtraSearchDirectories { get; private set; } = null;
@@ -225,7 +225,7 @@ namespace LLama.Native
 
         /// <summary>
         /// Set <see cref="ExtraSearchDirectories"/>. They will only be used when finding files downloaded from remote.
-        /// Generally it will be useful when you wnat to replace the downloading process with your custom implementation.
+        /// Generally it will be useful when you want to replace the downloading process with your custom implementation.
         /// If you are not sure how it works, please ignore this method.
         /// </summary>
         /// <param name="directories"></param>
