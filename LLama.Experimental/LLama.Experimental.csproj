@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6;net7;net8;netstandard2.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <langversion>12</langversion>
+    <RootNamespace>LLama</RootNamespace>
+
+    <Version>0.12.0</Version>
+    <Authors>Rinne</Authors>
+    <Company>SciSharp STACK</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>MIT, SciSharp STACK $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+    <RepositoryUrl>https://github.com/SciSharp/LLamaSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <PackageTags>LLama, LLM, GPT, ChatGPT, NLP, AI, Chat Bot, SciSharp</PackageTags>
+    <Description>
+        LLamaSharp.Experimental is a package with some experimental features and aggressive updates.
+        This package includes some important features in advance, but is less stable.
+    </Description>
+    <PackageReleaseNotes>
+        Support native library auto-download.
+    </PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageOutputPath>$(SolutionDir)/packages</PackageOutputPath>
+    <Platforms>AnyCPU;x64;Arm64</Platforms>
+    <PackageId>LLamaSharp.Experimental</PackageId>
+    <Configurations>Debug;Release;GPU</Configurations>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HuggingfaceHub" Version="0.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+  </ItemGroup>
+
+</Project>

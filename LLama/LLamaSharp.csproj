@@ -25,7 +25,7 @@
       Updated llama.cpp version to include better support for LLama3 tokenization.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageOutputPath>packages</PackageOutputPath>
+    <PackageOutputPath>$(SolutionDir)/packages</PackageOutputPath>
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <PackageId>LLamaSharp</PackageId>
     <Configurations>Debug;Release;GPU</Configurations>
