@@ -235,7 +235,7 @@ namespace LLama
                     var current = string.Join("", window);
                     if (_keywords.Any(x => current.Contains(x)))
                     {
-                        var matchedKeyword = _keywords.First(x => current.Contains(x));
+                        var matchedKeywords = _keywords.Where(x => current.Contains(x));
                         int total = window.Count;
                         for (int i = 0; i < total; i++)
                         {
@@ -243,7 +243,11 @@ namespace LLama
                         }
                         if (!_removeAllMatchedTokens)
                         {
-                            yield return current.Replace(matchedKeyword, "");
+                            foreach(var keyword in matchedKeywords)
+                            {
+                                current = current.Replace(keyword, "");
+                            }
+                            yield return current;
                         }
                     }
                     if (current.Length >= _maxKeywordLength)

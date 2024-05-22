@@ -56,23 +56,6 @@ public sealed class BatchedExecutor
     }
 
     /// <summary>
-    /// Start a new <see cref="Conversation"/> with the given prompt
-    /// </summary>
-    /// <param name="prompt"></param>
-    /// <returns></returns>
-    [Obsolete("Use BatchedExecutor.Create instead")]
-    public Conversation Prompt(string prompt)
-    {
-        if (IsDisposed)
-            throw new ObjectDisposedException(nameof(BatchedExecutor));
-
-        var conversation = Create();
-        conversation.Prompt(prompt);
-
-        return conversation;
-    }
-
-    /// <summary>
     /// Start a new <see cref="Conversation"/>
     /// </summary>
     /// <returns></returns>
@@ -82,6 +65,39 @@ public sealed class BatchedExecutor
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
         return new Conversation(this, GetNextSequenceId());
+    }
+
+    /// <summary>
+    /// Load a conversation that was previously saved to a file. Once loaded the conversation will
+    /// need to be prompted.
+    /// </summary>
+    /// <param name="filepath"></param>
+    /// <returns></returns>
+    /// <exception cref="ObjectDisposedException"></exception>
+    public Conversation Load(string filepath)
+    {
+        if (IsDisposed)
+            throw new ObjectDisposedException(nameof(BatchedExecutor));
+
+        var conversation = Create();
+        conversation.Load(filepath);
+        return conversation;
+    }
+
+    /// <summary>
+    /// Load a conversation that was previously saved into memory. Once loaded the conversation will need to be prompted.
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
+    /// <exception cref="ObjectDisposedException"></exception>
+    public Conversation Load(Conversation.State state)
+    {
+        if (IsDisposed)
+            throw new ObjectDisposedException(nameof(BatchedExecutor));
+
+        var conversation = Create();
+        conversation.Load(state);
+        return conversation;
     }
 
     /// <summary>

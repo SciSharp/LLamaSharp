@@ -38,7 +38,7 @@ namespace LLama.Native
         // as NET Framework 4.8 does not play nice with the LlamaProgressCallback type
         public IntPtr progress_callback;
 #else
-        public LlamaProgressCallback progress_callback;
+        public LlamaProgressCallback? progress_callback;
 #endif
 
         /// <summary>
@@ -80,6 +80,16 @@ namespace LLama.Native
             set => _use_mlock = Convert.ToSByte(value);
         }
         private sbyte _use_mlock;
+
+        /// <summary>
+        /// validate model tensor data
+        /// </summary>
+        public bool check_tensors
+        {
+            readonly get => Convert.ToBoolean(_check_tensors);
+            set => _check_tensors = Convert.ToSByte(value);
+        }
+        private sbyte _check_tensors;
 
         /// <summary>
         /// Create a LLamaModelParams with default values

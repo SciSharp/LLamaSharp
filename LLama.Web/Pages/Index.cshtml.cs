@@ -1,4 +1,4 @@
-﻿using LLama.Web.Common;
+using LLama.Web.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
@@ -29,7 +29,7 @@ namespace LLama.Web.Pages
             {
                 Prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
                 AntiPrompt = "User:",
-                // OutputFilter = "User:, Response:"
+                OutputFilter = "User:, Assistant: "
             };
 
             InferenceOptions = new InferenceOptions

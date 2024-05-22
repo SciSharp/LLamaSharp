@@ -1,11 +1,11 @@
-# Frequently asked qustions
+# Frequently asked questions
 
 Sometimes, your application with LLM and LLamaSharp may have unexpected behaviours. Here are some frequently asked questions, which may help you to deal with your problem.
 
 ## Why GPU is not used when I have installed CUDA
 
 1. If you are using backend packages, please make sure you have installed the cuda backend package which matches the cuda version of your device. Please note that before LLamaSharp v0.10.0, only one backend package should be installed.
-2. Add `NativeLibraryConfig.Instance.WithLogs(LLamaLogLevel.Info)` to the very beginning of your code. The log will show which native library file is loaded. If the CPU library is loaded, please try to compile the native library yourself and open an issue for that. If the CUDA libraty is loaded, please check if `GpuLayerCount > 0` when loading the model weight.
+2. Add `NativeLibraryConfig.Instance.WithLogs(LLamaLogLevel.Info)` to the very beginning of your code. The log will show which native library file is loaded. If the CPU library is loaded, please try to compile the native library yourself and open an issue for that. If the CUDA library is loaded, please check if `GpuLayerCount > 0` when loading the model weight.
 
 ## Why the inference is slow
 

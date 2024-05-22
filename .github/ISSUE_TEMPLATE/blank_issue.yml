@@ -1,0 +1,12 @@
+name: Blank Issue
+description: Submit any other kind of issue.
+labels: [Blank Issue]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please describe the issue here.
+      placeholder: Description
+    validations:
+      required: false

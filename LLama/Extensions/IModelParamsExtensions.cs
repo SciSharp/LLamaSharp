@@ -7,7 +7,7 @@ using LLama.Native;
 namespace LLama.Extensions;
 
 /// <summary>
-/// Extention methods to the IModelParams interface
+/// Extension methods to the IModelParams interface
 /// </summary>
 public static class IModelParamsExtensions
 {

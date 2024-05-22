@@ -31,7 +31,7 @@ public class ChatChineseGB2312
             GpuLayerCount = 5,
             Encoding = Encoding.UTF8
         };
-        using var model = LLamaWeights.LoadFromFile(parameters);
+        using var model = await LLamaWeights.LoadFromFileAsync(parameters);
         using var context = model.CreateContext(parameters);
         var executor = new InteractiveExecutor(context);
 

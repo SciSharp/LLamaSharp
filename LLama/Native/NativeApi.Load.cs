@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Collections.Generic;
+using LLama.Abstractions;
 
 namespace LLama.Native
 {
@@ -19,7 +20,7 @@ namespace LLama.Native
 
             // Set flag to indicate that this point has been passed. No native library config can be done after this point.
             NativeLibraryConfig.LLama.LibraryHasLoaded = true;
-            NativeLibraryConfig.LLavaShared.LibraryHasLoaded = true;
+            NativeLibraryConfig.LLava.LibraryHasLoaded = true;
 
             // Immediately make a call which requires loading the llama DLL. This method call
             // can't fail unless the DLL hasn't been loaded.
@@ -35,7 +36,7 @@ namespace LLama.Native
                     "3. One of the dependency of the native library is missed. Please use `ldd` on linux, `dumpbin` on windows and `otool`" +
                     "to check if all the dependency of the native library is satisfied. Generally you could find the libraries under your output folder.\n" +
                     "4. Try to compile llama.cpp yourself to generate a libllama library, then use `LLama.Native.NativeLibraryConfig.WithLibrary` " +
-                    "to specify it at the very beginning of your code. For more informations about compilation, please refer to LLamaSharp repo on github.\n");
+                    "to specify it at the very beginning of your code. For more information about compilation, please refer to LLamaSharp repo on github.\n");
             }
 
             // Now that the "loaded" flag is set configure logging in llama.cpp
@@ -65,7 +66,7 @@ namespace LLama.Native
                         return _loadedLlamaHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama);
+                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary);
                     return _loadedLlamaHandle;
                 }
 
@@ -76,7 +77,7 @@ namespace LLama.Native
                         return _loadedLlavaSharedHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLavaShared);
+                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary);
                     return _loadedLlavaSharedHandle;
                 }
 
@@ -86,8 +87,26 @@ namespace LLama.Native
 #endif
         }
 
+        /// <summary>
+        /// Get the loaded native library. If you are using netstandard2.0, it will always return null.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static INativeLibrary? GetLoadedNativeLibrary(NativeLibraryName name)
+        {
+            return name switch
+            {
+                NativeLibraryName.LLama => _loadedLLamaLibrary,
+                NativeLibraryName.LLava => _loadedLLavaLibrary,
+                _ => throw new ArgumentException($"Library name {name} is not found.")
+            };
+        }
+
         internal const string libraryName = "llama";
-        internal const string llavaLibraryName = "llava_shared";        
-        private const string cudaVersionFile = "version.json";
+        internal const string llavaLibraryName = "llava_shared";
+
+        private static INativeLibrary? _loadedLLamaLibrary = null;
+        private static INativeLibrary? _loadedLLavaLibrary = null;
     }
 }

@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using LLama.Native;
 using LLama.Abstractions;
 using System;
@@ -231,10 +231,22 @@ namespace LLama
                 _is_prompt_run = false;
                 if (_pastTokensCount + _embeds.Count > Context.ContextSize)
                 {
-                    HandleRunOutOfContext(inferenceParams.TokensKeep);
+                    // number of tokens to keep when resetting context
+                    // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
+                    var tokensToKeep = inferenceParams.TokensKeep;
+                    if (tokensToKeep < 0 || tokensToKeep > _embed_inps.Count)
+                    {
+                        tokensToKeep = _embed_inps.Count;
+                    }
+                    else
+                    {
+                        tokensToKeep += Convert.ToInt32(Context.ShouldAddBosToken()); // always keep the BOS token
+                    }
+
+                    HandleRunOutOfContext(tokensToKeep);
                 }
 
-                TryReuseMathingPrefix();
+                TryReuseMatchingPrefix();
 
                 // Changes to support Multi-Modal LLMs.
                 //

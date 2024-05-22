@@ -13,8 +13,11 @@ const createConnectionSessionChat = () => {
     const chatInput = $("#input");
 
     const onStatus = (connection, status) => {
-        if (status == Enums.SessionConnectionStatus.Connected) {
-            $("#socket").text("Connected").addClass("text-success");
+        if (status == Enums.SessionConnectionStatus.Disconnected) {
+            onError("Socket not connected")
+        }
+        else if (status == Enums.SessionConnectionStatus.Connected) {
+            onInfo("Socket connected")
         }
         else if (status == Enums.SessionConnectionStatus.Loaded) {
             loaderHide();
@@ -62,8 +65,11 @@ const createConnectionSessionChat = () => {
                 responseContent.empty();
                 responseFirstToken = false;
                 responseContainer.find(".date").append(getDateTime());
+                responseContent.append(response.content.trim());
             }
-            responseContent.append(response.content);
+            else {
+                responseContent.append(response.content);
+            }
             scrollToBottom();
         }
     }

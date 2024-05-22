@@ -8,6 +8,8 @@ namespace LLama.Native
     /// </summary>
     /// <param name="progress"></param>
     /// <param name="ctx"></param>
+    /// <returns>If the provided progress_callback returns true, model loading continues.
+    /// If it returns false, model loading is immediately aborted.</returns>
     /// <remarks>llama_progress_callback</remarks>
     public delegate bool LlamaProgressCallback(float progress, IntPtr ctx);
 
@@ -148,6 +150,16 @@ namespace LLama.Native
             set => _offload_kqv = Convert.ToSByte(value);
         }
         private sbyte _offload_kqv;
+
+        /// <summary>
+        /// whether to use flash attention
+        /// </summary>
+        public bool flash_attention
+        {
+            readonly get => Convert.ToBoolean(_flash_attention);
+            set => _flash_attention = Convert.ToSByte(value);
+        }
+        private sbyte _flash_attention;
 
         //todo: implement abort callback support
         /// <summary>

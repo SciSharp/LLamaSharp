@@ -102,7 +102,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -117,7 +117,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -265,7 +265,7 @@ namespace LLama.Native
         /// Set configurations for all the native libraries, including LLama and LLava
         /// </summary>
         [Obsolete("Please use NativeLibraryConfig.All instead, or set configurations for NativeLibraryConfig.LLama and NativeLibraryConfig.LLavaShared respectively.")]
-        public static NativeLibraryConfigContainer Instance { get; }
+        public static NativeLibraryConfigContainer Instance => All;
 
         /// <summary>
         /// Set configurations for all the native libraries, including LLama and LLava
@@ -280,30 +280,28 @@ namespace LLama.Native
         /// <summary>
         /// Configuration for LLava native library
         /// </summary>
-        public static NativeLibraryConfig LLavaShared { get; }
+        public static NativeLibraryConfig LLava { get; }
 
-        /// <summary>
-        /// A dictionary mapping from version to corresponding llama.cpp commit hash.
-        /// The version should be formatted int `[major].[minor].[patch]`. But there's an exceptance that you can 
-        /// use `master` as a version to get the llama.cpp commit hash from the master branch.
-        /// </summary>
-        public static Dictionary<string, string> VersionMap { get; } = new Dictionary<string, string>() 
-        // This value should be changed when we're going to publish new release. (any better approach?)
-        {
-            {"master", "f7001c"}
-        };
 
         /// <summary>
         /// The current version.
         /// </summary>
-        public static readonly string CurrentVersion = "master"; // This should be changed before publishing new version. TODO: any better approach?
+        public static string CurrentVersion => VERSION; // This should be changed before publishing new version. TODO: any better approach?
+
+        private const string COMMIT_HASH = "f7001c";
+        private const string VERSION = "master";
+
+        /// <summary>
+        /// Get the llama.cpp commit hash of the current version.
+        /// </summary>
+        /// <returns></returns>
+        public static string GetNativeLibraryCommitHash() => COMMIT_HASH;
 
         static NativeLibraryConfig()
         {
-            LLama = new(NativeLibraryName.Llama);
-            LLavaShared = new(NativeLibraryName.LlavaShared);
-            All = new(LLama, LLavaShared);
-            Instance = All;
+            LLama = new(NativeLibraryName.LLama);
+            LLava = new(NativeLibraryName.LLava);
+            All = new(LLama, LLava);
         }
 
 #if NETSTANDARD2_0
@@ -365,11 +363,15 @@ namespace LLama.Native
         /// 
         /// You can still modify the configuration after this calling but only before any call from <see cref="NativeApi"/>.
         /// </summary>
+        /// <param name="loadedLibrary">
+        /// The loaded livrary. When the loading failed, this will be null. 
+        /// However if you are using .NET standard2.0, this will never return null.
+        /// </param>
         /// <returns>Whether the running is successful.</returns>
-        public bool DryRun()
+        public bool DryRun(out INativeLibrary? loadedLibrary)
         {
             LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {this.NativeLibraryName.GetLibraryName()}...");
-            return NativeLibraryUtils.TryLoadLibrary(this) != IntPtr.Zero;
+            return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary) != IntPtr.Zero;
         }
     }
 
@@ -379,13 +381,6 @@ namespace LLama.Native
     public sealed class NativeLibraryConfigContainer
     {
         private NativeLibraryConfig[] _configs;
-
-        /// <summary>
-        /// All the configurations in this container.
-        /// Please avoid calling this property explicitly, use <see cref="NativeLibraryConfig.LLama"/>
-        /// and <see cref="NativeLibraryConfig.LLavaShared"/> instead.
-        /// </summary>
-        public NativeLibraryConfig[] Configs => _configs;
 
         internal NativeLibraryConfigContainer(params NativeLibraryConfig[] configs)
         {
@@ -406,11 +401,11 @@ namespace LLama.Native
         {
             foreach(var config in _configs)
             {
-                if(config.NativeLibraryName == NativeLibraryName.Llama && llamaPath is not null)
+                if(config.NativeLibraryName == NativeLibraryName.LLama && llamaPath is not null)
                 {
                     config.WithLibrary(llamaPath);
                 }
-                if(config.NativeLibraryName == NativeLibraryName.LlavaShared && llavaPath is not null)
+                if(config.NativeLibraryName == NativeLibraryName.LLava && llavaPath is not null)
                 {
                     config.WithLibrary(llavaPath);
                 }
@@ -482,7 +477,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -498,7 +493,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Add self-defined search directories. Note that the file stucture of the added 
+        /// Add self-defined search directories. Note that the file structure of the added 
         /// directories must be the same as the default directory. Besides, the directory 
         /// won't be used recursively.
         /// </summary>
@@ -566,9 +561,27 @@ namespace LLama.Native
         /// You can still modify the configuration after this calling but only before any call from <see cref="NativeApi"/>.
         /// </summary>
         /// <returns>Whether the running is successful.</returns>
-        public bool DryRun()
+        public bool DryRun(out INativeLibrary? loadedLLamaNativeLibrary, out INativeLibrary? loadedLLavaNativeLibrary)
         {
-            return _configs.All(config => config.DryRun());
+            bool success = true;
+            foreach(var config in _configs)
+            {
+                success &= config.DryRun(out var loadedLibrary);
+                if(config.NativeLibraryName == NativeLibraryName.LLama)
+                {
+                    loadedLLamaNativeLibrary = loadedLibrary;
+                }
+                else if(config.NativeLibraryName == NativeLibraryName.LLava)
+                {
+                    loadedLLavaNativeLibrary = loadedLibrary;
+                }
+                else
+                {
+                    throw new Exception("Unknown native library config during the dry run.");
+                }
+            }
+            loadedLLamaNativeLibrary = loadedLLavaNativeLibrary = null;
+            return success;
         }
     }
 
@@ -580,11 +593,11 @@ namespace LLama.Native
         /// <summary>
         /// The native library compiled from llama.cpp.
         /// </summary>
-        Llama,
+        LLama,
         /// <summary>
         /// The native library compiled from the LLaVA example of llama.cpp.
         /// </summary>
-        LlavaShared
+        LLava
     }
 
     internal static class LibraryNameExtensions
@@ -593,9 +606,9 @@ namespace LLama.Native
         {
             switch (name)
             {
-                case NativeLibraryName.Llama:
+                case NativeLibraryName.LLama:
                     return NativeApi.libraryName;
-                case NativeLibraryName.LlavaShared:
+                case NativeLibraryName.LLava:
                     return NativeApi.llavaLibraryName;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(name), name, null);

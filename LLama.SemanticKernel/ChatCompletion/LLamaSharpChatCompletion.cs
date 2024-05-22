@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static LLama.InteractiveExecutor;
 using static LLama.LLamaTransforms;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
@@ -17,17 +18,18 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 public sealed class LLamaSharpChatCompletion : IChatCompletionService
 {
     private readonly ILLamaExecutor _model;
-    private ChatRequestSettings defaultRequestSettings;
+    private LLamaSharpPromptExecutionSettings defaultRequestSettings;
     private readonly IHistoryTransform historyTransform;
     private readonly ITextStreamTransform outputTransform;
 
     private readonly Dictionary<string, object?> _attributes = new();
+    private readonly bool _isStatefulExecutor;
 
     public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
 
-    static ChatRequestSettings GetDefaultSettings()
+    static LLamaSharpPromptExecutionSettings GetDefaultSettings()
     {
-        return new ChatRequestSettings
+        return new LLamaSharpPromptExecutionSettings
         {
             MaxTokens = 256,
             Temperature = 0,
@@ -37,11 +39,12 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     }
 
     public LLamaSharpChatCompletion(ILLamaExecutor model,
-        ChatRequestSettings? defaultRequestSettings = default,
+        LLamaSharpPromptExecutionSettings? defaultRequestSettings = default,
         IHistoryTransform? historyTransform = null,
         ITextStreamTransform? outputTransform = null)
     {
         this._model = model;
+        this._isStatefulExecutor = this._model is StatefulExecutorBase;
         this.defaultRequestSettings = defaultRequestSettings ?? GetDefaultSettings();
         this.historyTransform = historyTransform ?? new HistoryTransform();
         this.outputTransform = outputTransform ?? new KeywordTextOutputStreamTransform(new[] { $"{LLama.Common.AuthorRole.User}:",
@@ -65,10 +68,10 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
         var settings = executionSettings != null
-           ? ChatRequestSettings.FromRequestSettings(executionSettings)
+           ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
            : defaultRequestSettings;
-        var prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
 
+        string prompt = this._getFormattedPrompt(chatHistory);
         var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
 
         var output = outputTransform.TransformAsync(result);
@@ -86,10 +89,10 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var settings = executionSettings != null
-          ? ChatRequestSettings.FromRequestSettings(executionSettings)
+          ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
           : defaultRequestSettings;
-        var prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
 
+        string prompt = this._getFormattedPrompt(chatHistory);
         var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
 
         var output = outputTransform.TransformAsync(result);
@@ -98,5 +101,34 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
         {
             yield return new StreamingChatMessageContent(AuthorRole.Assistant, token);
         }
+    }
+
+    /// <summary>
+    /// Return either the entire formatted chatHistory or just the most recent message based on
+    /// whether the model extends StatefulExecutorBase or not.
+    /// </summary>
+    /// <param name="chatHistory"></param>
+    /// <returns>The formatted prompt</returns>
+    private string _getFormattedPrompt(ChatHistory chatHistory){
+        string prompt;
+        if (this._isStatefulExecutor){
+            InteractiveExecutorState state = (InteractiveExecutorState)((StatefulExecutorBase)this._model).GetStateData();
+            if (state.IsPromptRun)
+            {
+                prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
+            }
+            else
+            {
+                ChatHistory temp_history = new();
+                temp_history.AddUserMessage(chatHistory.Last().Content);
+                prompt = historyTransform.HistoryToText(temp_history.ToLLamaSharpChatHistory());
+            }
+        }
+        else
+        {
+            prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
+        }
+
+        return prompt;
     }
 }

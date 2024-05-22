@@ -18,7 +18,7 @@ AnsiConsole.MarkupLineInterpolated(
     """);
 
 // Configure logging. Change this to `true` to see log messages from llama.cpp
-var showLLamaCppLogs = true;
+var showLLamaCppLogs = false;
 NativeLibraryConfig
    .All
    .WithLogCallback((level, message) =>
@@ -32,7 +32,7 @@ NativeLibraryConfig
    .All
    .WithCuda()
    //.WithAutoDownload() // An experimental feature
-   .DryRun();
+   .DryRun(out var loadedllamaLibrary, out var loadedLLavaLibrary);
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();

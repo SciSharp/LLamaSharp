@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
@@ -196,12 +196,12 @@ namespace LLama
             // - take the tokensToKeep first tokens from the original prompt (via n_past)
             // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
             int n_left = _pastTokensCount - tokensToKeep;
+            int n_discard = n_left / 2;
 
-            _pastTokensCount = Math.Max(1, tokensToKeep);
+            NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
+            NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
 
-            // insert n_left/2 tokens at the start of embed from last_n_tokens
-            _embeds.InsertRange(0, _last_n_tokens.Take(_last_n_tokens.Count - _embeds.Count).Skip((int)Context.ContextSize - n_left / 2 - _embeds.Count));
-
+            _pastTokensCount -= n_discard;
             // stop saving session if we run out of context
             _pathSession = string.Empty;
         }
@@ -209,7 +209,7 @@ namespace LLama
         /// <summary>
         /// Try to reuse the matching prefix from the session file.
         /// </summary>
-        protected virtual void TryReuseMathingPrefix()
+        protected virtual void TryReuseMatchingPrefix()
         {
             if (_n_session_consumed < _session_tokens.Count)
             {

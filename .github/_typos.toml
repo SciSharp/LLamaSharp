@@ -1,0 +1,16 @@
+# Typos configuration file
+#
+# Info:    https://github.com/marketplace/actions/typos-action
+# Install: brew install typos-cli
+# Install: conda install typos
+# Run:     typos -c .github/_typos.toml
+
+[files]
+extend-exclude = [
+    "_typos.toml",
+    "docs/xmldocs/",
+    "LLama.Web/wwwroot/",
+    "LLama/runtimes/deps/",
+    "LLama.Benchmark/Assets/",
+    "LLama.Examples/Assets/"
+]

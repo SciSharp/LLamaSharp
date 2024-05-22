@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
 		<RootNamespace>LLamaSharp.SemanticKernel</RootNamespace>
 		<Nullable>enable</Nullable>
 		<LangVersion>10</LangVersion>
@@ -10,7 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<Version>0.11.2</Version>
+		<Version>0.12.0</Version>
 		<Authors>Tim Miller, Xbotter</Authors>
 		<Company>SciSharp STACK</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -23,7 +23,7 @@
 			The integration of LLamaSharp and Microsoft semantic-kernel.
 		</Description>
 		<PackageReleaseNotes>
-			v0.11.2 followed the updating of LLamaSharp.
+			v0.12.0 released with v0.12.0 of LLamaSharp.
 		</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageOutputPath>packages</PackageOutputPath>

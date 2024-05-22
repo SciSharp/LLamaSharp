@@ -1,0 +1,1 @@
+TheBloke/Llama-2-7b-Chat-GGUF,llama-2-7b-chat.Q3_K_S.gguf

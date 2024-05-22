@@ -1,4 +1,4 @@
-﻿using LLama.Exceptions;
+using LLama.Exceptions;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
@@ -89,6 +89,8 @@ namespace LLama
         /// Get the maximum batch size for this context
         /// </summary>
         public uint BatchSize => NativeHandle.BatchSize;
+        
+        private LLamaTokenData[]? _samplingBuffer;
 
         /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
@@ -496,7 +498,9 @@ namespace LLama
             var nl_logit = logits[(int?)nl_token ?? 0];
 
             // Convert logits into token candidates
-            var candidates_p = LLamaTokenDataArray.Create(logits);
+            if (_samplingBuffer == null || _samplingBuffer.Length < logits.Length)
+                _samplingBuffer = new LLamaTokenData[logits.Length];
+            var candidates_p = LLamaTokenDataArray.Create(logits, _samplingBuffer);
 
             // Extract most recently returned tokens
             var last_n_repeat = Math.Min((int)ContextSize, repeatLastTokensCount);
@@ -508,17 +512,28 @@ namespace LLama
             // Restore newline token logit value if necessary
             if (!penalizeNL && nl_token.HasValue)
             {
-                var candidatesSpan = candidates_p.data.Span;
-                for (var i = 0; i < candidates_p.data.Length; i++)
+                var candidatesSpan = candidates_p.Data.Span;
+                for (var i = 0; i < candidates_p.Data.Length; i++)
                 {
                     ref var item = ref candidatesSpan[i];
                     if (item.id == nl_token)
                         item.logit = nl_logit;
                 }
-                candidates_p.sorted = false;
+                candidates_p.Sorted = false;
             }
 
             return candidates_p;
+        }
+
+        /// <summary>
+        /// Gets whether or not the Bos token should be added.
+        /// From common.cpp https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/common/common.cpp#L2417
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldAddBosToken()
+        {
+            var addBos = NativeApi.llama_add_bos_token(NativeHandle.ModelHandle);
+            return addBos != -1 ? Convert.ToBoolean(addBos) : NativeHandle.LLamaVocabType == LLamaVocabType.SentencePiece;
         }
 
         #region eval overloads
@@ -628,7 +643,7 @@ namespace LLama
             }
 
             /// <summary>
-            /// Copy bytes to a desintation pointer.
+            /// Copy bytes to a destination pointer.
             /// </summary>
             /// <param name="dst">Destination to write to</param>
             /// <param name="length">Length of the destination buffer</param>

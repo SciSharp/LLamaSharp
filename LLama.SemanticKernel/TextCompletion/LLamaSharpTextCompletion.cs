@@ -1,5 +1,4 @@
 ﻿using LLama.Abstractions;
-using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Services;
 using Microsoft.SemanticKernel.TextGeneration;
@@ -24,7 +23,7 @@ public sealed class LLamaSharpTextCompletion : ITextGenerationService
     /// <inheritdoc/>
     public async Task<IReadOnlyList<TextContent>> GetTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
-        var settings = ChatRequestSettings.FromRequestSettings(executionSettings);
+        var settings = LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings);
         var result = executor.InferAsync(prompt, settings?.ToLLamaSharpInferenceParams(), cancellationToken);
         var sb = new StringBuilder();
         await foreach (var token in result)
@@ -37,7 +36,7 @@ public sealed class LLamaSharpTextCompletion : ITextGenerationService
     /// <inheritdoc/>
     public async IAsyncEnumerable<StreamingTextContent> GetStreamingTextContentsAsync(string prompt, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var settings = ChatRequestSettings.FromRequestSettings(executionSettings);
+        var settings = LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings);
         var result = executor.InferAsync(prompt, settings?.ToLLamaSharpInferenceParams(), cancellationToken);
         await foreach (var token in result)
         {

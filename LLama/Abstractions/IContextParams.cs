@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Native;
 
 namespace LLama.Abstractions;
@@ -31,7 +31,7 @@ public interface IContextParams
     /// <summary>
     /// Seed for the random number generator (seed)
     /// </summary>
-    uint Seed { get; }
+    uint? Seed { get; }
 
     /// <summary>
     /// If true, extract embeddings (together with logits).
@@ -109,9 +109,16 @@ public interface IContextParams
     bool NoKqvOffload { get; }
 
     /// <summary>
-    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+    /// Whether to use flash attention
     /// </summary>
-    float DefragThreshold { get; }
+    bool FlashAttention { get; }
+
+    /// <summary>
+    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to <see langword="null"/> or &lt; 0 to disable (default)
+
+    /// </summary>
+    float? DefragThreshold { get; }
 
     /// <summary>
     /// How to pool (sum) embedding results by sequence id (ignored if no pooling layer)

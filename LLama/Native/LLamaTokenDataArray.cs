@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
 
@@ -12,12 +12,12 @@ namespace LLama.Native
         /// <summary>
         /// The LLamaTokenData
         /// </summary>
-        public readonly Memory<LLamaTokenData> data;
+        public readonly Memory<LLamaTokenData> Data;
 
         /// <summary>
         /// Indicates if `data` is sorted by logits in descending order. If this is false the token data is in _no particular order_.
         /// </summary>
-        public bool sorted;
+        public bool Sorted;
 
         /// <summary>
         /// Create a new LLamaTokenDataArray
@@ -26,8 +26,8 @@ namespace LLama.Native
         /// <param name="isSorted"></param>
         public LLamaTokenDataArray(Memory<LLamaTokenData> tokens, bool isSorted = false)
         {
-            data = tokens;
-            sorted = isSorted;
+            Data = tokens;
+            Sorted = isSorted;
         }
 
         /// <summary>
@@ -37,13 +37,31 @@ namespace LLama.Native
         /// <returns></returns>
         public static LLamaTokenDataArray Create(ReadOnlySpan<float> logits)
         {
-            var candidates = new LLamaTokenData[logits.Length];
-            for (var token_id = 0; token_id < logits.Length; token_id++)
-                candidates[token_id] = new LLamaTokenData((LLamaToken)token_id, logits[token_id], 0.0f);
-
-            return new LLamaTokenDataArray(candidates);
+            return Create(logits, new LLamaTokenData[logits.Length]);
         }
 
+        /// <summary>
+        /// Create a new LLamaTokenDataArray, copying the data from the given logits into temporary memory.
+        /// </summary>
+        /// <remarks>The memory must not be modified while this <see cref="LLamaTokenDataArray"/> is in use.</remarks>
+        /// <param name="logits"></param>
+        /// <param name="buffer">Temporary memory which will be used to work on these logits. Must be at least as large as logits array</param>
+        /// <returns></returns>
+        public static LLamaTokenDataArray Create(ReadOnlySpan<float> logits, Memory<LLamaTokenData> buffer)
+        {
+            if (buffer.Length < logits.Length)
+                throw new ArgumentException("temporary memory is shorter than logits span");
+
+            // take a slice of the output buffer which is exactly the size we need.
+            var candidates = buffer.Slice(0, logits.Length);
+            var candidatesSpan = candidates.Span;
+
+            for (var token = 0; token < logits.Length; token++)
+                candidatesSpan[token] = new LLamaTokenData(token, logits[token], 0.0f);
+            
+            return new LLamaTokenDataArray(candidates);
+        }
+        
         /// <summary>
         /// Overwrite the logit values for all given tokens
         /// </summary>
@@ -53,10 +71,10 @@ namespace LLama.Native
             if (values.Length == 0)
                 return;
 
-            var dataSpan = data.Span;
+            var dataSpan = Data.Span;
             foreach (var (token, value) in values)
             {
-                for (var i = 0; i < data.Length; i++)
+                for (var i = 0; i < Data.Length; i++)
                 {
                     if (dataSpan[i].id == token)
                     {
@@ -65,7 +83,7 @@ namespace LLama.Native
                     }
                 }   
             }
-            sorted = false;
+            Sorted = false;
         }
 
         #region sampling
@@ -82,7 +100,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_grammar(ctx, ref st, grammar);
-                sorted = st.sorted;
+                Sorted = st.sorted;
             }
         }
 
@@ -97,7 +115,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_top_k(context, ref st, k, minKeep);
-                sorted = st.sorted;
+                Sorted = st.sorted;
             }
         }
 
@@ -112,7 +130,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_top_p(context, ref st, p, minKeep);
-                sorted = st.sorted;
+                Sorted = st.sorted;
             }
         }
 
@@ -127,7 +145,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_min_p(context, ref st, p, minKeep);
-                sorted = st.sorted;
+                Sorted = st.sorted;
             }
         }
 
@@ -136,13 +154,13 @@ namespace LLama.Native
         /// </summary>
         /// <param name="context"></param>
         /// <param name="z"></param>
-        /// <param name="min_keep"></param>
-        public void TailFree(SafeLLamaContextHandle context, float z, ulong min_keep = 1)
+        /// <param name="minKeep"></param>
+        public void TailFree(SafeLLamaContextHandle context, float z, ulong minKeep = 1)
         {
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
-                NativeApi.llama_sample_tail_free(context, ref st, z, min_keep);
-                sorted = st.sorted;
+                NativeApi.llama_sample_tail_free(context, ref st, z, minKeep);
+                Sorted = st.sorted;
             }
         }
 
@@ -151,13 +169,13 @@ namespace LLama.Native
         /// </summary>
         /// <param name="context"></param>
         /// <param name="p"></param>
-        /// <param name="min_keep"></param>
-        public void LocallyTypical(SafeLLamaContextHandle context, float p, ulong min_keep = 1)
+        /// <param name="minKeep"></param>
+        public void LocallyTypical(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
         {
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
-                NativeApi.llama_sample_typical(context, ref st, p, min_keep);
-                sorted = st.sorted;
+                NativeApi.llama_sample_typical(context, ref st, p, minKeep);
+                Sorted = st.sorted;
             }
         }
 
@@ -166,20 +184,20 @@ namespace LLama.Native
         /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="last_tokens"></param>
-        /// <param name="penalty_repeat"></param>
-        /// <param name="penalty_freq"></param>
-        /// <param name="penalty_present"></param>
-        public void RepetitionPenalty(SafeLLamaContextHandle context, ReadOnlySpan<LLamaToken> last_tokens, float penalty_repeat, float penalty_freq, float penalty_present)
+        /// <param name="lastTokens"></param>
+        /// <param name="penaltyRepeat"></param>
+        /// <param name="penaltyFreq"></param>
+        /// <param name="penaltyPresent"></param>
+        public void RepetitionPenalty(SafeLLamaContextHandle context, ReadOnlySpan<LLamaToken> lastTokens, float penaltyRepeat, float penaltyFreq, float penaltyPresent)
         {
             unsafe
             {
                 using (LLamaTokenDataArrayNative.Create(this, out var st))
                 {
-                    fixed (LLamaToken* last_tokens_handle = last_tokens)
+                    fixed (LLamaToken* lastTokensHandle = lastTokens)
                     {
-                        NativeApi.llama_sample_repetition_penalties(context, ref st, last_tokens_handle, (ulong)last_tokens.Length, penalty_repeat, penalty_freq, penalty_present);
-                        sorted = st.sorted;
+                        NativeApi.llama_sample_repetition_penalties(context, ref st, lastTokensHandle, (ulong)lastTokens.Length, penaltyRepeat, penaltyFreq, penaltyPresent);
+                        Sorted = st.sorted;
                     }
                 }
             }
@@ -194,7 +212,7 @@ namespace LLama.Native
         /// <param name="guidance">Guidance strength. 0 means no guidance, higher values applies stronger guidance</param>
         public void Guidance(SafeLLamaContextHandle context, ReadOnlySpan<float> guidanceLogits, float guidance)
         {
-            if (guidanceLogits.Length != data.Length)
+            if (guidanceLogits.Length != Data.Length)
                 throw new ArgumentException("Guidance logits count must equal vocabulary size", nameof(guidanceLogits));
 
             if (guidance < 0)
@@ -210,24 +228,24 @@ namespace LLama.Native
             try
             {
                 // Copy logits into a temporary array
-                for (var i = 0; i < data.Length; i++)
+                for (var i = 0; i < Data.Length; i++)
                 {
-                    ref var item = ref data.Span[i];
+                    ref var item = ref Data.Span[i];
                     logits[(int)item.id] = item.logit;
                 }
 
                 // Apply guidance
-                NativeApi.llama_sample_apply_guidance(context, logits, guidanceLogits, guidance);
+                NativeApi.llama_sample_apply_guidance(context, logits.AsSpan(0, context.VocabCount), guidanceLogits, guidance);
 
                 // Copy logits back into data array
-                for (var i = 0; i < data.Length; i++)
+                for (var i = 0; i < Data.Length; i++)
                 {
-                    ref var item = ref data.Span[i];
+                    ref var item = ref Data.Span[i];
                     item.logit = logits[(int)item.id];
                 }
 
                 // No longer sorted since we just mutated logits!
-                sorted = false;
+                Sorted = false;
             }
             finally
             {
@@ -246,7 +264,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_temp(context, ref st, temp);
-                sorted = st.sorted;
+                Sorted = st.sorted;
             }
         }
 
@@ -259,7 +277,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 NativeApi.llama_sample_softmax(context, ref st);
-                sorted = st.sorted;
+                Sorted = st.sorted;
             }
         }
 
@@ -273,7 +291,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 var token = NativeApi.llama_sample_token(context, ref st);
-                sorted = st.sorted;
+                Sorted = st.sorted;
                 return token;
             }
         }
@@ -288,7 +306,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 var token = NativeApi.llama_sample_token_greedy(context, ref st);
-                sorted = st.sorted;
+                Sorted = st.sorted;
                 return token;
             }
         }
@@ -307,7 +325,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 var token = NativeApi.llama_sample_token_mirostat(context, ref st, tau, eta, m, ref mu);
-                sorted = st.sorted;
+                Sorted = st.sorted;
                 return token;
             }
         }
@@ -325,7 +343,7 @@ namespace LLama.Native
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
                 var token = NativeApi.llama_sample_token_mirostat_v2(context, ref st, tau, eta, ref mu);
-                sorted = st.sorted;
+                Sorted = st.sorted;
                 return token;
             }
         }
@@ -341,14 +359,28 @@ namespace LLama.Native
         /// <summary>
         /// A pointer to an array of LlamaTokenData
         /// </summary>
-        /// <remarks>Memory must be pinned in place for all the time this LLamaTokenDataArrayNative is in use</remarks>
-        public IntPtr data;
+        /// <remarks>Memory must be pinned in place for all the time this LLamaTokenDataArrayNative is in use (i.e. `fixed` or `.Pin()`)</remarks>
+        private unsafe LLamaTokenData* _data;
 
         /// <summary>
         /// Number of LLamaTokenData in the array
         /// </summary>
         public ulong size;
-
+        
+        /// <summary>
+        /// A pointer to an array of LlamaTokenData
+        /// </summary>
+        public Span<LLamaTokenData> data
+        {
+            get
+            {
+                unsafe
+                {
+                    return new Span<LLamaTokenData>(_data, checked((int)size));
+                }
+            }
+        }
+        
         /// <summary>
         /// Indicates if the items in the array are sorted
         /// </summary>
@@ -367,15 +399,15 @@ namespace LLama.Native
         /// <returns>A memory handle, pinning the data in place until disposed</returns>
         public static MemoryHandle Create(LLamaTokenDataArray array, out LLamaTokenDataArrayNative native)
         {
-            var handle = array.data.Pin();
+            var handle = array.Data.Pin();
 
             unsafe
             {
                 native = new LLamaTokenDataArrayNative
                 {
-                    data = new IntPtr(handle.Pointer),
-                    size = (ulong)array.data.Length,
-                    sorted = array.sorted
+                    _data = (LLamaTokenData*)handle.Pointer,
+                    size = (ulong)array.Data.Length,
+                    sorted = array.Sorted
                 };
             }
 

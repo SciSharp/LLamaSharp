@@ -6,12 +6,15 @@ nav:
     - FAQ: FAQ.md
     - Contributing Guide: ContributingGuide.md
     - Tutorials:
-        - Customize the native library loading: Tutorials/NativeLibraryConfig.md
+        - Configure the native library loading: Tutorials/NativeLibraryConfig.md
         - Use executors: Tutorials/Executors.md
         - Use ChatSession: Tutorials/ChatSession.md
         - Understand LLamaContext: Tutorials/UnderstandLLamaContext.md
         - Get embeddings: Tutorials/GetEmbeddings.md
         - Quantize the model: Tutorials/Quantization.md
+
+    - Advanced Tutorials:
+        - Customize the native library loading: AdvancedTutorials/CustomizeNativeLibraryLoading.md
 
     - Integrations:
         - semantic-kernel integration: Integrations/semantic-kernel.md

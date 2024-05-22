@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
+[Obsolete("Use LLamaSharpPromptExecutionSettings instead")]
 public class ChatRequestSettings : PromptExecutionSettings
 {
     /// <summary>

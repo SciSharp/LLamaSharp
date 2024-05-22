@@ -1,0 +1,26 @@
+name: .NET code format check
+
+on:
+    # Currently we don't trigger this workflow.
+    # It's only used to show how the format check should be used
+    # and may be enabled in the future.
+    push:
+        branches: [ "PLACEHOLDER" ]
+    pull_request:
+        branches: [ "PLACEHOLDER" ]
+
+jobs:
+    dotnet-format:
+        
+        runs-on: ubuntu-latest
+        
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: 8.0.x
+            - name: Restore dependencies
+              run: dotnet restore
+            - name: Format
+              run: dotnet format --verify-no-changes --verbosity diagnostic

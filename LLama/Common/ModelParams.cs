@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Text;
 using System.Text.Json.Serialization;
 using LLama.Native;
@@ -28,7 +28,7 @@ namespace LLama.Common
         public uint SeqMax { get; set; } = 1;
 
         /// <inheritdoc />
-        public uint Seed { get; set; } = 0xFFFFFFFF;
+        public uint? Seed { get; set; }
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
@@ -100,7 +100,11 @@ namespace LLama.Common
         public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
-        public float DefragThreshold { get; set; }
+
+        public bool FlashAttention { get; set; }
+
+        /// <inheritdoc />
+        public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; } = LLamaPoolingType.Unspecified;

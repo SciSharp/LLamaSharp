@@ -8,6 +8,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 /// <summary>
 /// JSON converter for <see cref="OpenAIRequestSettings"/>
 /// </summary>
+[Obsolete("Use LLamaSharpPromptExecutionSettingsConverter instead")]
 public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
 {
     /// <inheritdoc/>

@@ -2,7 +2,7 @@
 
 Namespace: LLama.Abstractions
 
-The paramters used for inference.
+The parameters used for inference.
 
 ```csharp
 public interface IInferenceParams

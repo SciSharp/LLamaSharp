@@ -1,4 +1,4 @@
-﻿using LLama.Batched;
+using LLama.Batched;
 using LLama.Common;
 using LLama.Native;
 using LLama.Sampling;
@@ -19,7 +19,7 @@ public class BatchedExecutorFork
         string modelPath = UserSettings.GetModelPath();
 
         var parameters = new ModelParams(modelPath);
-        using var model = LLamaWeights.LoadFromFile(parameters);
+        using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
 
@@ -32,7 +32,7 @@ public class BatchedExecutorFork
 
         // Evaluate the initial prompt to create one conversation
         using var start = executor.Create();
-        start.Prompt(prompt);
+        start.Prompt(executor.Context.Tokenize(prompt));
         await executor.Infer();
 
         // Create the root node of the tree
@@ -67,6 +67,13 @@ public class BatchedExecutorFork
                 root.Display(display);
                 AnsiConsole.Write(display);
             });
+
+        // Print some stats
+        var timings = executor.Context.NativeHandle.GetTimings();
+        AnsiConsole.MarkupLine($"Total Tokens Evaluated: {timings.TokensEvaluated}");
+        AnsiConsole.MarkupLine($"Total Tokens Sampled: {timings.TokensSampled}");
+        AnsiConsole.MarkupLine($"Eval Time: {(timings.Eval + timings.PromptEval).TotalMilliseconds}ms");
+        AnsiConsole.MarkupLine($"Sample Time: {timings.Sampling.TotalMilliseconds}ms");
     }
 
     private class Node

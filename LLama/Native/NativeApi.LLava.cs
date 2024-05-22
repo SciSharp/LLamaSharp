@@ -13,6 +13,7 @@ public static unsafe partial class NativeApi
     /// <param name="ctxClip">Llava Model</param>
     /// <returns>True if validate successfully</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_validate_embed_size", CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.U1)]
     public static extern bool llava_validate_embed_size( SafeLLamaContextHandle ctxLlama, SafeLlavaModelHandle ctxClip);
 
     /// <summary>
@@ -21,7 +22,7 @@ public static unsafe partial class NativeApi
     /// <param name="ctx_clip">SafeHandle to the Clip Model</param>
     /// <param name="n_threads">Number of threads</param>
     /// <param name="image_bytes">Binary image in jpeg format</param>
-    /// <param name="image_bytes_length">Bytes lenght of the image</param>
+    /// <param name="image_bytes_length">Bytes length of the image</param>
     /// <returns>SafeHandle to the Embeddings</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_image_embed_make_with_bytes",
         CallingConvention = CallingConvention.Cdecl)]
@@ -35,7 +36,7 @@ public static unsafe partial class NativeApi
     /// <param name="ctx_clip">SafeHandle to the Clip Model</param>
     /// <param name="n_threads">Number of threads</param>
     /// <param name="image_path">Image filename (jpeg) to generate embeddings</param>
-    /// <returns>SafeHandel to the embeddings</returns>
+    /// <returns>SafeHandle to the embeddings</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_image_embed_make_with_filename", CallingConvention = CallingConvention.Cdecl)]
     public static extern 
         SafeLlavaImageEmbedHandle llava_image_embed_make_with_filename(SafeLlavaModelHandle ctx_clip, int n_threads,
@@ -56,7 +57,7 @@ public static unsafe partial class NativeApi
     /// <param name="embed">Embedding handle</param>
     /// <returns>True on success</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_eval_image_embed", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, SafeLlavaImageEmbedHandle embed,
-        int n_batch, ref int n_past);
+    [return: MarshalAs(UnmanagedType.U1)]
+    public static extern bool llava_eval_image_embed(SafeLLamaContextHandle ctx_llama, SafeLlavaImageEmbedHandle embed, int n_batch, ref int n_past);
     
 }
