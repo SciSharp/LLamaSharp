@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Collections.Generic;
+using LLama.Abstractions;
 
 namespace LLama.Native
 {
@@ -18,7 +19,8 @@ namespace LLama.Native
             SetDllImportResolver();
 
             // Set flag to indicate that this point has been passed. No native library config can be done after this point.
-            NativeLibraryConfig.LibraryHasLoaded = true;
+            NativeLibraryConfig.LLama.LibraryHasLoaded = true;
+            NativeLibraryConfig.LLava.LibraryHasLoaded = true;
 
             // Immediately make a call which requires loading the llama DLL. This method call
             // can't fail unless the DLL hasn't been loaded.
@@ -38,8 +40,8 @@ namespace LLama.Native
             }
 
             // Now that the "loaded" flag is set configure logging in llama.cpp
-            if (NativeLibraryConfig.Instance.LogCallback != null)
-                NativeLogConfig.llama_log_set(NativeLibraryConfig.Instance.LogCallback);
+            if (NativeLibraryConfig.LLama.LogCallback != null)
+                NativeLogConfig.llama_log_set(NativeLibraryConfig.LLama.LogCallback);
 
             // Init llama.cpp backend
             llama_backend_init();
@@ -64,7 +66,7 @@ namespace LLama.Native
                         return _loadedLlamaHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlamaHandle = TryLoadLibraries(LibraryName.Llama);
+                    _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary);
                     return _loadedLlamaHandle;
                 }
 
@@ -75,7 +77,7 @@ namespace LLama.Native
                         return _loadedLlavaSharedHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = TryLoadLibraries(LibraryName.LlavaShared);
+                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary);
                     return _loadedLlavaSharedHandle;
                 }
 
@@ -85,343 +87,26 @@ namespace LLama.Native
 #endif
         }
 
-        private static void Log(string message, LLamaLogLevel level)
-        {
-            if (!message.EndsWith("\n"))
-                message += "\n";
-
-            NativeLibraryConfig.Instance.LogCallback?.Invoke(level, message);
-        }
-
-        #region CUDA version
-        private static int GetCudaMajorVersion()
-        {
-            string? cudaPath;
-            string version = "";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                cudaPath = Environment.GetEnvironmentVariable("CUDA_PATH");
-                if (cudaPath is null)
-                {
-                    return -1;
-                }
-
-                //Ensuring cuda bin path is reachable. Especially for MAUI environment.
-                string cudaBinPath = Path.Combine(cudaPath, "bin");
-
-                if (Directory.Exists(cudaBinPath))
-                {
-                    AddDllDirectory(cudaBinPath);
-                }
-
-                version = GetCudaVersionFromPath(cudaPath);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                // Try the default first
-                cudaPath = "/usr/local/bin/cuda";
-                version = GetCudaVersionFromPath(cudaPath);
-                if (string.IsNullOrEmpty(version))
-                {
-                    cudaPath = Environment.GetEnvironmentVariable("LD_LIBRARY_PATH");
-                    if (cudaPath is null)
-                    {
-                        return -1;
-                    }
-                    foreach (var path in cudaPath.Split(':'))
-                    {
-                        version = GetCudaVersionFromPath(Path.Combine(path, ".."));
-                        if (string.IsNullOrEmpty(version))
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(version))
-                return -1;
-
-            version = version.Split('.')[0];
-            if (int.TryParse(version, out var majorVersion))
-                return majorVersion;
-
-            return -1;
-        }
-
-        private static string GetCudaVersionFromPath(string cudaPath)
-        {
-            try
-            {
-                string json = File.ReadAllText(Path.Combine(cudaPath, cudaVersionFile));
-                using (JsonDocument document = JsonDocument.Parse(json))
-                {
-                    JsonElement root = document.RootElement;
-                    JsonElement cublasNode = root.GetProperty("libcublas");
-                    JsonElement versionNode = cublasNode.GetProperty("version");
-                    if (versionNode.ValueKind == JsonValueKind.Undefined)
-                    {
-                        return string.Empty;
-                    }
-                    return versionNode.GetString() ?? "";
-                }
-            }
-            catch (Exception)
-            {
-                return string.Empty;
-            }
-        }
-        #endregion
-
-#if NET6_0_OR_GREATER
-        private static IEnumerable<string> GetLibraryTryOrder(NativeLibraryConfig.Description configuration)
-        {
-            var loadingName = configuration.Library.GetLibraryName();
-            Log($"Loading library: '{loadingName}'", LLamaLogLevel.Debug);
-
-            // Get platform specific parts of the path (e.g. .so/.dll/.dylib, libName prefix or not)
-            GetPlatformPathParts(out var platform, out var os, out var ext, out var libPrefix);
-            Log($"Detected OS Platform: '{platform}'", LLamaLogLevel.Info);
-            Log($"Detected OS string: '{os}'", LLamaLogLevel.Debug);
-            Log($"Detected extension string: '{ext}'", LLamaLogLevel.Debug);
-            Log($"Detected prefix string: '{libPrefix}'", LLamaLogLevel.Debug);
-
-            if (configuration.UseCuda && (platform == OSPlatform.Windows || platform == OSPlatform.Linux))
-            {
-                var cudaVersion = GetCudaMajorVersion();
-                Log($"Detected cuda major version {cudaVersion}.", LLamaLogLevel.Info);
-
-                if (cudaVersion == -1 && !configuration.AllowFallback)
-                {
-                    // if check skipped, we just try to load cuda libraries one by one.
-                    if (configuration.SkipCheck)
-                    {
-                        yield return GetCudaLibraryPath(loadingName, "cuda12");
-                        yield return GetCudaLibraryPath(loadingName, "cuda11");
-                    }
-                    else
-                    {
-                        throw new RuntimeError("Configured to load a cuda library but no cuda detected on your device.");
-                    }
-                }
-                else if (cudaVersion == 11)
-                {
-                    yield return GetCudaLibraryPath(loadingName, "cuda11");
-                }
-                else if (cudaVersion == 12)
-                {
-                    yield return GetCudaLibraryPath(loadingName, "cuda12");
-                }
-                else if (cudaVersion > 0)
-                {
-                    throw new RuntimeError($"Cuda version {cudaVersion} hasn't been supported by LLamaSharp, please open an issue for it.");
-                }
-
-                // otherwise no cuda detected but allow fallback
-            }
-
-            // Add the CPU/Metal libraries
-            if (platform == OSPlatform.OSX)
-            {
-                // On Mac it's very simple, there's no AVX to consider.
-                yield return GetMacLibraryPath(loadingName);
-            }
-            else
-            {
-                if (configuration.AllowFallback)
-                {
-                    // Try all of the AVX levels we can support.
-                    if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx512)
-                        yield return GetAvxLibraryPath(loadingName, NativeLibraryConfig.AvxLevel.Avx512);
-
-                    if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx2)
-                        yield return GetAvxLibraryPath(loadingName, NativeLibraryConfig.AvxLevel.Avx2);
-
-                    if (configuration.AvxLevel >= NativeLibraryConfig.AvxLevel.Avx)
-                        yield return GetAvxLibraryPath(loadingName, NativeLibraryConfig.AvxLevel.Avx);
-
-                    yield return GetAvxLibraryPath(loadingName, NativeLibraryConfig.AvxLevel.None);
-                }
-                else
-                {
-                    // Fallback is not allowed - use the exact specified AVX level
-                    yield return GetAvxLibraryPath(loadingName, configuration.AvxLevel);
-                }
-            }
-        }
-
-        private static string GetMacLibraryPath(string libraryName)
-        {
-            GetPlatformPathParts(out _, out var os, out var fileExtension, out var libPrefix);
-
-            return $"runtimes/{os}/native/{libPrefix}{libraryName}{fileExtension}";
-        }
-
         /// <summary>
-        /// Given a CUDA version and some path parts, create a complete path to the library file
+        /// Get the loaded native library. If you are using netstandard2.0, it will always return null.
         /// </summary>
-        /// <param name="libraryName">Library being loaded (e.g. "llama")</param>
-        /// <param name="cuda">CUDA version (e.g. "cuda11")</param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        private static string GetCudaLibraryPath(string libraryName, string cuda)
+        /// <exception cref="ArgumentException"></exception>
+        public static INativeLibrary? GetLoadedNativeLibrary(NativeLibraryName name)
         {
-            GetPlatformPathParts(out _, out var os, out var fileExtension, out var libPrefix);
-
-            return $"runtimes/{os}/native/{cuda}/{libPrefix}{libraryName}{fileExtension}";
-        }
-
-        /// <summary>
-        /// Given an AVX level and some path parts, create a complete path to the library file
-        /// </summary>
-        /// <param name="libraryName">Library being loaded (e.g. "llama")</param>
-        /// <param name="avx"></param>
-        /// <returns></returns>
-        private static string GetAvxLibraryPath(string libraryName, NativeLibraryConfig.AvxLevel avx)
-        {
-            GetPlatformPathParts(out _, out var os, out var fileExtension, out var libPrefix);
-
-            var avxStr = NativeLibraryConfig.AvxLevelToString(avx);
-            if (!string.IsNullOrEmpty(avxStr))
-                avxStr += "/";
-
-            return $"runtimes/{os}/native/{avxStr}{libPrefix}{libraryName}{fileExtension}";
-        }
-
-        private static void GetPlatformPathParts(out OSPlatform platform, out string os, out string fileExtension, out string libPrefix)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return name switch
             {
-                platform = OSPlatform.Windows;
-                os = "win-x64";
-                fileExtension = ".dll";
-                libPrefix = "";
-                return;
-            }
-            
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                platform = OSPlatform.Linux;
-                os = "linux-x64";
-                fileExtension = ".so";
-                libPrefix = "lib";
-                return;
-            }
-            
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                platform = OSPlatform.OSX;
-                fileExtension = ".dylib";
-
-                os = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
-                    ? "osx-arm64"
-                    : "osx-x64";
-                libPrefix = "lib";
-            }
-            else
-            {
-                throw new RuntimeError("Your operating system is not supported, please open an issue in LLamaSharp.");
-            }
-        }
-#endif
-
-        /// <summary>
-        /// Try to load libllama/llava_shared, using CPU feature detection to try and load a more specialised DLL if possible
-        /// </summary>
-        /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
-        private static IntPtr TryLoadLibraries(LibraryName lib)
-        {
-#if NET6_0_OR_GREATER
-            var configuration = NativeLibraryConfig.CheckAndGatherDescription(lib);
-
-            // Set the flag to ensure the NativeLibraryConfig can no longer be modified
-            NativeLibraryConfig.LibraryHasLoaded = true;
-
-            // Show the configuration we're working with
-            Log(configuration.ToString(), LLamaLogLevel.Info);
-
-            // If a specific path is requested, load that or immediately fail
-            if (!string.IsNullOrEmpty(configuration.Path))
-            {
-                if (!NativeLibrary.TryLoad(configuration.Path, out var handle))
-                    throw new RuntimeError($"Failed to load the native library [{configuration.Path}] you specified.");
-
-                Log($"Successfully loaded the library [{configuration.Path}] specified by user", LLamaLogLevel.Info);
-                return handle;
-            }
-
-            // Get a list of locations to try loading (in order of preference)
-            var libraryTryLoadOrder = GetLibraryTryOrder(configuration);
-
-            foreach (var libraryPath in libraryTryLoadOrder)
-            {
-                var fullPath = TryFindPath(libraryPath);
-                Log($"Trying '{fullPath}'", LLamaLogLevel.Debug);
-
-                var result = TryLoad(fullPath);
-                if (result != IntPtr.Zero)
-                {
-                    Log($"Loaded '{fullPath}'", LLamaLogLevel.Info);
-                    return result;
-                }
-
-                Log($"Failed Loading '{fullPath}'", LLamaLogLevel.Info);
-            }
-
-            if (!configuration.AllowFallback)
-            {
-                throw new RuntimeError("Failed to load the library that match your rule, please" +
-                    " 1) check your rule." +
-                    " 2) try to allow fallback." +
-                    " 3) or open an issue if it's expected to be successful.");
-            }
-#endif
-
-            Log($"No library was loaded before calling native apis. " +
-                $"This is not an error under netstandard2.0 but needs attention with net6 or higher.", LLamaLogLevel.Warning);
-            return IntPtr.Zero;
-
-#if NET6_0_OR_GREATER
-            // Try to load a DLL from the path.
-            // Returns null if nothing is loaded.
-            static IntPtr TryLoad(string path)
-            {
-                if (NativeLibrary.TryLoad(path, out var handle))
-                    return handle;
-
-                return IntPtr.Zero;
-            }
-
-            // Try to find the given file in any of the possible search paths
-            string TryFindPath(string filename)
-            {
-                // Try the configured search directories in the configuration
-                foreach (var path in configuration.SearchDirectories)
-                {
-                    var candidate = Path.Combine(path, filename);
-                    if (File.Exists(candidate))
-                        return candidate;
-                }
-
-                // Try a few other possible paths
-                var possiblePathPrefix = new[] {
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ""
-                };
-
-                foreach (var path in possiblePathPrefix)
-                {
-                    var candidate = Path.Combine(path, filename);
-                    if (File.Exists(candidate))
-                        return candidate;
-                }
-
-                return filename;
-            }
-#endif
+                NativeLibraryName.LLama => _loadedLLamaLibrary,
+                NativeLibraryName.LLava => _loadedLLavaLibrary,
+                _ => throw new ArgumentException($"Library name {name} is not found.")
+            };
         }
 
         internal const string libraryName = "llama";
-        internal const string llavaLibraryName = "llava_shared";        
-        private const string cudaVersionFile = "version.json";
+        internal const string llavaLibraryName = "llava_shared";
+
+        private static INativeLibrary? _loadedLLamaLibrary = null;
+        private static INativeLibrary? _loadedLLavaLibrary = null;
     }
 }
