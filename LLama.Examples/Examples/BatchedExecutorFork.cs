@@ -11,14 +11,20 @@ namespace LLama.Examples.Examples;
 /// </summary>
 public class BatchedExecutorFork
 {
-    private const int n_split = 16;
-    private const int n_len = 72;
+    /// <summary>
+    /// Set how many tokens to generate before forking
+    /// </summary>
+    private const int ForkTokenCount = 16;
+
+    /// <summary>
+    /// Set total length of the sequence to generate
+    /// </summary>
+    private const int TokenCount = 72;
 
     public static async Task Run()
     {
-        string modelPath = UserSettings.GetModelPath();
-
-        var parameters = new ModelParams(modelPath);
+        // Load model weights
+        var parameters = new ModelParams(UserSettings.GetModelPath());
         using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
@@ -27,7 +33,7 @@ public class BatchedExecutorFork
         using var executor = new BatchedExecutor(model, parameters);
 
         // Print some info
-        var name = executor.Model.Metadata.GetValueOrDefault("general.name", "unknown model name");
+        var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
         Console.WriteLine($"Created executor with model: {name}");
 
         // Evaluate the initial prompt to create one conversation
@@ -42,17 +48,17 @@ public class BatchedExecutorFork
             .Progress()
             .StartAsync(async progress =>
             {
-                var reporter = progress.AddTask("Running Inference (1)", maxValue: n_len);
+                var reporter = progress.AddTask("Running Inference (1)", maxValue: TokenCount);
 
                 // Run inference loop
-                for (var i = 0; i < n_len; i++)
+                for (var i = 0; i < TokenCount; i++)
                 {
                     if (i != 0)
                         await executor.Infer();
 
                     // Occasionally fork all the active conversations
-                    if (i != 0 && i % n_split == 0)
-                        root.Split();
+                    if (i != 0 && i % ForkTokenCount == 0)
+                        root.Fork();
 
                     // Sample all active conversations
                     root.Sample();
@@ -79,8 +85,8 @@ public class BatchedExecutorFork
     private class Node
     {
         private readonly StreamingTokenDecoder _decoder;
-
-        private readonly DefaultSamplingPipeline _sampler;
+        
+        private readonly DefaultSamplingPipeline _sampler = new();
         private Conversation? _conversation;
 
         private Node? _left;
@@ -90,7 +96,6 @@ public class BatchedExecutorFork
 
         public Node(Conversation conversation)
         {
-            _sampler = new DefaultSamplingPipeline();
             _conversation = conversation;
             _decoder = new StreamingTokenDecoder(conversation.Executor.Context);
         }
@@ -117,7 +122,7 @@ public class BatchedExecutorFork
             _conversation.Prompt(token);
         }
 
-        public void Split()
+        public void Fork()
         {
             if (_conversation != null)
             {
@@ -129,8 +134,8 @@ public class BatchedExecutorFork
             }
             else
             {
-                _left?.Split();
-                _right?.Split();
+                _left?.Fork();
+                _right?.Fork();
             }
         }
 

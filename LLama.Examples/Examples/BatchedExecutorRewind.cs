@@ -1,4 +1,4 @@
-﻿using LLama.Batched;
+using LLama.Batched;
 using LLama.Common;
 using LLama.Native;
 using LLama.Sampling;
@@ -11,15 +11,25 @@ namespace LLama.Examples.Examples;
 /// </summary>
 public class BatchedExecutorRewind
 {
-    private const int n_generate = 24;
-    private const int n_rewind = 12;
-    private const int n_repeats = 6;
+    /// <summary>
+    /// Set how many tokens to generate before rewinding
+    /// </summary>
+    private const int TokensGenerate = 24;
+
+    /// <summary>
+    /// Set how many tokens to rewind
+    /// </summary>
+    private const int TokensRewind = 12;
+
+    /// <summary>
+    /// Set how many times to generate and rewind
+    /// </summary>
+    private const int RepeatCount = 6;
 
     public static async Task Run()
     {
-        string modelPath = UserSettings.GetModelPath();
-
-        var parameters = new ModelParams(modelPath);
+        // Load model weights
+        var parameters = new ModelParams(UserSettings.GetModelPath());
         using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
@@ -28,7 +38,7 @@ public class BatchedExecutorRewind
         using var executor = new BatchedExecutor(model, parameters);
 
         // Print some info
-        var name = executor.Model.Metadata.GetValueOrDefault("general.name", "unknown model name");
+        var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
         Console.WriteLine($"Created executor with model: {name}");
 
         // Evaluate the initial prompt to create one conversation
@@ -36,15 +46,15 @@ public class BatchedExecutorRewind
         conversation.Prompt(executor.Context.Tokenize(prompt));
         
         // Create the start node wrapping the conversation
-        var node = new Node(executor.Context);
+        var node = new Node();
 
         // Print the prompt
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(prompt);
 
-        for (var i = 0; i < n_repeats; i++)
+        for (var i = 0; i < RepeatCount; i++)
         {
-            for (var j = 0; j < n_generate; j++)
+            for (var j = 0; j < TokensGenerate; j++)
             {
                 // Run inference
                 await executor.Infer();
@@ -53,21 +63,21 @@ public class BatchedExecutorRewind
                 var token = node.Sample(conversation);
 
                 // Continue conversation with this token
-                if (j != n_generate - 1)
+                if (j != TokensGenerate - 1)
                     conversation.Prompt(token);
             }
 
             // Write out what we generated
-            node.Write(n_rewind, i + 1);
+            node.Write(executor.Context, TokensRewind, i + 1);
 
             // Rewind back a few tokens
-            conversation.Rewind(n_rewind + 1);
+            conversation.Rewind(TokensRewind + 1);
 
             // Prompt with a token
-            conversation.Prompt(node.GetToken(n_generate - n_rewind - 1));
+            conversation.Prompt(node.GetToken(TokensGenerate - TokensRewind - 1));
 
             // Create a new node around the rewound conversation
-            node = new Node(executor.Context);
+            node = new Node();
         }
 
         Console.WriteLine("Press any key to exit demo");
@@ -76,34 +86,26 @@ public class BatchedExecutorRewind
 
     private class Node
     {
-        private readonly LLamaContext _context;
-
-        private readonly List<LLamaToken> _tokens = new List<LLamaToken>();
-        private readonly DefaultSamplingPipeline Sampler;
-
-        public Node(LLamaContext context)
-        {
-            _context = context;
-            Sampler = new DefaultSamplingPipeline();
-        }
+        private readonly List<LLamaToken> _tokens = [ ];
+        private readonly DefaultSamplingPipeline _sampler = new();
 
         public LLamaToken Sample(Conversation conversation)
         {
-            var token = Sampler.Sample(_context.NativeHandle, conversation.Sample(), Array.Empty<LLamaToken>());
+            var token = _sampler.Sample(conversation.Executor.Context.NativeHandle, conversation.Sample(), []);
             _tokens.Add(token);
             return token;
         }
 
-        public void Write(int n_rewind, int depth)
+        public void Write(LLamaContext context, int rewind, int depth)
         {
-            var decoder = new StreamingTokenDecoder(_context);
+            var decoder = new StreamingTokenDecoder(context);
 
-            for (var i = 0; i < _tokens.Count - n_rewind; i++)
+            for (var i = 0; i < _tokens.Count - rewind; i++)
                 decoder.Add(_tokens[i]);
 
             AnsiConsole.MarkupLine($"[green]{new string(' ', depth * 3) + decoder.Read().ReplaceLineEndings(" ")}[/]");
 
-            for (var i = _tokens.Count - n_rewind; i < _tokens.Count; i++)
+            for (var i = _tokens.Count - rewind; i < _tokens.Count; i++)
                 decoder.Add(_tokens[i]);
 
             AnsiConsole.MarkupLine($"[maroon]{decoder.Read().ReplaceLineEndings(" ")}[/]");
