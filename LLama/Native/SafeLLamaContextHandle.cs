@@ -42,6 +42,24 @@ namespace LLama.Native
         public uint UBatchSize => llama_n_ubatch(this);
 
         /// <summary>
+        /// Get or set the number of threads used for generation of a single token.
+        /// </summary>
+        public uint GenerationThreads
+        {
+            get => llama_n_threads(this);
+            set => llama_set_n_threads(this, value, BatchThreads);
+        }
+
+        /// <summary>
+        /// Get or set the number of threads used for prompt and batch processing (multiple token).
+        /// </summary>
+        public uint BatchThreads
+        {
+            get => llama_n_threads_batch(this);
+            set => llama_set_n_threads(this, GenerationThreads, value);
+        }
+
+        /// <summary>
         /// Get the model which this context is using
         /// </summary>
         public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();
@@ -156,6 +174,22 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
+
+        /// <summary>
+        /// Get the number of threads used for generation of a single token.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_threads(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Get the number of threads used for prompt and batch processing (multiple token).
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_threads_batch(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Token logits obtained from the last call to llama_decode
@@ -538,6 +572,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="threads">n_threads is the number of threads used for generation (single token)</param>
         /// <param name="threadsBatch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
+        [Obsolete("Use `GenerationThreads` and `BatchThreads` properties")]
         public void SetThreads(uint threads, uint threadsBatch)
         {
             llama_set_n_threads(this, threads, threadsBatch);
@@ -613,7 +648,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Clear the KV cache
+        /// Clear the KV cache - both cell info is erased and KV data is zeroed
         /// </summary>
         public void KvCacheClear()
         {

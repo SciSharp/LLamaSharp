@@ -1,4 +1,4 @@
-﻿using LLama;
+using LLama;
 using LLama.Common;
 using LLama.Native;
 using Microsoft.KernelMemory.AI;

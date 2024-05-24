@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
@@ -28,6 +28,11 @@ namespace LLama.Native
         /// how to split layers across multiple GPUs (size: <see cref="NativeApi.llama_max_devices"/>)
         /// </summary>
         public float* tensor_split;
+
+        /// <summary>
+        /// comma separated list of RPC servers to use for offloading
+        /// </summary>
+        public byte* rpc_servers;
 
         /// <summary>
         /// called with a progress value between 0 and 1, pass NULL to disable. If the provided progress_callback

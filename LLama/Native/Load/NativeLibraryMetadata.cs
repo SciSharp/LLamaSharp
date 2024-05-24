@@ -1,4 +1,4 @@
-﻿
+
 namespace LLama.Native
 {
     /// <summary>

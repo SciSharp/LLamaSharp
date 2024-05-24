@@ -103,7 +103,7 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
         {
             var showLLamaCppLogs = true;
             NativeLibraryConfig
-               .Instance
+               .All
                .WithLogCallback((level, message) =>
                {
                    if (showLLamaCppLogs)
