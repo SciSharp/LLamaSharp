@@ -46,6 +46,10 @@ namespace LLama.Native
             string relativePath;
             if (systemInfo.OSPlatform == OSPlatform.OSX)
             {
+                var underRosetta = libPrefix == "osx-x64" && !System.Runtime.Intrinsics.X86.Avx.IsSupported;
+                if (underRosetta) {
+                    libPrefix += "/rosetta2";
+                }
                 relativePath = $"runtimes/{os}/native/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
             }
             else

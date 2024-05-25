@@ -278,6 +278,8 @@ jobs:
             defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DLLAMA_METAL_EMBED_LIBRARY=ON'
           - build: 'x64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DLLAMA_METAL=OFF -DLLAMA_AVX=ON -DLLAMA_AVX2=ON'
+          - build: 'x64-rosetta2'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DLLAMA_METAL=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v4
@@ -307,7 +309,7 @@ jobs:
           path: ./build/examples/llava/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
       - name: Upload Metal
-        if: ${{ matrix.build != 'x64' }}
+        if: ${{ matrix.build == 'arm64' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/ggml-metal.metal
@@ -364,8 +366,12 @@ jobs:
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
           cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
+
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
+
+          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib   deps/osx-x64-rosetta2/libllama.dylib
+          cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
 
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
           cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll    deps/cu11.7.1/llava_shared.dll
