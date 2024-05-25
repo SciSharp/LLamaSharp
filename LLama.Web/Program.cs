@@ -10,7 +10,7 @@ var mvcBuilder = builder.Services.AddRazorPages();
 if (builder.Environment.IsDevelopment())
 {
     mvcBuilder.AddRazorRuntimeCompilation();
-    builder.Configuration.AddJsonFile("appSettings.Local.json");
+    builder.Configuration.AddJsonFile("appsettings.Local.json", true);
 }
 
 builder.Services.AddSignalR();
