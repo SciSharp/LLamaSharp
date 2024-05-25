@@ -172,12 +172,17 @@ For more examples, please refer to [LLamaSharp.Examples](./LLama.Examples).
 
 ## 💡FAQ
 
-#### Why GPU is not used when I have installed CUDA
+#### Why is my GPU not used when I have installed CUDA?
 
-1. If you are using backend packages, please make sure you have installed the CUDA backend package which matches the CUDA version install on your system. Please note that before LLamaSharp v0.10.0, only one backend package should be installed at a time.
-2. Add `NativeLibraryConfig.Instance.WithLogCallback(delegate (LLamaLogLevel level, string message) { Console.Write($"{level}: {message}"); } )` to the very beginning of your code. The log will show which native library file is loaded. If the CPU library is loaded, please try to compile the native library yourself and open an issue for that. If the CUDA library is loaded, please check if `GpuLayerCount > 0` when loading the model weight.
+1. If you are using backend packages, please make sure you have installed the CUDA backend package which matches the CUDA version installed on your system. Please note that before LLamaSharp v0.10.0, only one backend package should be installed at a time.
+2. Add the following line to the very beginning of your code. The log will show which native library file is loaded. If the CPU library is loaded, please try to compile the native library yourself and open an issue for that. If the CUDA library is loaded, please check if `GpuLayerCount > 0` when loading the model weight.
 
-#### Why the inference is slow
+```cs
+    NativeLibraryConfig.Instance.WithLogCallback(delegate (LLamaLogLevel level, string message) { Console.Write($"{level}: {message}"); } )
+```
+
+
+#### Why is the inference so slow?
 
 Firstly, due to the large size of LLM models, it requires more time to generate output than other models, especially when you are using models larger than 30B parameters.
 
@@ -187,14 +192,14 @@ To see if that's a LLamaSharp performance issue, please follow the two tips belo
 2. If it's still slower than you expect it to be, please try to run the same model with same setting in [llama.cpp examples](https://github.com/ggerganov/llama.cpp/tree/master/examples). If llama.cpp outperforms LLamaSharp significantly, it's likely a LLamaSharp BUG and please report that to us.
 
 
-#### Why is the program crashing before any output is generated
+#### Why does the program crash before any output is generated?
 
 Generally, there are two possible cases for this problem:
 
 1. The native library (backend) you are using is not compatible with the LLamaSharp version. If you compiled the native library yourself, please make sure you have checked-out llama.cpp to the corresponding commit of LLamaSharp, which can be found at the bottom of README.
 2. The model file you are using is not compatible with the backend. If you are using a GGUF file downloaded from huggingface, please check its publishing time.
 
-#### Why my model is generating output infinitely
+#### Why is my model generating output infinitely?
 
 Please set anti-prompt or max-length when executing the inference.
 
