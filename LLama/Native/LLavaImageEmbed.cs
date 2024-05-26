@@ -5,8 +5,9 @@ namespace LLama.Native;
 /// <summary>
 /// LLaVa Image embeddings 
 /// </summary>
+/// <remarks>llava_image_embed</remarks>
 [StructLayout(LayoutKind.Sequential)]
-unsafe public struct LLavaImageEmbed
+public unsafe struct LLavaImageEmbed
 {
     public float* embed;
     public int n_image_pos;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using LLama.Exceptions;
@@ -12,6 +12,16 @@ namespace LLama.Native
     public sealed class SafeLlavaModelHandle
         : SafeLLamaHandleBase
     {
+        /// <summary>
+        /// Get the number of dimensions in an embedding
+        /// </summary>
+        public int EmbeddingDimensions => clip_n_mmproj_embd(this);
+        
+        /// <summary>
+        /// Get the number of "patches" in an image embedding
+        /// </summary>
+        public int PatchCount => clip_n_patches(this);
+
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
@@ -30,7 +40,6 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLlavaModelHandle LoadFromFile(string modelPath, int verbosity )
         {
-            
             // Try to open the model file, this will check:
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
@@ -60,12 +69,34 @@ namespace LLama.Native
         /// <summary>
         /// Create the Image Embeddings.
         /// </summary>
+        /// <param name="image">Image in binary format (it supports jpeg  format only)</param>
+        /// <param name="threads">Number of threads to use</param>
+        /// <returns>return the SafeHandle of these embeddings</returns>
+        public SafeLlavaImageEmbedHandle CreateImageEmbeddings(string image, int threads = -1)
+        {
+            return SafeLlavaImageEmbedHandle.CreateFromFileName(this, image, threads);
+        }
+
+        /// <summary>
+        /// Create the Image Embeddings.
+        /// </summary>
         /// <param name="ctxLlama">LLama Context</param>
         /// <param name="image">Image in binary format (it supports jpeg  format only)</param>
         /// <returns>return the SafeHandle of these embeddings</returns>
-        public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, byte[] image )
+        public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, byte[] image)
         {
             return SafeLlavaImageEmbedHandle.CreateFromMemory(this, ctxLlama, image );
+        }
+        
+        /// <summary>
+        /// Create the Image Embeddings.
+        /// </summary>
+        /// <param name="image">Image in binary format (it supports jpeg  format only)</param>
+        /// <param name="threads">Number of threads to use</param>
+        /// <returns>return the SafeHandle of these embeddings</returns>
+        public SafeLlavaImageEmbedHandle CreateImageEmbeddings(byte[] image, int threads = -1)
+        {
+            return SafeLlavaImageEmbedHandle.CreateFromMemory(this, image, threads);
         }
 
         /// <summary>
@@ -79,7 +110,8 @@ namespace LLama.Native
         {
             return NativeApi.llava_eval_image_embed(ctxLlama.NativeHandle, imageEmbed, (int)ctxLlama.Params.BatchSize, ref n_past );
         }
-        
+
+        #region native API
         /// <summary>
         /// Load MULTI MODAL PROJECTIONS model / Clip Model
         /// </summary>
@@ -96,6 +128,11 @@ namespace LLama.Native
         [DllImport(NativeApi.llavaLibraryName, EntryPoint = "clip_free", CallingConvention = CallingConvention.Cdecl)]
         private static extern void clip_free(IntPtr ctx);
         
+        [DllImport(NativeApi.llavaLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clip_n_mmproj_embd(SafeLlavaModelHandle ctx);
         
+        [DllImport(NativeApi.llavaLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int clip_n_patches(SafeLlavaModelHandle ctx);
+        #endregion
     }
 }

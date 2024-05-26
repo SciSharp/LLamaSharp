@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 
@@ -11,10 +11,16 @@ namespace LLama.Native
         : SafeLLamaHandleBase
     {
         /// <summary>
+        /// Get the model used to create this image embedding
+        /// </summary>
+        public SafeLlavaModelHandle Model { get; private set; } = null!;
+
+        #region embed
+        /// <summary>
         /// Create an image embed from an image file
         /// </summary>
-        /// <param name="ctxLlava"></param>
-        /// <param name="ctxLlama"></param>
+        /// <param name="clip"></param>
+        /// <param name="ctx"></param>
         /// <param name="image">Path to the image file. Supported formats:
         /// <list type="bullet">
         ///     <item>JPG</item>
@@ -25,8 +31,34 @@ namespace LLama.Native
         /// </param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public static SafeLlavaImageEmbedHandle CreateFromFileName( SafeLlavaModelHandle ctxLlava, LLamaContext ctxLlama, string image )
+        public static SafeLlavaImageEmbedHandle CreateFromFileName(SafeLlavaModelHandle clip, LLamaContext ctx, string image)
         {
+            if (!NativeApi.llava_validate_embed_size(ctx.NativeHandle, clip))
+                throw new InvalidOperationException($"Cannot create image embed. Embedding dim of the multimodal projector ({clip.EmbeddingDimensions}) is not equal to embedding dim of model ({ctx.EmbeddingSize})");
+
+            return CreateFromFileName(clip, image, (int)ctx.BatchThreads);
+        }
+        
+        /// <summary>
+        /// Create an image embed from an image file
+        /// </summary>
+        /// <param name="clip"></param>
+        /// <param name="image">Path to the image file. Supported formats:
+        /// <list type="bullet">
+        ///     <item>JPG</item>
+        ///     <item>PNG</item>
+        ///     <item>BMP</item>
+        ///     <item>TGA</item>
+        /// </list>
+        /// </param>
+        /// <param name="threads"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static SafeLlavaImageEmbedHandle CreateFromFileName(SafeLlavaModelHandle clip, string image, int threads = -1)
+        {
+            if (threads <= 0)
+                threads = Environment.ProcessorCount / 2;
+
             // Try to open the image file, this will check:
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
@@ -34,14 +66,17 @@ namespace LLama.Native
             using (var fs = new FileStream(image, FileMode.Open))
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"Llava image file '{image}' is not readable");
-            return NativeApi.llava_image_embed_make_with_filename(ctxLlava,  (int) ctxLlama.BatchThreads, image);
+            
+            var embed = NativeApi.llava_image_embed_make_with_filename(clip, threads, image);
+            embed.Model = clip;
+            return embed;
         }
-        
+
         /// <summary>
         /// Create an image embed from the bytes of an image.
         /// </summary>
-        /// <param name="ctxLlava"></param>
-        /// <param name="ctxLlama"></param>
+        /// <param name="clip"></param>
+        /// <param name="ctx"></param>
         /// <param name="image">Image bytes. Supported formats:
         /// <list type="bullet">
         ///     <item>JPG</item>
@@ -51,17 +86,67 @@ namespace LLama.Native
         /// </list>
         /// </param>
         /// <returns></returns>
-        public static SafeLlavaImageEmbedHandle CreateFromMemory( SafeLlavaModelHandle ctxLlava, LLamaContext ctxLlama, byte[] image  )
+        public static SafeLlavaImageEmbedHandle CreateFromMemory(SafeLlavaModelHandle clip, LLamaContext ctx, byte[] image)
         {
-            return NativeApi.llava_image_embed_make_with_bytes(ctxLlava,  (int) ctxLlama.BatchThreads, image, image.Length);
+            if (!NativeApi.llava_validate_embed_size(ctx.NativeHandle, clip))
+                throw new InvalidOperationException($"Cannot create image embed. Embedding dim of the multimodal projector ({clip.EmbeddingDimensions}) is not equal to embedding dim of model ({ctx.EmbeddingSize})");
+            
+            return CreateFromMemory(clip, image, (int)ctx.BatchThreads);
         }
         
+        /// <summary>
+        /// Create an image embed from the bytes of an image.
+        /// </summary>
+        /// <param name="clip"></param>
+        /// <param name="image">Image bytes. Supported formats:
+        ///     <list type="bullet">
+        ///         <item>JPG</item>
+        ///         <item>PNG</item>
+        ///         <item>BMP</item>
+        ///         <item>TGA</item>
+        ///     </list>
+        /// </param>
+        /// <param name="threads"></param>
+        /// <returns></returns>
+        public static SafeLlavaImageEmbedHandle CreateFromMemory(SafeLlavaModelHandle clip, byte[] image, int threads = -1)
+        {
+            if (threads <= 0)
+                threads = Environment.ProcessorCount / 2;
+
+            var embed = NativeApi.llava_image_embed_make_with_bytes(clip, threads, image, image.Length);
+            embed.Model = clip;
+            return embed;
+        }
+        #endregion
+
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
             NativeApi.llava_image_embed_free(DangerousGetHandle());
             SetHandle(IntPtr.Zero);
             return true;
+        }
+        
+        /// <summary>
+        /// Copy the embeddings data to the destination span
+        /// </summary>
+        /// <param name="dest"></param>
+        /// <param name="index"></param>
+        public void GetEmbedding(Span<float> dest, int index)
+        {
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index), "index must be >= 0");
+            if (index >= Model.PatchCount)
+                throw new ArgumentOutOfRangeException(nameof(index), "index must be < Model.PatchCount");
+
+            unsafe
+            {
+                var embed = (LLavaImageEmbed*)DangerousGetHandle();
+                new Span<float>(
+                    embed->embed + Model.EmbeddingDimensions * index,
+                    Model.EmbeddingDimensions
+                ).CopyTo(dest);
+            }
         }
     }
 }
