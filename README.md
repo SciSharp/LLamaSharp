@@ -69,11 +69,11 @@ There are integrations for the following libraries, making it easier to develop 
 
 The following examples show how to build APPs with LLamaSharp.
 
-- [Official Console Examples](./LLama.Examples/)
+- [Official Console Examples](./samples/LLama.Examples/)
 - [Unity Demo](https://github.com/eublefar/LLAMASharpUnityDemo)
 - [LLamaStack (with WPF and Web demo)](https://github.com/saddam213/LLamaStack)
 - [Blazor Demo (with Model Explorer)](https://github.com/alexhiggins732/BLlamaSharp.ChatGpt.Blazor)
-- [ASP.NET Demo](./LLama.Web/)
+- [ASP.NET Demo](./samples/LLama.Web/)
 
 ![LLamaShrp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
@@ -167,7 +167,7 @@ while (userInput != "exit")
 }
 ```
 
-For more examples, please refer to [LLamaSharp.Examples](./LLama.Examples).
+For more examples, please refer to [LLamaSharp.Examples](./samples/LLama.Examples).
 
 
 ## 💡FAQ

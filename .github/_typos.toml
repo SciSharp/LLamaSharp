@@ -9,8 +9,8 @@
 extend-exclude = [
     "_typos.toml",
     "docs/xmldocs/",
-    "LLama.Web/wwwroot/",
-    "LLama/runtimes/deps/",
-    "LLama.Benchmark/Assets/",
-    "LLama.Examples/Assets/"
+    "samples/LLama.Web/wwwroot/",
+    "src/LLama/runtimes/deps/",
+    "test/LLama.Benchmark/Assets/",
+    "samples/LLama.Examples/Assets/"
 ]

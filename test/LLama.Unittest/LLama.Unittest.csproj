@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\src\LLama\LLamaSharp.Runtime.targets" />
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LLama.Unittest</RootNamespace>
@@ -37,8 +37,8 @@
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
-    <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+    <ProjectReference Include="..\..\src\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
+    <ProjectReference Include="..\..\src\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
