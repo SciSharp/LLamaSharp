@@ -34,9 +34,9 @@ jobs:
 
     - name: Build solution
       run: |
-        dotnet build ./LLama/LLamaSharp.csproj -c Release --no-restore
-        dotnet build ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release --no-restore
-        dotnet build ./LLama.KernelMemory/LLamaSharp.KernelMemory.csproj -c Release --no-restore
+        dotnet build ./src/LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build ./src/LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release --no-restore
+        dotnet build ./src/LLama.KernelMemory/LLamaSharp.KernelMemory.csproj -c Release --no-restore
 
     - name: Pack packages
       run: |
@@ -79,4 +79,4 @@ jobs:
       run: |
         pip install huggingface_hub
         llama_cpp_commit_hash=$(git submodule status llama.cpp | cut -c 2-7)
-        python .github/upload_to_hf.py --token ${{ secrets.HUGGINGFACE_TOKEN }} --revision $llama_cpp_commit_hash --folder LLama/runtimes
+        python .github/upload_to_hf.py --token ${{ secrets.HUGGINGFACE_TOKEN }} --revision $llama_cpp_commit_hash --folder src/LLama/runtimes

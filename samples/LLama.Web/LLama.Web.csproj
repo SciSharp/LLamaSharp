@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
+  <Import Project="..\..\src\LLama\LLamaSharp.Runtime.targets" />
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+    <ProjectReference Include="..\..\src\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

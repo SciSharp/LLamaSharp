@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\src\LLama\LLamaSharp.Runtime.targets" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLama.Experimental\LLama.Experimental.csproj" />
-    <ProjectReference Include="..\LLama.KernelMemory\LLamaSharp.KernelMemory.csproj" />
-    <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
-    <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+    <ProjectReference Include="..\..\src\LLama.Experimental\LLama.Experimental.csproj" />
+    <ProjectReference Include="..\..\src\LLama.KernelMemory\LLamaSharp.KernelMemory.csproj" />
+    <ProjectReference Include="..\..\src\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
+    <ProjectReference Include="..\..\src\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
+  <Import Project="..\..\src\LLama\LLamaSharp.Runtime.targets" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+      <ProjectReference Include="..\..\src\LLama\LLamaSharp.csproj" />
     </ItemGroup>
 
     <ItemGroup>

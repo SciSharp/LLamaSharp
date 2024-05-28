@@ -54,7 +54,7 @@ jobs:
         apt-get install -y python3.10 python3-pip
         python3 --version
         pip install huggingface_hub
-        python3 .github/download_models.py --model-dir ${{ matrix.modeldir }} --model-list LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
+        python3 .github/download_models.py --model-dir ${{ matrix.modeldir }} --model-list test/LLama.Benchmark/Assets/models.txt --endpoint https://hf-mirror.com
 
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
@@ -63,10 +63,10 @@ jobs:
     - name: Build
       run: | 
         dotnet clean
-        dotnet build LLama/LLamaSharp.csproj -c Release --no-restore
-        dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
+        dotnet build src/LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build test/LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
     - name: Run benchmark test
-      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c Release --anyCategories LLama
+      run: dotnet run --project test/LLama.Benchmark/LLama.Benchmark.csproj -c Release --anyCategories LLama
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v3
@@ -105,10 +105,10 @@ jobs:
     - name: Build
       run: | 
         dotnet clean
-        dotnet build LLama/LLamaSharp.csproj -c Release --no-restore
-        dotnet build LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
+        dotnet build src/LLama/LLamaSharp.csproj -c Release --no-restore
+        dotnet build test/LLama.Benchmark/LLama.Benchmark.csproj -c Release --no-restore
     - name: Run benchmark test
-      run: dotnet run --project LLama.Benchmark/LLama.Benchmark.csproj -c Release --anyCategories LLama
+      run: dotnet run --project test/LLama.Benchmark/LLama.Benchmark.csproj -c Release --anyCategories LLama
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v3

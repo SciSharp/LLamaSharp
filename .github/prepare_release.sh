@@ -22,8 +22,8 @@ fi
 
 mkdir ./temp;
 mkdir ./temp/runtimes;
-cp ./LLama/runtimes ./temp -R;
-cp ./LLama/runtimes/build/*.* ./temp/;
+cp ./src/LLama/runtimes ./temp -R;
+cp ./src/LLama/runtimes/build/*.* ./temp/;
 
 # get the current version
 cd temp;
@@ -65,9 +65,9 @@ fi
 
 cd ..
 # pack the main package
-dotnet pack ./LLama/LLamaSharp.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
-dotnet pack ./LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
-dotnet pack ./LLama.KernelMemory/LLamaSharp.KernelMemory.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
+dotnet pack ./src/LLama/LLamaSharp.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
+dotnet pack ./src/LLama.SemanticKernel/LLamaSharp.SemanticKernel.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
+dotnet pack ./src/LLama.KernelMemory/LLamaSharp.KernelMemory.csproj -c Release -o ./temp/ /p:PackageVersion=$updated_version /p:Version=$updated_version;
 
 # pack the backends
 cd temp

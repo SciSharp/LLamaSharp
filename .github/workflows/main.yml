@@ -36,7 +36,7 @@ jobs:
       uses: actions/cache@v4
       with:
         key: "unit_test_models"
-        path: LLama.Unittest/Models
+        path: test/LLama.Unittest/Models
     #  workaround for actions/setup-dotnet#155
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear
