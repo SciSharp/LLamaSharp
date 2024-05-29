@@ -51,12 +51,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.so
-          name: llama-bin-linux-${{ matrix.build }}-x64.so
+          name: llama-bin-linux-${{ matrix.build }}-x64
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
-          name: llava-bin-linux-${{ matrix.build }}-x64.so
+          name: llava-bin-linux-${{ matrix.build }}-x64
 
   compile-windows:
     name: Compile (Windows)
@@ -92,13 +92,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
-          name: llama-bin-win-${{ matrix.build }}-x64.dll
+          name: llama-bin-win-${{ matrix.build }}-x64
 
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
-          name: llava-bin-win-${{ matrix.build }}-x64.dll
+          name: llava-bin-win-${{ matrix.build }}-x64
 
   compile-clblast:
     name: Compile (clblast) - ${{ matrix.os }}
@@ -175,14 +175,14 @@ jobs:
           path: |
             .\build\bin\Release\llama.dll
             .\build\bin\Release\clblast.dll
-          name: llama-bin-win-clblast-x64.dll
+          name: llama-bin-win-clblast-x64
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v4
         with:
           path: |
             .\build\bin\Release\llava_shared.dll
-          name: llava-bin-win-clblast-x64.dll
+          name: llava-bin-win-clblast-x64
       - name: Upload artifacts (linux)
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
@@ -190,14 +190,14 @@ jobs:
           path: |
             ./build/libllama.so
             # ./build/libclblast.so
-          name: llama-bin-linux-clblast-x64.so
+          name: llama-bin-linux-clblast-x64
       - name: Upload llava artifacts (linux)
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: |
             ./build/examples/llava/libllava_shared.so
-          name: llava-bin-linux-clblast-x64.so
+          name: llava-bin-linux-clblast-x64
 
           
   compile-cublas:
@@ -247,25 +247,25 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
-          name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
-          name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64
       - name: Upload artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.so
-          name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64
       - name: Upload llava artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
-          name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64
  
     
   compile-macos:
@@ -300,18 +300,18 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.dylib
-          name: llama-bin-osx-${{ matrix.build }}.dylib
+          name: llama-bin-osx-${{ matrix.build }}
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.dylib
-          name: llava-bin-osx-${{ matrix.build }}.dylib
+          name: llava-bin-osx-${{ matrix.build }}
       - name: Upload Metal
         if: ${{ matrix.build != 'x64' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/ggml-metal.metal
-          name: ggml-metal.metal
+          name: ggml-metal
 
   compile-android:
     name: Compile (Android)
@@ -350,12 +350,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.so
-          name: llama-bin-android-${{ matrix.build }}.so
+          name: llama-bin-android-${{ matrix.build }}
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
-          name: llava-bin-android-${{ matrix.build }}.so
+          name: llava-bin-android-${{ matrix.build }}
 
   
   build-deps:
@@ -379,65 +379,65 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,android-arm64,cu11.7.1,cu12.1.0,clblast}
+          mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,android-x86,android-x86_64,android-arm64-v8a,cu11.7.1,cu12.1.0,clblast}
 
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
-          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
-          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so   deps/avx2/libllama.so
-          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
+          cp artifacts/llama-bin-linux-noavx-x64/libllama.so  deps/libllama.so
+          cp artifacts/llama-bin-linux-avx-x64/libllama.so    deps/avx/libllama.so
+          cp artifacts/llama-bin-linux-avx2-x64/libllama.so   deps/avx2/libllama.so
+          cp artifacts/llama-bin-linux-avx512-x64/libllama.so deps/avx512/libllama.so
 
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/llama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/llama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/llama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/llama.dll
+          cp artifacts/llama-bin-win-noavx-x64/llama.dll  deps/llama.dll
+          cp artifacts/llama-bin-win-avx-x64/llama.dll    deps/avx/llama.dll
+          cp artifacts/llama-bin-win-avx2-x64/llama.dll   deps/avx2/llama.dll
+          cp artifacts/llama-bin-win-avx512-x64/llama.dll deps/avx512/llama.dll
 
-          cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/libllava_shared.so
-          cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
-          cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
-          cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
+          cp artifacts/llava-bin-linux-noavx-x64/libllava_shared.so  deps/libllava_shared.so
+          cp artifacts/llava-bin-linux-avx-x64/libllava_shared.so    deps/avx/libllava_shared.so
+          cp artifacts/llava-bin-linux-avx2-x64/libllava_shared.so   deps/avx2/libllava_shared.so
+          cp artifacts/llava-bin-linux-avx512-x64/libllava_shared.so deps/avx512/libllava_shared.so
 
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/libllama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/libllama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/libllama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
+          cp artifacts/llama-bin-win-noavx-x64/llama.dll  deps/libllama.dll
+          cp artifacts/llama-bin-win-avx-x64/llama.dll    deps/avx/libllama.dll
+          cp artifacts/llama-bin-win-avx2-x64/llama.dll   deps/avx2/libllama.dll
+          cp artifacts/llama-bin-win-avx512-x64/llama.dll deps/avx512/libllama.dll
 
-          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll  deps/llava_shared.dll
-          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
-          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
-          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll deps/avx512/llava_shared.dll
+          cp artifacts/llava-bin-win-noavx-x64/llava_shared.dll  deps/llava_shared.dll
+          cp artifacts/llava-bin-win-avx-x64/llava_shared.dll    deps/avx/llava_shared.dll
+          cp artifacts/llava-bin-win-avx2-x64/llava_shared.dll   deps/avx2/llava_shared.dll
+          cp artifacts/llava-bin-win-avx512-x64/llava_shared.dll deps/avx512/llava_shared.dll
 
 
-          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
-          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
-          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
+          cp artifacts/llama-bin-osx-arm64/libllama.dylib deps/osx-arm64/libllama.dylib
+          cp artifacts/llava-bin-osx-arm64/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
+          cp artifacts/ggml-metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
+          cp artifacts/llama-bin-osx-x64/libllama.dylib   deps/osx-x64/libllama.dylib
+          cp artifacts/llava-bin-osx-x64/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
 
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll    deps/cu11.7.1/llava_shared.dll
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64/llama.dll    deps/cu11.7.1/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64/llava_shared.dll    deps/cu11.7.1/llava_shared.dll
 
-          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so deps/cu11.7.1/libllava_shared.so
+          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64/libllama.so deps/cu11.7.1/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64/libllava_shared.so deps/cu11.7.1/libllava_shared.so
           
-          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64.dll/llama.dll    deps/cu12.1.0/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu12.1.0-x64.dll/llava_shared.dll    deps/cu12.1.0/llava_shared.dll
+          cp artifacts/llama-bin-win-cublas-cu12.1.0-x64/llama.dll    deps/cu12.1.0/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu12.1.0-x64/llava_shared.dll    deps/cu12.1.0/llava_shared.dll
 
-          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64.so/libllama.so deps/cu12.1.0/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu12.1.0-x64.so/libllava_shared.so deps/cu12.1.0/libllava_shared.so
+          cp artifacts/llama-bin-linux-cublas-cu12.1.0-x64/libllama.so deps/cu12.1.0/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu12.1.0-x64/libllava_shared.so deps/cu12.1.0/libllava_shared.so
           
-          cp artifacts/llama-bin-win-clblast-x64.dll/{llama,clblast}.dll deps/clblast/
-          cp artifacts/llava-bin-win-clblast-x64.dll/llava_shared.dll deps/clblast/llava_shared.dll
-          cp artifacts/llama-bin-linux-clblast-x64.so/libllama.so deps/clblast/
-          cp artifacts/llava-bin-linux-clblast-x64.so/libllava_shared.so deps/clblast/libllava_shared.so
+          cp artifacts/llama-bin-win-clblast-x64/{llama,clblast}.dll deps/clblast/
+          cp artifacts/llava-bin-win-clblast-x64/llava_shared.dll deps/clblast/llava_shared.dll
+          cp artifacts/llama-bin-linux-clblast-x64/libllama.so deps/clblast/
+          cp artifacts/llava-bin-linux-clblast-x64/libllava_shared.so deps/clblast/libllava_shared.so
 
-          cp artifacts/llama-bin-android-x86.so/libllama.so deps/android-x86/libllama.so
-          cp artifacts/llava-bin-android-x86.so/libllava_shared.so deps/android-x86/libllava_shared.so
+          cp artifacts/llama-bin-android-x86/libllama.so deps/android-x86/libllama.so
+          cp artifacts/llava-bin-android-x86/libllava_shared.so deps/android-x86/libllava_shared.so
 
-          cp artifacts/llama-bin-android-x86_64.so/libllama.so deps/android-x86_64/libllama.so
-          cp artifacts/llava-bin-android-x86_64.so/libllava_shared.so deps/android-x86_64/libllava_shared.so
+          cp artifacts/llama-bin-android-x86_64/libllama.so deps/android-x86_64/libllama.so
+          cp artifacts/llava-bin-android-x86_64/libllava_shared.so deps/android-x86_64/libllava_shared.so
           
-          cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so deps/android-arm64-v8a/libllama.so
-          cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so deps/android-arm64-v8a/libllava_shared.so
+          cp artifacts/llama-bin-android-arm64-v8a/libllama.so deps/android-arm64-v8a/libllama.so
+          cp artifacts/llava-bin-android-arm64-v8a/libllava_shared.so deps/android-arm64-v8a/libllava_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
