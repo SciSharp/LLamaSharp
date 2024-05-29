@@ -232,21 +232,32 @@ public sealed class Conversation
             
             _batchSampleCount = tokens.Length;
             
+            // We need to add all tokens to a single batch, so they can all be sampled at once.
+            // Request a batch with sufficient space.
+            (var batch, _requiredEpoch) = Executor.GetTokenBatch(tokens.Length);
+            
+            // Add everything to that batch
             for (var i = 0; i < tokens.Length; i++)
-                _batchSampleIndices[i] = Executor.Batch.Add(tokens[i], _end++, ConversationId, true);
+                _batchSampleIndices[i] = batch.Add(tokens[i], _end++, ConversationId, true);
         }
         else
         {
             _batchSampleCount = 1;
-
-            for (var i = 0; i < tokens.Length; i++)
-                _batchSampleIndices[0] = Executor.Batch.Add(tokens[i], _end++, ConversationId, i == tokens.Length - 1);
+            
+            while (tokens.Length > 0)
+            {
+                // Get a batch with capacity for at least 1 token
+                (var batch, _requiredEpoch) = Executor.GetTokenBatch();
+                
+                // Add as many tokens as possible
+                var count = Math.Min(tokens.Length, checked((int)Executor.Context.BatchSize) - batch.TokenCount);
+                for (var i = 0; i < count; i++)
+                    _batchSampleIndices[0] = batch.Add(tokens[i], _end++, ConversationId, i == tokens.Length - 1);
+                
+                // Slice the array to remove tokens we've already added to a batch
+                tokens = tokens.Slice(count);
+            }
         }
-
-        
-
-        // Mark this conversation as needing inference/sampling
-        _requiredEpoch = Executor.Epoch + 1;
 
         // Unset the forked flag. Since this conversation has just been prompted it's no longer
         // sharing anything with any other conversations.
@@ -263,12 +274,9 @@ public sealed class Conversation
     public void Prompt(LLamaToken token)
     {
         AssertCanBePrompted();
-
-        unsafe
-        {
-            Span<LLamaToken> span = stackalloc LLamaToken[1] { token };
-            Prompt(span);
-        }
+        
+        Span<LLamaToken> span = [ token ];
+        Prompt(span);
     }
     #endregion
 

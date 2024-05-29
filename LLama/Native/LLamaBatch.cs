@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -54,20 +54,20 @@ public class LLamaBatch
     public LLamaBatch()
     {
         // These can both be grown later, start off with reasonable numbers.
-        const int n_tokens = 128;
-        const int n_seq_max = 1;
+        const int tokensCapacity = 128;
+        const int seqCapacity = 1;
 
-        SequenceCapacity = n_seq_max;
-        TokenCapacity = n_tokens;
+        SequenceCapacity = seqCapacity;
+        TokenCapacity = tokensCapacity;
 
-        _logits = new byte[n_tokens];
-        _tokens = new LLamaToken[n_tokens];
-        _positions = new LLamaPos[n_tokens];
+        _logits = new byte[tokensCapacity];
+        _tokens = new LLamaToken[tokensCapacity];
+        _positions = new LLamaPos[tokensCapacity];
 
-        _sequenceIdCount = new int[n_tokens];
+        _sequenceIdCount = new int[tokensCapacity];
         _sequenceIdsPtrs = new IntPtr[_sequenceIdCount.Length];
 
-        _sequenceIds = new LLamaSeqId[n_tokens][];
+        _sequenceIds = new LLamaSeqId[tokensCapacity][];
         for (var i = 0; i < _sequenceIds.Length; i++)
             _sequenceIds[i] = new LLamaSeqId[SequenceCapacity];
     }
@@ -75,30 +75,29 @@ public class LLamaBatch
     #region grow
     private void GrowTokenCapacity()
     {
-        var n_tokens = TokenCount * 2;
-        TokenCapacity = n_tokens;
+        var tokenCapacity = TokenCount * 2;
+        TokenCapacity = tokenCapacity;
 
-        Array.Resize(ref _logits, n_tokens);
-        Array.Resize(ref _tokens, n_tokens);
-        Array.Resize(ref _positions, n_tokens);
+        Array.Resize(ref _logits, tokenCapacity);
+        Array.Resize(ref _tokens, tokenCapacity);
+        Array.Resize(ref _positions, tokenCapacity);
 
-        Array.Resize(ref _sequenceIdCount, n_tokens);
-        Array.Resize(ref _sequenceIdsPtrs, n_tokens);
+        Array.Resize(ref _sequenceIdCount, tokenCapacity);
+        Array.Resize(ref _sequenceIdsPtrs, tokenCapacity);
 
-        Array.Resize(ref _sequenceIds, n_tokens);
-        for (int i = 0; i < _sequenceIds.Length; i++)
+        Array.Resize(ref _sequenceIds, tokenCapacity);
+        for (var i = 0; i < _sequenceIds.Length; i++)
         {
             // Growing the array filled elements with null, temporarily violating the nullability contract!
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (_sequenceIds[i] == null)
-                _sequenceIds[i] = new LLamaSeqId[SequenceCapacity];
+            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+            _sequenceIds[i] ??= new LLamaSeqId[SequenceCapacity];
         }
     }
 
     private void GrowMaxSequences(int atLeast)
     {
-        var n_seq = Math.Max(SequenceCapacity * 2, atLeast);
-        SequenceCapacity = n_seq;
+        var seqCapacity = Math.Max(SequenceCapacity * 2, atLeast);
+        SequenceCapacity = seqCapacity;
 
         for (var i = 0; i < _sequenceIds.Length; i++)
             Array.Resize(ref _sequenceIds[i], SequenceCapacity);
