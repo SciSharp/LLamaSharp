@@ -1,4 +1,4 @@
-﻿using LLama.Exceptions;
+using LLama.Exceptions;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -57,6 +57,11 @@ namespace LLama.Native
             // NativeLibrary is not available on older runtimes. We'll have to depend on
             // the normal runtime dll resolution there.
 #if NET5_0_OR_GREATER
+
+            // We don't need special dll resolution on Android
+            if (OperatingSystem.IsAndroid())
+                return;
+
             NativeLibrary.SetDllImportResolver(typeof(NativeApi).Assembly, (name, _, _) =>
             {
                 if (name == "llama")
