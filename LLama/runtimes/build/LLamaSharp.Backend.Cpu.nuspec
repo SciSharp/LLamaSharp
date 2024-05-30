@@ -44,7 +44,7 @@
 
     <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
     <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
-    
+
     <file src="icon512.png" target="icon512.png" />
   </files>
 </package>
