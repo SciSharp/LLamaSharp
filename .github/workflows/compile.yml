@@ -350,11 +350,6 @@ jobs:
           cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
 
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/libllama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/libllama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/libllama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/libllama.dll
-
           cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll  deps/llava_shared.dll
           cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
           cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
