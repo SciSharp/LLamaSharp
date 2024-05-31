@@ -428,6 +428,24 @@ namespace LLama.Native
 
             return (DecodeResult.Ok, 0);
         }
+        
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
+        ///  - 0: success<br />
+        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
+        ///  - &lt; 0: error<br />
+        /// </returns>
+        public DecodeResult Decode(LLamaBatchEmbeddings batch)
+        {
+            if (batch.EmbeddingsCount == 0)
+                return DecodeResult.Ok;
+            
+            lock (GlobalInferenceLock)
+                using (batch.ToNativeBatch(out var nb))
+                    return (DecodeResult)llama_decode(this, nb);
+        }
         #endregion
 
         #region state

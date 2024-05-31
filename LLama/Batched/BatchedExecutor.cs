@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,12 +16,12 @@ public sealed class BatchedExecutor
     : IDisposable
 {
     private int _nextSequenceId;
-    private readonly List<LLamaBatch> _batchQueue = [ ];
+    private readonly List<IBatch> _batchQueue = [ ];
     
     /// <summary>
-    /// Held while inference is running
+    /// Set to 1 using interlocked exchange while inference is running
     /// </summary>
-    private readonly object _inferenceLock = new();
+    private int _inferenceLock = 0;
 
     /// <summary>
     /// Epoch is incremented twice every time Infer is called. Conversations can use this to keep track of
@@ -41,7 +42,12 @@ public sealed class BatchedExecutor
     /// <summary>
     /// Get the number of tokens in the batch, waiting for <see cref="Infer"/> to be called
     /// </summary>
-    public int BatchedTokenCount => _batchQueue.Sum(a => a.TokenCount);
+    public int BatchedTokenCount => _batchQueue.Sum(a => a.ItemCount);
+
+    /// <summary>
+    /// Number of batches in the queue, waiting for <see cref="Infer"/> to be called
+    /// </summary>
+    public int BatchQueueCount => _batchQueue.Count;
 
     /// <summary>
     /// Check if this executor has been disposed.
@@ -120,9 +126,11 @@ public sealed class BatchedExecutor
         var next = GetNextBatch();
         if (next == null)
             return DecodeResult.Ok;
-        
-        // Take the inference lock, if this fails it's because inference is already running.
-        if (!Monitor.TryEnter(_inferenceLock))
+
+        // This acts as a "lock" on inference, ensuring two inferences cannot run at once. First set the "_inferenceLock" field
+        // to the "key" value iff it is currently 0. If it is not currently 0 this will throw an exception.
+        var key = (int)(DateTime.UtcNow.Ticks & 0xFFFF_FFFF);
+        if (Interlocked.CompareExchange(ref _inferenceLock, key, 0) != 0)
             throw new InvalidOperationException("Cannot start inference while it is already running");
         try
         {
@@ -133,7 +141,7 @@ public sealed class BatchedExecutor
                 Epoch++;
 
             // Run the actual inference. This is the slow bit!
-            var status = await Context.DecodeAsync(next, cancellation);
+            var status = await next.DecodeAsync(Context, cancellation);
 
             // If there was an error then early exit without incrementing the epoch. This allows infer to be called
             // again after the issue has been fixed (e.g. some KV cache space has been freed) to retry this operation.
@@ -143,18 +151,20 @@ public sealed class BatchedExecutor
                 return status;
             }
             
-            // Everything was ok, advance the epoch and clear the batch we just ran inference for.
+            // Everything was ok, advance the epoch
             Epoch++;
-            next.Clear();
             
             return status;
         }
         finally
         {
-            Monitor.Exit(_inferenceLock);
+            // Set "_inferenceLock" field back to zero iff it is currently the "key" value we set earlier. It should be
+            // impossible for this to ever fail!
+            var old = Interlocked.CompareExchange(ref _inferenceLock, 0, key);
+            Debug.Assert(old == key);
         }
         
-        LLamaBatch? GetNextBatch()
+        IBatch? GetNextBatch()
         {
             if (_batchQueue.Count == 0)
                 return null;
@@ -194,17 +204,86 @@ public sealed class BatchedExecutor
         // Find a batch with space for at least minCapacity tokens
         for (var i = 0; i < _batchQueue.Count; i++)
         {
-            var capacity = Context.BatchSize - _batchQueue[i].TokenCount;
+            var item = _batchQueue[i];
+            if (item is not TokenBatch { Batch: var batch })
+                continue;
+
+            var capacity = Context.BatchSize - batch.TokenCount;
             if (capacity < minCapacity)
                 continue;
 
-            if (_batchQueue[i].TokenCount < Context.BatchSize)
-                return (_batchQueue[i], Epoch + (uint)(i + 1) * 2);
+            if (batch.TokenCount < Context.BatchSize)
+                return (batch, Epoch + (uint)(i + 1) * 2);
         }
         
         // Add a new batch to the end of the queue
         var end = new LLamaBatch();
-        _batchQueue.Add(end);
+        _batchQueue.Add(new TokenBatch(end));
         return (end, Epoch + (uint)_batchQueue.Count * 2);
     }
+    
+    /// <summary>
+    /// Get a reference to a batch that embeddings can be added to.
+    /// </summary>
+    /// <param name="minCapacity"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    internal (LLamaBatchEmbeddings batch, ulong epoch) GetEmbeddingBatch(int minCapacity = 1)
+    {
+        if (minCapacity > Context.BatchSize)
+            throw new ArgumentOutOfRangeException(nameof(minCapacity), $"Request batch capacity must be less than or equal to BatchSize ({Context.BatchSize})");
+        
+        // Find a batch with space for at least minCapacity embeddings
+        for (var i = 0; i < _batchQueue.Count; i++)
+        {
+            var item = _batchQueue[i];
+            if (item is not EmbeddingBatch { Batch: var batch })
+                continue;
+            
+            var capacity = Context.BatchSize - batch.EmbeddingsCount;
+            if (capacity < minCapacity)
+                continue;
+            
+            if (batch.EmbeddingsCount < Context.BatchSize)
+                return (batch, Epoch + (uint)(i + 1) * 2);
+        }
+        
+        // Add a new batch to the end of the queue
+        var end = new LLamaBatchEmbeddings(Context.EmbeddingSize);
+        _batchQueue.Add(new EmbeddingBatch(end));
+        return (end, Epoch + (uint)_batchQueue.Count * 2);
+    }
+
+    #region batches
+    private interface IBatch
+    {
+        int ItemCount { get; }
+        
+        Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token);
+    }
+    
+    private class TokenBatch(LLamaBatch batch)
+        : IBatch
+    {
+        public readonly LLamaBatch Batch = batch;
+        public int ItemCount => Batch.TokenCount;
+
+        public Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token)
+        {
+            return ctx.DecodeAsync(Batch, token);
+        }
+    }
+    
+    private class EmbeddingBatch(LLamaBatchEmbeddings batch)
+        : IBatch
+    {
+        public readonly LLamaBatchEmbeddings Batch = batch;
+        public int ItemCount => Batch.EmbeddingsCount;
+
+        public Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token)
+        {
+            return ctx.DecodeAsync(Batch, token);
+        }
+    }
+    #endregion
 }
