@@ -558,6 +558,28 @@ namespace LLama
         {
             return Task.Run(() => Decode(batch), cancellationToken);
         }
+        
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
+        public DecodeResult Decode(LLamaBatchEmbeddings batch)
+        {
+            if (batch.EmbeddingsCount == 0)
+                return 0;
+            if (batch.EmbeddingsCount > Params.BatchSize)
+                throw new ArgumentException("Input contains more tokens than configured batch size", nameof(batch));
+            
+            return (DecodeResult)NativeHandle.Decode(batch);
+        }
+        
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <param name="cancellationToken"></param>
+        public Task<DecodeResult> DecodeAsync(LLamaBatchEmbeddings batch, CancellationToken cancellationToken = default)
+        {
+            return Task.Run(() => Decode(batch), cancellationToken);
+        }
         #endregion
 
         /// <inheritdoc />

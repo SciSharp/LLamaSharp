@@ -1,4 +1,4 @@
-﻿using Spectre.Console;
+using Spectre.Console;
 using LLama.Examples.Examples;
 
 public class ExampleRunner
@@ -31,6 +31,7 @@ public class ExampleRunner
         { "Batched Executor: Fork", BatchedExecutorFork.Run },
         { "Batched Executor: Rewind", BatchedExecutorRewind.Run },
         { "Batched Executor: Guidance", BatchedExecutorGuidance.Run },
+        { "Batched Executor: LLava", BatchedExecutorLLava.Run },
         { "Speech Chat: Integration with Whisper.net", SpeechChat.Run },
         { "Exit", () => { Environment.Exit(0); return Task.CompletedTask; } }
     };

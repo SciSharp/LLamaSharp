@@ -14,6 +14,16 @@ namespace LLama.Native
         /// Get the model used to create this image embedding
         /// </summary>
         public SafeLlavaModelHandle Model { get; private set; } = null!;
+        
+        /// <summary>
+        /// Get the number of dimensions in an embedding
+        /// </summary>
+        public int EmbeddingDimensions => Model.EmbeddingDimensions;
+        
+        /// <summary>
+        /// Get the number of "patches" in an image embedding
+        /// </summary>
+        public int PatchCount => Model.PatchCount;
 
         #region embed
         /// <summary>

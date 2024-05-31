@@ -278,6 +278,73 @@ public sealed class Conversation
         Span<LLamaToken> span = [ token ];
         Prompt(span);
     }
+
+    /// <summary>
+    /// Prompt this conversation with an image embedding
+    /// </summary>
+    /// <param name="embedding"></param>
+    public void Prompt(SafeLlavaImageEmbedHandle embedding)
+    {
+        AssertCanBePrompted();
+
+        if (embedding.Model.EmbeddingDimensions != Executor.Model.EmbeddingSize)
+            throw new ArgumentException($"Embedding dimension mismatch between image embedding ({embedding.Model.EmbeddingDimensions}) and model ({Executor.Model.EmbeddingSize})");
+        
+        // Get a temporary array large enough to hold one embedding item
+        var tempArr = ArrayPool<float>.Shared.Rent(embedding.Model.EmbeddingDimensions);
+        var tempSpan = tempArr.AsSpan(0, embedding.Model.EmbeddingDimensions);
+        try
+        {
+            for (var i = 0; i < embedding.Model.PatchCount; i++)
+            {
+                // Get a batch with space
+                (var batch, _requiredEpoch) = Executor.GetEmbeddingBatch();
+                
+                batch.Add(
+                    (i, embedding),
+                    static (Span<float> dest, (int index, SafeLlavaImageEmbedHandle embedding) tup) => tup.embedding.GetEmbedding(dest, tup.index),
+                    _end++,
+                    ConversationId,
+                    i == embedding.Model.PatchCount - 1
+                );
+            }
+        }
+        finally
+        {
+            ArrayPool<float>.Shared.Return(tempArr);
+        }
+    }
+
+    /// <summary>
+    /// Prompt this conversation with embeddings
+    /// </summary>
+    /// <param name="embeddings">The raw values of the embeddings. This span must divide equally by the embedding size of this model.</param>
+    public void Prompt(ReadOnlySpan<float> embeddings)
+    {
+        AssertCanBePrompted();
+
+        var dim = Executor.Model.EmbeddingSize;
+        var count = embeddings.Length / dim;
+        if (count * dim != embeddings.Length)
+            throw new ArgumentException($"Incorrect embeddings span size, length ({embeddings.Length}) must be divisible by embedding dimensions ({Executor.Model.EmbeddingSize})");
+
+        while (embeddings.Length > 0)
+        {
+            // Get a batch with space
+            (var batch, _requiredEpoch) = Executor.GetEmbeddingBatch();
+
+            // Add 1 embedding to the batch
+            batch.Add(
+                embeddings.Slice(0, dim),
+                _end++,
+                ConversationId,
+                embeddings.Length == dim
+            );
+
+            // Advance to next embedding
+            embeddings = embeddings.Slice(dim);
+        }
+    }
     #endregion
 
     #region modify
