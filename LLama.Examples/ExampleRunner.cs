@@ -24,6 +24,7 @@ public class ExampleRunner
         { "Grammar: Constrain response to json format", GrammarJsonResponse.Run },
         { "Kernel Memory: Document Q&A", KernelMemory.Run },
         { "Kernel Memory: Save and Load", KernelMemorySaveAndLoad.Run },
+		{ "Semantic Kernel: HomeAutomation", SemanticKernelHomeAutomation.Run },
         { "Semantic Kernel: Prompt", SemanticKernelPrompt.Run },
         { "Semantic Kernel: Chat", SemanticKernelChat.Run },
         { "Semantic Kernel: Store", SemanticKernelMemory.Run },
