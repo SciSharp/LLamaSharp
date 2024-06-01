@@ -1,9 +1,8 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using LLama.Extensions;
 using LLama.Native;
 
 namespace LLama
@@ -22,6 +21,11 @@ namespace LLama
         /// The number of decoded characters waiting to be read
         /// </summary>
         public int AvailableCharacters => _characters.Count;
+
+        /// <summary>
+        /// If true, special characters will be converted to text. If false they will be invisible.
+        /// </summary>
+        public bool Special { get; set; }
 
         #region constructors
         /// <summary>
@@ -76,7 +80,7 @@ namespace LLama
             try
             {
                 // Convert this token into bytes
-                var bytesAvailable = TokenToBytes(ref bytesArr, token, _weights).Length;
+                var bytesAvailable = TokenToBytes(ref bytesArr, token, _weights, Special).Length;
 
                 // Convert those bytes into characters
                 var bytesOffset = 0;
@@ -108,10 +112,10 @@ namespace LLama
 
             // Converts a single token into bytes, using the `bytes` array as temporary storage.
             // If the `bytes` array is too small it will get a larger one from the ArrayPool.
-            static Span<byte> TokenToBytes(ref byte[] bytes, LLamaToken token, SafeLlamaModelHandle model)
+            static Span<byte> TokenToBytes(ref byte[] bytes, LLamaToken token, SafeLlamaModelHandle model, bool special)
             {
                 // Try to get bytes
-                var l = model.TokenToSpan(token, bytes);
+                var l = model.TokenToSpan(token, bytes, special);
 
                 // Check if the length was larger than the buffer. If so expand the buffer and try again
                 if (l > bytes.Length)
