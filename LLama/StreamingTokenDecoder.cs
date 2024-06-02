@@ -25,7 +25,7 @@ namespace LLama
         /// <summary>
         /// If true, special characters will be converted to text. If false they will be invisible.
         /// </summary>
-        public bool Special { get; set; }
+        public bool DecodeSpecialTokens { get; set; }
 
         #region constructors
         /// <summary>
@@ -80,7 +80,7 @@ namespace LLama
             try
             {
                 // Convert this token into bytes
-                var bytesAvailable = TokenToBytes(ref bytesArr, token, _weights, Special).Length;
+                var bytesAvailable = TokenToBytes(ref bytesArr, token, _weights, DecodeSpecialTokens).Length;
 
                 // Convert those bytes into characters
                 var bytesOffset = 0;
