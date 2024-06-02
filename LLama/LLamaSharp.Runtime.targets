@@ -58,6 +58,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/libllama.dylib</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllava_shared.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-arm64/native/libllava_shared.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/ggml-metal.metal">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/ggml-metal.metal</Link>
@@ -67,7 +71,20 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libllama.dylib</Link>
       </None>
-      
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllava_shared.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libllama.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/rosetta2/libllama.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/rosetta2/libllava_shared.dylib</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llava_shared.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/noavx/llava_shared.dll</Link>
@@ -92,7 +109,6 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llava_shared.dll</Link>
       </None>
-      
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -118,17 +134,5 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllava_shared.so</Link>
       </None>
-
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllava_shared.dylib">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-arm64/native/libllava_shared.dylib</Link>
-      </None>
-
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllava_shared.dylib">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
-      </None>      
-      
-      
     </ItemGroup>
 </Project>

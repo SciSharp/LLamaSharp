@@ -29,8 +29,14 @@
     <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
     
     <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
+    <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
+
+    <file src="runtimes/deps/osx-x64-rosetta2/libllama.dylib" target="runtimes\osx-x64\native\rosetta2\libllama.dylib" />
+    <file src="runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib" target="runtimes\osx-x64\native\rosetta2\libllava_shared.dylib" />
+
     <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
     <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
+    <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
 
     <file src="runtimes/deps/llava_shared.dll" target="runtimes\win-x64\native\llava_shared.dll" />
     <file src="runtimes/deps/avx/llava_shared.dll" target="runtimes\win-x64\native\avx\llava_shared.dll" />
@@ -41,10 +47,6 @@
     <file src="runtimes/deps/avx/libllava_shared.so" target="runtimes\linux-x64\native\avx\libllava_shared.so" />
     <file src="runtimes/deps/avx2/libllava_shared.so" target="runtimes\linux-x64\native\avx2\libllava_shared.so" />
     <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
-
-    <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
-    <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
-    
     <file src="icon512.png" target="icon512.png" />
   </files>
 </package>
