@@ -1,4 +1,4 @@
-![logo](Assets/LLamaSharpLogo.png)
+﻿![logo](Assets/LLamaSharpLogo.png)
 
 [![Discord](https://img.shields.io/discord/1106946823282761851?label=Discord)](https://discord.gg/7wNVU65ZDY)
 [![QQ Group](https://img.shields.io/static/v1?label=QQ&message=加入QQ群&color=brightgreen)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
@@ -249,7 +249,8 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.9.0, v0.9.1 | [Mixtral-8x7B](https://huggingface.co/TheBloke/Mixtral-8x7B-v0.1-GGUF) | [`9fb13f9`](https://github.com/ggerganov/llama.cpp/blob/9fb13f95840c722ad419f390dc8a9c86080a3700) |
 | v0.10.0 | [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF) | [`d71ac90`](https://github.com/ggerganov/llama.cpp/tree/d71ac90985854b0905e1abba778e407e17f9f887) |
 | v0.11.1, v0.11.2 | [LLaVA-v1.5](https://hf-mirror.com/jartine/llava-v1.5-7B-GGUF/blob/main/llava-v1.5-7b-mmproj-Q4_0.gguf), [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF)| [`3ab8b3a`](https://github.com/ggerganov/llama.cpp/tree/3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6) |
-| v0.12.0 | LLama3 | [`a743d76`](https://github.com/ggerganov/llama.cpp/tree/a743d76a01f23038b2c85af1e9048ee836767b44)
+| v0.12.0 | LLama3 | [`a743d76`](https://github.com/ggerganov/llama.cpp/tree/a743d76a01f23038b2c85af1e9048ee836767b44) |
+| v0.13.0 |  | [`1debe72`](https://github.com/ggerganov/llama.cpp/tree/1debe72737ea131cb52975da3d53ed3a835df3a6) |
 
 ## License
 

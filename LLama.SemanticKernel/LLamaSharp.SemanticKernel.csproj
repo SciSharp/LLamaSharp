@@ -10,7 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<Version>0.12.0</Version>
+		<Version>0.13.0</Version>
 		<Authors>Tim Miller, Xbotter</Authors>
 		<Company>SciSharp STACK</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -45,7 +45,7 @@
 		<ProjectReference Include="..\LLama\LLamaSharp.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<InternalsVisibleTo Include="Llama.Unittest"/>
+		<InternalsVisibleTo Include="Llama.Unittest" />
 	</ItemGroup>
 
 </Project>
