@@ -9,7 +9,6 @@ using System.IO.MemoryMappedFiles;
 using LLama.Common;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using LLama.Extensions;
 using LLama.Abstractions;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
@@ -56,20 +55,13 @@ namespace LLama
         /// </summary>
         public Encoding Encoding { get; }
 
-        private uint _generationThreads;
-        private uint _batchThreads;
-
         /// <summary>
         /// Get or set the number of threads to use for generation
         /// </summary>
         public uint GenerationThreads
         {
-            get => _generationThreads;
-            set
-            {
-                _generationThreads = value;
-                NativeHandle.SetThreads(_generationThreads, _batchThreads);
-            }
+            get => NativeHandle.GenerationThreads;
+            set => NativeHandle.GenerationThreads = value;
         }
 
         /// <summary>
@@ -77,12 +69,8 @@ namespace LLama
         /// </summary>
         public uint BatchThreads
         {
-            get => _batchThreads;
-            set
-            {
-                _batchThreads = value;
-                NativeHandle.SetThreads(_generationThreads, _batchThreads);
-            }
+            get => NativeHandle.BatchThreads;
+            set => NativeHandle.BatchThreads = value;
         }
 
         /// <summary>
@@ -111,10 +99,6 @@ namespace LLama
 
             @params.ToLlamaContextParams(out var lparams);
             NativeHandle = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
-
-            // It's not possible to get these values from llama.cpp, store a copy of them here.
-            _generationThreads = lparams.n_threads;
-            _batchThreads = lparams.n_threads_batch;
         }
 
         /// <summary>

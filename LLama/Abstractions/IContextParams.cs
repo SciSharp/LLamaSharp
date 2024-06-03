@@ -116,7 +116,6 @@ public interface IContextParams
     /// <summary>
     /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
     /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to <see langword="null"/> or &lt; 0 to disable (default)
-
     /// </summary>
     float? DefragThreshold { get; }
 
