@@ -7,7 +7,7 @@ on:
       - completed
 
 env:
-  NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY }}
+  NUGET_API_TOKEN: ${{ secrets.LLAMA_SHARP_NUGET_KEY_REPO }}
 
 jobs:
   patch_release_to_nuget:
@@ -54,7 +54,7 @@ jobs:
         path: './temp'
 
     - name: Push LLamaSharp packages to nuget.org
-      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY }} --skip-duplicate
+      run: dotnet nuget push ./temp/LLamaSharp*.nupkg --source https://www.nuget.org -k ${{ secrets.LLAMA_SHARP_NUGET_KEY_REPO }} --skip-duplicate
 
     # Deploy the documentation to GitHub Pages
     - uses: actions/setup-python@v5
