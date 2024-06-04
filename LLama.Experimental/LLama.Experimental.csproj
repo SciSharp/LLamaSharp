@@ -24,7 +24,7 @@
         Support native library auto-download.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageOutputPath>$(SolutionDir)/packages</PackageOutputPath>
+    <PackageOutputPath>packages</PackageOutputPath>
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <PackageId>LLamaSharp.Experimental</PackageId>
     <Configurations>Debug;Release;GPU</Configurations>
