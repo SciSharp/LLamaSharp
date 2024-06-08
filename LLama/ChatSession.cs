@@ -62,7 +62,7 @@ public class ChatSession
     /// <summary>
     /// The input transform pipeline used in this session.
     /// </summary>
-    public List<ITextTransform> InputTransformPipeline { get; set; } = new();
+    public List<ITextTransform> InputTransformPipeline { get; set; } = [];
 
     /// <summary>
     /// The output transform used in this session.

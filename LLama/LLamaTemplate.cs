@@ -28,12 +28,12 @@ public sealed class LLamaTemplate
     /// <summary>
     /// Keep a cache of roles converted into bytes. Roles are very frequently re-used, so this saves converting them many times.
     /// </summary>
-    private readonly Dictionary<string, ReadOnlyMemory<byte>> _roleCache = new();
+    private readonly Dictionary<string, ReadOnlyMemory<byte>> _roleCache = [];
 
     /// <summary>
     /// Array of messages. The <see cref="Count"/> property indicates how many messages there are
     /// </summary>
-    private TextMessage?[] _messages = new TextMessage[4];
+    private TextMessage[] _messages = new TextMessage[4];
 
     /// <summary>
     /// Backing field for <see cref="AddAssistant"/>
@@ -53,7 +53,7 @@ public sealed class LLamaTemplate
     /// <summary>
     /// Result bytes of last call to <see cref="Apply"/>
     /// </summary>
-    private byte[] _result = Array.Empty<byte>();
+    private byte[] _result = [];
 
     /// <summary>
     /// Indicates if this template has been modified and needs regenerating
@@ -189,6 +189,21 @@ public sealed class LLamaTemplate
 
         return this;
     }
+    
+    /// <summary>
+    /// Remove all messags from the template and resets internal state to accept/generate new messages
+    /// </summary>
+    public void RemoveAllMessages()
+    {
+        _messages = new TextMessage[4];
+        Count = 0;
+
+        _resultLength = 0;
+        _result = [];
+        _nativeChatMessages = new LLamaChatMessage[4];
+
+        _dirty = true;
+    }
     #endregion
 
     /// <summary>
@@ -213,7 +228,6 @@ public sealed class LLamaTemplate
                 for (var i = 0; i < Count; i++)
                 {
                     ref var m = ref _messages[i]!;
-                    Debug.Assert(m != null);
                     totalInputBytes += m.RoleBytes.Length + m.ContentBytes.Length;
 
                     // Pin byte arrays in place
@@ -233,7 +247,6 @@ public sealed class LLamaTemplate
                 var output = ArrayPool<byte>.Shared.Rent(Math.Max(32, totalInputBytes * 2));
                 try
                 {
-
                     // Run templater and discover true length
                     var outputLength = ApplyInternal(_nativeChatMessages.AsSpan(0, Count), output);
 
@@ -279,9 +292,28 @@ public sealed class LLamaTemplate
     }
 
     /// <summary>
+    /// Apply the template to the messages and return the resulting prompt as a string
+    /// </summary>
+    /// 
+    /// <returns>The formatted template string as defined by the model</returns>
+    public string ToModelPrompt()
+    {
+        // Apply the template to update state and get data length
+        var dataLength = Apply(Array.Empty<byte>());
+
+        // convert the resulting buffer to a string
+#if NET6_0_OR_GREATER
+        return Encoding.GetString(_result.AsSpan(0, dataLength));
+#endif
+
+        // need the ToArray call for netstandard -- avoided in newer runtimes
+        return Encoding.GetString(_result.AsSpan(0, dataLength).ToArray());
+    }
+
+    /// <summary>
     /// A message that has been added to a template
     /// </summary>
-    public sealed class TextMessage
+    public readonly struct TextMessage
     {
         /// <summary>
         /// The "role" string for this message

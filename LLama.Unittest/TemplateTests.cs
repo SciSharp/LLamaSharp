@@ -1,6 +1,6 @@
 using System.Text;
 using LLama.Common;
-using LLama.Native;
+using LLama.Extensions;
 
 namespace LLama.Unittest;
 
@@ -8,7 +8,7 @@ public sealed class TemplateTests
     : IDisposable
 {
     private readonly LLamaWeights _model;
-    
+
     public TemplateTests()
     {
         var @params = new ModelParams(Constants.GenerativeModelPath)
@@ -18,12 +18,12 @@ public sealed class TemplateTests
         };
         _model = LLamaWeights.LoadFromFile(@params);
     }
-    
+
     public void Dispose()
     {
         _model.Dispose();
     }
-    
+
     [Fact]
     public void BasicTemplate()
     {
@@ -174,6 +174,53 @@ public sealed class TemplateTests
     }
 
     [Fact]
+    public void ToModelPrompt_FormatsCorrectly()
+    {
+        var templater = new LLamaTemplate(_model)
+        {
+            AddAssistant = true,
+        };
+
+        Assert.Equal(0, templater.Count);
+        templater.Add("assistant", "hello");
+        Assert.Equal(1, templater.Count);
+        templater.Add("user", "world");
+        Assert.Equal(2, templater.Count);
+        templater.Add("assistant", "111");
+        Assert.Equal(3, templater.Count);
+        templater.Add("user", "aaa");
+        Assert.Equal(4, templater.Count);
+        templater.Add("assistant", "222");
+        Assert.Equal(5, templater.Count);
+        templater.Add("user", "bbb");
+        Assert.Equal(6, templater.Count);
+        templater.Add("assistant", "333");
+        Assert.Equal(7, templater.Count);
+        templater.Add("user", "ccc");
+        Assert.Equal(8, templater.Count);
+
+        // Call once with empty array to discover length
+        var templateResult = templater.ToModelPrompt();
+        const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
+                                "<|im_start|>user\nworld<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "111<|im_end|>" +
+                                "\n<|im_start|>user\n" +
+                                "aaa<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "222<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "bbb<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "333<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "ccc<|im_end|>\n" +
+                                "<|im_start|>assistant\n";
+
+        Assert.Equal(expected, templateResult);
+    }
+
+    [Fact]
     public void GetOutOfRangeThrows()
     {
         var templater = new LLamaTemplate(_model);
@@ -248,5 +295,17 @@ public sealed class TemplateTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() => templater.RemoveAt(-1));
         Assert.Throws<ArgumentOutOfRangeException>(() => templater.RemoveAt(2));
+    }
+
+    [Fact]
+    public void EndOTurnToken_ReturnsExpected()
+    {
+        Assert.Null(_model.Tokens.EndOfTurnToken);
+    }
+
+    [Fact]
+    public void EndOSpeechToken_ReturnsExpected()
+    {
+        Assert.Equal("</s>", _model.Tokens.EndOfSpeechToken);
     }
 }

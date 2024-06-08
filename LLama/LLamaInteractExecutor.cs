@@ -123,7 +123,7 @@ namespace LLama
                 }
                 else
                 {
-                    PreprocessLlava(text, args, true );
+                    PreprocessLlava(text, args, true);
                 }
             }
             else
