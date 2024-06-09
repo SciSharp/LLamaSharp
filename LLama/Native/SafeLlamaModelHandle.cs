@@ -614,7 +614,7 @@ namespace LLama.Native
         /// <summary>
         /// Get tokens for a model
         /// </summary>
-        public readonly struct ModelTokens
+        public sealed class ModelTokens
         {
             private readonly SafeLlamaModelHandle _model;
             private readonly string? _eot;
