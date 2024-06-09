@@ -53,15 +53,15 @@ public class PromptTemplateTransformer(LLamaWeights model,
     public static string ToModelPrompt(LLamaTemplate template)
     {
         // Apply the template to update state and get data length
-        var dataLength = template.Apply(Array.Empty<byte>());
+        var templateBuffer = template.Apply();
 
         // convert the resulting buffer to a string
 #if NET6_0_OR_GREATER
-        return LLamaTemplate.Encoding.GetString(template.TemplateDataBuffer[..dataLength]);
+        return LLamaTemplate.Encoding.GetString(templateBuffer);
 #endif
 
         // need the ToArray call for netstandard -- avoided in newer runtimes
-        return LLamaTemplate.Encoding.GetString(template.TemplateDataBuffer.Slice(0, dataLength).ToArray());
+        return LLamaTemplate.Encoding.GetString(templateBuffer.ToArray());
     }
     #endregion utils
 }

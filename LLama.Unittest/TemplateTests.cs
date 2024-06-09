@@ -47,18 +47,10 @@ public sealed class TemplateTests
         templater.Add("user", "ccc");
         Assert.Equal(8, templater.Count);
 
-        // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
+        var dest = templater.Apply();
         Assert.Equal(8, templater.Count);
 
-        // Call again to get contents
-        length = templater.Apply(dest);
-
-        Assert.Equal(8, templater.Count);
-
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var templateResult = Encoding.UTF8.GetString(dest);
         const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
                                 "<|im_start|>user\nworld<|im_end|>\n" +
                                 "<|im_start|>assistant\n" +
@@ -93,17 +85,10 @@ public sealed class TemplateTests
         Assert.Equal(4, templater.Count);
 
         // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
+        var dest = templater.Apply();
         Assert.Equal(4, templater.Count);
 
-        // Call again to get contents
-        length = templater.Apply(dest);
-
-        Assert.Equal(4, templater.Count);
-
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var templateResult = Encoding.UTF8.GetString(dest);
         const string expected = "<start_of_turn>model\n" +
                                 "hello<end_of_turn>\n" +
                                 "<start_of_turn>user\n" +
@@ -143,17 +128,10 @@ public sealed class TemplateTests
         Assert.Equal(8, templater.Count);
 
         // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
+        var dest = templater.Apply();
         Assert.Equal(8, templater.Count);
 
-        // Call again to get contents
-        length = templater.Apply(dest);
-
-        Assert.Equal(8, templater.Count);
-
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var templateResult = Encoding.UTF8.GetString(dest);
         const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
                                 "<|im_start|>user\nworld<|im_end|>\n" +
                                 "<|im_start|>assistant\n" +
@@ -267,15 +245,8 @@ public sealed class TemplateTests
         templater.Add("user", userData);
 
         // Generte the template string
-        // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
-        Assert.Equal(1, templater.Count);
-
-        // Call again to get contents
-        _ = templater.Apply(dest);
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var dest = templater.Apply();
+        var templateResult = Encoding.UTF8.GetString(dest);
 
         const string expectedTemplate = $"<|im_start|>user\n{userData}<|im_end|>\n";
         Assert.Equal(expectedTemplate, templateResult);

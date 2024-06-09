@@ -104,11 +104,6 @@ public sealed class LLamaTemplate
             }
         }
     }
-    
-    /// <summary>
-    /// Get a span to the underlying bytes as specified by Encoding
-    /// </summary>
-    public ReadOnlySpan<byte> TemplateDataBuffer => _result;
     #endregion
 
     #region construction
@@ -217,9 +212,8 @@ public sealed class LLamaTemplate
     /// <summary>
     /// Apply the template to the messages and write it into the output buffer
     /// </summary>
-    /// <param name="dest">Destination to write template bytes into</param>
-    /// <returns>The length of the template. If this is longer than dest.Length this method should be called again with a larger dest buffer</returns>
-    public int Apply(Memory<byte> dest)
+    /// <returns>A span over the buffer that holds the applied template</returns>
+    public ReadOnlySpan<byte> Apply()
     {
         // Recalculate template if necessary
         if (_dirty)
@@ -285,8 +279,7 @@ public sealed class LLamaTemplate
         }
 
         // Now that the template has been applied and is in the result buffer, copy it to the dest
-        _result.AsSpan(0, Math.Min(dest.Length, _resultLength)).CopyTo(dest.Span);
-        return _resultLength;
+        return _result.AsSpan(0, _resultLength);
 
         unsafe int ApplyInternal(Span<LLamaChatMessage> messages, byte[] output)
         {
