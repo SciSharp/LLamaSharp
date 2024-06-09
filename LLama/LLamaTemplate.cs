@@ -13,8 +13,6 @@ namespace LLama;
 public sealed class LLamaTemplate
 {
     #region private state
-    private static readonly Encoding Encoding = Encoding.UTF8;
-
     /// <summary>
     /// The model this template is for. May be null if a custom template was supplied to the constructor.
     /// </summary>
@@ -63,6 +61,11 @@ public sealed class LLamaTemplate
 
     #region properties
     /// <summary>
+    /// The encoding algorithm to use
+    /// </summary>
+    public static readonly Encoding Encoding = Encoding.UTF8;
+
+    /// <summary>
     /// Number of messages added to this template
     /// </summary>
     public int Count { get; private set; }
@@ -101,6 +104,11 @@ public sealed class LLamaTemplate
             }
         }
     }
+    
+    /// <summary>
+    /// Get a span to the underlying bytes as specified by Encoding
+    /// </summary>
+    public ReadOnlySpan<byte> TemplateDataBuffer => _result;
     #endregion
 
     #region construction
@@ -191,9 +199,9 @@ public sealed class LLamaTemplate
     }
     
     /// <summary>
-    /// Remove all messags from the template and resets internal state to accept/generate new messages
+    /// Remove all messages from the template and resets internal state to accept/generate new messages
     /// </summary>
-    public void RemoveAllMessages()
+    public void Clear()
     {
         _messages = new TextMessage[4];
         Count = 0;
@@ -289,25 +297,6 @@ public sealed class LLamaTemplate
                 return NativeApi.llama_chat_apply_template(_model, customTemplatePtr, messagesPtr, (nuint)messages.Length, AddAssistant, outputPtr, output.Length);
             }
         }
-    }
-
-    /// <summary>
-    /// Apply the template to the messages and return the resulting prompt as a string
-    /// </summary>
-    /// 
-    /// <returns>The formatted template string as defined by the model</returns>
-    public string ToModelPrompt()
-    {
-        // Apply the template to update state and get data length
-        var dataLength = Apply(Array.Empty<byte>());
-
-        // convert the resulting buffer to a string
-#if NET6_0_OR_GREATER
-        return Encoding.GetString(_result.AsSpan(0, dataLength));
-#endif
-
-        // need the ToArray call for netstandard -- avoided in newer runtimes
-        return Encoding.GetString(_result.AsSpan(0, dataLength).ToArray());
     }
 
     /// <summary>

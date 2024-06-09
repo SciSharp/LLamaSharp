@@ -174,53 +174,6 @@ public sealed class TemplateTests
     }
 
     [Fact]
-    public void ToModelPrompt_FormatsCorrectly()
-    {
-        var templater = new LLamaTemplate(_model)
-        {
-            AddAssistant = true,
-        };
-
-        Assert.Equal(0, templater.Count);
-        templater.Add("assistant", "hello");
-        Assert.Equal(1, templater.Count);
-        templater.Add("user", "world");
-        Assert.Equal(2, templater.Count);
-        templater.Add("assistant", "111");
-        Assert.Equal(3, templater.Count);
-        templater.Add("user", "aaa");
-        Assert.Equal(4, templater.Count);
-        templater.Add("assistant", "222");
-        Assert.Equal(5, templater.Count);
-        templater.Add("user", "bbb");
-        Assert.Equal(6, templater.Count);
-        templater.Add("assistant", "333");
-        Assert.Equal(7, templater.Count);
-        templater.Add("user", "ccc");
-        Assert.Equal(8, templater.Count);
-
-        // Call once with empty array to discover length
-        var templateResult = templater.ToModelPrompt();
-        const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
-                                "<|im_start|>user\nworld<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "111<|im_end|>" +
-                                "\n<|im_start|>user\n" +
-                                "aaa<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "222<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "bbb<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "333<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "ccc<|im_end|>\n" +
-                                "<|im_start|>assistant\n";
-
-        Assert.Equal(expected, templateResult);
-    }
-
-    [Fact]
     public void GetOutOfRangeThrows()
     {
         var templater = new LLamaTemplate(_model);
@@ -295,6 +248,37 @@ public sealed class TemplateTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() => templater.RemoveAt(-1));
         Assert.Throws<ArgumentOutOfRangeException>(() => templater.RemoveAt(2));
+    }
+
+    [Fact]
+    public void Clear_ResetsTemplateState()
+    {
+        var templater = new LLamaTemplate(_model);
+        templater.Add("assistant", "1")
+            .Add("user", "2");
+
+        Assert.Equal(2, templater.Count);
+
+        templater.Clear();
+
+        Assert.Equal(0, templater.Count);
+
+        const string userData = nameof(userData);
+        templater.Add("user", userData);
+
+        // Generte the template string
+        // Call once with empty array to discover length
+        var length = templater.Apply(Array.Empty<byte>());
+        var dest = new byte[length];
+
+        Assert.Equal(1, templater.Count);
+
+        // Call again to get contents
+        _ = templater.Apply(dest);
+        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+
+        const string expectedTemplate = $"<|im_start|>user\n{userData}<|im_end|>\n";
+        Assert.Equal(expectedTemplate, templateResult);
     }
 
     [Fact]

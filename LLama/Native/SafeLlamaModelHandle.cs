@@ -234,7 +234,7 @@ namespace LLama.Native
                 fixed (byte* destPtr = dest)
                 {
                     // Convert text into bytes
-                    Encoding.UTF8.GetBytes(keyPtr, key.Length, bytesPtr, bytes.Length);
+                    Encoding.UTF8.GetBytes(keyPtr, key.Length, bytesPtr, bytesCount);
 
                     return llama_model_meta_val_str_native(model, bytesPtr, destPtr, dest.Length);
                 }
@@ -631,7 +631,7 @@ namespace LLama.Native
             {
                 const int buffSize = 32;
                 Span<byte> buff = stackalloc byte[buffSize];
-                var tokenLength = _model.TokenToSpan(token ?? LLamaToken.INVALID_TOKEN, buff, special: isSpecialToken);
+                var tokenLength = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
                 
                 if (tokenLength <= 0)
                 {
@@ -642,7 +642,7 @@ namespace LLama.Native
                 if (tokenLength > buffSize)
                 {
                     buff = stackalloc byte[(int)tokenLength];
-                    _ = _model.TokenToSpan(token ?? LLamaToken.INVALID_TOKEN, buff, special: isSpecialToken);
+                    _ = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
                 }
 
                 var slice = buff.Slice(0, (int)tokenLength);

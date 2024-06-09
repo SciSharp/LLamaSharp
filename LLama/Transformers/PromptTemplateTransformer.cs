@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using LLama.Abstractions;
 using LLama.Common;
 
@@ -27,7 +28,7 @@ public class PromptTemplateTransformer(LLamaWeights model,
         {
             template.Add(message.AuthorRole.ToString().ToLowerInvariant(), message.Content);
         }
-        return template.ToModelPrompt();
+        return ToModelPrompt(template);
     }
 
     /// <inheritdoc />
@@ -42,4 +43,25 @@ public class PromptTemplateTransformer(LLamaWeights model,
         // need to preserve history?
         return new PromptTemplateTransformer(_model);
     }
+
+    #region utils
+    /// <summary>
+    /// Apply the template to the messages and return the resulting prompt as a string
+    /// </summary>
+    /// 
+    /// <returns>The formatted template string as defined by the model</returns>
+    public static string ToModelPrompt(LLamaTemplate template)
+    {
+        // Apply the template to update state and get data length
+        var dataLength = template.Apply(Array.Empty<byte>());
+
+        // convert the resulting buffer to a string
+#if NET6_0_OR_GREATER
+        return LLamaTemplate.Encoding.GetString(template.TemplateDataBuffer[..dataLength]);
+#endif
+
+        // need the ToArray call for netstandard -- avoided in newer runtimes
+        return LLamaTemplate.Encoding.GetString(template.TemplateDataBuffer.Slice(0, dataLength).ToArray());
+    }
+    #endregion utils
 }

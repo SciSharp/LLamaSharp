@@ -32,7 +32,7 @@ public class LLama3ChatSession
         // you'll need to write your own transformer to format the prompt correctly
         session.WithHistoryTransform(new PromptTemplateTransformer(model, withAssistant: true)); 
 
-        // Add a transformer to eliminate printing the end of turn tokens, llama 3 specifically has an odd LF that gets printed somtimes
+        // Add a transformer to eliminate printing the end of turn tokens, llama 3 specifically has an odd LF that gets printed sometimes
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
             [model.Tokens.EndOfTurnToken!, "�"],
             redundancyLength: 5));

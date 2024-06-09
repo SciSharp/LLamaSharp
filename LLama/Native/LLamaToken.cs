@@ -10,8 +10,10 @@ namespace LLama.Native;
 [DebuggerDisplay("{Value}")]
 public readonly record struct LLamaToken
 {
+    /// <summary>
     /// Token Value used when token is inherently null
-    public static readonly LLamaToken INVALID_TOKEN = -1;
+    /// </summary>
+    public static readonly LLamaToken InvalidToken = -1;
 
     /// <summary>
     /// The raw value
