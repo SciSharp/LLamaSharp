@@ -1,38 +1,47 @@
-﻿using LLama.Abstractions;
-using LLama.Common;
+﻿using LLama.Common;
+using LLama.Transformers;
 
 namespace LLama.Examples.Examples;
 
-// When using chatsession, it's a common case that you want to strip the role names
-// rather than display them. This example shows how to use transforms to strip them.
+/// <summary>
+/// This sample shows a simple chatbot
+/// It's configured to use the default prompt template as provided by llama.cpp and supports
+/// models such as llama3, llama2, phi3, qwen1.5, etc.
+/// </summary>
 public class LLama3ChatSession
 {
     public static async Task Run()
     {
-        string modelPath = UserSettings.GetModelPath();
-
+        var modelPath = UserSettings.GetModelPath();
         var parameters = new ModelParams(modelPath)
         {
             Seed = 1337,
             GpuLayerCount = 10
         };
+
         using var model = LLamaWeights.LoadFromFile(parameters);
         using var context = model.CreateContext(parameters);
         var executor = new InteractiveExecutor(context);
 
         var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
-        ChatHistory chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
+        var chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
 
         ChatSession session = new(executor, chatHistory);
-        session.WithHistoryTransform(new LLama3HistoryTransform());
+
+        // add the default templator. If llama.cpp doesn't support the template by default, 
+        // you'll need to write your own transformer to format the prompt correctly
+        session.WithHistoryTransform(new PromptTemplateTransformer(model, withAssistant: true)); 
+
+        // Add a transformer to eliminate printing the end of turn tokens, llama 3 specifically has an odd LF that gets printed sometimes
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
-            new string[] { "User:", "Assistant:", "�" },
+            [model.Tokens.EndOfTurnToken!, "�"],
             redundancyLength: 5));
 
-        InferenceParams inferenceParams = new InferenceParams()
+        var inferenceParams = new InferenceParams()
         {
+            MaxTokens = -1, // keep generating tokens until the anti prompt is encountered
             Temperature = 0.6f,
-            AntiPrompts = new List<string> { "User:" }
+            AntiPrompts = [model.Tokens.EndOfTurnToken!] // model specific end of turn string
         };
 
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -40,10 +49,15 @@ public class LLama3ChatSession
 
         // show the prompt
         Console.ForegroundColor = ConsoleColor.Green;
-        string userInput = Console.ReadLine() ?? "";
+        Console.Write("User> ");
+        var userInput = Console.ReadLine() ?? "";
 
         while (userInput != "exit")
         {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Assistant> ");
+
+            // as each token (partial or whole word is streamed back) print it to the console, stream to web client, etc
             await foreach (
                 var text
                 in session.ChatAsync(
@@ -56,71 +70,8 @@ public class LLama3ChatSession
             Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("User> ");
             userInput = Console.ReadLine() ?? "";
-
-            Console.ForegroundColor = ConsoleColor.White;
         }
-    }
-
-    class LLama3HistoryTransform : IHistoryTransform
-    {
-        /// <summary>
-        /// Convert a ChatHistory instance to plain text.
-        /// </summary>
-        /// <param name="history">The ChatHistory instance</param>
-        /// <returns></returns>
-        public string HistoryToText(ChatHistory history)
-        {
-            string res = Bos;
-            foreach (var message in history.Messages)
-            {
-                res += EncodeMessage(message);
-            }
-            res += EncodeHeader(new ChatHistory.Message(AuthorRole.Assistant, ""));
-            return res;
-        }
-
-        private string EncodeHeader(ChatHistory.Message message)
-        {
-            string res = StartHeaderId;
-            res += message.AuthorRole.ToString();
-            res += EndHeaderId;
-            res += "\n\n";
-            return res;
-        }
-
-        private string EncodeMessage(ChatHistory.Message message)
-        {
-            string res = EncodeHeader(message);
-            res += message.Content;
-            res += EndofTurn;
-            return res;
-        }
-
-        /// <summary>
-        /// Converts plain text to a ChatHistory instance.
-        /// </summary>
-        /// <param name="role">The role for the author.</param>
-        /// <param name="text">The chat history as plain text.</param>
-        /// <returns>The updated history.</returns>
-        public ChatHistory TextToHistory(AuthorRole role, string text)
-        {
-            return new ChatHistory(new ChatHistory.Message[] { new ChatHistory.Message(role, text) });
-        }
-
-        /// <summary>
-        /// Copy the transform.
-        /// </summary>
-        /// <returns></returns>
-        public IHistoryTransform Clone()
-        {
-            return new LLama3HistoryTransform();
-        }
-
-        private const string StartHeaderId = "<|start_header_id|>";
-        private const string EndHeaderId = "<|end_header_id|>";
-        private const string Bos = "<|begin_of_text|>";
-        private const string Eos = "<|end_of_text|>";
-        private const string EndofTurn = "<|eot_id|>";
     }
 }

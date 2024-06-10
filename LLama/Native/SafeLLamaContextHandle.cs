@@ -19,6 +19,10 @@ namespace LLama.Native
         /// </summary>
         public int VocabCount => ThrowIfDisposed().VocabCount;
 
+        /// <summary>
+        /// The underlying vocabulary for the model
+        /// </summary>
+        /// <returns></returns>
         public LLamaVocabType LLamaVocabType => ThrowIfDisposed().VocabType;
 
         /// <summary>

@@ -307,7 +307,7 @@ namespace LLama
 
             var args = new InferStateArgs
             {
-                Antiprompts = inferenceParams.AntiPrompts.ToList(),
+                Antiprompts = [.. inferenceParams.AntiPrompts],
                 RemainedTokens = inferenceParams.MaxTokens,
                 ReturnValue = false,
                 WaitForInput = false,
@@ -359,7 +359,7 @@ namespace LLama
             };
             var args = new InferStateArgs
             {
-                Antiprompts = new List<string>(),
+                Antiprompts = [],
                 RemainedTokens = 0,
                 ReturnValue = false,
                 WaitForInput = true,

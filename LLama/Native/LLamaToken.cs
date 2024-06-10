@@ -11,6 +11,11 @@ namespace LLama.Native;
 public readonly record struct LLamaToken
 {
     /// <summary>
+    /// Token Value used when token is inherently null
+    /// </summary>
+    public static readonly LLamaToken InvalidToken = -1;
+
+    /// <summary>
     /// The raw value
     /// </summary>
     private readonly int Value;

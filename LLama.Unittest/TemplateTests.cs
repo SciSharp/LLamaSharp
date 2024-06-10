@@ -1,6 +1,6 @@
 using System.Text;
 using LLama.Common;
-using LLama.Native;
+using LLama.Extensions;
 
 namespace LLama.Unittest;
 
@@ -8,7 +8,7 @@ public sealed class TemplateTests
     : IDisposable
 {
     private readonly LLamaWeights _model;
-    
+
     public TemplateTests()
     {
         var @params = new ModelParams(Constants.GenerativeModelPath)
@@ -18,12 +18,12 @@ public sealed class TemplateTests
         };
         _model = LLamaWeights.LoadFromFile(@params);
     }
-    
+
     public void Dispose()
     {
         _model.Dispose();
     }
-    
+
     [Fact]
     public void BasicTemplate()
     {
@@ -47,18 +47,10 @@ public sealed class TemplateTests
         templater.Add("user", "ccc");
         Assert.Equal(8, templater.Count);
 
-        // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
+        var dest = templater.Apply();
         Assert.Equal(8, templater.Count);
 
-        // Call again to get contents
-        length = templater.Apply(dest);
-
-        Assert.Equal(8, templater.Count);
-
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var templateResult = Encoding.UTF8.GetString(dest);
         const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
                                 "<|im_start|>user\nworld<|im_end|>\n" +
                                 "<|im_start|>assistant\n" +
@@ -93,17 +85,10 @@ public sealed class TemplateTests
         Assert.Equal(4, templater.Count);
 
         // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
+        var dest = templater.Apply();
         Assert.Equal(4, templater.Count);
 
-        // Call again to get contents
-        length = templater.Apply(dest);
-
-        Assert.Equal(4, templater.Count);
-
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var templateResult = Encoding.UTF8.GetString(dest);
         const string expected = "<start_of_turn>model\n" +
                                 "hello<end_of_turn>\n" +
                                 "<start_of_turn>user\n" +
@@ -143,17 +128,10 @@ public sealed class TemplateTests
         Assert.Equal(8, templater.Count);
 
         // Call once with empty array to discover length
-        var length = templater.Apply(Array.Empty<byte>());
-        var dest = new byte[length];
-
+        var dest = templater.Apply();
         Assert.Equal(8, templater.Count);
 
-        // Call again to get contents
-        length = templater.Apply(dest);
-
-        Assert.Equal(8, templater.Count);
-
-        var templateResult = Encoding.UTF8.GetString(dest.AsSpan(0, length));
+        var templateResult = Encoding.UTF8.GetString(dest);
         const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
                                 "<|im_start|>user\nworld<|im_end|>\n" +
                                 "<|im_start|>assistant\n" +
@@ -248,5 +226,41 @@ public sealed class TemplateTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() => templater.RemoveAt(-1));
         Assert.Throws<ArgumentOutOfRangeException>(() => templater.RemoveAt(2));
+    }
+
+    [Fact]
+    public void Clear_ResetsTemplateState()
+    {
+        var templater = new LLamaTemplate(_model);
+        templater.Add("assistant", "1")
+            .Add("user", "2");
+
+        Assert.Equal(2, templater.Count);
+
+        templater.Clear();
+
+        Assert.Equal(0, templater.Count);
+
+        const string userData = nameof(userData);
+        templater.Add("user", userData);
+
+        // Generte the template string
+        var dest = templater.Apply();
+        var templateResult = Encoding.UTF8.GetString(dest);
+
+        const string expectedTemplate = $"<|im_start|>user\n{userData}<|im_end|>\n";
+        Assert.Equal(expectedTemplate, templateResult);
+    }
+
+    [Fact]
+    public void EndOTurnToken_ReturnsExpected()
+    {
+        Assert.Null(_model.Tokens.EndOfTurnToken);
+    }
+
+    [Fact]
+    public void EndOSpeechToken_ReturnsExpected()
+    {
+        Assert.Equal("</s>", _model.Tokens.EndOfSpeechToken);
     }
 }

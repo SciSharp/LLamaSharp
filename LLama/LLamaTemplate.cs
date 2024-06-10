@@ -13,8 +13,6 @@ namespace LLama;
 public sealed class LLamaTemplate
 {
     #region private state
-    private static readonly Encoding Encoding = Encoding.UTF8;
-
     /// <summary>
     /// The model this template is for. May be null if a custom template was supplied to the constructor.
     /// </summary>
@@ -28,12 +26,12 @@ public sealed class LLamaTemplate
     /// <summary>
     /// Keep a cache of roles converted into bytes. Roles are very frequently re-used, so this saves converting them many times.
     /// </summary>
-    private readonly Dictionary<string, ReadOnlyMemory<byte>> _roleCache = new();
+    private readonly Dictionary<string, ReadOnlyMemory<byte>> _roleCache = [];
 
     /// <summary>
     /// Array of messages. The <see cref="Count"/> property indicates how many messages there are
     /// </summary>
-    private TextMessage?[] _messages = new TextMessage[4];
+    private TextMessage[] _messages = new TextMessage[4];
 
     /// <summary>
     /// Backing field for <see cref="AddAssistant"/>
@@ -53,7 +51,7 @@ public sealed class LLamaTemplate
     /// <summary>
     /// Result bytes of last call to <see cref="Apply"/>
     /// </summary>
-    private byte[] _result = Array.Empty<byte>();
+    private byte[] _result = [];
 
     /// <summary>
     /// Indicates if this template has been modified and needs regenerating
@@ -62,6 +60,11 @@ public sealed class LLamaTemplate
     #endregion
 
     #region properties
+    /// <summary>
+    /// The encoding algorithm to use
+    /// </summary>
+    public static readonly Encoding Encoding = Encoding.UTF8;
+
     /// <summary>
     /// Number of messages added to this template
     /// </summary>
@@ -189,14 +192,28 @@ public sealed class LLamaTemplate
 
         return this;
     }
+    
+    /// <summary>
+    /// Remove all messages from the template and resets internal state to accept/generate new messages
+    /// </summary>
+    public void Clear()
+    {
+        _messages = new TextMessage[4];
+        Count = 0;
+
+        _resultLength = 0;
+        _result = [];
+        _nativeChatMessages = new LLamaChatMessage[4];
+
+        _dirty = true;
+    }
     #endregion
 
     /// <summary>
     /// Apply the template to the messages and write it into the output buffer
     /// </summary>
-    /// <param name="dest">Destination to write template bytes into</param>
-    /// <returns>The length of the template. If this is longer than dest.Length this method should be called again with a larger dest buffer</returns>
-    public int Apply(Memory<byte> dest)
+    /// <returns>A span over the buffer that holds the applied template</returns>
+    public ReadOnlySpan<byte> Apply()
     {
         // Recalculate template if necessary
         if (_dirty)
@@ -213,7 +230,6 @@ public sealed class LLamaTemplate
                 for (var i = 0; i < Count; i++)
                 {
                     ref var m = ref _messages[i]!;
-                    Debug.Assert(m != null);
                     totalInputBytes += m.RoleBytes.Length + m.ContentBytes.Length;
 
                     // Pin byte arrays in place
@@ -233,7 +249,6 @@ public sealed class LLamaTemplate
                 var output = ArrayPool<byte>.Shared.Rent(Math.Max(32, totalInputBytes * 2));
                 try
                 {
-
                     // Run templater and discover true length
                     var outputLength = ApplyInternal(_nativeChatMessages.AsSpan(0, Count), output);
 
@@ -264,8 +279,7 @@ public sealed class LLamaTemplate
         }
 
         // Now that the template has been applied and is in the result buffer, copy it to the dest
-        _result.AsSpan(0, Math.Min(dest.Length, _resultLength)).CopyTo(dest.Span);
-        return _resultLength;
+        return _result.AsSpan(0, _resultLength);
 
         unsafe int ApplyInternal(Span<LLamaChatMessage> messages, byte[] output)
         {
@@ -281,7 +295,7 @@ public sealed class LLamaTemplate
     /// <summary>
     /// A message that has been added to a template
     /// </summary>
-    public sealed class TextMessage
+    public readonly struct TextMessage
     {
         /// <summary>
         /// The "role" string for this message

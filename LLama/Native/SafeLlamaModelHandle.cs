@@ -6,7 +6,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
-using LLama.Extensions;
 
 namespace LLama.Native
 {
@@ -221,11 +220,30 @@ namespace LLama.Native
         /// </summary>
         /// <param name="model"></param>
         /// <param name="key"></param>
-        /// <param name="buf"></param>
-        /// <param name="buf_size"></param>
+        /// <param name="dest"></param>
         /// <returns>The length of the string on success, or -1 on failure</returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_model_meta_val_str(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
+        private static int llama_model_meta_val_str(SafeLlamaModelHandle model, string key, Span<byte> dest)
+        {
+            var bytesCount = Encoding.UTF8.GetByteCount(key);
+            var bytes = ArrayPool<byte>.Shared.Rent(bytesCount);
+
+            unsafe
+            {
+                fixed (char* keyPtr = key)
+                fixed (byte* bytesPtr = bytes)
+                fixed (byte* destPtr = dest)
+                {
+                    // Convert text into bytes
+                    Encoding.UTF8.GetBytes(keyPtr, key.Length, bytesPtr, bytesCount);
+
+                    return llama_model_meta_val_str_native(model, bytesPtr, destPtr, dest.Length);
+                }
+            }
+
+            [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_val_str")]
+            static extern unsafe int llama_model_meta_val_str_native(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
+        }
+
 
         /// <summary>
         /// Get the number of tokens in the model vocabulary
@@ -461,8 +479,8 @@ namespace LLama.Native
         public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             // Early exit if there's no work to do
-            if (text == "" && !add_bos)
-                return Array.Empty<LLamaToken>();
+            if (text == string.Empty && !add_bos)
+                return [];
 
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
@@ -484,7 +502,7 @@ namespace LLama.Native
                         var tokens = new LLamaToken[count];
                         fixed (LLamaToken* tokensPtr = tokens)
                         {
-                            NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
+                            _ = NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
                             return tokens;
                         }
                     }
@@ -510,6 +528,26 @@ namespace LLama.Native
         #endregion
 
         #region metadata
+        /// <summary>
+        /// Get the metadata value for the given key
+        /// </summary>
+        /// <param name="key">The key to fetch</param>
+        /// <returns>The value, null if there is no such key</returns>
+        public Memory<byte>? MetadataValueByKey(string key)
+        {
+            // Check if the key exists, without getting any bytes of data
+            var keyLength = llama_model_meta_val_str(this, key, []);
+            if (keyLength < 0)
+                return null;
+
+            // get a buffer large enough to hold it
+            var buffer = new byte[keyLength + 1];
+            keyLength = llama_model_meta_val_str(this, key, buffer);
+            Debug.Assert(keyLength >= 0);
+
+            return buffer.AsMemory().Slice(0,keyLength);
+        }
+
         /// <summary>
         /// Get the metadata key for the given index
         /// </summary>
@@ -576,13 +614,39 @@ namespace LLama.Native
         /// <summary>
         /// Get tokens for a model
         /// </summary>
-        public class ModelTokens
+        public sealed class ModelTokens
         {
             private readonly SafeLlamaModelHandle _model;
+            private readonly string? _eot;
+            private readonly string? _eos;
 
             internal ModelTokens(SafeLlamaModelHandle model)
             {
                 _model = model;
+                _eot = LLamaTokenToString(EOT, true);
+                _eos = LLamaTokenToString(EOS, true);
+            }
+
+            private string? LLamaTokenToString(LLamaToken? token, bool isSpecialToken)
+            {
+                const int buffSize = 32;
+                Span<byte> buff = stackalloc byte[buffSize];
+                var tokenLength = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
+                
+                if (tokenLength <= 0)
+                {
+                    return null;
+                }
+                
+                // if the original buffer wasn't large enough, create a new one
+                if (tokenLength > buffSize)
+                {
+                    buff = stackalloc byte[(int)tokenLength];
+                    _ = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
+                }
+
+                var slice = buff.Slice(0, (int)tokenLength);
+                return Encoding.UTF8.GetStringFromSpan(slice);
             }
 
             private static LLamaToken? Normalize(LLamaToken token)
@@ -599,6 +663,11 @@ namespace LLama.Native
             /// Get the End of Sentence token for this model
             /// </summary>
             public LLamaToken? EOS => Normalize(llama_token_eos(_model));
+            
+            /// <summary>
+            /// The textual representation of the end of speech special token for this model
+            /// </summary>
+            public string? EndOfSpeechToken => _eos;
 
             /// <summary>
             /// Get the newline token for this model
@@ -634,6 +703,11 @@ namespace LLama.Native
             /// Codellama end of infill middle
             /// </summary>
             public LLamaToken? EOT => Normalize(llama_token_eot(_model));
+
+            /// <summary>
+            /// Returns the string representation of this model's end_of_text token
+            /// </summary>
+            public string? EndOfTurnToken => _eot;
 
             /// <summary>
             /// Check if the given token should end generation

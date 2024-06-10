@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Exceptions;
-using LLama.Extensions;
 using LLama.Native;
 using Microsoft.Extensions.Logging;
 
