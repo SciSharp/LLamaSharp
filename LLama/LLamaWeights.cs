@@ -23,6 +23,14 @@ namespace LLama
         public SafeLlamaModelHandle NativeHandle { get; }
 
         /// <summary>
+        /// The models name as specified in it's metadata
+        /// </summary>
+        /// <returns></returns>
+        public string ModelName => Metadata.TryGetValue("general.name", out var name)
+            ? name
+            : string.Empty;
+
+        /// <summary>
         /// Total number of tokens in vocabulary of this model
         /// </summary>
         public int VocabCount => NativeHandle.VocabCount;
