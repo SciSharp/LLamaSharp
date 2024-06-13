@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Common;
+using LLama.Native;
 
 namespace LLama.Model;
 
@@ -25,7 +26,7 @@ public class ModelCache : IModelCache
     private readonly Dictionary<string, IEnumerable<ModelFileMetadata>> _availableModels = [];
 
     // model id/alias, to loaded model
-    private readonly Dictionary<string, LLamaWeights> _loadedModelCache = [];
+    private readonly Dictionary<string, SafeLlamaModelHandle> _loadedModelCache = [];
 
     /// <summary>
     /// Create a new model manager that seeds available models from the given directory list
@@ -36,6 +37,15 @@ public class ModelCache : IModelCache
         GetModelsFromDirectories(directories);
     }
 
+    /// <inheritdoc />
+    public IEnumerable<ModelFileMetadata> ModelFileList
+        => _availableModels.SelectMany(x => x.Value);
+
+    /// <inheritdoc />
+    public IEnumerable<string> ModelDirectories
+        => _availableModels.Keys;
+
+    #region Directories
     private void GetModelsFromDirectories(params string[] dirs)
     {
         foreach (var dir in dirs)
@@ -79,13 +89,6 @@ public class ModelCache : IModelCache
     }
 
     /// <inheritdoc />
-    public IEnumerable<ModelFileMetadata> ModelFileList
-        => _availableModels.SelectMany(x => x.Value);
-    /// <inheritdoc />
-    public IEnumerable<string> ModelDirectories
-        => _availableModels.Keys;
-
-    /// <inheritdoc />
     public void AddDirectory(string directory)
     {
         GetModelsFromDirectories(directory);
@@ -111,6 +114,7 @@ public class ModelCache : IModelCache
             ? dirModels
             : [];
     }
+    #endregion Directories
 
     /// <inheritdoc />
     public bool TryGetModelFileMetadata(string fileName, out ModelFileMetadata modelMeta)
@@ -121,24 +125,12 @@ public class ModelCache : IModelCache
     }
 
     /// <inheritdoc />
-    public IEnumerable<LLamaWeights> GetLoadedModels()
-    {
-        return _loadedModelCache.Values;
-    }
-
-    /// <inheritdoc />
     public bool TryGetLoadedModel(string modelId, out LLamaWeights model)
     {
-        var isCached = _loadedModelCache.TryGetValue(modelId, out model!);
-
-        // Externall disposed, act like it's not in here
-        if (isCached && model.NativeHandle.IsClosed)
-        {
-            _ = _loadedModelCache.Remove(modelId);
-            isCached = false;
-            model = null!;
-        }
-
+        var isCached = _loadedModelCache.TryGetValue(modelId, out var handle);
+        model = isCached
+            ? LLamaWeights.FromSafeModelHandle(handle)
+            : null!;
         return isCached;
     }
 
@@ -152,7 +144,6 @@ public class ModelCache : IModelCache
         if (!string.IsNullOrEmpty(modelId)
             && TryGetLoadedModel(modelId, out var loadedModel))
         {
-            Trace.TraceWarning($"Model {modelId} already loaded");
             return loadedModel;
         }
 
@@ -162,29 +153,44 @@ public class ModelCache : IModelCache
 
         // load and cache
         var model = await LLamaWeights.LoadFromFileAsync(modelParams, cancellationToken);
+
+        // Check if it's already cached, if so use that and dispose of this
+        // TODO: Consider the case where the alias is different but the underlying model file is the same
         if (string.IsNullOrWhiteSpace(modelId))
         {
             modelId = model.ModelName;
 
-            // Check if cached again with alias
-            // TODO: Consider the case where the alias is different but the underlying model file is the same
             if (TryGetLoadedModel(modelId, out loadedModel))
             {
                 model.Dispose();
                 return loadedModel;
             }
         }
-        _loadedModelCache.Add(modelId, model);
+
+        // Increment the model reference count while this model exists (newly created)
+        // DangerousAddRef throws if it fails, so there is no need to check "success"
+        // Do this here since we're passing this to the caller to own and it's not done as part of the normal weight creation
+        var refSuccess = false;
+        model.NativeHandle.DangerousAddRef(ref refSuccess);
+
+        _loadedModelCache.Add(modelId, model.NativeHandle);
         return model;
     }
 
+    #region Unload
     /// <inheritdoc />
     public bool UnloadModel(string modelId)
     {
-        if (TryGetLoadedModel(modelId, out var model))
+        if (_loadedModelCache.TryGetValue(modelId, out var handle))
         {
-            model.Dispose();
-            return _loadedModelCache.Remove(modelId);
+            // Decrement refcount on model
+            handle.DangerousRelease();
+            handle.Dispose();
+            if (handle.IsClosed || handle.IsInvalid)
+            {
+                return _loadedModelCache.Remove(modelId);
+            }
+            return true;
         }
         return false;
     }
@@ -192,12 +198,15 @@ public class ModelCache : IModelCache
     /// <inheritdoc />
     public void UnloadAllModels()
     {
-        foreach (var model in _loadedModelCache.Values)
+        foreach (var handle in _loadedModelCache.Values)
         {
-            model.Dispose();
+            handle.DangerousRelease();
+            handle.Dispose();
         }
         _loadedModelCache.Clear();
     }
+
+    #endregion
 
     #region Dispose
     /// <inheritdoc />
@@ -208,7 +217,7 @@ public class ModelCache : IModelCache
     }
 
     /// <summary>
-    /// Unload all models when called explicity via dispose
+    /// Unload all models when called explicitly via dispose
     /// </summary>
     /// <param name="disposing">Whether or not this call is made explicitly(true) or via GC</param>
     protected virtual void Dispose(bool disposing)

@@ -72,6 +72,23 @@ namespace LLama
         }
 
         /// <summary>
+        /// Create from a "shared" handle
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <returns></returns>
+        public static LLamaWeights FromSafeModelHandle(SafeLlamaModelHandle handle)
+        {
+            var model = new LLamaWeights(handle);
+
+            // Increment the model reference count while this weight exists.
+            // DangerousAddRef throws if it fails, so there is no need to check "success"
+            var success = false;
+            handle.DangerousAddRef(ref success);
+
+            return model;
+        }
+
+        /// <summary>
         /// Load weights into memory
         /// </summary>
         /// <param name="params"></param>
@@ -79,19 +96,19 @@ namespace LLama
         public static LLamaWeights LoadFromFile(IModelParams @params)
         {
             using var pin = @params.ToLlamaModelParams(out var lparams);
-            var weights = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+            var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
 
             foreach (var adapter in @params.LoraAdapters)
             {
-                if (string.IsNullOrEmpty(adapter.Path))
+                if (string.IsNullOrEmpty(adapter.Path) || adapter.Scale <= 0)
+                {
                     continue;
-                if (adapter.Scale <= 0)
-                    continue;
+                }
 
-                weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase);
+                model.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase);
             }
 
-            return new LLamaWeights(weights);
+            return new LLamaWeights(model);
         }
 
         /// <summary>
@@ -133,11 +150,7 @@ namespace LLama
                         if (internalCallback != null && !internalCallback(progress, ctx))
                             return false;
 
-                        // Check the cancellation token
-                        if (token.IsCancellationRequested)
-                            return false;
-
-                        return true;
+                        return token.IsCancellationRequested;
                     };
                 }
 #endif

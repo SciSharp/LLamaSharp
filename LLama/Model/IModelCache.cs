@@ -60,7 +60,8 @@ public interface IModelCache : IDisposable
 
     // Model Load and Unload
     /// <summary>
-    /// Load a model file to be used for infernce
+    /// Load a model file to be used for inference
+    /// The caller assumes responsible for disposing this model
     /// </summary>
     /// <param name="modelPath"></param>
     /// <param name="modelConfigurator"></param>
@@ -86,15 +87,10 @@ public interface IModelCache : IDisposable
 
     /// <summary>
     /// Attempt to get a model that's expected to be loaded
+    /// The callers assumes responsiblilty for the lifetime of the model at this point if it exists in the cache
     /// </summary>
     /// <param name="modeId"></param>
     /// <param name="model"></param>
     /// <returns></returns>
     public bool TryGetLoadedModel(string modeId, out LLamaWeights model);
-
-    /// <summary>
-    /// Currently loaded models
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerable<LLamaWeights> GetLoadedModels();
 }

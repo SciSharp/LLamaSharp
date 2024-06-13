@@ -1,7 +1,7 @@
 ﻿using LLama.Common;
 using LLama.Model;
 
-namespace LLama.Unittest;
+namespace LLama.Unittest.Model;
 
 public class ModelManagerTests
 {
@@ -108,14 +108,16 @@ public class ModelManagerTests
         var modelToLoad = TestableModelManager.ModelFileList
             .First(f => f.FileName.Contains("llama-2-7b"));
 
-        var model = await TestableModelManager.LoadModel(modelToLoad.FilePath, null!);
-
-        Assert.Single(TestableModelManager.GetLoadedModels());
-
+        var model = await TestableModelManager.LoadModel(modelToLoad.FilePath);
         var isLoaded = TestableModelManager.TryGetLoadedModel(model.ModelName, out var cachedModel);
         Assert.True(isLoaded);
 
-        // unload
+        // unload the newly acquired model even though it was cached
+        Assert.True(TestableModelManager.UnloadModel(model.ModelName));
+        //cachedModel.Dispose(); // this does effectively nothing
+
+        // unload "original"
+        //model.Dispose();
         Assert.True(TestableModelManager.UnloadModel(model.ModelName));
 
         Assert.Throws<ObjectDisposedException>(() =>
@@ -135,7 +137,6 @@ public class ModelManagerTests
             var model = await TestableModelManager.LoadModel(modelToLoad.FilePath);
             Assert.NotNull(model);
             Assert.Equal("LLaMA v2", model.ModelName);
-            Assert.Single(TestableModelManager.GetLoadedModels());
             var isLoaded = TestableModelManager.TryGetLoadedModel(model.ModelName, out var cachedModel);
             Assert.True(isLoaded);
             Assert.NotNull(cachedModel);
@@ -153,16 +154,20 @@ public class ModelManagerTests
         {
             Assert.NotNull(model);
             Assert.Equal("LLaMA v2", model.ModelName);
-            Assert.Single(TestableModelManager.GetLoadedModels());
             var isLoaded = TestableModelManager.TryGetLoadedModel(model.ModelName, out var cachedModel);
             Assert.True(isLoaded);
             Assert.NotNull(cachedModel);
             Assert.Equal("LLaMA v2", cachedModel.ModelName);
-        } // end scope, dispose model
 
-        // Model is now disposed
-        var isDispoedLoaded = TestableModelManager.TryGetLoadedModel("LLaMA v2", out var disposedModel);
-        Assert.False(isDispoedLoaded);
+            // unload from the last check
+            Assert.True(TestableModelManager.UnloadModel("LLaMA v2"));
+
+        } // end scope, dispose is called on the model but since we have the model cache it should stick around until unloaded
+        Assert.True(TestableModelManager.UnloadModel("LLaMA v2"));
+
+        // Model is still loaded due to cache
+        var isDisposedLoaded = TestableModelManager.TryGetLoadedModel("LLaMA v2", out var disposedModel);
+        Assert.False(isDisposedLoaded);
         Assert.Null(disposedModel);
     }
 }

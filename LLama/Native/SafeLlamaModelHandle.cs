@@ -16,6 +16,7 @@ namespace LLama.Native
     public sealed class SafeLlamaModelHandle
         : SafeLLamaHandleBase
     {
+        #region Properties
         /// <summary>
         /// Total number of tokens in vocabulary of this model
         /// </summary>
@@ -61,6 +62,7 @@ namespace LLama.Native
         /// </summary>
         public int LayerCount => llama_n_embd(this);
 
+        private string _modelDescription = null!;
         /// <summary>
         /// Get a description of this model
         /// </summary>
@@ -68,17 +70,22 @@ namespace LLama.Native
         {
             get
             {
-                unsafe
+                if (_modelDescription is null)
                 {
-                    // Get description length
-                    var size = llama_model_desc(this, null, 0);
-                    var buf = new byte[size + 1];
-                    fixed (byte* bufPtr = buf)
+                    unsafe
                     {
-                        size = llama_model_desc(this, bufPtr, buf.Length);
-                        return Encoding.UTF8.GetString(buf, 0, size);
+                        // Get description length
+                        var size = llama_model_desc(this, null, 0);
+                        var buf = new byte[size + 1];
+                        fixed (byte* bufPtr = buf)
+                        {
+                            size = llama_model_desc(this, bufPtr, buf.Length);
+                            _modelDescription = Encoding.UTF8.GetString(buf, 0, size) ?? string.Empty;
+                        }
                     }
                 }
+
+                return _modelDescription;
             }
         }
 
@@ -94,6 +101,7 @@ namespace LLama.Native
         /// Get the special tokens of this model
         /// </summary>
         public ModelTokens Tokens => _tokens ??= new ModelTokens(this);
+        #endregion
 
         /// <inheritdoc />
         protected override bool ReleaseHandle()
@@ -102,6 +110,7 @@ namespace LLama.Native
             return true;
         }
 
+        // TODO: Move this to the model manager?
         /// <summary>
         /// Load a model from the given file path into memory
         /// </summary>
@@ -116,12 +125,18 @@ namespace LLama.Native
             // - File is readable (explicit check)
             // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
             using (var fs = new FileStream(modelPath, FileMode.Open))
+            {
                 if (!fs.CanRead)
+                {
                     throw new InvalidOperationException($"Model file '{modelPath}' is not readable");
+                }
+            }
 
             var handle = llama_load_model_from_file(modelPath, lparams);
             if (handle.IsInvalid)
+            {
                 throw new LoadWeightsFailedException(modelPath);
+            }
 
             return handle;
         }
@@ -243,7 +258,6 @@ namespace LLama.Native
             [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_val_str")]
             static extern unsafe int llama_model_meta_val_str_native(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
         }
-
 
         /// <summary>
         /// Get the number of tokens in the model vocabulary
@@ -545,7 +559,7 @@ namespace LLama.Native
             keyLength = llama_model_meta_val_str(this, key, buffer);
             Debug.Assert(keyLength >= 0);
 
-            return buffer.AsMemory().Slice(0,keyLength);
+            return buffer.AsMemory().Slice(0, keyLength);
         }
 
         /// <summary>
@@ -632,12 +646,12 @@ namespace LLama.Native
                 const int buffSize = 32;
                 Span<byte> buff = stackalloc byte[buffSize];
                 var tokenLength = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
-                
+
                 if (tokenLength <= 0)
                 {
                     return null;
                 }
-                
+
                 // if the original buffer wasn't large enough, create a new one
                 if (tokenLength > buffSize)
                 {
@@ -663,7 +677,7 @@ namespace LLama.Native
             /// Get the End of Sentence token for this model
             /// </summary>
             public LLamaToken? EOS => Normalize(llama_token_eos(_model));
-            
+
             /// <summary>
             /// The textual representation of the end of speech special token for this model
             /// </summary>
