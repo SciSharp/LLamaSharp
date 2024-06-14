@@ -1,11 +1,11 @@
 ﻿namespace LLama.Model;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 /// <summary>
 /// Types of supported model files
 /// </summary>
 public enum ModelFileType
 {
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or membe
     GGUF
 }
 
@@ -14,10 +14,10 @@ public enum ModelFileType
 /// </summary>
 public class ModelFileMetadata
 {
-    public string FileName { get; init; } = string.Empty;
-    public string FilePath { get; init; } = string.Empty;
+    public string ModelFileName { get; init; } = string.Empty;
+    public string ModelFileUri { get; init; } = string.Empty;
     public ModelFileType ModelType { get; init; }
-    public long SizeInBytes { get; init; } = 0;
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    public long ModelFileSizeInBytes { get; init; } = 0;
 }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 

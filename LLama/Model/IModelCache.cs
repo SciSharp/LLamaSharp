@@ -11,64 +11,22 @@ namespace LLama.Model;
 /// </summary>
 public interface IModelCache : IDisposable
 {
-    // Model Directories
     /// <summary>
-    /// Configured set of directories that are scanned to find local models
+    /// The current number of file handles in cache.
     /// </summary>
-    /// <value></value>
-    public IEnumerable<string> ModelDirectories { get; }
+    /// <returns>Number of cached models</returns>
+    public int ModelsCached();
 
     /// <summary>
-    /// Add a directory containing model files
+    /// Load a model file to be used for inference.
+    /// The caller assumes responsibility for disposing this model and <b>MUST</b> call Unload
     /// </summary>
-    /// <param name="directory"></param>
-    public void AddDirectory(string directory);
-
-    /// <summary>
-    /// Remove a directory from being scanned and having model files made available
-    /// </summary>
-    /// <param name="directory"></param>
-    /// <returns></returns>
-    public bool RemoveDirectory(string directory);
-
-    /// <summary>
-    /// Remove all model directories
-    /// </summary>
-    public void RemoveAllDirectories();
-
-    // Model Files
-    /// <summary>
-    /// Get all of the model files that are available to be loaded
-    /// </summary>
-    /// <value></value>
-    public IEnumerable<ModelFileMetadata> ModelFileList { get; }
-
-    /// <summary>
-    /// Only get the models associated with a specific directory
-    /// </summary>
-    /// <param name="directory"></param>
-    /// <returns>The files, if any associated with a given directory</returns>
-    public IEnumerable<ModelFileMetadata> GetAvailableModelsFromDirectory(string directory);
-
-    /// <summary>
-    /// Get the file data for given model
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <param name="modelMeta"></param>
-    /// <returns>If a model with the given file name is present</returns>
-    public bool TryGetModelFileMetadata(string fileName, out ModelFileMetadata modelMeta);
-
-    // Model Load and Unload
-    /// <summary>
-    /// Load a model file to be used for inference
-    /// The caller assumes responsible for disposing this model
-    /// </summary>
-    /// <param name="modelPath"></param>
+    /// <param name="metadata"></param>
     /// <param name="modelConfigurator"></param>
-    /// <param name="modelId"></param>
+    /// <param name="modelId">An alias to uniquely identify this model's underyling handle. If none is supplied, the model's name is used.'</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The loaded model on success</returns>
-    public Task<LLamaWeights> LoadModel(string modelPath,
+    public Task<LLamaWeights> LoadModelAsync(ModelFileMetadata metadata,
         Action<ModelParams>? modelConfigurator = null!,
         string modelId = "",
         CancellationToken cancellationToken = default);
@@ -84,13 +42,4 @@ public interface IModelCache : IDisposable
     /// Unload all currently loaded models
     /// </summary>
     public void UnloadAllModels();
-
-    /// <summary>
-    /// Attempt to get a model that's expected to be loaded
-    /// The callers assumes responsiblilty for the lifetime of the model at this point if it exists in the cache
-    /// </summary>
-    /// <param name="modeId"></param>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    public bool TryGetLoadedModel(string modeId, out LLamaWeights model);
 }

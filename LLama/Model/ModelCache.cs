@@ -15,114 +15,12 @@ public class ModelCache : IModelCache
 {
     private bool _disposed = false;
 
-    /// <summary>
-    /// Support model type files
-    /// </summary>
-    public static readonly string[] ExpectedModelFileTypes = [
-        ".gguf"
-    ];
-
-    // keys are directories, values are applicable models
-    private readonly Dictionary<string, IEnumerable<ModelFileMetadata>> _availableModels = [];
-
     // model id/alias, to loaded model
     private readonly Dictionary<string, SafeLlamaModelHandle> _loadedModelCache = [];
 
-    /// <summary>
-    /// Create a new model manager that seeds available models from the given directory list
-    /// </summary>
-    /// <param name="directories"></param>
-    public ModelCache(string[] directories)
-    {
-        GetModelsFromDirectories(directories);
-    }
-
     /// <inheritdoc />
-    public IEnumerable<ModelFileMetadata> ModelFileList
-        => _availableModels.SelectMany(x => x.Value);
-
-    /// <inheritdoc />
-    public IEnumerable<string> ModelDirectories
-        => _availableModels.Keys;
-
-    #region Directories
-    private void GetModelsFromDirectories(params string[] dirs)
-    {
-        foreach (var dir in dirs)
-        {
-            var fullDirectoryPath = Path.GetFullPath(dir);
-
-            if (!Directory.Exists(fullDirectoryPath))
-            {
-                Trace.TraceError($"Model directory '{fullDirectoryPath}' does not exist");
-                continue;
-            }
-
-            if (_availableModels.ContainsKey(fullDirectoryPath))
-            {
-                Trace.TraceWarning($"Model directory '{fullDirectoryPath}' already probed");
-                continue;
-            }
-
-            // find models in current dir that are of expected type
-            List<ModelFileMetadata> directoryModelFiles = [];
-            foreach (var file in Directory.EnumerateFiles(fullDirectoryPath))
-            {
-                if (!ExpectedModelFileTypes.Contains(Path.GetExtension(file)))
-                {
-                    continue;
-                }
-
-                // expected model file
-                var fi = new FileInfo(file);
-                directoryModelFiles.Add(new ModelFileMetadata
-                {
-                    FileName = fi.Name,
-                    FilePath = fi.FullName,
-                    ModelType = ModelFileType.GGUF,
-                    SizeInBytes = fi.Length,
-                });
-            }
-
-            _availableModels.Add(fullDirectoryPath, directoryModelFiles);
-        }
-    }
-
-    /// <inheritdoc />
-    public void AddDirectory(string directory)
-    {
-        GetModelsFromDirectories(directory);
-    }
-
-    /// <inheritdoc />
-    public bool RemoveDirectory(string directory)
-    {
-        return _availableModels.Remove(Path.GetFullPath(directory));
-    }
-
-    /// <inheritdoc />
-    public void RemoveAllDirectories()
-    {
-        _availableModels.Clear();
-    }
-
-    /// <inheritdoc />
-    public IEnumerable<ModelFileMetadata> GetAvailableModelsFromDirectory(string directory)
-    {
-        var dirPath = Path.GetFullPath(directory);
-        return _availableModels.TryGetValue(dirPath, out var dirModels)
-            ? dirModels
-            : [];
-    }
-    #endregion Directories
-
-    /// <inheritdoc />
-    public bool TryGetModelFileMetadata(string fileName, out ModelFileMetadata modelMeta)
-    {
-        var filePath = Path.GetFullPath(fileName);
-        modelMeta = ModelFileList.FirstOrDefault(f => f.FilePath == filePath)!;
-        return modelMeta != null;
-    }
+    public int ModelsCached() 
+        => _loadedModelCache.Count;
 
     /// <inheritdoc />
     public bool TryGetLoadedModel(string modelId, out LLamaWeights model)
@@ -135,7 +33,7 @@ public class ModelCache : IModelCache
     }
 
     /// <inheritdoc />
-    public async Task<LLamaWeights> LoadModel(string modelPath,
+    public async Task<LLamaWeights> LoadModelAsync(ModelFileMetadata metadata,
         Action<ModelParams>? modelConfigurator = null!,
         string modelId = "",
         CancellationToken cancellationToken = default)
@@ -148,7 +46,7 @@ public class ModelCache : IModelCache
         }
 
         // Configure model params
-        var modelParams = new ModelParams(modelPath);
+        var modelParams = new ModelParams(metadata.ModelFileUri);
         modelConfigurator?.Invoke(modelParams);
 
         // load and cache
@@ -205,7 +103,6 @@ public class ModelCache : IModelCache
         }
         _loadedModelCache.Clear();
     }
-
     #endregion
 
     #region Dispose

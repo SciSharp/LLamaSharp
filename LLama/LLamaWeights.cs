@@ -16,12 +16,21 @@ namespace LLama
     public sealed class LLamaWeights
         : IDisposable
     {
+        private bool _disposed = false;
+
+        ///
+        ~LLamaWeights()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// The native handle, which is used in the native APIs
         /// </summary>
         /// <remarks>Be careful how you use this!</remarks>
         public SafeLlamaModelHandle NativeHandle { get; }
 
+        #region Properties
         /// <summary>
         /// The models name as specified in it's metadata
         /// </summary>
@@ -64,28 +73,28 @@ namespace LLama
         /// All metadata keys in this model
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; set; }
+        #endregion
 
-        private LLamaWeights(SafeLlamaModelHandle weights)
+        private LLamaWeights(SafeLlamaModelHandle handle)
         {
-            NativeHandle = weights;
-            Metadata = weights.ReadMetadata();
+            NativeHandle = handle;
+            Metadata = handle.ReadMetadata();
+
+            // Increment the model reference count while this weight exists.
+            // DangerousAddRef throws if it fails, so there is no need to check "success"
+            var success = false;
+            NativeHandle.DangerousAddRef(ref success);
         }
 
+        #region Load
         /// <summary>
-        /// Create from a "shared" handle
+        /// Create from a "shared" handle. The `SafeLlamaModelHandle` will not be disposed and the model will not be unloaded until <b>all</b> such handles have been disposed.
         /// </summary>
         /// <param name="handle"></param>
         /// <returns></returns>
         public static LLamaWeights FromSafeModelHandle(SafeLlamaModelHandle handle)
         {
-            var model = new LLamaWeights(handle);
-
-            // Increment the model reference count while this weight exists.
-            // DangerousAddRef throws if it fails, so there is no need to check "success"
-            var success = false;
-            handle.DangerousAddRef(ref success);
-
-            return model;
+            return new LLamaWeights(handle);
         }
 
         /// <summary>
@@ -128,15 +137,15 @@ namespace LLama
             var loraBase = @params.LoraBase;
             var loraAdapters = @params.LoraAdapters.ToArray();
 
-            // Determine the range to report for model loading. llama.cpp reports 0-1, but we'll remap that into a
-            // slightly smaller range to allow some space for reporting LoRA loading too.
-            var modelLoadProgressRange = 1f;
-            if (loraAdapters.Length > 0)
-                modelLoadProgressRange = 0.9f;
-
             using (@params.ToLlamaModelParams(out var lparams))
             {
 #if !NETSTANDARD2_0
+                // Determine the range to report for model loading. llama.cpp reports 0-1, but we'll remap that into a
+                // slightly smaller range to allow some space for reporting LoRA loading too.
+                var modelLoadProgressRange = 1f;
+                if (loraAdapters.Length > 0)
+                    modelLoadProgressRange = 0.9f;
+
                 // Overwrite the progress callback with one which polls the cancellation token and updates the progress object
                 if (token.CanBeCanceled || progressReporter != null)
                 {
@@ -204,11 +213,33 @@ namespace LLama
                 return model;
             }
         }
+        #endregion
 
         /// <inheritdoc />
         public void Dispose()
         {
-            NativeHandle.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Unload all models when called explicitly via dispose
+        /// </summary>
+        /// <param name="disposing">Whether or not this call is made explicitly(true) or via GC</param>
+        internal void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                NativeHandle.DangerousRelease();
+                NativeHandle.Dispose();
+            }
+
+            _disposed = true;
         }
 
         /// <summary>
