@@ -6,7 +6,7 @@ namespace LLama.Unittest.Model;
 public class ModelManagerTests
 {
     private readonly IModelSourceRepo _testRepo = new FileSystemModelRepo([Constants.ModelDirectory]);
-    
+
     private readonly ModelCache TestableModelManager;
 
     public ModelManagerTests()
@@ -17,97 +17,109 @@ public class ModelManagerTests
     [Fact]
     public async void LoadModel_DisposesOnUnload()
     {
+        const string modelId = "llama-2-7b";
         var modelToLoad = _testRepo.GetAvailableModels()
-            .First(f => f.ModelFileName.Contains("llama-2-7b"));
+            .First(f => f.ModelFileName.Contains(modelId));
 
-        var model = await TestableModelManager.LoadModelAsync(modelToLoad);
+        // Load success
+        var model = await TestableModelManager.LoadModelAsync(modelToLoad, modelId);
         Assert.NotNull(model);
+        Assert.Equal(1, TestableModelManager.ModelsCached());
 
-        // unloaded and disposed`
-        Assert.True(TestableModelManager.UnloadModel(model.ModelName));
+        // Load with same Id throws
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        {
+            await TestableModelManager.LoadModelAsync(modelToLoad, modelId);
+            return;
+        });
+        Assert.Equal(1, TestableModelManager.ModelsCached());
+
+        // unloaded and disposed
+        Assert.True(TestableModelManager.UnloadModel(modelId));
+        Assert.Throws<ObjectDisposedException>(() =>
+        {
+            _ = model.CreateContext(new ModelParams(modelToLoad.ModelFileUri));
+        });
+        Assert.Equal(0, TestableModelManager.ModelsCached());
+
+        // already unloaded and disposed
+        Assert.False(TestableModelManager.UnloadModel(modelId));
         Assert.Throws<ObjectDisposedException>(() =>
         {
             _ = model.CreateContext(new ModelParams(modelToLoad.ModelFileUri));
         });
 
-        // wont unload and already
-        Assert.False(TestableModelManager.UnloadModel(model.ModelName));
-        Assert.Throws<ObjectDisposedException>(() =>
-        {
-            _ = model.CreateContext(new ModelParams(modelToLoad.ModelFileUri));
-        });
+        // Can be reloaded after unload
+        model = await TestableModelManager.LoadModelAsync(modelToLoad, modelId);
+        Assert.NotNull(model);
+        Assert.Equal(1, TestableModelManager.ModelsCached());
+        Assert.True(TestableModelManager.UnloadModel(modelId));
+        Assert.Equal(0, TestableModelManager.ModelsCached());
     }
 
     [Fact]
-    public async void LoadModel_LoadsAndCaches()
+    public async void TryCloneLoadedModel_ClonesAndCaches()
     {
+        const string modelId = "llama-2-7b";
         var modelToLoad = _testRepo.GetAvailableModels()
-            .First(f => f.ModelFileName.Contains("llama-2-7b"));
+            .First(f => f.ModelFileName.Contains(modelId));
 
-        // Create Model -- Ref 1
-        var model = await TestableModelManager.LoadModelAsync(modelToLoad);
+        var model = await TestableModelManager.LoadModelAsync(modelToLoad, modelId);
         Assert.NotNull(model);
+        Assert.Equal(1, TestableModelManager.ModelsCached());
 
         // clone it -- Ref 2
-        var isCachedAndCloned = TestableModelManager.TryCloneLoadedModel(model.ModelName, out var cachedModel);
+        const string cloneId = nameof(cloneId);
+        var isCachedAndCloned = TestableModelManager.TryCloneLoadedModel(modelId, cloneId, out var cachedModel);
         Assert.True(isCachedAndCloned);
         Assert.NotNull(cachedModel);
+        Assert.Equal(2, TestableModelManager.ModelsCached());
 
         cachedModel.Dispose(); //-- ref 1
-        Assert.True(TestableModelManager.UnloadModel(model.ModelName));
+        Assert.True(TestableModelManager.UnloadModel(modelId));
+        Assert.Equal(1, TestableModelManager.ModelsCached());
 
         // unloaded and disposed` -- ref 2
-        Assert.True(TestableModelManager.UnloadModel(model.ModelName));
+        Assert.True(TestableModelManager.UnloadModel(cloneId));
+        Assert.Equal(0, TestableModelManager.ModelsCached());
 
-        Assert.False(TestableModelManager.UnloadModel(model.ModelName));
+        Assert.False(TestableModelManager.UnloadModel(modelId));
+        Assert.False(TestableModelManager.UnloadModel(cloneId));
         Assert.Throws<ObjectDisposedException>(() =>
         {
             _ = model.CreateContext(new ModelParams(modelToLoad.ModelFileUri));
         });
+        Assert.Throws<ObjectDisposedException>(() =>
+        {
+            _ = cachedModel.CreateContext(new ModelParams(modelToLoad.ModelFileUri));
+        });
     }
 
     [Fact]
-    public async void LoadModel_AlreadyLoaded_ReturnsFromCache()
+    public async void TryCloneLoadedModel_SameId_Throws()
     {
+        const string modelId = "llama-2-7b";
         var modelToLoad = _testRepo.GetAvailableModels()
-            .First(f => f.ModelFileName.Contains("llama-2-7b"));
+            .First(f => f.ModelFileName.Contains(modelId));
 
-        for (var i = 0; i < 5; i++)
+        var model = await TestableModelManager.LoadModelAsync(modelToLoad, modelId);
+        Assert.NotNull(model);
+        Assert.Equal(1, TestableModelManager.ModelsCached());
+
+        // Same Id clone fails
+        Assert.Throws<ArgumentException>(() =>
         {
-            var model = await TestableModelManager.LoadModelAsync(modelToLoad);
-            Assert.NotNull(model);
-            Assert.Equal("LLaMA v2", model.ModelName);
-            var isLoaded = TestableModelManager.TryCloneLoadedModel(model.ModelName, out var cachedModel);
-            Assert.True(isLoaded);
-            Assert.NotNull(cachedModel);
-            Assert.Equal("LLaMA v2", cachedModel.ModelName);
-        }
-    }
+            TestableModelManager.TryCloneLoadedModel(modelId, modelId, out var cachedModel);
+        });
+        Assert.Equal(1, TestableModelManager.ModelsCached());
 
-    [Fact]
-    public async void TryGetLoadedModel_AlreadyDisposed_ReturnsFalse()
-    {
-        var modelToLoad = _testRepo.GetAvailableModels()
-            .First(f => f.ModelFileName.Contains("llama-2-7b"));
-
-        using (var model = await TestableModelManager.LoadModelAsync(modelToLoad))
+        // Unload and dispose
+        Assert.True(TestableModelManager.UnloadModel(modelId));
+        Assert.Equal(0, TestableModelManager.ModelsCached());
+        Assert.False(TestableModelManager.UnloadModel(modelId));
+        Assert.Throws<ObjectDisposedException>(() =>
         {
-            Assert.NotNull(model);
-            Assert.Equal(model.ModelName, model.ModelName);
-            var isLoaded = TestableModelManager.TryCloneLoadedModel(model.ModelName, out var cachedModel);
-            Assert.True(isLoaded);
-            Assert.NotNull(cachedModel);
-            Assert.Equal(model.ModelName, cachedModel.ModelName);
-
-            // unload from the last check
-            Assert.True(TestableModelManager.UnloadModel(model.ModelName));
-
-        } // end scope, dispose is called on the model but since we have the model cache it should stick around until unloaded
-        Assert.True(TestableModelManager.UnloadModel("LLaMA v2"));
-
-        // Model is still loaded due to cache
-        var isDisposedLoaded = TestableModelManager.TryCloneLoadedModel("LLaMA v2", out var disposedModel);
-        Assert.False(isDisposedLoaded);
-        Assert.Null(disposedModel);
+            _ = model.CreateContext(new ModelParams(modelToLoad.ModelFileUri));
+        });
     }
 }
