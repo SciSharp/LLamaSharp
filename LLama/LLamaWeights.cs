@@ -108,7 +108,7 @@ namespace LLama
         #region Load
         /// <summary>
         /// Create a new instance of the model using same NativeHandle as this model.
-        /// Metadata is also copied from the existing model rather than read from the hanlde directly
+        /// Metadata is also copied from the existing model rather than read from the handle directly
         /// The `SafeLlamaModelHandle` will not be disposed and the model will not be unloaded until <b>ALL</b> such handles have been disposed.
         /// </summary>
         /// <returns></returns>
