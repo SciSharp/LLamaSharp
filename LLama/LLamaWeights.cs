@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,12 +18,6 @@ namespace LLama
         : IDisposable
     {
         private bool _disposed = false;
-
-        ///
-        ~LLamaWeights()
-        {
-            Dispose(false);
-        }
 
         /// <summary>
         /// The native handle, which is used in the native APIs
@@ -86,15 +81,43 @@ namespace LLama
             NativeHandle.DangerousAddRef(ref success);
         }
 
-        #region Load
         /// <summary>
-        /// Create from a "shared" handle. The `SafeLlamaModelHandle` will not be disposed and the model will not be unloaded until <b>all</b> such handles have been disposed.
+        /// Create an instance of the model using the supplied handle and metadata.
+        /// Metadata will <b>not</b> be re-read from the handle.
         /// </summary>
         /// <param name="handle"></param>
-        /// <returns></returns>
-        public static LLamaWeights FromSafeModelHandle(SafeLlamaModelHandle handle)
+        /// <param name="metadata"></param>
+        private LLamaWeights(SafeLlamaModelHandle handle, IReadOnlyDictionary<string, string> metadata)
         {
-            return new LLamaWeights(handle);
+            NativeHandle = handle;
+            Metadata = metadata;
+
+            // Increment the model reference count while this weight exists.
+            // DangerousAddRef throws if it fails, so there is no need to check "success"
+            var success = false;
+            NativeHandle.DangerousAddRef(ref success);
+        }
+
+        /// <inheritdoc />
+        ~LLamaWeights()
+        {
+            // Ensure the handle is released even if user's don't explicitly call Dispose
+            Dispose();
+        }
+
+        #region Load
+        /// <summary>
+        /// Create a new instance of the model using same NativeHandle as this model.
+        /// Metadata is also copied from the existing model rather than read from the hanlde directly
+        /// The `SafeLlamaModelHandle` will not be disposed and the model will not be unloaded until <b>ALL</b> such handles have been disposed.
+        /// </summary>
+        /// <returns></returns>
+        public LLamaWeights CloneFromHandleWithMetadata()
+        {
+            var metadataClone = Metadata
+                .Select(x => x)
+                .ToDictionary(x => x.Key, x => x.Value);
+            return new LLamaWeights(NativeHandle, metadataClone);
         }
 
         /// <summary>
@@ -218,28 +241,14 @@ namespace LLama
         /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Unload all models when called explicitly via dispose
-        /// </summary>
-        /// <param name="disposing">Whether or not this call is made explicitly(true) or via GC</param>
-        internal void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
+            if (!_disposed)
             {
                 NativeHandle.DangerousRelease();
                 NativeHandle.Dispose();
+                _disposed = true;
             }
 
-            _disposed = true;
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

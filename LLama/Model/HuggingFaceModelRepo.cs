@@ -24,7 +24,7 @@ internal class HuggingFaceModelRepo(ILogger<HuggingFaceModelRepo> logger,
         }
 
         // TODO: call HF to check model exists 
-        // TODO: Get metadta about model an
+        // TODO: Get metadata about model
         _hfModelUri.Add(source);
     }
 

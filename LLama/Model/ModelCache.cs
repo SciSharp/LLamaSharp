@@ -10,25 +10,35 @@ using LLama.Native;
 
 namespace LLama.Model;
 
+internal class CachedModelReference
+{
+    public LLamaWeights Model { get; init; } = null!;
+    public int RefCount { get; set; } = 0;
+}
+
 /// <inheritdoc />
 public class ModelCache : IModelCache
 {
     private bool _disposed = false;
 
     // model id/alias, to loaded model
-    private readonly Dictionary<string, SafeLlamaModelHandle> _loadedModelCache = [];
+    private readonly Dictionary<string, CachedModelReference> _loadedModelCache = [];
 
     /// <inheritdoc />
-    public int ModelsCached() 
+    public int ModelsCached()
         => _loadedModelCache.Count;
 
     /// <inheritdoc />
-    public bool TryGetLoadedModel(string modelId, out LLamaWeights model)
+    public bool TryCloneLoadedModel(string modelId, out LLamaWeights model)
     {
-        var isCached = _loadedModelCache.TryGetValue(modelId, out var handle);
-        model = isCached
-            ? LLamaWeights.FromSafeModelHandle(handle)
-            : null!;
+        var isCached = _loadedModelCache.TryGetValue(modelId, out var cachedModel);
+
+        model = null!;
+        if (isCached)
+        {
+            model = cachedModel.Model.CloneFromHandleWithMetadata();
+            cachedModel.RefCount++;
+        }
         return isCached;
     }
 
@@ -40,7 +50,7 @@ public class ModelCache : IModelCache
     {
         // is the model already loaded? alias could be different but it's up to the caller to be consistent
         if (!string.IsNullOrEmpty(modelId)
-            && TryGetLoadedModel(modelId, out var loadedModel))
+            && TryCloneLoadedModel(modelId, out var loadedModel))
         {
             return loadedModel;
         }
@@ -58,20 +68,18 @@ public class ModelCache : IModelCache
         {
             modelId = model.ModelName;
 
-            if (TryGetLoadedModel(modelId, out loadedModel))
+            if (TryCloneLoadedModel(modelId, out loadedModel))
             {
                 model.Dispose();
                 return loadedModel;
             }
         }
 
-        // Increment the model reference count while this model exists (newly created)
-        // DangerousAddRef throws if it fails, so there is no need to check "success"
-        // Do this here since we're passing this to the caller to own and it's not done as part of the normal weight creation
-        var refSuccess = false;
-        model.NativeHandle.DangerousAddRef(ref refSuccess);
-
-        _loadedModelCache.Add(modelId, model.NativeHandle);
+        _loadedModelCache.Add(modelId, new CachedModelReference
+        {
+            Model = model,
+            RefCount = 1
+        });
         return model;
     }
 
@@ -79,12 +87,12 @@ public class ModelCache : IModelCache
     /// <inheritdoc />
     public bool UnloadModel(string modelId)
     {
-        if (_loadedModelCache.TryGetValue(modelId, out var handle))
+        if (_loadedModelCache.TryGetValue(modelId, out var cachedModel))
         {
             // Decrement refcount on model
-            handle.DangerousRelease();
-            handle.Dispose();
-            if (handle.IsClosed || handle.IsInvalid)
+            cachedModel.Model.Dispose(); // this only disposes the original model...
+            cachedModel.RefCount--;
+            if (cachedModel.RefCount == 0)
             {
                 return _loadedModelCache.Remove(modelId);
             }
@@ -98,8 +106,10 @@ public class ModelCache : IModelCache
     {
         foreach (var handle in _loadedModelCache.Values)
         {
-            handle.DangerousRelease();
-            handle.Dispose();
+            for (var i = 0; i < handle.RefCount; i++)
+            {
+                handle.Model.Dispose();
+            }
         }
         _loadedModelCache.Clear();
     }

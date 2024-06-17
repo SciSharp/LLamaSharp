@@ -23,7 +23,7 @@ public interface IModelCache : IDisposable
     /// </summary>
     /// <param name="metadata"></param>
     /// <param name="modelConfigurator"></param>
-    /// <param name="modelId">An alias to uniquely identify this model's underyling handle. If none is supplied, the model's name is used.'</param>
+    /// <param name="modelId">An alias to uniquely identify this model's underlying handle. If none is supplied, the model's name is used.'</param>
     /// <param name="cancellationToken"></param>
     /// <returns>The loaded model on success</returns>
     public Task<LLamaWeights> LoadModelAsync(ModelFileMetadata metadata,
