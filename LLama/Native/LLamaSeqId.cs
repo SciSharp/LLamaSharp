@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace LLama.Native;
 
@@ -39,4 +39,10 @@ public record struct LLamaSeqId
     /// <param name="value"></param>
     /// <returns></returns>
     public static explicit operator LLamaSeqId(int value) => new(value);
+
+    /// <inheritdoc />
+    public readonly override string ToString()
+    {
+        return Value.ToString();
+    }
 }

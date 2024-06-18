@@ -10,23 +10,15 @@ namespace LLama.Examples.Examples;
 /// </summary>
 public class BatchedExecutorBeamSearch
 {
-    /// <summary>
-    /// Set how many tokens to generate
-    /// </summary>
-    private const int TokensGenerate = 24;
-
-    /// <summary>
-    /// Set how many parallel beams to keep
-    /// </summary>
-    private const int BeamsCount = 3;
-
     public static async Task Run()
     {
         // Load model weights
         var parameters = new ModelParams(UserSettings.GetModelPath());
         using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
-        var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
+        var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "The cat sat on");
+        var tokensGenerate = AnsiConsole.Ask<int>("How many tokens to generate?", 8);
+        var beamsCount = AnsiConsole.Ask<int>("How many parallel beams to keep track of?", 8);
 
         // Create an executor that can evaluate a batch of conversations together
         using var executor = new BatchedExecutor(model, parameters);
@@ -42,27 +34,27 @@ public class BatchedExecutorBeamSearch
         
         // Create one beam, containing that conversation
         var beams = new List<Beam>();
-        beams.Add(new Beam(conversation, 1.0, startTokens));
+        beams.Add(new Beam(conversation, 1.0, startTokens, [conversation.ConversationId]));
 
         // Print the prompt
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(prompt);
 
         // Generate loop
-        for (var i = 0; i < TokensGenerate; i++)
+        for (var i = 0; i < tokensGenerate; i++)
         {
             await executor.Infer();
 
             // Create new beams, forked from all original beams
             beams = (from oldBeam in beams
-                     from beam in oldBeam.Sample(BeamsCount)
+                     from beam in oldBeam.Sample(beamsCount)
                      select beam).OrderBy(a => a.CumulativeProbability).ToList();
 
             // Trim down list by removing low probability beams
-            while (beams.Count > BeamsCount)
+            while (beams.Count > beamsCount)
             {
                 var beam = beams[0];
-                AnsiConsole.MarkupLineInterpolated($"[red]Culling Beam (prob:{beam.CumulativeProbability:P10})[/]: {beam}");
+                AnsiConsole.MarkupLineInterpolated($"[red]Culling Beam {beam.Conversation.ConversationId} (prob:{beam.CumulativeProbability:P10})[/]: {beam}");
 
                 beam.Dispose();
                 beams.RemoveAt(0);
@@ -73,7 +65,7 @@ public class BatchedExecutorBeamSearch
         AnsiConsole.MarkupLineInterpolated($"Final Beams:");
         beams.Reverse();
         foreach (var beam in beams)
-            AnsiConsole.MarkupLineInterpolated($"[green]Culling Beam (prob:{beam.CumulativeProbability:P10})[/]: {beam}");
+            AnsiConsole.MarkupLineInterpolated($"[green](prob:{beam.CumulativeProbability:P10})[/]: {beam}");
 
         Console.WriteLine("Press any key to exit demo");
         Console.ReadKey(true);
@@ -85,12 +77,14 @@ public class BatchedExecutorBeamSearch
         public readonly Conversation Conversation;
         public readonly double CumulativeProbability;
         public readonly IReadOnlyList<LLamaToken> Tokens;
+        public readonly IReadOnlyList<LLamaSeqId> Sequence;
 
-        public Beam(Conversation conversation, double prob, IReadOnlyList<LLamaToken> tokens)
+        public Beam(Conversation conversation, double prob, IReadOnlyList<LLamaToken> tokens, IReadOnlyList<LLamaSeqId> sequence)
         {
             Conversation = conversation;
             CumulativeProbability = prob;
             Tokens = tokens;
+            Sequence = sequence;
         }
 
         public void Dispose()
@@ -118,7 +112,10 @@ public class BatchedExecutorBeamSearch
                 var t = Tokens.ToList();
                 t.Add(item.id);
 
-                results.Add(new Beam(c, p, t));
+                var s = Sequence.ToList();
+                s.Add(c.ConversationId);
+
+                results.Add(new Beam(c, p, t, s));
             }
 
             // Dispose self now that child beams have spawned
@@ -131,6 +128,7 @@ public class BatchedExecutorBeamSearch
 #pragma warning disable CS0618 // Type or member is obsolete
             return Conversation.Executor.Context.DeTokenize(Tokens);
 #pragma warning restore CS0618 // Type or member is obsolete
+
         }
     }
 }
