@@ -211,7 +211,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CUBLAS=ON
+          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CUDA=ON
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
