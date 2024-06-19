@@ -178,8 +178,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-latest]
-        cuda: ['12.4.1', '11.8.0']
+        os: [ubuntu-20.04, windows-2019]
+        cuda: ['12.2.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Clone
