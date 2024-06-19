@@ -158,20 +158,30 @@ jobs:
                 # if we ever want to pull libvulkan.so back into the packages, just uncomment this line, and the one below for the upload
                 # cp $(ldconfig -p | grep libvulkan.so | tail -n 1 | cut -d ' ' -f 4) ./
                 ls -R
-          - name: Upload artifacts (Windows)
+          - name: Upload llama artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
             with:
-                path: |
-                    .\build\bin\Release\llama.dll
+                path: .\build\bin\Release\llama.dll
                 name: llama-bin-win-vulkan-x64.dll
-          - name: Upload artifacts (linux)
+          - name: Upload llava artifacts (Windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: .\build\bin\Release\llava_shared.dll
+                name: llama-bin-win-vulkan-x64.dll
+          - name: Upload llama artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: |
-                    ./build/libllama.so
+                path: ./build/libllama.so
                 name: llama-bin-linux-vulkan-x64.so
+          - name: Upload llava artifacts (Linux)
+            if: ${{ matrix.os == 'ubuntu-22.04' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: ./build/examples/llava/libllava_shared.so
+                name: llama-bin-win-vulkan-x64.dll
                 
   compile-cublas:
     name: Compile (cublas)
@@ -353,8 +363,11 @@ jobs:
           cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so deps/cu12.2.0/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so deps/cu12.2.0/libllava_shared.so
 
-          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll deps/vulkan/
-          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/
+          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll deps/vulkan/llama.dll
+          cp artifacts/llama-bin-win-vulkan-x64.dll/llava_shared.dll deps/vulkan/llava_shared.dll
+            
+          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/libllama.so
+          cp artifacts/llama-bin-linux-vulkan-x64.so/libllava_shared.so deps/vulkan/libllava_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
