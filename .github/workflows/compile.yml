@@ -169,7 +169,7 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
                 path: .\build\bin\Release\llava_shared.dll
-                name: llama-bin-win-vulkan-x64.dll
+                name: llava-bin-win-vulkan-x64.dll
           - name: Upload llama artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
@@ -181,7 +181,7 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
                 path: ./build/examples/llava/libllava_shared.so
-                name: llama-bin-win-vulkan-x64.dll
+                name: llava-bin-win-vulkan-x64.dll
                 
   compile-cublas:
     name: Compile (cublas)
@@ -364,10 +364,10 @@ jobs:
           cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so deps/cu12.2.0/libllava_shared.so
 
           cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll deps/vulkan/llama.dll
-          cp artifacts/llama-bin-win-vulkan-x64.dll/llava_shared.dll deps/vulkan/llava_shared.dll
+          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll deps/vulkan/llava_shared.dll
             
           cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/libllama.so
-          cp artifacts/llama-bin-linux-vulkan-x64.so/libllava_shared.so deps/vulkan/libllava_shared.so
+          cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so deps/vulkan/libllava_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
