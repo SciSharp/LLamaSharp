@@ -181,7 +181,7 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
                 path: ./build/examples/llava/libllava_shared.so
-                name: llava-bin-win-vulkan-x64.dll
+                name: llava-bin-linux-vulkan-x64.so
                 
   compile-cublas:
     name: Compile (cublas)
