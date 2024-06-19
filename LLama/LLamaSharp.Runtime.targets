@@ -24,7 +24,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda11/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llama.dll</Link>
       </None>
@@ -49,7 +49,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda11/libllama.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllama.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
       </None>
@@ -105,7 +105,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda11/llava_shared.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/llava_shared.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llava_shared.dll</Link>
       </None>
@@ -130,7 +130,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda11/libllava_shared.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.1.0/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllava_shared.so</Link>
       </None>
