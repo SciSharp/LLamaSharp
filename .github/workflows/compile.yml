@@ -216,13 +216,13 @@ jobs:
           ls -R
 
       - name: Upload artifacts (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
       - name: Upload llava artifacts (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
