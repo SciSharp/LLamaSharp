@@ -6,7 +6,7 @@ namespace LLama.Native
 {
 #if NET6_0_OR_GREATER
     /// <summary>
-    /// A native library compiled with cublas/cuda.
+    /// A native library compiled with vulkan.
     /// </summary>
     public class NativeLibraryWithVulkan : INativeLibrary
     {
