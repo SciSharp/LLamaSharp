@@ -19,7 +19,7 @@ namespace LLama.Native
         {
             get
             {
-                return new NativeLibraryMetadata(_libraryName, false, _avxLevel);
+                return new NativeLibraryMetadata(_libraryName, false,  false,_avxLevel);
             }
         }
 
