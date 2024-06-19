@@ -142,11 +142,6 @@ jobs:
                 cd build
                 cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_VULKAN=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_PREFIX_PATH="$env:RUNNER_TEMP/vulkan"
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-                #copy $env:RUNNER_TEMP/clblast/lib/clblast.dll .\bin\Release\clblast.dll
-                # # We should probably generate a sha256 sum in a file, and use that.
-                # echo "78a8c98bcb2efe1a63318d901ab204d9ba96c3b29707b4ce0c4240bdcdc698d6  ./bin/Release/clblast.dll" >> tmp
-                # sha256sum -c tmp || exit 255
-                # rm tmp
                 ls -R
           - name: Build
             if: ${{ matrix.os == 'ubuntu-22.04' }}
@@ -155,8 +150,6 @@ jobs:
                 cd build
                 cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DLLAMA_VULKAN=ON -DBUILD_SHARED_LIBS=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-                # if we ever want to pull libvulkan.so back into the packages, just uncomment this line, and the one below for the upload
-                # cp $(ldconfig -p | grep libvulkan.so | tail -n 1 | cut -d ' ' -f 4) ./
                 ls -R
           - name: Upload llama artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
