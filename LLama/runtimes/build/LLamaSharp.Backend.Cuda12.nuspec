@@ -18,11 +18,11 @@
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.props" />
 
-    <file src="runtimes/deps/cu12.1.0/libllava_shared.so" target="runtimes\linux-x64\native\cuda12\libllava_shared.so" />
-    <file src="runtimes/deps/cu12.1.0/llava_shared.dll" target="runtimes\win-x64\native\cuda12\llava_shared.dll" />
+    <file src="runtimes/deps/cu12.2.0/libllava_shared.so" target="runtimes\linux-x64\native\cuda12\libllava_shared.so" />
+    <file src="runtimes/deps/cu12.2.0/llava_shared.dll" target="runtimes\win-x64\native\cuda12\llava_shared.dll" />
     
-    <file src="runtimes/deps/cu12.1.0/llama.dll" target="runtimes\win-x64\native\cuda12\llama.dll" />
-    <file src="runtimes/deps/cu12.1.0/libllama.so" target="runtimes\linux-x64\native\cuda12\libllama.so" />
+    <file src="runtimes/deps/cu12.2.0/llama.dll" target="runtimes\win-x64\native\cuda12\llama.dll" />
+    <file src="runtimes/deps/cu12.2.0/libllama.so" target="runtimes\linux-x64\native\cuda12\libllama.so" />
     
     <file src="icon512.png" target="icon512.png" />
   </files>
