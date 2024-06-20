@@ -6,7 +6,13 @@ using Spectre.Console;
 namespace LLama.Examples.Examples;
 
 /// <summary>
-/// This demonstrates beam search using the batched executor
+/// This demonstrates beam search using the batched executor.
+///
+/// Beam search is a technique for finding the most likely multi-token completion from a prompt. The search keeps track of a
+/// set of "beams", each beam is a possible completion and keeps track of it's cumulative probability. At each step all
+/// of the current beams are split into multiple beams by extending the beam with different possible tokens (greedy sampling the
+/// top N tokens), the set of _all_ beams is then trimmed down to just the most likely beams. This allows multiple possibilties to
+/// be considered, and can find a higher probability result than simply greedy sampling the most likely token at every stage.
 /// </summary>
 public class BatchedExecutorBeamSearch
 {
@@ -17,8 +23,8 @@ public class BatchedExecutorBeamSearch
         using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "The cat sat on");
-        var tokensGenerate = AnsiConsole.Ask<int>("How many tokens to generate?", 8);
-        var beamsCount = AnsiConsole.Ask<int>("How many parallel beams to keep track of?", 8);
+        var tokensGenerate = AnsiConsole.Ask("How many tokens to generate?", 8);
+        var beamsCount = AnsiConsole.Ask("How many parallel beams to keep track of?", 8);
 
         // Create an executor that can evaluate a batch of conversations together
         using var executor = new BatchedExecutor(model, parameters);
@@ -33,12 +39,7 @@ public class BatchedExecutorBeamSearch
         conversation.Prompt(startTokens);
         
         // Create one beam, containing that conversation
-        var beams = new List<Beam>();
-        beams.Add(new Beam(conversation, 1.0, startTokens, [conversation.ConversationId]));
-
-        // Print the prompt
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine(prompt);
+        var beams = new List<Beam> { new Beam(conversation, 1.0, startTokens, [conversation.ConversationId]) };
 
         // Generate loop
         for (var i = 0; i < tokensGenerate; i++)
@@ -59,32 +60,56 @@ public class BatchedExecutorBeamSearch
                 beam.Dispose();
                 beams.RemoveAt(0);
             }
+
+            // Normalize all remaining beam probabilties.
+            NormalizeBeams(beams);
         }
 
         // Print out all remaining beams
         AnsiConsole.MarkupLineInterpolated($"Final Beams:");
         beams.Reverse();
         foreach (var beam in beams)
-            AnsiConsole.MarkupLineInterpolated($"[green](prob:{beam.CumulativeProbability:P10})[/]: {beam}");
+        {
+            AnsiConsole.MarkupLineInterpolated($"[yellow]Probability: {beam.CumulativeProbability:P10}[/]");
+            AnsiConsole.MarkupLineInterpolated($"[yellow]Sequence: {string.Join(",", beam.Sequence)}[/]");
+            AnsiConsole.MarkupLineInterpolated($"[green]{beam}[/]");
+            Console.WriteLine();
+        }
 
         Console.WriteLine("Press any key to exit demo");
         Console.ReadKey(true);
+    }
+
+    /// <summary>
+    /// As the beam grows the cumulative probability gets very small. Normalizing all the beams prevents the value collapsing to zero.
+    /// </summary>
+    /// <param name="beams"></param>
+    private static void NormalizeBeams(List<Beam> beams)
+    {
+        // Find max probability
+        var max = beams.MaxBy(a => a.CumulativeProbability)!.CumulativeProbability;
+
+        // Divide all beams by max, this makes the max prob = 1.0
+        foreach (var beam in beams)
+            beam.CumulativeProbability /= max;
     }
 
     private class Beam
         : IDisposable
     {
         public readonly Conversation Conversation;
-        public readonly double CumulativeProbability;
         public readonly IReadOnlyList<LLamaToken> Tokens;
         public readonly IReadOnlyList<LLamaSeqId> Sequence;
+
+        public double CumulativeProbability;
 
         public Beam(Conversation conversation, double prob, IReadOnlyList<LLamaToken> tokens, IReadOnlyList<LLamaSeqId> sequence)
         {
             Conversation = conversation;
-            CumulativeProbability = prob;
             Tokens = tokens;
             Sequence = sequence;
+
+            CumulativeProbability = prob;
         }
 
         public void Dispose()
@@ -102,16 +127,24 @@ public class BatchedExecutorBeamSearch
             var results = new List<Beam>();
             for (var i = 0; i < nbeams; i++)
             {
+                // After softmax the logits array is in descending order of probability. Take the first `nbeams` items to make new beams.
                 var item = logitsArr.Data.Span[i];
 
+                // Fork the parent conversation. This shares all of the KV cache with the parent (and other forks)
+                // so does not cost any extra memory.
                 var c = Conversation.Fork();
+
+                // Extend the conversation with the selected token.
                 c.Prompt(item.id);
 
+                // Keep track of the cumulative probability of this entire sequence.
                 var p = CumulativeProbability * item.p;
 
+                // Keep track of all tokens in this sequence, for decoding later
                 var t = Tokens.ToList();
                 t.Add(item.id);
 
+                // Keep track of which beam this beam was derived from.
                 var s = Sequence.ToList();
                 s.Add(c.ConversationId);
 
@@ -125,10 +158,9 @@ public class BatchedExecutorBeamSearch
 
         public override string ToString()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            return Conversation.Executor.Context.DeTokenize(Tokens);
-#pragma warning restore CS0618 // Type or member is obsolete
-
+            var decoder = new StreamingTokenDecoder(Conversation.Executor.Context);
+            decoder.AddRange(Tokens);
+            return decoder.Read();
         }
     }
 }
