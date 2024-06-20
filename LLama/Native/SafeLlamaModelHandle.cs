@@ -109,8 +109,7 @@ namespace LLama.Native
             llama_free_model(handle);
             return true;
         }
-
-        // TODO: Move this to the model manager?
+        
         /// <summary>
         /// Load a model from the given file path into memory
         /// </summary>
