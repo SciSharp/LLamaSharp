@@ -11,7 +11,7 @@ namespace LLama.Examples.Examples;
 /// Beam search is a technique for finding the most likely multi-token completion from a prompt. The search keeps track of a
 /// set of "beams", each beam is a possible completion and keeps track of it's cumulative probability. At each step all
 /// of the current beams are split into multiple beams by extending the beam with different possible tokens (greedy sampling the
-/// top N tokens), the set of _all_ beams is then trimmed down to just the most likely beams. This allows multiple possibilties to
+/// top N tokens), the set of _all_ beams is then trimmed down to just the most likely beams. This allows multiple possibilities to
 /// be considered, and can find a higher probability result than simply greedy sampling the most likely token at every stage.
 /// </summary>
 public class BatchedExecutorBeamSearch
@@ -61,7 +61,7 @@ public class BatchedExecutorBeamSearch
                 beams.RemoveAt(0);
             }
 
-            // Normalize all remaining beam probabilties.
+            // Normalize all remaining beam probabilities.
             NormalizeBeams(beams);
         }
 
