@@ -252,7 +252,7 @@ namespace LLama
                     _embeds.Add(_embed_inps[_consumedTokensCount]);
                     _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_embeds.Count >= Context.Params.BatchSize)
+                    if (_embeds.Count >= Context.BatchSize)
                     {
                         break;
                     }

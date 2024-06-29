@@ -19,6 +19,7 @@ public class BatchedExecutorBoolQ
         const int tokensGenerate = 8;
         var batchSize = AnsiConsole.Ask("How many parallel conversations to evaluate in a batch", 64);
         var sys = AnsiConsole.Ask("System prompt", "Answer the question with a single word answer.");
+        var hint = AnsiConsole.Ask("Provide hints to model (test reading comprehension instead of knowledge)", true);
 
         // Answers may start with a space, and then must produce one of the listed strings followed by a newline character and nothing else.
         var grammar = Grammar.Parse("root ::= (\" \")? (\"true\" | \"false\" | \"yes\" | \"no\") \"\\n\"", "root");
@@ -31,12 +32,15 @@ public class BatchedExecutorBoolQ
         Console.WriteLine($"Created executor with model: {name}");
 
         // Load dataset
-        var data = new List<(string, bool)>();
+        var data = new List<(string, bool, string)>();
         if (AnsiConsole.Ask("Load training dataset?", false))
             data.AddRange(LoadData("Assets/BoolQ/train.csv"));
         if (AnsiConsole.Ask("Load validation dataset?", true))
             data.AddRange(LoadData("Assets/BoolQ/validation.csv"));
         AnsiConsole.MarkupLineInterpolated($"Loaded Dataset: {data.Count} questions");
+        var limit = AnsiConsole.Ask("Limit dataset size", 1000);
+        if (data.Count > limit)
+            data = data.Take(limit).ToList();
 
         // Process data in batches
         var chunks = data.Chunk(batchSize).ToArray();
@@ -49,7 +53,7 @@ public class BatchedExecutorBoolQ
 
             foreach (var chunk in chunks)
             {
-                var result = await RunBatch(executor, tokensGenerate, grammar, sys, chunk);
+                var result = await RunBatch(executor, tokensGenerate, grammar, sys, hint, chunk);
                 results.Add(result);
 
                 reporter.Increment(1);
@@ -67,7 +71,7 @@ public class BatchedExecutorBoolQ
 
     }
 
-    private static IEnumerable<(string, bool)> LoadData(string path)
+    private static IEnumerable<(string, bool, string)> LoadData(string path)
     {
         foreach (var line in File.ReadLines(path))
         {
@@ -76,17 +80,23 @@ public class BatchedExecutorBoolQ
             if (!bool.TryParse(splits[1], out var boolean))
                 continue;
 
-            yield return (splits[0], boolean);
+            var hint = string.Join(",", splits[2..]);
+            hint = hint.Trim('\"');
+
+            yield return (splits[0], boolean, hint);
         }
     }
 
-    private static async Task<BatchResult> RunBatch(BatchedExecutor executor, int maxTokens, Grammar grammar, string sys, IEnumerable<(string, bool)> batch)
+    private static async Task<BatchResult> RunBatch(BatchedExecutor executor, int maxTokens, Grammar grammar, string sys, bool hint, IEnumerable<(string, bool, string)> batch)
     {
         var conversations = (from item in batch
-                             select new ConversationRunner(executor, grammar, sys, item.Item1, item.Item2)).ToArray();
+                             select new ConversationRunner(executor, grammar, sys, item.Item1, item.Item2, hint ? item.Item3 : null)).ToArray();
 
         for (var i = 0; i < maxTokens; i++)
         {
+            if (executor.BatchQueueCount > 1)
+                AnsiConsole.MarkupLineInterpolated($"Batch Queue: {executor.BatchQueueCount} ({i})");
+
             // Process the entire queue of batching waiting to be processed
             while (executor.BatchQueueCount > 0)
             {
@@ -139,7 +149,7 @@ public class BatchedExecutorBoolQ
         public string Question { get; }
         public bool Answer { get; }
 
-        public ConversationRunner(BatchedExecutor executor, Grammar grammar, string sys, string question, bool answer)
+        public ConversationRunner(BatchedExecutor executor, Grammar grammar, string sys, string question, bool answer, string? hint)
         {
             _executor = executor;
             _decoder = new StreamingTokenDecoder(executor.Context);
@@ -148,10 +158,22 @@ public class BatchedExecutorBoolQ
                 Grammar = grammar.CreateInstance(),
             };
 
+            // Make sure question ends with question mark
+            if (!question.EndsWith('?'))
+                question += '?';
+
+            // Prepend hint if necessary
+            if (hint != null)
+            {
+                if (!hint.EndsWith('.'))
+                    hint += '.';
+                question = $"{hint}\n{question}";
+            }
+
             // Template the question
             var template = new LLamaTemplate(executor.Model);
             template.Add("system", sys);
-            template.Add("user", question + "?");
+            template.Add("user", question);
             template.AddAssistant = true;
             var templatedQuestion = Encoding.UTF8.GetString(template.Apply());
 
