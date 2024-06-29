@@ -94,15 +94,15 @@ public class BatchedExecutorBoolQ
 
         for (var i = 0; i < maxTokens; i++)
         {
-            //if (executor.BatchQueueCount > 1)
-            //    AnsiConsole.MarkupLineInterpolated($"Batch Queue: {executor.BatchQueueCount} ({i})");
+            if (executor.BatchQueueCount > 1)
+                AnsiConsole.MarkupLineInterpolated($"Batch Queue: {executor.BatchQueueCount} ({i})");
 
             // Process the entire queue of batching waiting to be processed
             while (executor.BatchQueueCount > 0)
             {
                 var result = await executor.Infer();
                 if (result != DecodeResult.Ok)
-                    break;
+                    throw new NotImplementedException($"Decode failed: {result}");
 
                 foreach (var item in conversations)
                     item.Sample();
