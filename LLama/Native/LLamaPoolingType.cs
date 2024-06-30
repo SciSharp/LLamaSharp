@@ -1,4 +1,4 @@
-﻿namespace LLama.Native;
+namespace LLama.Native;
 
 /// <summary>
 /// 
@@ -10,4 +10,6 @@ public enum LLamaPoolingType
     None = 0,
     Mean = 1,
     CLS = 2,
+
+    Last = 3,
 }

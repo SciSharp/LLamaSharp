@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,10 +28,10 @@ namespace LLama.Native
         /// Create a new llama_grammar
         /// </summary>
         /// <param name="rules">A list of list of elements, each inner list makes up one grammar rule</param>
-        /// <param name="start_rule_index">The index (in the outer list) of the start rule</param>
+        /// <param name="startRuleIndex">The index (in the outer list) of the start rule</param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public static SafeLLamaGrammarHandle Create(IReadOnlyList<GrammarRule> rules, ulong start_rule_index)
+        public static SafeLLamaGrammarHandle Create(IReadOnlyList<GrammarRule> rules, ulong startRuleIndex)
         {
             unsafe
             {
@@ -67,7 +67,7 @@ namespace LLama.Native
                     // Make the actual call through to llama.cpp
                     fixed (void* ptr = rulePointers)
                     {
-                        return Create((LLamaGrammarElement**)ptr, nrules, start_rule_index);
+                        return Create((LLamaGrammarElement**)ptr, nrules, startRuleIndex);
                     }
                 }
                 finally
@@ -83,12 +83,12 @@ namespace LLama.Native
         /// </summary>
         /// <param name="rules">rules list, each rule is a list of rule elements (terminated by a LLamaGrammarElementType.END element)</param>
         /// <param name="nrules">total number of rules</param>
-        /// <param name="start_rule_index">index of the start rule of the grammar</param>
+        /// <param name="startRuleIndex">index of the start rule of the grammar</param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
-        public static unsafe SafeLLamaGrammarHandle Create(LLamaGrammarElement** rules, ulong nrules, ulong start_rule_index)
+        public static unsafe SafeLLamaGrammarHandle Create(LLamaGrammarElement** rules, ulong nrules, ulong startRuleIndex)
         {
-            var grammar = NativeApi.llama_grammar_init(rules, nrules, start_rule_index);
+            var grammar = NativeApi.llama_grammar_init(rules, nrules, startRuleIndex);
             if (grammar is null)
                 throw new RuntimeError("Failed to create grammar from rules");
 

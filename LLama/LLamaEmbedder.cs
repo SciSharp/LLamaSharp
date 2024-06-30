@@ -1,4 +1,4 @@
-﻿using LLama.Native;
+using LLama.Native;
 using System;
 using LLama.Exceptions;
 using LLama.Abstractions;
@@ -33,7 +33,7 @@ namespace LLama
         public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
             if (!@params.Embeddings)
-                throw new ArgumentException("EmbeddingMode must be true", nameof(@params));
+                throw new ArgumentException("Embeddings must be true", nameof(@params));
 
             Context = weights.CreateContext(@params, logger);
         }

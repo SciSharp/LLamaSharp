@@ -77,6 +77,11 @@ namespace LLama
         /// Get the maximum batch size for this context
         /// </summary>
         public uint BatchSize => NativeHandle.BatchSize;
+
+        /// <summary>
+        /// Get the special tokens for the model associated with this context
+        /// </summary>
+        public SafeLlamaModelHandle.ModelTokens Tokens { get; }
         
         private LLamaTokenData[]? _samplingBuffer;
 
@@ -99,6 +104,8 @@ namespace LLama
 
             @params.ToLlamaContextParams(out var lparams);
             NativeHandle = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
+
+            Tokens = model.Tokens;
         }
 
         /// <summary>
