@@ -105,7 +105,15 @@ namespace LLama.Native
         /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_causal_attn(SafeLlamaModelHandle ctx, bool causal_attn);
+        public static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
+
+        /// <summary>
+        /// Set whether the model is in embeddings mode or not. 
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="embeddings">If true, embeddings will be returned but logits will not</param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_set_embeddings(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool embeddings);
 
         /// <summary>
         /// Set abort callback
@@ -123,9 +131,6 @@ namespace LLama.Native
 
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float llama_token_get_score(SafeLlamaModelHandle model, LLamaToken token);
-
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern LLamaTokenType llama_token_get_type(SafeLlamaModelHandle model, LLamaToken token);
 
         /// <summary>
         /// Get the n_seq_max for this context
@@ -184,12 +189,12 @@ namespace LLama.Native
         /// <param name="buf">A buffer to hold the output formatted prompt. The recommended alloc size is 2 * (total number of characters of all messages)</param>
         /// <param name="length">The size of the allocated buffer</param>
         /// <returns>The total number of bytes of the formatted prompt. If is it larger than the size of buffer, you may need to re-alloc it and then re-apply the template.</returns>
-        public static unsafe int llama_chat_apply_template(SafeLlamaModelHandle? model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, byte* buf, int length)
+        public static unsafe int llama_chat_apply_template(SafeLlamaModelHandle? model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length)
         {
             return internal_llama_chat_apply_template(model?.DangerousGetHandle() ?? IntPtr.Zero, tmpl, chat, n_msg, add_ass, buf, length);
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_chat_apply_template")]
-            static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, bool add_ass, byte* buf, int length);
+            static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
         }
 
         /// <summary>
@@ -235,7 +240,7 @@ namespace LLama.Native
         /// <param name="buffer">buffer to write string into</param>
         /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, bool special)
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, [MarshalAs(UnmanagedType.U1)] bool special)
         {
             unsafe
             {
@@ -246,7 +251,7 @@ namespace LLama.Native
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, bool special);
+            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, [MarshalAs(UnmanagedType.U1)] bool special);
         }
 
         /// <summary>
@@ -263,7 +268,7 @@ namespace LLama.Native
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, bool add_special, bool parse_special);
+        public static extern unsafe int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
 
         /// <summary>
         /// Register a callback to receive llama log messages

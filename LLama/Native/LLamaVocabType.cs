@@ -1,4 +1,4 @@
-﻿namespace LLama.Native;
+namespace LLama.Native;
 
 /// <summary>
 /// 
@@ -25,4 +25,9 @@ public enum LLamaVocabType
     /// BERT tokenizer based on WordPiece
     /// </summary>
     WordPiece = 3,
+
+    /// <summary>
+    /// T5 tokenizer based on Unigram
+    /// </summary>
+    Unigram = 4,
 }

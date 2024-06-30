@@ -207,7 +207,7 @@ namespace LLama
                     return (true, Array.Empty<string>());
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.NativeHandle.ModelHandle.Tokens.EOS)
+            if (_embeds.Count > 0 && _embeds.Last() == Context.Tokens.EOS)
             {
                 return (true, new[] { " [end of text]\n" });
             }

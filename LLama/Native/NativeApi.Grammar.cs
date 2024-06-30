@@ -1,19 +1,19 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
 	public static partial class NativeApi
     {
-		/// <summary>
-		/// Create a new grammar from the given set of grammar rules
-		/// </summary>
-		/// <param name="rules"></param>
-		/// <param name="n_rules"></param>
-		/// <param name="start_rule_index"></param>
-		/// <returns></returns>
+        /// <summary>
+        /// Create a new grammar from the given set of grammar rules
+        /// </summary>
+        /// <param name="rules">The rule elements of the grammar to initialize.</param>
+        /// <param name="nRules">The number of rules.</param>
+        /// <param name="startRuleIndex">The index of the root rule (the starting point of the grammar).</param>
+        /// <returns>The initialized llama_grammar or nullptr if initialization failed.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe SafeLLamaGrammarHandle llama_grammar_init(LLamaGrammarElement** rules, ulong n_rules, ulong start_rule_index);
+        public static extern unsafe SafeLLamaGrammarHandle llama_grammar_init(LLamaGrammarElement** rules, ulong nRules, ulong startRuleIndex);
 
         /// <summary>
         /// Free all memory from the given SafeLLamaGrammarHandle
