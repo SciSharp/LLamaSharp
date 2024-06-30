@@ -176,7 +176,7 @@ jobs:
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/libllama.so
+                path: ./build/src/libllama.so
                 name: llama-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload llava artifacts (Linux)
