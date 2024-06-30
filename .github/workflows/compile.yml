@@ -51,7 +51,7 @@ jobs:
           ls -R
       - uses: actions/upload-artifact@v4
         with:
-          path: ./src/libllama.so
+          path: ./build/src/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
       - name: Upload Llava
