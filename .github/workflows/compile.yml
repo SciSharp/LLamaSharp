@@ -48,15 +48,18 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          ls .
       - uses: actions/upload-artifact@v4
         with:
-          path: ./build/libllama.so
+          path: ./build/bin/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
           name: llava-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
 
   compile-windows:
     name: Compile (Windows)
@@ -93,12 +96,14 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
+          if-no-files-found: error
 
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-${{ matrix.build }}-x64.dll
+          if-no-files-found: error
           
   compile-vulkan:
       name: Compile (vulkan) - ${{ matrix.os }}
@@ -159,24 +164,28 @@ jobs:
             with:
                 path: .\build\bin\Release\llama.dll
                 name: llama-bin-win-vulkan-x64.dll
+                if-no-files-found: error
           - name: Upload llava artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
             with:
                 path: .\build\bin\Release\llava_shared.dll
                 name: llava-bin-win-vulkan-x64.dll
+                if-no-files-found: error
           - name: Upload llama artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
                 path: ./build/libllama.so
                 name: llama-bin-linux-vulkan-x64.so
+                if-no-files-found: error
           - name: Upload llava artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
                 path: ./build/examples/llava/libllava_shared.so
                 name: llava-bin-linux-vulkan-x64.so
+                if-no-files-found: error
                 
   compile-cublas:
     name: Compile (cublas)
@@ -226,24 +235,28 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
       - name: Upload artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          if-no-files-found: error
       - name: Upload llava artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
           name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          if-no-files-found: error
  
     
   compile-macos:
@@ -281,17 +294,20 @@ jobs:
         with:
           path: ./build/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
+          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
+          if-no-files-found: error
       - name: Upload Metal
         if: ${{ matrix.build == 'arm64' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/ggml-metal.metal
           name: ggml-metal.metal
+          if-no-files-found: error
   
   build-deps:
     runs-on: ubuntu-latest
