@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DGGML_RPC=ON
 
 jobs:
   compile-linux:
@@ -292,7 +292,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/libllama.dylib
+          path: ./build/src/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
       - name: Upload Llava
