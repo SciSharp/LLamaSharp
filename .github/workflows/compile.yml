@@ -172,6 +172,13 @@ jobs:
                 path: .\build\bin\Release\llama.dll
                 name: llama-bin-win-vulkan-x64.dll
                 if-no-files-found: error
+          - name: Upload llama artifacts (Windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: .\build\bin\Release\ggml.dll
+                name: ggml-bin-win-vulkan-x64.dll
+                if-no-files-found: error
           - name: Upload llava artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
@@ -242,6 +249,13 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml)
+        if: ${{ matrix.os == 'windows-2019' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml.dll
+          name: ggml-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
@@ -344,54 +358,72 @@ jobs:
           # Make all directories at once
           mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan}
 
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
-          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
-          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so   deps/avx2/libllama.so
-          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
-
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/llama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/llama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/llama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/llama.dll
-
+          # Linux
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/libllama.so
           cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/libllava_shared.so
+
+          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so
           cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
+
+          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so
           cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
+
+          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so        deps/avx512/libllama.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
 
-          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll  deps/llava_shared.dll
-          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
-          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
-          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll deps/avx512/llava_shared.dll
-              
-          cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib deps/osx-arm64/libggml.dylib
-          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
+          # Windows
+          cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll            deps/ggml.dll
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll          deps/llama.dll
+          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll   deps/llava_shared.dll
+
+          cp artifacts/ggml-bin-win-avx-x64.dll/ggml.dll              deps/avx/ggml.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll            deps/avx/llama.dll
+          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll     deps/avx/llava_shared.dll
+
+          cp artifacts/ggml-bin-win-avx2-x64.dll/ggml.dll             deps/avx2/ggml.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll           deps/avx2/llama.dll
+          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll    deps/avx2/llava_shared.dll
+
+          cp artifacts/ggml-bin-win-avx512-x64.dll/ggml.dll           deps/avx512/ggml.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll         deps/avx512/llama.dll
+          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll  deps/avx512/llava_shared.dll
+
+          # MacOS
+          cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib           deps/osx-arm64/libggml.dylib
+          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib         deps/osx-arm64/libllama.dylib
+          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib  deps/osx-arm64/libllava_shared.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal                deps/osx-arm64/ggml-metal.metal
             
-          cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib   deps/osx-x64/libggml.dylib
-          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
-          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
+          cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
+          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
+          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
             
-          cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib   deps/osx-x64-rosetta2/libggml.dylib
-          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib   deps/osx-x64-rosetta2/libllama.dylib
+          cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib          deps/osx-x64-rosetta2/libggml.dylib
+          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib        deps/osx-x64-rosetta2/libllama.dylib
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
 
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll    deps/cu11.7.1/llava_shared.dll
-
-          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so deps/cu11.7.1/libllava_shared.so
+          # Windows CUDA
+          cp artifacts/ggml-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll            deps/cu11.7.1/ggml.dll
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll          deps/cu11.7.1/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll   deps/cu11.7.1/llava_shared.dll
           
-          cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll    deps/cu12.2.0/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll    deps/cu12.2.0/llava_shared.dll
+          cp artifacts/ggml-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll            deps/cu12.2.0/ggml.dll
+          cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll          deps/cu12.2.0/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll   deps/cu12.2.0/llava_shared.dll
 
-          cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so deps/cu12.2.0/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so deps/cu12.2.0/libllava_shared.so
+          # Linux CUDA
+          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so         deps/cu11.7.1/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so  deps/cu11.7.1/libllava_shared.so
 
-          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll deps/vulkan/llama.dll
-          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll deps/vulkan/llava_shared.dll
+          cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so         deps/cu12.2.0/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so  deps/cu12.2.0/libllava_shared.so
+
+          # Windows Vulkan
+          cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll           deps/vulkan/ggml.dll
+          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll         deps/vulkan/llama.dll
+          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll  deps/vulkan/llava_shared.dll
             
+          # Linux Vulkan
           cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/libllama.so
           cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so deps/vulkan/libllava_shared.so
 
