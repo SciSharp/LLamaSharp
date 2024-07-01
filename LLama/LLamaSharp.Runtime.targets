@@ -54,6 +54,10 @@
         <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
       </None>
 
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-arm64/native/libggml.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllama.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/libllama.dylib</Link>
@@ -66,7 +70,11 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/ggml-metal.metal</Link>
       </None>
-
+        
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/libggml.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllama.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libllama.dylib</Link>
@@ -76,6 +84,10 @@
         <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
       </None>
 
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/osx-x64/native/rosetta2/libggml.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libllama.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/rosetta2/libllama.dylib</Link>
