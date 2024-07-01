@@ -243,6 +243,13 @@ jobs:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
+      - name: Upload artifacts (ggml)
+        if: ${{ matrix.os == 'windows-2019' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml.dll
+          name: ggml-bin-win-${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
