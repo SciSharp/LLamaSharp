@@ -289,7 +289,13 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-      - name: Upload artifacts
+      - name: Upload ggml
+        uses: actions/upload-artifact@v4
+        with:
+            path: ./build/ggml/src/libggml.dylib
+            name: ggml-bin-osx-${{ matrix.build }}.dylib
+            if-no-files-found: error
+      - name: Upload llama
         uses: actions/upload-artifact@v4
         with:
           path: ./build/src/libllama.dylib
@@ -350,15 +356,17 @@ jobs:
           cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
           cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
           cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll deps/avx512/llava_shared.dll
-
-
+              
+          cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib deps/osx-arm64/libggml.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
           cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
-
+            
+          cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib   deps/osx-x64/libggml.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
-
+            
+          cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib   deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib   deps/osx-x64-rosetta2/libllama.dylib
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
 
