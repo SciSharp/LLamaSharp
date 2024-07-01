@@ -102,7 +102,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\ggml.dll
-          name: llama-bin-win-${{ matrix.build }}-x64.dll
+          name: ggml-bin-win-${{ matrix.build }}-x64.dll
           if-no-files-found: error
 
       - name: Upload artifacts (llava)
