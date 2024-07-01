@@ -27,13 +27,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DLLAMA_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_AVX2=OFF'
+            defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON'
+            defines: '-DGGML_AVX512=ON'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
@@ -54,11 +54,6 @@ jobs:
           path: ./build/src/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          path: ./build/src/ggml.so
-          name: llama-bin-linux-${{ matrix.build }}-x64.so
-          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
@@ -73,13 +68,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DLLAMA_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_AVX2=OFF'
+            defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON -DLLAMA_AVX512_VBMI=ON -DLLAMA_AVX512_VNNI=ON'
+            defines: '-DGGML_AVX512=ON -DGGML_AVX512_VBMI=ON -DGGML_AVX512_VNNI=ON'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +90,7 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          tree /f
 
       - name: Upload artifacts (llama)
         uses: actions/upload-artifact@v4
@@ -279,9 +275,9 @@ jobs:
           - build: 'arm64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL_EMBED_LIBRARY=ON'
           - build: 'x64'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DLLAMA_AVX=ON -DLLAMA_AVX2=ON'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=ON -DGGML_AVX2=ON'
           - build: 'x64-rosetta2'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v4
