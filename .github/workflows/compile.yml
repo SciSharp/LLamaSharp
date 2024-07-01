@@ -54,6 +54,11 @@ jobs:
           path: ./build/src/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/src/ggml.so
+          name: llama-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
@@ -91,14 +96,20 @@ jobs:
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
 
-      - name: Upload artifacts
+      - name: Upload artifacts (llama)
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
           if-no-files-found: error
+      - name: Upload artifacts (ggml)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml.dll
+          name: llama-bin-win-${{ matrix.build }}-x64.dll
+          if-no-files-found: error
 
-      - name: Upload Llava
+      - name: Upload artifacts (llava)
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
