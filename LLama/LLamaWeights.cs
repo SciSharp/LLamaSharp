@@ -16,11 +16,22 @@ namespace LLama
     public sealed class LLamaWeights
         : IDisposable
     {
+        private bool _disposed = false;
+
         /// <summary>
         /// The native handle, which is used in the native APIs
         /// </summary>
         /// <remarks>Be careful how you use this!</remarks>
         public SafeLlamaModelHandle NativeHandle { get; }
+
+        #region Properties
+        /// <summary>
+        /// The models name as specified in it's metadata
+        /// </summary>
+        /// <returns></returns>
+        public string ModelName => Metadata.TryGetValue("general.name", out var name)
+            ? name
+            : string.Empty;
 
         /// <summary>
         /// Total number of tokens in vocabulary of this model
@@ -56,11 +67,53 @@ namespace LLama
         /// All metadata keys in this model
         /// </summary>
         public IReadOnlyDictionary<string, string> Metadata { get; set; }
+        #endregion
 
-        private LLamaWeights(SafeLlamaModelHandle weights)
+        private LLamaWeights(SafeLlamaModelHandle handle)
         {
-            NativeHandle = weights;
-            Metadata = weights.ReadMetadata();
+            NativeHandle = handle;
+            Metadata = handle.ReadMetadata();
+
+            // Increment the model reference count while this weight exists.
+            // DangerousAddRef throws if it fails, so there is no need to check "success"
+            var success = false;
+            NativeHandle.DangerousAddRef(ref success);
+        }
+
+        /// <summary>
+        /// Create an instance of the model using the supplied handle and metadata.
+        /// Metadata will <b>not</b> be re-read from the handle.
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="metadata"></param>
+        private LLamaWeights(SafeLlamaModelHandle handle, IReadOnlyDictionary<string, string> metadata)
+        {
+            NativeHandle = handle;
+            Metadata = metadata;
+
+            // Increment the model reference count while this weight exists.
+            // DangerousAddRef throws if it fails, so there is no need to check "success"
+            var success = false;
+            NativeHandle.DangerousAddRef(ref success);
+        }
+
+        /// <inheritdoc />
+        ~LLamaWeights()
+        {
+            // Ensure the handle is released even if user's don't explicitly call Dispose
+            Dispose();
+        }
+
+        #region Load
+        /// <summary>
+        /// Create a new instance of the model using same NativeHandle as this model.
+        /// Metadata is also copied from the existing model rather than read from the handle directly
+        /// The `SafeLlamaModelHandle` will not be disposed and the model will not be unloaded until <b>ALL</b> such handles have been disposed.
+        /// </summary>
+        /// <returns></returns>
+        public LLamaWeights CloneFromHandleWithMetadata()
+        {
+            return new LLamaWeights(NativeHandle, Metadata);
         }
 
         /// <summary>
@@ -71,19 +124,19 @@ namespace LLama
         public static LLamaWeights LoadFromFile(IModelParams @params)
         {
             using var pin = @params.ToLlamaModelParams(out var lparams);
-            var weights = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
+            var model = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
 
             foreach (var adapter in @params.LoraAdapters)
             {
-                if (string.IsNullOrEmpty(adapter.Path))
+                if (string.IsNullOrEmpty(adapter.Path) || adapter.Scale <= 0)
+                {
                     continue;
-                if (adapter.Scale <= 0)
-                    continue;
+                }
 
-                weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase);
+                model.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase);
             }
 
-            return new LLamaWeights(weights);
+            return new LLamaWeights(model);
         }
 
         /// <summary>
@@ -103,15 +156,15 @@ namespace LLama
             var loraBase = @params.LoraBase;
             var loraAdapters = @params.LoraAdapters.ToArray();
 
-            // Determine the range to report for model loading. llama.cpp reports 0-1, but we'll remap that into a
-            // slightly smaller range to allow some space for reporting LoRA loading too.
-            var modelLoadProgressRange = 1f;
-            if (loraAdapters.Length > 0)
-                modelLoadProgressRange = 0.9f;
-
             using (@params.ToLlamaModelParams(out var lparams))
             {
 #if !NETSTANDARD2_0
+                // Determine the range to report for model loading. llama.cpp reports 0-1, but we'll remap that into a
+                // slightly smaller range to allow some space for reporting LoRA loading too.
+                var modelLoadProgressRange = 1f;
+                if (loraAdapters.Length > 0)
+                    modelLoadProgressRange = 0.9f;
+
                 // Overwrite the progress callback with one which polls the cancellation token and updates the progress object
                 if (token.CanBeCanceled || progressReporter != null)
                 {
@@ -125,11 +178,7 @@ namespace LLama
                         if (internalCallback != null && !internalCallback(progress, ctx))
                             return false;
 
-                        // Check the cancellation token
-                        if (token.IsCancellationRequested)
-                            return false;
-
-                        return true;
+                        return token.IsCancellationRequested;
                     };
                 }
 #endif
@@ -183,11 +232,19 @@ namespace LLama
                 return model;
             }
         }
+        #endregion
 
         /// <inheritdoc />
         public void Dispose()
         {
-            NativeHandle.Dispose();
+            if (!_disposed)
+            {
+                NativeHandle.DangerousRelease();
+                NativeHandle.Dispose();
+                _disposed = true;
+            }
+
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
