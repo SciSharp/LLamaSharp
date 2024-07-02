@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.34.240313.1" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.36.240416.1" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.1" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.6.2-alpha" />
     <PackageReference Include="NAudio" Version="2.2.1" />
