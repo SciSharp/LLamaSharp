@@ -121,14 +121,6 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx, IntPtr /* ggml_abort_callback */ abort_callback, IntPtr abort_callback_data);
 
-        /// <summary>
-        /// Wait until all computations are finished. This is automatically done when using any of the functions to obtain computation results
-        /// and is not necessary to call it explicitly in most cases.
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_synchronize(SafeLlamaModelHandle ctx);
-
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float llama_token_get_score(SafeLlamaModelHandle model, LLamaToken token);
 
@@ -219,13 +211,6 @@ namespace LLama.Native
         public static extern void llama_print_timings(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Reset all collected timing information for this context
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_reset_timings(SafeLLamaContextHandle ctx);
-
-        /// <summary>
         /// Print system information
         /// </summary>
         /// <returns></returns>
@@ -240,8 +225,12 @@ namespace LLama.Native
         /// <param name="buffer">buffer to write string into</param>
         /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, [MarshalAs(UnmanagedType.U1)] bool special)
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, bool special)
         {
+            // Handle invalid tokens
+            if ((int)llamaToken < 0)
+                return 0;
+
             unsafe
             {
                 fixed (byte* bufferPtr = buffer)

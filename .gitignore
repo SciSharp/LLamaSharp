@@ -350,3 +350,4 @@ site/
 /LLama.Benchmark/Models/*.gguf
 
 **/appsettings.Local.json
+/LLama/runtimes/deps
