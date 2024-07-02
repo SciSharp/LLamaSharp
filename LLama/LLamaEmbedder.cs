@@ -1,4 +1,4 @@
-﻿using LLama.Native;
+using LLama.Native;
 using System;
 using LLama.Exceptions;
 using LLama.Abstractions;
@@ -67,7 +67,7 @@ namespace LLama
             // Evaluate prompt in batch-size chunks
             var n_past = 0;
             var batch = new LLamaBatch();
-            var batchSize = (int)Context.Params.BatchSize;
+            var batchSize = (int)Context.BatchSize;
             for (var i = 0; i < tokens.Length; i += batchSize)
             {
                 var n_eval = tokens.Length - i;

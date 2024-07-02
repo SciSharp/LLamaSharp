@@ -36,6 +36,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\BoolQ\train.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\BoolQ\validation.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\chat-with-bob.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

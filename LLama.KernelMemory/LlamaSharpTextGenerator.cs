@@ -54,7 +54,7 @@ namespace LLamaSharp.KernelMemory
             _context = context;
             _executor = executor ?? new StatelessExecutor(_weights, _context.Params);
             _defaultInferenceParams = inferenceParams;
-            MaxTokenTotal = (int)_context.Params.ContextSize;
+            MaxTokenTotal = (int)_context.ContextSize;
         }
 
         /// <inheritdoc/>

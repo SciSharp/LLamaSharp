@@ -528,7 +528,7 @@ namespace LLama
         {
             if (batch.TokenCount == 0)
                 return 0;
-            if (batch.TokenCount > Params.BatchSize)
+            if (batch.TokenCount > BatchSize)
                 throw new ArgumentException("Input contains more tokens than configured batch size", nameof(batch));
 
             return (DecodeResult)NativeHandle.Decode(batch);
@@ -550,7 +550,7 @@ namespace LLama
         {
             if (batch.EmbeddingsCount == 0)
                 return 0;
-            if (batch.EmbeddingsCount > Params.BatchSize)
+            if (batch.EmbeddingsCount > BatchSize)
                 throw new ArgumentException("Input contains more tokens than configured batch size", nameof(batch));
             
             return (DecodeResult)NativeHandle.Decode(batch);
