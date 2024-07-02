@@ -16,6 +16,7 @@ namespace LLama.Native
         private string? _libraryPath;
 
         private bool _useCuda = true;
+        private bool _useVulkan = true;
         private AvxLevel _avxLevel;
         private bool _allowFallback = true;
         private bool _skipCheck = false;
@@ -53,6 +54,20 @@ namespace LLama.Native
             ThrowIfLoaded();
 
             _useCuda = enable;
+            return this;
+        }
+        
+        /// <summary>
+        /// Configure whether to use vulkan backend if possible. Default is true.
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
+        public NativeLibraryConfig WithVulkan(bool enable = true)
+        {
+            ThrowIfLoaded();
+
+            _useVulkan = enable;
             return this;
         }
 
@@ -159,6 +174,7 @@ namespace LLama.Native
                 path,
                 NativeLibraryName,
                 _useCuda,
+                _useVulkan,
                 _avxLevel,
                 _allowFallback,
                 _skipCheck,
@@ -229,7 +245,7 @@ namespace LLama.Native
         /// <param name="AllowFallback"></param>
         /// <param name="SkipCheck"></param>
         /// <param name="SearchDirectories"></param>
-        public record Description(string? Path, NativeLibraryName Library, bool UseCuda, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, 
+        public record Description(string? Path, NativeLibraryName Library, bool UseCuda, bool UseVulkan, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, 
             string[] SearchDirectories)
         {
             /// <inheritdoc/>
@@ -250,6 +266,7 @@ namespace LLama.Native
                        $"- LibraryName: {Library}\n" +
                        $"- Path: '{Path}'\n" +
                        $"- PreferCuda: {UseCuda}\n" +
+                       $"- PreferVulkan: {UseVulkan}\n" +
                        $"- PreferredAvxLevel: {avxLevelString}\n" +
                        $"- AllowFallback: {AllowFallback}\n" +
                        $"- SkipCheck: {SkipCheck}\n" +
@@ -422,6 +439,21 @@ namespace LLama.Native
             foreach(var config in _configs)
             {
                 config.WithCuda(enable);
+            }
+            return this;
+        }
+        
+        /// <summary>
+        /// Configure whether to use vulkan backend if possible.
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
+        public NativeLibraryConfigContainer WithVulkan(bool enable = true)
+        {
+            foreach(var config in _configs)
+            {
+                config.WithVulkan(enable);
             }
             return this;
         }

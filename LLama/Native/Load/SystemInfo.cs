@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace LLama.Native
 {
@@ -10,7 +12,8 @@ namespace LLama.Native
     /// </summary>
     /// <param name="OSPlatform"></param>
     /// <param name="CudaMajorVersion"></param>
-    public record class SystemInfo(OSPlatform OSPlatform, int CudaMajorVersion)
+    /// <param name="VulkanVersion"></param>
+    public record class SystemInfo(OSPlatform OSPlatform, int CudaMajorVersion, string? VulkanVersion)
     {
         /// <summary>
         /// Get the system information of the current machine.
@@ -37,8 +40,108 @@ namespace LLama.Native
                 throw new PlatformNotSupportedException();
             }
 
-            return new SystemInfo(platform, GetCudaMajorVersion());
+            return new SystemInfo(platform, GetCudaMajorVersion(), GetVulkanVersion());
         }
+        
+        #region Vulkan version
+        private static string? GetVulkanVersion()
+        {
+            // Get Vulkan Summary
+            string? vulkanSummary = GetVulkanSummary();
+            
+            // If we have a Vulkan summary
+            if (vulkanSummary != null)
+            {
+                // Extract Vulkan version from summary
+                string? vulkanVersion = ExtractVulkanVersionFromSummary(vulkanSummary);
+                
+                // If we have a Vulkan version
+                if (vulkanVersion != null)
+                {
+                    // Return the Vulkan version
+                    return vulkanVersion;
+                }
+            }
+            
+            // Return null if we failed to get the Vulkan version
+            return null;
+        }
+        
+        private static string? GetVulkanSummary()
+        {
+            // Note: on Linux, this requires `vulkan-tools` to be installed. (`sudo apt install vulkan-tools`)
+            try
+            {
+                // Set up the process start info
+                ProcessStartInfo start = new()
+                {
+                    FileName = "vulkaninfo",
+                    Arguments = "--summary",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                // Start the process
+                Process process = new()
+                {
+                    StartInfo = start
+                };
+                process.Start();
+                
+                // Read the output to a string
+                string output = process.StandardOutput.ReadToEnd();
+                
+                // Wait for the process to exit
+                process.WaitForExit();
+
+                // Return the output
+                return output;
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine(e);
+                
+                // Return null if we failed to get the Vulkan version
+                return null;
+            }
+        }
+
+        static string? ExtractVulkanVersionFromSummary(string vulkanSummary)
+        {
+            // We have three ways of parsing the Vulkan version from the summary (output is a different between Windows and Linux)
+            // For now, I have decided to go with the full version number, and leave it up to the user to parse it further if needed
+            // I have left the other patterns in, in case we need them in the future
+            
+            // Output on linux : 4206847 (1.3.255)
+            // Output on windows : 1.3.255
+            string pattern = @"apiVersion\s*=\s*([^\r\n]+)";
+            
+            // Output on linux : 4206847
+            // Output on windows : 1.3.255
+            //string pattern = @"apiVersion\s*=\s*([\d\.]+)";
+            
+            // Output on linux : 1.3.255
+            // Output on windows : 1.3.255
+            //string pattern = @"apiVersion\s*=\s*(?:\d+\s*)?(?:\(\s*)?([\d]+\.[\d]+\.[\d]+)(?:\s*\))?";
+            
+            // Create a Regex object to match the pattern
+            Regex regex = new Regex(pattern);
+
+            // Match the pattern in the input string
+            Match match = regex.Match(vulkanSummary);
+
+            // If a match is found
+            if (match.Success)
+            {
+                // Return the version number
+                return match.Groups[1].Value;
+            }
+
+            // Return null if no match is found
+            return null;
+        }
+        #endregion
 
         #region CUDA version
         private static int GetCudaMajorVersion()
