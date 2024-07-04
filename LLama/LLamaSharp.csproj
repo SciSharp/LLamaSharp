@@ -52,4 +52,46 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
+    <PropertyGroup>
+        <LlamaCppReleaseTag>b3289</LlamaCppReleaseTag>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <BinDownload Include="bin-win-noavx-x64" DestFolder="" />
+        <BinDownload Include="bin-win-avx-x64" DestFolder="avx" />
+        <BinDownload Include="bin-win-avx2-x64" DestFolder="avx2" />
+        <BinDownload Include="bin-win-avx512-x64" DestFolder="avx512" />
+        <BinDownload Include="bin-win-cuda-cu11.7.1-x64" DestFolder="cu11.7.1" />
+        <BinDownload Include="bin-win-cuda-cu12.2.0-x64" DestFolder="cu12.2.0" />
+        <BinDownload Include="bin-macos-arm64" DestFolder="osx-arm64" />
+        <BinDownload Include="bin-macos-x64" DestFolder="osx-x64" />
+        <BinDownload Include="bin-win-vulkan-x64" DestFolder="vulkan" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="runtimes\deps\**" />
+    </ItemGroup>
+
+    <Target Name="DownloadReleaseBinaries" BeforeTargets="DispatchToInnerBuilds">
+        <Message Importance="High" Text="Download 'llama-$(LlamaCppReleaseTag)-%(BinDownload.Identity).zip' to 'runtimes/deps/'" />
+        <DownloadFile
+            SourceUrl="https://github.com/ggerganov/llama.cpp/releases/download/$(LlamaCppReleaseTag)/llama-$(LlamaCppReleaseTag)-%(BinDownload.Identity).zip"
+            DestinationFolder="runtimes/deps"
+            DestinationFileName="llama-%(BinDownload.Identity).zip"
+            SkipUnchangedFiles="true"
+        />
+    </Target>
+    <Target Name="UnpackReleaseBinaries" BeforeTargets="DispatchToInnerBuilds" DependsOnTargets="DownloadReleaseBinaries">
+        <Message Importance="High" Text="Unzip 'llama-$(LlamaCppReleaseTag)-%(BinDownload.Identity).zip' to 'runtimes/deps/%(BinDownload.DestFolder)'" />
+        <Unzip
+            SourceFiles="runtimes/deps/llama-%(BinDownload.Identity).zip"
+            DestinationFolder="runtimes/deps/%(BinDownload.DestFolder)"
+            OverwriteReadOnlyFiles="false"
+            Include="*.dll"
+        />
+    </Target>
+
+
+
+
 </Project>
