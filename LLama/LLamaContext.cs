@@ -564,6 +564,35 @@ namespace LLama
         {
             return Task.Run(() => Decode(batch), cancellationToken);
         }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="id"></param>
+        /// <param name="batch"></param>
+        /// <param name="n_past"></param>
+        /// <returns></returns>
+        public (DecodeResult, int) Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, ref int n_past)
+        {
+            return NativeHandle.Decode(tokens, id, batch, ref n_past);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="id"></param>
+        /// <param name="batch"></param>
+        /// <param name="n_past"></param>
+        /// <returns></returns>
+        public Task<(DecodeResult, int, int)> DecodeAsync(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, int n_past)
+        {
+            return Task.Run(() =>
+            {
+                var past = n_past;
+                var res = NativeHandle.Decode(tokens, id, batch, ref past);
+                return (res.Item1, res.Item2, past);
+                });
+        }
         #endregion
 
         /// <inheritdoc />

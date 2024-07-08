@@ -177,7 +177,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             var batch = new LLamaBatch();
 
@@ -194,7 +194,9 @@ namespace LLama
 
                 TryReuseMatchingPrefix();
 
-                var (result, _) = Context.NativeHandle.Decode(_embeds, LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                var (result, _, pastTokensCount) = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
+                _pastTokensCount = pastTokensCount;
+
                 if (result != DecodeResult.Ok)
                     throw new LLamaDecodeError(result);
 
@@ -259,7 +261,7 @@ namespace LLama
                 }
             }
 
-            return Task.CompletedTask;
+            return;
         }
         /// <summary>
         /// The descriptor of the state of the instruct executor.

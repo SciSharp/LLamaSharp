@@ -96,7 +96,9 @@ namespace LLama
 
             // Evaluate the prompt, in chunks smaller than the max batch size
             var n_past = 0;
-            var (r, _) = Context.NativeHandle.Decode(tokens, LLamaSeqId.Zero, _batch, ref n_past);
+            var (r, _, past) = await Context.DecodeAsync(tokens, LLamaSeqId.Zero, _batch, n_past);
+            n_past = past;
+
             if (r != DecodeResult.Ok)
                 throw new LLamaDecodeError(r);
 
