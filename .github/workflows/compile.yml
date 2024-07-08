@@ -378,19 +378,19 @@ jobs:
           mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan}
 
           # Linux
-          cp artifacts/ggml-bin-win-noavx-x64.so/ggml.so                deps/ggml.so
+          cp artifacts/ggml-bin-linux-noavx-x64.so/ggml.so                deps/ggml.so
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/libllama.so
           cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/libllava_shared.so
 
-          cp artifacts/ggml-bin-win-avx-x64.so/ggml.so                  deps/avx/ggml.so
+          cp artifacts/ggml-bin-linux-avx-x64.so/ggml.so                  deps/avx/ggml.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so
           cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
 
-          cp artifacts/ggml-bin-win-avx2-x64.so/ggml.so                 deps/avx2/ggml.so
+          cp artifacts/ggml-bin-linux-avx2-x64.so/ggml.so                 deps/avx2/ggml.so
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so
           cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
 
-          cp artifacts/ggml-bin-win-avx512-x64.so/ggml.so               deps/avx512/ggml.so
+          cp artifacts/ggml-bin-linux-avx512-x64.so/ggml.so               deps/avx512/ggml.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so        deps/avx512/libllama.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
 
