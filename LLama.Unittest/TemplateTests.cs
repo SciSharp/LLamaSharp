@@ -244,7 +244,7 @@ public sealed class TemplateTests
         const string userData = nameof(userData);
         templater.Add("user", userData);
 
-        // Generte the template string
+        // Generate the template string
         var dest = templater.Apply();
         var templateResult = Encoding.UTF8.GetString(dest);
 

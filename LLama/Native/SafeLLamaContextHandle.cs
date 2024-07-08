@@ -424,7 +424,7 @@ namespace LLama.Native
         /// Wait until all computations are finished. This is automatically done when using any of the functions to obtain computation results
         /// and is not necessary to call it explicitly in most cases.
         /// </summary>
-        public void Sychronize()
+        public void Synchronize()
         {
             lock (GlobalInferenceLock)
                 llama_synchronize(this);
