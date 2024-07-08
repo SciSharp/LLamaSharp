@@ -571,18 +571,6 @@ namespace LLama
         /// <param name="id"></param>
         /// <param name="batch"></param>
         /// <param name="n_past"></param>
-        /// <returns>A tuple, containing the decode result and the number of tokens that have <b>not</b> been decoded yet.</returns>
-        public (DecodeResult, int) Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, ref int n_past)
-        {
-            return NativeHandle.Decode(tokens, id, batch, ref n_past);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="id"></param>
-        /// <param name="batch"></param>
-        /// <param name="n_past"></param>
         /// <returns>A tuple, containing the decode result, the number of tokens that have <b>not</b> been decoded yet and the total number of tokens that have been decoded.</returns>
         public Task<(DecodeResult, int, int)> DecodeAsync(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, int n_past)
         {
