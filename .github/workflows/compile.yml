@@ -287,7 +287,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./ggml/src/libggml.so
+          path: ./build/ggml/src/libggml.so
           name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload llava artifacts (Linux)
