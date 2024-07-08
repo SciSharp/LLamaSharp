@@ -351,3 +351,4 @@ site/
 
 **/appsettings.Local.json
 /LLama/runtimes/deps
+/LLama/runtimes/deps.zip
