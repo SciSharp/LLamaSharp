@@ -54,6 +54,11 @@ jobs:
           path: ./build/src/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/ggml/src/libggml.so
+          name: ggml-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
@@ -193,6 +198,13 @@ jobs:
                 path: ./build/src/libllama.so
                 name: llama-bin-linux-vulkan-x64.so
                 if-no-files-found: error
+          - name: Upload ggml artifacts (Linux)
+            if: ${{ matrix.os == 'ubuntu-22.04' }}
+            uses: actions/upload-artifact@v4
+            with:
+              path: ./build/ggml/src/libggml.so
+              name: ggml-bin-linux-vulkan-x64.so
+              if-no-files-found: error
           - name: Upload llava artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
@@ -270,6 +282,13 @@ jobs:
         with:
           path: ./build/src/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          if-no-files-found: error
+      - name: Upload artifacts ggml (Linux)
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./ggml/src/libggml.so
+          name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload llava artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
@@ -359,15 +378,19 @@ jobs:
           mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan}
 
           # Linux
+          cp artifacts/ggml-bin-win-noavx-x64.so/ggml.so                deps/ggml.so
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/libllama.so
           cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/libllava_shared.so
 
+          cp artifacts/ggml-bin-win-avx-x64.so/ggml.so                  deps/avx/ggml.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so
           cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
 
+          cp artifacts/ggml-bin-win-avx2-x64.so/ggml.so                 deps/avx2/ggml.so
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so
           cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
 
+          cp artifacts/ggml-bin-win-avx512-x64.so/ggml.so               deps/avx512/ggml.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so        deps/avx512/libllama.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
 
@@ -412,9 +435,11 @@ jobs:
           cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll   deps/cu12.2.0/llava_shared.dll
 
           # Linux CUDA
+          cp artifacts/ggml-bin-linux-cublas-cu11.7.1-x64.so/ggml.so              deps/cu11.7.1/ggml.so
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so         deps/cu11.7.1/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so  deps/cu11.7.1/libllava_shared.so
 
+          cp artifacts/ggml-bin-linux-cublas-cu12.2.0-x64.so/ggml.so              deps/cu12.2.0/ggml.so
           cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so         deps/cu12.2.0/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so  deps/cu12.2.0/libllava_shared.so
 
@@ -424,7 +449,8 @@ jobs:
           cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll  deps/vulkan/llava_shared.dll
             
           # Linux Vulkan
-          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/libllama.so
+          cp artifacts/ggml-bin-linux-vulkan-x64.so/ggml.so             deps/vulkan/ggml.so
+          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so        deps/vulkan/libllama.so
           cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so deps/vulkan/libllava_shared.so
 
       - name: Upload artifacts
