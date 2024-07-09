@@ -27,7 +27,7 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
@@ -73,7 +73,7 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
@@ -159,7 +159,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Build
@@ -167,7 +167,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Upload llama artifacts (Windows)
