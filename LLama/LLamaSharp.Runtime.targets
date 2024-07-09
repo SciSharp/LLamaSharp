@@ -57,25 +57,49 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libllama.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/noavx/libggml.so</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx/libggml.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx2/libllama.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx2/libggml.so</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx512/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx512/libggml.so</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda11/libllama.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/cuda11/libggml.so</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/cuda12/libggml.so</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml.dylib">
