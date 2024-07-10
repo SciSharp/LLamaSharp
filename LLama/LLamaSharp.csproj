@@ -52,26 +52,28 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
-
+  <Target Name="DownloadReleaseBinariesInner">
     <PropertyGroup>
         <BinaryReleaseId>1c5eba6f8e62</BinaryReleaseId>
     </PropertyGroup>
+	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
+	<DownloadFile
+		SourceUrl="https://github.com/martindevans/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
+		DestinationFolder="runtimes"
+		DestinationFileName="deps.zip"
+		SkipUnchangedFiles="true"
+	/>
 
-    <Target Name="DownloadReleaseBinaries" BeforeTargets="DispatchToInnerBuilds">
-        <Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
-        <DownloadFile
-            SourceUrl="https://github.com/martindevans/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
-            DestinationFolder="runtimes"
-            DestinationFileName="deps.zip"
-            SkipUnchangedFiles="true"
-        />
-
-        <Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
-        <Unzip
-            SourceFiles="runtimes/deps.zip"
-            DestinationFolder="runtimes/deps/"
-            OverwriteReadOnlyFiles="false"
-            Include="*.dll;*.so;*.dylib;*.metal;"
-        />
-    </Target>
+	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
+	<Unzip
+		SourceFiles="runtimes/deps.zip"
+		DestinationFolder="runtimes/deps/"
+		OverwriteReadOnlyFiles="false"
+		Include="*.dll;*.so;*.dylib;*.metal;"
+	/>
+  </Target>
+  <Target Name="DownloadReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="DownloadReleaseBinariesInner" Properties="TargetFramework=once" />
+  </Target>
+  
 </Project>
