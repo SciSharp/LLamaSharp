@@ -1,19 +1,6 @@
-using Xunit;
-using LLama;
-using LLama.Abstractions;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Services;
-using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
-using static LLama.LLamaTransforms;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Threading;
-using LLamaSharp.SemanticKernel.ChatCompletion;
+using LLamaSharp.SemanticKernel;
 
-namespace LLamaSharp.SemanticKernel.Tests
+namespace LLama.Unittest.SemanticKernel
 {
     public class ExtensionMethodsTests
     {

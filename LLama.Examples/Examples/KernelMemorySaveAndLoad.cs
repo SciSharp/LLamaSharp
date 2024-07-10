@@ -1,10 +1,10 @@
-﻿using LLamaSharp.KernelMemory;
+using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Configuration;
-using Microsoft.KernelMemory.ContentStorage.DevTools;
 using Microsoft.KernelMemory.FileSystem.DevTools;
 using Microsoft.KernelMemory.MemoryStorage.DevTools;
 using System.Diagnostics;
+using Microsoft.KernelMemory.DocumentStorage.DevTools;
 
 namespace LLama.Examples.Examples;
 

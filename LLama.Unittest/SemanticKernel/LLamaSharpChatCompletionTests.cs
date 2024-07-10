@@ -1,20 +1,10 @@
-using Xunit;
-using Moq;
-using LLama;
 using LLama.Abstractions;
+using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Services;
-using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
-using static LLama.LLamaTransforms;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Threading;
+using Moq;
 
-namespace LLamaSharp.SemanticKernel.ChatCompletion.Tests
+namespace LLama.Unittest.SemanticKernel
 {
     public class LLamaSharpChatCompletionTests
     {
