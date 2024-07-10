@@ -1,47 +1,38 @@
-using Xunit;
-using Moq;
-using LLama;
 using LLama.Abstractions;
+using LLamaSharp.SemanticKernel.TextCompletion;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Services;
-using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
-using static LLama.LLamaTransforms;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Threading;
+using Moq;
 
-namespace LLamaSharp.SemanticKernel.TextCompletion.Tests
+namespace LLama.Unittest.SemanticKernel
 {
-    public class LLamaSharpTextCompletionTests : IDisposable
+    public sealed class LLamaSharpTextCompletionTests
+        : IDisposable
     {
         private MockRepository mockRepository;
         private Mock<ILLamaExecutor> mockExecutor;
 
         public LLamaSharpTextCompletionTests()
         {
-            this.mockRepository = new MockRepository(MockBehavior.Strict);
-            this.mockExecutor = this.mockRepository.Create<ILLamaExecutor>();
+            mockRepository = new MockRepository(MockBehavior.Strict);
+            mockExecutor = mockRepository.Create<ILLamaExecutor>();
         }
 
         public void Dispose()
         {
-            this.mockRepository.VerifyAll();
+            mockRepository.VerifyAll();
         }
 
         private LLamaSharpTextCompletion CreateLLamaSharpTextCompletion()
         {
             return new LLamaSharpTextCompletion(
-                this.mockExecutor.Object);
+                mockExecutor.Object);
         }
 
         [Fact]
         public async Task GetTextContentsAsync_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
-            var unitUnderTest = this.CreateLLamaSharpTextCompletion();
+            var unitUnderTest = CreateLLamaSharpTextCompletion();
             string prompt = "Test";
             PromptExecutionSettings? executionSettings = null;
             Kernel? kernel = null;
@@ -64,7 +55,7 @@ namespace LLamaSharp.SemanticKernel.TextCompletion.Tests
         public async Task GetStreamingTextContentsAsync_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
-            var unitUnderTest = this.CreateLLamaSharpTextCompletion();
+            var unitUnderTest = CreateLLamaSharpTextCompletion();
             string prompt = "Test";
             PromptExecutionSettings? executionSettings = null;
             Kernel? kernel = null;
