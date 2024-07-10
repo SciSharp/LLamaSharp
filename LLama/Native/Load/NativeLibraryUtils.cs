@@ -36,6 +36,7 @@ namespace LLama.Native
             // Get the libraries ordered by priority from the selecting policy.
             var libraries = config.SelectingPolicy.Apply(description, systemInfo, config.LogCallback);
 
+            // Try to load the libraries
             foreach (var library in libraries)
             {
                 // Prepare the local library file and get the path.
@@ -43,8 +44,47 @@ namespace LLama.Native
                 foreach (var path in paths)
                 {
                     Log($"Got relative library path '{path}' from local with {library.Metadata}, trying to load it...", LLamaLogLevel.Debug, config.LogCallback);
+                    
+                    // If we are on linux/OSX, we need to manually load the GGML dependency
+                    if (systemInfo.OSPlatform == OSPlatform.Linux)
+                    {
+                        // We can't use UseDllDirectoryForDependencies because it doesn't work on linux, and we can't use LD_LIBRARY_PATH because it has to be set before the application starts.
+                        
+                        // Construct the dependency (libggml.so) path
+                        string dependencyPath = Path.Combine(Path.GetFullPath(Path.GetDirectoryName(path)), "libggml.so");
+                        
+                        // Load the dependency
+                        if (NativeLibrary.TryLoad(dependencyPath, out var dependencyHandle))
+                        {
+                            Log($"Successfully loaded dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
+                        }
+                        else
+                        {
+                            Log($"Failed loading dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
+                        }
+                    }
+                    
+                    // We need to do the same for OSX, where the dependency is called libggml.dylib
+                    if (systemInfo.OSPlatform == OSPlatform.OSX)
+                    {
+                        // Construct the dependency (libggml.dylib) path
+                        string dependencyPath = Path.Combine(Path.GetFullPath(Path.GetDirectoryName(path)), "libggml.dylib");
+                        
+                        // Load the dependency
+                        if (NativeLibrary.TryLoad(dependencyPath, out var dependencyHandle))
+                        {
+                            Log($"Successfully loaded dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
+                        }
+                        else
+                        {
+                            Log($"Failed loading dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
+                        }
+                    }
 
+                    // Try to load the library
                     var result = TryLoad(path, description.SearchDirectories, config.LogCallback);
+                    
+                    // If we successfully loaded the library, return the handle
                     if (result != IntPtr.Zero)
                     {
                         loadedLibrary = library;
