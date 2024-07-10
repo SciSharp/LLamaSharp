@@ -60,7 +60,7 @@ namespace LLama.Native
                             // Try to load the dependency
                             var dependencyResult = TryLoad(dependencyPath, description.SearchDirectories, config.LogCallback);
                         
-                            // If we successfully loaded the library, return the handle
+                            // If we successfully loaded the library, log it
                             if (dependencyResult == IntPtr.Zero)
                             {
                                 Log($"Successfully loaded dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
