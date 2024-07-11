@@ -52,6 +52,14 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/llama.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/vulkan/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/ggml.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/vulkan/ggml.dll</Link>
+      </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -100,6 +108,14 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libggml.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/vulkan/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/vulkan/libggml.so</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml.dylib">
@@ -169,6 +185,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llava_shared.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/vulkan/llava_shared.dll</Link>
+      </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -193,6 +213,10 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllava_shared.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/vulkan/libllava_shared.so</Link>
       </None>
     </ItemGroup>
 </Project>
