@@ -18,22 +18,33 @@
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
 
+    <file src="runtimes/deps/ggml.dll" target="runtimes\win-x64\native\ggml.dll" />
     <file src="runtimes/deps/llama.dll" target="runtimes\win-x64\native\llama.dll" />
+    <file src="runtimes/deps/avx/ggml.dll" target="runtimes\win-x64\native\avx\ggml.dll" />
     <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
+    <file src="runtimes/deps/avx2/ggml.dll" target="runtimes\win-x64\native\avx2\ggml.dll" />
     <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />
+    <file src="runtimes/deps/avx512/ggml.dll" target="runtimes\win-x64\native\avx512\ggml.dll" />
     <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
 
+    <file src="runtimes/deps/libggml.so" target="runtimes\linux-x64\native\libggml.so" />
     <file src="runtimes/deps/libllama.so" target="runtimes\linux-x64\native\libllama.so" />
+    <file src="runtimes/deps/avx/libggml.so" target="runtimes\linux-x64\native\avx\libggml.so" />
     <file src="runtimes/deps/avx/libllama.so" target="runtimes\linux-x64\native\avx\libllama.so" />
+    <file src="runtimes/deps/avx2/libggml.so" target="runtimes\linux-x64\native\avx2\libggml.so" />
     <file src="runtimes/deps/avx2/libllama.so" target="runtimes\linux-x64\native\avx2\libllama.so" />
+    <file src="runtimes/deps/avx512/libggml.so" target="runtimes\linux-x64\native\avx512\libggml.so" />
     <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
-    
+      
+    <file src="runtimes/deps/osx-x64/libggml.dylib" target="runtimes\osx-x64\native\libggml.dylib" />
     <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
     <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
 
+    <file src="runtimes/deps/osx-x64-rosetta2/libggml.dylib" target="runtimes\osx-x64\native\rosetta2\libggml.dylib" />
     <file src="runtimes/deps/osx-x64-rosetta2/libllama.dylib" target="runtimes\osx-x64\native\rosetta2\libllama.dylib" />
     <file src="runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib" target="runtimes\osx-x64\native\rosetta2\libllava_shared.dylib" />
 
+    <file src="runtimes/deps/osx-arm64/libggml.dylib" target="runtimes\osx-arm64\native\libggml.dylib" />
     <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
     <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
     <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />

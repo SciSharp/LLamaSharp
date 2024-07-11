@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -136,11 +136,11 @@ namespace LLama.Native
         /// <summary>
         /// Load all of the weights of a model into memory.
         /// </summary>
-        /// <param name="path_model"></param>
+        /// <param name="path"></param>
         /// <param name="params"></param>
         /// <returns>The loaded model, or null on failure.</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern SafeLlamaModelHandle llama_load_model_from_file(string path_model, LLamaModelParams @params);
+        private static extern SafeLlamaModelHandle llama_load_model_from_file(string path, LLamaModelParams @params);
 
         /// <summary>
         /// Apply a LoRA adapter to a loaded model
@@ -149,14 +149,14 @@ namespace LLama.Native
         /// The model needs to be reloaded before applying a new adapter, otherwise the adapter
         /// will be applied on top of the previous one
         /// </summary>
-        /// <param name="model_ptr"></param>
-        /// <param name="path_lora"></param>
+        /// <param name="model"></param>
+        /// <param name="path"></param>
         /// <param name="scale"></param>
-        /// <param name="path_base_model"></param>
-        /// <param name="n_threads"></param>
+        /// <param name="pathBase"></param>
+        /// <param name="threads"></param>
         /// <returns>Returns 0 on success</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_model_apply_lora_from_file(SafeLlamaModelHandle model_ptr, string path_lora, float scale, string? path_base_model, int n_threads);
+        private static extern int llama_model_apply_lora_from_file(SafeLlamaModelHandle model, string path, float scale, string? pathBase, int threads);
 
         /// <summary>
         /// Frees all allocated memory associated with a model
@@ -191,7 +191,7 @@ namespace LLama.Native
             }
 
             [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_key_by_index")]
-            static extern unsafe int llama_model_meta_key_by_index_native(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+            static extern unsafe int llama_model_meta_key_by_index_native(SafeLlamaModelHandle model, int index, byte* buf, nint bufSize);
         }
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace LLama.Native
             }
 
             [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_val_str_by_index")]
-            static extern unsafe int llama_model_meta_val_str_by_index_native(SafeLlamaModelHandle model, int index, byte* buf, long buf_size);
+            static extern unsafe int llama_model_meta_val_str_by_index_native(SafeLlamaModelHandle model, int index, byte* buf, nint bufSize);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace LLama.Native
             }
 
             [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_model_meta_val_str")]
-            static extern unsafe int llama_model_meta_val_str_native(SafeLlamaModelHandle model, byte* key, byte* buf, long buf_size);
+            static extern unsafe int llama_model_meta_val_str_native(SafeLlamaModelHandle model, byte* key, byte* buf, nint bufSize);
         }
 
 
@@ -288,10 +288,10 @@ namespace LLama.Native
         /// </summary>
         /// <param name="model"></param>
         /// <param name="buf"></param>
-        /// <param name="buf_size"></param>
+        /// <param name="bufSize"></param>
         /// <returns>The length of the string on success (even if the buffer is too small)., or -1 on failure</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern unsafe int llama_model_desc(SafeLlamaModelHandle model, byte* buf, long buf_size);
+        private static extern unsafe int llama_model_desc(SafeLlamaModelHandle model, byte* buf, nint bufSize);
 
         /// <summary>
         /// Get the size of the model in bytes
@@ -353,6 +353,13 @@ namespace LLama.Native
         private static extern LLamaToken llama_token_nl(SafeLlamaModelHandle model);
 
         /// <summary>
+        /// Get the "padding" token
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern LLamaToken llama_token_pad(SafeLlamaModelHandle model);
+
+        /// <summary>
         /// codellama infill tokens, Beginning of infill prefix
         /// </summary>
         /// <returns></returns>
@@ -389,6 +396,19 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_token_is_eog(SafeLlamaModelHandle model, LLamaToken token);
+
+        /// <summary>
+        /// Identify if Token Id is a control token or a render-able token
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_token_is_control(SafeLlamaModelHandle model, LLamaToken token);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern LLamaTokenAttr llama_token_get_attr(SafeLlamaModelHandle model, LLamaToken token);
         #endregion
 
         #region LoRA
@@ -472,14 +492,14 @@ namespace LLama.Native
         /// Convert a string of text into tokens
         /// </summary>
         /// <param name="text"></param>
-        /// <param name="add_bos"></param>
+        /// <param name="addBos"></param>
         /// <param name="encoding"></param>
         /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
-        public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
+        public LLamaToken[] Tokenize(string text, bool addBos, bool special, Encoding encoding)
         {
             // Early exit if there's no work to do
-            if (text == string.Empty && !add_bos)
+            if (text == string.Empty && !addBos)
                 return [];
 
             // Convert string to bytes, adding one extra byte to the end (null terminator)
@@ -496,13 +516,13 @@ namespace LLama.Native
                         encoding.GetBytes(textPtr, text.Length, bytesPtr, bytes.Length);
 
                         // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                        var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, add_bos, special);
+                        var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, addBos, special);
 
                         // Tokenize again, this time outputting into an array of exactly the right size
                         var tokens = new LLamaToken[count];
                         fixed (LLamaToken* tokensPtr = tokens)
                         {
-                            _ = NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, add_bos, special);
+                            _ = NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, addBos, special);
                             return tokens;
                         }
                     }
@@ -675,6 +695,11 @@ namespace LLama.Native
             public LLamaToken? Newline => Normalize(llama_token_nl(_model));
 
             /// <summary>
+            /// Get the newline token for this model
+            /// </summary>
+            public LLamaToken? Pad => Normalize(llama_token_pad(_model));
+
+            /// <summary>
             /// Get the classification token for this model
             /// </summary>
             public LLamaToken? CLS => Normalize(llama_token_cls(_model));
@@ -717,6 +742,26 @@ namespace LLama.Native
             public bool IsEndOfGeneration(LLamaToken token)
             {
                 return llama_token_is_eog(_model, token);
+            }
+
+            /// <summary>
+            /// Check if the given token should end generation
+            /// </summary>
+            /// <param name="token"></param>
+            /// <returns></returns>
+            public bool IsControl(LLamaToken token)
+            {
+                return llama_token_is_control(_model, token);
+            }
+
+            /// <summary>
+            /// Get attributes for the given token
+            /// </summary>
+            /// <param name="token"></param>
+            /// <returns></returns>
+            public LLamaTokenAttr GetAttributes(LLamaToken token)
+            {
+                return llama_token_get_attr(_model, token);
             }
         }
     }

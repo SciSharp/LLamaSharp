@@ -36,15 +36,46 @@ namespace LLama.Native
             // Get the libraries ordered by priority from the selecting policy.
             var libraries = config.SelectingPolicy.Apply(description, systemInfo, config.LogCallback);
 
+            // Try to load the libraries
             foreach (var library in libraries)
             {
                 // Prepare the local library file and get the path.
                 var paths = library.Prepare(systemInfo, config.LogCallback);
+                
                 foreach (var path in paths)
                 {
                     Log($"Got relative library path '{path}' from local with {library.Metadata}, trying to load it...", LLamaLogLevel.Debug, config.LogCallback);
-
+                    
+                    // If we are on Linux / OSX, we need to manually load the GGML dependency
+                    if (systemInfo.OSPlatform == OSPlatform.Linux || systemInfo.OSPlatform == OSPlatform.OSX)
+                    {
+                        // Get the directory of the library
+                        string? libraryDirectory = Path.GetDirectoryName(path);
+                        
+                        if (libraryDirectory != null)
+                        {
+                            // Construct the dependency (libggml) path
+                            string dependencyPath = Path.Combine(libraryDirectory, $"libggml{ext}");
+                        
+                            // Try to load the dependency
+                            var dependencyResult = TryLoad(dependencyPath, description.SearchDirectories, config.LogCallback);
+                        
+                            // If we successfully loaded the library, log it
+                            if (dependencyResult != IntPtr.Zero)
+                            {
+                                Log($"Successfully loaded dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
+                            }
+                            else
+                            {
+                                Log($"Failed loading dependency '{dependencyPath}'", LLamaLogLevel.Info, config.LogCallback);
+                            }
+                        }
+                    }
+                    
+                    // Try to load the library
                     var result = TryLoad(path, description.SearchDirectories, config.LogCallback);
+                    
+                    // If we successfully loaded the library, return the handle
                     if (result != IntPtr.Zero)
                     {
                         loadedLibrary = library;

@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using LLama.Grammars;
 using LLama.Native;
 
@@ -86,9 +86,9 @@ namespace LLama.Unittest
                 Grammar = grammarInstance2,
             };
 
-            var result = await executor.InferAsync("Q. 7 + 12\nA. ", inferenceParams).ToListAsync();
+            var result = string.Join("", await executor.InferAsync("Q. 7 + 12\nA. ", inferenceParams).ToListAsync());
 
-            Assert.Equal("cat", result[0]);
+            Assert.Equal("cat", result);
         }
 
         //this test is flakey - it reproduces an error which appears to be a bug in llama.cpp

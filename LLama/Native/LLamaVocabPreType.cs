@@ -21,4 +21,7 @@ internal enum LLamaVocabPreType
     QWEN2 = 11,
     OLMO = 12,
     DBRX = 13,
+    SMAUG = 14,
+    PORO = 15,
+    VIKING = 16,
 }

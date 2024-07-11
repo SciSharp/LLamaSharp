@@ -335,6 +335,14 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_reset_timings(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Wait until all computations are finished. This is automatically done when using any of the functions to obtain computation results
+        /// and is not necessary to call it explicitly in most cases.
+        /// </summary>
+        /// <param name="ctx"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_synchronize(SafeLLamaContextHandle ctx);
         #endregion
 
         /// <summary>
@@ -411,6 +419,16 @@ namespace LLama.Native
         /// If these are ever resolved this lock can probably be removed.
         /// </summary>
         private static readonly object GlobalInferenceLock = new();
+
+        /// <summary>
+        /// Wait until all computations are finished. This is automatically done when using any of the functions to obtain computation results
+        /// and is not necessary to call it explicitly in most cases.
+        /// </summary>
+        public void Synchronize()
+        {
+            lock (GlobalInferenceLock)
+                llama_synchronize(this);
+        }
 
         /// <summary>
         /// </summary>

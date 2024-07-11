@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
@@ -16,6 +16,8 @@ namespace LLama.Native
     /// <summary>
     /// A C# representation of the llama.cpp `llama_context_params` struct
     /// </summary>
+    /// <remarks>changing the default values of parameters marked as [EXPERIMENTAL] may cause crashes or incorrect results in certain configurations
+    /// https://github.com/ggerganov/llama.cpp/pull/7544</remarks>
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaContextParams
     {
@@ -60,7 +62,7 @@ namespace LLama.Native
         public RopeScalingType rope_scaling_type;
 
         /// <summary>
-        /// whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+        /// whether to pool (sum) embedding results by sequence id
         /// </summary>
         public LLamaPoolingType llama_pooling_type;
         
@@ -117,12 +119,12 @@ namespace LLama.Native
         public IntPtr cb_eval_user_data;
 
         /// <summary>
-        /// data type for K cache
+        /// data type for K cache. <b>EXPERIMENTAL</b>
         /// </summary>
         public GGMLType type_k;
 
         /// <summary>
-        /// data type for V cache
+        /// data type for V cache. <b>EXPERIMENTAL</b>
         /// </summary>
         public GGMLType type_v;
 
@@ -152,7 +154,7 @@ namespace LLama.Native
         private sbyte _offload_kqv;
 
         /// <summary>
-        /// whether to use flash attention
+        /// whether to use flash attention. <b>EXPERIMENTAL</b>
         /// </summary>
         public bool flash_attention
         {
