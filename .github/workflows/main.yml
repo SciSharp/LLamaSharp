@@ -27,6 +27,12 @@ jobs:
             os: windows-2019
             config: release
     steps:
+    - name: Free Disk Space (Ubuntu)
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      uses: jlumbroso/free-disk-space@v1.3.1
+      with:
+        dotnet: false
+  
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
