@@ -1,5 +1,4 @@
-﻿using LLamaSharp.SemanticKernel;
-using LLamaSharp.SemanticKernel.ChatCompletion;
+using LLamaSharp.SemanticKernel;
 using System.Text.Json;
 
 namespace LLama.Unittest.SemanticKernel

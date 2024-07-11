@@ -1,9 +1,12 @@
-﻿namespace LLama.Native;
+using System;
+
+namespace LLama.Native;
 
 /// <summary>
 /// Token Types
 /// </summary>
 /// <remarks>C# equivalent of llama_token_get_type</remarks>
+[Obsolete("will be removed from llama.cpp once per token attributes are available from GGUF file")]
 public enum LLamaTokenType
 {
     /// <summary>

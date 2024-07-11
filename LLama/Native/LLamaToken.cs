@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native;
@@ -42,6 +42,36 @@ public readonly record struct LLamaToken
     /// <param name="value"></param>
     /// <returns></returns>
     public static implicit operator LLamaToken(int value) => new(value);
+
+    /// <summary>
+    /// Get attributes for this token
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public LLamaTokenAttr GetAttributes(SafeLlamaModelHandle model)
+    {
+        return model.Tokens.GetAttributes(this);
+    }
+
+    /// <summary>
+    /// Check if this is a control token
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public bool IsControl(SafeLlamaModelHandle model)
+    {
+        return model.Tokens.IsControl(this);
+    }
+
+    /// <summary>
+    /// Check if this token should end generation
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public bool IsEndOfGeneration(SafeLlamaModelHandle model)
+    {
+        return model.Tokens.IsEndOfGeneration(this);
+    }
 
     /// <inheritdoc />
     public override string ToString()

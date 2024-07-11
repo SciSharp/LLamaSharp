@@ -207,7 +207,7 @@ namespace LLama
                     return (true, Array.Empty<string>());
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.NativeHandle.ModelHandle.Tokens.EOS)
+            if (_embeds.Count > 0 && _embeds.Last() == Context.Tokens.EOS)
             {
                 return (true, new[] { " [end of text]\n" });
             }
@@ -222,7 +222,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
         {
             var batch = new LLamaBatch();
 
@@ -250,11 +250,13 @@ namespace LLama
 
                 // Changes to support Multi-Modal LLMs.
                 //
-                (DecodeResult, int) header, end, result;
+                (DecodeResult, int, int) header, end, result;
                 if (IsMultiModal &&  _EmbedImagePosition > 0)
                 {
                     // Tokens previous to the images
-                    header = Context.NativeHandle.Decode(_embeds.GetRange(0, _EmbedImagePosition), LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                    header = await Context.DecodeAsync(_embeds.GetRange(0, _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
+                    _pastTokensCount = header.Item3;
+
                     if (header.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(header.Item1);
                    
                     // Images
@@ -262,7 +264,8 @@ namespace LLama
                         ClipModel.EvalImageEmbed(Context, image, ref _pastTokensCount);
                         
                     // Post-image Tokens
-                    end = Context.NativeHandle.Decode(_embeds.GetRange(_EmbedImagePosition, _embeds.Count - _EmbedImagePosition), LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                    end = await Context.DecodeAsync(_embeds.GetRange(_EmbedImagePosition, _embeds.Count - _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
+                    _pastTokensCount = end.Item3;
 
                     _EmbedImagePosition = -1;
                     _imageEmbedHandles.Clear();
@@ -270,7 +273,9 @@ namespace LLama
                 }
                 else
                 {
-                    result = Context.NativeHandle.Decode(_embeds, LLamaSeqId.Zero, batch, ref _pastTokensCount);
+                    result = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
+                    _pastTokensCount = result.Item3;
+
                     if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
                 }
                 
@@ -339,14 +344,14 @@ namespace LLama
                     _embeds.Add(_embed_inps[_consumedTokensCount]);
                     _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
                     _consumedTokensCount++;
-                    if (_embeds.Count >= Context.Params.BatchSize)
+                    if (_embeds.Count >= Context.BatchSize)
                     {
                         break;
                     }
                 }
             }
 
-            return Task.CompletedTask;
+            return;
         }
 
         /// <summary>

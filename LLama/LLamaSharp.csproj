@@ -45,11 +45,35 @@
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.5.5" PrivateAssets="all" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-    <PackageReference Include="System.Text.Json" Version="8.0.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
+  <Target Name="DownloadReleaseBinariesInner">
+    <PropertyGroup>
+        <BinaryReleaseId>1c5eba6f8e62</BinaryReleaseId>
+    </PropertyGroup>
+	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
+	<DownloadFile
+		SourceUrl="https://github.com/SciSharp/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
+		DestinationFolder="runtimes"
+		DestinationFileName="deps.zip"
+		SkipUnchangedFiles="true"
+	/>
+
+	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
+	<Unzip
+		SourceFiles="runtimes/deps.zip"
+		DestinationFolder="runtimes/deps/"
+		OverwriteReadOnlyFiles="false"
+		Include="*.dll;*.so;*.dylib;*.metal;"
+	/>
+  </Target>
+  <Target Name="DownloadReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="DownloadReleaseBinariesInner" Properties="TargetFramework=once" />
+  </Target>
+  
 </Project>

@@ -54,7 +54,7 @@ namespace LLamaSharp.KernelMemory
             _context = context;
             _executor = executor ?? new StatelessExecutor(_weights, _context.Params);
             _defaultInferenceParams = inferenceParams;
-            MaxTokenTotal = (int)_context.Params.ContextSize;
+            MaxTokenTotal = (int)_context.ContextSize;
         }
 
         /// <inheritdoc/>
@@ -87,7 +87,7 @@ namespace LLamaSharp.KernelMemory
                     MaxTokens = options.MaxTokens ?? defaultParams.MaxTokens,
                     FrequencyPenalty = options.FrequencyPenalty == defaultParams.FrequencyPenalty ? defaultParams.FrequencyPenalty : (float)options.FrequencyPenalty,
                     PresencePenalty = options.PresencePenalty == defaultParams.PresencePenalty ? defaultParams.PresencePenalty : (float)options.PresencePenalty,
-                    TopP = options.TopP == defaultParams.TopP ? defaultParams.TopP : (float)options.TopP
+                    TopP = options.NucleusSampling == defaultParams.TopP ? defaultParams.TopP : (float)options.NucleusSampling
                 };
             }
             else
@@ -99,7 +99,7 @@ namespace LLamaSharp.KernelMemory
                     MaxTokens = options.MaxTokens ?? 1024,
                     FrequencyPenalty = (float)options.FrequencyPenalty,
                     PresencePenalty = (float)options.PresencePenalty,
-                    TopP = (float)options.TopP,
+                    TopP = (float)options.NucleusSampling,
                 };
             }
         }

@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DLLAMA_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DGGML_RPC=ON
 
 jobs:
   compile-linux:
@@ -27,13 +27,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_AVX2=OFF'
+            defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON'
+            defines: '-DGGML_AVX512=ON'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
@@ -48,15 +48,23 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          ls -R
       - uses: actions/upload-artifact@v4
         with:
-          path: ./build/libllama.so
+          path: ./build/src/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/ggml/src/libggml.so
+          name: ggml-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
           name: llava-bin-linux-${{ matrix.build }}-x64.so
+          if-no-files-found: error
 
   compile-windows:
     name: Compile (Windows)
@@ -65,13 +73,13 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
-            defines: '-DLLAMA_AVX2=OFF'
+            defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
-            defines: '-DLLAMA_AVX512=ON -DLLAMA_AVX512_VBMI=ON -DLLAMA_AVX512_VNNI=ON'
+            defines: '-DGGML_AVX512=ON -DGGML_AVX512_VBMI=ON -DGGML_AVX512_VNNI=ON'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -87,18 +95,27 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          tree /f
 
-      - name: Upload artifacts
+      - name: Upload artifacts (llama)
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-${{ matrix.build }}-x64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml.dll
+          name: ggml-bin-win-${{ matrix.build }}-x64.dll
+          if-no-files-found: error
 
-      - name: Upload Llava
+      - name: Upload artifacts (llava)
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-${{ matrix.build }}-x64.dll
+          if-no-files-found: error
           
   compile-vulkan:
       name: Compile (vulkan) - ${{ matrix.os }}
@@ -142,7 +159,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Build
@@ -150,7 +167,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Upload llama artifacts (Windows)
@@ -159,24 +176,42 @@ jobs:
             with:
                 path: .\build\bin\Release\llama.dll
                 name: llama-bin-win-vulkan-x64.dll
+                if-no-files-found: error
+          - name: Upload llama artifacts (Windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: .\build\bin\Release\ggml.dll
+                name: ggml-bin-win-vulkan-x64.dll
+                if-no-files-found: error
           - name: Upload llava artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
             with:
                 path: .\build\bin\Release\llava_shared.dll
                 name: llava-bin-win-vulkan-x64.dll
+                if-no-files-found: error
           - name: Upload llama artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/libllama.so
+                path: ./build/src/libllama.so
                 name: llama-bin-linux-vulkan-x64.so
+                if-no-files-found: error
+          - name: Upload ggml artifacts (Linux)
+            if: ${{ matrix.os == 'ubuntu-22.04' }}
+            uses: actions/upload-artifact@v4
+            with:
+              path: ./build/ggml/src/libggml.so
+              name: ggml-bin-linux-vulkan-x64.so
+              if-no-files-found: error
           - name: Upload llava artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
                 path: ./build/examples/llava/libllava_shared.so
                 name: llava-bin-linux-vulkan-x64.so
+                if-no-files-found: error
                 
   compile-cublas:
     name: Compile (cublas)
@@ -216,7 +251,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} -DLLAMA_CUDA=ON
+          cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
@@ -226,24 +261,42 @@ jobs:
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml)
+        if: ${{ matrix.os == 'windows-2019' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml.dll
+          name: ggml-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
           name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
       - name: Upload artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/libllama.so
+          path: ./build/src/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          if-no-files-found: error
+      - name: Upload artifacts ggml (Linux)
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/ggml/src/libggml.so
+          name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          if-no-files-found: error
       - name: Upload llava artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
           name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          if-no-files-found: error
  
     
   compile-macos:
@@ -253,11 +306,11 @@ jobs:
       matrix:
         include:
           - build: 'arm64'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DLLAMA_METAL_EMBED_LIBRARY=ON'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL_EMBED_LIBRARY=ON'
           - build: 'x64'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DLLAMA_METAL=OFF -DLLAMA_AVX=ON -DLLAMA_AVX2=ON'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=ON -DGGML_AVX2=ON'
           - build: 'x64-rosetta2'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DLLAMA_METAL=OFF -DLLAMA_AVX=OFF -DLLAMA_AVX2=OFF'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v4
@@ -276,22 +329,31 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-      - name: Upload artifacts
+      - name: Upload ggml
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/libllama.dylib
+            path: ./build/ggml/src/libggml.dylib
+            name: ggml-bin-osx-${{ matrix.build }}.dylib
+            if-no-files-found: error
+      - name: Upload llama
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/src/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
+          if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
+          if-no-files-found: error
       - name: Upload Metal
         if: ${{ matrix.build == 'arm64' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/ggml-metal.metal
           name: ggml-metal.metal
+          if-no-files-found: error
   
   build-deps:
     runs-on: ubuntu-latest
@@ -315,54 +377,81 @@ jobs:
           # Make all directories at once
           mkdir --parents deps/{avx,avx2,avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan}
 
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so  deps/libllama.so
-          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so    deps/avx/libllama.so
-          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so   deps/avx2/libllama.so
-          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so deps/avx512/libllama.so
-
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll  deps/llama.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll    deps/avx/llama.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll   deps/avx2/llama.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll deps/avx512/llama.dll
-
+          # Linux
+          cp artifacts/ggml-bin-linux-noavx-x64.so/libggml.so           deps/libggml.so
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/libllama.so
           cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/libllava_shared.so
+
+          cp artifacts/ggml-bin-linux-avx-x64.so/libggml.so             deps/avx/libggml.so
+          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so
           cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
+
+          cp artifacts/ggml-bin-linux-avx2-x64.so/libggml.so            deps/avx2/libggml.so
+          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so
           cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
+
+          cp artifacts/ggml-bin-linux-avx512-x64.so/libggml.so          deps/avx512/libggml.so
+          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so        deps/avx512/libllama.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so deps/avx512/libllava_shared.so
 
-          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll  deps/llava_shared.dll
-          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll    deps/avx/llava_shared.dll
-          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll   deps/avx2/llava_shared.dll
-          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll deps/avx512/llava_shared.dll
+          # Windows
+          cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll            deps/ggml.dll
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll          deps/llama.dll
+          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll   deps/llava_shared.dll
 
+          cp artifacts/ggml-bin-win-avx-x64.dll/ggml.dll              deps/avx/ggml.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll            deps/avx/llama.dll
+          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll     deps/avx/llava_shared.dll
 
-          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib deps/osx-arm64/libllava_shared.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal        deps/osx-arm64/ggml-metal.metal
+          cp artifacts/ggml-bin-win-avx2-x64.dll/ggml.dll             deps/avx2/ggml.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll           deps/avx2/llama.dll
+          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll    deps/avx2/llava_shared.dll
 
-          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib   deps/osx-x64/libllama.dylib
-          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib deps/osx-x64/libllava_shared.dylib
+          cp artifacts/ggml-bin-win-avx512-x64.dll/ggml.dll           deps/avx512/ggml.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll         deps/avx512/llama.dll
+          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll  deps/avx512/llava_shared.dll
 
-          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib   deps/osx-x64-rosetta2/libllama.dylib
+          # MacOS
+          cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib           deps/osx-arm64/libggml.dylib
+          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib         deps/osx-arm64/libllama.dylib
+          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib  deps/osx-arm64/libllava_shared.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal                deps/osx-arm64/ggml-metal.metal
+            
+          cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
+          cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
+          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
+            
+          cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib          deps/osx-x64-rosetta2/libggml.dylib
+          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib        deps/osx-x64-rosetta2/libllama.dylib
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
 
-          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll    deps/cu11.7.1/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll    deps/cu11.7.1/llava_shared.dll
-
-          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so deps/cu11.7.1/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so deps/cu11.7.1/libllava_shared.so
+          # Windows CUDA
+          cp artifacts/ggml-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll            deps/cu11.7.1/ggml.dll
+          cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll          deps/cu11.7.1/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll   deps/cu11.7.1/llava_shared.dll
           
-          cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll    deps/cu12.2.0/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll    deps/cu12.2.0/llava_shared.dll
+          cp artifacts/ggml-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll            deps/cu12.2.0/ggml.dll
+          cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll          deps/cu12.2.0/llama.dll
+          cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll   deps/cu12.2.0/llava_shared.dll
 
-          cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so deps/cu12.2.0/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so deps/cu12.2.0/libllava_shared.so
+          # Linux CUDA
+          cp artifacts/ggml-bin-linux-cublas-cu11.7.1-x64.so/libggml.so           deps/cu11.7.1/libggml.so
+          cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so         deps/cu11.7.1/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so  deps/cu11.7.1/libllava_shared.so
 
-          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll deps/vulkan/llama.dll
-          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll deps/vulkan/llava_shared.dll
+          cp artifacts/ggml-bin-linux-cublas-cu12.2.0-x64.so/libggml.so           deps/cu12.2.0/libggml.so
+          cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so         deps/cu12.2.0/libllama.so
+          cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so  deps/cu12.2.0/libllava_shared.so
+
+          # Windows Vulkan
+          cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll           deps/vulkan/ggml.dll
+          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll         deps/vulkan/llama.dll
+          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll  deps/vulkan/llava_shared.dll
             
-          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so deps/vulkan/libllama.so
-          cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so deps/vulkan/libllava_shared.so
+          # Linux Vulkan
+          cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so           deps/vulkan/libggml.so
+          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so         deps/vulkan/libllama.so
+          cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so  deps/vulkan/libllava_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -378,3 +467,4 @@ jobs:
             llama-*
             llava-*
             *.metal
+            ggml-*

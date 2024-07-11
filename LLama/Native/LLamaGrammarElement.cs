@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace LLama.Native
@@ -6,6 +6,7 @@ namespace LLama.Native
     /// <summary>
     /// grammar element type
     /// </summary>
+    /// <remarks>Equivalent of llama.cpp llama_gretype</remarks>
     public enum LLamaGrammarElementType
     {
         /// <summary>
@@ -44,6 +45,11 @@ namespace LLama.Native
         /// CHAR_RNG_UPPER to add an alternate char to match ([ab], [a-zA])
         /// </summary>
         CHAR_ALT = 6,
+
+        /// <summary>
+        /// any character (.)
+        /// </summary>
+        CHAR_ANY = 7, 
     }
 
     /// <summary>
