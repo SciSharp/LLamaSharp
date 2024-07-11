@@ -55,7 +55,7 @@ namespace LLama.Native
                         if (libraryDirectory != null)
                         {
                             // Construct the dependency (libggml) path
-                            string dependencyPath = Path.Combine(libraryDirectory, $"libggml{ext}");
+                            string dependencyPath = Path.Combine(libraryDirectory, $"{libPrefix}ggml{ext}");
                         
                             // Try to load the dependency
                             var dependencyResult = TryLoad(dependencyPath, description.SearchDirectories, config.LogCallback);
