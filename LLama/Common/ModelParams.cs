@@ -110,6 +110,9 @@ namespace LLama.Common
         public LLamaPoolingType PoolingType { get; set; } = LLamaPoolingType.Unspecified;
 
         /// <inheritdoc />
+        public LLamaAttentionType AttentionType { get; set; } = LLamaAttentionType.Unspecified;
+
+        /// <inheritdoc />
         public bool VocabOnly { get; set; }
 
         /// <summary>

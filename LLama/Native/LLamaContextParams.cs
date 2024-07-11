@@ -65,6 +65,11 @@ namespace LLama.Native
         /// whether to pool (sum) embedding results by sequence id
         /// </summary>
         public LLamaPoolingType llama_pooling_type;
+
+        /// <summary>
+        /// Attention type to use for embeddings
+        /// </summary>
+        public LLamaAttentionType attention_type;
         
         /// <summary>
         /// RoPE base frequency, 0 = from model

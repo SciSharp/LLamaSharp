@@ -170,6 +170,15 @@ namespace LLama.Native
         private static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
 
         /// <summary>
+        /// Processes a batch of tokens with the ecoder part of the encoder-decoder model. Stores the encoder output
+        /// internally for later use by the decoder cross-attention layers.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="batch"></param>
+        /// <returns>0 = success <br />&lt; 0 = error</returns>
+        private static extern int llama_encode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
+
+        /// <summary>
         /// Set the number of threads used for decoding
         /// </summary>
         /// <param name="ctx"></param>

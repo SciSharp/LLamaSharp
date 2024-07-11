@@ -59,7 +59,12 @@ namespace LLama.Native
         /// <summary>
         /// Get the number of layers in this model
         /// </summary>
-        public int LayerCount => llama_n_embd(this);
+        public int LayerCount => llama_n_layers(this);
+
+        /// <summary>
+        /// Returns true if the model contains an encoder that requires llama_encode() call
+        /// </summary>
+        public bool HasEncoder => llama_model_has_encoder(this);
 
         /// <summary>
         /// Get a description of this model
@@ -388,6 +393,14 @@ namespace LLama.Native
         private static extern int llama_token_eot(SafeLlamaModelHandle model);
 
         /// <summary>
+        /// For encoder-decoder models, this function returns id of the token that must be provided
+        /// to the decoder to start generating output sequence. For other models, it returns -1.
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_model_decoder_start_token(SafeLlamaModelHandle model);
+
+        /// <summary>
         /// Check if the token is supposed to end generation (end-of-generation, eg. EOS, EOT, etc.)
         /// </summary>
         /// <param name="model"></param>
@@ -409,6 +422,18 @@ namespace LLama.Native
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaTokenAttr llama_token_get_attr(SafeLlamaModelHandle model, LLamaToken token);
+
+        //[DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        //private static extern GGMLTensor llama_get_model_tensor(SafeLlamaModelHandle model, string name);
+
+        /// <summary>
+        /// Returns true if the model contains an encoder that requires llama_encode() call
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_model_has_encoder(SafeLlamaModelHandle model);
         #endregion
 
         #region LoRA
@@ -728,6 +753,12 @@ namespace LLama.Native
             /// Codellama end of infill middle
             /// </summary>
             public LLamaToken? EOT => Normalize(llama_token_eot(_model));
+
+            /// <summary>
+            /// For encoder-decoder models, this function returns id of the token that must be provided
+            /// to the decoder to start generating output sequence.
+            /// </summary>
+            public LLamaToken? DecoderStartToken => Normalize(llama_model_decoder_start_token(_model));
 
             /// <summary>
             /// Returns the string representation of this model's end_of_text token

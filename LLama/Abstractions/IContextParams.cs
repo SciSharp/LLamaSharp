@@ -123,4 +123,9 @@ public interface IContextParams
     /// How to pool (sum) embedding results by sequence id (ignored if no pooling layer)
     /// </summary>
     LLamaPoolingType PoolingType { get; }
+
+    /// <summary>
+    /// Attention type to use for embeddings
+    /// </summary>
+    LLamaAttentionType AttentionType { get; }
 }

@@ -52,6 +52,7 @@ namespace LLama.Extensions
             result.offload_kqv = !@params.NoKqvOffload;
             result.flash_attention = @params.FlashAttention;
             result.llama_pooling_type = @params.PoolingType;
+            result.attention_type = @params.AttentionType;
 
             result.n_threads = Threads(@params.Threads);
             result.n_threads_batch = Threads(@params.BatchThreads);
