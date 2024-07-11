@@ -34,7 +34,7 @@ jobs:
             defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
             defines: '-DGGML_AVX512=ON'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -218,7 +218,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019]
+        os: [ubuntu-22.04, windows-2019]
         cuda: ['12.2.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
@@ -277,21 +277,21 @@ jobs:
           name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
       - name: Upload artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/src/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/ggml/src/libggml.so
           name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload llava artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/examples/llava/libllava_shared.so
