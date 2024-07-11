@@ -58,7 +58,7 @@
     </PropertyGroup>
 	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
 	<DownloadFile
-		SourceUrl="https://github.com/martindevans/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
+		SourceUrl="https://github.com/SciSharp/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
 		DestinationFolder="runtimes"
 		DestinationFileName="deps.zip"
 		SkipUnchangedFiles="true"
