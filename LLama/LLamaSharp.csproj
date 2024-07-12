@@ -57,7 +57,6 @@
   </PropertyGroup>
 
   <Target Name="DownloadReleaseBinaries">
-      
 	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
 	<DownloadFile
 		SourceUrl="https://github.com/SciSharp/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
