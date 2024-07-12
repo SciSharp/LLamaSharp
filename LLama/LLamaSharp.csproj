@@ -57,9 +57,6 @@
   </PropertyGroup>
 
   <Target Name="DownloadReleaseBinaries">
-    <PropertyGroup>
-        <BinaryReleaseId>1c5eba6f8e62</BinaryReleaseId>
-    </PropertyGroup>
       
 	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
 	<DownloadFile
