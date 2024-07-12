@@ -84,7 +84,7 @@
 		Include="*.dll;*.so;*.dylib;*.metal;"
 	/>
 	<WriteLinesToFile
-		File="runtimes/version.txt"
+		File="runtimes/release_id.txt"
 		Lines="$(BinaryReleaseId)"
 		Overwrite="true"
     />
@@ -92,7 +92,7 @@
     
   <Target Name="CheckReleaseBinaries">
     <!-- First, we read the previous binary release id from disk -->    
-    <ReadLinesFromFile File="runtimes/version.txt">
+    <ReadLinesFromFile File="runtimes/release_id.txt">
 		<Output TaskParameter="Lines" ItemName="PreviousBinaryReleaseId" />
     </ReadLinesFromFile>
         
