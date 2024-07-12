@@ -74,13 +74,14 @@
 	<Unzip
 		SourceFiles="runtimes/deps.zip"
 		DestinationFolder="runtimes/deps/"
+        SkipUnchangedFiles="true"
         OverwriteReadOnlyFiles="true"
 		Include="*.dll;*.so;*.dylib;*.metal;"
 	/>
   </Target>
     
   <Target Name="PrepareReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="UnzipReleaseBinaries" Properties="TargetFramework=once" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="UnzipReleaseBinaries" />
   </Target>
   
 </Project>
