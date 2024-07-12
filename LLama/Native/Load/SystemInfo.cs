@@ -70,8 +70,6 @@ namespace LLama.Native
                 {
                     "/usr/local/bin/cuda",
                     "/usr/local/cuda",
-                    // "/usr/local/cuda-11/bin",
-                    // "/usr/local/cuda-12/bin",
                 };
                 
                 // Loop through every default path to find the version
