@@ -536,10 +536,7 @@ namespace LLama.Native
             if (size < required)
                 throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
 
-            unsafe
-            {
-                return llama_state_get_data(this, dest);
-            }
+            return llama_state_get_data(this, dest);
         }
 
         /// <summary>
@@ -589,17 +586,6 @@ namespace LLama.Native
             llama_set_rng_seed(this, seed);
         }
 
-        /// <summary>
-        /// Set the number of threads used for decoding
-        /// </summary>
-        /// <param name="threads">n_threads is the number of threads used for generation (single token)</param>
-        /// <param name="threadsBatch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
-        [Obsolete("Use `GenerationThreads` and `BatchThreads` properties")]
-        public void SetThreads(uint threads, uint threadsBatch)
-        {
-            llama_set_n_threads(this, threads, threadsBatch);
-        }
-        
         #region timing
         /// <summary>
         /// Get performance information

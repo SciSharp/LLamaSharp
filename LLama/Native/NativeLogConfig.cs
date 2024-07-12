@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
@@ -52,7 +52,7 @@ public static class NativeLogConfig
         {
             // We can't set the log method yet since that would cause the llama.dll to load.
             // Instead configure it to be set when the native library loading is done
-            NativeLibraryConfig.Instance.WithLogCallback(logCallback);
+            NativeLibraryConfig.All.WithLogCallback(logCallback);
         }
     }
 

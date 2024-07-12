@@ -682,11 +682,9 @@ public record SessionState
         Directory.CreateDirectory(path);
 
         string modelStateFilePath = Path.Combine(path, ChatSession.MODEL_STATE_FILENAME);
-        var bytes = ContextState?.ToByteArray();
-        if (bytes is not null)
-        {
-            File.WriteAllBytes(modelStateFilePath, bytes);
-        }
+        if (ContextState != null)
+            using (var stateStream = File.Create(modelStateFilePath))
+                ContextState?.Save(stateStream);
 
         string executorStateFilepath = Path.Combine(path, ChatSession.EXECUTOR_STATE_FILENAME);
         File.WriteAllText(executorStateFilepath, JsonSerializer.Serialize(ExecutorState));
@@ -722,10 +720,11 @@ public record SessionState
             throw new ArgumentException("Directory does not exist", nameof(path));
         }
 
-        string modelStateFilePath = Path.Combine(path, ChatSession.MODEL_STATE_FILENAME);
-        var contextState = File.Exists(modelStateFilePath) ? 
-            State.FromByteArray(File.ReadAllBytes(modelStateFilePath))
-            : null;
+        var modelStateFilePath = Path.Combine(path, ChatSession.MODEL_STATE_FILENAME);
+        State? contextState = default;
+        if (File.Exists(modelStateFilePath))
+            using (var modelStateStream = File.OpenRead(modelStateFilePath))
+                contextState = State.Load(modelStateStream);
 
         string executorStateFilepath = Path.Combine(path, ChatSession.EXECUTOR_STATE_FILENAME);
         var executorState = JsonSerializer.Deserialize<ExecutorBaseState>(File.ReadAllText(executorStateFilepath));
