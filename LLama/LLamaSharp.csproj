@@ -106,8 +106,8 @@
   </Target>
 
   <!-- This always gets called before the build -->
-  <Target Name="PrepareReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="CheckReleaseBinaries" Properties="TargetFramework=once" />
+  <Target Name="PrepareReleaseBinaries" BeforeTargets="BeforeBuild">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="CheckReleaseBinaries" />
   </Target>
     
 </Project>
