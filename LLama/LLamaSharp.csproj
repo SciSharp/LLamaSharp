@@ -68,8 +68,8 @@
   </Target>
 
   <Target Name="UnzipReleaseBinaries" DependsOnTargets="DownloadReleaseBinaries">
-	<Message Importance="High" Text="Zip file was found before starting unzip." Condition="Exists('$(BinaryReleaseId)/deps.zip')" />
-	<Message Importance="High" Text="Zip file was NOT found before starting unzip!" Condition="!Exists('$(BinaryReleaseId)/deps.zip')" />
+	<Message Importance="High" Text="Zip file was found before starting unzip." Condition="Exists('runtimes/deps.zip')" />
+	<Message Importance="High" Text="Zip file was NOT found before starting unzip!" Condition="!Exists('runtimes/deps.zip')" />
 	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
 	<Unzip
 		SourceFiles="runtimes/deps.zip"
