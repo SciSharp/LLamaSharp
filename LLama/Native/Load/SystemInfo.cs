@@ -65,9 +65,26 @@ namespace LLama.Native
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                // Try the default first
-                cudaPath = "/usr/local/bin/cuda";
-                version = GetCudaVersionFromPath(cudaPath);
+                // List of default cuda paths
+                string[] defaultCudaPaths =
+                {
+                    "/usr/local/bin/cuda",
+                    "/usr/local/cuda/bin",
+                    // "/usr/local/cuda-11/bin",
+                    // "/usr/local/cuda-12/bin",
+                };
+                
+                // Loop through every default path to find the version
+                foreach (var path in defaultCudaPaths)
+                {
+                    // Attempt to get the version from the path
+                    version = GetCudaVersionFromPath(path);
+                    
+                    // If a CUDA version is found, break the loop
+                    if (!string.IsNullOrEmpty(version))
+                        break;
+                }
+                
                 if (string.IsNullOrEmpty(version))
                 {
                     cudaPath = Environment.GetEnvironmentVariable("LD_LIBRARY_PATH");
