@@ -69,7 +69,7 @@ namespace LLama.Native
                 string[] defaultCudaPaths =
                 {
                     "/usr/local/bin/cuda",
-                    "/usr/local/cuda/bin",
+                    "/usr/local/cuda",
                     // "/usr/local/cuda-11/bin",
                     // "/usr/local/cuda-12/bin",
                 };
