@@ -52,28 +52,59 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
-  <Target Name="DownloadReleaseBinariesInner">
-    <PropertyGroup>
-        <BinaryReleaseId>1c5eba6f8e62</BinaryReleaseId>
-    </PropertyGroup>
+  <PropertyGroup>
+    <BinaryReleaseId>1c5eba6f8e62</BinaryReleaseId>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <FirstTargetFramework Condition=" '$(TargetFrameworks)' == '' ">$(TargetFramework)</FirstTargetFramework>
+    <FirstTargetFramework Condition=" '$(FirstTargetFrameworks)' == '' ">$(TargetFrameworks.Split(';')[0])</FirstTargetFramework>
+  </PropertyGroup>
+
+  <!-- When UnzipReleaseBinaries is called, this will run first, as UnzipReleaseBinaries depends on it (check DependsOnTargets of UnzipReleaseBinaries) -->
+  <Target Name="DownloadReleaseBinaries">
 	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
 	<DownloadFile
 		SourceUrl="https://github.com/SciSharp/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip"
 		DestinationFolder="runtimes"
 		DestinationFileName="deps.zip"
 		SkipUnchangedFiles="true"
+        Retries="3"
 	/>
+  </Target>
 
+  <!-- This automatically runs after CheckReleaseBinaries has completed, but only if SkipDownloadReleaseBinaries is not true -->
+  <Target Name="UnzipReleaseBinaries" DependsOnTargets="DownloadReleaseBinaries" AfterTargets="CheckReleaseBinaries" Condition="'$(SkipDownloadReleaseBinaries)' != 'true'">
 	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
 	<Unzip
 		SourceFiles="runtimes/deps.zip"
 		DestinationFolder="runtimes/deps/"
-		OverwriteReadOnlyFiles="false"
+        SkipUnchangedFiles="true"
+        OverwriteReadOnlyFiles="true"
 		Include="*.dll;*.so;*.dylib;*.metal;"
 	/>
+	<WriteLinesToFile
+		File="runtimes/release_id.txt"
+		Lines="$(BinaryReleaseId)"
+		Overwrite="true"
+    />
   </Target>
-  <Target Name="DownloadReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="DownloadReleaseBinariesInner" Properties="TargetFramework=once" />
+    
+  <Target Name="CheckReleaseBinaries">
+    <!-- First, we read the previous binary release id from disk -->    
+    <ReadLinesFromFile File="runtimes/release_id.txt">
+		<Output TaskParameter="Lines" ItemName="PreviousBinaryReleaseId" />
+    </ReadLinesFromFile>
+        
+    <!-- If the previous binary release id is the same as the current one (which we define at the top of this file), we skip the download -->
+    <PropertyGroup>
+		<SkipDownloadReleaseBinaries Condition="'%(PreviousBinaryReleaseId.Identity)' == '$(BinaryReleaseId)'">true</SkipDownloadReleaseBinaries>
+    </PropertyGroup>
   </Target>
-  
+
+  <!-- This always gets called before the build -->
+  <Target Name="PrepareReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="CheckReleaseBinaries" Properties="TargetFramework=$(FirstTargetFramework)" />
+  </Target>
+    
 </Project>
