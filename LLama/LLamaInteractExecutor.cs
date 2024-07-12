@@ -112,11 +112,12 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override Task PreprocessInputs(string text, InferStateArgs args)
+        protected override Task PreprocessInputs(string? text, InferStateArgs args)
         {
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
+                if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
                 if (!this.IsMultiModal)
                 {
                     _embed_inps = Context.Tokenize(text, true, true).ToList();
@@ -128,20 +129,24 @@ namespace LLama
             }
             else
             {
-                if (!text.EndsWith("\n"))
+                // Don't add any tokens if continuation is requested (by providing a null prompt)
+                if (text != null)
                 {
-                    text += "\n";
-                }
+                    if (!text.EndsWith("\n"))
+                    {
+                        text += "\n";
+                    }
 
-                if (!this.IsMultiModal)
-                {
-                    var line_inp = Context.Tokenize(text, false, true);
-                    _embed_inps.AddRange(line_inp);
-                    args.RemainedTokens -= line_inp.Length;
-                }
-                else
-                {
-                    PreprocessLlava(text, args, false);
+                    if (!this.IsMultiModal)
+                    {
+                        var line_inp = Context.Tokenize(text, false, true);
+                        _embed_inps.AddRange(line_inp);
+                        args.RemainedTokens -= line_inp.Length;
+                    }
+                    else
+                    {
+                        PreprocessLlava(text, args, false);
+                    }
                 }
             }
 

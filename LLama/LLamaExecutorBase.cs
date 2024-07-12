@@ -251,7 +251,7 @@ namespace LLama
         /// </summary>
         /// <param name="text"></param>
         /// <param name="args"></param>
-        protected abstract Task PreprocessInputs(string text, InferStateArgs args);
+        protected abstract Task PreprocessInputs(string? text, InferStateArgs args);
 
         /// <summary>
         /// Do some post processing after the inference.
@@ -296,11 +296,11 @@ namespace LLama
         /// <summary>
         /// Execute the inference.
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">The prompt. If null, generation will continue where it left off previously.</param>
         /// <param name="inferenceParams"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual async IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<string> InferAsync(string? text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             inferenceParams ??= new InferenceParams();
