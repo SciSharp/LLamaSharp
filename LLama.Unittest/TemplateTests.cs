@@ -1,15 +1,20 @@
 using System.Text;
 using LLama.Common;
+using LLama.Extensions;
+using LLama.Native;
+using Xunit.Abstractions;
 
 namespace LLama.Unittest;
 
 public sealed class TemplateTests
     : IDisposable
 {
+    private readonly ITestOutputHelper _output;
     private readonly LLamaWeights _model;
 
-    public TemplateTests()
+    public TemplateTests(ITestOutputHelper output)
     {
+        _output = output;
         var @params = new ModelParams(Constants.GenerativeModelPath)
         {
             ContextSize = 1,
@@ -260,6 +265,35 @@ public sealed class TemplateTests
     [Fact]
     public void EndOSpeechToken_ReturnsExpected()
     {
+        _output.WriteLine($"EOS: {_model.Tokens.EOS}");
+        _output.WriteLine($"EOT: {_model.Tokens.EOT}");
+        _output.WriteLine($"BOS: {_model.Tokens.BOS}");
+
+        var eosStr = ConvertTokenToString(_model.Tokens.EOS!.Value);
+        _output.WriteLine(eosStr);
+
         Assert.Equal("</s>", _model.Tokens.EndOfSpeechToken);
+    }
+
+    private string? ConvertTokenToString(LLamaToken token)
+    {
+        const int buffSize = 32;
+        Span<byte> buff = stackalloc byte[buffSize];
+        var tokenLength = _model.NativeHandle.TokenToSpan(token, buff, true);
+
+        _output.WriteLine($"tokenLength = {tokenLength}");
+        if (tokenLength <= 0)
+            return null;
+
+        // if the original buffer wasn't large enough, create a new one
+        _output.WriteLine($"tokenLength = {tokenLength}, buffSize = {buffSize}");
+        if (tokenLength > buffSize)
+        {
+            buff = stackalloc byte[(int)tokenLength];
+            _ = _model.NativeHandle.TokenToSpan(token, buff, true);
+        }
+
+        var slice = buff.Slice(0, (int)tokenLength);
+        return Encoding.UTF8.GetStringFromSpan(slice);
     }
 }
