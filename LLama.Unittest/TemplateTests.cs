@@ -270,13 +270,15 @@ public sealed class TemplateTests
         _output.WriteLine($"BOS: {_model.Tokens.BOS}");
 
         var eosStr = ConvertTokenToString(_model.Tokens.EOS!.Value);
-        _output.WriteLine(eosStr);
+        _output.WriteLine(eosStr ?? "null");
 
         Assert.Equal("</s>", _model.Tokens.EndOfSpeechToken);
     }
 
     private string? ConvertTokenToString(LLamaToken token)
     {
+        _output.WriteLine($"ConvertTokenToString: {token}");
+
         const int buffSize = 32;
         Span<byte> buff = stackalloc byte[buffSize];
         var tokenLength = _model.NativeHandle.TokenToSpan(token, buff, true);
