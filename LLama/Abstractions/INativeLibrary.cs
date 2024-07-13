@@ -1,7 +1,5 @@
-﻿using LLama.Native;
-using System;
+using LLama.Native;
 using System.Collections.Generic;
-using System.Text;
 
 namespace LLama.Abstractions
 {

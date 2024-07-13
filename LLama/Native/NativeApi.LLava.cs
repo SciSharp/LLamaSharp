@@ -1,9 +1,7 @@
 using System;
-using System.Runtime.InteropServices;
 
 namespace LLama.Native;
 
-using clip_ctx = IntPtr;
 public static unsafe partial class NativeApi
 {
     /// <summary>

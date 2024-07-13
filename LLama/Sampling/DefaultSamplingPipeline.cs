@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using LLama.Extensions;
 using LLama.Native;
 
 namespace LLama.Sampling;

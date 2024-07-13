@@ -1,6 +1,5 @@
 using LLama.Exceptions;
 using System;
-using System.Runtime.InteropServices;
 using LLama.Abstractions;
 
 namespace LLama.Native

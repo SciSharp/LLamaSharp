@@ -1,5 +1,3 @@
-﻿using System;
-using System.Text;
 using LLama.Abstractions;
 using LLama.Common;
 
@@ -56,12 +54,7 @@ public class PromptTemplateTransformer(LLamaWeights model,
         var templateBuffer = template.Apply();
 
         // convert the resulting buffer to a string
-#if NET6_0_OR_GREATER
-        return LLamaTemplate.Encoding.GetString(templateBuffer);
-#endif
-
-        // need the ToArray call for netstandard -- avoided in newer runtimes
-        return LLamaTemplate.Encoding.GetString(templateBuffer.ToArray());
+        return LLamaTemplate.Encoding.GetStringFromSpan(templateBuffer);
     }
-    #endregion utils
+#endregion utils
 }
