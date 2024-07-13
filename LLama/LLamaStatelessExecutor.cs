@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using LLama.Exceptions;
 using LLama.Native;
@@ -27,9 +26,6 @@ namespace LLama
         
         // LLava Section
         public bool IsMultiModal => false;
-
-        /// <inheritdoc />
-        public bool MultiModalProject { get;  }
 
         /// <inheritdoc />
         public LLavaWeights? ClipModel { get;  }

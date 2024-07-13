@@ -624,7 +624,7 @@ public record SessionState
     /// <summary>
     /// The input transform pipeline used in this session.
     /// </summary>
-    public ITextTransform[] InputTransformPipeline { get; set; } = Array.Empty<ITextTransform>();
+    public ITextTransform[] InputTransformPipeline { get; set; } = [ ];
 
     /// <summary>
     /// The output transform used in this session.
@@ -639,7 +639,7 @@ public record SessionState
     /// <summary>
     /// The the chat history messages for this session.
     /// </summary>
-    public ChatHistory.Message[] History { get; set; } = Array.Empty<ChatHistory.Message>();
+    public ChatHistory.Message[] History { get; set; } = [ ];
 
     /// <summary>
     /// Create a new session state.
@@ -741,7 +741,7 @@ public record SessionState
             inputTransforms = File.Exists(inputTransformFilepath) ? 
                 (JsonSerializer.Deserialize<ITextTransform[]>(File.ReadAllText(inputTransformFilepath))
                 ?? throw new ArgumentException("Input transform file is invalid", nameof(path)))
-                : Array.Empty<ITextTransform>();
+                : [ ];
         }
         catch (JsonException)
         {

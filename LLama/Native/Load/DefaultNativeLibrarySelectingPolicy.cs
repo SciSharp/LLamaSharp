@@ -1,6 +1,5 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {

@@ -1,4 +1,4 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using LLama.Common;
 using System.Collections.Generic;
 using System.Linq;
@@ -196,7 +196,7 @@ namespace LLama
                 int maxKeywordLength,
                 bool removeAllMatchedTokens)
             {
-                _keywords = new(keywords);
+                _keywords = [ ..keywords ];
                 _maxKeywordLength = maxKeywordLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;
             }
@@ -212,7 +212,7 @@ namespace LLama
             /// <param name="removeAllMatchedTokens">If set to true, when getting a matched keyword, all the related tokens will be removed. Otherwise only the part of keyword will be removed.</param>
             public KeywordTextOutputStreamTransform(IEnumerable<string> keywords, int redundancyLength = 3, bool removeAllMatchedTokens = false)
             {
-                _keywords = new(keywords);
+                _keywords = [ ..keywords ];
                 _maxKeywordLength = _keywords.Max(x => x.Length) + redundancyLength;
                 _maxKeywordLength = _keywords.Select(x => x.Length).Max() + redundancyLength;
                 _removeAllMatchedTokens = removeAllMatchedTokens;

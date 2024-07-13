@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LLama.Exceptions;
-using LLama.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace LLama
@@ -119,7 +118,7 @@ namespace LLama
         /// <inheritdoc />
         protected override Task PreprocessInputs(string text, InferStateArgs args)
         {
-            args.Antiprompts ??= new List<string>();
+            args.Antiprompts ??= [ ];
             args.Antiprompts.Add(_instructionPrefix);
             if (_is_prompt_run)
             {

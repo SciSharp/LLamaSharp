@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using LLama.Native;
 
 namespace LLama.Sampling;
@@ -6,7 +6,7 @@ namespace LLama.Sampling;
 /// <summary>
 /// A sampling pipeline which uses mirostat (v2) to select tokens
 /// </summary>
-public class Mirostate2SamplingPipeline
+public class Mirostat2SamplingPipeline
     : BaseSamplingPipeline
 {
     private const float DEFAULT_TAU = 5;
@@ -58,7 +58,7 @@ public class Mirostate2SamplingPipeline
     /// <inheritdoc />
     public override ISamplingPipeline Clone()
     {
-        return new Mirostate2SamplingPipeline
+        return new Mirostat2SamplingPipeline
         {
             Grammar = Grammar?.Clone(),
 

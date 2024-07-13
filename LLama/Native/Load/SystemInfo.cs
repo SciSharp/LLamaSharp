@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -170,10 +169,10 @@ namespace LLama.Native
             {
                 // List of default cuda paths
                 string[] defaultCudaPaths =
-                {
+                [
                     "/usr/local/bin/cuda",
                     "/usr/local/cuda",
-                };
+                ];
                 
                 // Loop through every default path to find the version
                 foreach (var path in defaultCudaPaths)

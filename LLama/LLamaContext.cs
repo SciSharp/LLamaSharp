@@ -7,13 +7,11 @@ using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using LLama.Common;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 using System.Threading;
-using System.Security.Cryptography;
 
 namespace LLama
 {

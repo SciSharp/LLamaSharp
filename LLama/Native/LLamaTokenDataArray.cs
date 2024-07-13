@@ -1,6 +1,4 @@
 using System;
-using System.Buffers;
-using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
