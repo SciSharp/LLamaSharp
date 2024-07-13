@@ -118,5 +118,8 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; }
+
+        /// <inheritdoc />
+        public LLamaAttentionType AttentionType { get; set; } = LLamaAttentionType.Unspecified;
     }
 }

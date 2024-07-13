@@ -23,5 +23,8 @@ internal enum LLamaVocabPreType
     DBRX = 13,
     SMAUG = 14,
     PORO = 15,
-    VIKING = 16,
+    CHATGLM3 = 16,
+    CHATGLM4 = 17,
+    VIKING = 18,
+    JAIS = 19,
 }
