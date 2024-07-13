@@ -223,9 +223,10 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
+        /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
         /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, bool special)
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special)
         {
             // Handle invalid tokens
             if ((int)llamaToken < 0)
@@ -235,12 +236,12 @@ namespace LLama.Native
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, special);
+                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, lstrip, special);
                 }
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, [MarshalAs(UnmanagedType.U1)] bool special);
+            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, int lstrip, [MarshalAs(UnmanagedType.U1)] bool special);
         }
 
         /// <summary>

@@ -475,11 +475,12 @@ namespace LLama.Native
         /// </summary>
         /// <param name="token">Token to decode</param>
         /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
+        /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
         /// <param name="special">If true, special characters will be converted to text. If false they will be invisible.</param>
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
-        public uint TokenToSpan(LLamaToken token, Span<byte> dest, bool special = false)
+        public uint TokenToSpan(LLamaToken token, Span<byte> dest, int lstrip = 0, bool special = false)
         {
-            var length = NativeApi.llama_token_to_piece(this, token, dest, special);
+            var length = NativeApi.llama_token_to_piece(this, token, dest, lstrip, special);
             return (uint)Math.Abs(length);
         }
 

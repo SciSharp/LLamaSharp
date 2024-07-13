@@ -281,7 +281,7 @@ public sealed class TemplateTests
 
         const int buffSize = 32;
         Span<byte> buff = stackalloc byte[buffSize];
-        var tokenLength = _model.NativeHandle.TokenToSpan(token, buff, true);
+        var tokenLength = _model.NativeHandle.TokenToSpan(token, buff, 0, true);
 
         _output.WriteLine($"tokenLength = {tokenLength}");
         if (tokenLength <= 0)
@@ -292,7 +292,7 @@ public sealed class TemplateTests
         if (tokenLength > buffSize)
         {
             buff = stackalloc byte[(int)tokenLength];
-            _ = _model.NativeHandle.TokenToSpan(token, buff, true);
+            _ = _model.NativeHandle.TokenToSpan(token, buff, 0, true);
         }
 
         var slice = buff.Slice(0, (int)tokenLength);

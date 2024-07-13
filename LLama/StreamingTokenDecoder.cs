@@ -115,7 +115,7 @@ namespace LLama
             static Span<byte> TokenToBytes(ref byte[] bytes, LLamaToken token, SafeLlamaModelHandle model, bool special)
             {
                 // Try to get bytes
-                var l = model.TokenToSpan(token, bytes, special);
+                var l = model.TokenToSpan(token, bytes, 0, special);
 
                 // Check if the length was larger than the buffer. If so expand the buffer and try again
                 if (l > bytes.Length)
