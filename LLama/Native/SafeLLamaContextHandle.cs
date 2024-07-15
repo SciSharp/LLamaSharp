@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 
@@ -168,6 +167,15 @@ namespace LLama.Native
         /// </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
+
+        /// <summary>
+        /// Processes a batch of tokens with the ecoder part of the encoder-decoder model. Stores the encoder output
+        /// internally for later use by the decoder cross-attention layers.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="batch"></param>
+        /// <returns>0 = success <br />&lt; 0 = error</returns>
+        private static extern int llama_encode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
 
         /// <summary>
         /// Set the number of threads used for decoding
@@ -536,10 +544,7 @@ namespace LLama.Native
             if (size < required)
                 throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
 
-            unsafe
-            {
-                return llama_state_get_data(this, dest);
-            }
+            return llama_state_get_data(this, dest);
         }
 
         /// <summary>
@@ -589,17 +594,6 @@ namespace LLama.Native
             llama_set_rng_seed(this, seed);
         }
 
-        /// <summary>
-        /// Set the number of threads used for decoding
-        /// </summary>
-        /// <param name="threads">n_threads is the number of threads used for generation (single token)</param>
-        /// <param name="threadsBatch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
-        [Obsolete("Use `GenerationThreads` and `BatchThreads` properties")]
-        public void SetThreads(uint threads, uint threadsBatch)
-        {
-            llama_set_n_threads(this, threads, threadsBatch);
-        }
-        
         #region timing
         /// <summary>
         /// Get performance information

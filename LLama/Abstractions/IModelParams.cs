@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -214,7 +213,7 @@ namespace LLama.Abstractions
         /// <inheritdoc/>
         public override TensorSplitsCollection Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? Array.Empty<float>();
+            var arr = JsonSerializer.Deserialize<float[]>(ref reader, options) ?? [ ];
             return new TensorSplitsCollection(arr);
         }
 

@@ -7,7 +7,6 @@ using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using LLama.Common;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Sampling;
@@ -622,28 +621,70 @@ namespace LLama
             }
 
             /// <summary>
-            /// Convert this state to a byte array
+            /// Write all the bytes of this state to the given stream
             /// </summary>
-            /// <returns></returns>
-            [Obsolete("It is not generally safe to convert a state into a byte array - it will fail if the state is very large")]
-            public byte[] ToByteArray()
+            /// <param name="stream"></param>
+            public async Task SaveAsync(Stream stream)
             {
-                var bytes = new byte[_size];
-                Marshal.Copy(handle, bytes, 0, (int)_size);
-                return bytes;
+                UnmanagedMemoryStream from;
+                unsafe
+                {
+                    from = new UnmanagedMemoryStream((byte*)handle.ToPointer(), checked((long)Size));
+                }
+                await from.CopyToAsync(stream);
             }
 
             /// <summary>
-            /// Load state from a byte array
+            /// Write all the bytes of this state to the given stream
             /// </summary>
-            /// <param name="bytes"></param>
-            /// <returns></returns>
-            [Obsolete("It is not generally safe to convert a state into a byte array - it will fail if the state is very large")]
-            public static State FromByteArray(byte[] bytes)
+            /// <param name="stream"></param>
+            public void Save(Stream stream)
             {
-                var memory = Marshal.AllocHGlobal(bytes.Length);
-                Marshal.Copy(bytes, 0, memory, bytes.Length);
-                return new State(memory, (ulong)bytes.Length);
+                UnmanagedMemoryStream from;
+                unsafe
+                {
+                    from = new UnmanagedMemoryStream((byte*)handle.ToPointer(), checked((long)Size));
+                }
+                from.CopyTo(stream);
+            }
+
+            /// <summary>
+            /// Load a state from a stream
+            /// </summary>
+            /// <param name="stream"></param>
+            /// <returns></returns>
+            public static async Task<State> LoadAsync(Stream stream)
+            {
+                var memory = Marshal.AllocHGlobal((nint)stream.Length);
+                var state = new State(memory, checked((ulong)stream.Length));
+
+                UnmanagedMemoryStream dest;
+                unsafe
+                {
+                    dest = new UnmanagedMemoryStream((byte*)memory.ToPointer(), stream.Length);
+                }
+                await stream.CopyToAsync(dest);
+
+                return state;
+            }
+
+            /// <summary>
+            /// Load a state from a stream
+            /// </summary>
+            /// <param name="stream"></param>
+            /// <returns></returns>
+            public static State Load(Stream stream)
+            {
+                var memory = Marshal.AllocHGlobal((nint)stream.Length);
+                var state = new State(memory, checked((ulong)stream.Length));
+
+                unsafe
+                {
+                    var dest = new UnmanagedMemoryStream((byte*)memory.ToPointer(), stream.Length);
+                    stream.CopyTo(dest);
+                }
+
+                return state;
             }
         }
 

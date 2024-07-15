@@ -1,9 +1,7 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Exceptions;
 
@@ -59,7 +57,12 @@ namespace LLama.Native
         /// <summary>
         /// Get the number of layers in this model
         /// </summary>
-        public int LayerCount => llama_n_embd(this);
+        public int LayerCount => llama_n_layers(this);
+
+        /// <summary>
+        /// Returns true if the model contains an encoder that requires llama_encode() call
+        /// </summary>
+        public bool HasEncoder => llama_model_has_encoder(this);
 
         /// <summary>
         /// Get a description of this model
@@ -388,6 +391,14 @@ namespace LLama.Native
         private static extern int llama_token_eot(SafeLlamaModelHandle model);
 
         /// <summary>
+        /// For encoder-decoder models, this function returns id of the token that must be provided
+        /// to the decoder to start generating output sequence. For other models, it returns -1.
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_model_decoder_start_token(SafeLlamaModelHandle model);
+
+        /// <summary>
         /// Check if the token is supposed to end generation (end-of-generation, eg. EOS, EOT, etc.)
         /// </summary>
         /// <param name="model"></param>
@@ -409,6 +420,18 @@ namespace LLama.Native
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaTokenAttr llama_token_get_attr(SafeLlamaModelHandle model, LLamaToken token);
+
+        //[DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        //private static extern GGMLTensor llama_get_model_tensor(SafeLlamaModelHandle model, string name);
+
+        /// <summary>
+        /// Returns true if the model contains an encoder that requires llama_encode() call
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_model_has_encoder(SafeLlamaModelHandle model);
         #endregion
 
         #region LoRA
@@ -450,11 +473,12 @@ namespace LLama.Native
         /// </summary>
         /// <param name="token">Token to decode</param>
         /// <param name="dest">A span to attempt to write into. If this is too small nothing will be written</param>
+        /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
         /// <param name="special">If true, special characters will be converted to text. If false they will be invisible.</param>
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
-        public uint TokenToSpan(LLamaToken token, Span<byte> dest, bool special = false)
+        public uint TokenToSpan(LLamaToken token, Span<byte> dest, int lstrip = 0, bool special = false)
         {
-            var length = NativeApi.llama_token_to_piece(this, token, dest, special);
+            var length = NativeApi.llama_token_to_piece(this, token, dest, lstrip, special);
             return (uint)Math.Abs(length);
         }
 
@@ -728,6 +752,12 @@ namespace LLama.Native
             /// Codellama end of infill middle
             /// </summary>
             public LLamaToken? EOT => Normalize(llama_token_eot(_model));
+
+            /// <summary>
+            /// For encoder-decoder models, this function returns id of the token that must be provided
+            /// to the decoder to start generating output sequence.
+            /// </summary>
+            public LLamaToken? DecoderStartToken => Normalize(llama_model_decoder_start_token(_model));
 
             /// <summary>
             /// Returns the string representation of this model's end_of_text token

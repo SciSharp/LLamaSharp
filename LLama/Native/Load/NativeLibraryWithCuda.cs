@@ -1,6 +1,5 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
@@ -20,7 +19,7 @@ namespace LLama.Native
         {
             get
             {
-                return new NativeLibraryMetadata(_libraryName, true, _avxLevel);
+                return new NativeLibraryMetadata(_libraryName, true, false, _avxLevel);
             }
         }
 

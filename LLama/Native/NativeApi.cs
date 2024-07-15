@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -223,9 +222,10 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
+        /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
         /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, bool special)
+        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special)
         {
             // Handle invalid tokens
             if ((int)llamaToken < 0)
@@ -235,12 +235,12 @@ namespace LLama.Native
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, special);
+                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, lstrip, special);
                 }
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, [MarshalAs(UnmanagedType.U1)] bool special);
+            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, int lstrip, [MarshalAs(UnmanagedType.U1)] bool special);
         }
 
         /// <summary>
@@ -249,15 +249,29 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="text"></param>
         /// <param name="text_len"></param>
-        /// <param name="tokens"></param>
+        /// <param name="tokens">The tokens pointer must be large enough to hold the resulting tokens.</param>
         /// <param name="n_max_tokens"></param>
-        /// <param name="add_special"></param>
+        /// <param name="add_special">add_special Allow to add BOS and EOS tokens if model is configured to do so.</param>
         /// <param name="parse_special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext. Does not insert a leading space.</param>
         /// <returns>Returns the number of tokens on success, no more than n_max_tokens.
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
+
+        /// <summary>
+        /// Convert the provided tokens into text (inverse of llama_tokenize()).
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="tokens"></param>
+        /// <param name="nTokens"></param>
+        /// <param name="textOut">The char pointer must be large enough to hold the resulting text.</param>
+        /// <param name="textLengthMax"></param>
+        /// <param name="removeSpecial">remove_special Allow to remove BOS and EOS tokens if model is configured to do so.</param>
+        /// <param name="unparseSpecial">unparse_special If true, special tokens are rendered in the output.</param>
+        /// <returns>Returns the number of chars/bytes on success, no more than textLengthMax. Returns a negative number on failure - the number of chars/bytes that would have been returned.</returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int llama_detokenize(SafeLlamaModelHandle model, LLamaToken* tokens, int nTokens, byte* textOut, int textLengthMax, bool removeSpecial, bool unparseSpecial);
 
         /// <summary>
         /// Register a callback to receive llama log messages

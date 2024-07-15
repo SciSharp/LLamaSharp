@@ -1,8 +1,6 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using LLama.Native;
 
@@ -289,29 +287,19 @@ public sealed class Conversation
 
         if (embedding.Model.EmbeddingDimensions != Executor.Model.EmbeddingSize)
             throw new ArgumentException($"Embedding dimension mismatch between image embedding ({embedding.Model.EmbeddingDimensions}) and model ({Executor.Model.EmbeddingSize})");
-        
-        // Get a temporary array large enough to hold one embedding item
-        var tempArr = ArrayPool<float>.Shared.Rent(embedding.Model.EmbeddingDimensions);
-        var tempSpan = tempArr.AsSpan(0, embedding.Model.EmbeddingDimensions);
-        try
+
+        for (var i = 0; i < embedding.Model.PatchCount; i++)
         {
-            for (var i = 0; i < embedding.Model.PatchCount; i++)
-            {
-                // Get a batch with space
-                (var batch, _requiredEpoch) = Executor.GetEmbeddingBatch();
+            // Get a batch with space
+            (var batch, _requiredEpoch) = Executor.GetEmbeddingBatch();
                 
-                batch.Add(
-                    (i, embedding),
-                    static (Span<float> dest, (int index, SafeLlavaImageEmbedHandle embedding) tup) => tup.embedding.GetEmbedding(dest, tup.index),
-                    _end++,
-                    ConversationId,
-                    i == embedding.Model.PatchCount - 1
-                );
-            }
-        }
-        finally
-        {
-            ArrayPool<float>.Shared.Return(tempArr);
+            batch.Add(
+                (i, embedding),
+                static (Span<float> dest, (int index, SafeLlavaImageEmbedHandle embedding) tup) => tup.embedding.GetEmbedding(dest, tup.index),
+                _end++,
+                ConversationId,
+                i == embedding.Model.PatchCount - 1
+            );
         }
     }
 

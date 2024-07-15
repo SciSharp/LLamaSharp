@@ -1,4 +1,4 @@
-﻿using LLama.Native;
+using LLama.Native;
 using System;
 using System.Collections.Generic;
 
@@ -66,49 +66,49 @@ namespace LLama
 
             switch (ftype)
             {
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_0:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_0:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_1:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q8_0:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_F16:
-                case LLamaFtype.LLAMA_FTYPE_ALL_F32:
+                case LLamaFtype.MOSTLY_Q4_0:
+                case LLamaFtype.MOSTLY_Q4_1:
+                case LLamaFtype.MOSTLY_Q5_0:
+                case LLamaFtype.MOSTLY_Q5_1:
+                case LLamaFtype.MOSTLY_Q8_0:
+                case LLamaFtype.MOSTLY_F16:
+                case LLamaFtype.ALL_F32:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q2_K_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q2_K:
+                case LLamaFtype.MOSTLY_Q2_K_S:
+                case LLamaFtype.MOSTLY_Q2_K:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_K_XS:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_M:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q3_K_L:
+                case LLamaFtype.MOSTLY_IQ3_K_XS:
+                case LLamaFtype.MOSTLY_Q3_K_S:
+                case LLamaFtype.MOSTLY_Q3_K_M:
+                case LLamaFtype.MOSTLY_Q3_K_L:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_K_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_K_M:
+                case LLamaFtype.MOSTLY_Q4_K_S:
+                case LLamaFtype.MOSTLY_Q4_K_M:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_K_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q5_K_M:
+                case LLamaFtype.MOSTLY_Q5_K_S:
+                case LLamaFtype.MOSTLY_Q5_K_M:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q6_K:
+                case LLamaFtype.MOSTLY_Q6_K:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_XXS:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_XS:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ2_M:
+                case LLamaFtype.MOSTLY_IQ2_XXS:
+                case LLamaFtype.MOSTLY_IQ2_XS:
+                case LLamaFtype.MOSTLY_IQ2_S:
+                case LLamaFtype.MOSTLY_IQ2_M:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_XXS:
+                case LLamaFtype.MOSTLY_IQ3_XXS:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ1_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ1_M:
+                case LLamaFtype.MOSTLY_IQ1_S:
+                case LLamaFtype.MOSTLY_IQ1_M:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ4_NL:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ4_XS:
+                case LLamaFtype.MOSTLY_IQ4_NL:
+                case LLamaFtype.MOSTLY_IQ4_XS:
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_S:
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_IQ3_M:
+                case LLamaFtype.MOSTLY_IQ3_S:
+                case LLamaFtype.MOSTLY_IQ3_M:
                     return true;
 
-                case LLamaFtype.LLAMA_FTYPE_MOSTLY_Q4_1_SOME_F16:
-                case LLamaFtype.LLAMA_FTYPE_GUESSED:
+                case LLamaFtype.MOSTLY_Q4_1_SOME_F16:
+                case LLamaFtype.GUESSED:
                 default:
                     return false;
             }

@@ -1,6 +1,5 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
@@ -28,7 +27,12 @@ namespace LLama.Native
                     yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.SkipCheck);
                 }
 
-                if(!description.UseCuda || description.AllowFallback)
+                if (description.UseVulkan)
+                {
+                    yield return new NativeLibraryWithVulkan(systemInfo.VulkanVersion, description.Library, description.SkipCheck);
+                }
+
+                if((!description.UseCuda || !description.UseVulkan) || description.AllowFallback)
                 {
                     if (description.AllowFallback)
                     {
