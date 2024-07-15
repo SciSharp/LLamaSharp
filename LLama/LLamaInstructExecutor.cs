@@ -116,30 +116,38 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override Task PreprocessInputs(string text, InferStateArgs args)
+        protected override Task PreprocessInputs(string? text, InferStateArgs args)
         {
             args.Antiprompts ??= [ ];
-            args.Antiprompts.Add(_instructionPrefix);
+            if (!args.Antiprompts.Contains(_instructionPrefix))
+                args.Antiprompts.Add(_instructionPrefix);
+
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in inteactive mode, we should specially process it.
+                if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
                 _embed_inps = Context.Tokenize(text, true, true).ToList();
             }
             else
             {
-                if (!text.EndsWith("\n"))
-                {
-                    text += "\n";
-                }
                 _consumedTokensCount = _embed_inps.Count;
-                _embed_inps.AddRange(_inp_pfx);
 
-                var line_inp = Context.Tokenize(text, false, true);
-                _embed_inps.AddRange(line_inp);
+                // Don't append the template tokens if continuation is requested (by providing a null prompt)
+                if (text != null)
+                {
+                    if (!text.EndsWith("\n"))
+                    {
+                        text += "\n";
+                    }
+                    _embed_inps.AddRange(_inp_pfx);
 
-                _embed_inps.AddRange(_inp_sfx);
+                    var line_inp = Context.Tokenize(text, false, true);
+                    _embed_inps.AddRange(line_inp);
 
-                args.RemainedTokens -= line_inp.Length;
+                    _embed_inps.AddRange(_inp_sfx);
+
+                    args.RemainedTokens -= line_inp.Length;
+                }
             }
 
             return Task.CompletedTask;
