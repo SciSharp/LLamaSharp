@@ -98,7 +98,7 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cpu`](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu): Pure CPU for Windows, Linux & Mac. Metal (GPU) support for Mac.
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA 11 for Windows & Linux.
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
-   - [`LLamaSharp.Backend.OpenCL`](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL): OpenCL for Windows & Linux.
+   - [`LLamaSharp.Backend.OpenCL`](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan): Vulkan for Windows & Linux.
 
 3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
 4. (optional) To enable RAG support, install the [LLamaSharp.kernel-memory](https://www.nuget.org/packages/LLamaSharp.kernel-memory) package (this package only supports `net6.0` or higher yet), which is based on [Microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration.
@@ -251,6 +251,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.11.1, v0.11.2 | [LLaVA-v1.5](https://hf-mirror.com/jartine/llava-v1.5-7B-GGUF/blob/main/llava-v1.5-7b-mmproj-Q4_0.gguf), [Phi2](https://huggingface.co/TheBloke/phi-2-GGUF)| [`3ab8b3a`](https://github.com/ggerganov/llama.cpp/tree/3ab8b3a92ede46df88bc5a2dfca3777de4a2b2b6) |
 | v0.12.0 | LLama3 | [`a743d76`](https://github.com/ggerganov/llama.cpp/tree/a743d76a01f23038b2c85af1e9048ee836767b44) |
 | v0.13.0 | | [`1debe72`](https://github.com/ggerganov/llama.cpp/tree/1debe72737ea131cb52975da3d53ed3a835df3a6) |
+| v0.14.0 | Gemma2 | [`368645698ab648e390dcd7c00a2bf60efa654f57`](https://github.com/ggerganov/llama.cpp/tree/368645698ab648e390dcd7c00a2bf60efa654f57) |
 
 ## License
 
