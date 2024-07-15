@@ -98,7 +98,7 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cpu`](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu): Pure CPU for Windows, Linux & Mac. Metal (GPU) support for Mac.
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA 11 for Windows & Linux.
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
-   - [`LLamaSharp.Backend.OpenCL`](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan): Vulkan for Windows & Linux.
+   - [`LLamaSharp.Backend.Vulkan`](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan): Vulkan for Windows & Linux.
 
 3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
 4. (optional) To enable RAG support, install the [LLamaSharp.kernel-memory](https://www.nuget.org/packages/LLamaSharp.kernel-memory) package (this package only supports `net6.0` or higher yet), which is based on [Microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration.
