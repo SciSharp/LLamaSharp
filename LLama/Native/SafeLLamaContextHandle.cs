@@ -175,6 +175,7 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <param name="batch"></param>
         /// <returns>0 = success <br />&lt; 0 = error</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_encode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
 
         /// <summary>
