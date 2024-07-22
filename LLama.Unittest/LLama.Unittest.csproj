@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -29,31 +29,16 @@
 
   <Target Name="DownloadContentFilesInner">
   
-    <DownloadFile
-		SourceUrl="https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q3_K_S.gguf"
-		DestinationFolder="Models"
-		DestinationFileName="llama-2-7b-chat.Q3_K_S.gguf"
-		SkipUnchangedFiles="true">
+    <DownloadFile SourceUrl="https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q3_K_S.gguf" DestinationFolder="Models" DestinationFileName="llama-2-7b-chat.Q3_K_S.gguf" SkipUnchangedFiles="true">
 	</DownloadFile>
     
-	<DownloadFile
-		SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q3_K_XS.gguf"
-		DestinationFolder="Models" DestinationFileName="llava-v1.6-mistral-7b.Q3_K_XS.gguf"
-		SkipUnchangedFiles="true">
+	<DownloadFile SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q3_K_XS.gguf" DestinationFolder="Models" DestinationFileName="llava-v1.6-mistral-7b.Q3_K_XS.gguf" SkipUnchangedFiles="true">
 	</DownloadFile>
     
-	<DownloadFile
-		SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/mmproj-model-f16.gguf"
-		DestinationFolder="Models"
-		DestinationFileName="mmproj-model-f16.gguf"
-		SkipUnchangedFiles="true">
+	<DownloadFile SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/mmproj-model-f16.gguf" DestinationFolder="Models" DestinationFileName="mmproj-model-f16.gguf" SkipUnchangedFiles="true">
 	</DownloadFile>
     
-	<DownloadFile
-		SourceUrl="https://huggingface.co/leliuga/all-MiniLM-L12-v2-GGUF/resolve/main/all-MiniLM-L12-v2.Q8_0.gguf"
-		DestinationFolder="Models"
-		DestinationFileName="all-MiniLM-L12-v2.Q8_0.gguf"
-		SkipUnchangedFiles="true">
+	<DownloadFile SourceUrl="https://huggingface.co/leliuga/all-MiniLM-L12-v2-GGUF/resolve/main/all-MiniLM-L12-v2.Q8_0.gguf" DestinationFolder="Models" DestinationFileName="all-MiniLM-L12-v2.Q8_0.gguf" SkipUnchangedFiles="true">
 	</DownloadFile>
 
   </Target>
@@ -63,12 +48,9 @@
   </Target>
 
   <ItemGroup>
+    <ProjectReference Include="..\LLama.KernelMemory\LLamaSharp.KernelMemory.csproj" />
     <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
   <ItemGroup>
