@@ -3,6 +3,7 @@ using LLama.Common;
 using LLama.Native;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
+using Microsoft.KernelMemory.Context;
 
 namespace LLamaSharp.KernelMemory
 {
@@ -112,5 +113,24 @@ namespace LLamaSharp.KernelMemory
 
         /// <inheritdoc/>
         public int CountTokens(string text) => _embedder.Context.Tokenize(text, special: true).Length;
+
+        /// <summary>
+        /// Get the list of tokens for the input text
+        /// </summary>
+        /// <param name="text">Input string to be tokenized</param>
+        /// <returns>Read-only list of tokens for the input test</returns>
+        /// <remarks>
+        /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
+        /// <see cref="CountTokens(string)"/>
+        public IReadOnlyList<string> GetTokens(string text)
+        {
+            var context = _embedder.Context;
+            var embeddings = context.Tokenize(text, special: true);
+            var decoder = new StreamingTokenDecoder(context);
+            return embeddings
+                .Select(x => { decoder.Add(x); return decoder.Read(); })
+                .ToList()
+                .AsReadOnly();
+        }
     }
 }
