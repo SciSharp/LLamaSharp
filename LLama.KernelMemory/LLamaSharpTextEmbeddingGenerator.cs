@@ -123,9 +123,9 @@ namespace LLamaSharp.KernelMemory
         public IReadOnlyList<string> GetTokens(string text)
         {
             var context = _embedder.Context;
-            var embeddings = context.Tokenize(text, special: true);
+            var numericTokens = context.Tokenize(text, special: true);
             var decoder = new StreamingTokenDecoder(context);
-            return embeddings
+            return numericTokens
                 .Select(x => { decoder.Add(x); return decoder.Read(); })
                 .ToList();
         }
