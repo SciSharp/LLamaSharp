@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.KernelMemory.Abstractions" Version="0.66.240709.1" />
+    <PackageReference Include="Microsoft.KernelMemory.Abstractions" Version="0.68.240716.1" />
   </ItemGroup>
 
   <ItemGroup>
