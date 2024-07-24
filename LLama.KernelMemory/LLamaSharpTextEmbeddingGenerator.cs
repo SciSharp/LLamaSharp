@@ -1,9 +1,7 @@
 using LLama;
 using LLama.Common;
-using LLama.Native;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
-using Microsoft.KernelMemory.Context;
 
 namespace LLamaSharp.KernelMemory
 {
@@ -129,8 +127,7 @@ namespace LLamaSharp.KernelMemory
             var decoder = new StreamingTokenDecoder(context);
             return embeddings
                 .Select(x => { decoder.Add(x); return decoder.Read(); })
-                .ToList()
-                .AsReadOnly();
+                .ToList();
         }
     }
 }

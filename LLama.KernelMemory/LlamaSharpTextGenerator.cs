@@ -121,8 +121,7 @@ namespace LLamaSharp.KernelMemory
             var decoder = new StreamingTokenDecoder(_context);
             return embeddings
                 .Select(x => { decoder.Add(x); return decoder.Read(); })
-                .ToList()
-                .AsReadOnly();
+                .ToList();
         }
     }
 }
