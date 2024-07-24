@@ -116,7 +116,8 @@ namespace LLamaSharp.KernelMemory
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
         /// <see cref="CountTokens(string)"/>
         public IReadOnlyList<string> GetTokens(string text)
-        {            
+        {
+            /* see relevant unit tests for important implementation notes regading unicode */
             var numericTokens = _context.Tokenize(text, special: true);
             var decoder = new StreamingTokenDecoder(_context);
             return numericTokens
