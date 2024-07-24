@@ -62,7 +62,7 @@ namespace LLama.Unittest.KernelMemory
          * as well. See pull request for more relevant discussion https://github.com/SciSharp/LLamaSharp/pull/862
          *
          * Currently the method will remain consistent with the output of ITextTokenizer.CountTokens, meaning
-         * any redundant tokens will not be ommited as long as they are counted by CountTokens.
+         * any redundant tokens will not be omitted as long as they are counted by CountTokens.
          * 
          * StreamingTokenDecoder, while sufficiently useful for this task, was not designed with producing
          * output for one numeric token at a time in mind, so ITextTokenizer.GetTokens should not be considered 

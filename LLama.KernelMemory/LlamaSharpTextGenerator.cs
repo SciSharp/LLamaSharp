@@ -117,7 +117,7 @@ namespace LLamaSharp.KernelMemory
         /// <see cref="CountTokens(string)"/>
         public IReadOnlyList<string> GetTokens(string text)
         {
-            /* see relevant unit tests for important implementation notes regading unicode */
+            /* see relevant unit tests for important implementation notes regarding unicode */
             var numericTokens = _context.Tokenize(text, special: true);
             var decoder = new StreamingTokenDecoder(_context);
             return numericTokens
