@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using LLama.Exceptions;
+using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
 namespace LLama
@@ -23,6 +24,8 @@ namespace LLama
         private readonly string _instructionPrefix;
         private LLamaToken[] _inp_pfx;
         private LLamaToken[] _inp_sfx;
+
+        private ISamplingPipeline? _pipeline;
 
         /// <summary>
         /// 
@@ -60,7 +63,6 @@ namespace LLama
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens.ToArray(),
                 LastTokensCapacity = _last_n_tokens.Capacity,
-                MirostatMu = MirostatMu
             };
             return state;
         }
@@ -227,28 +229,18 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                LLamaToken id;
-                if (inferenceParams.SamplingPipeline is not null)
-                {
-                    id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogitsIth(batch.TokenCount - 1), _last_n_tokens.ToArray());
-                    inferenceParams.SamplingPipeline.Accept(Context.NativeHandle, id);
-                }
+                // use the explicitly supplied pipeline, if there is one. Otherwise construct a suitable one.
+                var pipeline = inferenceParams.SamplingPipeline;
+                if (pipeline != null)
+                    _pipeline = null;
                 else
-                {
-                    var tokenDataArray = Context.ApplyPenalty(batch.TokenCount - 1, _last_n_tokens, inferenceParams.LogitBias, repeat_last_n,
-                        inferenceParams.RepeatPenalty, inferenceParams.FrequencyPenalty, inferenceParams.PresencePenalty, inferenceParams.PenalizeNL);
+                    pipeline = inferenceParams.Create(ref _pipeline);
 
-                    var mu = MirostatMu;
-                    id = Context.Sample(
-                        tokenDataArray, ref mu, inferenceParams.Temperature, inferenceParams.Mirostat, inferenceParams.MirostatTau,
-                        inferenceParams.MirostatEta, inferenceParams.TopK, inferenceParams.TopP, inferenceParams.TfsZ, inferenceParams.TypicalP, inferenceParams.Grammar,
-                        inferenceParams.MinP
-                    );
-                    MirostatMu = mu;
-                }
+                // Sample with the pipeline
+                var id = pipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogitsIth(batch.TokenCount - 1), _last_n_tokens.AsSpan(repeat_last_n));
+                pipeline.Accept(Context.NativeHandle, id);
 
                 _last_n_tokens.Enqueue(id);
-
                 _embeds.Add(id);
 
                 args.RemainedTokens--;

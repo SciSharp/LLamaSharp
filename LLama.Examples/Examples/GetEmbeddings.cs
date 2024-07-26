@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 
 namespace LLama.Examples.Examples
 {
