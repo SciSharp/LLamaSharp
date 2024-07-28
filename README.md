@@ -74,7 +74,7 @@ The following examples show how to build APPs with LLamaSharp.
 - [LLamaStack (with WPF and Web demo)](https://github.com/saddam213/LLamaStack)
 - [Blazor Demo (with Model Explorer)](https://github.com/alexhiggins732/BLlamaSharp.ChatGpt.Blazor)
 - [ASP.NET Demo](./LLama.Web/)
-- [LLamaWorker (ASP.NET Web API like OAI)](https://github.com/sangyuxiaowu/LLamaWorker)
+- [LLamaWorker (ASP.NET Web API like OAI and Function Calling Support)](https://github.com/sangyuxiaowu/LLamaWorker)
 
 ![LLamaShrp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
