@@ -445,5 +445,12 @@ namespace LLama.Native
         /// <returns>Returns the split_prefix length.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no, int split_count);
+
+        /// <summary>
+        /// Manually free a LoRA adapter. loaded adapters will be free when the associated model is deleted
+        /// </summary>
+        /// <param name="adapter"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_lora_adapter_free(IntPtr adapter);
     }
 }
