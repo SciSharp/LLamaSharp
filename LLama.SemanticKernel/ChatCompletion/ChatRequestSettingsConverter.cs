@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LLamaSharp.SemanticKernel.ChatCompletion;
 
 /// <summary>
-/// JSON converter for <see cref="OpenAIRequestSettings"/>
+/// JSON converter for <see cref="ChatRequestSettings"/>
 /// </summary>
 [Obsolete("Use LLamaSharpPromptExecutionSettingsConverter instead")]
-public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
+public class ChatRequestSettingsConverter
+    : JsonConverter<ChatRequestSettings>
 {
     /// <inheritdoc/>
-    public override ChatRequestSettings? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ChatRequestSettings Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var requestSettings = new ChatRequestSettings();
 
@@ -20,13 +19,7 @@ public class ChatRequestSettingsConverter : JsonConverter<ChatRequestSettings>
         {
             if (reader.TokenType == JsonTokenType.PropertyName)
             {
-                string? propertyName = reader.GetString();
-
-                if (propertyName is not null)
-                {
-                    // normalise property name to uppercase
-                    propertyName = propertyName.ToUpperInvariant();
-                }
+                var propertyName = reader.GetString()?.ToUpperInvariant();
 
                 reader.Read();
 

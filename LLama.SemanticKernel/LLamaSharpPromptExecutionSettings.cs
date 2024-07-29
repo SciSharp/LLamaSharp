@@ -1,15 +1,3 @@
-﻿
-/* Unmerged change from project 'LLamaSharp.SemanticKernel (netstandard2.0)'
-Before:
-using Microsoft.SemanticKernel;
-After:
-using LLamaSharp;
-using LLamaSharp.SemanticKernel;
-using LLamaSharp.SemanticKernel;
-using LLamaSharp.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel;
-*/
-using LLamaSharp.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -23,14 +11,14 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
     /// The higher the temperature, the more random the completion.
     /// </summary>
     [JsonPropertyName("temperature")]
-    public double Temperature { get; set; } = 0;
+    public double Temperature { get; set; }
 
     /// <summary>
     /// TopP controls the diversity of the completion.
     /// The higher the TopP, the more diverse the completion.
     /// </summary>
     [JsonPropertyName("top_p")]
-    public double TopP { get; set; } = 0;
+    public double TopP { get; set; }
 
     /// <summary>
     /// Number between -2.0 and 2.0. Positive values penalize new tokens
@@ -38,7 +26,7 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
     /// model's likelihood to talk about new topics.
     /// </summary>
     [JsonPropertyName("presence_penalty")]
-    public double PresencePenalty { get; set; } = 0;
+    public double PresencePenalty { get; set; }
 
     /// <summary>
     /// Number between -2.0 and 2.0. Positive values penalize new tokens
@@ -46,7 +34,7 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
     /// the model's likelihood to repeat the same line verbatim.
     /// </summary>
     [JsonPropertyName("frequency_penalty")]
-    public double FrequencyPenalty { get; set; } = 0;
+    public double FrequencyPenalty { get; set; }
 
     /// <summary>
     /// Sequences where the completion will stop generating further tokens.
@@ -88,13 +76,10 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
     /// <returns>An instance of OpenAIRequestSettings</returns>
     public static LLamaSharpPromptExecutionSettings FromRequestSettings(PromptExecutionSettings? requestSettings, int? defaultMaxTokens = null)
     {
-        if (requestSettings is null)
+        requestSettings ??= new LLamaSharpPromptExecutionSettings
         {
-            return new LLamaSharpPromptExecutionSettings()
-            {
-                MaxTokens = defaultMaxTokens
-            };
-        }
+            MaxTokens = defaultMaxTokens
+        };
 
         if (requestSettings is LLamaSharpPromptExecutionSettings requestSettingsChatRequestSettings)
         {
@@ -102,7 +87,7 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
         }
 
         var json = JsonSerializer.Serialize(requestSettings);
-        var chatRequestSettings = JsonSerializer.Deserialize<LLamaSharpPromptExecutionSettings>(json, s_options);
+        var chatRequestSettings = JsonSerializer.Deserialize<LLamaSharpPromptExecutionSettings>(json, SerializerOptions);
 
         if (chatRequestSettings is not null)
         {
@@ -112,20 +97,13 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
         throw new ArgumentException($"Invalid request settings, cannot convert to {nameof(LLamaSharpPromptExecutionSettings)}", nameof(requestSettings));
     }
 
-    private static readonly JsonSerializerOptions s_options = CreateOptions();
-
-    private static JsonSerializerOptions CreateOptions()
+    private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        JsonSerializerOptions options = new()
-        {
-            WriteIndented = true,
-            MaxDepth = 20,
-            AllowTrailingCommas = true,
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            Converters = { new LLamaSharpPromptExecutionSettingsConverter() }
-        };
-
-        return options;
-    }
+        WriteIndented = true,
+        MaxDepth = 20,
+        AllowTrailingCommas = true,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        Converters = { new LLamaSharpPromptExecutionSettingsConverter() }
+    };
 }
