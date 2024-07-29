@@ -786,6 +786,16 @@ namespace LLama.Native
         {
             NativeApi.llama_kv_cache_seq_div(this, seq, p0, p1, divisor);
         }
+
+        /// <summary>
+        /// Returns the largest position present in the KV cache for the specified sequence
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <returns></returns>
+        public LLamaPos KvCacheMaxPosition(LLamaSeqId seq)
+        {
+            return NativeApi.llama_kv_cache_seq_pos_max(this, seq);
+        }
         #endregion
     }
 }
