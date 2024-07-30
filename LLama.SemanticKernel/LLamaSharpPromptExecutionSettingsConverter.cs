@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LLamaSharp.SemanticKernel;
 
 /// <summary>
-/// JSON converter for <see cref="OpenAIRequestSettings"/>
+/// JSON converter for <see cref="LLamaSharpPromptExecutionSettings"/>
 /// </summary>
-public class LLamaSharpPromptExecutionSettingsConverter : JsonConverter<LLamaSharpPromptExecutionSettings>
+public class LLamaSharpPromptExecutionSettingsConverter
+    : JsonConverter<LLamaSharpPromptExecutionSettings>
 {
     /// <inheritdoc/>
-    public override LLamaSharpPromptExecutionSettings? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override LLamaSharpPromptExecutionSettings Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var requestSettings = new LLamaSharpPromptExecutionSettings();
 
@@ -19,13 +18,7 @@ public class LLamaSharpPromptExecutionSettingsConverter : JsonConverter<LLamaSha
         {
             if (reader.TokenType == JsonTokenType.PropertyName)
             {
-                string? propertyName = reader.GetString();
-
-                if (propertyName is not null)
-                {
-                    // normalise property name to uppercase
-                    propertyName = propertyName.ToUpperInvariant();
-                }
+                var propertyName = reader.GetString()?.ToUpperInvariant();
 
                 reader.Read();
 

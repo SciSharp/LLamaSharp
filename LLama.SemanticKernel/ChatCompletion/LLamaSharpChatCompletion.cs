@@ -1,10 +1,7 @@
-﻿using LLama;
+using LLama;
 using LLama.Abstractions;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Services;
-using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static LLama.InteractiveExecutor;
@@ -18,16 +15,16 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 public sealed class LLamaSharpChatCompletion : IChatCompletionService
 {
     private readonly ILLamaExecutor _model;
-    private LLamaSharpPromptExecutionSettings defaultRequestSettings;
-    private readonly IHistoryTransform historyTransform;
-    private readonly ITextStreamTransform outputTransform;
+    private readonly LLamaSharpPromptExecutionSettings _defaultRequestSettings;
+    private readonly IHistoryTransform _historyTransform;
+    private readonly ITextStreamTransform _outputTransform;
 
     private readonly Dictionary<string, object?> _attributes = new();
     private readonly bool _isStatefulExecutor;
 
-    public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
+    public IReadOnlyDictionary<string, object?> Attributes => _attributes;
 
-    static LLamaSharpPromptExecutionSettings GetDefaultSettings()
+    private static LLamaSharpPromptExecutionSettings GetDefaultSettings()
     {
         return new LLamaSharpPromptExecutionSettings
         {
@@ -43,11 +40,11 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
         IHistoryTransform? historyTransform = null,
         ITextStreamTransform? outputTransform = null)
     {
-        this._model = model;
-        this._isStatefulExecutor = this._model is StatefulExecutorBase;
-        this.defaultRequestSettings = defaultRequestSettings ?? GetDefaultSettings();
-        this.historyTransform = historyTransform ?? new HistoryTransform();
-        this.outputTransform = outputTransform ?? new KeywordTextOutputStreamTransform(new[] { $"{LLama.Common.AuthorRole.User}:",
+        _model = model;
+        _isStatefulExecutor = _model is StatefulExecutorBase;
+        _defaultRequestSettings = defaultRequestSettings ?? GetDefaultSettings();
+        _historyTransform = historyTransform ?? new HistoryTransform();
+        _outputTransform = outputTransform ?? new KeywordTextOutputStreamTransform(new[] { $"{LLama.Common.AuthorRole.User}:",
                                                                                             $"{LLama.Common.AuthorRole.Assistant}:",
                                                                                             $"{LLama.Common.AuthorRole.System}:"});
     }
@@ -69,12 +66,12 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     {
         var settings = executionSettings != null
            ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
-           : defaultRequestSettings;
+           : _defaultRequestSettings;
 
-        string prompt = this._getFormattedPrompt(chatHistory);
+        var prompt = _getFormattedPrompt(chatHistory);
         var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
 
-        var output = outputTransform.TransformAsync(result);
+        var output = _outputTransform.TransformAsync(result);
 
         var sb = new StringBuilder();
         await foreach (var token in output)
@@ -90,12 +87,12 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     {
         var settings = executionSettings != null
           ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
-          : defaultRequestSettings;
+          : _defaultRequestSettings;
 
-        string prompt = this._getFormattedPrompt(chatHistory);
+        var prompt = _getFormattedPrompt(chatHistory);
         var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
 
-        var output = outputTransform.TransformAsync(result);
+        var output = _outputTransform.TransformAsync(result);
 
         await foreach (var token in output)
         {
@@ -109,24 +106,26 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     /// </summary>
     /// <param name="chatHistory"></param>
     /// <returns>The formatted prompt</returns>
-    private string _getFormattedPrompt(ChatHistory chatHistory){
+    private string _getFormattedPrompt(ChatHistory chatHistory)
+    {
         string prompt;
-        if (this._isStatefulExecutor){
-            InteractiveExecutorState state = (InteractiveExecutorState)((StatefulExecutorBase)this._model).GetStateData();
+        if (_isStatefulExecutor)
+        {
+            var state = (InteractiveExecutorState)((StatefulExecutorBase)_model).GetStateData();
             if (state.IsPromptRun)
             {
-                prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
+                prompt = _historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
             }
             else
             {
-                ChatHistory temp_history = new();
-                temp_history.AddUserMessage(chatHistory.Last().Content);
-                prompt = historyTransform.HistoryToText(temp_history.ToLLamaSharpChatHistory());
+                ChatHistory tempHistory = new();
+                tempHistory.AddUserMessage(chatHistory.Last().Content ?? "");
+                prompt = _historyTransform.HistoryToText(tempHistory.ToLLamaSharpChatHistory());
             }
         }
         else
         {
-            prompt = historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
+            prompt = _historyTransform.HistoryToText(chatHistory.ToLLamaSharpChatHistory());
         }
 
         return prompt;

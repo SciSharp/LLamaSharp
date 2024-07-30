@@ -1,21 +1,25 @@
-﻿using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.ChatCompletion;
+using AuthorRole = LLama.Common.AuthorRole;
+
 namespace LLamaSharp.SemanticKernel;
 
 public static class ExtensionMethods
 {
-    public static global::LLama.Common.ChatHistory ToLLamaSharpChatHistory(this ChatHistory chatHistory, bool ignoreCase = true)
+    public static LLama.Common.ChatHistory ToLLamaSharpChatHistory(this ChatHistory chatHistory, bool ignoreCase = true)
     {
         if (chatHistory is null)
         {
             throw new ArgumentNullException(nameof(chatHistory));
         }
 
-        var history = new global::LLama.Common.ChatHistory();
+        var history = new LLama.Common.ChatHistory();
 
         foreach (var chat in chatHistory)
         {
-            var role = Enum.TryParse<global::LLama.Common.AuthorRole>(chat.Role.Label, ignoreCase, out var _role) ? _role : global::LLama.Common.AuthorRole.Unknown;
-            history.AddMessage(role, chat.Content);
+            if (!Enum.TryParse<AuthorRole>(chat.Role.Label, ignoreCase, out var role))
+                role = AuthorRole.Unknown;
+
+            history.AddMessage(role, chat.Content ?? "");
         }
 
         return history;
@@ -26,7 +30,7 @@ public static class ExtensionMethods
     /// </summary>
     /// <param name="requestSettings"></param>
     /// <returns></returns>
-    internal static global::LLama.Common.InferenceParams ToLLamaSharpInferenceParams(this LLamaSharpPromptExecutionSettings requestSettings)
+    internal static LLama.Common.InferenceParams ToLLamaSharpInferenceParams(this LLamaSharpPromptExecutionSettings requestSettings)
     {
         if (requestSettings is null)
         {
@@ -34,10 +38,12 @@ public static class ExtensionMethods
         }
 
         var antiPrompts = new List<string>(requestSettings.StopSequences)
-                                  { LLama.Common.AuthorRole.User.ToString() + ":" ,
-                                    LLama.Common.AuthorRole.Assistant.ToString() + ":",
-                                    LLama.Common.AuthorRole.System.ToString() + ":"};
-        return new global::LLama.Common.InferenceParams
+        {
+            $"{AuthorRole.User}:",
+            $"{AuthorRole.Assistant}:",
+            $"{AuthorRole.System}:"
+        };
+        return new LLama.Common.InferenceParams
         {
             Temperature = (float)requestSettings.Temperature,
             TopP = (float)requestSettings.TopP,
