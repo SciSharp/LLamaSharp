@@ -8,17 +8,17 @@ namespace LLamaSharp.KernelMemory
     /// <summary>
     /// Provides text embedding generation for LLamaSharp.
     /// </summary>
-    public class LLamaSharpTextEmbeddingGenerator
+    public sealed class LLamaSharpTextEmbeddingGenerator
         : ITextEmbeddingGenerator, IDisposable
     {
-        private readonly LLamaSharpConfig? _config;
         private readonly LLamaWeights? _weights;
+        private readonly bool _ownsWeights;
+
         private readonly LLamaEmbedder _embedder;
-        private bool _ownsEmbedder = false;
-        private bool _ownsWeights = false;
+        private readonly bool _ownsEmbedder;
 
         /// <inheritdoc/>
-        public int MaxTokens => (int?)_config?.ContextSize ?? 2048;
+        public int MaxTokens { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LLamaSharpTextEmbeddingGenerator"/> class.
@@ -26,15 +26,16 @@ namespace LLamaSharp.KernelMemory
         /// <param name="config">The configuration for LLamaSharp.</param>
         public LLamaSharpTextEmbeddingGenerator(LLamaSharpConfig config)
         {
-            this._config = config;
-            var @params = new ModelParams(_config.ModelPath)
+            MaxTokens = (int?)config.ContextSize ?? 2048;
+
+            var @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config.ContextSize ?? 2048,
                 Seed = config.Seed ?? 0,
                 GpuLayerCount = config.GpuLayerCount ?? 20,
                 Embeddings = true,
-                MainGpu = _config.MainGpu,
-                SplitMode = _config.SplitMode
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode
             };
             _weights = LLamaWeights.LoadFromFile(@params);
             _embedder = new LLamaEmbedder(_weights, @params);
@@ -49,15 +50,16 @@ namespace LLamaSharp.KernelMemory
         /// <param name="weights">A LLamaWeights object.</param>
         public LLamaSharpTextEmbeddingGenerator(LLamaSharpConfig config, LLamaWeights weights)
         {
-            this._config = config;
-            var @params = new ModelParams(_config.ModelPath)
+            MaxTokens = (int?)config.ContextSize ?? 2048;
+
+            var @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config.ContextSize ?? 2048,
                 Seed = config.Seed ?? 0,
                 GpuLayerCount = config.GpuLayerCount ?? 20,
                 Embeddings = true,
-                MainGpu = _config.MainGpu,
-                SplitMode = _config.SplitMode
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode
             };
             _weights = weights;
             _embedder = new LLamaEmbedder(_weights, @params);
@@ -70,8 +72,6 @@ namespace LLamaSharp.KernelMemory
         /// <param name="embedder">A LLamaEmbedder object.</param>
         public LLamaSharpTextEmbeddingGenerator(LLamaEmbedder embedder)
         {
-            this._config = null;
-            this._weights = null;
             _embedder = embedder;
         }
 
@@ -86,20 +86,6 @@ namespace LLamaSharp.KernelMemory
             {
                 _embedder.Dispose();
             }
-        }
-
-        /// <inheritdoc/>
-        public async Task<IList<ReadOnlyMemory<float>>> GenerateEmbeddingsAsync(IList<string> data, CancellationToken cancellationToken = default)
-        {
-            IList<ReadOnlyMemory<float>> results = new List<ReadOnlyMemory<float>>();
-
-            foreach (var d in data)
-            {
-                var embeddings = await _embedder.GetEmbeddings(d, cancellationToken);
-                results.Add(new ReadOnlyMemory<float>(embeddings));
-            }
-
-            return results;
         }
 
         /// <inheritdoc/>

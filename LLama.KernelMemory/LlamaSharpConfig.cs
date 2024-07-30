@@ -4,7 +4,7 @@ using LLama.Native;
 namespace LLamaSharp.KernelMemory
 {
     /// <summary>
-    /// Represents the configuration for LLamaSharp. Available properties are `ModelPath`, `ContextSize`, `Seed`, `GpuLayerCount`.
+    /// Represents the configuration for LLamaSharp.
     /// </summary>
     public class LLamaSharpConfig
     {
