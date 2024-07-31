@@ -111,7 +111,8 @@ namespace LLama.Native
         /// <param name="modelPath"></param>
         /// <param name="lparams"></param>
         /// <returns></returns>
-        /// <exception cref="RuntimeError"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="LoadWeightsFailedException"></exception>
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
             // Try to open the model file, this will check:
@@ -443,6 +444,7 @@ namespace LLama.Native
         /// <param name="modelBase">A path to a higher quality model to use as a base for the layers modified by the
         /// adapter. Can be NULL to use the current loaded model.</param>
         /// <param name="threads"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="RuntimeError"></exception>
         public void ApplyLoraFromFile(string lora, float scale, string? modelBase = null, int? threads = null)
         {

@@ -350,7 +350,6 @@ namespace LLama
         /// Load the state from memory.
         /// </summary>
         /// <param name="state"></param>
-        /// <exception cref="RuntimeError"></exception>
         public void LoadState(State state)
         {
             unsafe
@@ -364,7 +363,6 @@ namespace LLama
         /// </summary>
         /// <param name="state"></param>
         /// <param name="sequence"></param>
-        /// <exception cref="RuntimeError"></exception>
         public void LoadState(SequenceState state, LLamaSeqId sequence)
         {
             unsafe

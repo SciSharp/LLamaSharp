@@ -44,7 +44,7 @@ namespace LLama
         /// <param name="text"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="RuntimeError"></exception>
+        /// <exception cref="LLamaDecodeError"></exception>
         public Task<float[]> GetEmbeddings(string text, CancellationToken cancellationToken = default)
         {
             return GetEmbeddings(text, true, cancellationToken);
@@ -57,7 +57,7 @@ namespace LLama
         /// <param name="addBos">Add bos to the text.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="RuntimeError"></exception>
+        /// <exception cref="LLamaDecodeError"></exception>
         public async Task<float[]> GetEmbeddings(string text, bool addBos, CancellationToken cancellationToken = default)
         {
             var tokens = Context.Tokenize(text, addBos);
