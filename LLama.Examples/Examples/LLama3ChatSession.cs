@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+using LLama.Common;
+using LLama.Sampling;
 using LLama.Transformers;
 
 namespace LLama.Examples.Examples;
@@ -37,10 +38,14 @@ public class LLama3ChatSession
             [model.Tokens.EndOfTurnToken!, "�"],
             redundancyLength: 5));
 
-        var inferenceParams = new InferenceParams()
+        var inferenceParams = new InferenceParams
         {
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.6f
+            },
+
             MaxTokens = -1, // keep generating tokens until the anti prompt is encountered
-            Temperature = 0.6f,
             AntiPrompts = [model.Tokens.EndOfTurnToken!] // model specific end of turn string
         };
 

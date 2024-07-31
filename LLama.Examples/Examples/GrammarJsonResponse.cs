@@ -1,5 +1,6 @@
-﻿using LLama.Common;
+using LLama.Common;
 using LLama.Grammars;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples
 {
@@ -27,10 +28,13 @@ namespace LLama.Examples.Examples
             using var grammarInstance = grammar.CreateInstance();
             var inferenceParams = new InferenceParams()
             {
-                Temperature = 0.6f,
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.6f,
+                    Grammar = grammarInstance
+                },
                 AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" },
                 MaxTokens = 50,
-                Grammar = grammarInstance
             };
 
             while (true)

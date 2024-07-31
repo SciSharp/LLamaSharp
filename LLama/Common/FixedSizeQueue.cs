@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,6 +81,19 @@ namespace LLama.Common
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        internal ReadOnlySpan<T> AsSpan(int count)
+        {
+            // Ensure the request isn't for more tokens than actually exist
+            count = Math.Min(count, Count);
+
+            // Take `count` items from the end
+#if NET8_0_OR_GREATER
+            return CollectionsMarshal.AsSpan(_storage)[^count..];
+#else
+            return _storage.ToArray().AsSpan(_storage.Count - count, count);
+#endif
         }
     }
 }

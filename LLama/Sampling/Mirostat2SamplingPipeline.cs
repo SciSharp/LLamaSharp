@@ -9,15 +9,15 @@ namespace LLama.Sampling;
 public class Mirostat2SamplingPipeline
     : BaseSamplingPipeline
 {
-    private const float DEFAULT_TAU = 5;
+    private const float DefaultTau = 5;
 
-    private float _mu = DEFAULT_TAU * 2;
+    private float _mu = DefaultTau * 2;
     /// <summary>
     /// Currently learned mu value
     /// </summary>
     public float Mu => _mu;
 
-    private float _tau = DEFAULT_TAU;
+    private float _tau = DefaultTau;
     /// <summary>
     /// target entropy
     /// </summary>

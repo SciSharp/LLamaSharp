@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+using LLama.Common;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples
 {
@@ -35,7 +36,10 @@ namespace LLama.Examples.Examples
                         new ChatHistory.Message(AuthorRole.User, prompt),
                         new InferenceParams()
                         {
-                            Temperature = 0.6f,
+                            SamplingPipeline = new DefaultSamplingPipeline
+                            {
+                                Temperature = 0.6f
+                            },
                             AntiPrompts = new List<string> { "User:" }
                         }))
                 {

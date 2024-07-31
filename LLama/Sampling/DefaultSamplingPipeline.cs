@@ -13,7 +13,7 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Bias values to add to certain logits
     /// </summary>
-    public Dictionary<int, float> LogitBias { get; } = new();
+    public Dictionary<LLamaToken, float> LogitBias { get; } = new();
 
     /// <summary>
     /// Repetition penalty, as described in https://arxiv.org/abs/1909.05858
@@ -98,7 +98,7 @@ public sealed class DefaultSamplingPipeline
     {
         // Apply logit bias
         foreach (var (key, value) in LogitBias)
-            logits[key] += value;
+            logits[(int)key] += value;
 
     }
 

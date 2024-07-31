@@ -1,7 +1,8 @@
-﻿using LLama.Abstractions;
+using LLama.Abstractions;
 using System.Collections.Generic;
 using LLama.Native;
 using LLama.Sampling;
+using System;
 
 namespace LLama.Common
 {
@@ -25,6 +26,7 @@ namespace LLama.Common
         /// <summary>
         /// logit bias for specific tokens
         /// </summary>
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public Dictionary<LLamaToken, float>? LogitBias { get; set; } = null;
 
         /// <summary>
@@ -33,48 +35,63 @@ namespace LLama.Common
         public IReadOnlyList<string> AntiPrompts { get; set; } = [];
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public int TopK { get; set; } = 40;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float TopP { get; set; } = 0.95f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float MinP { get; set; } = 0.05f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float TfsZ { get; set; } = 1.0f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float TypicalP { get; set; } = 1.0f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float Temperature { get; set; } = 0.8f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float RepeatPenalty { get; set; } = 1.1f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public int RepeatLastTokensCount { get; set; } = 64;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float FrequencyPenalty { get; set; } = .0f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public float PresencePenalty { get; set; } = .0f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. MirostatSamplingPipeline or Mirostat2SamplingPipeline")]
         public MirostatType Mirostat { get; set; } = MirostatType.Disable;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. MirostatSamplingPipeline or Mirostat2SamplingPipeline")]
         public float MirostatTau { get; set; } = 5.0f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. MirostatSamplingPipeline or Mirostat2SamplingPipeline")]
         public float MirostatEta { get; set; } = 0.1f;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public bool PenalizeNL { get; set; } = true;
 
         /// <inheritdoc />
+        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
         public SafeLLamaGrammarHandle? Grammar { get; set; }
 
         /// <inheritdoc />

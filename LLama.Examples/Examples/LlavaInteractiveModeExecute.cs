@@ -1,7 +1,8 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using LLama.Common;
 using Spectre.Console;
 using LLama.Native;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples
 {
@@ -30,9 +31,19 @@ namespace LLama.Examples.Examples
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to {0} and the context size is {1}.", maxTokens, parameters.ContextSize );
-            Console.WriteLine("To send an image, enter its filename in curly braces, like this {c:/image.jpg}.");  
+            Console.WriteLine("To send an image, enter its filename in curly braces, like this {c:/image.jpg}.");
 
-            var inferenceParams = new InferenceParams() { Temperature = 0.1f, AntiPrompts = new List<string> { "\nUSER:" }, MaxTokens = maxTokens };
+            var inferenceParams = new InferenceParams
+            {
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.1f
+                },
+
+                AntiPrompts = new List<string> { "\nUSER:" },
+                MaxTokens = maxTokens
+
+            };
 
             do
             {

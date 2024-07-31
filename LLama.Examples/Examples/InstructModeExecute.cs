@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+using LLama.Common;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples
 {
@@ -25,7 +26,14 @@ namespace LLama.Examples.Examples
                 "make friend with human, no less than 200 words.\"");
             Console.ForegroundColor = ConsoleColor.White;
 
-            var inferenceParams = new InferenceParams() { Temperature = 0.8f, MaxTokens = 600 };
+            var inferenceParams = new InferenceParams
+            {
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.8f
+                },
+                MaxTokens = 600
+            };
 
             while (true)
             {
