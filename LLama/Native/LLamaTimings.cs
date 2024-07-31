@@ -64,7 +64,7 @@ public struct LLamaTimings
     /// <summary>
     /// Timestamp when these timings were read
     /// </summary>
-    public readonly TimeSpan ReadTimestamp => TimeSpan.FromMilliseconds(t_start_ms);
+    public readonly TimeSpan ReadTimestamp => TimeSpan.FromMilliseconds(t_end_ms);
 
     /// <summary>
     /// Time spent loading
@@ -74,7 +74,7 @@ public struct LLamaTimings
     /// <summary>
     /// Time spent sampling
     /// </summary>
-    public readonly TimeSpan Sampling => TimeSpan.FromMilliseconds(t_load_ms);
+    public readonly TimeSpan Sampling => TimeSpan.FromMilliseconds(t_sample_ms);
 
     /// <summary>
     /// total milliseconds spent prompt processing
@@ -99,5 +99,5 @@ public struct LLamaTimings
     /// <summary>
     /// number of eval calls
     /// </summary>
-    public readonly int TokensEvaluated => n_p_eval;
+    public readonly int TokensEvaluated => n_eval;
 }
