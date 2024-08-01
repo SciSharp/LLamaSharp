@@ -79,6 +79,7 @@ namespace LLama.Native
                         FileName = "vulkaninfo",
                         Arguments = "--summary",
                         RedirectStandardOutput = true,
+                        RedirectStandardError = true,
                         UseShellExecute = false,
                         CreateNoWindow = true
                     }
