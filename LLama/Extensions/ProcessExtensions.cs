@@ -17,7 +17,11 @@ internal static class ProcessExtensions
 
         try
         {
+#if NET5_0_OR_GREATER
             process.Kill(entireProcessTree);
+#else
+            process.Kill();
+#endif
             process.WaitForExit(55);
         }
         catch (InvalidOperationException)
