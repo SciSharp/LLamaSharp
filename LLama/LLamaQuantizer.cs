@@ -62,7 +62,7 @@ namespace LLama
         private static bool ValidateFtype(LLamaFtype ftype)
         {
             // Validation copies from here:
-            // https://github.com/ggerganov/llama.cpp/blob/f7001ccc5aa359fcf41bba19d1c99c3d25c9bcc7/llama.cpp#L13450
+            // https://github.com/ggerganov/llama.cpp/blob/345c8c0c87a97c1595f9c8b14833d531c8c7d8df/src/llama.cpp#L15624
 
             switch (ftype)
             {
@@ -105,9 +105,12 @@ namespace LLama
 
                 case LLamaFtype.MOSTLY_IQ3_S:
                 case LLamaFtype.MOSTLY_IQ3_M:
+
+                case LLamaFtype.MOSTLY_Q4_0_4_4:
+                case LLamaFtype.MOSTLY_Q4_0_4_8:
+                case LLamaFtype.MOSTLY_Q4_0_8_8:
                     return true;
 
-                case LLamaFtype.MOSTLY_Q4_1_SOME_F16:
                 case LLamaFtype.GUESSED:
                 default:
                     return false;

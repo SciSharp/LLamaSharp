@@ -97,7 +97,7 @@ namespace LLama.Native
 
             using (LLamaTokenDataArrayNative.Create(this, out var st))
             {
-                NativeApi.llama_sample_grammar(ctx, ref st, grammar);
+                NativeApi.llama_grammar_sample(grammar, ctx, ref st);
                 Sorted = st.sorted;
             }
         }

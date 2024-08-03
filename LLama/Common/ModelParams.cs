@@ -40,12 +40,6 @@ namespace LLama.Common
         public string ModelPath { get; set; }
 
         /// <inheritdoc />
-        public AdapterCollection LoraAdapters { get; set; } = new();
-
-        /// <inheritdoc />
-        public string LoraBase { get; set; } = string.Empty;
-
-        /// <inheritdoc />
         public uint? Threads { get; set; }
 
         /// <inheritdoc />

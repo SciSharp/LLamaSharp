@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -111,8 +112,7 @@ namespace LLama.Native
         /// <param name="modelPath"></param>
         /// <param name="lparams"></param>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="LoadWeightsFailedException"></exception>
+        /// <exception cref="RuntimeError"></exception>
         public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelParams lparams)
         {
             // Try to open the model file, this will check:
@@ -433,39 +433,32 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_model_has_encoder(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr llama_lora_adapter_init(SafeLlamaModelHandle model, string path);
         #endregion
 
         #region LoRA
         /// <summary>
-        /// Apply a LoRA adapter to a loaded model
+        /// Load a LoRA adapter from file. The adapter will be associated with this model but will not be applied
         /// </summary>
-        /// <param name="lora"></param>
-        /// <param name="scale"></param>
-        /// <param name="modelBase">A path to a higher quality model to use as a base for the layers modified by the
-        /// adapter. Can be NULL to use the current loaded model.</param>
-        /// <param name="threads"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="RuntimeError"></exception>
-        public void ApplyLoraFromFile(string lora, float scale, string? modelBase = null, int? threads = null)
+        public LoraAdapter LoadLoraFromFile(string path)
         {
+            path = Path.GetFullPath(path);
+
             // Try to open the model file, this will check:
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
             // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
-            using (var fs = new FileStream(lora, FileMode.Open))
+            using (var fs = new FileStream(path, FileMode.Open))
                 if (!fs.CanRead)
-                    throw new InvalidOperationException($"LoRA file '{lora}' is not readable");
+                    throw new InvalidOperationException($"LoRA file '{path}' is not readable");
 
-            var err = llama_model_apply_lora_from_file(
-                this,
-                lora,
-                scale,
-                string.IsNullOrEmpty(modelBase) ? null : modelBase,
-                threads ?? Math.Max(1, Environment.ProcessorCount / 2)
-            );
-
-            if (err != 0)
-                throw new RuntimeError($"Failed to apply lora adapter (err={err}).");
+            var ptr = llama_lora_adapter_init(this, path);
+            return new LoraAdapter(this, path, ptr);
         }
         #endregion
 

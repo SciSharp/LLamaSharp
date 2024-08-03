@@ -35,16 +35,16 @@ namespace LLama.Native
 		/// <param name="ctx"></param>
 		/// <param name="candidates"></param>
 		/// <param name="grammar"></param>
-		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_sample_grammar(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates, SafeLLamaGrammarHandle grammar);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_grammar_sample(SafeLLamaGrammarHandle grammar, SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative candidates);
 
-		/// <summary>
-		/// Accepts the sampled token into the grammar
-		/// </summary>
-		/// <param name="ctx"></param>
-		/// <param name="grammar"></param>
-		/// <param name="token"></param>
-		[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_grammar_accept_token(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle grammar, LLamaToken token);
+/// <summary>
+        /// Accepts the sampled token into the grammar
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="grammar"></param>
+        /// <param name="token"></param>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void llama_grammar_accept_token(SafeLLamaGrammarHandle grammar, SafeLLamaContextHandle ctx, LLamaToken token);
 	}
 }

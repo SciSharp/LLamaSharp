@@ -352,6 +352,58 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_synchronize(SafeLLamaContextHandle ctx);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_lora_adapter_set(SafeLLamaContextHandle context, IntPtr adapter, float scale);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_lora_adapter_remove(SafeLLamaContextHandle context, IntPtr adapter);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_lora_adapter_clear(SafeLLamaContextHandle context);
+        #endregion
+
+        #region LoRA
+        /// <summary>
+        /// Add a LoRA adapter to this context
+        /// </summary>
+        /// <param name="lora"></param>
+        /// <param name="scale"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="RuntimeError"></exception>
+        public void AddLoraAdapter(LoraAdapter lora, float scale)
+        {
+            if (lora.Model != ModelHandle)
+                throw new ArgumentException("Cannot add LoRA adapter which was loaded for a different model");
+            if (!lora.Loaded)
+                throw new ArgumentException("Cannot add LoRA adapter which has been unloaded");
+
+            var err = llama_lora_adapter_set(this, lora.Pointer, scale);
+            if (err != 0)
+                throw new RuntimeError("Failed to set lora adapter");
+        }
+
+        /// <summary>
+        /// Remove a LoRA adapter from this context
+        /// </summary>
+        /// <param name="lora"></param>
+        /// <returns>Indicates if the lora was in this context and was remove</returns>
+        public bool RemoveLoraAdapter(LoraAdapter lora)
+        {
+            if (lora.Model != ModelHandle)
+                return false;
+
+            var err = llama_lora_adapter_remove(this, lora.Pointer);
+            return err == 0;
+        }
+
+        /// <summary>
+        /// Remove all LoRA adapters from this context
+        /// </summary>
+        public void ClearLoraAdapters()
+        {
+            llama_lora_adapter_clear(this);
+        }
         #endregion
 
         /// <summary>
@@ -733,6 +785,16 @@ namespace LLama.Native
         public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
         {
             NativeApi.llama_kv_cache_seq_div(this, seq, p0, p1, divisor);
+        }
+
+        /// <summary>
+        /// Returns the largest position present in the KV cache for the specified sequence
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <returns></returns>
+        public LLamaPos KvCacheMaxPosition(LLamaSeqId seq)
+        {
+            return NativeApi.llama_kv_cache_seq_pos_max(this, seq);
         }
         #endregion
     }

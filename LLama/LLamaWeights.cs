@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -72,17 +72,6 @@ namespace LLama
         {
             using var pin = @params.ToLlamaModelParams(out var lparams);
             var weights = SafeLlamaModelHandle.LoadFromFile(@params.ModelPath, lparams);
-
-            foreach (var adapter in @params.LoraAdapters)
-            {
-                if (string.IsNullOrEmpty(adapter.Path))
-                    continue;
-                if (adapter.Scale <= 0)
-                    continue;
-
-                weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, @params.LoraBase);
-            }
-
             return new LLamaWeights(weights);
         }
 
@@ -100,14 +89,6 @@ namespace LLama
             // don't touch the @params object inside the task, it might be changed
             // externally! Save a copy of everything that we need later.
             var modelPath = @params.ModelPath;
-            var loraBase = @params.LoraBase;
-            var loraAdapters = @params.LoraAdapters.ToArray();
-
-            // Determine the range to report for model loading. llama.cpp reports 0-1, but we'll remap that into a
-            // slightly smaller range to allow some space for reporting LoRA loading too.
-            var modelLoadProgressRange = 1f;
-            if (loraAdapters.Length > 0)
-                modelLoadProgressRange = 0.9f;
 
             using (@params.ToLlamaModelParams(out var lparams))
             {
@@ -119,7 +100,7 @@ namespace LLama
                     lparams.progress_callback = (progress, ctx) =>
                     {
                         // Update the progress reporter (remapping the value into the smaller range).
-                        progressReporter?.Report(Math.Clamp(progress, 0, 1) * modelLoadProgressRange);
+                        progressReporter?.Report(Math.Clamp(progress, 0, 1));
 
                         // If the user set a callback in the model params, call that and see if we should cancel
                         if (internalCallback != null && !internalCallback(progress, ctx))
@@ -140,30 +121,6 @@ namespace LLama
                     {
                         // Load the model
                         var weights = SafeLlamaModelHandle.LoadFromFile(modelPath, lparams);
-
-                        // Apply the LoRA adapters
-                        for (var i = 0; i < loraAdapters.Length; i++)
-                        {
-                            // Interrupt applying LoRAs if the token is cancelled
-                            if (token.IsCancellationRequested)
-                            {
-                                weights.Dispose();
-                                token.ThrowIfCancellationRequested();
-                            }
-
-                            // Don't apply invalid adapters
-                            var adapter = loraAdapters[i];
-                            if (string.IsNullOrEmpty(adapter.Path))
-                                continue;
-                            if (adapter.Scale <= 0)
-                                continue;
-
-                            weights.ApplyLoraFromFile(adapter.Path, adapter.Scale, loraBase);
-
-                            // Report progress. Model loading reported progress from 0 -> 0.9, use
-                            // the last 0.1 to represent all of the LoRA adapters being applied.
-                            progressReporter?.Report(0.9f + (0.1f / loraAdapters.Length) * (i + 1));
-                        }
 
                         // Update progress reporter to indicate completion
                         progressReporter?.Report(1);

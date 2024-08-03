@@ -27,4 +27,7 @@ internal enum LLamaVocabPreType
     CHATGLM4 = 17,
     VIKING = 18,
     JAIS = 19,
+    TEKKEN = 20,
+    SMOLLM = 21,
+    CODESHELL = 22,
 }
