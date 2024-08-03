@@ -36,7 +36,7 @@ namespace LLama.Native
         /// <param name="verbosity">Verbosity level</param>
         /// <returns>SafeHandle of the Clip Model</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="RuntimeError"></exception>
+        /// <exception cref="LoadWeightsFailedException"></exception>
         public static SafeLlavaModelHandle LoadFromFile(string modelPath, int verbosity )
         {
             // Try to open the model file, this will check:

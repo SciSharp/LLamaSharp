@@ -1,4 +1,5 @@
-﻿using LLama.Common;
+using LLama.Common;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples;
 
@@ -27,9 +28,12 @@ public class ChatSessionStripRoleName
             new string[] { "User:", "Assistant:" },
             redundancyLength: 8));
 
-        InferenceParams inferenceParams = new InferenceParams()
+        var inferenceParams = new InferenceParams
         {
-            Temperature = 0.9f,
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.9f
+            },
             AntiPrompts = new List<string> { "User:" }
         };
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using LLama.Native;
 
 namespace LLama.Extensions
 {
@@ -17,6 +18,12 @@ namespace LLama.Extensions
         {
             // ReSharper disable once CanSimplifyDictionaryTryGetValueWithGetValueOrDefault (this is a shim for  that method!)
             return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
+        }
+
+        internal static void CopyTo<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> source, IDictionary<TKey, TValue> dest)
+        {
+            foreach (var (k, v) in source)
+                dest[k] = v;
         }
     }
 }

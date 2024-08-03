@@ -1,4 +1,4 @@
-﻿using LLama;
+using LLama;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Embeddings;
 
@@ -10,7 +10,7 @@ public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationServ
 
     private readonly Dictionary<string, object?> _attributes = new();
 
-    public IReadOnlyDictionary<string, object?> Attributes => this._attributes;
+    public IReadOnlyDictionary<string, object?> Attributes => _attributes;
 
     public LLamaSharpEmbeddingGeneration(LLamaEmbedder embedder)
     {

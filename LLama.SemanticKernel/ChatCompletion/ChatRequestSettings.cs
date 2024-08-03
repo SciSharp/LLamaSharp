@@ -1,4 +1,4 @@
-﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,14 +12,14 @@ public class ChatRequestSettings : PromptExecutionSettings
     /// The higher the temperature, the more random the completion.
     /// </summary>
     [JsonPropertyName("temperature")]
-    public double Temperature { get; set; } = 0;
+    public double Temperature { get; set; }
 
     /// <summary>
     /// TopP controls the diversity of the completion.
     /// The higher the TopP, the more diverse the completion.
     /// </summary>
     [JsonPropertyName("top_p")]
-    public double TopP { get; set; } = 0;
+    public double TopP { get; set; }
 
     /// <summary>
     /// Number between -2.0 and 2.0. Positive values penalize new tokens
@@ -27,7 +27,7 @@ public class ChatRequestSettings : PromptExecutionSettings
     /// model's likelihood to talk about new topics.
     /// </summary>
     [JsonPropertyName("presence_penalty")]
-    public double PresencePenalty { get; set; } = 0;
+    public double PresencePenalty { get; set; }
 
     /// <summary>
     /// Number between -2.0 and 2.0. Positive values penalize new tokens
@@ -35,7 +35,7 @@ public class ChatRequestSettings : PromptExecutionSettings
     /// the model's likelihood to repeat the same line verbatim.
     /// </summary>
     [JsonPropertyName("frequency_penalty")]
-    public double FrequencyPenalty { get; set; } = 0;
+    public double FrequencyPenalty { get; set; }
 
     /// <summary>
     /// Sequences where the completion will stop generating further tokens.
@@ -71,13 +71,10 @@ public class ChatRequestSettings : PromptExecutionSettings
     /// <returns>An instance of OpenAIRequestSettings</returns>
     public static ChatRequestSettings FromRequestSettings(PromptExecutionSettings? requestSettings, int? defaultMaxTokens = null)
     {
-        if (requestSettings is null)
+        requestSettings ??= new ChatRequestSettings
         {
-            return new ChatRequestSettings()
-            {
-                MaxTokens = defaultMaxTokens
-            };
-        }
+            MaxTokens = defaultMaxTokens
+        };
 
         if (requestSettings is ChatRequestSettings requestSettingsChatRequestSettings)
         {
@@ -85,7 +82,7 @@ public class ChatRequestSettings : PromptExecutionSettings
         }
 
         var json = JsonSerializer.Serialize(requestSettings);
-        var chatRequestSettings = JsonSerializer.Deserialize<ChatRequestSettings>(json, s_options);
+        var chatRequestSettings = JsonSerializer.Deserialize<ChatRequestSettings>(json, SerializerOptions);
 
         if (chatRequestSettings is not null)
         {
@@ -95,20 +92,13 @@ public class ChatRequestSettings : PromptExecutionSettings
         throw new ArgumentException($"Invalid request settings, cannot convert to {nameof(ChatRequestSettings)}", nameof(requestSettings));
     }
 
-    private static readonly JsonSerializerOptions s_options = CreateOptions();
-
-    private static JsonSerializerOptions CreateOptions()
+    private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        JsonSerializerOptions options = new()
-        {
-            WriteIndented = true,
-            MaxDepth = 20,
-            AllowTrailingCommas = true,
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            Converters = { new ChatRequestSettingsConverter() }
-        };
-
-        return options;
-    }
+        WriteIndented = true,
+        MaxDepth = 20,
+        AllowTrailingCommas = true,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        Converters = { new ChatRequestSettingsConverter() }
+    };
 }

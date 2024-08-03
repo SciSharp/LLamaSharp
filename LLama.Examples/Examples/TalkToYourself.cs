@@ -1,6 +1,7 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Abstractions;
 using LLama.Common;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples
 {
@@ -43,11 +44,13 @@ namespace LLama.Examples.Examples
         {
             var inferenceParams = new InferenceParams
             {
-                Temperature = 0.9f,
-                AntiPrompts = new List<string> { "Alice:", "Bob:", "User:" },
+                SamplingPipeline = new Mirostat2SamplingPipeline
+                {
+                    Tau = 10
+                },
+
+                AntiPrompts = [ "Alice:", "Bob:", "User:" ],
                 MaxTokens = 128,
-                Mirostat = MirostatType.Mirostat2,
-                MirostatTau = 10,
             };
 
             Console.ForegroundColor = ConsoleColor.White;

@@ -81,11 +81,6 @@ namespace LLama
         /// <inheritdoc />
         public List<byte[]> Images { get; }
 
-        /// <summary>
-        /// Current "mu" value for mirostat sampling
-        /// </summary>
-        protected float? MirostatMu { get; set; }
-
         private readonly StreamingTokenDecoder _decoder;
 
         /// <summary>

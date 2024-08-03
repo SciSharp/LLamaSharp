@@ -1,4 +1,5 @@
 using LLama.Common;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples;
 
@@ -29,9 +30,12 @@ public class ChatSessionWithRestart
         ChatSession session = new ChatSession(executor);
         session.LoadSession(resetState);
 
-        InferenceParams inferenceParams = new InferenceParams()
+        var inferenceParams = new InferenceParams
         {
-            Temperature = 0.9f,
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.9f
+            },
             AntiPrompts = new List<string> { "User:" }
         };
 

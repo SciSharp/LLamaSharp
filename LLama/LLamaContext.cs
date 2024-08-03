@@ -2,14 +2,11 @@ using LLama.Exceptions;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using LLama.Common;
 using System.Threading.Tasks;
 using LLama.Abstractions;
-using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 
@@ -82,8 +79,6 @@ namespace LLama
         /// </summary>
         public SafeLlamaModelHandle.ModelTokens Tokens { get; }
         
-        private LLamaTokenData[]? _samplingBuffer;
-
         /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
         /// </summary>
@@ -355,7 +350,6 @@ namespace LLama
         /// Load the state from memory.
         /// </summary>
         /// <param name="state"></param>
-        /// <exception cref="RuntimeError"></exception>
         public void LoadState(State state)
         {
             unsafe
@@ -369,7 +363,6 @@ namespace LLama
         /// </summary>
         /// <param name="state"></param>
         /// <param name="sequence"></param>
-        /// <exception cref="RuntimeError"></exception>
         public void LoadState(SequenceState state, LLamaSeqId sequence)
         {
             unsafe
@@ -378,142 +371,6 @@ namespace LLama
             }
         }
         #endregion
-
-        /// <summary>
-        /// Sample a single token from this context, using the given sampling pipeline
-        /// </summary>
-        /// <param name="pipeline">The pipeline to use to process the logits and to select a token</param>
-        /// <param name="lastTokens">The tokens recently returned from the model</param>
-        /// <returns>The selected token</returns>
-        public LLamaToken Sample(ISamplingPipeline pipeline, ReadOnlySpan<LLamaToken> lastTokens)
-        {
-            var token = pipeline.Sample(NativeHandle, NativeHandle.GetLogits(), lastTokens);
-            pipeline.Accept(NativeHandle, token);
-            return token;
-        }
-
-        /// <summary>
-        /// Perform the sampling. Please don't use it unless you fully know what it does.
-        /// </summary>
-        /// <param name="candidates"></param>
-        /// <param name="mirostat_mu"></param>
-        /// <param name="temperature"></param>
-        /// <param name="mirostat"></param>
-        /// <param name="mirostatTau"></param>
-        /// <param name="mirostatEta"></param>
-        /// <param name="topK"></param>
-        /// <param name="topP"></param>
-        /// <param name="tfsZ"></param>
-        /// <param name="typicalP"></param>
-        /// <param name="grammar"></param>
-        /// <param name="minP"></param>
-        /// <returns></returns>
-        public LLamaToken Sample(LLamaTokenDataArray candidates, ref float? mirostat_mu, float temperature, MirostatType mirostat, 
-                                 float mirostatTau, float mirostatEta, int topK, float topP, float tfsZ, float typicalP,
-                                 SafeLLamaGrammarHandle? grammar, float minP)
-        {
-            LLamaToken id;
-
-            if (grammar != null)
-            {
-                candidates.ApplyGrammar(NativeHandle, grammar);
-            }
-
-            if (temperature <= 0)
-            {
-                // Greedy sampling
-                id = candidates.SampleTokenGreedy(NativeHandle);
-            }
-            else
-            {
-                var mu = mirostat_mu ?? (2 * mirostatTau);
-                {
-                    if (mirostat == MirostatType.Mirostat)
-                    {
-                        const int mirostat_m = 100;
-                        candidates.Temperature(NativeHandle, temperature);
-                        id = candidates.SampleTokenMirostat(NativeHandle, mirostatTau, mirostatEta, mirostat_m, ref mu);
-                    }
-                    else if (mirostat == MirostatType.Mirostat2)
-                    {
-                        candidates.Temperature(NativeHandle, temperature);
-                        id = candidates.SampleTokenMirostat2(NativeHandle, mirostatTau, mirostatEta, ref mu);
-                    }
-                    else
-                    {
-                        candidates.TopK(NativeHandle, topK);
-                        candidates.TailFree(NativeHandle, tfsZ);
-                        candidates.LocallyTypical(NativeHandle, typicalP);
-                        candidates.TopP(NativeHandle, topP);
-                        candidates.MinP(NativeHandle, minP);
-                        candidates.Temperature(NativeHandle, temperature);
-                        id = candidates.SampleToken(NativeHandle);
-                    }
-                }
-                mirostat_mu = mu;
-            }
-
-            grammar?.AcceptToken(NativeHandle, id);
-
-            return id;
-        }
-
-        /// <summary>
-        /// Apply the penalty for the tokens. Please don't use it unless you fully know what it does.
-        /// </summary>
-        /// <param name="logits_i"></param>
-        /// <param name="lastTokens"></param>
-        /// <param name="logitBias"></param>
-        /// <param name="repeatLastTokensCount"></param>
-        /// <param name="repeatPenalty"></param>
-        /// <param name="alphaFrequency"></param>
-        /// <param name="alphaPresence"></param>
-        /// <param name="penalizeNL"></param>
-        /// <returns></returns>
-        public LLamaTokenDataArray ApplyPenalty(int logits_i, IEnumerable<LLamaToken> lastTokens, Dictionary<LLamaToken, float>? logitBias = null, 
-                                                int repeatLastTokensCount = 64, float repeatPenalty = 1.1f, float alphaFrequency = .0f, float alphaPresence = .0f, 
-                                                bool penalizeNL = true)
-        {
-            var logits = NativeHandle.GetLogitsIth(logits_i);
-
-            // Apply params.logit_bias map
-            if (logitBias is not null)
-            {
-                foreach (var (key, value) in logitBias)
-                    logits[(int)key] += value;
-            }
-
-            // Save the newline logit value
-            var nl_token = NativeHandle.ModelHandle.Tokens.Newline;
-            var nl_logit = logits[(int?)nl_token ?? 0];
-
-            // Convert logits into token candidates
-            if (_samplingBuffer == null || _samplingBuffer.Length < logits.Length)
-                _samplingBuffer = new LLamaTokenData[logits.Length];
-            var candidates_p = LLamaTokenDataArray.Create(logits, _samplingBuffer);
-
-            // Extract most recently returned tokens
-            var last_n_repeat = Math.Min((int)ContextSize, repeatLastTokensCount);
-            var last_n_array = lastTokens.TakeLast(last_n_repeat).ToArray();
-
-            // Apply penalties to candidates
-            candidates_p.RepetitionPenalty(NativeHandle, last_n_array, repeatPenalty, alphaFrequency, alphaPresence);
-
-            // Restore newline token logit value if necessary
-            if (!penalizeNL && nl_token.HasValue)
-            {
-                var candidatesSpan = candidates_p.Data.Span;
-                for (var i = 0; i < candidates_p.Data.Length; i++)
-                {
-                    ref var item = ref candidatesSpan[i];
-                    if (item.id == nl_token)
-                        item.logit = nl_logit;
-                }
-                candidates_p.Sorted = false;
-            }
-
-            return candidates_p;
-        }
 
         /// <summary>
         /// Gets whether or not the Bos token should be added.

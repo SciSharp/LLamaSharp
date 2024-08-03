@@ -12,7 +12,7 @@ namespace LLama.Native
     /// <param name="OSPlatform"></param>
     /// <param name="CudaMajorVersion"></param>
     /// <param name="VulkanVersion"></param>
-    public record class SystemInfo(OSPlatform OSPlatform, int CudaMajorVersion, string? VulkanVersion)
+    public record SystemInfo(OSPlatform OSPlatform, int CudaMajorVersion, string? VulkanVersion)
     {
         /// <summary>
         /// Get the system information of the current machine.
@@ -71,36 +71,29 @@ namespace LLama.Native
             // Note: on Linux, this requires `vulkan-tools` to be installed. (`sudo apt install vulkan-tools`)
             try
             {
-                // Set up the process start info
-                ProcessStartInfo start = new()
-                {
-                    FileName = "vulkaninfo",
-                    Arguments = "--summary",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                // Start the process
+                // Start a process to read vulkan info
                 Process process = new()
                 {
-                    StartInfo = start
+                    StartInfo = new()
+                    {
+                        FileName = "vulkaninfo",
+                        Arguments = "--summary",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
                 };
-                process.Start();
-                
-                // Read the output to a string
-                string output = process.StandardOutput.ReadToEnd();
-                
-                // Wait for the process to exit
-                process.WaitForExit();
+                var (exitCode, output, error, ok) = process.SafeRun(TimeSpan.FromSeconds(1));
+
+                if (!ok)
+                    return null;
 
                 // Return the output
                 return output;
             }
-            catch (Exception e)
+            catch
             {
-                //Console.WriteLine(e);
-                
                 // Return null if we failed to get the Vulkan version
                 return null;
             }

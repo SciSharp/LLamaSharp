@@ -1,4 +1,6 @@
-﻿namespace LLama.Examples.Examples
+using LLama.Sampling;
+
+namespace LLama.Examples.Examples
 {
     using LLama.Common;
     using System;
@@ -40,9 +42,12 @@
                 "\nWrite 'exit' to exit");
             Console.ForegroundColor = ConsoleColor.White;
 
-            var inferenceParams = new InferenceParams()
+            var inferenceParams = new InferenceParams
             {
-                Temperature = 0.8f,
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.8f
+                },
                 MaxTokens = -1,
             };
 

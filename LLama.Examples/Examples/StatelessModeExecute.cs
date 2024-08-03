@@ -1,5 +1,6 @@
-﻿using LLama.Common;
+using LLama.Common;
 using LLama.Examples.Extensions;
+using LLama.Sampling;
 
 namespace LLama.Examples.Examples
 {
@@ -24,7 +25,16 @@ namespace LLama.Examples.Examples
                 "a prompt for it yourself!");
             Console.ForegroundColor = ConsoleColor.White;
 
-            var inferenceParams = new InferenceParams() { Temperature = 0.6f, AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" }, MaxTokens = 50 };
+            var inferenceParams = new InferenceParams
+            {
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.6f
+                },
+
+                AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" },
+                MaxTokens = 50
+            };
 
             while (true)
             {
