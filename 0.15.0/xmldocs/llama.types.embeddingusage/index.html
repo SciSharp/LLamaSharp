@@ -1,0 +1,3445 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../llama.types.embeddingdata/">
+      
+      
+        <link rel="next" href="../logger/">
+      
+      <link rel="icon" href="../../media/icon128.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.20">
+    
+    
+      
+        <title>llama.types.embeddingusage - LLamaSharp Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.eebd395e.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ecc896b0.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:300,300i,400,400i,700,700i%7CFira+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Fira Sans";--md-code-font:"Fira Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css?v=14">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="red">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#embeddingusage" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="LLamaSharp Documentation" class="md-header__button md-logo" aria-label="LLamaSharp Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 9h5.5L13 3.5V9M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2m9 16v-2H6v2h9m3-4v-2H6v2h12Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            LLamaSharp Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              llama.types.embeddingusage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="red"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="LLamaSharp Documentation" class="md-nav__button md-logo" aria-label="LLamaSharp Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 9h5.5L13 3.5V9M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2m9 16v-2H6v2h9m3-4v-2H6v2h12Z"/></svg>
+
+    </a>
+    LLamaSharp Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../QuickStart/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Architecture/" class="md-nav__link">
+        Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../FAQ/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ContributingGuide/" class="md-nav__link">
+        Contributing Guide
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/NativeLibraryConfig/" class="md-nav__link">
+        Configure the native library loading
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/Executors/" class="md-nav__link">
+        Use executors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/ChatSession/" class="md-nav__link">
+        Use ChatSession
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/UnderstandLLamaContext/" class="md-nav__link">
+        Understand LLamaContext
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/GetEmbeddings/" class="md-nav__link">
+        Get embeddings
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Tutorials/Quantization/" class="md-nav__link">
+        Quantize the model
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Advanced Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../AdvancedTutorials/CustomizeNativeLibraryLoading/" class="md-nav__link">
+        Customize the native library loading
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          Integrations
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Integrations
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Integrations/semantic-kernel/" class="md-nav__link">
+        semantic-kernel integration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Integrations/kernel-memory/" class="md-nav__link">
+        kernel-memory integration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Integrations/BotSharp.md" class="md-nav__link">
+        BotSharp integration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Integrations/Langchain.md" class="md-nav__link">
+        Langchain integration
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/BatchedExecutorFork/" class="md-nav__link">
+        Bacthed executor - multi-output to one input
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/BatchedExecutorGuidance/" class="md-nav__link">
+        Batched executor - basic guidance
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/BatchedExecutorRewind/" class="md-nav__link">
+        Batched executor - rewinding to an earlier state
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatChineseGB2312/" class="md-nav__link">
+        Chinese LLM - with GB2312 encoding
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatSessionStripRoleName/" class="md-nav__link">
+        ChatSession - stripping role names
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatSessionWithHistory/" class="md-nav__link">
+        ChatSession - with history
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatSessionWithRestart/" class="md-nav__link">
+        ChatSession - restarting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/ChatSessionWithRoleName/" class="md-nav__link">
+        ChatSession - Basic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/CodingAssistant/" class="md-nav__link">
+        Coding assistant
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/GetEmbeddings/" class="md-nav__link">
+        Get embeddings
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/GrammarJsonResponse/" class="md-nav__link">
+        Grammar - json response
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/InstructModeExecute/" class="md-nav__link">
+        Instruct executor - basic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/InteractiveModeExecute/" class="md-nav__link">
+        Interactive executor - basic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/KernelMemory/" class="md-nav__link">
+        Kernel memory integration - basic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/KernelMemorySaveAndLoad/" class="md-nav__link">
+        Kernel-memory - save & load
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/LLavaInteractiveModeExecute/" class="md-nav__link">
+        LLaVA - basic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/LoadAndSaveSession/" class="md-nav__link">
+        ChatSession - load & save
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/LoadAndSaveState/" class="md-nav__link">
+        Executor - save/load state
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/QuantizeModel/" class="md-nav__link">
+        Quantization
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/SemanticKernelChat/" class="md-nav__link">
+        Semantic-kernel - chat
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/SemanticKernelMemory/" class="md-nav__link">
+        Semantic-kernel - with kernel-memory
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/SemanticKernelPrompt/" class="md-nav__link">
+        Semantic-kernel - basic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/StatelessModeExecute/" class="md-nav__link">
+        Stateless executor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Examples/TalkToYourself/" class="md-nav__link">
+        Talk to yourself
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.adaptercollection/" class="md-nav__link">
+        llama.abstractions.adaptercollection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.icontextparams/" class="md-nav__link">
+        llama.abstractions.icontextparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.ihistorytransform/" class="md-nav__link">
+        llama.abstractions.ihistorytransform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.iinferenceparams/" class="md-nav__link">
+        llama.abstractions.iinferenceparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.illamaexecutor/" class="md-nav__link">
+        llama.abstractions.illamaexecutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.illamaparams/" class="md-nav__link">
+        llama.abstractions.illamaparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.imodelparams/" class="md-nav__link">
+        llama.abstractions.imodelparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.itextstreamtransform/" class="md-nav__link">
+        llama.abstractions.itextstreamtransform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.itexttransform/" class="md-nav__link">
+        llama.abstractions.itexttransform
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.loraadapter/" class="md-nav__link">
+        llama.abstractions.loraadapter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.metadataoverride/" class="md-nav__link">
+        llama.abstractions.metadataoverride
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.metadataoverrideconverter/" class="md-nav__link">
+        llama.abstractions.metadataoverrideconverter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.tensorsplitscollection/" class="md-nav__link">
+        llama.abstractions.tensorsplitscollection
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.abstractions.tensorsplitscollectionconverter/" class="md-nav__link">
+        llama.abstractions.tensorsplitscollectionconverter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.antipromptprocessor/" class="md-nav__link">
+        llama.antipromptprocessor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.alreadypromptedconversationexception/" class="md-nav__link">
+        llama.batched.alreadypromptedconversationexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.batchedexecutor/" class="md-nav__link">
+        llama.batched.batchedexecutor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.cannotforkwhilerequiresinferenceexception/" class="md-nav__link">
+        llama.batched.cannotforkwhilerequiresinferenceexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.cannotmodifywhilerequiresinferenceexception/" class="md-nav__link">
+        llama.batched.cannotmodifywhilerequiresinferenceexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.cannotsamplerequiresinferenceexception/" class="md-nav__link">
+        llama.batched.cannotsamplerequiresinferenceexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.cannotsamplerequirespromptexception/" class="md-nav__link">
+        llama.batched.cannotsamplerequirespromptexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.conversation/" class="md-nav__link">
+        llama.batched.conversation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.conversationextensions/" class="md-nav__link">
+        llama.batched.conversationextensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.batched.experimentalbatchedexecutorexception/" class="md-nav__link">
+        llama.batched.experimentalbatchedexecutorexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.chatsession-1/" class="md-nav__link">
+        llama.chatsession-1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.chatsession/" class="md-nav__link">
+        llama.chatsession
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.authorrole/" class="md-nav__link">
+        llama.common.authorrole
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.chathistory/" class="md-nav__link">
+        llama.common.chathistory
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.fixedsizequeue-1/" class="md-nav__link">
+        llama.common.fixedsizequeue-1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.inferenceparams/" class="md-nav__link">
+        llama.common.inferenceparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.mirostattype/" class="md-nav__link">
+        llama.common.mirostattype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.common.modelparams/" class="md-nav__link">
+        llama.common.modelparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarexpectedname/" class="md-nav__link">
+        llama.exceptions.grammarexpectedname
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarexpectednext/" class="md-nav__link">
+        llama.exceptions.grammarexpectednext
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarexpectedprevious/" class="md-nav__link">
+        llama.exceptions.grammarexpectedprevious
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarformatexception/" class="md-nav__link">
+        llama.exceptions.grammarformatexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedcharaltelement/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedcharaltelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedcharrngelement/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedcharrngelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedendelement/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedendelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedendofinput/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedendofinput
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunexpectedhexcharscount/" class="md-nav__link">
+        llama.exceptions.grammarunexpectedhexcharscount
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.grammarunknownescapecharacter/" class="md-nav__link">
+        llama.exceptions.grammarunknownescapecharacter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.llamadecodeerror/" class="md-nav__link">
+        llama.exceptions.llamadecodeerror
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.loadweightsfailedexception/" class="md-nav__link">
+        llama.exceptions.loadweightsfailedexception
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.exceptions.runtimeerror/" class="md-nav__link">
+        llama.exceptions.runtimeerror
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.extensions.icontextparamsextensions/" class="md-nav__link">
+        llama.extensions.icontextparamsextensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.extensions.imodelparamsextensions/" class="md-nav__link">
+        llama.extensions.imodelparamsextensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.grammars.grammar/" class="md-nav__link">
+        llama.grammars.grammar
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.grammars.grammarrule/" class="md-nav__link">
+        llama.grammars.grammarrule
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.ichatmodel/" class="md-nav__link">
+        llama.ichatmodel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamacache/" class="md-nav__link">
+        llama.llamacache
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamaembedder/" class="md-nav__link">
+        llama.llamaembedder
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamamodel/" class="md-nav__link">
+        llama.llamamodel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamamodelv1/" class="md-nav__link">
+        llama.llamamodelv1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamaparams/" class="md-nav__link">
+        llama.llamaparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamaquantizer/" class="md-nav__link">
+        llama.llamaquantizer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamastate/" class="md-nav__link">
+        llama.llamastate
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llamatransforms/" class="md-nav__link">
+        llama.llamatransforms
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.llavaweights/" class="md-nav__link">
+        llama.llavaweights
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.decoderesult/" class="md-nav__link">
+        llama.native.decoderesult
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.ggmltype/" class="md-nav__link">
+        llama.native.ggmltype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.gpusplitmode/" class="md-nav__link">
+        llama.native.gpusplitmode
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamabatch/" class="md-nav__link">
+        llama.native.llamabatch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamabeamsstate/" class="md-nav__link">
+        llama.native.llamabeamsstate
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamabeamview/" class="md-nav__link">
+        llama.native.llamabeamview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamachatmessage/" class="md-nav__link">
+        llama.native.llamachatmessage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamacontextparams/" class="md-nav__link">
+        llama.native.llamacontextparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamaftype/" class="md-nav__link">
+        llama.native.llamaftype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamagrammarelement/" class="md-nav__link">
+        llama.native.llamagrammarelement
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamagrammarelementtype/" class="md-nav__link">
+        llama.native.llamagrammarelementtype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamakvcacheview/" class="md-nav__link">
+        llama.native.llamakvcacheview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamakvcacheviewcell/" class="md-nav__link">
+        llama.native.llamakvcacheviewcell
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamakvcacheviewsafehandle/" class="md-nav__link">
+        llama.native.llamakvcacheviewsafehandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamaloglevel/" class="md-nav__link">
+        llama.native.llamaloglevel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamamodelkvoverridetype/" class="md-nav__link">
+        llama.native.llamamodelkvoverridetype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamamodelmetadataoverride/" class="md-nav__link">
+        llama.native.llamamodelmetadataoverride
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamamodelparams/" class="md-nav__link">
+        llama.native.llamamodelparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamamodelquantizeparams/" class="md-nav__link">
+        llama.native.llamamodelquantizeparams
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamanativebatch/" class="md-nav__link">
+        llama.native.llamanativebatch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamapoolingtype/" class="md-nav__link">
+        llama.native.llamapoolingtype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamapos/" class="md-nav__link">
+        llama.native.llamapos
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamaropetype/" class="md-nav__link">
+        llama.native.llamaropetype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamaseqid/" class="md-nav__link">
+        llama.native.llamaseqid
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatoken/" class="md-nav__link">
+        llama.native.llamatoken
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokendata/" class="md-nav__link">
+        llama.native.llamatokendata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokendataarray/" class="md-nav__link">
+        llama.native.llamatokendataarray
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokendataarraynative/" class="md-nav__link">
+        llama.native.llamatokendataarraynative
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamatokentype/" class="md-nav__link">
+        llama.native.llamatokentype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llamavocabtype/" class="md-nav__link">
+        llama.native.llamavocabtype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.llavaimageembed/" class="md-nav__link">
+        llama.native.llavaimageembed
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.nativeapi/" class="md-nav__link">
+        llama.native.nativeapi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.nativelibraryconfig/" class="md-nav__link">
+        llama.native.nativelibraryconfig
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.ropescalingtype/" class="md-nav__link">
+        llama.native.ropescalingtype
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamacontexthandle/" class="md-nav__link">
+        llama.native.safellamacontexthandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamagrammarhandle/" class="md-nav__link">
+        llama.native.safellamagrammarhandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamahandlebase/" class="md-nav__link">
+        llama.native.safellamahandlebase
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellamamodelhandle/" class="md-nav__link">
+        llama.native.safellamamodelhandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellavaimageembedhandle/" class="md-nav__link">
+        llama.native.safellavaimageembedhandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.native.safellavamodelhandle/" class="md-nav__link">
+        llama.native.safellavamodelhandle
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.quantizer/" class="md-nav__link">
+        llama.quantizer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.basesamplingpipeline/" class="md-nav__link">
+        llama.sampling.basesamplingpipeline
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.defaultsamplingpipeline/" class="md-nav__link">
+        llama.sampling.defaultsamplingpipeline
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.greedysamplingpipeline/" class="md-nav__link">
+        llama.sampling.greedysamplingpipeline
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.isamplingpipeline/" class="md-nav__link">
+        llama.sampling.isamplingpipeline
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.isamplingpipelineextensions/" class="md-nav__link">
+        llama.sampling.isamplingpipelineextensions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.mirostate2samplingpipeline/" class="md-nav__link">
+        llama.sampling.mirostate2samplingpipeline
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sampling.mirostatesamplingpipeline/" class="md-nav__link">
+        llama.sampling.mirostatesamplingpipeline
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.sessionstate/" class="md-nav__link">
+        llama.sessionstate
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.streamingtokendecoder/" class="md-nav__link">
+        llama.streamingtokendecoder
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatcompletion/" class="md-nav__link">
+        llama.types.chatcompletion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatcompletionchoice/" class="md-nav__link">
+        llama.types.chatcompletionchoice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatcompletionchunk/" class="md-nav__link">
+        llama.types.chatcompletionchunk
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatcompletionchunkchoice/" class="md-nav__link">
+        llama.types.chatcompletionchunkchoice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatcompletionchunkdelta/" class="md-nav__link">
+        llama.types.chatcompletionchunkdelta
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatcompletionmessage/" class="md-nav__link">
+        llama.types.chatcompletionmessage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatmessagerecord/" class="md-nav__link">
+        llama.types.chatmessagerecord
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.chatrole/" class="md-nav__link">
+        llama.types.chatrole
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.completion/" class="md-nav__link">
+        llama.types.completion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.completionchoice/" class="md-nav__link">
+        llama.types.completionchoice
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.completionchunk/" class="md-nav__link">
+        llama.types.completionchunk
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.completionlogprobs/" class="md-nav__link">
+        llama.types.completionlogprobs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.completionusage/" class="md-nav__link">
+        llama.types.completionusage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.embedding/" class="md-nav__link">
+        llama.types.embedding
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llama.types.embeddingdata/" class="md-nav__link">
+        llama.types.embeddingdata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          llama.types.embeddingusage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        llama.types.embeddingusage
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    Properties
+  </a>
+  
+    <nav class="md-nav" aria-label="Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prompttokens" class="md-nav__link">
+    PromptTokens
+  </a>
+  
+    <nav class="md-nav" aria-label="PromptTokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#property-value" class="md-nav__link">
+    Property Value
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#totaltokens" class="md-nav__link">
+    TotalTokens
+  </a>
+  
+    <nav class="md-nav" aria-label="TotalTokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#property-value_1" class="md-nav__link">
+    Property Value
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constructors" class="md-nav__link">
+    Constructors
+  </a>
+  
+    <nav class="md-nav" aria-label="Constructors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#embeddingusageint32-int32" class="md-nav__link">
+    EmbeddingUsage(Int32, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="EmbeddingUsage(Int32, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tostring" class="md-nav__link">
+    ToString()
+  </a>
+  
+    <nav class="md-nav" aria-label="ToString()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#printmembersstringbuilder" class="md-nav__link">
+    PrintMembers(StringBuilder)
+  </a>
+  
+    <nav class="md-nav" aria-label="PrintMembers(StringBuilder)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_1" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gethashcode" class="md-nav__link">
+    GetHashCode()
+  </a>
+  
+    <nav class="md-nav" aria-label="GetHashCode()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_2" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equalsobject" class="md-nav__link">
+    Equals(Object)
+  </a>
+  
+    <nav class="md-nav" aria-label="Equals(Object)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_3" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equalsembeddingusage" class="md-nav__link">
+    Equals(EmbeddingUsage)
+  </a>
+  
+    <nav class="md-nav" aria-label="Equals(EmbeddingUsage)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_4" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clone" class="md-nav__link">
+    &lt;Clone&gt;$()
+  </a>
+  
+    <nav class="md-nav" aria-label="<Clone>$()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_5" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deconstructint32-int32" class="md-nav__link">
+    Deconstruct(Int32&amp;, Int32&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="Deconstruct(Int32&, Int32&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logger/" class="md-nav__link">
+        logger
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    Properties
+  </a>
+  
+    <nav class="md-nav" aria-label="Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prompttokens" class="md-nav__link">
+    PromptTokens
+  </a>
+  
+    <nav class="md-nav" aria-label="PromptTokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#property-value" class="md-nav__link">
+    Property Value
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#totaltokens" class="md-nav__link">
+    TotalTokens
+  </a>
+  
+    <nav class="md-nav" aria-label="TotalTokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#property-value_1" class="md-nav__link">
+    Property Value
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constructors" class="md-nav__link">
+    Constructors
+  </a>
+  
+    <nav class="md-nav" aria-label="Constructors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#embeddingusageint32-int32" class="md-nav__link">
+    EmbeddingUsage(Int32, Int32)
+  </a>
+  
+    <nav class="md-nav" aria-label="EmbeddingUsage(Int32, Int32)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tostring" class="md-nav__link">
+    ToString()
+  </a>
+  
+    <nav class="md-nav" aria-label="ToString()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#printmembersstringbuilder" class="md-nav__link">
+    PrintMembers(StringBuilder)
+  </a>
+  
+    <nav class="md-nav" aria-label="PrintMembers(StringBuilder)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_1" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gethashcode" class="md-nav__link">
+    GetHashCode()
+  </a>
+  
+    <nav class="md-nav" aria-label="GetHashCode()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_2" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equalsobject" class="md-nav__link">
+    Equals(Object)
+  </a>
+  
+    <nav class="md-nav" aria-label="Equals(Object)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_3" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equalsembeddingusage" class="md-nav__link">
+    Equals(EmbeddingUsage)
+  </a>
+  
+    <nav class="md-nav" aria-label="Equals(EmbeddingUsage)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_3" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_4" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clone" class="md-nav__link">
+    &lt;Clone&gt;$()
+  </a>
+  
+    <nav class="md-nav" aria-label="<Clone>$()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_5" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deconstructint32-int32" class="md-nav__link">
+    Deconstruct(Int32&amp;, Int32&amp;)
+  </a>
+  
+    <nav class="md-nav" aria-label="Deconstruct(Int32&, Int32&)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_4" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="embeddingusage">EmbeddingUsage<a class="headerlink" href="#embeddingusage" title="Permanent link"></a></h1>
+<p>Namespace: LLama.Types</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">EmbeddingUsage</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">IEquatable</span><span class="err">`</span><span class="m">1</span><span class="p">[[</span><span class="n">LLama</span><span class="p">.</span><span class="n">Types</span><span class="p">.</span><span class="n">EmbeddingUsage</span><span class="p">,</span><span class="w"> </span><span class="n">LLamaSharp</span><span class="p">,</span><span class="w"> </span><span class="n">Version</span><span class="o">=</span><span class="m">0.2</span><span class="p">.</span><span class="m">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">Culture</span><span class="o">=</span><span class="n">neutral</span><span class="p">,</span><span class="w"> </span><span class="n">PublicKeyToken</span><span class="o">=</span><span class="k">null</span><span class="p">]]</span>
+</code></pre></div></td></tr></table></div>
+<p>Inheritance <a href="https://docs.microsoft.com/en-us/dotnet/api/system.object">Object</a> → <a href="./">EmbeddingUsage</a><br>
+Implements <a href="https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1">IEquatable&lt;EmbeddingUsage&gt;</a></p>
+<h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link"></a></h2>
+<h3 id="prompttokens"><strong>PromptTokens</strong><a class="headerlink" href="#prompttokens" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">PromptTokens</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="property-value">Property Value<a class="headerlink" href="#property-value" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="totaltokens"><strong>TotalTokens</strong><a class="headerlink" href="#totaltokens" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">TotalTokens</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="property-value_1">Property Value<a class="headerlink" href="#property-value_1" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h2 id="constructors">Constructors<a class="headerlink" href="#constructors" title="Permanent link"></a></h2>
+<h3 id="embeddingusageint32-int32"><strong>EmbeddingUsage(Int32, Int32)</strong><a class="headerlink" href="#embeddingusageint32-int32" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="nf">EmbeddingUsage</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">PromptTokens</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">TotalTokens</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link"></a></h4>
+<p><code>PromptTokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<p><code>TotalTokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link"></a></h2>
+<h3 id="tostring"><strong>ToString()</strong><a class="headerlink" href="#tostring" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="returns">Returns<a class="headerlink" href="#returns" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.string">String</a><br></p>
+<h3 id="printmembersstringbuilder"><strong>PrintMembers(StringBuilder)</strong><a class="headerlink" href="#printmembersstringbuilder" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">protected</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">PrintMembers</span><span class="p">(</span><span class="n">StringBuilder</span><span class="w"> </span><span class="n">builder</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link"></a></h4>
+<p><code>builder</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.text.stringbuilder">StringBuilder</a><br></p>
+<h4 id="returns_1">Returns<a class="headerlink" href="#returns_1" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="gethashcode"><strong>GetHashCode()</strong><a class="headerlink" href="#gethashcode" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="returns_2">Returns<a class="headerlink" href="#returns_2" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32">Int32</a><br></p>
+<h3 id="equalsobject"><strong>Equals(Object)</strong><a class="headerlink" href="#equalsobject" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="kt">object</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link"></a></h4>
+<p><code>obj</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.object">Object</a><br></p>
+<h4 id="returns_3">Returns<a class="headerlink" href="#returns_3" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="equalsembeddingusage"><strong>Equals(EmbeddingUsage)</strong><a class="headerlink" href="#equalsembeddingusage" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="n">EmbeddingUsage</span><span class="w"> </span><span class="n">other</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="parameters_3">Parameters<a class="headerlink" href="#parameters_3" title="Permanent link"></a></h4>
+<p><code>other</code> <a href="./">EmbeddingUsage</a><br></p>
+<h4 id="returns_4">Returns<a class="headerlink" href="#returns_4" title="Permanent link"></a></h4>
+<p><a href="https://docs.microsoft.com/en-us/dotnet/api/system.boolean">Boolean</a><br></p>
+<h3 id="clone"><strong>&lt;Clone&gt;$()</strong><a class="headerlink" href="#clone" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="n">EmbeddingUsage</span><span class="w"> </span><span class="o">&lt;</span><span class="n">Clone</span><span class="o">&gt;</span><span class="err">$</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="returns_5">Returns<a class="headerlink" href="#returns_5" title="Permanent link"></a></h4>
+<p><a href="./">EmbeddingUsage</a><br></p>
+<h3 id="deconstructint32-int32"><strong>Deconstruct(Int32&amp;, Int32&amp;)</strong><a class="headerlink" href="#deconstructint32-int32" title="Permanent link"></a></h3>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Deconstruct</span><span class="p">(</span><span class="n">Int32</span><span class="o">&amp;</span><span class="w"> </span><span class="n">PromptTokens</span><span class="p">,</span><span class="w"> </span><span class="n">Int32</span><span class="o">&amp;</span><span class="w"> </span><span class="n">TotalTokens</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="parameters_4">Parameters<a class="headerlink" href="#parameters_4" title="Permanent link"></a></h4>
+<p><code>PromptTokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32&amp;">Int32&amp;</a><br></p>
+<p><code>TotalTokens</code> <a href="https://docs.microsoft.com/en-us/dotnet/api/system.int32&amp;">Int32&amp;</a><br></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.action.edit", "navigation.instant"], "search": "../../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.220ee61c.min.js"></script>
+      
+    
+  </body>
+</html>
