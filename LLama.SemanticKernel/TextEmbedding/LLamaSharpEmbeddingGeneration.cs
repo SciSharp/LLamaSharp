@@ -4,7 +4,8 @@ using Microsoft.SemanticKernel.Embeddings;
 
 namespace LLamaSharp.SemanticKernel.TextEmbedding;
 
-public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationService
+public sealed class LLamaSharpEmbeddingGeneration
+    : ITextEmbeddingGenerationService
 {
     private readonly LLamaEmbedder _embedder;
 
@@ -23,7 +24,7 @@ public sealed class LLamaSharpEmbeddingGeneration : ITextEmbeddingGenerationServ
         var result = new List<ReadOnlyMemory<float>>();
 
         foreach (var item in data)
-            result.Add(await _embedder.GetEmbeddings(item, cancellationToken));
+            result.Add((await _embedder.GetEmbeddings(item, cancellationToken)).First());
 
         return result;
     }
