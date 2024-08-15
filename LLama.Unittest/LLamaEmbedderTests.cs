@@ -26,7 +26,6 @@ public sealed class LLamaEmbedderTests
         {
             ContextSize = 8,
             Threads = 4,
-            Embeddings = true,
             GpuLayerCount = Constants.CIGpuLayerCount,
             PoolingType = LLamaPoolingType.Mean,
         };
@@ -74,7 +73,6 @@ public sealed class LLamaEmbedderTests
         {
             ContextSize = 8,
             Threads = 4,
-            Embeddings = true,
             GpuLayerCount = Constants.CIGpuLayerCount,
             PoolingType = LLamaPoolingType.None,
         };

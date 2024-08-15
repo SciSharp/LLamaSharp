@@ -33,14 +33,13 @@ public sealed class LLamaEmbedder
     /// <param name="logger"></param>
     public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
     {
-        if (!@params.Embeddings)
-            throw new ArgumentException("Embeddings must be true", nameof(@params));
         if (@params.UBatchSize != @params.BatchSize)
             throw new ArgumentException("For non-causal models, batch size must be equal to ubatch size", nameof(@params));
         if (weights.NativeHandle is { HasEncoder: true, HasDecoder: true })
             throw new NotSupportedException("Computing embeddings in encoder-decoder models is not supported");
 
         Context = weights.CreateContext(@params, logger);
+        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
     }
 
     /// <inheritdoc />
