@@ -74,6 +74,7 @@ public class BatchedExecutorGuidance
                     // Sample from the "guided" conversation. This sampler will internally use the "guidance" conversation
                     // to steer the conversation. See how this is done in GuidedSampler.ProcessLogits (bottom of this file).
                     var g = guidedSampler.Sample(executor.Context.NativeHandle, guided.Sample(), []);
+                    guidedSampler.Accept(executor.Context.NativeHandle, g);
                     guidedDecoder.Add(g);
 
                     // Use this token to advance both guided _and_ guidance. Keeping them in sync (except for the initial prompt).
@@ -108,10 +109,6 @@ public class BatchedExecutorGuidance
             candidates.Temperature(ctx, 0.8f);
             candidates.TopK(ctx, 25);
             return candidates.SampleToken(ctx);
-        }
-        
-        public override void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
-        {
         }
         
         public override ISamplingPipeline Clone()
