@@ -65,7 +65,7 @@ internal static class LLamaContextExtensions
             }
         }
 
-        Debug.Assert(totalFileSize == writtenBytes, $"Expected to write {totalFileSize} bytes, but actally wrote {writtenBytes}");
+        Debug.Assert(totalFileSize == writtenBytes, $"Expected to write {totalFileSize} bytes, but actually wrote {writtenBytes}");
     }
 
     /// <summary>

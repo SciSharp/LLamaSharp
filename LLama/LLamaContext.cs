@@ -173,7 +173,7 @@ namespace LLama
                 }
             }
 
-            Debug.Assert(stateSize == writtenBytes, $"Expected to write {stateSize} bytes, but actally wrote {writtenBytes}");
+            Debug.Assert(stateSize == writtenBytes, $"Expected to write {stateSize} bytes, but actually wrote {writtenBytes}");
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace LLama
                 }
             }
 
-            Debug.Assert(stateSize == writtenBytes, $"Expected to write {stateSize} bytes, but actally wrote {writtenBytes}");
+            Debug.Assert(stateSize == writtenBytes, $"Expected to write {stateSize} bytes, but actually wrote {writtenBytes}");
         }
 
         /// <summary>
