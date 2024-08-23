@@ -2,7 +2,7 @@ using System;
 
 namespace LLama.Native;
 
-public static unsafe partial class NativeApi
+public static partial class NativeApi
 {
     /// <summary>
     /// Sanity check for clip &lt;-&gt; llava embed size match

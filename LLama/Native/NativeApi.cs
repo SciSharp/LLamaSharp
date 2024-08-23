@@ -188,19 +188,13 @@ namespace LLama.Native
             static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
         }
 
-        /// <summary>
-        /// Returns -1 if unknown, 1 for true or 0 for false.
-        /// </summary>
-        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_add_bos_token(SafeLlamaModelHandle model);
+        [return: MarshalAs(UnmanagedType.U1)]
+        public static extern bool llama_add_bos_token(SafeLlamaModelHandle model);
 
-        /// <summary>
-        /// Returns -1 if unknown, 1 for true or 0 for false.
-        /// </summary>
-        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_add_eos_token(SafeLlamaModelHandle model);
+        [return: MarshalAs(UnmanagedType.U1)]
+        public static extern bool llama_add_eos_token(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Print out timing information for this context
