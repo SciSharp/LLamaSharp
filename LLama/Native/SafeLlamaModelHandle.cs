@@ -66,6 +66,16 @@ namespace LLama.Native
         public bool HasEncoder => llama_model_has_encoder(this);
 
         /// <summary>
+        /// Returns true if the model contains a decoder that requires llama_decode() call
+        /// </summary>
+        public bool HasDecoder => llama_model_has_decoder(this);
+
+        /// <summary>
+        /// Returns true if the model is recurrent (like Mamba, RWKV, etc.)
+        /// </summary>
+        public bool IsRecurrent => llama_model_is_recurrent(this);
+
+        /// <summary>
         /// Get a description of this model
         /// </summary>
         public string Description
@@ -434,8 +444,26 @@ namespace LLama.Native
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_model_has_encoder(SafeLlamaModelHandle model);
 
+        /// <summary>
+        /// Returns true if the model contains a decoder that requires llama_decode() call
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_model_has_decoder(SafeLlamaModelHandle model);
+
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr llama_lora_adapter_init(SafeLlamaModelHandle model, string path);
+
+        /// <summary>
+        /// Returns true if the model is recurrent (like Mamba, RWKV, etc.)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_model_is_recurrent(SafeLlamaModelHandle model);
         #endregion
 
         #region LoRA

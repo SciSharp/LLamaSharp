@@ -30,4 +30,7 @@ internal enum LLamaVocabPreType
     TEKKEN = 20,
     SMOLLM = 21,
     CODESHELL = 22,
+    BLOOM = 23,
+    GPT3_FINNISH = 24,
+    EXAONE = 25,
 }

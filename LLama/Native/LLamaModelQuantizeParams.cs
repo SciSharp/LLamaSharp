@@ -25,7 +25,7 @@ namespace LLama.Native
         public GGMLType output_tensor_type;
 
         /// <summary>
-        /// itoken embeddings tensor type
+        /// token embeddings tensor type
         /// </summary>
         public GGMLType token_embedding_type;
 

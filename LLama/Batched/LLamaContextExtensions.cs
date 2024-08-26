@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using LLama.Native;
@@ -24,20 +25,20 @@ internal static class LLamaContextExtensions
         if (File.Exists(filename))
             File.Delete(filename);
 
-        // Estimate size of state to write to disk, this is always equal to or greater than the actual size
-        var estimatedStateSize = checked((long)context.NativeHandle.GetStateSize(sequence));
+        // Get the exact size of the state
+        var stateSize = context.NativeHandle.GetStateSize(sequence);
 
         // Space for "extra" byte plus a 8 byte header
         var prefixSize = header.Length + 8;
 
         // Add enough space for the "extra" data and a 6 byte header
-        var totalFileSize = prefixSize + estimatedStateSize;
+        var totalFileSize = (nuint)prefixSize + stateSize;
 
         // Map the file and write the bytes directly to it.
-        long writtenBytes = 0;
-        using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, totalFileSize))
+        nuint writtenBytes = 0;
+        using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, (long)totalFileSize))
         {
-            using (var view = file.CreateViewAccessor(0, totalFileSize))
+            using (var view = file.CreateViewAccessor(0, (long)totalFileSize))
             {
                 unsafe
                 {
@@ -51,10 +52,10 @@ internal static class LLamaContextExtensions
                         BinaryPrimitives.WriteUInt32BigEndian(new Span<byte>(ptr + writtenBytes, 4), (uint)header.Length);
                         writtenBytes += 4;
                         header.CopyTo(new Span<byte>(ptr + writtenBytes, header.Length));
-                        writtenBytes += header.Length;
+                        writtenBytes += (nuint)header.Length;
 
                         // Write state data
-                        writtenBytes += (long)context.NativeHandle.GetState(ptr + writtenBytes, (ulong)estimatedStateSize, sequence);
+                        writtenBytes += context.NativeHandle.GetState(ptr + writtenBytes, stateSize, sequence);
                     }
                     finally
                     {
@@ -64,9 +65,7 @@ internal static class LLamaContextExtensions
             }
         }
 
-        // Truncate the file to the actual size of data that was written
-        using (var fileStream = new FileStream(filename, FileMode.Open))
-            fileStream.SetLength(writtenBytes);
+        Debug.Assert(totalFileSize == writtenBytes, $"Expected to write {totalFileSize} bytes, but actually wrote {writtenBytes}");
     }
 
     /// <summary>
@@ -105,7 +104,7 @@ internal static class LLamaContextExtensions
                     new Span<byte>(ptr + readBytes, headerLength).CopyTo(header);
                     readBytes += headerLength;
 
-                    context.NativeHandle.SetState(ptr + readBytes, sequence);
+                    context.NativeHandle.SetState(ptr + readBytes, (nuint)((long)view.SafeMemoryMappedViewHandle.ByteLength - readBytes), sequence);
                 }
                 finally
                 {

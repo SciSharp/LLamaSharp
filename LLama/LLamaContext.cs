@@ -1,7 +1,7 @@
-using LLama.Exceptions;
 using LLama.Native;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
@@ -150,13 +150,13 @@ namespace LLama
             if (File.Exists(filename))
                 File.Delete(filename);
 
-            // Estimate size of state to write to disk, this is always equal to or greater than the actual size
-            var estimatedStateSize = checked((long)NativeHandle.GetStateSize());
+            // Get the exact size of the state
+            var stateSize = NativeHandle.GetStateSize();
 
             // Map the file and write the bytes directly to it. This saves copying the bytes into a C# array
-            long writtenBytes;
-            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, estimatedStateSize))
-            using (var view = file.CreateViewAccessor(0, estimatedStateSize))
+            nuint writtenBytes;
+            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, checked((long)stateSize)))
+            using (var view = file.CreateViewAccessor(0, checked((long)stateSize)))
             {
                 unsafe
                 {
@@ -164,7 +164,7 @@ namespace LLama
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
                     try
                     {
-                        writtenBytes = (long)NativeHandle.GetState(ptr, (ulong)estimatedStateSize);
+                        writtenBytes = NativeHandle.GetState(ptr, stateSize);
                     }
                     finally
                     {
@@ -173,9 +173,7 @@ namespace LLama
                 }
             }
 
-            // Truncate the file to the actual size of data that was written
-            using (var fileStream = new FileStream(filename, FileMode.Open))
-                fileStream.SetLength(writtenBytes);
+            Debug.Assert(stateSize == writtenBytes, $"Expected to write {stateSize} bytes, but actually wrote {writtenBytes}");
         }
 
         /// <summary>
@@ -189,13 +187,13 @@ namespace LLama
             if (File.Exists(filename))
                 File.Delete(filename);
 
-            // Estimate size of state to write to disk, this is always equal to or greater than the actual size
-            var estimatedStateSize = checked((long)NativeHandle.GetStateSize(sequence));
+            // Get the exact size of the state
+            var stateSize = NativeHandle.GetStateSize(sequence);
 
             // Map the file and write the bytes directly to it. This saves copying the bytes into a C# array
-            long writtenBytes;
-            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, estimatedStateSize))
-            using (var view = file.CreateViewAccessor(0, estimatedStateSize))
+            nuint writtenBytes;
+            using (var file = MemoryMappedFile.CreateFromFile(filename, FileMode.Create, null, checked((long)stateSize)))
+            using (var view = file.CreateViewAccessor(0, checked((long)stateSize)))
             {
                 unsafe
                 {
@@ -203,7 +201,7 @@ namespace LLama
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
                     try
                     {
-                        writtenBytes = (long)NativeHandle.GetState(ptr, (ulong)estimatedStateSize, sequence);
+                        writtenBytes = NativeHandle.GetState(ptr, stateSize, sequence);
                     }
                     finally
                     {
@@ -212,9 +210,7 @@ namespace LLama
                 }
             }
 
-            // Truncate the file to the actual size of data that was written
-            using (var fileStream = new FileStream(filename, FileMode.Open))
-                fileStream.SetLength(writtenBytes);
+            Debug.Assert(stateSize == writtenBytes, $"Expected to write {stateSize} bytes, but actually wrote {writtenBytes}");
         }
 
         /// <summary>
@@ -230,15 +226,14 @@ namespace LLama
             var memory = Marshal.AllocHGlobal((nint)stateSize);
             try
             {
-                // Copy the state data into memory, discover the actual size required
-                ulong actualSize;
+                // Copy the state data into memory
+                nuint actualSize;
                 unsafe
                 {
                     actualSize = NativeHandle.GetState((byte*)memory, stateSize);
                 }
 
-                // Shrink to size
-                memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
+                Debug.Assert(actualSize == stateSize);
 
                 // Wrap memory in a "state"
                 var state = new State(memory, actualSize);
@@ -269,14 +264,13 @@ namespace LLama
             try
             {
                 // Copy the state data into memory, discover the actual size required
-                ulong actualSize;
+                nuint actualSize;
                 unsafe
                 {
                     actualSize = NativeHandle.GetState((byte*)memory, stateSize, sequence);
                 }
 
-                // Shrink to size
-                memory = Marshal.ReAllocHGlobal(memory, (nint)actualSize);
+                Debug.Assert(actualSize == stateSize);
 
                 // Wrap memory in a "state"
                 var state = new SequenceState(memory, actualSize);
@@ -309,7 +303,7 @@ namespace LLama
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
                     try
                     {
-                        NativeHandle.SetState(ptr);
+                        NativeHandle.SetState(ptr, (nuint)view.SafeMemoryMappedViewHandle.ByteLength);
                     }
                     finally
                     {
@@ -336,7 +330,7 @@ namespace LLama
                     view.SafeMemoryMappedViewHandle.AcquirePointer(ref ptr);
                     try
                     {
-                        NativeHandle.SetState(ptr, sequence);
+                        NativeHandle.SetState(ptr, (nuint)view.SafeMemoryMappedViewHandle.ByteLength, sequence);
                     }
                     finally
                     {
@@ -354,7 +348,7 @@ namespace LLama
         {
             unsafe
             {
-                NativeHandle.SetState((byte*)state.DangerousGetHandle());
+                NativeHandle.SetState((byte*)state.DangerousGetHandle(), state.Size);
             }
         }
 
@@ -367,7 +361,7 @@ namespace LLama
         {
             unsafe
             {
-                NativeHandle.SetState((byte*)state.DangerousGetHandle(), sequence);
+                NativeHandle.SetState((byte*)state.DangerousGetHandle(), state.Size, sequence);
             }
         }
         #endregion
@@ -380,7 +374,8 @@ namespace LLama
         public bool ShouldAddBosToken()
         {
             var addBos = NativeApi.llama_add_bos_token(NativeHandle.ModelHandle);
-            return addBos != -1 ? Convert.ToBoolean(addBos) : NativeHandle.LLamaVocabType == LLamaVocabType.SentencePiece;
+            //return addBos != -1 ? Convert.ToBoolean(addBos) : NativeHandle.LLamaVocabType == LLamaVocabType.SentencePiece;
+            return addBos;
         }
 
         #region eval overloads
@@ -458,13 +453,13 @@ namespace LLama
         public class State
             : SafeLLamaHandleBase
         {
-            private readonly ulong _size;
+            private readonly nuint _size;
             /// <summary>
             /// Get the size in bytes of this state object
             /// </summary>
-            public ulong Size => _size;
+            public nuint Size => _size;
 
-            internal State(IntPtr memory, ulong size)
+            internal State(IntPtr memory, nuint size)
                 : base(memory, true)
             {
                 _size = size;
@@ -513,7 +508,7 @@ namespace LLama
             public static async Task<State> LoadAsync(Stream stream)
             {
                 var memory = Marshal.AllocHGlobal((nint)stream.Length);
-                var state = new State(memory, checked((ulong)stream.Length));
+                var state = new State(memory, (nuint)stream.Length);
 
                 UnmanagedMemoryStream dest;
                 unsafe
@@ -533,7 +528,7 @@ namespace LLama
             public static State Load(Stream stream)
             {
                 var memory = Marshal.AllocHGlobal((nint)stream.Length);
-                var state = new State(memory, checked((ulong)stream.Length));
+                var state = new State(memory, (nuint)stream.Length);
 
                 unsafe
                 {
@@ -551,13 +546,13 @@ namespace LLama
         public class SequenceState
             : SafeLLamaHandleBase
         {
-            private readonly ulong _size;
+            private readonly nuint _size;
             /// <summary>
             /// Get the size in bytes of this state object
             /// </summary>
-            public ulong Size => _size;
+            public nuint Size => _size;
 
-            internal SequenceState(IntPtr memory, ulong size)
+            internal SequenceState(IntPtr memory, nuint size)
                 : base(memory, true)
             {
                 _size = size;
