@@ -25,20 +25,23 @@ namespace LLama.Examples.Examples
             Console.WriteLine("The executor has been enabled. In this example, the LLM will follow your instructions and always respond in a JSON format. For example, you can input \"Tell me the attributes of a good dish\"");
             Console.ForegroundColor = ConsoleColor.White;
 
-            using var grammarInstance = grammar.CreateInstance();
+            var samplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.6f
+            };
+
             var inferenceParams = new InferenceParams()
             {
-                SamplingPipeline = new DefaultSamplingPipeline
-                {
-                    Temperature = 0.6f,
-                    Grammar = grammarInstance
-                },
+                SamplingPipeline = samplingPipeline,
                 AntiPrompts = new List<string> { "Question:", "#", "Question: ", ".\n" },
                 MaxTokens = 50,
             };
 
             while (true)
             {
+                using var grammarInstance = grammar.CreateInstance();
+                samplingPipeline.Grammar = grammarInstance;
+
                 Console.Write("\nQuestion: ");
                 Console.ForegroundColor = ConsoleColor.Green;
                 var prompt = Console.ReadLine();
