@@ -132,30 +132,6 @@ namespace LLama.Native
         public static extern uint llama_n_seq_max(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Get the pooling type for this context
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern LLamaPoolingType llama_pooling_type(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Get the embeddings for the a specific sequence.
-        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
-        /// </summary>
-        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe float* llama_get_embeddings_seq(SafeLLamaContextHandle ctx, LLamaSeqId id);
-
-        /// <summary>
-        /// Get the embeddings for the ith sequence.
-        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
-        /// </summary>
-        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe float* llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i);
-
-        /// <summary>
         /// Get all output token embeddings.
         /// When pooling_type == LLAMA_POOLING_TYPE_NONE or when using a generative model, the embeddings for which
         /// llama_batch.logits[i] != 0 are stored contiguously in the order they have appeared in the batch.

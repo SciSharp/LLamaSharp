@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using LLama.Exceptions;
 
@@ -61,6 +62,11 @@ namespace LLama.Native
             get => llama_n_threads_batch(this);
             set => llama_set_n_threads(this, GenerationThreads, value);
         }
+
+        /// <summary>
+        /// Get the pooling type for this context
+        /// </summary>
+        public LLamaPoolingType PoolingType => llama_pooling_type(this);
 
         /// <summary>
         /// Get the model which this context is using
@@ -169,7 +175,7 @@ namespace LLama.Native
         private static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
 
         /// <summary>
-        /// Processes a batch of tokens with the ecoder part of the encoder-decoder model. Stores the encoder output
+        /// Processes a batch of tokens with the encoder part of the encoder-decoder model. Stores the encoder output
         /// internally for later use by the decoder cross-attention layers.
         /// </summary>
         /// <param name="ctx"></param>
@@ -365,6 +371,30 @@ namespace LLama.Native
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_lora_adapter_clear(SafeLLamaContextHandle context);
+
+        /// <summary>
+        /// Get the pooling type for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern LLamaPoolingType llama_pooling_type(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Get the embeddings for the a specific sequence.
+        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
+        /// </summary>
+        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe float* llama_get_embeddings_seq(SafeLLamaContextHandle ctx, LLamaSeqId id);
+
+        /// <summary>
+        /// Get the embeddings for the ith sequence.
+        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
+        /// </summary>
+        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe float* llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i);
         #endregion
 
         #region LoRA
@@ -410,6 +440,7 @@ namespace LLama.Native
         }
         #endregion
 
+        #region GetLogits
         /// <summary>
         /// Token logits obtained from the last call to llama_decode
         /// The logits for the last token are stored in the last row
@@ -444,6 +475,43 @@ namespace LLama.Native
                 return new Span<float>(logits, model.VocabCount);
             }
         }
+        #endregion
+
+        #region GetEmbeddings()
+        /// <summary>
+        /// Get the embeddings for the ith sequence.
+        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
+        /// </summary>
+        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
+        public Span<float> GetEmbeddingsIth(LLamaPos pos)
+        {
+            var model = ThrowIfDisposed();
+
+            unsafe
+            {
+                var embd = llama_get_embeddings_ith(this, pos.Value);
+                Debug.Assert(embd != null);
+                return new Span<float>(embd, model.EmbeddingSize);
+            }
+        }
+
+        /// <summary>
+        /// Get the embeddings for the a specific sequence.
+        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
+        /// </summary>
+        /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
+        public Span<float> GetEmbeddingsSeq(LLamaSeqId seq)
+        {
+            var model = ThrowIfDisposed();
+
+            unsafe
+            {
+                var embd = llama_get_embeddings_seq(this, seq);
+                Debug.Assert(embd != null);
+                return new Span<float>(embd, model.EmbeddingSize);
+            }
+        }
+        #endregion
 
         #region tokens
         /// <summary>
@@ -493,6 +561,22 @@ namespace LLama.Native
         {
             lock (GlobalInferenceLock)
                 llama_synchronize(this);
+        }
+
+        /// <summary>
+        /// Processes a batch of tokens with the encoder part of the encoder-decoder model. Stores the encoder output
+        /// internally for later use by the decoder cross-attention layers.
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <returns>0 = success <br />&lt; 0 = error</returns>
+        public DecodeResult Encode(LLamaBatch batch)
+        {
+            if (batch.TokenCount == 0)
+                return DecodeResult.Ok;
+
+            lock (GlobalInferenceLock)
+                using (batch.ToNativeBatch(out var nb))
+                    return (DecodeResult)llama_encode(this, nb);
         }
 
         /// <summary>

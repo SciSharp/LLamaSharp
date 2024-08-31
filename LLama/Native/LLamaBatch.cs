@@ -281,11 +281,8 @@ public class LLamaBatch
     /// Get the positions where logits can be sampled from
     /// </summary>
     /// <returns></returns>
-    internal Span<(LLamaSeqId, int)> GetLogitPositions(Span<(LLamaSeqId, int)> dest)
+    internal IReadOnlyList<(LLamaSeqId, int)> GetLogitPositions()
     {
-        for (var i = 0; i < _logitPositions.Count; i++)
-            dest[i] = _logitPositions[i];
-
-        return dest.Slice(0, _logitPositions.Count);
+        return _logitPositions;
     }
 }

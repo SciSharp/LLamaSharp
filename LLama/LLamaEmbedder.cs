@@ -1,138 +1,118 @@
-using LLama.Native;
 using System;
-using LLama.Exceptions;
-using LLama.Abstractions;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using LLama.Abstractions;
+using LLama.Exceptions;
+using LLama.Native;
+using Microsoft.Extensions.Logging;
 
-namespace LLama
+namespace LLama;
+
+/// <summary>
+/// Generate high dimensional embedding vectors from text
+/// </summary>
+public sealed class LLamaEmbedder
+    : IDisposable
 {
     /// <summary>
-    /// The embedder for LLama, which supports getting embeddings from text.
+    /// Dimension of embedding vectors
     /// </summary>
-    public sealed class LLamaEmbedder
-        : IDisposable
+    public int EmbeddingSize => Context.EmbeddingSize;
+
+    /// <summary>
+    /// LLama Context
+    /// </summary>
+    public LLamaContext Context { get; }
+
+    /// <summary>
+    /// Create a new embedder, using the given LLamaWeights
+    /// </summary>
+    /// <param name="weights"></param>
+    /// <param name="params"></param>
+    /// <param name="logger"></param>
+    public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
     {
-        /// <summary>
-        /// Dimension of embedding vectors
-        /// </summary>
-        public int EmbeddingSize => Context.EmbeddingSize;
+        if (@params.UBatchSize != @params.BatchSize)
+            throw new ArgumentException("For non-causal models, batch size must be equal to ubatch size", nameof(@params));
+        if (weights.NativeHandle is { HasEncoder: true, HasDecoder: true })
+            throw new NotSupportedException("Computing embeddings in encoder-decoder models is not supported");
 
-        /// <summary>
-        /// LLama Context
-        /// </summary>
-        public LLamaContext Context { get; }
+        Context = weights.CreateContext(@params, logger);
+        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+    }
 
-        /// <summary>
-        /// Create a new embedder, using the given LLamaWeights
-        /// </summary>
-        /// <param name="weights"></param>
-        /// <param name="params"></param>
-        /// <param name="logger"></param>
-        public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Context.Dispose();
+    }
+
+    /// <summary>
+    /// Get high dimensional embedding vectors for the given text. Depending on the pooling type used when constructing
+    /// this <see cref="LLamaEmbedder"/> this may return an embedding vector per token, or one single embedding vector for the entire string.
+    /// </summary>
+    /// <remarks>Embedding vectors are not normalized, consider using one of the extensions in <see cref="SpanNormalizationExtensions"/>.</remarks>
+    /// <param name="input"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="RuntimeError"></exception>
+    /// <exception cref="NotSupportedException"></exception>
+    public async Task<IReadOnlyList<float[]>> GetEmbeddings(string input, CancellationToken cancellationToken = default)
+    {
+        // Add all of the tokens to the batch
+        var tokens = Context.Tokenize(input);
+        var batch = new LLamaBatch();
+        for (var i = 0; i < tokens.Length; i++)
+            batch.Add(tokens[i], i, LLamaSeqId.Zero, true);
+
+        // clear previous kv_cache values
+        Context.NativeHandle.KvCacheClear();
+
+        // Check if we should cancel the work, just before doing anything expensive (encode/decode)
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Run model
+        switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
         {
-            if (!@params.Embeddings)
-                throw new ArgumentException("Embeddings must be true", nameof(@params));
-
-            Context = weights.CreateContext(@params, logger);
-        }
-
-        /// <summary>
-        /// Get the embeddings of the text.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="LLamaDecodeError"></exception>
-        public Task<float[]> GetEmbeddings(string text, CancellationToken cancellationToken = default)
-        {
-            return GetEmbeddings(text, true, cancellationToken);
-        }
-
-        /// <summary>
-        /// Get the embeddings of the text.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="addBos">Add bos to the text.</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="LLamaDecodeError"></exception>
-        public async Task<float[]> GetEmbeddings(string text, bool addBos, CancellationToken cancellationToken = default)
-        {
-            var tokens = Context.Tokenize(text, addBos);
-            if (tokens.Length > Context.ContextSize)
-                throw new ArgumentException($"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})", nameof(text));
-
-            // Evaluate prompt in batch-size chunks
-            var n_past = 0;
-            var batch = new LLamaBatch();
-            var batchSize = (int)Context.BatchSize;
-            for (var i = 0; i < tokens.Length; i += batchSize)
+            case (true, false):
             {
-                var n_eval = tokens.Length - i;
-                if (n_eval > batchSize)
-                    n_eval = batchSize;
-
-                batch.Clear();
-                batch.AddRange(tokens.AsSpan(i, n_eval), n_past, LLamaSeqId.Zero, true);
-                n_past += n_eval;
-
-                var returnCode = await Context.DecodeAsync(batch, cancellationToken);
-                if (returnCode != 0)
-                    throw new LLamaDecodeError(returnCode);
+                var result = await Context.EncodeAsync(batch, cancellationToken);
+                if (result != EncodeResult.Ok)
+                    throw new RuntimeError($"Failed to encode: {result}");
+                break;
             }
 
-            var embeddings = GetEmbeddingsArray();
-
-            // Remove everything we just evaluated from the context cache
-            Context.NativeHandle.KvCacheClear();
-
-            // Normalize the embeddings vector
-            // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
-            Normalize(embeddings);
-
-            return embeddings;
-        }
-
-        private float[] GetEmbeddingsArray()
-        {
-            unsafe
+            case (false, true):
             {
-                var embeddings = NativeApi.llama_get_embeddings(Context.NativeHandle);
-
-                if (embeddings == null)
-                    embeddings = NativeApi.llama_get_embeddings_seq(Context.NativeHandle, LLamaSeqId.Zero);
-
-                if (embeddings == null)
-                    return [ ];
-
-                return new Span<float>(embeddings, Context.EmbeddingSize).ToArray();
+                var result = await Context.DecodeAsync(batch, cancellationToken);
+                if (result != DecodeResult.Ok)
+                    throw new RuntimeError($"Failed to decode: {result}");
+                break;
             }
+
+            default:
+                throw new NotSupportedException("Unsupported model type");
         }
 
-        private static void Normalize(Span<float> embeddings)
+        // Extract results
+        var poolingType = Context.NativeHandle.PoolingType;
+        var resultsCount = poolingType == LLamaPoolingType.None ? tokens.Length : 1;
+        var results = new List<float[]>(resultsCount);
+
+        if (poolingType == LLamaPoolingType.None)
         {
-            // Calculate length
-            var lengthSqr = 0.0;
-            foreach (var value in embeddings)
-                lengthSqr += value * value;
-            var length = (float)Math.Sqrt(lengthSqr);
-
-            // Do not divide by length if it is zero
-            if (length <= float.Epsilon)
-                return;
-
-            // Normalize
-            for (var i = 0; i < embeddings.Length; i++)
-                embeddings[i] /= length;
+            var positions = batch.GetLogitPositions();
+            foreach (var (_, pos) in positions)
+                results.Add(Context.NativeHandle.GetEmbeddingsIth(pos).ToArray());
         }
-
-        /// <inheritdoc />
-        public void Dispose()
+        else
         {
-            Context.Dispose();
+            results.Add(Context.NativeHandle.GetEmbeddingsSeq(LLamaSeqId.Zero).ToArray());
         }
 
+        Context.NativeHandle.KvCacheClear();
+
+        return results;
     }
 }

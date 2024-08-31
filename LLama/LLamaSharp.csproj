@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="System.Numerics.Tensors" Version="8.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -83,11 +84,6 @@
         OverwriteReadOnlyFiles="true"
 		Include="*.dll;*.so;*.dylib;*.metal;"
 	/>
-	<WriteLinesToFile
-		File="runtimes/release_id.txt"
-		Lines="$(BinaryReleaseId)"
-		Overwrite="true"
-    />
   </Target>
     
   <Target Name="CheckReleaseBinaries">

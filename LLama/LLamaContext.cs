@@ -382,6 +382,28 @@ namespace LLama
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
+        public EncodeResult Encode(LLamaBatch batch)
+        {
+            if (batch.TokenCount == 0)
+                return 0;
+            if (batch.TokenCount > BatchSize)
+                throw new ArgumentException("Input contains more tokens than configured batch size", nameof(batch));
+
+            return (EncodeResult)NativeHandle.Encode(batch);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
+        /// <param name="cancellationToken"></param>
+        public Task<EncodeResult> EncodeAsync(LLamaBatch batch, CancellationToken cancellationToken = default)
+        {
+            return Task.Run(() => Encode(batch), cancellationToken);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="batch"></param>
         public DecodeResult Decode(LLamaBatch batch)
         {
             if (batch.TokenCount == 0)

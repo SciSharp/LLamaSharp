@@ -1,8 +1,8 @@
-﻿namespace LLama.Examples.Examples
+namespace LLama.Examples.Examples
 {
     public class QuantizeModel
     {
-        public static void Run()
+        public static async Task Run()
         {
             string inputPath = UserSettings.GetModelPath();
 

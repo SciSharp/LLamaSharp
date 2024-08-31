@@ -1,5 +1,6 @@
 using LLama;
 using LLama.Common;
+using LLama.Native;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
 
@@ -35,7 +36,8 @@ namespace LLamaSharp.KernelMemory
                 GpuLayerCount = config.GpuLayerCount ?? 20,
                 Embeddings = true,
                 MainGpu = config.MainGpu,
-                SplitMode = config.SplitMode
+                SplitMode = config.SplitMode,
+                PoolingType = LLamaPoolingType.Mean,
             };
             _weights = LLamaWeights.LoadFromFile(@params);
             _embedder = new LLamaEmbedder(_weights, @params);
@@ -59,7 +61,8 @@ namespace LLamaSharp.KernelMemory
                 GpuLayerCount = config.GpuLayerCount ?? 20,
                 Embeddings = true,
                 MainGpu = config.MainGpu,
-                SplitMode = config.SplitMode
+                SplitMode = config.SplitMode,
+                PoolingType = LLamaPoolingType.Mean,
             };
             _weights = weights;
             _embedder = new LLamaEmbedder(_weights, @params);
@@ -92,7 +95,7 @@ namespace LLamaSharp.KernelMemory
         public async Task<Embedding> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
         {
             var embeddings = await _embedder.GetEmbeddings(text, cancellationToken);
-            return new Embedding(embeddings);
+            return new Embedding(embeddings.First());
         }
 
         /// <inheritdoc/>
