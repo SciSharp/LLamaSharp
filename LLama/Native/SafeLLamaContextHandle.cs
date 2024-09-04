@@ -472,6 +472,9 @@ namespace LLama.Native
             unsafe
             {
                 var logits = llama_get_logits_ith(this, i);
+                if (logits == null)
+                    throw new GetLogitsInvalidIndexException(i);
+
                 return new Span<float>(logits, model.VocabCount);
             }
         }

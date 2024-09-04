@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using LLama.Native;
 
 namespace LLama.Exceptions;
@@ -55,5 +55,24 @@ public class LLamaDecodeError
         : base($"llama_decode failed: '{returnCode}'")
     {
         ReturnCode = returnCode;
+    }
+}
+
+/// <summary>
+/// `llama_get_logits_ith` returned null, indicating that the index was invalid
+/// </summary>
+public class GetLogitsInvalidIndexException
+    : RuntimeError
+{
+    /// <summary>
+    /// The incorrect index passed to the `llama_get_logits_ith` call
+    /// </summary>
+    public int Index { get; }
+
+    /// <inheritdoc />
+    public GetLogitsInvalidIndexException(int index)
+        : base($"llama_get_logits_ith({index}) returned null")
+    {
+        Index = index;
     }
 }
