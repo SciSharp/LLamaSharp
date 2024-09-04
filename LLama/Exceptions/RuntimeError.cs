@@ -61,7 +61,7 @@ public class LLamaDecodeError
 /// <summary>
 /// `llama_get_logits_ith` returned null, indicating that the index was invalid
 /// </summary>
-public class NoLogitsException
+public class GetLogitsInvalidIndexException
     : RuntimeError
 {
     /// <summary>
@@ -70,7 +70,7 @@ public class NoLogitsException
     public int Index { get; }
 
     /// <inheritdoc />
-    public NoLogitsException(int index)
+    public GetLogitsInvalidIndexException(int index)
         : base($"llama_get_logits_ith({index}) returned null")
     {
         Index = index;
