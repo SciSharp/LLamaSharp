@@ -238,11 +238,6 @@ jobs:
           method: 'network'
           sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
-      - name: "Configure"
-        if: runner.os == 'Windows'
-        run: |
-          echo "CMAKE_CXX_FLAGS=/Zm1000" | Out-File -FilePath $env:GITHUB_ENV -Append
-
       - uses: Jimver/cuda-toolkit@v0.2.15
         if: runner.os == 'Linux'
         id: cuda-toolkit-linux
@@ -258,7 +253,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release
           ls -R
 
       - name: Upload artifacts (Windows)
