@@ -241,7 +241,7 @@ jobs:
       - name: "Configure"
         if: runner.os == 'Windows'
         run: |
-          echo "CMAKE_CXX_FLAGS=/Zm1000" >> $GITHUB_ENV
+          echo "CMAKE_CXX_FLAGS=/Zm1000" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - uses: Jimver/cuda-toolkit@v0.2.15
         if: runner.os == 'Linux'
