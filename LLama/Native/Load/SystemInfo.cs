@@ -84,13 +84,11 @@ namespace LLama.Native
                         CreateNoWindow = true
                     }
                 };
-                var (exitCode, output, error, ok) = process.SafeRun(TimeSpan.FromSeconds(1));
+                var (exitCode, output, error, ok) = process.SafeRun(TimeSpan.FromSeconds(12));
 
-                if (!ok)
-                    return null;
-
-                // Return the output
-                return output;
+                // If ok return the output else return null 
+                return ok ? output :
+                    null;
             }
             catch
             {
