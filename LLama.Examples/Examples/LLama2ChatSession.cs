@@ -1,15 +1,17 @@
+using LLama.Abstractions;
 using LLama.Common;
 using LLama.Sampling;
 using LLama.Transformers;
+using System.Text;
 
 namespace LLama.Examples.Examples;
 
 /// <summary>
 /// This sample shows a simple chatbot
-/// It's configured to use the default prompt template as provided by llama.cpp and supports
-/// models such as llama3, phi3, qwen1.5, etc.
+/// It's configured to use custom prompt template as provided by llama.cpp and supports
+/// models such as LLama 2 and Mistral Instruct
 /// </summary>
-public class LLama3ChatSession
+public class LLama2ChatSession
 {
     public static async Task Run()
     {
@@ -29,11 +31,9 @@ public class LLama3ChatSession
 
         ChatSession session = new(executor, chatHistory);
 
-        // add the default templator. If llama.cpp doesn't support the template by default, 
-        // you'll need to write your own transformer to format the prompt correctly
-        session.WithHistoryTransform(new PromptTemplateTransformer(model, withAssistant: true)); 
+        // add custom templator 
+        session.WithHistoryTransform(new Llama2HistoryTransformer());
 
-        // Add a transformer to eliminate printing the end of turn tokens, llama 3 specifically has an odd LF that gets printed sometimes
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
             [model.Tokens.EndOfTurnToken ?? "User:", "�"],
             redundancyLength: 5));
@@ -77,6 +77,64 @@ public class LLama3ChatSession
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("User> ");
             userInput = Console.ReadLine() ?? "";
+        }
+    }
+
+    /// <summary>
+    /// Chat History transformer for Llama 2 family.
+    /// https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+    /// </summary>
+    public class Llama2HistoryTransformer : IHistoryTransform
+    {
+        public string Name => "Llama2";
+
+        /// <inheritdoc/>
+        public IHistoryTransform Clone()
+        {
+            return new Llama2HistoryTransformer();
+        }
+
+        /// <inheritdoc/>
+        public string HistoryToText(ChatHistory history)
+        {
+            //More info on template format for llama2 https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+            if (history.Messages.Count == 0)
+                return string.Empty;
+
+            var builder = new StringBuilder(64 * history.Messages.Count);
+
+            int i = 0;
+            if (history.Messages[i].AuthorRole == AuthorRole.System)
+            {
+                builder.Append($"<s>[INST] <<SYS>>\n").Append(history.Messages[0].Content.Trim()).Append("\n<</SYS>>\n");
+                i++;
+
+                if (history.Messages.Count > 1)
+                {
+                    builder.Append(history.Messages[1].Content.Trim()).Append(" [/INST]");
+                    i++;
+                }
+            }
+
+            for (; i < history.Messages.Count; i++)
+            {
+                if (history.Messages[i].AuthorRole == AuthorRole.User)
+                {
+                    builder.Append("<s>[INST] ").Append(history.Messages[i].Content.Trim()).Append(" [/INST]");
+                }
+                else
+                {
+                    builder.Append(' ').Append(history.Messages[i].Content.Trim()).Append(" </s>");
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        /// <inheritdoc/>
+        public ChatHistory TextToHistory(AuthorRole role, string text)
+        {
+            return new ChatHistory([new ChatHistory.Message(role, text)]);
         }
     }
 }

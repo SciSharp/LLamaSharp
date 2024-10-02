@@ -428,7 +428,7 @@ public class ChatSession
         if (state.IsPromptRun)
         {
             // If the session history was added as part of new chat session history,
-            // convert the complete history includsing system message and manually added history
+            // convert the complete history including system message and manually added history
             // to a prompt that adhere to the prompt template specified in the HistoryTransform class implementation.
             prompt = HistoryTransform.HistoryToText(History);
         }
