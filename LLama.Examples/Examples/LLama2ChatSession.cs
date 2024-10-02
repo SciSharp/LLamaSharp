@@ -97,7 +97,7 @@ public class LLama2ChatSession
         public string HistoryToText(ChatHistory history)
         {
             //More info on template format for llama2 https://huggingface.co/blog/llama2#how-to-prompt-llama-2
-            //We don't have to insert <BOS> token for the first message, as it's done automaticaly by LLamaSharp.InteractExecutor and LLama.cpp
+            //We don't have to insert <BOS> token for the first message, as it's done automatically by LLamaSharp.InteractExecutor and LLama.cpp
             //See more in https://github.com/ggerganov/llama.cpp/pull/7107
             if (history.Messages.Count == 0)
                 return string.Empty;
