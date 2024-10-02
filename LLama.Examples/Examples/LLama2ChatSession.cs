@@ -1,7 +1,6 @@
 using LLama.Abstractions;
 using LLama.Common;
 using LLama.Sampling;
-using LLama.Transformers;
 using System.Text;
 
 namespace LLama.Examples.Examples;
@@ -98,6 +97,8 @@ public class LLama2ChatSession
         public string HistoryToText(ChatHistory history)
         {
             //More info on template format for llama2 https://huggingface.co/blog/llama2#how-to-prompt-llama-2
+            //We don't have to insert <BOS> token for the first message, as it's done automaticaly by LLamaSharp.InteractExecutor and LLama.cpp
+            //See more in https://github.com/ggerganov/llama.cpp/pull/7107
             if (history.Messages.Count == 0)
                 return string.Empty;
 
@@ -106,7 +107,7 @@ public class LLama2ChatSession
             int i = 0;
             if (history.Messages[i].AuthorRole == AuthorRole.System)
             {
-                builder.Append($"<s>[INST] <<SYS>>\n").Append(history.Messages[0].Content.Trim()).Append("\n<</SYS>>\n");
+                builder.Append($"[INST] <<SYS>>\n").Append(history.Messages[0].Content.Trim()).Append("\n<</SYS>>\n");
                 i++;
 
                 if (history.Messages.Count > 1)
@@ -120,7 +121,7 @@ public class LLama2ChatSession
             {
                 if (history.Messages[i].AuthorRole == AuthorRole.User)
                 {
-                    builder.Append("<s>[INST] ").Append(history.Messages[i].Content.Trim()).Append(" [/INST]");
+                    builder.Append(i == 0 ? "[INST] " : "<s>[INST] ").Append(history.Messages[i].Content.Trim()).Append(" [/INST]");
                 }
                 else
                 {
