@@ -8,11 +8,21 @@ namespace LLama.Sampling;
 public class GreedySamplingPipeline
     : BaseSamplingPipeline
 {
+    /// <summary>
+    /// Grammar to apply to constrain possible tokens
+    /// </summary>
+    public Grammar? Grammar { get; init; }
+
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
     {
-        var chain = SafeLLamaSamplerHandle.CreateChain(LLamaSamplerChainParams.Default());
-        chain.Add(SafeLLamaSamplerHandle.CreateGreedySampler());
+        var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
+
+        if (Grammar != null)
+            chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
+
+        chain.AddGreedySampler();
+
         return chain;
     }
 }

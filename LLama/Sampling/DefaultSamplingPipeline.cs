@@ -106,19 +106,19 @@ public sealed class DefaultSamplingPipeline
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
     {
-        var chain = SafeLLamaSamplerHandle.CreateChain(LLamaSamplerChainParams.Default());
+        var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
 
         if (Grammar != null)
-            chain.Add(SafeLLamaSamplerHandle.CreateGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root));
+            chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
 
-        chain.Add(SafeLLamaSamplerHandle.CreateTopK(TopK));
-        chain.Add(SafeLLamaSamplerHandle.CreateTailFree(TailFreeZ, MinKeep));
-        chain.Add(SafeLLamaSamplerHandle.CreateTypical(TypicalP, MinKeep));
-        chain.Add(SafeLLamaSamplerHandle.CreateTopP(TopP, MinKeep));
-        chain.Add(SafeLLamaSamplerHandle.CreateMinP(MinP, MinKeep));
-        chain.Add(SafeLLamaSamplerHandle.CreateTemperature(Temperature));
+        chain.AddTopK(TopK);
+        chain.AddTailFree(TailFreeZ, MinKeep);
+        chain.AddTypical(TypicalP, MinKeep);
+        chain.AddTopP(TopP, MinKeep);
+        chain.AddMinP(MinP, MinKeep);
+        chain.AddTemperature(Temperature);
 
-        chain.Add(SafeLLamaSamplerHandle.CreateDistributionSampler(0));
+        chain.AddDistributionSampler(0);
 
         return chain;
     }

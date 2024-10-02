@@ -1,3 +1,4 @@
+using System;
 using LLama.Native;
 
 namespace LLama.Sampling;
@@ -26,6 +27,8 @@ public abstract class BaseSamplingPipeline
     {
         _chain?.Dispose();
         _chain = null;
+
+        GC.SuppressFinalize(this);
     }
 
     /// <inheritdoc />

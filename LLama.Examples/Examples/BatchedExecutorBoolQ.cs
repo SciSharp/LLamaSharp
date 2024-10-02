@@ -155,7 +155,7 @@ public class BatchedExecutorBoolQ
         {
             _executor = executor;
             _decoder = new StreamingTokenDecoder(executor.Context);
-            _sampler = new GreedySamplingWithGrammarPipeline { Grammar = AnswerGrammar };
+            _sampler = new GreedySamplingPipeline { Grammar = AnswerGrammar };
 
             // Make sure question ends with question mark
             if (!question.EndsWith('?'))
@@ -242,23 +242,6 @@ public class BatchedExecutorBoolQ
         {
             _conversation.Dispose();
             _sampler.Dispose();
-        }
-    }
-
-    /// <summary>
-    /// A sampling pipeline which always selects the most likely token (after applying a grammar)
-    /// </summary>
-    public class GreedySamplingWithGrammarPipeline
-        : BaseSamplingPipeline
-    {
-        public required Grammar Grammar { get; init; }
-
-        protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
-        {
-            var chain = SafeLLamaSamplerHandle.CreateChain(LLamaSamplerChainParams.Default());
-            chain.Add(SafeLLamaSamplerHandle.CreateGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root));
-            chain.Add(SafeLLamaSamplerHandle.CreateGreedySampler());
-            return chain;
         }
     }
 }

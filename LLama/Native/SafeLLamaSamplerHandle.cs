@@ -1,17 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace LLama.Native;
 
 /// <summary>
-/// A chain of samplers
+/// A chain of sampler stages that can be used to select tokens from logits.
 /// </summary>
 public class SafeLLamaSamplerChainHandle
-    : SafeLLamaSamplerHandle
+    : SafeLLamaHandleBase
 {
-    private readonly List<SafeLLamaSamplerHandle> _samplers = [ ];
-
     /// <summary>
     /// Get the number of samplers in this chain
     /// </summary>
@@ -22,182 +18,133 @@ public class SafeLLamaSamplerChainHandle
             return llama_sampler_chain_n(this);
 
             [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-            static extern int llama_sampler_chain_n(SafeLLamaSamplerHandle chain);
-        }
-    }
-
-    /// <summary>
-    /// Add a new sampler to the end of this chain
-    /// </summary>
-    /// <param name="sampler"></param>
-    public void Add(SafeLLamaSamplerHandle sampler)
-    {
-        // Sanity check that the sampler isn't already in this chain
-        lock (_samplers)
-            if (_samplers.Contains(sampler))
-                throw new ArgumentException("Cannot add a sampler to a chain twice");
-
-        // Add the sampler to the chain
-        llama_sampler_chain_add(this, sampler);
-
-        // The chain now owns this sampler resource. Add to the reference counter so it cannot be disposed
-        var success = false;
-        sampler.DangerousAddRef(ref success);
-        Debug.Assert(success);
-
-        // Store a reference to the handle so we can retrieve it later
-        lock (_samplers)
-        {
-            _samplers.Add(sampler);
-        }
-
-        // important: this takes ownership of the sampler object and will free it when llama_sampler_free is called on the chain
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern void llama_sampler_chain_add(SafeLLamaSamplerHandle chain, SafeLLamaSamplerHandle smpl);
-    }
-
-    /// <summary>
-    /// Remove a sampler at the given index in this chain. The sampler will be disposed.
-    /// </summary>
-    /// <param name="index"></param>
-    public void RemoveAt(int index)
-    {
-        RemoveAtAndReturn(index).Dispose();
-    }
-
-    /// <summary>
-    /// Remove a sampler at the given index in this chain and return it. You must dispose the returned handle when you are done with it!
-    /// </summary>
-    /// <param name="index"></param>
-    public SafeLLamaSamplerHandle RemoveAtAndReturn(int index)
-    {
-        if (index < 0 || index >= Count)
-            throw new IndexOutOfRangeException("Index must be > 0 and <= Count");
-
-        // Remove the sampler from the chain, returning the pointer to this handle
-        var ptr = llama_sampler_chain_remove(this, index);
-
-        // Get the handle at that index and return it
-        lock (_samplers)
-        {
-            var sampler = _samplers[index];
-            _samplers.RemoveAt(index);
-            Debug.Assert(ptr == sampler.DangerousGetHandle());
-            return sampler;
-        }
-
-        // This is a tricky method to work with!
-        // It can't return a handle, because that would create a second handle to these resources!
-        // Instead it returns the raw pointer, and that can be looked up in the _samplers dictionary.
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_chain_remove(SafeLLamaSamplerHandle chain, int i);
-    }
-
-    /// <summary>
-    /// Return the sampler at the given index.
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    public SafeLLamaSamplerHandle Get(int index)
-    {
-        if (index < 0 || index >= Count)
-            throw new IndexOutOfRangeException("Index must be > 0 and <= Count");
-
-        // Get the pointer
-        var ptr = llama_sampler_chain_get(this, index);
-
-        // Find the handle (by looking up it's pointer) and return it.
-        lock (_samplers)
-        {
-            var sampler = _samplers[index];
-            Debug.Assert(ptr == sampler.DangerousGetHandle());
-            return sampler;
+            static extern int llama_sampler_chain_n(SafeLLamaSamplerChainHandle chain);
         }
     }
 
     /// <inheritdoc />
     protected override bool ReleaseHandle()
     {
-        // Disposing the chain automatically disposes all sampler stages. Mark all of them as invalid.
-        lock (_samplers)
-        {
-            foreach (var item in _samplers)
-                item.SetHandleAsInvalid();
-            _samplers.Clear();
-        }
-
-        return base.ReleaseHandle();
+        if (handle != IntPtr.Zero)
+            llama_sampler_free(handle);
+        return true;
     }
-
-    /// <inheritdoc />
-    public override SafeLLamaSamplerHandle Clone()
-    {
-        // Create a new handle to own the clone
-        var chain = new SafeLLamaSamplerChainHandle();
-
-        // Clone the chain and move ownership across to the handle created above
-        var invalidHandle = base.Clone();
-        chain.SetHandle(invalidHandle.DangerousGetHandle());
-        invalidHandle.SetHandleAsInvalid();
-        
-        // We've got a handle of the right type, but we still need to copy all the other bits. Cloning the chain created a load
-        // of new resources which we don't have any reference to!
-        for (var i = 0; i < Count; i++)
-        {
-            // Create a handle for this resource
-            var sampler = new SafeLLamaSamplerHandle(llama_sampler_chain_get(this, i));
-            chain._samplers.Add(sampler);
-
-            // Bump the reference count, to account for the fact this sampler is owned by the chain
-            var success = false;
-            sampler.DangerousAddRef(ref success);
-        }
-
-        return chain;
-    }
-
-    #region Native API
-    // This is a tricky method to work with!
-    // It can't return a handle, because that would create a second handle to these resources.
-    // Instead It returns the raw pointer, and that can be looked up in the _samplers dictionary.
-    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern IntPtr llama_sampler_chain_get(SafeLLamaSamplerChainHandle chain, int i);
-    #endregion
-}
-
-/// <summary>
-/// A sampler modifies logits and may select tokens
-/// </summary>
-/// <remarks>llama_sampler</remarks>
-public class SafeLLamaSamplerHandle
-    : SafeLLamaHandleBase
-{
-    /// <summary>
-    /// Get the name of this sampler
-    /// </summary>
-    public string Name => llama_sampler_name(this);
 
     /// <summary>
-    /// Returns the seed used by the sampler if applicable, LLAMA_DEFAULT_SEED otherwise
+    /// Apply this sampler to a set of candidates
     /// </summary>
-    public uint Seed => llama_sampler_get_seed(this);
-
-    internal SafeLLamaSamplerHandle(IntPtr ptr)
-        : base(ptr, true)
+    /// <param name="candidates"></param>
+    public void Apply(ref LLamaTokenDataArrayNative candidates)
     {
+        llama_sampler_apply(this, ref candidates);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern void llama_sampler_apply(SafeLLamaSamplerChainHandle smpl, ref LLamaTokenDataArrayNative cur_p);
     }
 
-    internal SafeLLamaSamplerHandle()
+    /// <summary>
+    /// Sample and accept a token from the idx-th output of the last evaluation. Shorthand for:
+    ///
+    /// <code>
+    ///    var logits = ctx.GetLogitsIth(idx);
+    ///    var token_data_array = LLamaTokenDataArray.Create(logits);
+    ///    using LLamaTokenDataArrayNative.Create(token_data_array, out var native_token_data);
+    ///    sampler_chain.Apply(native_token_data);
+    ///    var token = native_token_data.Data.Span[native_token_data.Selected];
+    ///    sampler_chain.Accept(token);
+    ///    return token;
+    /// </code>
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="index"></param>
+    public LLamaToken Sample(SafeLLamaContextHandle context, int index)
     {
+        return llama_sampler_sample(this, context, index);
+
+        // <summary>
+        // Sample and accept a token from the idx-th output of the last evaluation
+        //
+        // Shorthand for:
+        // <code>
+        //    const auto * logits = llama_get_logits_ith(ctx, idx);
+        //    llama_token_data_array cur_p = { ... init from logits ... };
+        //    llama_sampler_apply(smpl, cur_p);
+        //    auto token = cur_p.data[cur_p.selected].id;
+        //    llama_sampler_accept(smpl, token);
+        //    return token;
+        // </code>
+        // </summary>
+        // <param name="smpl"></param>
+        // <param name="ctx"></param>
+        // <param name="idx"></param>
+        // <returns>The sampled token</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern LLamaToken llama_sampler_sample(SafeLLamaSamplerChainHandle smpl, SafeLLamaContextHandle ctx, int idx);
     }
 
-    #region create samplers
+    /// <summary>
+    /// Reset the state of this sampler
+    /// </summary>
+    public void Reset()
+    {
+        llama_sampler_reset(this);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern void llama_sampler_reset(SafeLLamaSamplerChainHandle smpl);
+    }
+
+    /// <summary>
+    /// Accept a token and update the internal state of this sampler
+    /// </summary>
+    /// <param name="token"></param>
+    public void Accept(LLamaToken token)
+    {
+        llama_sampler_accept(this, token);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern void llama_sampler_accept(SafeLLamaSamplerChainHandle smpl, LLamaToken token);
+    }
+
+    /// <summary>
+    /// Get the name of the sampler at the given index
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public string GetName(int index)
+    {
+        if (index < 0 || index >= Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+
+        return llama_sampler_name(llama_sampler_chain_get(this, index));
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern string llama_sampler_name(IntPtr smpl);
+    }
+
+    /// <summary>
+    /// Get the seed of the sampler at the given index if applicable. returns LLAMA_DEFAULT_SEED otherwise
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public uint GetSeed(int index)
+    {
+        if (index < 0 || index >= Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+
+        return llama_sampler_get_seed(llama_sampler_chain_get(this, index));
+
+        // Returns the seed used by the sampler if applicable, LLAMA_DEFAULT_SEED otherwise
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern uint llama_sampler_get_seed(IntPtr smpl);
+    }
+
+    #region add/remove samplers
     /// <summary>
     /// Create a new sampler chain
     /// </summary>
     /// <param name="params"></param>
     /// <returns></returns>
-    public static SafeLLamaSamplerChainHandle CreateChain(LLamaSamplerChainParams @params)
+    public static SafeLLamaSamplerChainHandle Create(LLamaSamplerChainParams @params)
     {
         return llama_sampler_chain_init(@params);
 
@@ -207,27 +154,65 @@ public class SafeLLamaSamplerHandle
 
 
     /// <summary>
-    /// Create a sampler which picks the most likely token
+    /// Clone a sampler stage from another chain and add it to this chain
     /// </summary>
-    /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateGreedySampler()
+    /// <param name="src">The chain to clone a stage from</param>
+    /// <param name="index">The index of the stage to clone</param>
+    public void AddClone(SafeLLamaSamplerChainHandle src, int index)
     {
-        return llama_sampler_init_greedy();
+        if (index < 0 || index >= Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+
+        llama_sampler_chain_add(
+            this,
+            llama_sampler_clone(
+                llama_sampler_chain_get(src, index)
+            )
+        );
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_greedy();
+        static extern IntPtr llama_sampler_clone(IntPtr chain);
     }
 
     /// <summary>
-    /// Create a sampler which picks from the probability distribution of all tokens
+    /// Remove a sampler stage from this chain
     /// </summary>
-    /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateDistributionSampler(uint seed)
+    /// <param name="index"></param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public void Remove(int index)
     {
-        return llama_sampler_init_dist(seed);
+        if (index < 0 || index >= Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+
+        llama_sampler_free(llama_sampler_chain_remove(this, index));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_dist(uint seed);
+        static extern IntPtr llama_sampler_chain_remove(SafeLLamaSamplerChainHandle chain, int i);
+    }
+
+
+    /// <summary>
+    /// Add a sampler which picks the most likely token.
+    /// </summary>
+    /// <returns></returns>
+    public void AddGreedySampler()
+    {
+        llama_sampler_chain_add(this, llama_sampler_init_greedy());
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr llama_sampler_init_greedy();
+    }
+
+    /// <summary>
+    /// Add a sampler which picks from the probability distribution of all tokens
+    /// </summary>
+    /// <returns></returns>
+    public void AddDistributionSampler(uint seed)
+    {
+        llama_sampler_chain_add(this, llama_sampler_init_dist(seed));
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr llama_sampler_init_dist(uint seed);
     }
 
     /// <summary>
@@ -239,12 +224,12 @@ public class SafeLLamaSamplerHandle
     /// <param name="m">The number of tokens considered in the estimation of `s_hat`. This is an arbitrary value that is used to calculate `s_hat`, which in turn helps to calculate the value of `k`. In the paper, they use `m = 100`, but you can experiment with different values to see how it affects the performance of the algorithm.</param>
     /// <param name="vocabCount"></param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateMirostat1Sampler(int vocabCount, uint seed, float tau, float eta, int m)
+    public void AddMirostat1Sampler(int vocabCount, uint seed, float tau, float eta, int m)
     {
-        return llama_sampler_init_mirostat(vocabCount, seed, tau, eta, m);
+        llama_sampler_chain_add(this, llama_sampler_init_mirostat(vocabCount, seed, tau, eta, m));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_mirostat(int nVocab, uint seed, float tau, float eta, int m);
+        static extern IntPtr llama_sampler_init_mirostat(int nVocab, uint seed, float tau, float eta, int m);
     }
 
     /// <summary>
@@ -254,12 +239,12 @@ public class SafeLLamaSamplerHandle
     /// <param name="tau">The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</param>
     /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateMirostat2Sampler(uint seed, float tau, float eta)
+    public void AddMirostat2Sampler(uint seed, float tau, float eta)
     {
-        return llama_sampler_init_mirostat_v2(seed, tau, eta);
+        llama_sampler_chain_add(this, llama_sampler_init_mirostat_v2(seed, tau, eta));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_mirostat_v2(uint seed, float tau, float eta);
+        static extern IntPtr llama_sampler_init_mirostat_v2(uint seed, float tau, float eta);
     }
 
 
@@ -267,37 +252,37 @@ public class SafeLLamaSamplerHandle
     /// Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
     /// </summary>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateSoftmax()
+    public void AddSoftmax()
     {
-        return llama_sampler_init_softmax();
+        llama_sampler_chain_add(this, llama_sampler_init_softmax());
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_softmax();
+        static extern IntPtr llama_sampler_init_softmax();
     }
 
     /// <summary>
     /// Top-K sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
     /// </summary>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateTopK(int k)
+    public void AddTopK(int k)
     {
-        return llama_sampler_init_top_k(k);
+        llama_sampler_chain_add(this, llama_sampler_init_top_k(k));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_top_k(int k);
+        static extern IntPtr llama_sampler_init_top_k(int k);
     }
 
     /// <summary>
     /// Nucleus sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
     /// </summary>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateTopP(float p, nint minKeep)
+    public void AddTopP(float p, nint minKeep)
     {
-        return llama_sampler_init_top_p(p, minKeep);
+        llama_sampler_chain_add(this, llama_sampler_init_top_p(p, minKeep));
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_top_p(float p, nint min_keep);
+        static extern IntPtr llama_sampler_init_top_p(float p, nint min_keep);
         // ReSharper restore InconsistentNaming
     }
 
@@ -305,13 +290,13 @@ public class SafeLLamaSamplerHandle
     /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
     /// </summary>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateMinP(float p, nint minKeep)
+    public void AddMinP(float p, nint minKeep)
     {
-        return llama_sampler_init_min_p(p, minKeep);
+        llama_sampler_chain_add(this, llama_sampler_init_min_p(p, minKeep));
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_min_p(float p, nint min_keep);
+        static extern IntPtr llama_sampler_init_min_p(float p, nint min_keep);
         // ReSharper restore InconsistentNaming
     }
 
@@ -319,13 +304,13 @@ public class SafeLLamaSamplerHandle
     /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
     /// </summary>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateTailFree(float z, nint minKeep)
+    public void AddTailFree(float z, nint minKeep)
     {
-        return llama_sampler_init_tail_free(z, minKeep);
+        llama_sampler_chain_add(this, llama_sampler_init_tail_free(z, minKeep));
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_tail_free(float p, nint min_keep);
+        static extern IntPtr llama_sampler_init_tail_free(float p, nint min_keep);
         // ReSharper restore InconsistentNaming
     }
 
@@ -333,13 +318,13 @@ public class SafeLLamaSamplerHandle
     /// Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.
     /// </summary>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateTypical(float p, nint minKeep)
+    public void AddTypical(float p, nint minKeep)
     {
-        return llama_sampler_init_typical(p, minKeep);
+        llama_sampler_chain_add(this, llama_sampler_init_typical(p, minKeep));
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_typical(float p, nint min_keep);
+        static extern IntPtr llama_sampler_init_typical(float p, nint min_keep);
         // ReSharper restore InconsistentNaming
     }
 
@@ -348,12 +333,12 @@ public class SafeLLamaSamplerHandle
     /// </summary>
     /// <param name="t"></param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateTemperature(float t)
+    public void AddTemperature(float t)
     {
-        return llama_sampler_init_temp(t);
+        llama_sampler_chain_add(this, llama_sampler_init_temp(t));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_temp(float t);
+        static extern IntPtr llama_sampler_init_temp(float t);
     }
 
     /// <summary>
@@ -363,12 +348,12 @@ public class SafeLLamaSamplerHandle
     /// <param name="delta"></param>
     /// <param name="exponent"></param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateDynamicTemperature(float t, float delta, float exponent)
+    public void AddDynamicTemperature(float t, float delta, float exponent)
     {
-        return llama_sampler_init_temp_ext(t, delta, exponent);
+        llama_sampler_chain_add(this, llama_sampler_init_temp_ext(t, delta, exponent));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_temp_ext(float t, float delta, float exponent);
+        static extern IntPtr llama_sampler_init_temp_ext(float t, float delta, float exponent);
     }
 
     /// <summary>
@@ -378,13 +363,13 @@ public class SafeLLamaSamplerHandle
     /// <param name="grammar"></param>
     /// <param name="root">Root rule of the grammar</param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateGrammar(SafeLlamaModelHandle model, string grammar, string root)
+    public void AddGrammar(SafeLlamaModelHandle model, string grammar, string root)
     {
-        return llama_sampler_init_grammar(model, grammar, root);
+        llama_sampler_chain_add(this, llama_sampler_init_grammar(model, grammar, root));
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_grammar(SafeLlamaModelHandle model, string grammar_str, string grammar_root);
+        static extern IntPtr llama_sampler_init_grammar(SafeLlamaModelHandle model, string grammar_str, string grammar_root);
         // ReSharper restore InconsistentNaming
     }
 
@@ -401,15 +386,15 @@ public class SafeLLamaSamplerHandle
     /// <param name="penalizeNewline">Whether or not to penalize the newline token</param>
     /// <param name="ignoreEOS">Whether ot not to ignore EOS token</param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreatePenalties(
+    public void AddPenalties(
         int vocabSize, LLamaToken? eos, LLamaToken newline, int penaltyCount, float repeat, float freq, float presence, bool penalizeNewline, bool ignoreEOS
     )
     {
-        return llama_sampler_init_penalties(vocabSize, eos ?? LLamaToken.InvalidToken, newline, penaltyCount, repeat, freq, presence, penalizeNewline, ignoreEOS);
+        llama_sampler_chain_add(this, llama_sampler_init_penalties(vocabSize, eos ?? LLamaToken.InvalidToken, newline, penaltyCount, repeat, freq, presence, penalizeNewline, ignoreEOS));
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_init_penalties(
+        static extern IntPtr llama_sampler_init_penalties(
             int n_vocab,         // llama_n_vocab()
             LLamaToken special_eos_id,  // llama_token_eos()
             LLamaToken linefeed_id,     // llama_token_nl()
@@ -429,20 +414,20 @@ public class SafeLLamaSamplerHandle
     /// <param name="vocabSize"></param>
     /// <param name="biases"></param>
     /// <returns></returns>
-    public static SafeLLamaSamplerHandle CreateLogitBias(int vocabSize, Span<LLamaLogitBias> biases)
+    public void AddLogitBias(int vocabSize, Span<LLamaLogitBias> biases)
     {
         unsafe
         {
             fixed (LLamaLogitBias* biasPtr = biases)
             {
-                return llama_sampler_init_logit_bias(vocabSize, biases.Length, biasPtr);
+                llama_sampler_chain_add(this, llama_sampler_init_logit_bias(vocabSize, biases.Length, biasPtr));
             }
         }
 
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern unsafe SafeLLamaSamplerHandle llama_sampler_init_logit_bias(
+        static extern unsafe IntPtr llama_sampler_init_logit_bias(
             int n_vocab,
             int n_logit_bias,
             LLamaLogitBias* logit_bias);
@@ -450,106 +435,20 @@ public class SafeLLamaSamplerHandle
     }
     #endregion
 
-    /// <inheritdoc />
-    protected override bool ReleaseHandle()
-    {
-        if (handle != IntPtr.Zero)
-            llama_sampler_free(handle);
-        return true;
-    }
-
-    /// <summary>
-    /// Create a clone of this sampler
-    /// </summary>
-    /// <returns></returns>
-    public virtual SafeLLamaSamplerHandle Clone()
-    {
-        return llama_sampler_clone(this);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern SafeLLamaSamplerHandle llama_sampler_clone(SafeLLamaSamplerHandle chain);
-    }
-
-    /// <summary>
-    /// Apply this sampler to a set of candidates
-    /// </summary>
-    /// <param name="candidates"></param>
-    public void Apply(ref LLamaTokenDataArrayNative candidates)
-    {
-        llama_sampler_apply(this, ref candidates);
-    }
-
-    /// <summary>
-    /// Sample and accept a token from the idx-th output of the last evaluation
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="index"></param>
-    public LLamaToken Sample(SafeLLamaContextHandle context, int index)
-    {
-        return llama_sampler_sample(this, context, index);
-    }
-
-    /// <summary>
-    /// Reset the state of this sampler
-    /// </summary>
-    public void Reset()
-    {
-        llama_sampler_reset(this);
-    }
-
-    /// <summary>
-    /// Accept a token and update the internal state of this sampler
-    /// </summary>
-    /// <param name="token"></param>
-    public void Accept(LLamaToken token)
-    {
-        llama_sampler_accept(this, token);
-    }
-
     #region Native API
     // ReSharper disable InconsistentNaming
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     private static extern void llama_sampler_free(IntPtr model);
 
+    // important: this takes ownership of the sampler object and will free it when llama_sampler_free is called on the chain
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern string llama_sampler_name(SafeLLamaSamplerHandle smpl);
+    private static extern void llama_sampler_chain_add(SafeLLamaSamplerChainHandle chain, IntPtr smpl);
 
+    // This is a tricky method to work with!
+    // It can't return a handle, because that would create a second handle to these resources.
+    // Instead It returns the raw pointer, and that can be looked up in the _samplers dictionary.
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern void llama_sampler_accept(SafeLLamaSamplerHandle smpl, LLamaToken token);
-
-    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern void llama_sampler_apply(SafeLLamaSamplerHandle smpl, ref LLamaTokenDataArrayNative cur_p);
-
-    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern void llama_sampler_reset(SafeLLamaSamplerHandle smpl);
-
-    /// <summary>
-    /// Returns the seed used by the sampler if applicable, LLAMA_DEFAULT_SEED otherwise
-    /// </summary>
-    /// <param name="smpl"></param>
-    /// <returns></returns>
-    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern uint llama_sampler_get_seed(SafeLLamaSamplerHandle smpl);
-
-    /// <summary>
-    /// Sample and accept a token from the idx-th output of the last evaluation
-    ///
-    /// Shorthand for:
-    /// <code>
-    ///    const auto * logits = llama_get_logits_ith(ctx, idx);
-    ///    llama_token_data_array cur_p = { ... init from logits ... };
-    ///    llama_sampler_apply(smpl, cur_p);
-    ///    auto token = cur_p.data[cur_p.selected].id;
-    ///    llama_sampler_accept(smpl, token);
-    ///    return token;
-    /// </code>
-    /// </summary>
-    /// <param name="smpl"></param>
-    /// <param name="ctx"></param>
-    /// <param name="idx"></param>
-    /// <returns>The sampled token</returns>
-    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern LLamaToken llama_sampler_sample(SafeLLamaSamplerHandle smpl, SafeLLamaContextHandle ctx, int idx);
+    private static extern IntPtr llama_sampler_chain_get(SafeLLamaSamplerChainHandle chain, int i);
     // ReSharper restore InconsistentNaming
     #endregion
 }
