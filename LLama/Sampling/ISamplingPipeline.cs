@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using LLama.Native;
 
 namespace LLama.Sampling;
@@ -11,20 +10,12 @@ public interface ISamplingPipeline
     : IDisposable
 {
     /// <summary>
-    /// Sample a single token from the given logits
+    /// Sample a single token from the given context at the given position
     /// </summary>
     /// <param name="ctx">The context being sampled from</param>
-    /// <param name="logits">The logits produced by the model</param>
-    /// <param name="lastTokens">A span of tokens recently returned by the model</param>
+    /// <param name="index">Position to sample logits from</param>
     /// <returns></returns>
-    LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
-
-    /// <summary>
-    /// Update the pipeline, with knowledge that a particular token was just accepted
-    /// </summary>
-    /// <param name="ctx"></param>
-    /// <param name="token"></param>
-    void Accept(SafeLLamaContextHandle ctx, LLamaToken token);
+    LLamaToken Sample(SafeLLamaContextHandle ctx, int index);
 
     /// <summary>
     /// Reset all internal state of the sampling pipeline
@@ -32,41 +23,26 @@ public interface ISamplingPipeline
     void Reset();
 
     /// <summary>
-    /// Create a copy of this sampling pipeline
+    /// Update the pipeline, with knowledge that a particular token was just accepted
     /// </summary>
-    /// <returns></returns>
-    ISamplingPipeline Clone();
+    /// <param name="token"></param>
+    void Accept(LLamaToken token);
 }
 
 /// <summary>
-/// Extensions methods for ISamplingPipeline
+/// Extension methods for <see cref="ISamplingPipeline"/>
 /// </summary>
 public static class ISamplingPipelineExtensions
 {
     /// <summary>
-    /// Sample a single token from the given logits
+    /// Sample a single token from the given context at the given position
     /// </summary>
-    /// <param name="pipeline"></param>
+    /// <param name="pipe"></param>
     /// <param name="ctx">The context being sampled from</param>
-    /// <param name="logits">The logits produced by the model</param>
-    /// <param name="lastTokens">A list of tokens recently returned by the model</param>
+    /// <param name="index">Position to sample logits from</param>
     /// <returns></returns>
-    public static LLamaToken Sample(this ISamplingPipeline pipeline, SafeLLamaContextHandle ctx, Span<float> logits, List<LLamaToken> lastTokens)
+    public static LLamaToken Sample(this ISamplingPipeline pipe, LLamaContext ctx, int index)
     {
-#if NET5_0_OR_GREATER
-        var span = CollectionsMarshal.AsSpan(lastTokens);
-        return pipeline.Sample(ctx, logits, span);
-#else
-        var copy = ArrayPool<LLamaToken>.Shared.Rent(lastTokens.Count);
-        try
-        {
-            lastTokens.CopyTo(copy);
-            return pipeline.Sample(ctx, logits, copy.AsSpan(0, copy.Length));
-        }
-        finally
-        {
-            ArrayPool<LLamaToken>.Shared.Return(copy);
-        }
-#endif
+        return pipe.Sample(ctx.NativeHandle, index);
     }
 }

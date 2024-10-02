@@ -91,10 +91,6 @@ namespace LLama.Common
         public bool PenalizeNL { get; set; } = true;
 
         /// <inheritdoc />
-        [Obsolete("Use the SamplingPipeline property instead with a configured pipeline e.g. DefaultSamplingPipeline")]
-        public SafeLLamaGrammarHandle? Grammar { get; set; }
-
-        /// <inheritdoc />
         public ISamplingPipeline? SamplingPipeline { get; set; }
     }
 

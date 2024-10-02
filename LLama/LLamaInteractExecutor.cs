@@ -297,8 +297,6 @@ namespace LLama
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
-                var repeat_last_n = inferenceParams.RepeatLastTokensCount < 0 ? (int)Context.ContextSize : inferenceParams.RepeatLastTokensCount;
-
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {
@@ -306,16 +304,9 @@ namespace LLama
                     SaveSessionFile(_pathSession);
                 }
 
-                // use the explicitly supplied pipeline, if there is one. Otherwise construct a suitable one.
-                var pipeline = inferenceParams.SamplingPipeline;
-                if (pipeline != null)
-                    _pipeline = null;
-                else
-                    pipeline = inferenceParams.Create(ref _pipeline);
 
                 // Sample with the pipeline
-                var id = pipeline.Sample(Context.NativeHandle, Context.NativeHandle.GetLogitsIth(batch.TokenCount - 1), _last_n_tokens.AsSpan(repeat_last_n));
-                pipeline.Accept(Context.NativeHandle, id);
+                var id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, batch.TokenCount - 1);
 
                 _last_n_tokens.Enqueue(id);
 

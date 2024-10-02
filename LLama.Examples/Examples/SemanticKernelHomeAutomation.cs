@@ -1,4 +1,3 @@
-using DocumentFormat.OpenXml.Wordprocessing;
 using LLama.Common;
 using LLamaSharp.SemanticKernel;
 using LLamaSharp.SemanticKernel.ChatCompletion;

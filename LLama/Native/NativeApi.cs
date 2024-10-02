@@ -422,5 +422,16 @@ namespace LLama.Native
         /// <param name="adapter"></param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_lora_adapter_free(IntPtr adapter);
+
+        //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        //todo: public static void llama_attach_threadpool(SafeLLamaContextHandle ctx, ggml_threadpool_t threadpool, ggml_threadpool_t threadpool_batch);
+
+        //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        //todo: public static void llama_detach_threadpool(SafeLLamaContextHandle ctx);
+
+        // SafeLLamaContextHandle already holds a back reference to the model, so this is never needed. Implementing it would be dangerous because
+        // it would expose the raw pointer to the model, without properly wrapping it in a SafeLLamaModelHandle.
+        //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        //public static void llama_model* llama_get_model(SafeLLamaContextHandle ctx);
     }
 }

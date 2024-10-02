@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using System.Text.Json;
 using LLama.Abstractions;
 
@@ -18,7 +18,6 @@ namespace LLama.Unittest
             {
                 BatchSize = 17,
                 ContextSize = 42,
-                Seed = 42,
                 GpuLayerCount = 111,
                 TensorSplits = { [0] = 3 },
                 MetadataOverrides =

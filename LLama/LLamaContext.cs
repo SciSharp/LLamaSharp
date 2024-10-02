@@ -54,7 +54,7 @@ namespace LLama
         /// <summary>
         /// Get or set the number of threads to use for generation
         /// </summary>
-        public uint GenerationThreads
+        public int GenerationThreads
         {
             get => NativeHandle.GenerationThreads;
             set => NativeHandle.GenerationThreads = value;
@@ -63,7 +63,7 @@ namespace LLama
         /// <summary>
         /// Get or set the number of threads to use for batch processing
         /// </summary>
-        public uint BatchThreads
+        public int BatchThreads
         {
             get => NativeHandle.BatchThreads;
             set => NativeHandle.BatchThreads = value;

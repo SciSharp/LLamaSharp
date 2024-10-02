@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -59,6 +58,11 @@ namespace LLama.Native
         /// Get the number of layers in this model
         /// </summary>
         public int LayerCount => llama_n_layers(this);
+
+        /// <summary>
+        /// Get the number of heads in this model
+        /// </summary>
+        public int HeadCount => llama_n_heads(this);
 
         /// <summary>
         /// Returns true if the model contains an encoder that requires llama_encode() call
@@ -296,6 +300,14 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_n_layers(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Get the number of heads in this model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_n_heads(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get a string describing the model type

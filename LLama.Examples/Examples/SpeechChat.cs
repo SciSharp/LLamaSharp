@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using NAudio.Wave;
 using Whisper.net;
 
@@ -50,7 +50,10 @@ NOTE: You may need to poke around with the voice detection threshold, based on y
 
             public LlamaSession_SpeechListener(SpeechRecognitionServer server)
             {
-                var parameters = new ModelParams(UserSettings.GetModelPath()) { Seed = 1337, GpuLayerCount = 99 };
+                var parameters = new ModelParams(UserSettings.GetModelPath())
+                {
+                    GpuLayerCount = 99
+                };
                 model = LLamaWeights.LoadFromFile(parameters);
                 context = model.CreateContext(parameters);
                 executor = new InteractiveExecutor(context);

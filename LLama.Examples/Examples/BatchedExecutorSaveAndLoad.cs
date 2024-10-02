@@ -1,4 +1,4 @@
-﻿using LLama.Batched;
+using LLama.Batched;
 using LLama.Common;
 using LLama.Native;
 using LLama.Sampling;
@@ -94,7 +94,7 @@ public class BatchedExecutorSaveAndLoad
             await executor.Infer();
 
             // Use sampling pipeline to pick a token
-            token = sampler.Sample(executor.Context.NativeHandle, conversation.Sample(), ReadOnlySpan<LLamaToken>.Empty);
+            token = sampler.Sample(executor.Context.NativeHandle, conversation.GetSampleIndex());
 
             // Add it to the decoder, so it can be converted into text later
             decoder.Add(token);

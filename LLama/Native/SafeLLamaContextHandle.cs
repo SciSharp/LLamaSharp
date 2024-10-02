@@ -48,7 +48,7 @@ namespace LLama.Native
         /// <summary>
         /// Get or set the number of threads used for generation of a single token.
         /// </summary>
-        public uint GenerationThreads
+        public int GenerationThreads
         {
             get => llama_n_threads(this);
             set => llama_set_n_threads(this, value, BatchThreads);
@@ -57,7 +57,7 @@ namespace LLama.Native
         /// <summary>
         /// Get or set the number of threads used for prompt and batch processing (multiple token).
         /// </summary>
-        public uint BatchThreads
+        public int BatchThreads
         {
             get => llama_n_threads_batch(this);
             set => llama_set_n_threads(this, GenerationThreads, value);
@@ -192,7 +192,7 @@ namespace LLama.Native
         /// <param name="n_threads_batch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_set_n_threads(SafeLLamaContextHandle ctx, uint n_threads, uint n_threads_batch);
+        private static extern void llama_set_n_threads(SafeLLamaContextHandle ctx, int n_threads, int n_threads_batch);
 
         /// <summary>
         /// Get the number of threads used for generation of a single token.
@@ -200,7 +200,7 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint llama_n_threads(SafeLLamaContextHandle ctx);
+        private static extern int llama_n_threads(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Get the number of threads used for prompt and batch processing (multiple token).
@@ -208,7 +208,7 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint llama_n_threads_batch(SafeLLamaContextHandle ctx);
+        private static extern int llama_n_threads_batch(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Token logits obtained from the last call to llama_decode
@@ -264,7 +264,7 @@ namespace LLama.Native
         private static extern void llama_set_rng_seed(SafeLLamaContextHandle ctx, uint seed);
 
         /// <summary>
-        /// Returns the **actual** size in bytes of the state (rng, logits, embedding and kv_cache).
+        /// Returns the **actual** size in bytes of the state (logits, embedding and kv_cache).
         /// Only use when saving the state, not when restoring it, otherwise the size may be too small.
         /// </summary>
         /// <param name="ctx"></param>
@@ -341,19 +341,14 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
 
-        /// <summary>
-        /// get performance information
-        /// </summary>
-        /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaTimings llama_get_timings(SafeLLamaContextHandle ctx);
-        
-        /// <summary>
-        /// Reset performance information
-        /// </summary>
-        /// <param name="ctx"></param>
+        private static extern LLamaPerfContextTimings llama_perf_context(SafeLLamaContextHandle ctx);
+
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_reset_timings(SafeLLamaContextHandle ctx);
+        private static extern void llama_perf_context_print(SafeLLamaContextHandle ctx);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_perf_context_reset(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Wait until all computations are finished. This is automatically done when using any of the functions to obtain computation results
@@ -745,9 +740,9 @@ namespace LLama.Native
         /// Get performance information
         /// </summary>
         /// <returns></returns>
-        public LLamaTimings GetTimings()
+        public LLamaPerfContextTimings GetTimings()
         {
-            return llama_get_timings(this);
+            return llama_perf_context(this);
         }
         
         /// <summary>
@@ -755,10 +750,9 @@ namespace LLama.Native
         /// </summary>
         public void ResetTimings()
         {
-            llama_reset_timings(this);
+            llama_perf_context_reset(this);
         }
         #endregion
-
 
         #region KV Cache Management
         /// <summary>

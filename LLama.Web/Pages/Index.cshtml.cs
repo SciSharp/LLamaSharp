@@ -1,3 +1,4 @@
+using LLama.Sampling;
 using LLama.Web.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,7 +35,10 @@ namespace LLama.Web.Pages
 
             InferenceOptions = new InferenceOptions
             {
-                Temperature = 0.8f
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.8f
+                },
             };
         }
     }

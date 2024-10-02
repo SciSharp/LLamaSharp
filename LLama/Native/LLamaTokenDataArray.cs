@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Numerics.Tensors;
+using System.Runtime.CompilerServices;
 
 namespace LLama.Native
 {
@@ -56,10 +59,10 @@ namespace LLama.Native
 
             for (var token = 0; token < logits.Length; token++)
                 candidatesSpan[token] = new LLamaTokenData(token, logits[token], 0.0f);
-            
+
             return new LLamaTokenDataArray(candidates);
         }
-        
+
         /// <summary>
         /// Overwrite the logit values for all given tokens
         /// </summary>
@@ -74,283 +77,66 @@ namespace LLama.Native
             {
                 for (var i = 0; i < Data.Length; i++)
                 {
-                    if (dataSpan[i].id == token)
+                    if (dataSpan[i].ID == token)
                     {
-                        dataSpan[i].logit = value;
+                        dataSpan[i].Logit = value;
                         break;
                     }
-                }   
+                }
             }
+
             Sorted = false;
-        }
-
-        #region sampling
-        /// <summary>
-        /// Apply grammar rules to candidate tokens
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="grammar"></param>
-        public void ApplyGrammar(SafeLLamaContextHandle ctx, SafeLLamaGrammarHandle? grammar)
-        {
-            if (grammar == null)
-                return;
-
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_grammar_sample(grammar, ctx, ref st);
-                Sorted = st.sorted;
-            }
-        }
-
-        /// <summary>
-        /// Top-K sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="k">Number of tokens to keep</param>
-        /// <param name="minKeep">Minimum number to keep</param>
-        public void TopK(SafeLLamaContextHandle context, int k, ulong minKeep = 1)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_sample_top_k(context, ref st, k, minKeep);
-                Sorted = st.sorted;
-            }
-        }
-
-        /// <summary>
-        /// Nucleus sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="p"></param>
-        /// <param name="minKeep"></param>
-        public void TopP(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_sample_top_p(context, ref st, p, minKeep);
-                Sorted = st.sorted;
-            }
-        }
-
-        /// <summary>
-        /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="p">All tokens with probability greater than this will be kept</param>
-        /// <param name="minKeep"></param>
-        public void MinP(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_sample_min_p(context, ref st, p, minKeep);
-                Sorted = st.sorted;
-            }
-        }
-
-        /// <summary>
-        /// Tail Free Sampling described in https://www.trentonbricken.com/Tail-Free-Sampling/.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="z"></param>
-        /// <param name="minKeep"></param>
-        public void TailFree(SafeLLamaContextHandle context, float z, ulong minKeep = 1)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_sample_tail_free(context, ref st, z, minKeep);
-                Sorted = st.sorted;
-            }
-        }
-
-        /// <summary>
-        /// Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="p"></param>
-        /// <param name="minKeep"></param>
-        public void LocallyTypical(SafeLLamaContextHandle context, float p, ulong minKeep = 1)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_sample_typical(context, ref st, p, minKeep);
-                Sorted = st.sorted;
-            }
-        }
-
-        /// <summary>
-        /// Repetition penalty described in CTRL academic paper https://arxiv.org/abs/1909.05858, with negative logit fix.
-        /// Frequency and presence penalties described in OpenAI API https://platform.openai.com/docs/api-reference/parameter-details.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="lastTokens"></param>
-        /// <param name="penaltyRepeat"></param>
-        /// <param name="penaltyFreq"></param>
-        /// <param name="penaltyPresent"></param>
-        public void RepetitionPenalty(SafeLLamaContextHandle context, ReadOnlySpan<LLamaToken> lastTokens, float penaltyRepeat, float penaltyFreq, float penaltyPresent)
-        {
-            unsafe
-            {
-                using (LLamaTokenDataArrayNative.Create(this, out var st))
-                {
-                    fixed (LLamaToken* lastTokensHandle = lastTokens)
-                    {
-                        NativeApi.llama_sample_repetition_penalties(context, ref st, lastTokensHandle, (ulong)lastTokens.Length, penaltyRepeat, penaltyFreq, penaltyPresent);
-                        Sorted = st.sorted;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Apply classifier-free guidance to the logits as described in academic paper "Stay on topic with Classifier-Free Guidance" https://arxiv.org/abs/2306.17806
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="guidanceLogits">Logits extracted from a separate context from the same model.
-        /// Other than a negative prompt at the beginning, it should have all generated and user input tokens copied from the main context.</param>
-        /// <param name="guidance">Guidance strength. 0 means no guidance, higher values applies stronger guidance</param>
-        public void Guidance(SafeLLamaContextHandle context, ReadOnlySpan<float> guidanceLogits, float guidance)
-        {
-            if (guidanceLogits.Length != Data.Length)
-                throw new ArgumentException("Guidance logits count must equal vocabulary size", nameof(guidanceLogits));
-
-            if (guidance < 0)
-                throw new ArgumentOutOfRangeException(nameof(guidance), "Guidance strength must be greater than or equal to zero");
-
-            // this method accepts 0 (no guidance), higher means more. llama.cpp expects 1 (no guidance), higher means more
-            // Add one to move up to the llama.cpp baseline.
-            guidance += 1;
-
-            // We need logits array, which we don't have at this point.
-            // Copy them to a temporary array, apply guidance, then copy them back.
-            var logits = ArrayPool<float>.Shared.Rent(context.VocabCount);
-            try
-            {
-                // Copy logits into a temporary array
-                for (var i = 0; i < Data.Length; i++)
-                {
-                    ref var item = ref Data.Span[i];
-                    logits[(int)item.id] = item.logit;
-                }
-
-                // Apply guidance
-                NativeApi.llama_sample_apply_guidance(context, logits.AsSpan(0, context.VocabCount), guidanceLogits, guidance);
-
-                // Copy logits back into data array
-                for (var i = 0; i < Data.Length; i++)
-                {
-                    ref var item = ref Data.Span[i];
-                    item.logit = logits[(int)item.id];
-                }
-
-                // No longer sorted since we just mutated logits!
-                Sorted = false;
-            }
-            finally
-            {
-                ArrayPool<float>.Shared.Return(logits);
-            }
-        }
-
-        /// <summary>
-        /// Sample with temperature.
-        /// As temperature increases, the prediction becomes more diverse but also vulnerable to hallucinations -- generating tokens that are sensible but not factual
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="temp"></param>
-        public void Temperature(SafeLLamaContextHandle context, float temp)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                NativeApi.llama_sample_temp(context, ref st, temp);
-                Sorted = st.sorted;
-            }
         }
 
         /// <summary>
         /// Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
         /// </summary>
-        /// <param name="context"></param>
-        public void Softmax(SafeLLamaContextHandle context)
+        public void Softmax()
         {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            var data = Data.Span;
+
+            // Sort logits **descending**
+            data.Sort(new LLamaTokenDataLogitComparerDescending());
+            Sorted = true;
+
+            // Calculate softmax. Using TensorPrimitives is very fast (it uses SIMD etc) and is
+            // definitely correct! So just copy to a temp and use that.
+            var tempLogits = ArrayPool<float>.Shared.Rent(data.Length);
+            var tempLogitsSpan = tempLogits.AsSpan(0, data.Length);
+            try
             {
-                NativeApi.llama_sample_softmax(context, ref st);
-                Sorted = st.sorted;
+                // Copy to temporary
+                for (var i = 0; i < data.Length; i++)
+                    tempLogitsSpan[i] = data[i].Logit;
+
+                // Softmax
+                TensorPrimitives.SoftMax(tempLogitsSpan, tempLogitsSpan);
+
+                // Copy back
+                for (var i = 0; i < data.Length; i++)
+                    data[i].Probability = tempLogitsSpan[i];
+            }
+            finally
+            {
+                ArrayPool<float>.Shared.Return(tempLogits, true);
             }
         }
 
-        /// <summary>
-        /// Randomly selects a token from the candidates based on their probabilities.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public LLamaToken SampleToken(SafeLLamaContextHandle context)
+        private struct LLamaTokenDataLogitComparerDescending
+            : IComparer<LLamaTokenData>
         {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public int Compare(LLamaTokenData x, LLamaTokenData y)
             {
-                var token = NativeApi.llama_sample_token(context, ref st);
-                Sorted = st.sorted;
-                return token;
+                return y.Logit.CompareTo(x.Logit);
             }
         }
-
-        /// <summary>
-        /// Selects the token with the highest probability.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public LLamaToken SampleTokenGreedy(SafeLLamaContextHandle context)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                var token = NativeApi.llama_sample_token_greedy(context, ref st);
-                Sorted = st.sorted;
-                return token;
-            }
-        }
-
-        /// <summary>
-        /// Mirostat 1.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="tau">The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</param>
-        /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
-        /// <param name="m">The number of tokens considered in the estimation of `s_hat`. This is an arbitrary value that is used to calculate `s_hat`, which in turn helps to calculate the value of `k`. In the paper, they use `m = 100`, but you can experiment with different values to see how it affects the performance of the algorithm.</param>
-        /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
-        /// <returns></returns>
-        public LLamaToken SampleTokenMirostat(SafeLLamaContextHandle context, float tau, float eta, int m, ref float mu)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                var token = NativeApi.llama_sample_token_mirostat(context, ref st, tau, eta, m, ref mu);
-                Sorted = st.sorted;
-                return token;
-            }
-        }
-
-        /// <summary>
-        /// Mirostat 2.0 algorithm described in the paper https://arxiv.org/abs/2007.14966. Uses tokens instead of words.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="tau">The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.</param>
-        /// <param name="eta">The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.</param>
-        /// <param name="mu">Maximum cross-entropy. This value is initialized to be twice the target cross-entropy (`2 * tau`) and is updated in the algorithm based on the error between the target and observed surprisal.</param>
-        /// <returns></returns>
-        public LLamaToken SampleTokenMirostat2(SafeLLamaContextHandle context, float tau, float eta, ref float mu)
-        {
-            using (LLamaTokenDataArrayNative.Create(this, out var st))
-            {
-                var token = NativeApi.llama_sample_token_mirostat_v2(context, ref st, tau, eta, ref mu);
-                Sorted = st.sorted;
-                return token;
-            }
-        }
-        #endregion
     }
 
     /// <summary>
-    /// Contains a pointer to an array of LLamaTokenData which is pinned in memory.
-    /// </summary>
+        /// Contains a pointer to an array of LLamaTokenData which is pinned in memory.
+        /// </summary>
+        /// <remarks>C# equivalent of llama_token_data_array</remarks>
     [StructLayout(LayoutKind.Sequential)]
     public struct LLamaTokenDataArrayNative
     {
@@ -364,11 +150,18 @@ namespace LLama.Native
         /// Number of LLamaTokenData in the array
         /// </summary>
         public ulong size;
-        
+
+        /// <summary>
+        /// The index in the array (i.e. not the token id)
+        /// </summary>
+        private long _selected;
+
+        private sbyte _sorted;
+
         /// <summary>
         /// A pointer to an array of LlamaTokenData
         /// </summary>
-        public Span<LLamaTokenData> data
+        public Span<LLamaTokenData> Data
         {
             get
             {
@@ -382,12 +175,20 @@ namespace LLama.Native
         /// <summary>
         /// Indicates if the items in the array are sorted
         /// </summary>
-        public bool sorted
+        public bool Sorted
         {
             get => Convert.ToBoolean(_sorted);
             set => _sorted = Convert.ToSByte(value);
         }
-        private sbyte _sorted;
+
+        /// <summary>
+        /// The index of the selected token (i.e. <b>not the token id</b>)
+        /// </summary>
+        public long Selected
+        {
+            get => _selected;
+            set => _selected = value;
+        }
 
         /// <summary>
         /// Create a new LLamaTokenDataArrayNative around the data in the LLamaTokenDataArray 
@@ -405,7 +206,7 @@ namespace LLama.Native
                 {
                     _data = (LLamaTokenData*)handle.Pointer,
                     size = (ulong)array.Data.Length,
-                    sorted = array.Sorted
+                    Sorted = array.Sorted
                 };
             }
 

@@ -1,5 +1,4 @@
 using LLama.Common;
-using LLama.Grammars;
 using LLama.Sampling;
 
 namespace LLama.Examples.Examples
@@ -8,14 +7,12 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            string modelPath = UserSettings.GetModelPath();
+            var modelPath = UserSettings.GetModelPath();
 
             var gbnf = (await File.ReadAllTextAsync("Assets/json.gbnf")).Trim();
-            var grammar = Grammar.Parse(gbnf, "root");
 
             var parameters = new ModelParams(modelPath)
             {
-                Seed = 1337,
                 GpuLayerCount = 5
             };
             using var model = await LLamaWeights.LoadFromFileAsync(parameters);
@@ -27,7 +24,8 @@ namespace LLama.Examples.Examples
 
             var samplingPipeline = new DefaultSamplingPipeline
             {
-                Temperature = 0.6f
+                Temperature = 0.6f,
+                Grammar = new(gbnf, "root"),
             };
 
             var inferenceParams = new InferenceParams()
@@ -39,19 +37,20 @@ namespace LLama.Examples.Examples
 
             while (true)
             {
-                using var grammarInstance = grammar.CreateInstance();
-                samplingPipeline.Grammar = grammarInstance;
+                // Reset pipeline to clear out state from the last run. This is very important because the grammar
+                // will have reached the end, so there are **no** valid tokens according to the grammar!
+                samplingPipeline.Reset();
 
                 Console.Write("\nQuestion: ");
                 Console.ForegroundColor = ConsoleColor.Green;
                 var prompt = Console.ReadLine();
+
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Answer: ");
+
                 prompt = $"Question: {prompt?.Trim()} Answer: ";
                 await foreach (var text in ex.InferAsync(prompt, inferenceParams))
-                {
                     Console.Write(text);
-                }
             }
         }
     }
