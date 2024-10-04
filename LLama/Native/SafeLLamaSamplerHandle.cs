@@ -386,7 +386,7 @@ public class SafeLLamaSamplerChainHandle
     /// <param name="freq">Frequency penalty</param>
     /// <param name="presence">Presence penalty</param>
     /// <param name="penalizeNewline">Whether or not to penalize the newline token</param>
-    /// <param name="ignoreEOS">Whether ot not to ignore EOS token</param>
+    /// <param name="ignoreEOS">Whether or not to ignore EOS token</param>
     /// <returns></returns>
     public void AddPenalties(
         int vocabSize, LLamaToken? eos, LLamaToken newline, int penaltyCount, float repeat, float freq, float presence, bool penalizeNewline, bool ignoreEOS
