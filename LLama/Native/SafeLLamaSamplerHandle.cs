@@ -5,6 +5,7 @@ namespace LLama.Native;
 /// <summary>
 /// A chain of sampler stages that can be used to select tokens from logits.
 /// </summary>
+/// <remarks>Wraps a handle returned from `llama_sampler_chain_init`. Other samplers are owned by this chain and are never directly exposed.</remarks>
 public class SafeLLamaSamplerChainHandle
     : SafeLLamaHandleBase
 {
@@ -39,6 +40,7 @@ public class SafeLLamaSamplerChainHandle
         llama_sampler_apply(this, ref candidates);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        // ReSharper disable once InconsistentNaming
         static extern void llama_sampler_apply(SafeLLamaSamplerChainHandle smpl, ref LLamaTokenDataArrayNative cur_p);
     }
 
@@ -500,15 +502,92 @@ public record struct LLamaLogitBias
     public float Bias;
 }
 
-//todo: custom sampler
-/*
-   // user code can implement the interface below in order to create custom llama_sampler
-   struct llama_sampler_i {
-       const char *           (*name)  (const SafeLLamaSamplerHandle smpl);                                 // can be NULL
-       void                   (*accept)(      SafeLLamaSamplerHandle smpl, llama_token token);              // can be NULL
-       void                   (*apply) (      SafeLLamaSamplerHandle smpl, llama_token_data_array * cur_p); // required
-       void                   (*reset) (      SafeLLamaSamplerHandle smpl);                                 // can be NULL
-       SafeLLamaSamplerHandle (*clone) (const SafeLLamaSamplerHandle smpl);                                 // can be NULL if ctx is NULL
-       void                   (*free)  (      SafeLLamaSamplerHandle smpl);                                 // can be NULL if ctx is NULL
-   };
- */
+/* todo: Custom sampler stuff
+/// <summary>
+/// 
+/// </summary>
+/// <remarks>llama_sampler_i</remarks>
+public struct LLamaSamplerINative
+{
+    // Delegate definitions for the function pointers
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate string NameDelegate(IntPtr smpl);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void AcceptDelegate(IntPtr smpl, LLamaToken token);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void ApplyDelegate(IntPtr smpl, ref LLamaTokenDataArrayNative cur_p);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void ResetDelegate(IntPtr smpl);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate IntPtr CloneDelegate(IntPtr smpl);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void FreeDelegate(IntPtr smpl);
+
+    // Struct fields corresponding to function pointers
+    public NameDelegate name;
+    public AcceptDelegate accept;
+    public ApplyDelegate apply;
+    public ResetDelegate reset;
+    public CloneDelegate clone;
+    public FreeDelegate free;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <remarks>llama_sampler</remarks>
+internal unsafe struct LLamaSamplerNative
+{
+    public LLamaSamplerINative* iface;
+    public IntPtr ctx;
+}
+
+internal class CustomSamplerWrapper
+{
+    public GCHandle Handle;
+    public ICustomSampler Sampler;
+}
+
+/// <summary>
+/// A custom sampler stage for modifying logits or selecting a token
+/// </summary>
+public interface ICustomSampler
+{
+    /// <summary>
+    /// The name of this stage
+    /// </summary>
+    string Name { get; }
+
+    /// <summary>
+    /// Apply this stage to a set of logits
+    /// </summary>
+    /// <param name="tokenData"></param>
+    void Apply(ref LLamaTokenDataArrayNative tokenData);
+
+    /// <summary>
+    /// Update the internal state of the sampler when a token is chosen
+    /// </summary>
+    /// <param name="token"></param>
+    void Accept(LLamaToken token);
+
+    /// <summary>
+    /// Reset the internal state of this sampler
+    /// </summary>
+    void Reset();
+
+    /// <summary>
+    /// Create a clone of this sampler
+    /// </summary>
+    ICustomSampler Clone();
+
+    /// <summary>
+    /// Free all unmanaged resources held by this sampler
+    /// </summary>
+    void Free();
+}
+*/
