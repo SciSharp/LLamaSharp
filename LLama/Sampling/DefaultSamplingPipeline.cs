@@ -18,7 +18,7 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Repetition penalty, as described in https://arxiv.org/abs/1909.05858
     /// </summary>
-    public float RepeatPenalty { get; init; }
+    public float RepeatPenalty { get; init; } = 1;
 
     /// <summary>
     /// Frequency penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
@@ -59,6 +59,21 @@ public sealed class DefaultSamplingPipeline
     private readonly float _alphaPresence;
 
     /// <summary>
+    /// How many tokens should be considered for penalizing repetition
+    /// </summary>
+    public int RepeatPenaltyCount { get; init; } = 64;
+
+    /// <summary>
+    /// Whether the newline token should be protected from being modified by penalty
+    /// </summary>
+    public bool PenalizeNewline { get; init; } = false;
+
+    /// <summary>
+    /// Whether the EOS token should be protected from being modified by penalty
+    /// </summary>
+    public bool PenalizeEOS { get; init; } = false;
+
+    /// <summary>
     /// Temperature to apply (higher temperature is more "creative")
     /// </summary>
     public float Temperature { get; init; } = 0.75f;
@@ -66,32 +81,27 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Number of tokens to keep in TopK sampling
     /// </summary>
-    public int TopK { get; init; }
+    public int TopK { get; init; } = 40;
 
     /// <summary>
     /// Z value for tail free sampling
     /// </summary>
-    public float TailFreeZ { get; init; }
+    public float TailFreeZ { get; init; } = 1;
 
     /// <summary>
     /// P value for locally typical sampling
     /// </summary>
-    public float TypicalP { get; init; }
+    public float TypicalP { get; init; } = 1;
 
     /// <summary>
     /// P value for TopP sampling
     /// </summary>
-    public float TopP { get; init; } = 1f;
+    public float TopP { get; init; } = 0.9f;
 
     /// <summary>
     /// P value for MinP sampling
     /// </summary>
-    public float MinP { get; init; }
-
-    /// <summary>
-    /// Whether the newline value should be protected from being modified by logit bias and repeat penalty
-    /// </summary>
-    public bool PenalizeNewline { get; init; }
+    public float MinP { get; init; } = 0.1f;
 
     /// <summary>
     /// Grammar to apply to constrain possible tokens
@@ -103,6 +113,11 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public int MinKeep { get; set; } = 1;
 
+    /// <summary>
+    /// Seed to use for random sampling
+    /// </summary>
+    public uint Seed { get; set; } = 42;
+
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
     {
@@ -111,6 +126,14 @@ public sealed class DefaultSamplingPipeline
         if (Grammar != null)
             chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
 
+        chain.AddPenalties(
+            context.VocabCount,
+            context.ModelHandle.Tokens.EOS, context.ModelHandle.Tokens.Newline ?? 0,
+            RepeatPenaltyCount, RepeatPenalty,
+            AlphaFrequency, AlphaPresence,
+            PenalizeNewline, PenalizeEOS
+        );
+
         chain.AddTopK(TopK);
         chain.AddTailFree(TailFreeZ, MinKeep);
         chain.AddTypical(TypicalP, MinKeep);
@@ -118,7 +141,8 @@ public sealed class DefaultSamplingPipeline
         chain.AddMinP(MinP, MinKeep);
         chain.AddTemperature(Temperature);
 
-        chain.AddDistributionSampler(0);
+        chain.AddSoftmax();
+        chain.AddDistributionSampler(Seed);
 
         return chain;
     }

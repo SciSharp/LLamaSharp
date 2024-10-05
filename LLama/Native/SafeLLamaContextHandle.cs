@@ -256,14 +256,6 @@ namespace LLama.Native
         private static extern uint llama_n_ubatch(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Sets the current rng seed.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seed"></param>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_set_rng_seed(SafeLLamaContextHandle ctx, uint seed);
-
-        /// <summary>
         /// Returns the **actual** size in bytes of the state (logits, embedding and kv_cache).
         /// Only use when saving the state, not when restoring it, otherwise the size may be too small.
         /// </summary>
@@ -725,15 +717,6 @@ namespace LLama.Native
             return llama_state_seq_set_data(this, src, size, sequence);
         }
         #endregion
-
-        /// <summary>
-        /// Set the RNG seed
-        /// </summary>
-        /// <param name="seed"></param>
-        public void SetSeed(uint seed)
-        {
-            llama_set_rng_seed(this, seed);
-        }
 
         #region timing
         /// <summary>
