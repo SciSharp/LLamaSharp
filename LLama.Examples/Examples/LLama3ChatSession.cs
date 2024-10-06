@@ -7,7 +7,7 @@ namespace LLama.Examples.Examples;
 /// <summary>
 /// This sample shows a simple chatbot
 /// It's configured to use the default prompt template as provided by llama.cpp and supports
-/// models such as llama3, llama2, phi3, qwen1.5, etc.
+/// models such as llama3, phi3, qwen1.5, etc.
 /// </summary>
 public class LLama3ChatSession
 {
@@ -35,7 +35,7 @@ public class LLama3ChatSession
 
         // Add a transformer to eliminate printing the end of turn tokens, llama 3 specifically has an odd LF that gets printed sometimes
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
-            [model.Tokens.EndOfTurnToken!, "�"],
+            [model.Tokens.EndOfTurnToken ?? "User:", "�"],
             redundancyLength: 5));
 
         var inferenceParams = new InferenceParams
@@ -46,7 +46,7 @@ public class LLama3ChatSession
             },
 
             MaxTokens = -1, // keep generating tokens until the anti prompt is encountered
-            AntiPrompts = [model.Tokens.EndOfTurnToken!] // model specific end of turn string
+            AntiPrompts = [model.Tokens.EndOfTurnToken ?? "User:"] // model specific end of turn string (or default)
         };
 
         Console.ForegroundColor = ConsoleColor.Yellow;
