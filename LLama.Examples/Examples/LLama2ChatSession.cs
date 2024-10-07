@@ -17,7 +17,6 @@ public class LLama2ChatSession
         var modelPath = UserSettings.GetModelPath();
         var parameters = new ModelParams(modelPath)
         {
-            Seed = 1337,
             GpuLayerCount = 10
         };
 
@@ -25,7 +24,7 @@ public class LLama2ChatSession
         using var context = model.CreateContext(parameters);
         var executor = new InteractiveExecutor(context);
 
-        var chatHistoryJson = File.ReadAllText("Assets/chat-with-bob.json");
+        var chatHistoryJson = await File.ReadAllTextAsync("Assets/chat-with-bob.json");
         var chatHistory = ChatHistory.FromJson(chatHistoryJson) ?? new ChatHistory();
 
         ChatSession session = new(executor, chatHistory);
