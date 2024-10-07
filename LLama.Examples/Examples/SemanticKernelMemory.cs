@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using Microsoft.SemanticKernel.Memory;
 using LLamaSharp.SemanticKernel.TextEmbedding;
 
@@ -19,7 +19,6 @@ namespace LLama.Examples.Examples
             // Load weights into memory
             var parameters = new ModelParams(modelPath)
             {
-                Seed = seed,
                 Embeddings = true
             };
 

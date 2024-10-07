@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 
 namespace LLama.Unittest;
 
@@ -24,8 +24,8 @@ public class MemoryDisposalTests
     {
         var @params = new ModelParams(Constants.GenerativeModelPath)
         {
-            ContextSize = 2048,
-            GpuLayerCount = Constants.CIGpuLayerCount,            
+            ContextSize = 128,
+            GpuLayerCount = 0,            
         };
         var model = LLamaWeights.LoadFromFile(@params);
 

@@ -18,7 +18,6 @@ namespace LLama.Unittest
             _params = new ModelParams(Constants.GenerativeModelPath)
             {
                 ContextSize = 60,
-                Seed = 1754,
                 BatchSize = 2,
                 GpuLayerCount = Constants.CIGpuLayerCount,                
             };

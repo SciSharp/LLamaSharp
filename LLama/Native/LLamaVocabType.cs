@@ -30,4 +30,9 @@ public enum LLamaVocabType
     /// T5 tokenizer based on Unigram
     /// </summary>
     Unigram = 4,
+
+    /// <summary>
+    /// RWKV tokenizer based on greedy tokenization
+    /// </summary>
+    RWKV = 5,
 }

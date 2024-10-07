@@ -29,11 +29,6 @@ public interface IContextParams
     uint SeqMax { get; }
 
     /// <summary>
-    /// Seed for the random number generator (seed)
-    /// </summary>
-    uint? Seed { get; }
-
-    /// <summary>
     /// If true, extract embeddings (together with logits).
     /// </summary>
     bool Embeddings { get; }
@@ -56,12 +51,12 @@ public interface IContextParams
     /// <summary>
     /// Number of threads (null = autodetect) (n_threads)
     /// </summary>
-    uint? Threads { get; }
+    int? Threads { get; }
 
     /// <summary>
     /// Number of threads to use for batch processing (null = autodetect) (n_threads)
     /// </summary>
-    uint? BatchThreads { get; }
+    int? BatchThreads { get; }
 
     /// <summary>
     /// YaRN extrapolation mix factor (null = from model)

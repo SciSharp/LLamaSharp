@@ -54,7 +54,7 @@ namespace LLama
         /// <summary>
         /// Get or set the number of threads to use for generation
         /// </summary>
-        public uint GenerationThreads
+        public int GenerationThreads
         {
             get => NativeHandle.GenerationThreads;
             set => NativeHandle.GenerationThreads = value;
@@ -63,7 +63,7 @@ namespace LLama
         /// <summary>
         /// Get or set the number of threads to use for batch processing
         /// </summary>
-        public uint BatchThreads
+        public int BatchThreads
         {
             get => NativeHandle.BatchThreads;
             set => NativeHandle.BatchThreads = value;
@@ -100,15 +100,6 @@ namespace LLama
             NativeHandle = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
 
             Tokens = model.Tokens;
-        }
-
-        /// <summary>
-        /// Set the seed for the RNG
-        /// </summary>
-        /// <param name="seed"></param>
-        public void SetSeed(uint seed)
-        {
-            NativeHandle.SetSeed(seed);
         }
 
         /// <summary>

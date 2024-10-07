@@ -1,4 +1,3 @@
-﻿using System;
 using LLama.Native;
 
 namespace LLama.Sampling;
@@ -9,23 +8,21 @@ namespace LLama.Sampling;
 public class GreedySamplingPipeline
     : BaseSamplingPipeline
 {
-    /// <inheritdoc />
-    protected override void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
-    {
-    }
+    /// <summary>
+    /// Grammar to apply to constrain possible tokens
+    /// </summary>
+    public Grammar? Grammar { get; init; }
 
     /// <inheritdoc />
-    protected override LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens)
+    protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
     {
-        return candidates.SampleTokenGreedy(ctx);
-    }
+        var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
 
-    /// <inheritdoc />
-    public override ISamplingPipeline Clone()
-    {
-        return new GreedySamplingPipeline
-        {
-            Grammar = Grammar?.Clone()
-        };
+        if (Grammar != null)
+            chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
+
+        chain.AddGreedySampler();
+
+        return chain;
     }
 }

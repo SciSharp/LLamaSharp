@@ -28,11 +28,6 @@ namespace LLamaSharp.KernelMemory
         public uint? ContextSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the seed value.
-        /// </summary>
-        public uint? Seed { get; set; }
-
-        /// <summary>
         /// Gets or sets the number of GPU layers.
         /// </summary>
         public int? GpuLayerCount { get; set; }

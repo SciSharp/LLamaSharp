@@ -3,69 +3,51 @@ using LLama.Native;
 
 namespace LLama.Sampling;
 
-/// <summary>
-/// Base class for implementing custom sampling pipelines. This provides a helpful framework for implementing `ISamplingPipeline`.
-/// </summary>
+/// <inheritdoc />
 public abstract class BaseSamplingPipeline
     : ISamplingPipeline
 {
+    private SafeLLamaSamplerChainHandle? _chain;
+
     /// <summary>
-    /// Grammar to constrain valid tokens
+    /// Create a new sampler wrapping a llama.cpp sampler chain
     /// </summary>
-    public SafeLLamaGrammarHandle? Grammar { get; set; }
-    
-    private LLamaTokenData[]? _temporarySampling;
-
-    /// <inheritdoc/>
-    public LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+    public BaseSamplingPipeline()
     {
-        // Apply processing to raw logit values
-        ProcessLogits(ctx, logits, lastTokens);
-
-        // Allocate some temporary space
-        if (_temporarySampling == null || _temporarySampling.Length < logits.Length)
-            _temporarySampling = new LLamaTokenData[logits.Length];
-
-        // Process token data array to select a final token
-        var candidates = LLamaTokenDataArray.Create(logits, _temporarySampling);
-        candidates.ApplyGrammar(ctx, Grammar);
-        return ProcessTokenDataArray(ctx, candidates, lastTokens);
-    }
-
-    /// <inheritdoc />
-    public virtual void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
-    {
-        Grammar?.AcceptToken(ctx, token);
     }
 
     /// <summary>
-    /// Process the raw logit values
+    /// Create a sampling chain. This will be called once, the base class will automatically dispose the chain.
     /// </summary>
-    /// <param name="ctx">The context being sampled from</param>
-    /// <param name="logits">The logits produced by the model</param>
-    /// <param name="lastTokens">A list of tokens recently returned by the model</param>
-    protected abstract void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens);
-
-    /// <summary>
-    /// Process the LLamaTokenDataArray and select a single token
-    /// </summary>
-    /// <param name="ctx">The context being sampled from</param>
-    /// <param name="candidates">The LLamaTokenDataArray data produced by the model</param>
-    /// <param name="lastTokens">A list of tokens recently returned by the model</param>
     /// <returns></returns>
-    protected abstract LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens);
+    protected abstract SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context);
 
-    /// <inheritdoc/>
-    public virtual void Reset()
+    /// <inheritdoc />
+    public void Dispose()
     {
+        _chain?.Dispose();
+        _chain = null;
+
+        GC.SuppressFinalize(this);
     }
 
     /// <inheritdoc />
-    public abstract ISamplingPipeline Clone();
-
-    /// <inheritdoc/>
-    public virtual void Dispose()
+    public LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
     {
-        GC.SuppressFinalize(this);
+        _chain ??= CreateChain(ctx);
+
+        return _chain.Sample(ctx, index);
+    }
+
+    /// <inheritdoc />
+    public void Reset()
+    {
+        _chain?.Reset();
+    }
+
+    /// <inheritdoc />
+    public void Accept(LLamaToken token)
+    {
+        _chain?.Accept(token);
     }
 }

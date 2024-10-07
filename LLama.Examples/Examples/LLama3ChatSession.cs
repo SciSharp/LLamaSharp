@@ -16,7 +16,6 @@ public class LLama3ChatSession
         var modelPath = UserSettings.GetModelPath();
         var parameters = new ModelParams(modelPath)
         {
-            Seed = 1337,
             GpuLayerCount = 10
         };
 

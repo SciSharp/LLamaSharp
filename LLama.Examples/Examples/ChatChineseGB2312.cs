@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Common;
 
 namespace LLama.Examples.Examples;
@@ -27,7 +27,6 @@ public class ChatChineseGB2312
 
         var parameters = new ModelParams(modelPath)
         {
-            Seed = 1337,
             GpuLayerCount = 5,
             Encoding = Encoding.UTF8
         };

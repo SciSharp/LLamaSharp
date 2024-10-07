@@ -1,6 +1,5 @@
 using LLama.Batched;
 using LLama.Common;
-using LLama.Native;
 using LLama.Sampling;
 using Spectre.Console;
 
@@ -77,9 +76,7 @@ public class BatchedExecutorFork
         // Print some stats
         var timings = executor.Context.NativeHandle.GetTimings();
         AnsiConsole.MarkupLine($"Total Tokens Evaluated: {timings.TokensEvaluated}");
-        AnsiConsole.MarkupLine($"Total Tokens Sampled: {timings.TokensSampled}");
         AnsiConsole.MarkupLine($"Eval Time: {(timings.Eval + timings.PromptEval).TotalMilliseconds}ms");
-        AnsiConsole.MarkupLine($"Sample Time: {timings.Sampling.TotalMilliseconds}ms");
     }
 
     private class Node
@@ -114,8 +111,7 @@ public class BatchedExecutorFork
 
             // Sample one token
             var ctx = _conversation.Executor.Context.NativeHandle;
-            var token = _sampler.Sample(ctx, _conversation.Sample(), Array.Empty<LLamaToken>());
-            _sampler.Accept(ctx, token);
+            var token = _sampler.Sample(ctx, _conversation.GetSampleIndex());
             _decoder.Add(token);
 
             // Prompt the conversation with this token, to continue generating from there

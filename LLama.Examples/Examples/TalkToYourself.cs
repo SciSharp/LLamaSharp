@@ -44,11 +44,7 @@ namespace LLama.Examples.Examples
         {
             var inferenceParams = new InferenceParams
             {
-                SamplingPipeline = new Mirostat2SamplingPipeline
-                {
-                    Tau = 10
-                },
-
+                SamplingPipeline = new DefaultSamplingPipeline(),
                 AntiPrompts = [ "Alice:", "Bob:", "User:" ],
                 MaxTokens = 128,
             };

@@ -1,4 +1,5 @@
 using LLama.Abstractions;
+using LLama.Sampling;
 using LLama.Web.Common;
 
 namespace LLama.Web.Models;
@@ -21,7 +22,10 @@ public class ModelSession
         _context = context;
         _sessionId = sessionId;
         _sessionConfig = sessionConfig;
-        _defaultInferenceConfig = inferenceOptions ?? new InferenceOptions();
+        _defaultInferenceConfig = inferenceOptions ?? new InferenceOptions
+        {
+            SamplingPipeline = new DefaultSamplingPipeline()
+        };
         _outputTransform = CreateOutputFilter();
         _executor = CreateExecutor();
     }

@@ -1,7 +1,6 @@
 using System.Text;
 using LLama.Batched;
 using LLama.Common;
-using LLama.Grammars;
 using LLama.Native;
 using Spectre.Console;
 using LLama.Sampling;
@@ -10,6 +9,9 @@ namespace LLama.Examples.Examples;
 
 public class BatchedExecutorBoolQ
 {
+    // Answers may start with a space, and then must produce one of the listed strings followed by a newline character and nothing else.
+    private static readonly Grammar AnswerGrammar = new("root ::= (\" \")? (\"true\" | \"false\" | \"yes\" | \"no\") \"\\n\"", "root");
+
     public static async Task Run()
     {
         // Load model weights
@@ -20,9 +22,6 @@ public class BatchedExecutorBoolQ
         var batchSize = AnsiConsole.Ask("How many parallel conversations to evaluate in a batch", 64);
         var sys = AnsiConsole.Ask("System prompt", "Answer the question with a single word answer.");
         var hint = AnsiConsole.Ask("Provide hints to model (test reading comprehension instead of knowledge)", true);
-
-        // Answers may start with a space, and then must produce one of the listed strings followed by a newline character and nothing else.
-        var grammar = Grammar.Parse("root ::= (\" \")? (\"true\" | \"false\" | \"yes\" | \"no\") \"\\n\"", "root");
 
         // Create an executor that can evaluate a batch of conversations together
         using var executor = new BatchedExecutor(model, parameters);
@@ -53,7 +52,7 @@ public class BatchedExecutorBoolQ
 
             foreach (var chunk in chunks)
             {
-                var result = await RunBatch(executor, tokensGenerate, grammar, sys, hint, chunk);
+                var result = await RunBatch(executor, tokensGenerate, sys, hint, chunk);
                 results.Add(result);
 
                 reporter.Increment(1);
@@ -87,10 +86,10 @@ public class BatchedExecutorBoolQ
         }
     }
 
-    private static async Task<BatchResult> RunBatch(BatchedExecutor executor, int maxTokens, Grammar grammar, string sys, bool hint, IEnumerable<(string, bool, string)> batch)
+    private static async Task<BatchResult> RunBatch(BatchedExecutor executor, int maxTokens, string sys, bool hint, IEnumerable<(string, bool, string)> batch)
     {
         var conversations = (from item in batch
-                             select new ConversationRunner(executor, grammar, sys, item.Item1, item.Item2, hint ? item.Item3 : null)).ToArray();
+                             select new ConversationRunner(executor, sys, item.Item1, item.Item2, hint ? item.Item3 : null)).ToArray();
 
         for (var i = 0; i < maxTokens; i++)
         {
@@ -135,6 +134,9 @@ public class BatchedExecutorBoolQ
         public float Accuracy => (float)Correct / Total;
     }
 
+    /// <summary>
+    /// All of the mechanics necessary to run a conversation to answer a single question
+    /// </summary>
     private class ConversationRunner
         : IDisposable
     {
@@ -149,14 +151,11 @@ public class BatchedExecutorBoolQ
         public string Question { get; }
         public bool Answer { get; }
 
-        public ConversationRunner(BatchedExecutor executor, Grammar grammar, string sys, string question, bool answer, string? hint)
+        public ConversationRunner(BatchedExecutor executor, string sys, string question, bool answer, string? hint)
         {
             _executor = executor;
             _decoder = new StreamingTokenDecoder(executor.Context);
-            _sampler = new GreedySamplingPipeline
-            {
-                Grammar = grammar.CreateInstance(),
-            };
+            _sampler = new GreedySamplingPipeline { Grammar = AnswerGrammar };
 
             // Make sure question ends with question mark
             if (!question.EndsWith('?'))
@@ -192,7 +191,7 @@ public class BatchedExecutorBoolQ
             if (!_conversation.RequiresSampling)
                 return;
 
-            var token = _sampler.Sample(_executor.Context.NativeHandle, _conversation.Sample(), []);
+            var token = _sampler.Sample(_executor.Context, _conversation.GetSampleIndex());
 
             var tokens = _executor.Context.NativeHandle.ModelHandle.Tokens;
             if (tokens.IsEndOfGeneration(token) || tokens.Newline == token)
@@ -216,7 +215,7 @@ public class BatchedExecutorBoolQ
             var token = _sampledToken.Value;
             _sampledToken = default;
 
-            _sampler.Accept(_executor.Context.NativeHandle, token);
+            _sampler.Accept(token);
             _decoder.Add(token);
             _conversation.Prompt(token);
         }

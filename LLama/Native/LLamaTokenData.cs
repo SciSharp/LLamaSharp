@@ -9,28 +9,28 @@ public struct LLamaTokenData
     /// <summary>
     /// token id
     /// </summary>
-    public LLamaToken id;
+    public LLamaToken ID;
 
     /// <summary>
     /// log-odds of the token
     /// </summary>
-    public float logit;
+    public float Logit;
 
     /// <summary>
     /// probability of the token
     /// </summary>
-    public float p;
+    public float Probability;
 
     /// <summary>
     /// Create a new LLamaTokenData
     /// </summary>
     /// <param name="id"></param>
     /// <param name="logit"></param>
-    /// <param name="p"></param>
-    public LLamaTokenData(LLamaToken id, float logit, float p)
+    /// <param name="probability"></param>
+    public LLamaTokenData(LLamaToken id, float logit, float probability)
     {
-        this.id = id;
-        this.logit = logit;
-        this.p = p;
+        ID = id;
+        Logit = logit;
+        Probability = probability;
     }
 }

@@ -142,6 +142,28 @@ public sealed class Conversation
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="CannotSampleRequiresPromptException">Thrown if this conversation was not prompted before the previous call to infer</exception>
     /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
+    public int GetSampleIndex(int offset = 0)
+    {
+        AssertNotDisposed();
+
+        if (_requiredEpoch < Executor.Epoch)
+            throw new CannotSampleRequiresPromptException();
+        if (_requiredEpoch > Executor.Epoch)
+            throw new CannotSampleRequiresInferenceException();
+        if (offset >= _batchSampleCount)
+            throw new ArgumentException("Cannot sample offset more than the previous prompt count", nameof(offset));
+
+        return _batchSampleIndices[_batchSampleCount - offset - 1];
+    }
+
+    /// <summary>
+    /// Get the logits from this conversation, ready for sampling
+    /// </summary>
+    /// <param name="offset">How far from the <b>end</b> of the previous prompt should logits be sampled. Any value other than 0 requires allLogits to have been set during prompting</param>
+    /// <returns></returns>
+    /// <exception cref="ObjectDisposedException"></exception>
+    /// <exception cref="CannotSampleRequiresPromptException">Thrown if this conversation was not prompted before the previous call to infer</exception>
+    /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
     public Span<float> Sample(int offset = 0)
     {
         AssertNotDisposed();
@@ -152,8 +174,8 @@ public sealed class Conversation
             throw new CannotSampleRequiresInferenceException();
         if (offset >= _batchSampleCount)
             throw new ArgumentException("Cannot sample offset more than the previous prompt count", nameof(offset));
-        
-        var index = _batchSampleIndices[_batchSampleCount - offset - 1];
+
+        var index = GetSampleIndex(offset);
         var span = Executor.Context.NativeHandle.GetLogitsIth(index);
 
         // If necessary copy the span, to protect it from modification. This is only done when

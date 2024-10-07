@@ -91,7 +91,7 @@ public class BatchedExecutorRewind
 
         public LLamaToken Sample(Conversation conversation)
         {
-            var token = _sampler.Sample(conversation.Executor.Context.NativeHandle, conversation.Sample(), []);
+            var token = _sampler.Sample(conversation.Executor.Context.NativeHandle, conversation.GetSampleIndex());
             _tokens.Add(token);
             return token;
         }

@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 
 namespace LLama.Examples.Examples
 {
@@ -13,7 +13,6 @@ namespace LLama.Examples.Examples
 
             var parameters = new ModelParams(modelPath)
             {
-                Seed = 1337,
                 GpuLayerCount = 5
             };
             using var model = await LLamaWeights.LoadFromFileAsync(parameters);

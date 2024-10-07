@@ -26,7 +26,6 @@ namespace LLama.Extensions
             result.n_batch = @params.BatchSize;
             result.n_ubatch = @params.UBatchSize;
             result.n_seq_max = @params.SeqMax;
-            result.seed = @params.Seed ?? 0xFFFFFFFF;
             result.embeddings = @params.Embeddings;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
@@ -58,12 +57,12 @@ namespace LLama.Extensions
             result.n_threads_batch = Threads(@params.BatchThreads);
         }
 
-        private static uint Threads(uint? value)
+        private static int Threads(int? value)
         {
             if (value is > 0)
-                return (uint)value;
+                return (int)value;
 
-            return (uint)Math.Max(Environment.ProcessorCount / 2, 1);
+            return Math.Max(Environment.ProcessorCount / 2, 1);
         }
     }
 }

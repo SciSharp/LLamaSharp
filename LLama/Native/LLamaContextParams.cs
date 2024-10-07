@@ -21,11 +21,6 @@ namespace LLama.Native
     public struct LLamaContextParams
     {
         /// <summary>
-        /// RNG seed, -1 for random
-        /// </summary>
-        public uint seed;
-
-        /// <summary>
         /// text context, 0 = from model
         /// </summary>
         public uint n_ctx;
@@ -48,12 +43,12 @@ namespace LLama.Native
         /// <summary>
         /// number of threads to use for generation
         /// </summary>
-        public uint n_threads;
+        public int n_threads;
 
         /// <summary>
         /// number of threads to use for batch processing
         /// </summary>
-        public uint n_threads_batch;
+        public int n_threads_batch;
 
         /// <summary>
         /// RoPE scaling type, from `enum llama_rope_scaling_type` 
@@ -166,6 +161,16 @@ namespace LLama.Native
             set => _flash_attention = Convert.ToSByte(value);
         }
         private sbyte _flash_attention;
+
+        /// <summary>
+        /// whether to measure performance timings
+        /// </summary>
+        public bool no_perf
+        {
+            readonly get => Convert.ToBoolean(_no_perf);
+            set => _no_perf = Convert.ToSByte(value);
+        }
+        private sbyte _no_perf;
 
         //todo: implement abort callback support
         /// <summary>

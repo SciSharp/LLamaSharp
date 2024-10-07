@@ -55,7 +55,9 @@ public class BatchedExecutorBeamSearch
             while (beams.Count > beamsCount)
             {
                 var beam = beams[0];
-                AnsiConsole.MarkupLineInterpolated($"[red]Culling Beam {beam.Conversation.ConversationId} (prob:{beam.CumulativeProbability:P10})[/]: {beam}");
+
+                var text = beam.ToString().EscapeMarkup();
+                AnsiConsole.MarkupLine($"[red]Culling Beam {beam.Conversation.ConversationId} (prob:{beam.CumulativeProbability:P5})[/]: {text}");
 
                 beam.Dispose();
                 beams.RemoveAt(0);
@@ -121,7 +123,7 @@ public class BatchedExecutorBeamSearch
         {
             // Apply softmax, this calculates probabilities and sorts tokens into descending order
             var logitsArr = LLamaTokenDataArray.Create(Conversation.Sample());
-            logitsArr.Softmax(Conversation.Executor.Context.NativeHandle);
+            logitsArr.Softmax();
 
             // Create new forked conversations, one for each beam
             var results = new List<Beam>();
@@ -135,14 +137,14 @@ public class BatchedExecutorBeamSearch
                 var c = Conversation.Fork();
 
                 // Extend the conversation with the selected token.
-                c.Prompt(item.id);
+                c.Prompt(item.ID);
 
                 // Keep track of the cumulative probability of this entire sequence.
-                var p = CumulativeProbability * item.p;
+                var p = CumulativeProbability * item.Probability;
 
                 // Keep track of all tokens in this sequence, for decoding later
                 var t = Tokens.ToList();
-                t.Add(item.id);
+                t.Add(item.ID);
 
                 // Keep track of which beam this beam was derived from.
                 var s = Sequence.ToList();
