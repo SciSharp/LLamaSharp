@@ -133,7 +133,7 @@ namespace LLama.Native
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
             // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
-            using (var fs = new FileStream(modelPath, FileMode.Open))
+            using (var fs = new FileStream(modelPath, FileMode.Open, FileAccess.Read))
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"Model file '{modelPath}' is not readable");
 
