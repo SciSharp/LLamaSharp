@@ -141,9 +141,38 @@ public sealed class DefaultSamplingPipeline
         chain.AddMinP(MinP, MinKeep);
         chain.AddTemperature(Temperature);
 
+        chain.AddCustom(new DemoSampler());
+
         chain.AddSoftmax();
         chain.AddDistributionSampler(Seed);
 
         return chain;
+    }
+}
+
+public class DemoSampler
+    : ICustomSampler
+{
+    public string Name => "Demo Custom Sampler";
+
+    public void Apply(ref LLamaTokenDataArrayNative tokenData)
+    {
+    }
+
+    public void Accept(LLamaToken token)
+    {
+    }
+
+    public void Reset()
+    {
+    }
+
+    public ICustomSampler Clone()
+    {
+        return new DemoSampler();
+    }
+
+    public void Free()
+    {
     }
 }
