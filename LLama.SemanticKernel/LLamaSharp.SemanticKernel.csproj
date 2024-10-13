@@ -23,7 +23,7 @@
 			The integration of LLamaSharp and Microsoft semantic-kernel.
 		</Description>
 		<PackageReleaseNotes>
-			v0.16.0 released with v0.16.0 of LLamaSharp.
+			v0.17.0 released with v0.17.0 of LLamaSharp.
 		</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageOutputPath>packages</PackageOutputPath>
