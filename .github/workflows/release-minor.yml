@@ -48,7 +48,7 @@ jobs:
         ./.github/prepare_release.sh true false
 
     - name: Upload packages artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: "drop-ci-packages"
         path: './temp'
