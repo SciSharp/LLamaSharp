@@ -32,29 +32,25 @@ As shown in [llama.cpp cmake file](https://github.com/ggerganov/llama.cpp/blob/m
 
 ```cpp
 option(BUILD_SHARED_LIBS                "build shared libraries") // Please always enable it 
-option(LLAMA_NATIVE                     "llama: enable -march=native flag") // Could be disabled
-option(LLAMA_AVX                        "llama: enable AVX") // Enable it if the highest supported avx level is AVX
-option(LLAMA_AVX2                       "llama: enable AVX2") // Enable it if the highest supported avx level is AVX2
-option(LLAMA_AVX512                     "llama: enable AVX512") // Enable it if the highest supported avx level is AVX512
-option(LLAMA_BLAS                       "llama: use BLAS") // Enable it if you want to use BLAS library to acclerate the computation on CPU
-option(LLAMA_CUDA                       "llama: use CUDA") // Enable it if you have CUDA device
-option(LLAMA_CLBLAST                    "llama: use CLBlast") // Enable it if you have a device with CLBLast or OpenCL support, for example, some AMD GPUs.
-option(LLAMA_VULKAN                     "llama: use Vulkan") // Enable it if you have a device with Vulkan support
-option(LLAMA_METAL                      "llama: use Metal") // Enable it if you are using a MAC with Metal device.
+option(GGML_NATIVE                      "llama: enable -march=native flag") // Could be disabled
+option(GGML_CUDA                        "llama: use CUDA") // Enable it if you have CUDA device
+option(GGML_OPENBLAS                    "llama: use OpenBLAS") // Enable it if you are using OpenBLAS
+option(GGML_VULKAN                      "llama: use Vulkan") // Enable it if you have a device with Vulkan support
+option(GGML_METAL                       "llama: use Metal") // Enable it if you are using a MAC with Metal device.
 option(LLAMA_BUILD_TESTS                "llama: build tests") // Please disable it.
 option(LLAMA_BUILD_EXAMPLES             "llama: build examples") // Please disable it.
 option(LLAMA_BUILD_SERVER               "llama: build server example")// Please disable it.
 ```
 
-Most importantly, `-DBUILD_SHARED_LIBS=ON` must be added to the cmake instruction and other options depends on you. For example, when building with cublas but without openblas, use the following instruction:
+Most importantly, `-DBUILD_SHARED_LIBS=ON` must be added to the cmake instruction and other options depends on you. For example, when building with CUDA but without openblas, use the following instruction:
 
 ```bash
 mkdir build && cd build
-cmake .. -DLLAMA_CUBLAS=ON -DBUILD_SHARED_LIBS=ON
+cmake .. -DGGML_CUDAS=ON -DBUILD_SHARED_LIBS=ON
 cmake --build . --config Release
 ```
 
-Now you could find the `llama.dll`, `libllama.so` or `llama.dylib` in your build directory (or `build/bin`). 
+Now you could find the `llama.dll`, `libllama.so` or `llama.dylib` in `build/src`. 
 
 To load the compiled native library, please add the following code to the very beginning of your code.
 
