@@ -28,18 +28,22 @@ git clone --recursive https://github.com/SciSharp/LLamaSharp.git
 
 If you want to support cublas in the compilation, please make sure that you've installed it. If you are using Intel CPU, please check the highest AVX ([Advanced Vector Extensions](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions)) level that is supported by your device.
 
-As shown in [llama.cpp cmake file](https://github.com/ggerganov/llama.cpp/blob/master/CMakeLists.txt), there are many options that could be enabled or disabled when building the library. The following ones are commonly used when using it as a native library of LLamaSharp.
+As shown in [llama.cpp cmake file](https://github.com/ggerganov/llama.cpp/blob/master/CMakeLists.txt), which also includes [llama.cpp/ggml cmake file](https://github.com/ggerganov/llama.cpp/blob/master/ggml/CMakeLists.txt), there are many options that could be enabled or disabled when building the library. The following ones are commonly used when using it as a native library of LLamaSharp.
 
 ```cpp
 option(BUILD_SHARED_LIBS                "build shared libraries") // Please always enable it 
-option(GGML_NATIVE                      "llama: enable -march=native flag") // Could be disabled
-option(GGML_CUDA                        "llama: use CUDA") // Enable it if you have CUDA device
-option(GGML_OPENBLAS                    "llama: use OpenBLAS") // Enable it if you are using OpenBLAS
-option(GGML_VULKAN                      "llama: use Vulkan") // Enable it if you have a device with Vulkan support
-option(GGML_METAL                       "llama: use Metal") // Enable it if you are using a MAC with Metal device.
 option(LLAMA_BUILD_TESTS                "llama: build tests") // Please disable it.
 option(LLAMA_BUILD_EXAMPLES             "llama: build examples") // Please disable it.
 option(LLAMA_BUILD_SERVER               "llama: build server example")// Please disable it.
+
+option(GGML_NATIVE                      "llama: enable -march=native flag") // Could be disabled
+option(GGML_AVX                         "ggml: enable AVX") // Enable it if the highest supported avx level is AVX
+option(GGML_AVX2                        "ggml: enable AVX2") // Enable it if the highest supported avx level is AVX2
+option(GGML_AVX512                      "ggml: enable AVX512") // Enable it if the highest supported avx level is AVX512
+option(GGML_CUDA                        "ggml: use CUDA") // Enable it if you have CUDA device
+option(GGML_BLAS                        "ggml: use BLAS") // Enable it if you want to use BLAS library to acclerate the computation on CPU
+option(GGML_VULKAN                      "ggml: use Vulkan") // Enable it if you have a device with Vulkan support
+option(GGML_METAL                       "ggml: use Metal") // Enable it if you are using a MAC with Metal device.
 ```
 
 Most importantly, `-DBUILD_SHARED_LIBS=ON` must be added to the cmake instruction and other options depends on you. For example, when building with CUDA but without openblas, use the following instruction:
