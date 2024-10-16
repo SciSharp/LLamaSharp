@@ -46,11 +46,11 @@ option(GGML_VULKAN                      "ggml: use Vulkan") // Enable it if you 
 option(GGML_METAL                       "ggml: use Metal") // Enable it if you are using a MAC with Metal device.
 ```
 
-Most importantly, `-DBUILD_SHARED_LIBS=ON` must be added to the cmake instruction and other options depends on you. For example, when building with CUDA but without openblas, use the following instruction:
+Most importantly, `-DBUILD_SHARED_LIBS=ON` must be added to the cmake instruction and other options depends on you. For example, when building with CUDA, use the following instruction:
 
 ```bash
 mkdir build && cd build
-cmake .. -DGGML_CUDAS=ON -DBUILD_SHARED_LIBS=ON
+cmake .. -DGGML_CUDA=ON -DBUILD_SHARED_LIBS=ON
 cmake --build . --config Release
 ```
 
