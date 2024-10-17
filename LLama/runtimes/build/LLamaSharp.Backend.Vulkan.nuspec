@@ -16,8 +16,8 @@
 
         <!-- Dependencies on platform-specific packages -->
         <dependencies>
-            <dependency id="LLamaSharp.Backend.Vulkan.Windows" version="$version$" exclude="Linux" />
-            <dependency id="LLamaSharp.Backend.Vulkan.Linux" version="$version$" exclude="Win" />
+            <dependency id="LLamaSharp.Backend.Vulkan.Windows" version="$version$" />
+            <dependency id="LLamaSharp.Backend.Vulkan.Linux" version="$version$" />
         </dependencies>
     </metadata>
 

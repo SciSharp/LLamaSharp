@@ -16,8 +16,8 @@
 
         <!-- Dependencies on platform-specific packages -->
         <dependencies>
-            <dependency id="LLamaSharp.Backend.Cuda11.Windows" version="$version$" exclude="Linux" />
-            <dependency id="LLamaSharp.Backend.Cuda11.Linux" version="$version$" exclude="Win" />
+            <dependency id="LLamaSharp.Backend.Cuda11.Windows" version="$version$" />
+            <dependency id="LLamaSharp.Backend.Cuda11.Linux" version="$version$" />
         </dependencies>
     </metadata>
 
