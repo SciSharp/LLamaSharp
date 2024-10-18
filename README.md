@@ -145,6 +145,8 @@ InferenceParams inferenceParams = new InferenceParams()
 {
     MaxTokens = 256, // No more than 256 tokens should appear in answer. Remove it if antiprompt is enough for control.
     AntiPrompts = new List<string> { "User:" } // Stop generation once antiprompts appear.
+
+    SamplingPipeline = new DefaultSamplingPipeline(),
 };
 
 Console.ForegroundColor = ConsoleColor.Yellow;
