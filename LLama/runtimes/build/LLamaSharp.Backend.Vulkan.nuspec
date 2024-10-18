@@ -13,19 +13,15 @@
         <releaseNotes></releaseNotes>
         <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
         <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+
+        <!-- Dependencies on platform-specific packages -->
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Vulkan.Windows" version="$version$" />
+            <dependency id="LLamaSharp.Backend.Vulkan.Linux" version="$version$" />
+        </dependencies>
     </metadata>
-    
+
     <files>
-        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
-    
-        <file src="runtimes/deps/vulkan/libllava_shared.so" target="runtimes\linux-x64\native\vulkan\libllava_shared.so" />
-        <file src="runtimes/deps/vulkan/llava_shared.dll" target="runtimes\win-x64\native\vulkan\llava_shared.dll" />
-    
-        <file src="runtimes/deps/vulkan/ggml.dll" target="runtimes\win-x64\native\vulkan\ggml.dll" />
-        <file src="runtimes/deps/vulkan/llama.dll" target="runtimes\win-x64\native\vulkan\llama.dll" />
-        <file src="runtimes/deps/vulkan/libggml.so" target="runtimes\linux-x64\native\vulkan\libggml.so" />
-        <file src="runtimes/deps/vulkan/libllama.so" target="runtimes\linux-x64\native\vulkan\libllama.so" />
-        
         <file src="icon512.png" target="icon512.png" />
     </files>
 </package>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+    <metadata>
+        <id>LLamaSharp.Backend.Vulkan.Linux</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Vulkan.Linux</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Vulkan.Linux contains the Linux binaries for LLamaSharp with Vulkan support.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+    </metadata>
+
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
+        <file src="runtimes/deps/vulkan/libllava_shared.so" target="runtimes/linux-x64/native/vulkan/libllava_shared.so" />
+        <file src="runtimes/deps/vulkan/libggml.so" target="runtimes/linux-x64/native/vulkan/libggml.so" />
+        <file src="runtimes/deps/vulkan/libllama.so" target="runtimes/linux-x64/native/vulkan/libllama.so" />
+        
+        <file src="icon512.png" target="icon512.png" />
+    </files>
+</package>
