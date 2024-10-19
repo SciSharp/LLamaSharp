@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package >
-  <metadata>
-    <id>LLamaSharp.Backend.Cuda11</id>
-    <version>$version$</version>
-    <title>LLamaSharp.Backend.Cuda11, the backend for LLamaSharp</title>
-    <authors>llama.cpp Authors</authors>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
-    <icon>icon512.png</icon>
-    <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
-    <description>LLamaSharp.Backend.Cuda11 is a backend for LLamaSharp to use with Cuda11.</description>
-    <releaseNotes></releaseNotes>
-    <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
-    <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
-  </metadata>
+    <metadata>
+        <id>LLamaSharp.Backend.Cuda11</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Cuda11, the backend for LLamaSharp</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Cuda11 is a backend for LLamaSharp to use with Cuda11.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
 
-  <files>
-    <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda11.props" />
+        <!-- Dependencies on platform-specific packages -->
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Cuda11.Windows" version="$version$" />
+            <dependency id="LLamaSharp.Backend.Cuda11.Linux" version="$version$" />
+        </dependencies>
+    </metadata>
 
-    <file src="runtimes/deps/cu11.7.1/libllava_shared.so" target="runtimes\linux-x64\native\cuda11\libllava_shared.so" />
-    <file src="runtimes/deps/cu11.7.1/llava_shared.dll" target="runtimes\win-x64\native\cuda11\llava_shared.dll" />
-
-    <file src="runtimes/deps/cu11.7.1/ggml.dll" target="runtimes\win-x64\native\cuda11\ggml.dll" />
-    <file src="runtimes/deps/cu11.7.1/llama.dll" target="runtimes\win-x64\native\cuda11\llama.dll" />
-    <file src="runtimes/deps/cu11.7.1/libggml.so" target="runtimes\linux-x64\native\cuda11\libggml.so" />
-    <file src="runtimes/deps/cu11.7.1/libllama.so" target="runtimes\linux-x64\native\cuda11\libllama.so" />
-    
-    <file src="icon512.png" target="icon512.png" />
-  </files>
+    <files>
+        <file src="icon512.png" target="icon512.png" />
+    </files>
 </package>

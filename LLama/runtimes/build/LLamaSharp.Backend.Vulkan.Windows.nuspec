@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+    <metadata>
+        <id>LLamaSharp.Backend.Vulkan.Windows</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Vulkan.Windows</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Vulkan.Windows contains the Windows binaries for LLamaSharp with Vulkan support.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+    </metadata>
+
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
+        <file src="runtimes/deps/vulkan/llava_shared.dll" target="runtimes\win-x64\native\vulkan\llava_shared.dll" />
+        <file src="runtimes/deps/vulkan/ggml.dll" target="runtimes\win-x64\native\vulkan\ggml.dll" />
+        <file src="runtimes/deps/vulkan/llama.dll" target="runtimes\win-x64\native\vulkan\llama.dll" />
+        <file src="icon512.png" target="icon512.png" />
+    </files>
+</package>
