@@ -519,6 +519,7 @@ public record struct LLamaLogitBias
 /// 
 /// </summary>
 /// <remarks>llama_sampler_i</remarks>
+[StructLayout(LayoutKind.Sequential)]
 internal struct LLamaSamplerINative
 {
     /// <summary>
@@ -527,7 +528,7 @@ internal struct LLamaSamplerINative
     /// <param name="smpl"></param>
     /// <returns></returns>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate string NameDelegate(IntPtr smpl);
+    public delegate string NameDelegate(ref LLamaSamplerNative smpl);
 
     /// <summary>
     /// Update internal sampler state after a token has been chosen
@@ -535,7 +536,7 @@ internal struct LLamaSamplerINative
     /// <param name="smpl"></param>
     /// <param name="token"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void AcceptDelegate(IntPtr smpl, LLamaToken token);
+    public delegate void AcceptDelegate(ref LLamaSamplerNative smpl, LLamaToken token);
 
     /// <summary>
     /// Apply this sampler to a set of logits
@@ -543,14 +544,14 @@ internal struct LLamaSamplerINative
     /// <param name="smpl"></param>
     /// <param name="cur_p"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ApplyDelegate(IntPtr smpl, ref LLamaTokenDataArrayNative cur_p);
+    public delegate void ApplyDelegate(ref LLamaSamplerNative smpl, ref LLamaTokenDataArrayNative cur_p);
 
     /// <summary>
     /// Reset the internal state of this sampler
     /// </summary>
     /// <param name="smpl"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ResetDelegate(IntPtr smpl);
+    public delegate void ResetDelegate(ref LLamaSamplerNative smpl);
 
     /// <summary>
     /// Create a clone of this sampler
@@ -558,22 +559,21 @@ internal struct LLamaSamplerINative
     /// <param name="smpl"></param>
     /// <returns></returns>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate IntPtr CloneDelegate(IntPtr smpl);
+    public delegate IntPtr CloneDelegate(ref LLamaSamplerNative smpl);
 
     /// <summary>
     /// Free all resources held by this sampler
     /// </summary>
     /// <param name="smpl"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FreeDelegate(IntPtr smpl);
+    public delegate void FreeDelegate(ref LLamaSamplerNative smpl);
 
-
-    public NameDelegate Name;
-    public AcceptDelegate Accept;
-    public ApplyDelegate Apply;
-    public ResetDelegate Reset;
-    public CloneDelegate Clone;
-    public FreeDelegate Free;
+    public unsafe delegate*<char*> Name;
+    public unsafe delegate*<LLamaSamplerNative*, LLamaToken, void> Accept;
+    public unsafe delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void> Apply;
+    public unsafe delegate*<LLamaSamplerNative*, void> Reset;
+    public unsafe delegate*<LLamaSamplerNative*, IntPtr> Clone;
+    public unsafe delegate*<LLamaSamplerNative*, void> Free;
 }
 
 /// <summary>
@@ -585,9 +585,7 @@ internal unsafe struct LLamaSamplerNative
     /// <summary>
     /// Holds the function pointers which make up the actual sampler
     /// </summary>
-#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
     public LLamaSamplerINative* Interface;
-#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 
     /// <summary>
     /// Any additional context this sampler needs, may be anything. We will use it
@@ -596,7 +594,7 @@ internal unsafe struct LLamaSamplerNative
     public IntPtr Context;
 }
 
-internal unsafe class CustomSamplerHandle
+internal class CustomSamplerHandle
 {
     /// <summary>
     /// This GCHandle roots this object, preventing it from being freed.
@@ -608,8 +606,8 @@ internal unsafe class CustomSamplerHandle
     /// </summary>
     private readonly ICustomSampler _sampler;
 
-    private LLamaSamplerNative* _samplerNativePtr;
-    private LLamaSamplerINative* _samplerNativeInterfacePtr;
+    private unsafe LLamaSamplerNative* _samplerNativePtr;
+    private unsafe LLamaSamplerINative* _samplerNativeInterfacePtr;
 
     private CustomSamplerHandle(ICustomSampler sampler)
     {
@@ -621,17 +619,20 @@ internal unsafe class CustomSamplerHandle
         var handle = new CustomSamplerHandle(sampler);
         handle._gcHandle = GCHandle.Alloc(handle);
 
-        handle._samplerNativeInterfacePtr= (LLamaSamplerINative*)(void*)Marshal.AllocHGlobal(sizeof(LLamaSamplerINative));
-        handle._samplerNativeInterfacePtr->Name = Name;
-        handle._samplerNativeInterfacePtr->Accept = Accept;
-        handle._samplerNativeInterfacePtr->Apply = Apply;
-        handle._samplerNativeInterfacePtr->Reset = Reset;
-        handle._samplerNativeInterfacePtr->Clone = Clone;
-        handle._samplerNativeInterfacePtr->Free = Free;
+        unsafe
+        {
+            handle._samplerNativeInterfacePtr = (LLamaSamplerINative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerINative));
+            handle._samplerNativeInterfacePtr->Name = (delegate*<char*>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.NameDelegate>(Name);
+            handle._samplerNativeInterfacePtr->Accept = (delegate*<LLamaSamplerNative*, LLamaToken, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.AcceptDelegate>(Accept);
+            handle._samplerNativeInterfacePtr->Apply = (delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ApplyDelegate>(Apply);
+            handle._samplerNativeInterfacePtr->Reset = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ResetDelegate>(Reset);
+            handle._samplerNativeInterfacePtr->Clone = (delegate*<LLamaSamplerNative*, IntPtr>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.CloneDelegate>(Clone);
+            handle._samplerNativeInterfacePtr->Free = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.FreeDelegate>(Free);
 
-        handle._samplerNativePtr = (LLamaSamplerNative*)(void*)Marshal.AllocHGlobal(sizeof(LLamaSamplerNative));
-        handle._samplerNativePtr->Context = (IntPtr)handle._gcHandle;
-        handle._samplerNativePtr->Interface = handle._samplerNativeInterfacePtr;
+            handle._samplerNativePtr = (LLamaSamplerNative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerNative));
+            handle._samplerNativePtr->Context = (IntPtr)handle._gcHandle;
+            handle._samplerNativePtr->Interface = handle._samplerNativeInterfacePtr;
+        }
 
         return handle;
     }
@@ -643,58 +644,66 @@ internal unsafe class CustomSamplerHandle
     /// <exception cref="NotImplementedException"></exception>
     public IntPtr GetLLamaSamplerPointer()
     {
-        return (IntPtr)_samplerNativePtr;
+        unsafe
+        {
+            return (IntPtr)_samplerNativePtr;
+        }
     }
 
-    private static string Name(IntPtr smpl)
+    private static CustomSamplerHandle GetSampler(ref LLamaSamplerNative smpl)
     {
-        var handle = (CustomSamplerHandle)GCHandle.FromIntPtr(smpl).Target;
-        return handle._sampler.Name;
+        return (CustomSamplerHandle)GCHandle.FromIntPtr(smpl.Context).Target;
     }
 
-    private static void Accept(IntPtr smpl, LLamaToken token)
+    private static string Name(ref LLamaSamplerNative smpl)
     {
-        var handle = (CustomSamplerHandle)GCHandle.FromIntPtr(smpl).Target;
-        handle._sampler.Accept(token);
+        return GetSampler(ref smpl)._sampler.Name;
     }
 
-    private static void Apply(IntPtr smpl, ref LLamaTokenDataArrayNative candidates)
+    private static void Accept(ref LLamaSamplerNative smpl, LLamaToken token)
     {
-        var handle = (CustomSamplerHandle)GCHandle.FromIntPtr(smpl).Target;
-        handle._sampler.Apply(ref candidates);
+        GetSampler(ref smpl)._sampler.Accept(token);
     }
 
-    private static void Reset(IntPtr smpl)
+    private static void Apply(ref LLamaSamplerNative smpl, ref LLamaTokenDataArrayNative candidates)
     {
-        var handle = (CustomSamplerHandle)GCHandle.FromIntPtr(smpl).Target;
-        handle._sampler.Reset();
+        GetSampler(ref smpl)._sampler.Apply(ref candidates);
     }
 
-    private static IntPtr Clone(IntPtr smpl)
+    private static void Reset(ref LLamaSamplerNative smpl)
     {
+        GetSampler(ref smpl)._sampler.Reset();
+    }
+
+    private static IntPtr Clone(ref LLamaSamplerNative smpl)
+    {
+        var sampler = GetSampler(ref smpl);
+
+        // First do the clone on the managed side
+        var dotnet = sampler._sampler.Clone();
+
         throw new NotImplementedException();
     }
 
-    private static void Free(IntPtr smpl)
+    private static unsafe void Free(ref LLamaSamplerNative smpl)
     {
-        var gcHandle = GCHandle.FromIntPtr(smpl);
-        var handle = (CustomSamplerHandle)gcHandle.Target;
+        var sampler = GetSampler(ref smpl);
 
-        if (handle._samplerNativePtr != null)
+        if (sampler._samplerNativePtr != null)
         {
-            Marshal.FreeHGlobal((IntPtr)handle._samplerNativePtr);
-            handle._samplerNativePtr = null;
+            Marshal.FreeHGlobal((IntPtr)sampler._samplerNativePtr);
+            sampler._samplerNativePtr = null;
         }
 
-        if (handle._samplerNativeInterfacePtr != null)
+        if (sampler._samplerNativeInterfacePtr != null)
         {
-            Marshal.FreeHGlobal((IntPtr)handle._samplerNativeInterfacePtr);
-            handle._samplerNativeInterfacePtr = null;
+            Marshal.FreeHGlobal((IntPtr)sampler._samplerNativeInterfacePtr);
+            sampler._samplerNativeInterfacePtr = null;
         }
 
-        gcHandle.Free();
+        sampler._gcHandle.Free();
 
-        handle._sampler.Free();
+        sampler._sampler.Free();
     }
 }
 

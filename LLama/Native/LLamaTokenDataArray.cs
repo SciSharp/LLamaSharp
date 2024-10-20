@@ -149,7 +149,7 @@ namespace LLama.Native
         /// <summary>
         /// Number of LLamaTokenData in the array
         /// </summary>
-        public ulong size;
+        private ulong _size;
 
         /// <summary>
         /// The index in the array (i.e. not the token id)
@@ -167,13 +167,13 @@ namespace LLama.Native
             {
                 unsafe
                 {
-                    return new Span<LLamaTokenData>(_data, checked((int)size));
+                    return new Span<LLamaTokenData>(_data, checked((int)Size));
                 }
             }
         }
         
         /// <summary>
-        /// Indicates if the items in the array are sorted
+        /// Indicates if the items in the array are sorted, so the most likely token is first
         /// </summary>
         public bool Sorted
         {
@@ -191,6 +191,20 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Number of LLamaTokenData in the array. Set this to shrink the array
+        /// </summary>
+        public ulong Size
+        {
+            get => _size;
+            set
+            {
+                if (value > _size)
+                    throw new ArgumentOutOfRangeException(nameof(value), "Cannot set Size property to a larger value");
+                _size = value;
+            }
+        }
+
+        /// <summary>
         /// Create a new LLamaTokenDataArrayNative around the data in the LLamaTokenDataArray 
         /// </summary>
         /// <param name="array">Data source</param>
@@ -205,7 +219,7 @@ namespace LLama.Native
                 native = new LLamaTokenDataArrayNative
                 {
                     _data = (LLamaTokenData*)handle.Pointer,
-                    size = (ulong)array.Data.Length,
+                    Size = (ulong)array.Data.Length,
                     Sorted = array.Sorted
                 };
             }
