@@ -86,7 +86,7 @@ namespace LLama.Examples.Examples
             // Make the most likely token impossible to pick
             tokenData.Data[0].Logit = float.NegativeInfinity;
             
-            // It's critically important to set this if the logits are no logner sorted after the custom 
+            // It's **critically** important to set this if the logits are no longer sorted after the custom 
             // sampler has run. If you're not sure, it's always safer to set it to false.
             //
             // In this case, because the first logit has just been set to negative infinity
