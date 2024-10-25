@@ -107,7 +107,7 @@ namespace LLama.Examples.Examples
             return new RemoveMostLikelyToken();
         }
 
-        public void Free()
+        public void Dispose()
         {
         }
     }
