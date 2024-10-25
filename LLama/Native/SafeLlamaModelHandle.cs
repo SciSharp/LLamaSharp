@@ -386,32 +386,29 @@ namespace LLama.Native
         private static extern LLamaToken llama_token_pad(SafeLlamaModelHandle model);
 
         /// <summary>
-        /// codellama infill tokens, Beginning of infill prefix
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_prefix(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// codellama infill tokens, Beginning of infill middle
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_middle(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// codellama infill tokens, Beginning of infill suffix
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_suffix(SafeLlamaModelHandle model);
-
-        /// <summary>
         /// codellama infill tokens, End of infill middle
         /// </summary>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_token_eot(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_token_fim_pre(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_token_fim_suf(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_token_fim_mid(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_token_fim_pad(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_token_fim_rep(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_token_fim_sep(SafeLlamaModelHandle model);
 
         /// <summary>
         /// For encoder-decoder models, this function returns id of the token that must be provided

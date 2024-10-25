@@ -50,6 +50,14 @@ namespace LLama.Native
         public static extern bool llama_supports_gpu_offload();
 
         /// <summary>
+        /// Check if RPC offload is supported
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        public static extern bool llama_supports_rpc();
+
+        /// <summary>
         /// Initialize the llama + ggml backend. Call once at the start of the program.
         ///
         /// This is private because LLamaSharp automatically calls it, and it's only valid to call it once!

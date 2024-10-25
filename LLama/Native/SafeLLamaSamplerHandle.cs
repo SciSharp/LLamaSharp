@@ -267,19 +267,6 @@ public class SafeLLamaSamplerChainHandle
         static extern IntPtr llama_sampler_init_mirostat_v2(uint seed, float tau, float eta);
     }
 
-
-    /// <summary>
-    /// Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
-    /// </summary>
-    /// <returns></returns>
-    public void AddSoftmax()
-    {
-        llama_sampler_chain_add(this, llama_sampler_init_softmax());
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_init_softmax();
-    }
-
     /// <summary>
     /// Top-K sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
     /// </summary>
@@ -309,7 +296,6 @@ public class SafeLLamaSamplerChainHandle
     /// <summary>
     /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
     /// </summary>
-    /// <returns></returns>
     public void AddMinP(float p, nint minKeep)
     {
         llama_sampler_chain_add(this, llama_sampler_init_min_p(p, minKeep));
@@ -323,7 +309,6 @@ public class SafeLLamaSamplerChainHandle
     /// <summary>
     /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
     /// </summary>
-    /// <returns></returns>
     public void AddTailFree(float z, nint minKeep)
     {
         llama_sampler_chain_add(this, llama_sampler_init_tail_free(z, minKeep));
@@ -337,7 +322,6 @@ public class SafeLLamaSamplerChainHandle
     /// <summary>
     /// Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.
     /// </summary>
-    /// <returns></returns>
     public void AddTypical(float p, nint minKeep)
     {
         llama_sampler_chain_add(this, llama_sampler_init_typical(p, minKeep));
@@ -349,14 +333,15 @@ public class SafeLLamaSamplerChainHandle
     }
 
     /// <summary>
-    /// Apply temperature to the logits
+    /// Apply temperature to the logits.
+    /// If temperature is less than zero the maximum logit is left unchanged and the rest are set to -infinity
     /// </summary>
     /// <param name="t"></param>
-    /// <returns></returns>
     public void AddTemperature(float t)
     {
         llama_sampler_chain_add(this, llama_sampler_init_temp(t));
 
+        // #details Updates the logits l_i` = l_i/t. When t <= 0.0f, the maximum logit is kept at it's original value, the rest are set to -inf
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr llama_sampler_init_temp(float t);
     }
@@ -367,13 +352,57 @@ public class SafeLLamaSamplerChainHandle
     /// <param name="t"></param>
     /// <param name="delta"></param>
     /// <param name="exponent"></param>
-    /// <returns></returns>
     public void AddDynamicTemperature(float t, float delta, float exponent)
     {
         llama_sampler_chain_add(this, llama_sampler_init_temp_ext(t, delta, exponent));
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr llama_sampler_init_temp_ext(float t, float delta, float exponent);
+    }
+
+    /// <summary>
+    /// XTC sampler as described in https://github.com/oobabooga/text-generation-webui/pull/6335
+    /// </summary>
+    /// <param name="p"></param>
+    /// <param name="t"></param>
+    /// <param name="minKeep"></param>
+    /// <param name="seed"></param>
+    public void AddXTC(float p, float t, int minKeep, uint seed)
+    {
+        llama_sampler_chain_add(this, llama_sampler_init_xtc(p, t, minKeep, seed));
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr llama_sampler_init_xtc(float p, float t, nint minKeep, uint seed);
+    }
+
+    /// <summary>
+    /// This sampler is meant to be used for fill-in-the-middle infilling, after top_k + top_p sampling
+    ///<br />
+    /// 1. if the sum of the EOG probs times the number of candidates is higher than the sum of the other probs -> pick EOG<br />
+    /// 2. combine probs of tokens that have the same prefix<br />
+    /// <br />
+    /// example:<br />
+    /// <br />
+    /// - before:<br />
+    ///   "hel":   0.5<br />
+    ///   "hell":  0.2<br />
+    ///   "hello": 0.1<br />
+    ///   "dummy": 0.1<br />
+    ///<br />
+    /// - after:<br />
+    ///   "hel":   0.8<br />
+    ///   "dummy": 0.1<br />
+    ///<br />
+    /// 3. discard non-EOG tokens with low prob<br />
+    /// 4. if no tokens are left -> pick EOT
+    /// </summary>
+    /// <param name="model"></param>
+    public void AddFillInMiddleInfill(SafeLlamaModelHandle model)
+    {
+        llama_sampler_chain_add(this, llama_sampler_init_infill(model));
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr llama_sampler_init_infill(SafeLlamaModelHandle model);
     }
 
     /// <summary>
