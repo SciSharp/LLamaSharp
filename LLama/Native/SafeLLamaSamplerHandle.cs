@@ -162,7 +162,7 @@ public class SafeLLamaSamplerChainHandle
     /// <param name="index">The index of the stage to clone</param>
     public void AddClone(SafeLLamaSamplerChainHandle src, int index)
     {
-        if (index < 0 || index >= Count)
+        if (index < 0 || index >= src.Count)
             throw new ArgumentOutOfRangeException(nameof(index));
 
         llama_sampler_chain_add(
@@ -201,8 +201,11 @@ public class SafeLLamaSamplerChainHandle
     public void AddCustom<TSampler>(TSampler sampler)
         where TSampler : class, ICustomSampler
     {
-        var samplerHandle = CustomSamplerHandle.Create(sampler);
-        llama_sampler_chain_add(this, samplerHandle.GetLLamaSamplerPointer());
+        unsafe
+        {
+            var samplerHandle = CustomSamplerHandle.Create(sampler);
+            llama_sampler_chain_add(this, (IntPtr)samplerHandle.GetLLamaSamplerPointer());
+        }
     }
 
 
@@ -559,7 +562,7 @@ internal struct LLamaSamplerINative
     /// <param name="smpl"></param>
     /// <returns></returns>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate IntPtr CloneDelegate(ref LLamaSamplerNative smpl);
+    public unsafe delegate LLamaSamplerNative* CloneDelegate(ref LLamaSamplerNative smpl);
 
     /// <summary>
     /// Free all resources held by this sampler
@@ -580,6 +583,7 @@ internal struct LLamaSamplerINative
 /// 
 /// </summary>
 /// <remarks>llama_sampler</remarks>
+[StructLayout(LayoutKind.Sequential)]
 internal unsafe struct LLamaSamplerNative
 {
     /// <summary>
@@ -642,17 +646,14 @@ internal class CustomSamplerHandle
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public IntPtr GetLLamaSamplerPointer()
+    public unsafe LLamaSamplerNative* GetLLamaSamplerPointer()
     {
-        unsafe
-        {
-            return (IntPtr)_samplerNativePtr;
-        }
+        return _samplerNativePtr;
     }
 
     private static CustomSamplerHandle GetSampler(ref LLamaSamplerNative smpl)
     {
-        return (CustomSamplerHandle)GCHandle.FromIntPtr(smpl.Context).Target;
+        return (CustomSamplerHandle)GCHandle.FromIntPtr(smpl.Context).Target!;
     }
 
     private static string Name(ref LLamaSamplerNative smpl)
@@ -675,14 +676,11 @@ internal class CustomSamplerHandle
         GetSampler(ref smpl)._sampler.Reset();
     }
 
-    private static IntPtr Clone(ref LLamaSamplerNative smpl)
+    private static unsafe LLamaSamplerNative* Clone(ref LLamaSamplerNative smpl)
     {
         var sampler = GetSampler(ref smpl);
 
-        // First do the clone on the managed side
-        var dotnet = sampler._sampler.Clone();
-
-        throw new NotImplementedException();
+        return Create(sampler._sampler.Clone()).GetLLamaSamplerPointer();
     }
 
     private static unsafe void Free(ref LLamaSamplerNative smpl)
