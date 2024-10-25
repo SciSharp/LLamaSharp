@@ -701,7 +701,7 @@ internal class CustomSamplerHandle
 
         sampler._gcHandle.Free();
 
-        sampler._sampler.Free();
+        sampler._sampler.Dispose();
     }
 }
 
@@ -709,6 +709,7 @@ internal class CustomSamplerHandle
 /// A custom sampler stage for modifying logits or selecting a token
 /// </summary>
 public interface ICustomSampler
+    : IDisposable
 {
     /// <summary>
     /// The human readable name of this stage
@@ -716,8 +717,14 @@ public interface ICustomSampler
     string Name { get; }
 
     /// <summary>
-    /// Apply this stage to a set of logits. This can modify logits or select a token (or both). If logits are modified, the Sorted flag must be cleared.
+    /// Apply this stage to a set of logits.
+    /// This can modify logits or select a token (or both).
+    /// If logits are modified the Sorted flag <b>must</b> be set to false.
     /// </summary>
+    /// <remarks>
+    /// If the logits are no longer sorted after the custom sampler has run it is <b>critically</b> important to
+    /// set <i>Sorted=false</i>. If unsure, always set it to false, this is a safe default.
+    /// </remarks>
     /// <param name="tokenData"></param>
     void Apply(ref LLamaTokenDataArrayNative tokenData);
 
@@ -736,9 +743,4 @@ public interface ICustomSampler
     /// Create a clone of this sampler
     /// </summary>
     ICustomSampler Clone();
-
-    /// <summary>
-    /// Free all unmanaged resources held by this sampler
-    /// </summary>
-    void Free();
 }
