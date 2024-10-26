@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace LLama.Native;
 
@@ -117,10 +119,10 @@ public class SafeLLamaSamplerChainHandle
         if (index < 0 || index >= Count)
             throw new ArgumentOutOfRangeException(nameof(index));
 
-        return llama_sampler_name(llama_sampler_chain_get(this, index));
+        return Marshal.PtrToStringAnsi(llama_sampler_name(llama_sampler_chain_get(this, index))) ?? "Unknown Name";
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern string llama_sampler_name(IntPtr smpl);
+        static extern IntPtr llama_sampler_name(IntPtr smpl);
     }
 
     /// <summary>
@@ -531,7 +533,7 @@ internal struct LLamaSamplerINative
     /// <param name="smpl"></param>
     /// <returns></returns>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate string NameDelegate(ref LLamaSamplerNative smpl);
+    public unsafe delegate byte* NameDelegate(ref LLamaSamplerNative smpl);
 
     /// <summary>
     /// Update internal sampler state after a token has been chosen
@@ -571,7 +573,7 @@ internal struct LLamaSamplerINative
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FreeDelegate(ref LLamaSamplerNative smpl);
 
-    public unsafe delegate*<char*> Name;
+    public unsafe delegate*<byte*> Name;
     public unsafe delegate*<LLamaSamplerNative*, LLamaToken, void> Accept;
     public unsafe delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void> Apply;
     public unsafe delegate*<LLamaSamplerNative*, void> Reset;
@@ -612,6 +614,7 @@ internal class CustomSamplerHandle
 
     private unsafe LLamaSamplerNative* _samplerNativePtr;
     private unsafe LLamaSamplerINative* _samplerNativeInterfacePtr;
+    private unsafe byte* _samplerNamePtr;
 
     private CustomSamplerHandle(ICustomSampler sampler)
     {
@@ -620,22 +623,30 @@ internal class CustomSamplerHandle
 
     public static CustomSamplerHandle Create(ICustomSampler sampler)
     {
+        var nameArr = Encoding.UTF8.GetBytes(sampler.Name + '\0');
+
         var handle = new CustomSamplerHandle(sampler);
         handle._gcHandle = GCHandle.Alloc(handle);
 
         unsafe
         {
+            // Allocate space for a `LLamaSamplerINative` struct. So we can pass pointers to it.
             handle._samplerNativeInterfacePtr = (LLamaSamplerINative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerINative));
-            handle._samplerNativeInterfacePtr->Name = (delegate*<char*>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.NameDelegate>(Name);
+            handle._samplerNativeInterfacePtr->Name = (delegate*<byte*>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.NameDelegate>(Name);
             handle._samplerNativeInterfacePtr->Accept = (delegate*<LLamaSamplerNative*, LLamaToken, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.AcceptDelegate>(Accept);
             handle._samplerNativeInterfacePtr->Apply = (delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ApplyDelegate>(Apply);
             handle._samplerNativeInterfacePtr->Reset = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ResetDelegate>(Reset);
             handle._samplerNativeInterfacePtr->Clone = (delegate*<LLamaSamplerNative*, IntPtr>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.CloneDelegate>(Clone);
             handle._samplerNativeInterfacePtr->Free = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.FreeDelegate>(Free);
 
+            // Allocate space for a `LLamaSamplerNative` struct. So we can pass pointers to it.
             handle._samplerNativePtr = (LLamaSamplerNative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerNative));
             handle._samplerNativePtr->Context = (IntPtr)handle._gcHandle;
             handle._samplerNativePtr->Interface = handle._samplerNativeInterfacePtr;
+
+            // Allocate space for the name string
+            handle._samplerNamePtr = (byte*)Marshal.AllocHGlobal(nameArr.Length);
+            nameArr.AsSpan().CopyTo(new Span<byte>(handle._samplerNamePtr, nameArr.Length));
         }
 
         return handle;
@@ -656,9 +667,9 @@ internal class CustomSamplerHandle
         return (CustomSamplerHandle)GCHandle.FromIntPtr(smpl.Context).Target!;
     }
 
-    private static string Name(ref LLamaSamplerNative smpl)
+    private static unsafe byte* Name(ref LLamaSamplerNative smpl)
     {
-        return GetSampler(ref smpl)._sampler.Name;
+        return GetSampler(ref smpl)._samplerNamePtr;
     }
 
     private static void Accept(ref LLamaSamplerNative smpl, LLamaToken token)
@@ -697,6 +708,12 @@ internal class CustomSamplerHandle
         {
             Marshal.FreeHGlobal((IntPtr)sampler._samplerNativeInterfacePtr);
             sampler._samplerNativeInterfacePtr = null;
+        }
+
+        if (sampler._samplerNamePtr != null)
+        {
+            Marshal.FreeHGlobal((IntPtr)sampler._samplerNamePtr);
+            sampler._samplerNamePtr = null;
         }
 
         sampler._gcHandle.Free();
