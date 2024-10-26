@@ -384,13 +384,13 @@ public class SafeLLamaSamplerChainHandle
     /// example:<br />
     /// <br />
     /// - before:<br />
-    ///   "hel":   0.5<br />
-    ///   "hell":  0.2<br />
-    ///   "hello": 0.1<br />
+    ///   "abc":   0.5<br />
+    ///   "abcd":  0.2<br />
+    ///   "abcde": 0.1<br />
     ///   "dummy": 0.1<br />
     ///<br />
     /// - after:<br />
-    ///   "hel":   0.8<br />
+    ///   "abc":   0.8<br />
     ///   "dummy": 0.1<br />
     ///<br />
     /// 3. discard non-EOG tokens with low prob<br />
