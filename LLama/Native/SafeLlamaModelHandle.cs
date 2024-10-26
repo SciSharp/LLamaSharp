@@ -768,17 +768,32 @@ namespace LLama.Native
             /// <summary>
             /// Codellama beginning of infill prefix
             /// </summary>
-            public LLamaToken? InfillPrefix => Normalize(llama_token_prefix(_model));
+            public LLamaToken? InfillPrefix => Normalize(llama_token_fim_pre(_model));
 
             /// <summary>
             /// Codellama beginning of infill middle
             /// </summary>
-            public LLamaToken? InfillMiddle => Normalize(llama_token_middle(_model));
+            public LLamaToken? InfillMiddle => Normalize(llama_token_fim_mid(_model));
 
             /// <summary>
             /// Codellama beginning of infill suffix
             /// </summary>
-            public LLamaToken? InfillSuffix => Normalize(llama_token_suffix(_model));
+            public LLamaToken? InfillSuffix => Normalize(llama_token_fim_suf(_model));
+
+            /// <summary>
+            /// Codellama pad
+            /// </summary>
+            public LLamaToken? InfillPad => Normalize(llama_token_fim_pad(_model));
+
+            /// <summary>
+            /// Codellama rep
+            /// </summary>
+            public LLamaToken? InfillRep => Normalize(llama_token_fim_rep(_model));
+
+            /// <summary>
+            /// Codellama rep
+            /// </summary>
+            public LLamaToken? InfillSep => Normalize(llama_token_fim_sep(_model));
 
             /// <summary>
             /// Codellama end of infill middle

@@ -141,7 +141,6 @@ public sealed class DefaultSamplingPipeline
         chain.AddMinP(MinP, MinKeep);
         chain.AddTemperature(Temperature);
 
-        chain.AddSoftmax();
         chain.AddDistributionSampler(Seed);
 
         return chain;
