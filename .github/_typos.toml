@@ -14,3 +14,7 @@ extend-exclude = [
     "LLama.Benchmark/Assets/",
     "LLama.Examples/Assets/"
 ]
+
+[default.extend-words]
+# Used in a comment in SafeLLamaSamplerHandle.cs, as a prefix of "hello"
+teh = "hel"
