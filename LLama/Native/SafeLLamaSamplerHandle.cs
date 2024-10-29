@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace LLama.Native;
 
@@ -117,10 +119,10 @@ public class SafeLLamaSamplerChainHandle
         if (index < 0 || index >= Count)
             throw new ArgumentOutOfRangeException(nameof(index));
 
-        return llama_sampler_name(llama_sampler_chain_get(this, index));
+        return Marshal.PtrToStringAnsi(llama_sampler_name(llama_sampler_chain_get(this, index))) ?? "Unknown Name";
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern string llama_sampler_name(IntPtr smpl);
+        static extern IntPtr llama_sampler_name(IntPtr smpl);
     }
 
     /// <summary>
@@ -162,7 +164,7 @@ public class SafeLLamaSamplerChainHandle
     /// <param name="index">The index of the stage to clone</param>
     public void AddClone(SafeLLamaSamplerChainHandle src, int index)
     {
-        if (index < 0 || index >= Count)
+        if (index < 0 || index >= src.Count)
             throw new ArgumentOutOfRangeException(nameof(index));
 
         llama_sampler_chain_add(
@@ -190,6 +192,22 @@ public class SafeLLamaSamplerChainHandle
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr llama_sampler_chain_remove(SafeLLamaSamplerChainHandle chain, int i);
+    }
+
+
+    /// <summary>
+    /// Add a custom sampler stage
+    /// </summary>
+    /// <typeparam name="TSampler"></typeparam>
+    /// <param name="sampler"></param>
+    public void AddCustom<TSampler>(TSampler sampler)
+        where TSampler : class, ICustomSampler
+    {
+        unsafe
+        {
+            var samplerHandle = CustomSamplerHandle.Create(sampler);
+            llama_sampler_chain_add(this, (IntPtr)samplerHandle.GetLLamaSamplerPointer());
+        }
     }
 
 
@@ -502,70 +520,228 @@ public record struct LLamaLogitBias
     public float Bias;
 }
 
-/* todo: Custom sampler stuff
 /// <summary>
 /// 
 /// </summary>
 /// <remarks>llama_sampler_i</remarks>
-public struct LLamaSamplerINative
+[StructLayout(LayoutKind.Sequential)]
+internal struct LLamaSamplerINative
 {
-    // Delegate definitions for the function pointers
+    /// <summary>
+    /// Get the name of this sampler
+    /// </summary>
+    /// <param name="smpl"></param>
+    /// <returns></returns>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate string NameDelegate(IntPtr smpl);
+    public unsafe delegate byte* NameDelegate(ref LLamaSamplerNative smpl);
 
+    /// <summary>
+    /// Update internal sampler state after a token has been chosen
+    /// </summary>
+    /// <param name="smpl"></param>
+    /// <param name="token"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void AcceptDelegate(IntPtr smpl, LLamaToken token);
+    public delegate void AcceptDelegate(ref LLamaSamplerNative smpl, LLamaToken token);
 
+    /// <summary>
+    /// Apply this sampler to a set of logits
+    /// </summary>
+    /// <param name="smpl"></param>
+    /// <param name="cur_p"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ApplyDelegate(IntPtr smpl, ref LLamaTokenDataArrayNative cur_p);
+    public delegate void ApplyDelegate(ref LLamaSamplerNative smpl, ref LLamaTokenDataArrayNative cur_p);
 
+    /// <summary>
+    /// Reset the internal state of this sampler
+    /// </summary>
+    /// <param name="smpl"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ResetDelegate(IntPtr smpl);
+    public delegate void ResetDelegate(ref LLamaSamplerNative smpl);
 
+    /// <summary>
+    /// Create a clone of this sampler
+    /// </summary>
+    /// <param name="smpl"></param>
+    /// <returns></returns>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate IntPtr CloneDelegate(IntPtr smpl);
+    public unsafe delegate LLamaSamplerNative* CloneDelegate(ref LLamaSamplerNative smpl);
 
+    /// <summary>
+    /// Free all resources held by this sampler
+    /// </summary>
+    /// <param name="smpl"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FreeDelegate(IntPtr smpl);
+    public delegate void FreeDelegate(ref LLamaSamplerNative smpl);
 
-    // Struct fields corresponding to function pointers
-    public NameDelegate name;
-    public AcceptDelegate accept;
-    public ApplyDelegate apply;
-    public ResetDelegate reset;
-    public CloneDelegate clone;
-    public FreeDelegate free;
+    public unsafe delegate*<byte*> Name;
+    public unsafe delegate*<LLamaSamplerNative*, LLamaToken, void> Accept;
+    public unsafe delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void> Apply;
+    public unsafe delegate*<LLamaSamplerNative*, void> Reset;
+    public unsafe delegate*<LLamaSamplerNative*, IntPtr> Clone;
+    public unsafe delegate*<LLamaSamplerNative*, void> Free;
 }
 
 /// <summary>
 /// 
 /// </summary>
 /// <remarks>llama_sampler</remarks>
+[StructLayout(LayoutKind.Sequential)]
 internal unsafe struct LLamaSamplerNative
 {
-    public LLamaSamplerINative* iface;
-    public IntPtr ctx;
+    /// <summary>
+    /// Holds the function pointers which make up the actual sampler
+    /// </summary>
+    public LLamaSamplerINative* Interface;
+
+    /// <summary>
+    /// Any additional context this sampler needs, may be anything. We will use it
+    /// to hold a GCHandle.
+    /// </summary>
+    public IntPtr Context;
 }
 
-internal class CustomSamplerWrapper
+internal class CustomSamplerHandle
 {
-    public GCHandle Handle;
-    public ICustomSampler Sampler;
+    /// <summary>
+    /// This GCHandle roots this object, preventing it from being freed.
+    /// </summary>
+    private GCHandle _gcHandle;
+
+    /// <summary>
+    /// A reference to the user code which implements the custom sampler
+    /// </summary>
+    private readonly ICustomSampler _sampler;
+
+    private unsafe LLamaSamplerNative* _samplerNativePtr;
+    private unsafe LLamaSamplerINative* _samplerNativeInterfacePtr;
+    private unsafe byte* _samplerNamePtr;
+
+    private CustomSamplerHandle(ICustomSampler sampler)
+    {
+        _sampler = sampler;
+    }
+
+    public static CustomSamplerHandle Create(ICustomSampler sampler)
+    {
+        var nameArr = Encoding.UTF8.GetBytes(sampler.Name + '\0');
+
+        var handle = new CustomSamplerHandle(sampler);
+        handle._gcHandle = GCHandle.Alloc(handle);
+
+        unsafe
+        {
+            // Allocate space for a `LLamaSamplerINative` struct. So we can pass pointers to it.
+            handle._samplerNativeInterfacePtr = (LLamaSamplerINative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerINative));
+            handle._samplerNativeInterfacePtr->Name = (delegate*<byte*>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.NameDelegate>(Name);
+            handle._samplerNativeInterfacePtr->Accept = (delegate*<LLamaSamplerNative*, LLamaToken, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.AcceptDelegate>(Accept);
+            handle._samplerNativeInterfacePtr->Apply = (delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ApplyDelegate>(Apply);
+            handle._samplerNativeInterfacePtr->Reset = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ResetDelegate>(Reset);
+            handle._samplerNativeInterfacePtr->Clone = (delegate*<LLamaSamplerNative*, IntPtr>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.CloneDelegate>(Clone);
+            handle._samplerNativeInterfacePtr->Free = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.FreeDelegate>(Free);
+
+            // Allocate space for a `LLamaSamplerNative` struct. So we can pass pointers to it.
+            handle._samplerNativePtr = (LLamaSamplerNative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerNative));
+            handle._samplerNativePtr->Context = (IntPtr)handle._gcHandle;
+            handle._samplerNativePtr->Interface = handle._samplerNativeInterfacePtr;
+
+            // Allocate space for the name string
+            handle._samplerNamePtr = (byte*)Marshal.AllocHGlobal(nameArr.Length);
+            nameArr.AsSpan().CopyTo(new Span<byte>(handle._samplerNamePtr, nameArr.Length));
+        }
+
+        return handle;
+    }
+
+    /// <summary>
+    /// Get a pointer to a `llama_sampler` (LLamaSamplerNative) struct, suitable for passing to `llama_sampler_chain_add`
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public unsafe LLamaSamplerNative* GetLLamaSamplerPointer()
+    {
+        return _samplerNativePtr;
+    }
+
+    private static CustomSamplerHandle GetSampler(ref LLamaSamplerNative smpl)
+    {
+        return (CustomSamplerHandle)GCHandle.FromIntPtr(smpl.Context).Target!;
+    }
+
+    private static unsafe byte* Name(ref LLamaSamplerNative smpl)
+    {
+        return GetSampler(ref smpl)._samplerNamePtr;
+    }
+
+    private static void Accept(ref LLamaSamplerNative smpl, LLamaToken token)
+    {
+        GetSampler(ref smpl)._sampler.Accept(token);
+    }
+
+    private static void Apply(ref LLamaSamplerNative smpl, ref LLamaTokenDataArrayNative candidates)
+    {
+        GetSampler(ref smpl)._sampler.Apply(ref candidates);
+    }
+
+    private static void Reset(ref LLamaSamplerNative smpl)
+    {
+        GetSampler(ref smpl)._sampler.Reset();
+    }
+
+    private static unsafe LLamaSamplerNative* Clone(ref LLamaSamplerNative smpl)
+    {
+        var sampler = GetSampler(ref smpl);
+
+        return Create(sampler._sampler.Clone()).GetLLamaSamplerPointer();
+    }
+
+    private static unsafe void Free(ref LLamaSamplerNative smpl)
+    {
+        var sampler = GetSampler(ref smpl);
+
+        if (sampler._samplerNativePtr != null)
+        {
+            Marshal.FreeHGlobal((IntPtr)sampler._samplerNativePtr);
+            sampler._samplerNativePtr = null;
+        }
+
+        if (sampler._samplerNativeInterfacePtr != null)
+        {
+            Marshal.FreeHGlobal((IntPtr)sampler._samplerNativeInterfacePtr);
+            sampler._samplerNativeInterfacePtr = null;
+        }
+
+        if (sampler._samplerNamePtr != null)
+        {
+            Marshal.FreeHGlobal((IntPtr)sampler._samplerNamePtr);
+            sampler._samplerNamePtr = null;
+        }
+
+        sampler._gcHandle.Free();
+
+        sampler._sampler.Dispose();
+    }
 }
 
 /// <summary>
 /// A custom sampler stage for modifying logits or selecting a token
 /// </summary>
 public interface ICustomSampler
+    : IDisposable
 {
     /// <summary>
-    /// The name of this stage
+    /// The human readable name of this stage
     /// </summary>
     string Name { get; }
 
     /// <summary>
-    /// Apply this stage to a set of logits
+    /// Apply this stage to a set of logits.
+    /// This can modify logits or select a token (or both).
+    /// If logits are modified the Sorted flag <b>must</b> be set to false.
     /// </summary>
+    /// <remarks>
+    /// If the logits are no longer sorted after the custom sampler has run it is <b>critically</b> important to
+    /// set <i>Sorted=false</i>. If unsure, always set it to false, this is a safe default.
+    /// </remarks>
     /// <param name="tokenData"></param>
     void Apply(ref LLamaTokenDataArrayNative tokenData);
 
@@ -584,10 +760,4 @@ public interface ICustomSampler
     /// Create a clone of this sampler
     /// </summary>
     ICustomSampler Clone();
-
-    /// <summary>
-    /// Free all unmanaged resources held by this sampler
-    /// </summary>
-    void Free();
 }
-*/
