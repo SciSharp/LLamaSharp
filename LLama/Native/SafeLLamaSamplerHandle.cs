@@ -307,19 +307,6 @@ public class SafeLLamaSamplerChainHandle
     }
 
     /// <summary>
-    /// Minimum P sampling as described in https://github.com/ggerganov/llama.cpp/pull/3841
-    /// </summary>
-    public void AddTailFree(float z, nint minKeep)
-    {
-        llama_sampler_chain_add(this, llama_sampler_init_tail_free(z, minKeep));
-
-        // ReSharper disable InconsistentNaming
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_init_tail_free(float p, nint min_keep);
-        // ReSharper restore InconsistentNaming
-    }
-
-    /// <summary>
     /// Locally Typical Sampling implementation described in the paper https://arxiv.org/abs/2202.00666.
     /// </summary>
     public void AddTypical(float p, nint minKeep)

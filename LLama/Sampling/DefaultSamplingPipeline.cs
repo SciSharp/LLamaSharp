@@ -84,11 +84,6 @@ public sealed class DefaultSamplingPipeline
     public int TopK { get; init; } = 40;
 
     /// <summary>
-    /// Z value for tail free sampling
-    /// </summary>
-    public float TailFreeZ { get; init; } = 1;
-
-    /// <summary>
     /// P value for locally typical sampling
     /// </summary>
     public float TypicalP { get; init; } = 1;
@@ -135,7 +130,6 @@ public sealed class DefaultSamplingPipeline
         );
 
         chain.AddTopK(TopK);
-        chain.AddTailFree(TailFreeZ, MinKeep);
         chain.AddTypical(TypicalP, MinKeep);
         chain.AddTopP(TopP, MinKeep);
         chain.AddMinP(MinP, MinKeep);
