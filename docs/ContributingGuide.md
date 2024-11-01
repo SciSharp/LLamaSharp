@@ -41,7 +41,7 @@ option(GGML_AVX                         "ggml: enable AVX") // Enable it if the 
 option(GGML_AVX2                        "ggml: enable AVX2") // Enable it if the highest supported avx level is AVX2
 option(GGML_AVX512                      "ggml: enable AVX512") // Enable it if the highest supported avx level is AVX512
 option(GGML_CUDA                        "ggml: use CUDA") // Enable it if you have CUDA device
-option(GGML_BLAS                        "ggml: use BLAS") // Enable it if you want to use BLAS library to acclerate the computation on CPU
+option(GGML_BLAS                        "ggml: use BLAS") // Enable it if you want to use BLAS library to accelerate the computation on CPU
 option(GGML_VULKAN                      "ggml: use Vulkan") // Enable it if you have a device with Vulkan support
 option(GGML_METAL                       "ggml: use Metal") // Enable it if you are using a MAC with Metal device.
 ```
