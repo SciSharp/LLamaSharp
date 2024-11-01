@@ -9,7 +9,8 @@ namespace LLama;
 /// <summary>
 /// A set of llava model weights (mmproj), loaded into memory.
 /// </summary>
-public sealed class LLavaWeights : IDisposable
+public sealed class LLavaWeights
+    : IDisposable
 {
     /// <summary>
     /// The native handle, which is used in the native APIs
