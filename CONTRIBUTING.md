@@ -36,7 +36,7 @@ option(LLAMA_NATIVE                     "llama: enable -march=native flag") // C
 option(LLAMA_AVX                        "llama: enable AVX") // Enable it if the highest supported avx level is AVX
 option(LLAMA_AVX2                       "llama: enable AVX2") // Enable it if the highest supported avx level is AVX2
 option(LLAMA_AVX512                     "llama: enable AVX512") // Enable it if the highest supported avx level is AVX512
-option(LLAMA_BLAS                       "llama: use BLAS") // Enable it if you want to use BLAS library to acclerate the computation on CPU
+option(LLAMA_BLAS                       "llama: use BLAS") // Enable it if you want to use BLAS library to accelerate the computation on CPU
 option(LLAMA_CUDA                       "llama: use CUDA") // Enable it if you have CUDA device
 option(LLAMA_CLBLAST                    "llama: use CLBlast") // Enable it if you have a device with CLBLast or OpenCL support, for example, some AMD GPUs.
 option(LLAMA_VULKAN                     "llama: use Vulkan") // Enable it if you have a device with Vulkan support
