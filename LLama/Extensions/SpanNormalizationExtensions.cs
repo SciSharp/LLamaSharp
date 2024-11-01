@@ -82,9 +82,8 @@ public static class SpanNormalizationExtensions
     }
 
     /// <summary>
-    /// <b>In-place</b> divide every element by the euclidean length of the vector
+    /// Creates a new array containing an L2 normalization of the input vector.
     /// </summary>
-    /// <remarks>Also known as "L2 normalization".</remarks>
     /// <param name="vector"></param>
     /// <returns>The same span</returns>
     public static float[] EuclideanNormalization(this ReadOnlySpan<float> vector)
