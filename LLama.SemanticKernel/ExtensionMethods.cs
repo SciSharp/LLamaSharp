@@ -1,3 +1,4 @@
+using LLama.Sampling;
 using Microsoft.SemanticKernel.ChatCompletion;
 using AuthorRole = LLama.Common.AuthorRole;
 
@@ -45,12 +46,16 @@ public static class ExtensionMethods
         };
         return new LLama.Common.InferenceParams
         {
-            Temperature = (float)requestSettings.Temperature,
-            TopP = (float)requestSettings.TopP,
-            PresencePenalty = (float)requestSettings.PresencePenalty,
-            FrequencyPenalty = (float)requestSettings.FrequencyPenalty,
             AntiPrompts = antiPrompts,
-            MaxTokens = requestSettings.MaxTokens ?? -1
+            MaxTokens = requestSettings.MaxTokens ?? -1,
+
+            SamplingPipeline = new DefaultSamplingPipeline()
+            {
+                Temperature = (float)requestSettings.Temperature,
+                TopP = (float)requestSettings.TopP,
+                AlphaPresence = (float)requestSettings.PresencePenalty,
+                AlphaFrequency = (float)requestSettings.FrequencyPenalty,
+            }
         };
     }
 }

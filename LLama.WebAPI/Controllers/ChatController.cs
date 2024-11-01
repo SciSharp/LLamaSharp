@@ -2,7 +2,6 @@ using LLama.Common;
 using LLama.WebAPI.Models;
 using LLama.WebAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace LLama.WebAPI.Controllers
 {
