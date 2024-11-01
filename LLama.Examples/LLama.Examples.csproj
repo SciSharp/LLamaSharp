@@ -21,7 +21,7 @@
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Spectre.Console" Version="0.49.1" />
     <PackageReference Include="Spectre.Console.ImageSharp" Version="0.49.1" />
-    <PackageReference Include="Whisper.net" Version="1.5.0" />
+    <PackageReference Include="Whisper.net" Version="1.7.1" />
     <PackageReference Include="Whisper.net.Runtime" Version="1.5.0" />
     <PackageReference Include="Whisper.net.Runtime.Clblast" Version="1.5.0" />
     <PackageReference Include="Whisper.net.Runtime.CoreML" Version="1.5.0" />
