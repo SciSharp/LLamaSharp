@@ -82,6 +82,18 @@ public static class SpanNormalizationExtensions
     }
 
     /// <summary>
+    /// Creates a new array containing an L2 normalization of the input vector.
+    /// </summary>
+    /// <param name="vector"></param>
+    /// <returns>The same span</returns>
+    public static float[] EuclideanNormalization(this ReadOnlySpan<float> vector)
+    {
+        var result = new float[vector.Length];
+        TensorPrimitives.Divide(vector, TensorPrimitives.Norm(vector), result);
+        return result;
+    }
+
+    /// <summary>
     /// <b>In-place</b> apply p-normalization. https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
     /// <list type="bullet">
     /// <item>For p = 1, this is taxicab normalization</item>

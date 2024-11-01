@@ -12,7 +12,7 @@ namespace LLama;
 /// <summary>
 /// Generate high dimensional embedding vectors from text
 /// </summary>
-public sealed class LLamaEmbedder
+public sealed partial class LLamaEmbedder
     : IDisposable
 {
     /// <summary>
@@ -58,7 +58,10 @@ public sealed class LLamaEmbedder
     /// <returns></returns>
     /// <exception cref="RuntimeError"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    public async Task<IReadOnlyList<float[]>> GetEmbeddings(string input, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<float[]>> GetEmbeddings(string input, CancellationToken cancellationToken = default) =>
+        (await GetEmbeddingsWithTokenCount(input, cancellationToken).ConfigureAwait(false)).Embeddings;
+
+    private async Task<(IReadOnlyList<float[]> Embeddings, int Tokens)> GetEmbeddingsWithTokenCount(string input, CancellationToken cancellationToken = default)
     {
         // Add all of the tokens to the batch
         var tokens = Context.Tokenize(input);
@@ -113,6 +116,6 @@ public sealed class LLamaEmbedder
 
         Context.NativeHandle.KvCacheClear();
 
-        return results;
+        return (results, tokens.Length);
     }
 }

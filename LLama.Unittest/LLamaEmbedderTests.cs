@@ -1,6 +1,7 @@
 using LLama.Common;
 using LLama.Extensions;
 using LLama.Native;
+using Microsoft.Extensions.AI;
 using Xunit.Abstractions;
 
 namespace LLama.Unittest;
@@ -40,6 +41,27 @@ public sealed class LLamaEmbedderTests
 
         var spoon = (await embedder.GetEmbeddings("The spoon is not real")).Single().EuclideanNormalization();
         Assert.DoesNotContain(float.NaN, spoon);
+
+        var generator = (IEmbeddingGenerator<string, Embedding<float>>)embedder;
+        Assert.NotNull(generator.Metadata);
+        Assert.Equal(nameof(LLamaEmbedder), generator.Metadata.ProviderName);
+        Assert.NotNull(generator.Metadata.ModelId);
+        Assert.NotEmpty(generator.Metadata.ModelId);
+        Assert.Same(embedder, generator.GetService<LLamaEmbedder>());
+        Assert.Same(generator, generator.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
+        Assert.Null(generator.GetService<string>());
+
+        var embeddings = await generator.GenerateAsync(
+        [
+            "The cat is cute",
+            "The kitten is cute",
+            "The spoon is not real"
+        ]);
+        Assert.All(cat.Zip(embeddings[0].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
+        Assert.All(kitten.Zip(embeddings[1].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
+        Assert.All(spoon.Zip(embeddings[2].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
+        Assert.True(embeddings.Usage?.InputTokenCount is 19 or 20);
+        Assert.True(embeddings.Usage?.TotalTokenCount is 19 or 20);
 
         _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
         _testOutputHelper.WriteLine($"Kitten = [{string.Join(",", kitten.AsMemory().Slice(0, 7).ToArray())}...]");
