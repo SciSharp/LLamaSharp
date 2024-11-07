@@ -1,5 +1,6 @@
 using LLama;
 using LLama.Common;
+using LLama.Sampling;
 using Microsoft.KernelMemory.AI;
 
 namespace LLamaSharp.KernelMemory
@@ -86,25 +87,31 @@ namespace LLamaSharp.KernelMemory
                 return defaultParams with
                 {
                     AntiPrompts = defaultParams.AntiPrompts.Concat(options.StopSequences).ToList().AsReadOnly(),
-                    Temperature = (float)options.Temperature,
                     MaxTokens = options.MaxTokens ?? defaultParams.MaxTokens,
-                    FrequencyPenalty = (float)options.FrequencyPenalty,
-                    PresencePenalty =  (float)options.PresencePenalty,
-                    TopP = (float)options.NucleusSampling
+
+                    SamplingPipeline = new DefaultSamplingPipeline()
+                    {
+                        Temperature = (float)options.Temperature,
+                        AlphaFrequency = (float)options.FrequencyPenalty,
+                        AlphaPresence = (float)options.PresencePenalty,
+                        TopP = (float)options.NucleusSampling,
+                    }
                 };
             }
-            else
+
+            return new InferenceParams
             {
-                return new InferenceParams
+                AntiPrompts = options.StopSequences.ToList().AsReadOnly(),
+                MaxTokens = options.MaxTokens ?? 1024,
+                    
+                SamplingPipeline = new DefaultSamplingPipeline()
                 {
-                    AntiPrompts = options.StopSequences.ToList().AsReadOnly(),
                     Temperature = (float)options.Temperature,
-                    MaxTokens = options.MaxTokens ?? 1024,
-                    FrequencyPenalty = (float)options.FrequencyPenalty,
-                    PresencePenalty = (float)options.PresencePenalty,
+                    AlphaFrequency = (float)options.FrequencyPenalty,
+                    AlphaPresence = (float)options.PresencePenalty,
                     TopP = (float)options.NucleusSampling,
-                };
-            }
+                }
+            };
         }
 
         /// <inheritdoc/>

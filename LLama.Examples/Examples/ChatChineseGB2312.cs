@@ -55,9 +55,8 @@ public class ChatChineseGB2312
         session
             .WithHistoryTransform(new LLamaTransforms.DefaultHistoryTransform("用户", "坤坤"));
 
-        InferenceParams inferenceParams = new InferenceParams()
+        var inferenceParams = new InferenceParams
         {
-            Temperature = 0.9f,
             AntiPrompts = new List<string> { "用户：" }
         };
 

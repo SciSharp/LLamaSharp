@@ -1,11 +1,10 @@
-﻿
 using LLama.WebAPI.Models;
-using Microsoft;
-using System.Runtime.CompilerServices;
+using LLama.Sampling;
 
 namespace LLama.WebAPI.Services;
 
-public class StatefulChatService : IDisposable
+public sealed class StatefulChatService
+    : IDisposable
 {
     private readonly ChatSession _session;
     private readonly LLamaContext _context;
@@ -47,10 +46,14 @@ public class StatefulChatService : IDisposable
         _logger.LogInformation("Input: {text}", input.Text);
         var outputs = _session.ChatAsync(
             new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text),
-            new Common.InferenceParams()
+            new Common.InferenceParams
             {
-                RepeatPenalty = 1.0f,
-                AntiPrompts = new string[] { "User:" },
+                AntiPrompts = [ "User:" ],
+
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    RepeatPenalty = 1.0f
+                }
             });
 
         var result = "";
@@ -74,11 +77,15 @@ public class StatefulChatService : IDisposable
         _logger.LogInformation(input.Text);
 
         var outputs = _session.ChatAsync(
-            new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text!)
-            , new Common.InferenceParams()
+            new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text),
+            new Common.InferenceParams
             {
-                RepeatPenalty = 1.0f,
-                AntiPrompts = new string[] { "User:" },
+                AntiPrompts = [ "User:" ],
+
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    RepeatPenalty = 1.0f
+                }
             });
 
         await foreach (var output in outputs)

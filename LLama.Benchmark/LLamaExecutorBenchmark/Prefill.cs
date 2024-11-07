@@ -83,7 +83,6 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
             Prompt = File.ReadAllText(Constants.TextCompletionPromptsFilePath).Substring(0, PromptAndContextLength.Item1);
             InferenceParams = new InferenceParams()
             {
-                Temperature = 0.6f,
                 MaxTokens = 1 // Only prefill, no generation here.
             };
 
