@@ -25,6 +25,7 @@ public unsafe struct LLamaNativeBatch
 
     /// <summary>
     /// the positions of the respective token in the sequence
+    /// (if set to NULL, the token position will be tracked automatically by llama_decode)
     /// </summary>
     public LLamaPos* pos;
 
@@ -35,18 +36,13 @@ public unsafe struct LLamaNativeBatch
 
     /// <summary>
     /// the sequence to which the respective token belongs
+    /// (if set to NULL, the sequence ID will be assumed to be 0)
     /// </summary>
     public LLamaSeqId** seq_id;
 
     /// <summary>
     /// if zero, the logits for the respective token will not be output
+    /// (if set to NULL, only the logits for last token will be returned)
     /// </summary>
     public byte* logits;
-
-    // Note from llama.cpp:
-    // > helpers for smooth API transition - can be deprecated in the future
-    // > for future-proof code, use the above fields instead and ignore everything below
-    private LLamaPos _all_pos_0;
-    private LLamaPos _all_pos_1;
-    private LLamaSeqId _all_seq_id;
 }

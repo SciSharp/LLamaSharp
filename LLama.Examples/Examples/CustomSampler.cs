@@ -60,7 +60,6 @@ namespace LLama.Examples.Examples
             chain.AddCustom(new RemoveMostLikelyToken());
 
             // Select from the distribution
-            chain.AddSoftmax();
             chain.AddDistributionSampler(42);
 
             return chain;

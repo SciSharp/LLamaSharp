@@ -368,8 +368,10 @@ namespace LLama.Native
         private static extern LLamaPoolingType llama_pooling_type(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Get the embeddings for the a specific sequence.
-        /// Equivalent to: llama_get_embeddings(ctx) + ctx->output_ids[i]*n_embd
+        /// Get the embeddings for a sequence id.
+        /// Returns NULL if pooling_type is LLAMA_POOLING_TYPE_NONE
+        /// when pooling_type == LLAMA_POOLING_TYPE_RANK, returns float[1] with the rank of the sequence
+        /// otherwise: float[n_embd] (1-dimensional)
         /// </summary>
         /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]

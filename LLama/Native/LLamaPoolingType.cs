@@ -29,4 +29,9 @@ public enum LLamaPoolingType
     CLS = 2,
 
     Last = 3,
+
+    /// <summary>
+    /// Used by reranking models to attach the classification head to the graph
+    /// </summary>
+    Rank,
 }

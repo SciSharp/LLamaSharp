@@ -33,4 +33,5 @@ internal enum LLamaVocabPreType
     BLOOM = 23,
     GPT3_FINNISH = 24,
     EXAONE = 25,
+    CHAMELEON = 26,
 }
