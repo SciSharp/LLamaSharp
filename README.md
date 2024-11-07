@@ -76,7 +76,7 @@ The following examples show how to build APPs with LLamaSharp.
 - [ASP.NET Demo](./LLama.Web/)
 - [LLamaWorker (ASP.NET Web API like OAI and Function Calling Support)](https://github.com/sangyuxiaowu/LLamaWorker)
 
-![LLamaShrp-Integrations](./Assets/LLamaSharp-Integrations.png)
+![LLamaSharp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
 
 ## 🚀Get started
@@ -177,7 +177,7 @@ For more examples, please refer to [LLamaSharp.Examples](./LLama.Examples).
 
 #### Why is my GPU not used when I have installed CUDA?
 
-1. If you are using backend packages, please make sure you have installed the CUDA backend package which matches the CUDA version installed on your system. Please note that before LLamaSharp v0.10.0, only one backend package should be installed at a time.
+1. If you are using backend packages, please make sure you have installed the CUDA backend package which matches the CUDA version installed on your system.
 2. Add the following line to the very beginning of your code. The log will show which native library file is loaded. If the CPU library is loaded, please try to compile the native library yourself and open an issue for that. If the CUDA library is loaded, please check if `GpuLayerCount > 0` when loading the model weight.
 
 ```cs
@@ -258,6 +258,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.16.0 |  | [`11b84eb4`](https://github.com/ggerganov/llama.cpp/tree/11b84eb4578864827afcf956db5b571003f18180) |
 | v0.17.0 |  | [`c35e586e`](https://github.com/ggerganov/llama.cpp/tree/c35e586ea57221844442c65a1172498c54971cb0) |
 | v0.18.0 |  | [`c35e586e`](https://github.com/ggerganov/llama.cpp/tree/c35e586ea57221844442c65a1172498c54971cb0) |
+| v0.19.0 |  | [`958367bf`](https://github.com/ggerganov/llama.cpp/tree/958367bf530d943a902afa1ce1c342476098576b) |
 
 ## License
 
