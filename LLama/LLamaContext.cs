@@ -466,16 +466,15 @@ namespace LLama
         public class State
             : SafeLLamaHandleBase
         {
-            private readonly nuint _size;
             /// <summary>
             /// Get the size in bytes of this state object
             /// </summary>
-            public nuint Size => _size;
+            public nuint Size { get; }
 
             internal State(IntPtr memory, nuint size)
                 : base(memory, true)
             {
-                _size = size;
+                Size = size;
             }
 
             /// <inheritdoc />
@@ -494,7 +493,8 @@ namespace LLama
                 UnmanagedMemoryStream from;
                 unsafe
                 {
-                    from = new UnmanagedMemoryStream((byte*)handle.ToPointer(), checked((long)Size));
+                    var length = (long)Size;
+                    from = new UnmanagedMemoryStream((byte*)handle.ToPointer(), length, length, FileAccess.Read);
                 }
                 await from.CopyToAsync(stream);
             }
@@ -508,7 +508,8 @@ namespace LLama
                 UnmanagedMemoryStream from;
                 unsafe
                 {
-                    from = new UnmanagedMemoryStream((byte*)handle.ToPointer(), checked((long)Size));
+                    var length = (long)Size;
+                    from = new UnmanagedMemoryStream((byte*)handle.ToPointer(), length, length, FileAccess.Read);
                 }
                 from.CopyTo(stream);
             }
@@ -526,7 +527,8 @@ namespace LLama
                 UnmanagedMemoryStream dest;
                 unsafe
                 {
-                    dest = new UnmanagedMemoryStream((byte*)memory.ToPointer(), stream.Length);
+                    var length = stream.Length;
+                    dest = new UnmanagedMemoryStream((byte*)memory.ToPointer(), length, length, FileAccess.Write);
                 }
                 await stream.CopyToAsync(dest);
 
@@ -543,11 +545,13 @@ namespace LLama
                 var memory = Marshal.AllocHGlobal((nint)stream.Length);
                 var state = new State(memory, (nuint)stream.Length);
 
+                UnmanagedMemoryStream dest;
                 unsafe
                 {
-                    var dest = new UnmanagedMemoryStream((byte*)memory.ToPointer(), stream.Length);
-                    stream.CopyTo(dest);
+                    var length = stream.Length;
+                    dest = new UnmanagedMemoryStream((byte*)memory.ToPointer(), length, length, FileAccess.Write);
                 }
+                stream.CopyTo(dest);
 
                 return state;
             }
