@@ -39,7 +39,7 @@ namespace LLama.Unittest.KernelMemory
             var tokens = _generator!.GetTokens(text);
             var tokensCount = _generator.CountTokens(text);
 
-            var expected = " " + text; // the placement of the space corresponding to BOS will vary by model tokenizer
+            var expected = text;
             var actual = string.Join("", tokens);
 
             _testOutputHelper.WriteLine($"Tokens for '{text}':");
@@ -79,7 +79,7 @@ namespace LLama.Unittest.KernelMemory
             var tokens = _generator!.GetTokens(text);
             var tokensCount = _generator.CountTokens(text);
 
-            var expected = " " + text; // the placement of the space corresponding to BOS will vary by model tokenizer
+            var expected = text;
             var actual = string.Join("", tokens);
 
             _testOutputHelper.WriteLine($"Tokens for '{text}':");

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Common;
 using LLama.Native;
 using LLama.Extensions;
@@ -29,7 +29,7 @@ public class SafeLlamaModelHandleTests
         var template = _model.NativeHandle.MetadataValueByKey(key);
         var name = Encoding.UTF8.GetStringFromSpan(template!.Value.Span);
 
-        const string expected = "LLaMA v2";
+        const string expected = "Llama 3.2 1B Instruct";
         Assert.Equal(expected, name);
 
         var metadataLookup = _model.Metadata[key];

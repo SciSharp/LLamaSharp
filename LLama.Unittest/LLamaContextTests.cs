@@ -30,8 +30,8 @@ namespace LLama.Unittest
         public void CheckProperties()
         {
             Assert.Equal(128u, _context.ContextSize);
-            Assert.Equal(4096, _context.EmbeddingSize);
-            Assert.Equal(32000, _context.VocabCount);
+            Assert.Equal(2048, _context.EmbeddingSize);
+            Assert.Equal(128256, _context.VocabCount);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("The quick brown fox", true);
 
-            Assert.Equal(new LLamaToken[] { 1, 450, 4996, 17354, 1701, 29916 }, tokens);
+            Assert.Equal(new LLamaToken[] { 128000, 791, 4062, 14198, 39935 }, tokens);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("\n", false, false);
 
-            Assert.Equal(new LLamaToken[] { 29871, 13 }, tokens);
+            Assert.Equal(new LLamaToken[] { 198 }, tokens);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace LLama.Unittest
         {
             var tokens = _context.Tokenize("The quick brown fox", false);
 
-            Assert.Equal(new LLamaToken[] { 450, 4996, 17354, 1701, 29916 }, tokens);
+            Assert.Equal(new LLamaToken[] { 791, 4062, 14198, 39935 }, tokens);
         }
 
         [Fact]

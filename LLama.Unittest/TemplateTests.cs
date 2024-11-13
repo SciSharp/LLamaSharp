@@ -55,20 +55,14 @@ public sealed class TemplateTests
         Assert.Equal(8, templater.Count);
 
         var templateResult = Encoding.UTF8.GetString(dest);
-        const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
-                                "<|im_start|>user\nworld<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "111<|im_end|>" +
-                                "\n<|im_start|>user\n" +
-                                "aaa<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "222<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "bbb<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "333<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "ccc<|im_end|>\n";
+        const string expected = "<|start_header_id|>assistant<|end_header_id|>\n\nhello<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nworld<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n111<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\naaa<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n222<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nbbb<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>";
 
         Assert.Equal(expected, templateResult);
     }
@@ -136,21 +130,15 @@ public sealed class TemplateTests
         Assert.Equal(8, templater.Count);
 
         var templateResult = Encoding.UTF8.GetString(dest);
-        const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
-                                "<|im_start|>user\nworld<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "111<|im_end|>" +
-                                "\n<|im_start|>user\n" +
-                                "aaa<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "222<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "bbb<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "333<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "ccc<|im_end|>\n" +
-                                "<|im_start|>assistant\n";
+        const string expected = "<|start_header_id|>assistant<|end_header_id|>\n\nhello<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nworld<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n111<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\naaa<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n222<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nbbb<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n";
 
         Assert.Equal(expected, templateResult);
     }
@@ -252,14 +240,14 @@ public sealed class TemplateTests
         var dest = templater.Apply();
         var templateResult = Encoding.UTF8.GetString(dest);
 
-        const string expectedTemplate = $"<|im_start|>user\n{userData}<|im_end|>\n";
+        const string expectedTemplate = $"<|start_header_id|>user<|end_header_id|>\n\n{userData}<|eot_id|>";
         Assert.Equal(expectedTemplate, templateResult);
     }
 
     [Fact]
     public void EndOTurnToken_ReturnsExpected()
     {
-        Assert.Null(_model.Tokens.EndOfTurnToken);
+        Assert.Equal("<|eot_id|>", _model.Tokens.EndOfTurnToken);
     }
 
     [Fact]
@@ -272,7 +260,7 @@ public sealed class TemplateTests
         var eosStr = ConvertTokenToString(_model.Tokens.EOS!.Value);
         _output.WriteLine(eosStr ?? "null");
 
-        Assert.Equal("</s>", _model.Tokens.EndOfSpeechToken);
+        Assert.Equal("<|eot_id|>", _model.Tokens.EndOfSpeechToken);
     }
 
     private string? ConvertTokenToString(LLamaToken token)

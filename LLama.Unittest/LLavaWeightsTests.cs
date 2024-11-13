@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using LLama.Native;
 
 namespace LLama.Unittest
@@ -14,7 +14,7 @@ namespace LLama.Unittest
         
         public LLavaWeightTests()
         {
-            var @params = new ModelParams(Constants.GenerativeModelPath)
+            var @params = new ModelParams(Constants.LLavaModelPath)
             {
                 // Llava models requires big context
                 ContextSize = 4096,
