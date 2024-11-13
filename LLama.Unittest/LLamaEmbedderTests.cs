@@ -60,8 +60,8 @@ public sealed class LLamaEmbedderTests
         Assert.All(cat.Zip(embeddings[0].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
         Assert.All(kitten.Zip(embeddings[1].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
         Assert.All(spoon.Zip(embeddings[2].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
-        Assert.True(embeddings.Usage?.InputTokenCount is 19 or 20);
-        Assert.True(embeddings.Usage?.TotalTokenCount is 19 or 20);
+        Assert.True(embeddings.Usage?.InputTokenCount is 16 or 19);
+        Assert.True(embeddings.Usage?.TotalTokenCount is 16 or 19);
 
         _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
         _testOutputHelper.WriteLine($"Kitten = [{string.Join(",", kitten.AsMemory().Slice(0, 7).ToArray())}...]");

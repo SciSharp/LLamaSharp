@@ -1,4 +1,4 @@
-﻿using LLama.Common;
+using LLama.Common;
 using LLama.Transformers;
 
 namespace LLama.Unittest.Transformers;
@@ -28,9 +28,7 @@ public class PromptTemplateTransformerTests
             Messages = [new ChatHistory.Message(AuthorRole.User, userData)]
         });
 
-        const string expected = "<|im_start|>user\n" +
-                                $"{userData}<|im_end|>\n" +
-                                "<|im_start|>assistant\n";
+        const string expected = $"<|start_header_id|>user<|end_header_id|>\n\n{userData}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n";
         Assert.Equal(expected, template);
     }
 
@@ -62,21 +60,15 @@ public class PromptTemplateTransformerTests
 
         // Call once with empty array to discover length
         var templateResult = PromptTemplateTransformer.ToModelPrompt(templater);
-        const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
-                                "<|im_start|>user\nworld<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "111<|im_end|>" +
-                                "\n<|im_start|>user\n" +
-                                "aaa<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "222<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "bbb<|im_end|>\n" +
-                                "<|im_start|>assistant\n" +
-                                "333<|im_end|>\n" +
-                                "<|im_start|>user\n" +
-                                "ccc<|im_end|>\n" +
-                                "<|im_start|>assistant\n";
+        const string expected = "<|start_header_id|>assistant<|end_header_id|>\n\nhello<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nworld<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n111<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\naaa<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n222<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nbbb<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
+                                    + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>"
+                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n";
 
         Assert.Equal(expected, templateResult);
     }
