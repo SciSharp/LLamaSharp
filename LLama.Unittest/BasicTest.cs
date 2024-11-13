@@ -47,15 +47,15 @@ namespace LLama.Unittest
                 { "general.file_type", "2" },
 
                 { "llama.context_length", "131072" },
-                { "llama.rope.dimension_count", "128" },
+                { "llama.rope.dimension_count", "64" },
                 { "llama.embedding_length", "2048" },
                 { "llama.block_count", "16" },
                 { "llama.feed_forward_length", "8192" },
                 { "llama.attention.head_count", "32" },
-                { "llama.attention.head_count_kv", "32" },
+                { "llama.attention.head_count_kv", "8" },
                 { "llama.attention.layer_norm_rms_epsilon", "0.000010" },
 
-                { "tokenizer.ggml.eos_token_id", "2" },
+                { "tokenizer.ggml.eos_token_id", "128009" },
                 { "tokenizer.ggml.model", "gpt2" },
                 { "tokenizer.ggml.bos_token_id", "128000" },
             };
@@ -66,7 +66,7 @@ namespace LLama.Unittest
 
             // Check every key
             foreach (var (key, value) in expected)
-                Assert.Equal(expected[key], value);
+                Assert.Equal(_model.Metadata[key], value);
         }
     }
 }
