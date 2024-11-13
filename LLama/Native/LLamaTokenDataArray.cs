@@ -219,7 +219,7 @@ namespace LLama.Native
                 native = new LLamaTokenDataArrayNative
                 {
                     _data = (LLamaTokenData*)handle.Pointer,
-                    Size = (ulong)array.Data.Length,
+                    _size = (ulong)array.Data.Length,
                     Sorted = array.Sorted
                 };
             }
