@@ -431,21 +431,27 @@ namespace LLama.Native
 
         #region GetLogits
         /// <summary>
-        /// Token logits obtained from the last call to llama_decode
-        /// The logits for the last token are stored in the last row
+        /// Token logits obtained from the last call to llama_decode.
+        /// The logits for the last token are stored in the last row.
+        /// Only tokens with `logits = true` requested are present.<br/>
         /// Can be mutated in order to change the probabilities of the next token.<br />
         /// Rows: n_tokens<br />
         /// Cols: n_vocab
         /// </summary>
+        /// <param name="numTokens">
+        /// The amount of tokens whose logits should be retrieved, in <b>[numTokens X n_vocab]</b> format.<br/>
+        /// Tokens' order is based on their order in the LlamaBatch (so, first tokens are first, etc).<br/>
+        /// This is helpful when requesting logits for many tokens in a sequence, or want to decode multiple sequences in one go.
+        /// </param>
         /// <returns></returns>
-        public Span<float> GetLogits()
+        public Span<float> GetLogits(int numTokens = 1)
         {
             var model = ThrowIfDisposed();
 
             unsafe
             {
                 var logits = llama_get_logits(this);
-                return new Span<float>(logits, model.VocabCount);
+                return new Span<float>(logits, model.VocabCount * numTokens);
             }
         }
 

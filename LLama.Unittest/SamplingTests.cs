@@ -20,15 +20,12 @@ namespace LLama.Unittest
 
         public void Dispose() => _model.Dispose();
 
-        private unsafe Span<float> GetLogits(LLamaContext context, int totalSequences) => new(llama_get_logits(context.NativeHandle), totalSequences * _model.VocabCount);
-        [DllImport("llama", CallingConvention = CallingConvention.Cdecl)] public unsafe static extern float* llama_get_logits(SafeLLamaContextHandle ctx);
-
         public SamplingTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
             _params = new ModelParams(Constants.GenerativeModelPath) {
                 ContextSize = 200,
-                BatchSize = 2,
+                BatchSize = 200,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
             _model = LLamaWeights.LoadFromFile(_params);
@@ -55,7 +52,7 @@ namespace LLama.Unittest
                 DecodeAndClear(context);
 
                 var expected = tokens[i + 3];
-                var logits = GetLogits(context, totalSequences: 1);
+                var logits = context.NativeHandle.GetLogits(numTokens: 1);
 
                 // Test raw sampling
                 Assert.Equal(expected, TensorPrimitives.IndexOfMax(logits));
@@ -118,7 +115,7 @@ namespace LLama.Unittest
                 DecodeAndClear(context);
 
                 var expected = tokens[i + 3];
-                var all_logits = GetLogits(context, totalSequences: batch_count);
+                var all_logits = context.NativeHandle.GetLogits(numTokens: batch_count);
 
                 for (int b = 0; b < batch_count; b++)
                 {
