@@ -88,5 +88,35 @@ namespace LLama.Unittest
 
             Assert.Equal(Array.Empty<LLamaToken>(), tokens);
         }
+
+        [Fact]
+        public void SaveLoadState()
+        {
+            using var state1 = _context.GetState();
+
+            var stream = new MemoryStream();
+            state1.Save(stream);
+
+            stream.Position = 0;
+
+            using var state2 = LLamaContext.State.Load(stream);
+
+            Assert.Equal(state1.Size, state2.Size);
+        }
+
+        [Fact]
+        public async Task SaveLoadStateAsync()
+        {
+            using var state1 = _context.GetState();
+
+            var stream = new MemoryStream();
+            await state1.SaveAsync(stream);
+
+            stream.Position = 0;
+
+            using var state2 = await LLamaContext.State.LoadAsync(stream);
+
+            Assert.Equal(state1.Size, state2.Size);
+        }
     }
 }
