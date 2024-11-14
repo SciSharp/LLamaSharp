@@ -149,7 +149,7 @@ public static class LLamaExecutorExtensions
                     Grammar = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.Grammar), out Grammar? g) is true ? g : s_defaultPipeline.Grammar,
                     MinKeep = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.MinKeep), out int mk) is true ? mk : s_defaultPipeline.MinKeep,
                     MinP = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.MinP), out float mp) is true ? mp : s_defaultPipeline.MinP,
-                    Seed = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.Seed), out uint seed) is true ? seed : (uint)(t_random ??= new()).Next(),
+                    Seed = options?.Seed is long seed ? (uint)seed : (uint)(t_random ??= new()).Next(),
                     Temperature = options?.Temperature ?? 0,
                     TopP = options?.TopP ?? 0,
                     TopK = options?.TopK ?? s_defaultPipeline.TopK,
