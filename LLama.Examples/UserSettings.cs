@@ -7,6 +7,7 @@ internal static class UserSettings
     private static readonly string SettingsModelPath = Path.Join(AppContext.BaseDirectory, "DefaultModel.env");
     private static readonly string SettingsMMprojPath = Path.Join(AppContext.BaseDirectory, "DefaultMMProj.env");
     private static readonly string SettingsImagePath = Path.Join(AppContext.BaseDirectory, "DefaultImage.env");
+    private static readonly string WhisperModelPath = Path.Join(AppContext.BaseDirectory, "DefaultWhisper.env");
 
     private static string? ReadDefaultPath(string file)
     {
@@ -20,68 +21,60 @@ internal static class UserSettings
         return path;
     }
 
-    private static void WriteDefaultPath(string settings, string path)
-    {
-        File.WriteAllText(settings, path);
-    }
-
     public static string GetModelPath(bool alwaysPrompt = false)
     {
-        var defaultPath = ReadDefaultPath(SettingsModelPath);
-        var path = defaultPath is null || alwaysPrompt
-            ? PromptUserForPath()
-            : PromptUserForPathWithDefault(defaultPath);
-
-        if (File.Exists(path))
-            WriteDefaultPath(SettingsModelPath, path);
-
-        return path;
+        return PromptPath("model.gguf", SettingsModelPath, alwaysPrompt);
     }
-    
-    // TODO: Refactorize
+
     public static string GetMMProjPath(bool alwaysPrompt = false)
     {
-        var defaultPath = ReadDefaultPath(SettingsMMprojPath);
-        var path = defaultPath is null || alwaysPrompt
-            ? PromptUserForPath("MMProj")
-            : PromptUserForPathWithDefault(defaultPath, "MMProj");
-
-        if (File.Exists(path))
-            WriteDefaultPath(SettingsMMprojPath, path);
-
-        return path;
+        return PromptPath("mmproj", SettingsMMprojPath, alwaysPrompt);
     }    
-    
-    // TODO: Refactorize
+
     public static string GetImagePath(bool alwaysPrompt = false)
     {
-        var defaultPath = ReadDefaultPath(SettingsImagePath);
+        return PromptPath("image", SettingsImagePath, alwaysPrompt);
+    }
+
+    public static string GetWhisperPath(bool alwaysPrompt = false)
+    {
+        return PromptPath("whisper model.bin", WhisperModelPath, alwaysPrompt);
+    }
+
+    private static string PromptPath(string label, string saveFile, bool alwaysPrompt)
+    {
+        var defaultPath = ReadDefaultPath(saveFile);
         var path = defaultPath is null || alwaysPrompt
-            ? PromptUserForPath("image")
-            : PromptUserForPathWithDefault(defaultPath, "image");
+            ? PromptUserForPath(label)
+            : PromptUserForPathWithDefault(defaultPath, label);
 
         if (File.Exists(path))
-            WriteDefaultPath(SettingsImagePath, path);
+            WriteDefaultPath(saveFile, path);
 
         return path;
-    }    
 
-    private static string PromptUserForPath(string text = "model")
-    {
-        return AnsiConsole.Prompt(
-            new TextPrompt<string>(string.Format("Please input your {0} path:", text) )
-               .PromptStyle("white")
-               .Validate(File.Exists, string.Format("[red]ERROR: invalid {0} file path - file does not exist[/]", text) )
-        );
-    }
+        static void WriteDefaultPath(string settings, string path)
+        {
+            File.WriteAllText(settings, path);
+        }
 
-    private static string PromptUserForPathWithDefault(string defaultPath, string text = "model")
-    {
-        return AnsiConsole.Prompt(
-            new TextPrompt<string>(string.Format("Please input your {0} path (or ENTER for default):", text) )
-               .DefaultValue(defaultPath)
-               .PromptStyle("white")
-               .Validate(File.Exists, string.Format("[red]ERROR: invalid {0} file path - file does not exist[/]", text))
-        );
-    }
+        static string PromptUserForPath(string text = "model")
+        {
+            return AnsiConsole.Prompt(
+                new TextPrompt<string>($"Please input your {text} path:")
+                   .PromptStyle("white")
+                   .Validate(File.Exists, $"[red]ERROR: invalid {text} file path - file does not exist[/]")
+            );
+        }
+
+        static string PromptUserForPathWithDefault(string defaultPath, string text = "model")
+        {
+            return AnsiConsole.Prompt(
+                new TextPrompt<string>($"Please input your {text} path (or ENTER for default):")
+                   .DefaultValue(defaultPath)
+                   .PromptStyle("white")
+                   .Validate(File.Exists, $"[red]ERROR: invalid {text} file path - file does not exist[/]")
+            );
+        }
+}
 }
