@@ -118,6 +118,28 @@ public sealed class DefaultSamplingPipeline
     {
         var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
 
+        // Rent a temporary array and copy the biases into it
+        var biases = ArrayPool<LLamaLogitBias>.Shared.Rent(LogitBias.Count);
+        try
+        {
+            var index = 0;
+            foreach (var bias in LogitBias)
+            {
+                biases[index++] = new LLamaLogitBias
+                {
+                    Token = bias.Key,
+                    Bias = bias.Value
+                };
+            }
+
+            // Add the biases to the sampler
+            chain.AddLogitBias(context.ModelHandle.VocabCount, biases.AsSpan(0, LogitBias.Count));
+        }
+        finally
+        {
+            ArrayPool<LLamaLogitBias>.Shared.Return(biases);
+        }
+
         if (Grammar != null)
             chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
 
