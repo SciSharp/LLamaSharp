@@ -66,9 +66,6 @@
     <None Update="Assets\dan.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Assets\ggml-tiny.en.bin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Assets\json.gbnf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
