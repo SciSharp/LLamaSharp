@@ -54,9 +54,11 @@ public static class LLamaExecutorExtensions
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public TService? GetService<TService>(object? key = null) where TService : class =>
-            typeof(TService) == typeof(ILLamaExecutor) ? (TService)_executor :
-            this as TService;
+        public object? GetService(Type serviceType, object? key = null) =>
+            key is not null ? null :
+            serviceType?.IsInstanceOfType(_executor) is true ? _executor :
+            serviceType?.IsInstanceOfType(this) is true ? this :
+            null;
 
         /// <inheritdoc/>
         public async Task<ChatCompletion> CompleteAsync(
