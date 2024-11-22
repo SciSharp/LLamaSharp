@@ -21,9 +21,11 @@ public partial class LLamaEmbedder
             dimensions: EmbeddingSize);
 
     /// <inheritdoc />
-    TService? IEmbeddingGenerator<string, Embedding<float>>.GetService<TService>(object? key) where TService : class =>
-        typeof(TService) == typeof(LLamaContext) ? (TService)(object)Context :
-        this as TService;
+    object? IEmbeddingGenerator<string, Embedding<float>>.GetService(Type serviceType, object? key) =>
+        key is not null ? null :
+        serviceType?.IsInstanceOfType(Context) is true ? Context :
+        serviceType?.IsInstanceOfType(this) is true ? this :
+        null;
 
     /// <inheritdoc />
     async Task<GeneratedEmbeddings<Embedding<float>>> IEmbeddingGenerator<string, Embedding<float>>.GenerateAsync(IEnumerable<string> values, EmbeddingGenerationOptions? options, CancellationToken cancellationToken)
