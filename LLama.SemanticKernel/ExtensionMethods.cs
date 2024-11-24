@@ -53,8 +53,8 @@ public static class ExtensionMethods
             {
                 Temperature = (float)requestSettings.Temperature,
                 TopP = (float)requestSettings.TopP,
-                AlphaPresence = (float)requestSettings.PresencePenalty,
-                AlphaFrequency = (float)requestSettings.FrequencyPenalty,
+                PresencePenalty = (float)requestSettings.PresencePenalty,
+                FrequencyPenalty = (float)requestSettings.FrequencyPenalty,
             }
         };
     }

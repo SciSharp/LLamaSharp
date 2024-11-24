@@ -25,15 +25,15 @@ public sealed class DefaultSamplingPipeline
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
     /// so far, decreasing the model's likelihood to repeat the same line verbatim.
     /// </summary>
-    public float AlphaFrequency
+    public float FrequencyPenalty
     {
         get => _alphaFreq;
         init
         {
             if (value < -2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be greater than -2");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FrequencyPenalty)} must be greater than -2");
             if (value > 2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be less than 2");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FrequencyPenalty)} must be less than 2");
             _alphaFreq = value;
         }
     }
@@ -44,15 +44,15 @@ public sealed class DefaultSamplingPipeline
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the
     /// text so far, increasing the model's likelihood to talk about new topics.
     /// </summary>
-    public float AlphaPresence
+    public float PresencePenalty
     {
         get => _alphaPresence;
         init
         {
             if (value < -2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be greater than -2");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PresencePenalty)} must be greater than -2");
             if (value > 2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be less than 2");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PresencePenalty)} must be less than 2");
             _alphaPresence = value;
         }
     }
@@ -69,9 +69,9 @@ public sealed class DefaultSamplingPipeline
     public bool PenalizeNewline { get; init; } = false;
 
     /// <summary>
-    /// Whether the EOS token should be protected from being modified by penalty
+    /// Whether the EOS token should be suppressed. Setting this to 'true' prevents EOS from being sampled
     /// </summary>
-    public bool PenalizeEOS { get; init; } = false;
+    public bool PreventEOS { get; init; } = false;
 
     /// <summary>
     /// Temperature to apply (higher temperature is more "creative")
@@ -147,8 +147,8 @@ public sealed class DefaultSamplingPipeline
             context.VocabCount,
             context.ModelHandle.Tokens.EOS, context.ModelHandle.Tokens.Newline ?? 0,
             RepeatPenaltyCount, RepeatPenalty,
-            AlphaFrequency, AlphaPresence,
-            PenalizeNewline, PenalizeEOS
+            FrequencyPenalty, PresencePenalty,
+            PenalizeNewline, PreventEOS
         );
 
         chain.AddTopK(TopK);
