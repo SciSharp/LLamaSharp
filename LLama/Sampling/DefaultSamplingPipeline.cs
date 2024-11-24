@@ -20,7 +20,6 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public float RepeatPenalty { get; init; } = 1;
 
-
     /// <summary>
     /// Frequency penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
@@ -156,7 +155,16 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Seed to use for random sampling
     /// </summary>
-    public uint Seed { get; set; } = (uint) new Random().Next(0, int.MaxValue);
+    public uint Seed { get; set; } = GetRandomSeed();
+
+
+    private static Random RandomSeedGenerator = new();
+    private static uint GetRandomSeed()
+    {
+        lock (RandomSeedGenerator)
+            return (uint) RandomSeedGenerator.Next(0, int.MaxValue) + (uint) RandomSeedGenerator.Next(0, int.MaxValue);
+    }
+
 
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
