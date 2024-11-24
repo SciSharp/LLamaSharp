@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using LLama.Native;
 
 namespace LLama.Batched;
 
@@ -7,6 +8,18 @@ namespace LLama.Batched;
 /// </summary>
 public static class ConversationExtensions
 {
+    /// <summary>
+    /// Sample a token from this conversation using the given sampler chain
+    /// </summary>
+    /// <param name="conversation"><see cref="Conversation"/> to sample from</param>
+    /// <param name="sampler"></param>
+    /// <param name="offset">Offset from the end of the conversation to the logits to sample, see <see cref="Conversation.GetSampleIndex"/> for more details</param>
+    /// <returns></returns>
+    public static LLamaToken Sample(this Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset = 0)
+    {
+        return sampler.Sample(conversation.Executor.Context.NativeHandle, conversation.GetSampleIndex(offset));
+    }
+
     /// <summary>
     /// Rewind a <see cref="Conversation"/> back to an earlier state by removing tokens from the end
     /// </summary>

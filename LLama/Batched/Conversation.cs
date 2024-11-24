@@ -135,9 +135,20 @@ public sealed class Conversation
 
     #region sample
     /// <summary>
-    /// Get the logits from this conversation, ready for sampling
+    /// Get the index in the context which each token can be sampled from, the return value of this function get be used to retrieve logits
+    /// (<see cref="SafeLLamaContextHandle.GetLogitsIth"/>) or to sample a token (<see cref="SafeLLamaSamplerChainHandle.Sample"/>.
     /// </summary>
-    /// <param name="offset">How far from the <b>end</b> of the previous prompt should logits be sampled. Any value other than 0 requires allLogits to have been set during prompting</param>
+    /// <param name="offset">How far from the <b>end</b> of the previous prompt should logits be sampled. Any value other than 0 requires
+    /// allLogits to have been set during prompting.<br />
+    /// For example if 5 tokens were supplied in the last prompt call:
+    /// <list type="bullet">
+    ///     <item>The logits of the first token can be accessed with 4</item>
+    ///     <item>The logits of the second token can be accessed with 3</item>
+    ///     <item>The logits of the third token can be accessed with 2</item>
+    ///     <item>The logits of the fourth token can be accessed with 1</item>
+    ///     <item>The logits of the fifth token can be accessed with 0</item>
+    /// </list>
+    /// </param>
     /// <returns></returns>
     /// <exception cref="ObjectDisposedException"></exception>
     /// <exception cref="CannotSampleRequiresPromptException">Thrown if this conversation was not prompted before the previous call to infer</exception>
