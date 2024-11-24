@@ -111,7 +111,7 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Seed to use for random sampling
     /// </summary>
-    public uint Seed { get; set; } = 42;
+    public uint Seed { get; set; } = (uint) new Random().Next(0, int.MaxValue);
 
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
