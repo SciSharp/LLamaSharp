@@ -20,6 +20,45 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public float RepeatPenalty { get; init; } = 1;
 
+
+    /// <summary>
+    /// Frequency penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
+    /// so far, decreasing the model's likelihood to repeat the same line verbatim.
+    /// </summary>
+    [Obsolete($"Use {nameof(FrequencyPenalty)} instead.")]
+    public float AlphaFrequency
+    {
+        get => _frequencyPenalty;
+        init
+        {
+            if (value < -2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaFrequency)} must be greater than -2");
+            if (value > 2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaFrequency)} must be less than 2");
+            _frequencyPenalty = value;
+        }
+    }
+
+    /// <summary>
+    /// Presence penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the
+    /// text so far, increasing the model's likelihood to talk about new topics.
+    /// </summary>
+    [Obsolete($"Use {nameof(PresencePenalty)} instead.")]
+    public float AlphaPresence
+    {
+        get => _presencePenalty;
+        init
+        {
+            if (value < -2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaPresence)} must be greater than -2");
+            if (value > 2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaPresence)} must be less than 2");
+            _presencePenalty = value;
+        }
+    }
+
     /// <summary>
     /// Frequency penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
@@ -27,17 +66,17 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public float FrequencyPenalty
     {
-        get => _alphaFreq;
+        get => _frequencyPenalty;
         init
         {
             if (value < -2)
                 throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FrequencyPenalty)} must be greater than -2");
             if (value > 2)
                 throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FrequencyPenalty)} must be less than 2");
-            _alphaFreq = value;
+            _frequencyPenalty = value;
         }
     }
-    private readonly float _alphaFreq;
+    private readonly float _frequencyPenalty;
 
     /// <summary>
     /// Presence penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
@@ -46,17 +85,17 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public float PresencePenalty
     {
-        get => _alphaPresence;
+        get => _presencePenalty;
         init
         {
             if (value < -2)
                 throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PresencePenalty)} must be greater than -2");
             if (value > 2)
                 throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PresencePenalty)} must be less than 2");
-            _alphaPresence = value;
+            _presencePenalty = value;
         }
     }
-    private readonly float _alphaPresence;
+    private readonly float _presencePenalty;
 
     /// <summary>
     /// How many tokens should be considered for penalizing repetition
@@ -67,6 +106,12 @@ public sealed class DefaultSamplingPipeline
     /// Whether the newline token should be protected from being modified by penalty
     /// </summary>
     public bool PenalizeNewline { get; init; } = false;
+
+    /// <summary>
+    /// Whether the EOS token should be protected from being modified by penalty
+    /// </summary>
+    [Obsolete($"This doesn't do what the name implies. If you're sure you want to use it, use {nameof(PreventEOS)}.")]
+    public bool PenalizeEOS { get; init; } = false;
 
     /// <summary>
     /// Whether the EOS token should be suppressed. Setting this to 'true' prevents EOS from being sampled
