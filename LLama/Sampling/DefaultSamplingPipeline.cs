@@ -25,38 +25,76 @@ public sealed class DefaultSamplingPipeline
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
     /// so far, decreasing the model's likelihood to repeat the same line verbatim.
     /// </summary>
+    [Obsolete($"Use {nameof(FrequencyPenalty)} instead.")]
     public float AlphaFrequency
     {
-        get => _alphaFreq;
+        get => _frequencyPenalty;
         init
         {
             if (value < -2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be greater than -2");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaFrequency)} must be greater than -2");
             if (value > 2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be less than 2");
-            _alphaFreq = value;
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaFrequency)} must be less than 2");
+            _frequencyPenalty = value;
         }
     }
-    private readonly float _alphaFreq;
 
     /// <summary>
     /// Presence penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the
     /// text so far, increasing the model's likelihood to talk about new topics.
     /// </summary>
+    [Obsolete($"Use {nameof(PresencePenalty)} instead.")]
     public float AlphaPresence
     {
-        get => _alphaPresence;
+        get => _presencePenalty;
         init
         {
             if (value < -2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be greater than -2");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaPresence)} must be greater than -2");
             if (value > 2)
-                throw new ArgumentOutOfRangeException(nameof(value), "AlphaFrequency must be less than 2");
-            _alphaPresence = value;
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(AlphaPresence)} must be less than 2");
+            _presencePenalty = value;
         }
     }
-    private readonly float _alphaPresence;
+
+    /// <summary>
+    /// Frequency penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
+    /// so far, decreasing the model's likelihood to repeat the same line verbatim.
+    /// </summary>
+    public float FrequencyPenalty
+    {
+        get => _frequencyPenalty;
+        init
+        {
+            if (value < -2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FrequencyPenalty)} must be greater than -2");
+            if (value > 2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FrequencyPenalty)} must be less than 2");
+            _frequencyPenalty = value;
+        }
+    }
+    private readonly float _frequencyPenalty;
+
+    /// <summary>
+    /// Presence penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br />
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the
+    /// text so far, increasing the model's likelihood to talk about new topics.
+    /// </summary>
+    public float PresencePenalty
+    {
+        get => _presencePenalty;
+        init
+        {
+            if (value < -2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PresencePenalty)} must be greater than -2");
+            if (value > 2)
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PresencePenalty)} must be less than 2");
+            _presencePenalty = value;
+        }
+    }
+    private readonly float _presencePenalty;
 
     /// <summary>
     /// How many tokens should be considered for penalizing repetition
@@ -71,7 +109,13 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Whether the EOS token should be protected from being modified by penalty
     /// </summary>
+    [Obsolete($"This doesn't do what the name implies. If you're sure you want to use it, use {nameof(PreventEOS)}.")]
     public bool PenalizeEOS { get; init; } = false;
+
+    /// <summary>
+    /// Whether the EOS token should be suppressed. Setting this to 'true' prevents EOS from being sampled
+    /// </summary>
+    public bool PreventEOS { get; init; } = false;
 
     /// <summary>
     /// Temperature to apply (higher temperature is more "creative")
@@ -111,7 +155,16 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Seed to use for random sampling
     /// </summary>
-    public uint Seed { get; set; } = 42;
+    public uint Seed { get; set; } = GetRandomSeed();
+
+
+    private static Random RandomSeedGenerator = new();
+    private static uint GetRandomSeed()
+    {
+        lock (RandomSeedGenerator)
+            return (uint) RandomSeedGenerator.Next(0, int.MaxValue) + (uint) RandomSeedGenerator.Next(0, int.MaxValue);
+    }
+
 
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
@@ -147,8 +200,8 @@ public sealed class DefaultSamplingPipeline
             context.VocabCount,
             context.ModelHandle.Tokens.EOS, context.ModelHandle.Tokens.Newline ?? 0,
             RepeatPenaltyCount, RepeatPenalty,
-            AlphaFrequency, AlphaPresence,
-            PenalizeNewline, PenalizeEOS
+            FrequencyPenalty, PresencePenalty,
+            PenalizeNewline, PreventEOS
         );
 
         chain.AddTopK(TopK);

@@ -92,8 +92,8 @@ namespace LLamaSharp.KernelMemory
                     SamplingPipeline = new DefaultSamplingPipeline()
                     {
                         Temperature = (float)options.Temperature,
-                        AlphaFrequency = (float)options.FrequencyPenalty,
-                        AlphaPresence = (float)options.PresencePenalty,
+                        FrequencyPenalty = (float)options.FrequencyPenalty,
+                        PresencePenalty = (float)options.PresencePenalty,
                         TopP = (float)options.NucleusSampling,
                     }
                 };
@@ -107,8 +107,8 @@ namespace LLamaSharp.KernelMemory
                 SamplingPipeline = new DefaultSamplingPipeline()
                 {
                     Temperature = (float)options.Temperature,
-                    AlphaFrequency = (float)options.FrequencyPenalty,
-                    AlphaPresence = (float)options.PresencePenalty,
+                    FrequencyPenalty = (float)options.FrequencyPenalty,
+                    PresencePenalty = (float)options.PresencePenalty,
                     TopP = (float)options.NucleusSampling,
                 }
             };
