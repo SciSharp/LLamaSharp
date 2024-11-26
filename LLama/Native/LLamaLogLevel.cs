@@ -34,7 +34,7 @@ namespace LLama.Native
         /// Logs that highlight when the current flow of execution is stopped due to a failure.
         /// </summary>
         Error = 4,
-        
+
         /// <summary>
         /// Continue log level is equivalent to None in the way it is used in llama.cpp.
         /// </summary>
@@ -43,18 +43,24 @@ namespace LLama.Native
 
     internal static class LLamaLogLevelExtensions
     {
+        /// <summary>
+        /// Keeps track of the previous log level to be able to handle the log level <see cref="LLamaLogLevel.Continue"/>.
+        /// </summary>
+        [ThreadStatic] private static LogLevel _previous;
+
         public static LogLevel ToLogLevel(this LLamaLogLevel llama)
         {
-            return (llama) switch
+            _previous = llama switch
             {
                 LLamaLogLevel.None => LogLevel.None,
                 LLamaLogLevel.Debug => LogLevel.Debug,
                 LLamaLogLevel.Info => LogLevel.Information,
                 LLamaLogLevel.Warning => LogLevel.Warning,
                 LLamaLogLevel.Error => LogLevel.Error,
-                LLamaLogLevel.Continue => LogLevel.None,
+                LLamaLogLevel.Continue => _previous,
                 _ => throw new ArgumentOutOfRangeException(nameof(llama), llama, null)
             };
+            return _previous;
         }
     }
 }
