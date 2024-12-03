@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 using System.Text;
 
 namespace LLama.Native;
@@ -426,7 +426,20 @@ public class SafeLLamaSamplerChainHandle
         int vocabSize, LLamaToken? eos, LLamaToken newline, int penaltyCount, float repeat, float freq, float presence, bool penalizeNewline, bool ignoreEOS
     )
     {
-        llama_sampler_chain_add(this, llama_sampler_init_penalties(vocabSize, eos ?? LLamaToken.InvalidToken, newline, penaltyCount, repeat, freq, presence, penalizeNewline, ignoreEOS));
+        llama_sampler_chain_add(
+            this,
+            llama_sampler_init_penalties(
+                vocabSize,
+                eos ?? LLamaToken.InvalidToken,
+                newline,
+                penaltyCount,
+                repeat,
+                freq,
+                presence,
+                penalizeNewline,
+                ignoreEOS
+            )
+        );
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -442,6 +455,62 @@ public class SafeLLamaSamplerChainHandle
             bool ignore_eos       // ignore the end-of-sequence token
         );
         // ReSharper restore InconsistentNaming
+    }
+
+    /// <summary>
+    /// DRY sampler, designed by p-e-w, as described in: <a href="https://github.com/oobabooga/text-generation-webui/pull/5677">https://github.com/oobabooga/text-generation-webui/pull/5677</a>.
+    /// Porting Koboldcpp implementation authored by pi6am: <a href="https://github.com/LostRuins/koboldcpp/pull/982">https://github.com/LostRuins/koboldcpp/pull/982</a>
+    /// </summary>
+    /// <param name="model">The model this sampler will be used with</param>
+    /// <param name="sequenceBreakers"></param>
+    /// <param name="multiplier">penalty multiplier, 0.0 = disabled</param>
+    /// <param name="base">exponential base</param>
+    /// <param name="allowedLength">repeated sequences longer than this are penalized</param>
+    /// <param name="penaltyLastN">how many tokens to scan for repetitions (0 = entire context)</param>
+    public void AddDry(SafeLlamaModelHandle model, ReadOnlySpan<string> sequenceBreakers, float multiplier = 0.8f, float @base = 1.75f, int allowedLength = 2, int penaltyLastN = 0)
+    {
+        unsafe
+        {
+            // Convert strings, fix memory in place, build array of pointers
+            var handles = new List<MemoryHandle>();
+            var breakers = stackalloc byte*[sequenceBreakers.Length];
+            for (var i = 0; i < sequenceBreakers.Length; i++)
+            {
+                var chars = Encoding.Default.GetBytes(sequenceBreakers[i]);
+                handles.Add(chars.AsMemory().Pin());
+
+                breakers[i] = (byte*)handles[i].Pointer;
+            }
+
+            llama_sampler_chain_add(
+                this,
+                llama_sampler_init_dry(
+                    model,
+                    multiplier,
+                    @base,
+                    allowedLength,
+                    penaltyLastN,
+                    breakers,
+                    (nuint)sequenceBreakers.Length
+                )
+            );
+
+            // Clear up all the handles fixing the memory in place
+            for (var i = 0; i < handles.Count; i++)
+                handles[i].Dispose();
+        }
+
+        // ReSharper disable InconsistentNaming
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern unsafe IntPtr llama_sampler_init_dry(
+            SafeLlamaModelHandle model,
+            float dry_multiplier,
+            float dry_base,
+            int    dry_allowed_length,
+            int dry_penalty_last_n,
+            byte** seq_breakers,
+            nuint    num_breakers
+        );
     }
 
     /// <summary>

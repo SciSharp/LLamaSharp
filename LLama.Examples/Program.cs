@@ -1,4 +1,4 @@
-﻿using LLama.Native;
+using LLama.Native;
 using Spectre.Console;
 using System.Runtime.InteropServices;
 
@@ -30,8 +30,8 @@ NativeLibraryConfig
 // Configure native library to use. This must be done before any other llama.cpp methods are called!
 NativeLibraryConfig
    .All
-   .WithCuda()
-   //.WithAutoDownload() // An experimental feature
+   .WithCuda(false)
+   .WithVulkan(false)
    .DryRun(out var loadedllamaLibrary, out var loadedLLavaLibrary);
 
 // Calling this method forces loading to occur now.

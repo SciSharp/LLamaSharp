@@ -9,6 +9,12 @@ namespace LLama.Native
     public unsafe struct LLamaModelParams
     {
         /// <summary>
+        /// NULL-terminated list of devices to use for offloading (if NULL, all available devices are used)
+        /// </summary>
+        //ggml_backend_dev_t* devices;
+        public IntPtr devices;
+
+        /// <summary>
         /// // number of layers to store in VRAM
         /// </summary>
         public int n_gpu_layers;
@@ -19,7 +25,7 @@ namespace LLama.Native
         public GPUSplitMode split_mode;
 
         /// <summary>
-        /// the GPU that is used for scratch and small tensors
+        /// the GPU that is used for the entire model when split_mode is LLAMA_SPLIT_MODE_NONE
         /// </summary>
         public int main_gpu;
 

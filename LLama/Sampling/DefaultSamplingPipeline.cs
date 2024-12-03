@@ -158,7 +158,7 @@ public sealed class DefaultSamplingPipeline
     public uint Seed { get; set; } = GetRandomSeed();
 
 
-    private static Random RandomSeedGenerator = new();
+    private static readonly Random RandomSeedGenerator = new();
     private static uint GetRandomSeed()
     {
         lock (RandomSeedGenerator)
