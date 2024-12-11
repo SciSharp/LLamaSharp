@@ -75,6 +75,7 @@ The following examples show how to build APPs with LLamaSharp.
 - [Blazor Demo (with Model Explorer)](https://github.com/alexhiggins732/BLlamaSharp.ChatGpt.Blazor)
 - [ASP.NET Demo](./LLama.Web/)
 - [LLamaWorker (ASP.NET Web API like OAI and Function Calling Support)](https://github.com/sangyuxiaowu/LLamaWorker)
+- [VirtualPet (Desktop Application)](https://github.com/AcoranGonzalezMoray/VirtualPet-WindowsEdition)
 
 ![LLamaSharp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
