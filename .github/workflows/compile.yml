@@ -479,29 +479,29 @@ jobs:
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so  deps/avx512/libllava_shared.so
 
           # Windows
-          cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll              deps/ggml.dll
-          cp artifacts/ggml-base-bin-win-noavx-x64.dll/libggml-base.dll deps/libggml-base.dll
-          cp artifacts/ggml-cpu-bin-win-noavx-x64.dll/libggml-cpu.dll   deps/libggml-cpu.dll
-          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll            deps/llama.dll
-          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll     deps/llava_shared.dll
+          cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll            deps/ggml.dll
+          cp artifacts/ggml-base-bin-win-noavx-x64.dll/ggml-base.dll  deps/ggml-base.dll
+          cp artifacts/ggml-cpu-bin-win-noavx-x64.dll/ggml-cpu.dll    deps/ggml-cpu.dll
+          cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll          deps/llama.dll
+          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll   deps/llava_shared.dll
 
-          cp artifacts/ggml-bin-win-avx-x64.dll/ggml.dll              deps/avx/ggml.dll
-          cp artifacts/ggml-base-bin-win-avx-x64.dll/libggml-base.dll deps/avx/libggml-base.dll
-          cp artifacts/ggml-cpu-bin-win-avx-x64.dll/libggml-cpu.dll   deps/avx/libggml-cpu.dll
-          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll            deps/avx/llama.dll
-          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll     deps/avx/llava_shared.dll
+          cp artifacts/ggml-bin-win-avx-x64.dll/ggml.dll           deps/avx/ggml.dll
+          cp artifacts/ggml-base-bin-win-avx-x64.dll/ggml-base.dll deps/avx/ggml-base.dll
+          cp artifacts/ggml-cpu-bin-win-avx-x64.dll/ggml-cpu.dll   deps/avx/ggml-cpu.dll
+          cp artifacts/llama-bin-win-avx-x64.dll/llama.dll         deps/avx/llama.dll
+          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll  deps/avx/llava_shared.dll
 
-          cp artifacts/ggml-bin-win-avx2-x64.dll/ggml.dll              deps/avx2/ggml.dll
-          cp artifacts/ggml-base-bin-win-avx2-x64.dll/libggml-base.dll deps/avx2/libggml-base.dll
-          cp artifacts/ggml-cpu-bin-win-avx2-x64.dll/libggml-cpu.dll   deps/avx2/libggml-cpu.dll
-          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll            deps/avx2/llama.dll
-          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll     deps/avx2/llava_shared.dll
+          cp artifacts/ggml-bin-win-avx2-x64.dll/ggml.dll           deps/avx2/ggml.dll
+          cp artifacts/ggml-base-bin-win-avx2-x64.dll/ggml-base.dll deps/avx2/ggml-base.dll
+          cp artifacts/ggml-cpu-bin-win-avx2-x64.dll/ggml-cpu.dll   deps/avx2/ggml-cpu.dll
+          cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll         deps/avx2/llama.dll
+          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll  deps/avx2/llava_shared.dll
 
-          cp artifacts/ggml-bin-win-avx512-x64.dll/ggml.dll              deps/avx512/ggml.dll
-          cp artifacts/ggml-base-bin-win-avx512-x64.dll/libggml-base.dll deps/avx512/libggml-base.dll
-          cp artifacts/ggml-cpu-bin-win-avx512-x64.dll/libggml-cpu.dll   deps/avx512/libggml-cpu.dll
-          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll            deps/avx512/llama.dll
-          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll     deps/avx512/llava_shared.dll
+          cp artifacts/ggml-bin-win-avx512-x64.dll/ggml.dll           deps/avx512/ggml.dll
+          cp artifacts/ggml-base-bin-win-avx512-x64.dll/ggml-base.dll deps/avx512/ggml-base.dll
+          cp artifacts/ggml-cpu-bin-win-avx512-x64.dll/ggml-cpu.dll   deps/avx512/ggml-cpu.dll
+          cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll         deps/avx512/llama.dll
+          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll  deps/avx512/llava_shared.dll
 
           # MacOS
           cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib           deps/osx-arm64/libggml.dylib
