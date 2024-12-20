@@ -410,49 +410,34 @@ public class SafeLLamaSamplerChainHandle
     }
 
     /// <summary>
-    /// Create a sampler that applies various repetition penalties
+    /// Create a sampler that applies various repetition penalties.
+    ///
+    /// Avoid using on the full vocabulary as searching for repeated tokens can become slow. For example, apply top-k or top-p sampling first.
     /// </summary>
-    /// <param name="vocabSize">Vocab size</param>
-    /// <param name="eos">EOS token (if this model has one)</param>
-    /// <param name="newline">Newline token</param>
     /// <param name="penaltyCount">How many tokens of history to consider when calculating penalties</param>
     /// <param name="repeat">Repetition penalty</param>
     /// <param name="freq">Frequency penalty</param>
     /// <param name="presence">Presence penalty</param>
-    /// <param name="penalizeNewline">Whether or not to penalize the newline token</param>
-    /// <param name="ignoreEOS">Whether or not to ignore EOS token</param>
     /// <returns></returns>
-    public void AddPenalties(
-        int vocabSize, LLamaToken? eos, LLamaToken newline, int penaltyCount, float repeat, float freq, float presence, bool penalizeNewline, bool ignoreEOS
-    )
+    public void AddPenalties(int penaltyCount, float repeat, float freq, float presence)
     {
         llama_sampler_chain_add(
             this,
             llama_sampler_init_penalties(
-                vocabSize,
-                eos ?? LLamaToken.InvalidToken,
-                newline,
                 penaltyCount,
                 repeat,
                 freq,
-                presence,
-                penalizeNewline,
-                ignoreEOS
+                presence
             )
         );
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr llama_sampler_init_penalties(
-            int n_vocab,         // llama_n_vocab()
-            LLamaToken special_eos_id,  // llama_token_eos()
-            LLamaToken linefeed_id,     // llama_token_nl()
-            int penalty_last_n,  // last n tokens to penalize (0 = disable penalty, -1 = context size)
-            float penalty_repeat,  // 1.0 = disabled
-            float penalty_freq,    // 0.0 = disabled
-            float penalty_present, // 0.0 = disabled
-            bool penalize_nl,     // consider newlines as a repeatable token
-            bool ignore_eos       // ignore the end-of-sequence token
+            int penalty_last_n,     // last n tokens to penalize (0 = disable penalty, -1 = context size)
+            float penalty_repeat,   // 1.0 = disabled
+            float penalty_freq,     // 0.0 = disabled
+            float penalty_present   // 0.0 = disabled
         );
         // ReSharper restore InconsistentNaming
     }
