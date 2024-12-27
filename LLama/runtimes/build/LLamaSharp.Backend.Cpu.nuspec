@@ -18,13 +18,20 @@
   <files>
     <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
 
-    <file src="runtimes/deps/ggml.dll" target="runtimes\win-x64\native\ggml.dll" />
+    <file src="runtimes/deps/ggml-base.dll" target="runtimes\win-x64\native\ggml-base.dll" />
+    <file src="runtimes/deps/ggml-cpu.dll" target="runtimes\win-x64\native\ggml-cpu.dll" />
     <file src="runtimes/deps/llama.dll" target="runtimes\win-x64\native\llama.dll" />
-    <file src="runtimes/deps/avx/ggml.dll" target="runtimes\win-x64\native\avx\ggml.dll" />
+      
+    <file src="runtimes/deps/avx/ggml-base.dll" target="runtimes\win-x64\native\avx\ggml-base.dll" />
+    <file src="runtimes/deps/avx/ggml-cpu.dll" target="runtimes\win-x64\native\avx\ggml-cpu.dll" />
     <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
-    <file src="runtimes/deps/avx2/ggml.dll" target="runtimes\win-x64\native\avx2\ggml.dll" />
+      
+    <file src="runtimes/deps/avx2/ggml-base.dll" target="runtimes\win-x64\native\avx2\ggml-base.dll" />
+    <file src="runtimes/deps/avx2/ggml-cpu.dll" target="runtimes\win-x64\native\avx2\ggml-cpu.dll" />
     <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />
-    <file src="runtimes/deps/avx512/ggml.dll" target="runtimes\win-x64\native\avx512\ggml.dll" />
+      
+    <file src="runtimes/deps/avx512/ggml-base.dll" target="runtimes\win-x64\native\avx512\ggml-base.dll" />
+    <file src="runtimes/deps/avx512/ggml-cpu.dll" target="runtimes\win-x64\native\avx512\ggml-cpu.dll" />
     <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
 
     <file src="runtimes/deps/libggml.so" target="runtimes\linux-x64\native\libggml.so" />

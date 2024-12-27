@@ -10,9 +10,9 @@ namespace LLama.Native
     {
         /// <summary>
         /// NULL-terminated list of devices to use for offloading (if NULL, all available devices are used)
+        /// todo: add support for llama_model_params.devices
         /// </summary>
-        //ggml_backend_dev_t* devices;
-        public IntPtr devices;
+        private IntPtr devices;
 
         /// <summary>
         /// // number of layers to store in VRAM

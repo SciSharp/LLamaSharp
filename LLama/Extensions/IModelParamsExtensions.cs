@@ -30,13 +30,15 @@ public static class IModelParamsExtensions
 
         result = LLamaModelParams.Default();
 
-        result.devices = IntPtr.Zero;
         result.main_gpu = @params.MainGpu;
-        result.split_mode = @params.SplitMode;
         result.n_gpu_layers = @params.GpuLayerCount < 0 ? int.MaxValue : @params.GpuLayerCount;
+        if (@params.SplitMode.HasValue)
+            result.split_mode = @params.SplitMode.Value;
+
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;
         result.vocab_only = @params.VocabOnly;
+        result.check_tensors = @params.CheckTensors;
 
         unsafe
         {
