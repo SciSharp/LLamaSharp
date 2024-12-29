@@ -553,8 +553,8 @@ jobs:
           cp artifacts/ggml-metal.metal/ggml-metal.metal                deps/osx-arm64/ggml-metal.metal
             
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
-          cp artifacts/ggml-base-bin-x64-arm64.dylib/libggml-base.dylib deps/osx-x64/libggml-base.dylib
-          cp artifacts/ggml-cpu-bin-x64-arm64.dylib/libggml-cpu.dylib   deps/osx-x64/libggml-cpu.dylib
+          cp artifacts/ggml-base-bin-x64.dylib/libggml-base.dylib deps/osx-x64/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-x64.dylib/libggml-cpu.dylib   deps/osx-x64/libggml-cpu.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
             
