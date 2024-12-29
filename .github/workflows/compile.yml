@@ -252,7 +252,7 @@ jobs:
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./ggml/src/ggml-vulkan/libggml-vulkan.so
+                path: ./build/ggml/src/ggml-vulkan/libggml-vulkan.so
                 name: ggml-vulkan-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload llava artifacts (Linux)
