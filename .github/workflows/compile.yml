@@ -559,8 +559,8 @@ jobs:
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib          deps/osx-x64-rosetta2/libggml.dylib
-          cp artifacts/ggml-base-bin-x64-rosetta2.dylib/libggml-base.dylib    deps/osx-x64-rosetta2/libggml-base.dylib
-          cp artifacts/ggml-cpu-bin-x64-rosetta2.dylib/libggml-cpu.dylib     deps/osx-x64-rosetta2/libggml-cpu.dylib
+          cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib    deps/osx-x64-rosetta2/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib     deps/osx-x64-rosetta2/libggml-cpu.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib        deps/osx-x64-rosetta2/libllama.dylib
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
 
