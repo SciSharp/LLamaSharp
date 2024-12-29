@@ -245,14 +245,14 @@ jobs:
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: .\build\bin\Release\ggml-base.so
+                path: .\build\bin\Release\libggml-base.so
                 name: ggml-base-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload ggml-vulkan artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: .\build\bin\Release\ggml-vulkan.so
+                path: .\build\bin\Release\libggml-vulkan.so
                 name: ggml-vulkan-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload llava artifacts (Linux)
@@ -379,7 +379,7 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-          ls .
+          ls . -R
       - name: Upload ggml
         uses: actions/upload-artifact@v4
         with:
