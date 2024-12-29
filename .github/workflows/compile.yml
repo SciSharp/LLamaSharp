@@ -597,15 +597,15 @@ jobs:
 
           # Windows Vulkan
           cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll           deps/vulkan/ggml.dll
-          cp artifacts/ggml-base-win-vulkan-x64.dll/ggml-base.dll     deps/vulkan/ggml-base.dll
-          cp artifacts/ggml-vulkan-win-vulkan-x64.dll/ggml-vulkan.dll deps/vulkan/ggml-vulkan.dll
+          cp artifacts/ggml-base-bin-win-vulkan-x64.dll/ggml-base.dll     deps/vulkan/ggml-base.dll
+          cp artifacts/ggml-vulkan-bin-win-vulkan-x64.dll/ggml-vulkan.dll deps/vulkan/ggml-vulkan.dll
           cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll         deps/vulkan/llama.dll
           cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll  deps/vulkan/llava_shared.dll
             
           # Linux Vulkan
           cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so           deps/vulkan/libggml.so
-          cp artifacts/ggml-base-linux-vulkan-x64.so/libggml-base.so     deps/vulkan/libggml-base.so
-          cp artifacts/ggml-base-linux-vulkan-x64.so/libggml-vulkan.so   deps/vulkan/libggml-vulkan.so
+          cp artifacts/ggml-base-bin-linux-vulkan-x64.so/libggml-base.so     deps/vulkan/libggml-base.so
+          cp artifacts/ggml-base-bin-linux-vulkan-x64.so/libggml-vulkan.so   deps/vulkan/libggml-vulkan.so
           cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so         deps/vulkan/libllama.so
           cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so  deps/vulkan/libllava_shared.so
 
