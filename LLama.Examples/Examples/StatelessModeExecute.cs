@@ -15,7 +15,11 @@ namespace LLama.Examples.Examples
                 GpuLayerCount = 5
             };
             using var model = await LLamaWeights.LoadFromFileAsync(parameters);
-            var ex = new StatelessExecutor(model, parameters);
+            var ex = new StatelessExecutor(model, parameters)
+            {
+                ApplyTemplate = true,
+                SystemMessage = "You are a helpful bot."
+            };
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the inference is an one-time job. That says, the previous input and response has " +

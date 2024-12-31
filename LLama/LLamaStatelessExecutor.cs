@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using LLama.Exceptions;
 using LLama.Native;
+using LLama.Transformers;
 using Microsoft.Extensions.Logging;
 
 namespace LLama
@@ -37,6 +38,17 @@ namespace LLama
         /// </summary>
         public LLamaContext Context { get; private set; }
 
+        /// <summary>
+        /// If true, applies the default template to the prompt as defined in the rules for <a href="https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template">llama_chat_apply_template</a> template.  
+        /// </summary>
+        public bool ApplyTemplate { get; init; }
+        
+        /// <summary>
+        /// The system message to use with the prompt. Only used when <see cref="ApplyTemplate" /> is true.
+        /// </summary>
+        public string? SystemMessage { get; init; }
+
+        
         /// <summary>
         /// Create a new stateless executor which will use the given model
         /// </summary>
@@ -79,6 +91,15 @@ namespace LLama
             var decoder = new StreamingTokenDecoder(Context);
             var antiprocessor = new AntipromptProcessor(inferenceParams.AntiPrompts);
 
+            if (ApplyTemplate)
+            {
+                var template = new LLamaTemplate(_weights.NativeHandle) { AddAssistant = true };
+                if (SystemMessage != null) template.Add("system", SystemMessage);
+
+                template.Add("user", prompt);
+                prompt = PromptTemplateTransformer.ToModelPrompt(template);
+            }
+            
             // Tokenize the prompt
             var tokens = Context.Tokenize(prompt, special: true).ToList();
 
