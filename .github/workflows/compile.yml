@@ -199,12 +199,26 @@ jobs:
                 path: .\build\bin\Release\llama.dll
                 name: llama-bin-win-vulkan-x64.dll
                 if-no-files-found: error
-          - name: Upload llama artifacts (Windows)
+          - name: Upload ggml artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
             with:
                 path: .\build\bin\Release\ggml.dll
                 name: ggml-bin-win-vulkan-x64.dll
+                if-no-files-found: error
+          - name: Upload ggml-base artifacts (Windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: .\build\bin\Release\ggml-base.dll
+                name: ggml-base-bin-win-vulkan-x64.dll
+                if-no-files-found: error
+          - name: Upload ggml-vulkan artifacts (Windows)
+            if: ${{ matrix.os == 'windows-latest' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: .\build\bin\Release\ggml-vulkan.dll
+                name: ggml-vulkan-bin-win-vulkan-x64.dll
                 if-no-files-found: error
           - name: Upload llava artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
@@ -227,6 +241,20 @@ jobs:
               path: ./build/ggml/src/libggml.so
               name: ggml-bin-linux-vulkan-x64.so
               if-no-files-found: error
+          - name: Upload ggml-base artifacts (Linux)
+            if: ${{ matrix.os == 'ubuntu-22.04' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: ./build/ggml/src/libggml-base.so
+                name: ggml-base-bin-linux-vulkan-x64.so
+                if-no-files-found: error
+          - name: Upload ggml-vulkan artifacts (Linux)
+            if: ${{ matrix.os == 'ubuntu-22.04' }}
+            uses: actions/upload-artifact@v4
+            with:
+                path: ./build/ggml/src/ggml-vulkan/libggml-vulkan.so
+                name: ggml-vulkan-bin-linux-vulkan-x64.so
+                if-no-files-found: error
           - name: Upload llava artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
@@ -351,11 +379,24 @@ jobs:
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          ls -R
       - name: Upload ggml
         uses: actions/upload-artifact@v4
         with:
             path: ./build/ggml/src/libggml.dylib
             name: ggml-bin-osx-${{ matrix.build }}.dylib
+            if-no-files-found: error
+      - name: Upload ggml-base
+        uses: actions/upload-artifact@v4
+        with:
+            path: ./build/ggml/src/libggml-base.dylib
+            name: ggml-base-bin-osx-${{ matrix.build }}.dylib
+            if-no-files-found: error
+      - name: Upload ggml-cpu
+        uses: actions/upload-artifact@v4
+        with:
+            path: ./build/ggml/src/libggml-cpu.dylib
+            name: ggml-cpu-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload llama
         uses: actions/upload-artifact@v4
@@ -505,15 +546,21 @@ jobs:
 
           # MacOS
           cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib           deps/osx-arm64/libggml.dylib
+          cp artifacts/ggml-base-bin-osx-arm64.dylib/libggml-base.dylib deps/osx-arm64/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-osx-arm64.dylib/libggml-cpu.dylib   deps/osx-arm64/libggml-cpu.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib         deps/osx-arm64/libllama.dylib
           cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib  deps/osx-arm64/libllava_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal                deps/osx-arm64/ggml-metal.metal
             
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
+          cp artifacts/ggml-base-bin-osx-x64.dylib/libggml-base.dylib   deps/osx-x64/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib         deps/osx-x64/libggml-cpu.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib          deps/osx-x64-rosetta2/libggml.dylib
+          cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib    deps/osx-x64-rosetta2/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib     deps/osx-x64-rosetta2/libggml-cpu.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib        deps/osx-x64-rosetta2/libllama.dylib
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
 
@@ -549,14 +596,18 @@ jobs:
           cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so  deps/cu12.2.0/libllava_shared.so
 
           # Windows Vulkan
-          cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll           deps/vulkan/ggml.dll
-          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll         deps/vulkan/llama.dll
-          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll  deps/vulkan/llava_shared.dll
+          cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll               deps/vulkan/ggml.dll
+          cp artifacts/ggml-base-bin-win-vulkan-x64.dll/ggml-base.dll     deps/vulkan/ggml-base.dll
+          cp artifacts/ggml-vulkan-bin-win-vulkan-x64.dll/ggml-vulkan.dll deps/vulkan/ggml-vulkan.dll
+          cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll             deps/vulkan/llama.dll
+          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll      deps/vulkan/llava_shared.dll
             
           # Linux Vulkan
-          cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so           deps/vulkan/libggml.so
-          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so         deps/vulkan/libllama.so
-          cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so  deps/vulkan/libllava_shared.so
+          cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so                deps/vulkan/libggml.so
+          cp artifacts/ggml-base-bin-linux-vulkan-x64.so/libggml-base.so      deps/vulkan/libggml-base.so
+          cp artifacts/ggml-vulkan-bin-linux-vulkan-x64.so/libggml-vulkan.so  deps/vulkan/libggml-vulkan.so
+          cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so              deps/vulkan/libllama.so
+          cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so       deps/vulkan/libllava_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
