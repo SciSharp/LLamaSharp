@@ -320,6 +320,20 @@ jobs:
           path: .\build\bin\Release\ggml.dll
           name: ggml-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
+      - name: Upload artifacts (ggml-base)
+        if: ${{ matrix.os == 'windows-2019' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml-base.dll
+          name: ggml-base-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml-cuda)
+        if: ${{ matrix.os == 'windows-2019' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml-cuda.dll
+          name: ggml-cuda-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          if-no-files-found: error
       - name: Upload llava artifacts (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
@@ -579,19 +593,27 @@ jobs:
 
           # Windows CUDA
           cp artifacts/ggml-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll            deps/cu11.7.1/ggml.dll
+          cp artifacts/ggml-base-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll       deps/cu11.7.1/ggml-base.dll
+          cp artifacts/ggml-cuda-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll       deps/cu11.7.1/ggml-cuda.dll
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll          deps/cu11.7.1/llama.dll
           cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll   deps/cu11.7.1/llava_shared.dll
           
           cp artifacts/ggml-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll            deps/cu12.2.0/ggml.dll
+          cp artifacts/ggml-base-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll       deps/cu12.2.0/ggml-base.dll
+          cp artifacts/ggml-cuda-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll       deps/cu12.2.0/ggml-cuda.dll
           cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll          deps/cu12.2.0/llama.dll
           cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll   deps/cu12.2.0/llava_shared.dll
 
           # Linux CUDA
           cp artifacts/ggml-bin-linux-cublas-cu11.7.1-x64.so/libggml.so           deps/cu11.7.1/libggml.so
+          cp artifacts/ggml-base-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll         deps/cu11.7.1/libggml-base.dll
+          cp artifacts/ggml-cuda-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll         deps/cu11.7.1/libggml-cuda.dll
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so         deps/cu11.7.1/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so  deps/cu11.7.1/libllava_shared.so
 
           cp artifacts/ggml-bin-linux-cublas-cu12.2.0-x64.so/libggml.so           deps/cu12.2.0/libggml.so
+          cp artifacts/ggml-base-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll         deps/cu12.2.0/libggml-base.dll
+          cp artifacts/ggml-cuda-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll         deps/cu12.2.0/libggml-cuda.dll
           cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so         deps/cu12.2.0/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so  deps/cu12.2.0/libllava_shared.so
 
