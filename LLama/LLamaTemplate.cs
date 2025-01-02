@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using LLama.Exceptions;
 using LLama.Native;
 
 namespace LLama;
@@ -250,6 +251,19 @@ public sealed class LLamaTemplate
                 {
                     // Run templater and discover true length
                     var outputLength = ApplyInternal(_nativeChatMessages.AsSpan(0, Count), output);
+                    
+                    // if we have a return code of -1, the template was not found.
+                    if (outputLength == -1)
+                    {
+                        if (_customTemplate != null)
+                        {
+                            throw new MissingTemplateException(Encoding.GetString(_customTemplate));
+                        }
+                        else
+                        {
+                            throw new MissingTemplateException();    
+                        }
+                    }    
 
                     // If length was too big for output buffer run it again
                     if (outputLength > output.Length)
