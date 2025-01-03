@@ -59,6 +59,25 @@ public class LLamaDecodeError
 }
 
 /// <summary>
+/// `llama_decode` return a non-zero status code
+/// </summary>
+public class MissingTemplateException
+    : RuntimeError
+{
+    /// <inheritdoc />
+    public MissingTemplateException()
+        : base("llama_chat_apply_template failed: template not found")
+    {
+    }
+    
+    /// <inheritdoc />
+    public MissingTemplateException(string message)
+        : base($"llama_chat_apply_template failed: template not found for '{message}'")
+    {
+    } 
+}
+
+/// <summary>
 /// `llama_get_logits_ith` returned null, indicating that the index was invalid
 /// </summary>
 public class GetLogitsInvalidIndexException
