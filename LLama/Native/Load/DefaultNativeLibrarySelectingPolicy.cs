@@ -10,8 +10,6 @@ namespace LLama.Native
         /// <inheritdoc/>
         public IEnumerable<INativeLibrary> Apply(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
-            List<INativeLibrary> results = new();
-
             // Show the configuration we're working with
             Log(description.ToString(), LLamaLogLevel.Info, logCallback);
 
@@ -56,7 +54,7 @@ namespace LLama.Native
 
                 if(systemInfo.OSPlatform == OSPlatform.OSX || description.AllowFallback)
                 {
-                    yield return new NativeLibraryWithMacOrFallback(description.Library, description.SkipCheck);
+                    yield return new NativeLibraryWithMacOrFallback(description.Library);
                 }
             }
         }
