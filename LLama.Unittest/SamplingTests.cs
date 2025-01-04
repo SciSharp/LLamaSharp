@@ -167,11 +167,7 @@ namespace LLama.Unittest
             var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
 
             chain.AddPenalties(
-                vocabSize: context.VocabCount,
-                eos: context.ModelHandle.Tokens.EOS,
-                newline: context.ModelHandle.Tokens.Newline ?? 0,
-                penaltyCount: 60, repeat: 1, freq: 0, presence: 0,
-                penalizeNewline: false, ignoreEOS: false
+                penaltyCount: 60, repeat: 1, freq: 0, presence: 0
             );
 
             if (logit_bias != null) { chain.AddLogitBias(context.VocabCount, logit_bias); }
