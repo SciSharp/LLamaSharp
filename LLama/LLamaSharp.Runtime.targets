@@ -154,6 +154,14 @@
         <Link>runtimes/linux-x64/native/vulkan/libggml.so</Link>
       </None>
 
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml-base.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-arm64/native/libggml-base.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml-cpu.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-arm64/native/libggml-cpu.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/libggml.dylib</Link>
@@ -170,7 +178,15 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/ggml-metal.metal</Link>
       </None>
-        
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml-base.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/libggml-base.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml-cpu.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/libggml-cpu.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libggml.dylib</Link>
@@ -184,6 +200,14 @@
         <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
       </None>
 
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml-base.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/rosetta2/libggml-base.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml-cpu.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/rosetta2/libggml-cpu.dylib</Link>
+      </None>        
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/rosetta2/libggml.dylib</Link>
