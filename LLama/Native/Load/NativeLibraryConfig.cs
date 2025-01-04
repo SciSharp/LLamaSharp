@@ -178,7 +178,7 @@ namespace LLama.Native
                 _avxLevel,
                 _allowFallback,
                 _skipCheck,
-                _searchDirectories.Concat(new[] { "./" }).ToArray()
+                _searchDirectories.Concat([ "./" ]).ToArray()
             );
         }
 
@@ -186,7 +186,7 @@ namespace LLama.Native
         {
             return level switch
             {
-                AvxLevel.None => string.Empty,
+                AvxLevel.None => "noavx",
                 AvxLevel.Avx => "avx",
                 AvxLevel.Avx2 => "avx2",
                 AvxLevel.Avx512 => "avx512",

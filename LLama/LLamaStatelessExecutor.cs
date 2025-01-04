@@ -24,14 +24,14 @@ namespace LLama
         private readonly ILogger? _logger;
         private readonly LLamaBatch _batch;
 
-        // LLava Section
+        /// <inheritdoc />
         public bool IsMultiModal => false;
 
         /// <inheritdoc />
-        public LLavaWeights? ClipModel { get;  }
+        public LLavaWeights? ClipModel => default;
 
         /// <inheritdoc />
-        public List<byte[]> Images { get; set; }
+        public List<byte[]> Images { get; }
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -80,7 +80,7 @@ namespace LLama
             Context = context;
 
             // Reset the sampling pipeline (if there is one)
-            inferenceParams?.SamplingPipeline?.Reset();
+            inferenceParams?.SamplingPipeline.Reset();
 
             // Sanity check inference params
             inferenceParams ??= new InferenceParams();
@@ -155,8 +155,8 @@ namespace LLama
                     var n_left = n_past - tokensKeep;
                     var n_discard = n_left / 2;
 
-                    NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, (LLamaSeqId)0, tokensKeep , tokensKeep + n_discard);
-                    NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, (LLamaSeqId)0, tokensKeep + n_discard, n_past, -n_discard);
+                    NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, LLamaSeqId.Zero, tokensKeep , tokensKeep + n_discard);
+                    NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, LLamaSeqId.Zero, tokensKeep + n_discard, n_past, -n_discard);
 
                     n_past -= n_discard;
                 }

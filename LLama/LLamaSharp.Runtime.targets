@@ -12,6 +12,15 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>runtimes/win-x64/native/noavx/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/ggml-base.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/win-x64/native/noavx/ggml-base.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/noavx/ggml-cpu.dll</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx/llama.dll</Link>
@@ -20,22 +29,49 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx/ggml-base.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/ggml-cpu.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/win-x64/native/avx/ggml-cpu.dll</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx2/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx2/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx2/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx2/ggml-cpu.dll</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx512/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx512/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx512/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx512/ggml-cpu.dll</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda11/llama.dll</Link>

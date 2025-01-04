@@ -177,20 +177,20 @@ namespace LLama.Native
         /// </summary>
         MOSTLY_BF16 = 32,
 
-        /// <summary>
-        /// except 1d tensors
-        /// </summary>
-        MOSTLY_Q4_0_4_4 = 33,
+        ///// <summary>
+        ///// except 1d tensors (no longer supported by llama.cpp)
+        ///// </summary>
+        //MOSTLY_Q4_0_4_4 = 33,
 
-        /// <summary>
-        /// except 1d tensors
-        /// </summary>
-        MOSTLY_Q4_0_4_8 = 34,
+        ///// <summary>
+        ///// except 1d tensors (no longer supported by llama.cpp)
+        ///// </summary>
+        //MOSTLY_Q4_0_4_8 = 34,
 
-        /// <summary>
-        /// except 1d tensors
-        /// </summary>
-        MOSTLY_Q4_0_8_8 = 35,
+        ///// <summary>
+        ///// except 1d tensors (no longer supported by llama.cpp)
+        ///// </summary>
+        //MOSTLY_Q4_0_8_8 = 35,
 
         /// <summary>
         /// except 1d tensors

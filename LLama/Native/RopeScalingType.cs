@@ -1,4 +1,4 @@
-﻿namespace LLama.Native
+namespace LLama.Native
 {
     /// <summary>
     /// RoPE scaling type.
@@ -26,5 +26,10 @@
         /// YaRN scaling: https://arxiv.org/pdf/2309.00071.pdf
         /// </summary>
         Yarn = 2,
+
+        /// <summary>
+        /// LongRope scaling
+        /// </summary>
+        LongRope = 3,
     }
 }
