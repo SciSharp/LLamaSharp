@@ -42,13 +42,12 @@ public class BatchedExecutorFork
 
         // Create the root node of the tree
         var root = new Node(start);
-
+        var display = new Tree(prompt);
         await AnsiConsole
-            .Progress()
-            .StartAsync(async progress =>
+            .Live(display)
+            .StartAsync(async ctx =>
             {
-                var reporter = progress.AddTask("Running Inference (1)", maxValue: TokenCount);
-
+                
                 // Run inference loop
                 for (var i = 0; i < TokenCount; i++)
                 {
@@ -62,15 +61,11 @@ public class BatchedExecutorFork
                     // Sample all active conversations
                     root.Sample();
 
-                    // Update progress bar
-                    reporter.Increment(1);
-                    reporter.Description($"Running Inference ({root.ActiveConversationCount})");
+                    display = new Tree(prompt);
+                    root.Display(display);
+                    ctx.UpdateTarget(display);
+                    ctx.Refresh();
                 }
-
-                // Display results
-                var display = new Tree(prompt);
-                root.Display(display);
-                AnsiConsole.Write(display);
             });
 
         // Print some stats
@@ -85,6 +80,7 @@ public class BatchedExecutorFork
         
         private readonly DefaultSamplingPipeline _sampler = new();
         private Conversation? _conversation;
+        private string _message = string.Empty;
 
         private Node? _left;
         private Node? _right;
@@ -135,15 +131,16 @@ public class BatchedExecutorFork
             }
         }
 
+        
         public void Display<T>(T tree, int depth = 0)
             where T : IHasTreeNodes
         {
             var colors = new[] { "red", "green", "blue", "yellow", "white" };
             var color = colors[depth % colors.Length];
 
-            var message = Markup.Escape(_decoder.Read().ReplaceLineEndings(""));
+            _message += _decoder.Read().ReplaceLineEndings(". ");
 
-            var n = tree.AddNode($"[{color}]{message}[/]");
+            var n = tree.AddNode($"[{color}]{_message.EscapeMarkup()}[/]");
 
             _left?.Display(n, depth + 1);
             _right?.Display(n, depth + 1);
