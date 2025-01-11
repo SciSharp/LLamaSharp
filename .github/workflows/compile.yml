@@ -606,14 +606,14 @@ jobs:
 
           # Linux CUDA
           cp artifacts/ggml-bin-linux-cublas-cu11.7.1-x64.so/libggml.so           deps/cu11.7.1/libggml.so
-          cp artifacts/ggml-base-bin-win-cublas-cu11.7.1-x64.dll/ggml-base.dll    deps/cu11.7.1/libggml-base.dll
-          cp artifacts/ggml-cuda-bin-win-cublas-cu11.7.1-x64.dll/ggml-cuda.dll    deps/cu11.7.1/libggml-cuda.dll
+          cp artifacts/ggml-base-bin-linux-cublas-cu11.7.1-x64.dll/ggml-base.so   deps/cu11.7.1/libggml-base.so
+          cp artifacts/ggml-cuda-bin-linux-cublas-cu11.7.1-x64.dll/ggml-cuda.so   deps/cu11.7.1/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so         deps/cu11.7.1/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so  deps/cu11.7.1/libllava_shared.so
 
           cp artifacts/ggml-bin-linux-cublas-cu12.2.0-x64.so/libggml.so           deps/cu12.2.0/libggml.so
-          cp artifacts/ggml-base-bin-win-cublas-cu12.2.0-x64.dll/ggml-base.dll    deps/cu12.2.0/libggml-base.dll
-          cp artifacts/ggml-cuda-bin-win-cublas-cu12.2.0-x64.dll/ggml-cuda.dll    deps/cu12.2.0/libggml-cuda.dll
+          cp artifacts/ggml-base-bin-linux-cublas-cu12.2.0-x64.dll/ggml-base.so   deps/cu12.2.0/libggml-base.so
+          cp artifacts/ggml-cuda-bin-linux-cublas-cu12.2.0-x64.dll/ggml-cuda.so   deps/cu12.2.0/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so         deps/cu12.2.0/libllama.so
           cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so  deps/cu12.2.0/libllava_shared.so
 
