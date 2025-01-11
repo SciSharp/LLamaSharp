@@ -17,7 +17,7 @@ AnsiConsole.MarkupLineInterpolated(
     """);
 
 // Configure logging. Change this to `true` to see log messages from llama.cpp
-var showLLamaCppLogs = false;
+var showLLamaCppLogs = true;
 NativeLibraryConfig
    .All
    .WithLogCallback((level, message) =>
