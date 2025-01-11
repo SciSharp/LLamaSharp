@@ -84,12 +84,15 @@ public class BatchedExecutorSimple
                 
                 foreach (var conversationData in conversations.Where(c => c.IsComplete == false))
                 {
-                    if (conversationData.Conversation.RequiresSampling == false) continue;
+                    if (conversationData.Conversation.RequiresSampling == false)
+                        continue;
                 
                     // sample a single token for the executor, passing the sample index of the conversation
+                    var sampleIndex = conversationData.Conversation.GetSampleIndex();
                     var token = conversationData.Sampler.Sample(
-                        executor.Context.NativeHandle,
-                        conversationData.Conversation.GetSampleIndex());
+                        executor.Context,
+                        sampleIndex
+                    );
                     
                     if (modelTokens.IsEndOfGeneration(token))
                     {
@@ -99,7 +102,7 @@ public class BatchedExecutorSimple
                     {
                         // it isn't the end of generation, so add this token to the decoder and then add that to our tracked data
                         conversationData.Decoder.Add(token);
-                        conversationData.AppendAnswer(conversationData.Decoder.Read().ReplaceLineEndings(" "));
+                        todo: conversationData.AppendAnswer(conversationData.Decoder.Read().ReplaceLineEndings(" "));
                         
                         // add the token to the conversation
                         conversationData.Conversation.Prompt(token);

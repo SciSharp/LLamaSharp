@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace LLama.Native;
 
@@ -105,6 +106,25 @@ public class LLamaBatch
 
     internal GroupDisposable ToNativeBatch(out LLamaNativeBatch batch)
     {
+        // Sanity checking
+#if DEBUG
+        // Check every output logit position is actually generating logits for exactly one sequence
+        foreach (var (seq, idx) in _logitPositions)
+        {
+            Debug.Assert(_logits[idx] != 0);
+            Debug.Assert(_sequenceIdCount[idx] == 1);
+            Debug.Assert(_sequenceIds[idx][0] == seq);
+        }
+
+        // Check the reverse
+        for (var i = 0; i < _logits.Length; i++)
+        {
+            var actual = _logitPositions.FindIndex(x => x.Item2 == i) >= 0;
+            var expected = _logits[i] != 0;
+            Debug.Assert(actual == expected);
+        }
+#endif
+
         // This group holds all of the memory pins
         var group = new GroupDisposable();
 
@@ -146,6 +166,7 @@ public class LLamaBatch
     /// <returns>The index that the token was added at. Use this for GetLogitsIth</returns>
     public int Add(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
     {
+        // todo: token sharing in batch is broken?
         // Try to find this (token, position) combo somewhere in the batch to re-use it by adding this
         // sequence ID to the list.
         // Do **not** do this if this token wants logits, to prevent logits being shared between sequences.
@@ -171,9 +192,9 @@ public class LLamaBatch
         if (sequences.Length > SequenceCapacity)
             GrowMaxSequences(sequences.Length);
 
-        // Store the position in the index, so it can be found later.
-        // We need to check that it's not already there in case we skipped the check above (because logits is true).
-        if (!_index.ContainsKey((token, pos)))
+        // Store the position in the index, so it can be found later. We don't want to share tokens when logits are being generated so
+        // do not add to the index in that case.
+        if (!logits && !_index.ContainsKey((token, pos)))
             _index.Add((token, pos), TokenCount);
 
         // Add the items to the arrays
