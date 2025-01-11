@@ -104,11 +104,11 @@
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/ggml.dll</Link>
+        <Link>runtimes/win-x64/native/cuda12/ggml.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml-cuda.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/ggml-cuda.dll</Link>
+        <Link>runtimes/win-x64/native/cuda12/ggml-cuda.dll</Link>
       </None>
 
 
