@@ -43,6 +43,8 @@ namespace LLama.Native
                 
                 foreach (var path in paths)
                 {
+                    Log($"Got relative library path '{path}' from local with {library.Metadata}, trying to load it...", LLamaLogLevel.Debug, config.LogCallback);
+                    
                     // After the llama.cpp binaries have been split up (PR #10256), we need to load the dependencies manually.
                     // It can't be done automatically on Windows, because the dependencies can be in different folders (for example, ggml-cuda.dll from the cuda12 folder, and ggml-cpu.dll from the avx2 folder)
                     // It can't be done automatically on Linux, because Linux uses the environment variable "LD_LIBRARY_PATH" to automatically load dependencies, and LD_LIBRARY_PATH can only be
