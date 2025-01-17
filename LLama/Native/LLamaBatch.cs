@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace LLama.Native;
 
@@ -17,11 +18,6 @@ public class LLamaBatch
     private int[] _sequenceIdCount;
     private LLamaSeqId[][] _sequenceIds;
     private IntPtr[] _sequenceIdsPtrs;
-
-    /// <summary>
-    /// Keep track of the index of existing token/position combos in the batch
-    /// </summary>
-    private readonly Dictionary<(LLamaToken, LLamaPos), int> _index = new();
 
     /// <summary>
     /// Keep a list of where logits can be sampled from
@@ -108,7 +104,7 @@ public class LLamaBatch
     {
         // Sanity checking
 #if DEBUG
-        // Check every output logit position is actually generating logits for exactly one sequence
+        // Check every output logit position is generating logits for exactly one sequence
         foreach (var (seq, idx) in _logitPositions)
         {
             Debug.Assert(_logits[idx] != 0);
@@ -116,10 +112,10 @@ public class LLamaBatch
             Debug.Assert(_sequenceIds[idx][0] == seq);
         }
 
-        // Check the reverse
+        // Check every index, if it's generating logits it must be in the _logitPositions list. Otherwise it must not.
         for (var i = 0; i < _logits.Length; i++)
         {
-            var actual = _logitPositions.FindIndex(x => x.Item2 == i) >= 0;
+            var actual = _logitPositions.Any(x => x.Item2 == i);
             var expected = _logits[i] != 0;
             Debug.Assert(actual == expected);
         }
@@ -166,36 +162,11 @@ public class LLamaBatch
     /// <returns>The index that the token was added at. Use this for GetLogitsIth</returns>
     public int Add(LLamaToken token, LLamaPos pos, ReadOnlySpan<LLamaSeqId> sequences, bool logits)
     {
-        // todo: token sharing in batch is broken?
-        // Try to find this (token, position) combo somewhere in the batch to re-use it by adding this
-        // sequence ID to the list.
-        // Do **not** do this if this token wants logits, to prevent logits being shared between sequences.
-        if (!logits && _index.TryGetValue((token, pos), out var existingIndex))
-        {
-            if (_sequenceIdCount[existingIndex] + sequences.Length > SequenceCapacity)
-                GrowMaxSequences(_sequenceIdCount[existingIndex] + sequences.Length);
-
-            foreach (var sequence in sequences)
-            {
-                _sequenceIds[existingIndex][_sequenceIdCount[existingIndex]] = sequence;
-                _sequenceIdCount[existingIndex]++;
-            }
-
-            return existingIndex;
-        }
-
-        // Couldn't find this token/position combo anywhere in the batch. Add a new item.
-
         // Grow capacity as necessary
         if (TokenCount == TokenCapacity)
             GrowTokenCapacity();
         if (sequences.Length > SequenceCapacity)
             GrowMaxSequences(sequences.Length);
-
-        // Store the position in the index, so it can be found later. We don't want to share tokens when logits are being generated so
-        // do not add to the index in that case.
-        if (!logits && !_index.ContainsKey((token, pos)))
-            _index.Add((token, pos), TokenCount);
 
         // Add the items to the arrays
         _tokens[TokenCount] = token;
@@ -234,7 +205,7 @@ public class LLamaBatch
         // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
         // avoid the copying.
 
-        var rented = System.Buffers.ArrayPool<LLamaSeqId>.Shared.Rent(sequences.Count);
+        var rented = ArrayPool<LLamaSeqId>.Shared.Rent(sequences.Count);
         try
         {
             sequences.CopyTo(rented, 0);
@@ -242,7 +213,7 @@ public class LLamaBatch
         }
         finally
         {
-            System.Buffers.ArrayPool<LLamaSeqId>.Shared.Return(rented);
+            ArrayPool<LLamaSeqId>.Shared.Return(rented);
         }
 #endif
     }
@@ -294,7 +265,6 @@ public class LLamaBatch
     {
         TokenCount = 0;
 
-        _index.Clear();
         _logitPositions.Clear();
     }
 
