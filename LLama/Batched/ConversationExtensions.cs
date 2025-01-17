@@ -1,5 +1,6 @@
 using System;
 using LLama.Native;
+using LLama.Sampling;
 
 namespace LLama.Batched;
 
@@ -16,6 +17,18 @@ public static class ConversationExtensions
     /// <param name="offset">Offset from the end of the conversation to the logits to sample, see <see cref="Conversation.GetSampleIndex"/> for more details</param>
     /// <returns></returns>
     public static LLamaToken Sample(this Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset = 0)
+    {
+        return sampler.Sample(conversation.Executor.Context.NativeHandle, conversation.GetSampleIndex(offset));
+    }
+
+    /// <summary>
+    /// Sample a token from this conversation using the given sampling pipeline
+    /// </summary>
+    /// <param name="conversation"><see cref="Conversation"/> to sample from</param>
+    /// <param name="sampler"></param>
+    /// <param name="offset">Offset from the end of the conversation to the logits to sample, see <see cref="Conversation.GetSampleIndex"/> for more details</param>
+    /// <returns></returns>
+    public static LLamaToken Sample(this Conversation conversation, ISamplingPipeline sampler, int offset = 0)
     {
         return sampler.Sample(conversation.Executor.Context.NativeHandle, conversation.GetSampleIndex(offset));
     }

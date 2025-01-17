@@ -210,7 +210,7 @@ public sealed class LLamaTemplate
     #endregion
 
     /// <summary>
-    /// Apply the template to the messages and write it into the output buffer
+    /// Apply the template to the messages and return a span containing the results
     /// </summary>
     /// <returns>A span over the buffer that holds the applied template</returns>
     public ReadOnlySpan<byte> Apply()

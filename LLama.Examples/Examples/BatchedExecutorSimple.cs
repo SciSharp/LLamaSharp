@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using LLama.Batched;
 using LLama.Common;
@@ -34,6 +33,7 @@ public class BatchedExecutorSimple
         var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
         Console.WriteLine($"Created executor with model: {name}");
 
+        // A set of questions to evaluate all at once
         var messages = new[]
         {
             "What's 2+2?",
@@ -46,8 +46,10 @@ public class BatchedExecutorSimple
             "I have two sons, Bert and Ernie. What should I name my daughter?",
             "What day comes after Friday?",
             "What color shoes should I wear with dark blue pants?",
+            "Wy ae cts btr tn dgs?"
         };
 
+        // Create a "Conversation" for each question
         var conversations = new List<ConversationData>();
         foreach (var message in messages)
         {
@@ -57,11 +59,14 @@ public class BatchedExecutorSimple
             template.Add("user", message);
             template.AddAssistant = true;
             var templatedMessage = Encoding.UTF8.GetString(template.Apply());
-            
+
             // create a new conversation and prompt it. include special and bos because we are using the template
+            // - BOS is the "Beginning of Sequence" token and should be included at the start of any prompt
+            // - Special tokens are special non-text tokens which an LLM is trained to understand (e.g. BOS). The templated text may contains special tokens.
             var conversation = executor.Create();
             conversation.Prompt(executor.Context.Tokenize(templatedMessage, addBos: true, special: true));
             
+            // Store everything we need to process this conversation
             conversations.Add(new ConversationData {
                 Prompt = message,
                 Conversation = conversation,
@@ -73,47 +78,64 @@ public class BatchedExecutorSimple
         var table = BuildTable(conversations);
         await AnsiConsole.Live(table).StartAsync(async ctx =>
         {
+            // Enter a loop generating tokens
             for (var i = 0; i < TokenCount; i++)
             {
                 // Run inference for all conversations in the batch which have pending tokens.
                 var decodeResult = await executor.Infer();
+
+                // Inference can fail, always check the return value!
+                // NoKvSlot is not a fatal error, it just means that there's not enough memory available in the KV cache to process everything. You can force
+                // this to happen by setting a small value for ContextSize in the ModelParams at the top of this file (e.g. 512).
+                // In this case it's handled by ending a conversation (which will free up some space) and trying again. You could also handle this by
+                // saving the conversation to disk and loading it up again later once some other conversations have finished.
                 if (decodeResult == DecodeResult.NoKvSlot)
-                    throw new Exception("Could not find a KV slot for the batch. Try reducing the size of the batch or increase the context.");
+                {
+                    conversations.FirstOrDefault(a => !a.IsComplete)?.MarkComplete(failed:true);
+                    continue;
+                }
+
+                // A generic error, this is fatal and the batch can no longer be used. This should never occur and generally indicates
+                // a bug in LLamaSharp, llama.cpp or a hardware error.
                 if (decodeResult == DecodeResult.Error)
                     throw new Exception("Unknown error occurred while inferring.");
                 
-                foreach (var conversationData in conversations.Where(c => c.IsComplete == false))
+                // After inference all of the conversations must be sampled before running inference again.
+                foreach (var conversationData in conversations)
                 {
-                    if (conversationData.Conversation.RequiresSampling == false) continue;
-                
-                    // sample a single token for the executor, passing the sample index of the conversation
-                    var token = conversationData.Sampler.Sample(
-                        executor.Context.NativeHandle,
-                        conversationData.Conversation.GetSampleIndex());
-                    
+                    // Completed conversations don't need sampling.
+                    if (conversationData.IsComplete)
+                        continue;
+
+                    // If the conversation wasn't prompted before the last call to Infer then it won't need sampling.
+                    if (!conversationData.Conversation.RequiresSampling)
+                        continue;
+
+                    // Use the sampling pipeline to choose a single token for this conversation.
+                    var token = conversationData.Conversation.Sample(conversationData.Sampler);
+
+                    // Some special tokens indicate that this sequence has ended. Check if that's what has been chosen by the sampling pipeline.
                     if (modelTokens.IsEndOfGeneration(token))
                     {
                         conversationData.MarkComplete();
                     }
                     else
                     {
-                        // it isn't the end of generation, so add this token to the decoder and then add that to our tracked data
+                        // It isn't the end of generation, so add this token to the decoder and then add that to our tracked data
                         conversationData.Decoder.Add(token);
                         conversationData.AppendAnswer(conversationData.Decoder.Read().ReplaceLineEndings(" "));
                         
-                        // add the token to the conversation
+                        // Prompt the conversation with this token, ready for the next round of inference to generate another token
                         conversationData.Conversation.Prompt(token);
                     }
                 }
                 
-                // render the current state
+                // Render the current state
                 table = BuildTable(conversations);
                 ctx.UpdateTarget(table);
  
                 if (conversations.All(c => c.IsComplete))
-                {
                     break;
-                }
             }
 
             // if we ran out of tokens before completing just mark them as complete for rendering purposes.
@@ -152,20 +174,23 @@ public class ConversationData
     public required BaseSamplingPipeline Sampler { get; init; }
     public required StreamingTokenDecoder Decoder { get; init; } 
 
-    public string AnswerMarkdown => IsComplete 
-        ? $"[green]{_inProgressAnswer.Message.EscapeMarkup()}{_inProgressAnswer.LatestToken.EscapeMarkup()}[/]" 
-        : $"[grey]{_inProgressAnswer.Message.EscapeMarkup()}[/][white]{_inProgressAnswer.LatestToken.EscapeMarkup()}[/]";
+    public string AnswerMarkdown =>
+        IsComplete
+            ? $"[{(IsFailed ? "red" : "green")}]{_inProgressAnswer.Message.EscapeMarkup()}{_inProgressAnswer.LatestToken.EscapeMarkup()}[/]"
+            : $"[grey]{_inProgressAnswer.Message.EscapeMarkup()}[/][white]{_inProgressAnswer.LatestToken.EscapeMarkup()}[/]";
 
     public bool IsComplete { get; private set; }
+    public bool IsFailed { get; private set; }
     
     // we are only keeping track of the answer in two parts to render them differently.
     private (string Message, string LatestToken) _inProgressAnswer = (string.Empty, string.Empty);
     
     public void AppendAnswer(string newText) => _inProgressAnswer = (_inProgressAnswer.Message + _inProgressAnswer.LatestToken, newText);
 
-    public void MarkComplete()
+    public void MarkComplete(bool failed = false)
     {
         IsComplete = true;
+        IsFailed = failed;
         if (Conversation.IsDisposed == false)
         {
             // clean up the conversation and sampler to release more memory for inference. 
