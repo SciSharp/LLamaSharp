@@ -427,6 +427,13 @@ jobs:
             path: ./build/ggml/src/libggml-cpu.dylib
             name: ggml-cpu-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
+      - name: Upload ggml-metal
+        if: ${{ matrix.build == 'arm64' }}
+        uses: actions/upload-artifact@v4
+        with:
+            path: ./build/ggml/src/libggml-metal.dylib
+            name: ggml-metal-bin-osx-${{ matrix.build }}.dylib
+            if-no-files-found: error
       - name: Upload llama
         uses: actions/upload-artifact@v4
         with:
@@ -574,24 +581,25 @@ jobs:
           cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll  deps/avx512/llava_shared.dll
 
           # MacOS
-          cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib           deps/osx-arm64/libggml.dylib
-          cp artifacts/ggml-base-bin-osx-arm64.dylib/libggml-base.dylib deps/osx-arm64/libggml-base.dylib
-          cp artifacts/ggml-cpu-bin-osx-arm64.dylib/libggml-cpu.dylib   deps/osx-arm64/libggml-cpu.dylib
-          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib         deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib  deps/osx-arm64/libllava_shared.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal                deps/osx-arm64/ggml-metal.metal
+          cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib             deps/osx-arm64/libggml.dylib
+          cp artifacts/ggml-base-bin-osx-arm64.dylib/libggml-base.dylib   deps/osx-arm64/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-osx-arm64.dylib/libggml-cpu.dylib     deps/osx-arm64/libggml-cpu.dylib
+          cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
+          cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
+          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib    deps/osx-arm64/libllava_shared.dylib
+          cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
             
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64.dylib/libggml-base.dylib   deps/osx-x64/libggml-base.dylib
-          cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib         deps/osx-x64/libggml-cpu.dylib
+          cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
             
-          cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib          deps/osx-x64-rosetta2/libggml.dylib
-          cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib    deps/osx-x64-rosetta2/libggml-base.dylib
-          cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib     deps/osx-x64-rosetta2/libggml-cpu.dylib
-          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib        deps/osx-x64-rosetta2/libllama.dylib
-          cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib deps/osx-x64-rosetta2/libllava_shared.dylib
+          cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
+          cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
+          cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib   deps/osx-x64-rosetta2/libggml-cpu.dylib
+          cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib         deps/osx-x64-rosetta2/libllama.dylib
+          cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib  deps/osx-x64-rosetta2/libllava_shared.dylib
 
           # Android
           #cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so           deps/android-arm64-v8a/libggml.so
