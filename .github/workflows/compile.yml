@@ -434,6 +434,13 @@ jobs:
             path: ./build/ggml/src/ggml-metal/libggml-metal.dylib
             name: ggml-metal-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
+      - name: Upload ggml-blas
+        if: ${{ matrix.build == 'arm64' }}
+        uses: actions/upload-artifact@v4
+        with:
+            path: ./build/ggml/src/ggml-blas/libggml-blas.dylib
+            name: ggml-blas-bin-osx-${{ matrix.build }}.dylib
+            if-no-files-found: error
       - name: Upload llama
         uses: actions/upload-artifact@v4
         with:
@@ -584,6 +591,7 @@ jobs:
           cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib             deps/osx-arm64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-arm64.dylib/libggml-base.dylib   deps/osx-arm64/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-arm64.dylib/libggml-cpu.dylib     deps/osx-arm64/libggml-cpu.dylib
+          cp artifacts/ggml-blas-bin-osx-arm64.dylib/libggml-blas.dylib   deps/osx-arm64/libggml-blas.dylib
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
           cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib    deps/osx-arm64/libllava_shared.dylib
@@ -592,12 +600,14 @@ jobs:
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64.dylib/libggml-base.dylib   deps/osx-x64/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
+          cp artifacts/ggml-blas-bin-osx-x64.dylib/libggml-blas.dylib   deps/osx-x64/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
           cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib   deps/osx-x64-rosetta2/libggml-cpu.dylib
+          cp artifacts/ggml-blas-bin-osx-x64-rosetta2.dylib/libggml-blas.dylib deps/osx-x64-rosetta2/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib         deps/osx-x64-rosetta2/libllama.dylib
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib  deps/osx-x64-rosetta2/libllava_shared.dylib
 
