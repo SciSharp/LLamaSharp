@@ -12,6 +12,10 @@
         <releaseNotes></releaseNotes>
         <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
         <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Cpu" version="$version$" />
+        </dependencies>
     </metadata>
 
     <files>
