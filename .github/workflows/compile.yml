@@ -435,7 +435,7 @@ jobs:
             name: ggml-metal-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload ggml-blas
-        if: ${{ matrix.build == 'arm64' }}
+        if: ${{ matrix.build != 'x64-rosetta2' }}
         uses: actions/upload-artifact@v4
         with:
             path: ./build/ggml/src/ggml-blas/libggml-blas.dylib
