@@ -7,6 +7,7 @@
         <authors>llama.cpp Authors</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
         <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
         <description>LLamaSharp.Backend.Cuda11.Windows contains the Windows binaries for LLamaSharp with Cuda11 support.</description>
         <releaseNotes></releaseNotes>

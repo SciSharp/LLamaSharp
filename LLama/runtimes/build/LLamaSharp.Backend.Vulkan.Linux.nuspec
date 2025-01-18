@@ -7,6 +7,7 @@
         <authors>llama.cpp Authors</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
         <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
         <description>LLamaSharp.Backend.Vulkan.Linux contains the Linux binaries for LLamaSharp with Vulkan support.</description>
         <releaseNotes></releaseNotes>
