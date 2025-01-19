@@ -4,19 +4,19 @@
     </PropertyGroup>
     <ItemGroup Condition="'$(IncludeBuiltInRuntimes)' == 'true'">
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/noavx/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/ggml.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/ggml.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>runtimes/win-x64/native/noavx/ggml.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/ggml-base.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/ggml-base.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>runtimes/win-x64/native/noavx/ggml-base.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/ggml-cpu.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/ggml-cpu.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/noavx/ggml-cpu.dll</Link>
       </None>
@@ -130,19 +130,19 @@
       </None>
 
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libllama.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libggml.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libggml.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libggml-base.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml-base.so">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>runtimes/linux-x64/native/noavx/libggml-base.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libggml-cpu.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml-cpu.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libggml-cpu.so</Link>
       </None>
@@ -338,7 +338,7 @@
         <Link>runtimes/osx-x64/native/rosetta2/libllava_shared.dylib</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/llava_shared.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/noavx/llava_shared.dll</Link>
       </None>
@@ -367,7 +367,7 @@
         <Link>runtimes/win-x64/native/vulkan/llava_shared.dll</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libllava_shared.so</Link>
       </None>
