@@ -21,9 +21,14 @@
 
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
-        <file src="runtimes/deps/vulkan/llava_shared.dll" target="runtimes\win-x64\native\vulkan\llava_shared.dll" />
+        
         <file src="runtimes/deps/vulkan/ggml.dll" target="runtimes\win-x64\native\vulkan\ggml.dll" />
+        <file src="runtimes/deps/vulkan/ggml-base.dll" target="runtimes\win-x64\native\vulkan\ggml-base.dll" />
+        <file src="runtimes/deps/vulkan/ggml-vulkan.dll" target="runtimes\win-x64\native\vulkan\ggml-vulkan.dll" />
+
         <file src="runtimes/deps/vulkan/llama.dll" target="runtimes\win-x64\native\vulkan\llama.dll" />
+        <file src="runtimes/deps/vulkan/llava_shared.dll" target="runtimes\win-x64\native\vulkan\llava_shared.dll" />
+        
         <file src="icon512.png" target="icon512.png" />
     </files>
 </package>

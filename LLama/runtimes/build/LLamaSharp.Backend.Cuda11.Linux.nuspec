@@ -21,9 +21,13 @@
 
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda11.props" />
-        <file src="runtimes/deps/cu11.7.1/libllava_shared.so" target="runtimes/linux-x64/native/cuda11/libllava_shared.so" />
+
         <file src="runtimes/deps/cu11.7.1/libggml.so" target="runtimes/linux-x64/native/cuda11/libggml.so" />
+        <file src="runtimes/deps/cu11.7.1/libggml-base.so" target="runtimes/linux-x64/native/cuda11/libggml-base.so" />
+        <file src="runtimes/deps/cu11.7.1/libggml-cuda.so" target="runtimes/linux-x64/native/cuda11/libggml-cuda.so" />
+
         <file src="runtimes/deps/cu11.7.1/libllama.so" target="runtimes/linux-x64/native/cuda11/libllama.so" />
+        <file src="runtimes/deps/cu11.7.1/libllava_shared.so" target="runtimes/linux-x64/native/cuda11/libllava_shared.so" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>

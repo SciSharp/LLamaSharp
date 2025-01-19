@@ -21,9 +21,13 @@
 
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda11.props" />
-        <file src="runtimes/deps/cu11.7.1/llava_shared.dll" target="runtimes\win-x64\native\cuda11\llava_shared.dll" />
+
         <file src="runtimes/deps/cu11.7.1/ggml.dll" target="runtimes\win-x64\native\cuda11\ggml.dll" />
+        <file src="runtimes/deps/cu11.7.1/ggml-base.dll" target="runtimes\win-x64\native\cuda11\ggml-base.dll" />
+        <file src="runtimes/deps/cu11.7.1/ggml-cuda.dll" target="runtimes\win-x64\native\cuda11\ggml-cuda.dll" />
+
         <file src="runtimes/deps/cu11.7.1/llama.dll" target="runtimes\win-x64\native\cuda11\llama.dll" />
+        <file src="runtimes/deps/cu11.7.1/llava_shared.dll" target="runtimes\win-x64\native\cuda11\llava_shared.dll" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>
