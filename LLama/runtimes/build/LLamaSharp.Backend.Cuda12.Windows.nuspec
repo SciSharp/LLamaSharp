@@ -7,19 +7,27 @@
         <authors>llama.cpp Authors</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
         <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
         <description>LLamaSharp.Backend.Cuda12.Windows contains the Windows binaries for LLamaSharp with Cuda12 support.</description>
         <releaseNotes></releaseNotes>
         <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
         <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Cpu" version="$version$" />
+        </dependencies>
     </metadata>
 
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.props" />
-        
-        <file src="runtimes/deps/cu12.2.0/llava_shared.dll" target="runtimes\win-x64\native\cuda12\llava_shared.dll" />
+
         <file src="runtimes/deps/cu12.2.0/ggml.dll" target="runtimes\win-x64\native\cuda12\ggml.dll" />
+        <file src="runtimes/deps/cu12.2.0/ggml-base.dll" target="runtimes\win-x64\native\cuda12\ggml-base.dll" />
+        <file src="runtimes/deps/cu12.2.0/ggml-cuda.dll" target="runtimes\win-x64\native\cuda12\ggml-cuda.dll" />
+        
         <file src="runtimes/deps/cu12.2.0/llama.dll" target="runtimes\win-x64\native\cuda12\llama.dll" />
+        <file src="runtimes/deps/cu12.2.0/llava_shared.dll" target="runtimes\win-x64\native\cuda12\llava_shared.dll" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>

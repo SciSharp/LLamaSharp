@@ -22,6 +22,7 @@
     </metadata>
 
     <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
         <file src="icon512.png" target="icon512.png" />
     </files>
 </package>
