@@ -22,12 +22,12 @@ namespace LLama.Native
             {
                 if (description.UseCuda)
                 {
-                    yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.SkipCheck);
+                    yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.AvxLevel, description.SkipCheck);
                 }
 
                 if (description.UseVulkan)
                 {
-                    yield return new NativeLibraryWithVulkan(systemInfo.VulkanVersion, description.Library, description.SkipCheck);
+                    yield return new NativeLibraryWithVulkan(systemInfo.VulkanVersion, description.Library, description.AvxLevel, description.SkipCheck);
                 }
 
                 if((!description.UseCuda || !description.UseVulkan) || description.AllowFallback)

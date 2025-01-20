@@ -28,11 +28,13 @@ namespace LLama.Native
         /// </summary>
         /// <param name="majorCudaVersion"></param>
         /// <param name="libraryName"></param>
+        /// <param name="avxLevel"></param>
         /// <param name="skipCheck"></param>
-        public NativeLibraryWithCuda(int majorCudaVersion, NativeLibraryName libraryName, bool skipCheck)
+        public NativeLibraryWithCuda(int majorCudaVersion, NativeLibraryName libraryName, AvxLevel avxLevel, bool skipCheck)
         {
             _majorCudaVersion = majorCudaVersion;
             _libraryName = libraryName;
+            _avxLevel = avxLevel;
             _skipCheck = skipCheck;
         }
 
