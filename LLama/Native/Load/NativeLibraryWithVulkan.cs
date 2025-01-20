@@ -28,11 +28,13 @@ namespace LLama.Native
         /// </summary>
         /// <param name="vulkanVersion"></param>
         /// <param name="libraryName"></param>
+        /// <param name="avxLevel"></param>
         /// <param name="skipCheck"></param>
-        public NativeLibraryWithVulkan(string? vulkanVersion, NativeLibraryName libraryName, bool skipCheck)
+        public NativeLibraryWithVulkan(string? vulkanVersion, NativeLibraryName libraryName, AvxLevel avxLevel, bool skipCheck)
         {
             _vulkanVersion = vulkanVersion;
             _libraryName = libraryName;
+            _avxLevel = avxLevel;
             _skipCheck = skipCheck;
         }
 

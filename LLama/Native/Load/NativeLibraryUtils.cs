@@ -93,7 +93,7 @@ namespace LLama.Native
                                 $"runtimes/{os}/native/{NativeLibraryConfig.AvxLevelToString(library.Metadata.AvxLevel)}",
                                 $"{libPrefix}ggml-cpu{ext}"
                             ));
-                            
+
                             // ggml-cuda
                             if (library.Metadata.UseCuda)
                                 dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-cuda{ext}"));
