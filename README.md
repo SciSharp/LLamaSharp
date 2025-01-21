@@ -260,6 +260,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.17.0 |  | [`c35e586e`](https://github.com/ggerganov/llama.cpp/tree/c35e586ea57221844442c65a1172498c54971cb0) |
 | v0.18.0 |  | [`c35e586e`](https://github.com/ggerganov/llama.cpp/tree/c35e586ea57221844442c65a1172498c54971cb0) |
 | v0.19.0 |  | [`958367bf`](https://github.com/ggerganov/llama.cpp/tree/958367bf530d943a902afa1ce1c342476098576b) |
+| v0.20.0 |  | [`0827b2c1`](https://github.com/ggerganov/llama.cpp/tree/0827b2c1da299805288abbd556d869318f2b121e) |
 
 ## License
 
