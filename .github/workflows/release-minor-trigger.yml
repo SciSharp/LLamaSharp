@@ -9,7 +9,7 @@ on:
 jobs:
   release-minor-trigger:
     if: contains(github.event.pull_request.labels.*.name, 'minor-release') && !contains(github.event.pull_request.labels.*.name, 'patch-release')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v3
