@@ -17,7 +17,7 @@ public enum GPUSplitMode
     Layer = 1,
 
     /// <summary>
-    /// split rows across GPUs
+    /// split layers and KV across GPUs, use tensor parallelism if supported
     /// </summary>
     Row = 2,
 }

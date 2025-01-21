@@ -333,6 +333,14 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
 
+        /// <summary>
+        /// Check if the context supports KV cache shifting
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool llama_kv_cache_can_shift(SafeLLamaContextHandle ctx);
+
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaPerfContextTimings llama_perf_context(SafeLLamaContextHandle ctx);
 
@@ -566,7 +574,7 @@ namespace LLama.Native
         /// internally for later use by the decoder cross-attention layers.
         /// </summary>
         /// <param name="batch"></param>
-        /// <returns>0 = success <br />&lt; 0 = error</returns>
+        /// <returns>0 = success <br />&lt; 0 = error (the KV cache state is restored to the state before this call)</returns>
         public DecodeResult Encode(LLamaBatch batch)
         {
             if (batch.TokenCount == 0)
@@ -583,7 +591,7 @@ namespace LLama.Native
         /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
         ///  - 0: success<br />
         ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
-        ///  - &lt; 0: error<br />
+        ///  - &lt; 0: error (the KV cache state is restored to the state before this call)<br />
         /// </returns>
         public DecodeResult Decode(LLamaBatch batch)
         {
@@ -746,6 +754,11 @@ namespace LLama.Native
         #endregion
 
         #region KV Cache Management
+        /// <summary>
+        /// Check if the context supports KV cache shifting
+        /// </summary>
+        public bool KvCacheCanShift => llama_kv_cache_can_shift(this);
+
         /// <summary>
         /// Apply KV cache updates (such as K-shifts, defragmentation, etc.)
         /// </summary>

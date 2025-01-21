@@ -36,7 +36,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// How to split the model across multiple GPUs
         /// </summary>
-        GPUSplitMode SplitMode { get; }
+        GPUSplitMode? SplitMode { get; }
 
         /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
@@ -67,6 +67,11 @@ namespace LLama.Abstractions
         /// Load vocab only (no weights)
         /// </summary>
         bool VocabOnly { get; }
+
+        /// <summary>
+        /// Validate model tensor data before loading
+        /// </summary>
+        bool CheckTensors { get; }
 
         /// <summary>
         /// Override specific metadata items in the model

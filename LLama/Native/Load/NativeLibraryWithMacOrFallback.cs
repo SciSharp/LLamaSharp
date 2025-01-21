@@ -1,5 +1,5 @@
-using LLama.Abstractions;
 using System.Collections.Generic;
+using LLama.Abstractions;
 
 namespace LLama.Native
 {
@@ -7,39 +7,30 @@ namespace LLama.Native
     /// <summary>
     /// A native library compiled on Mac, or fallbacks from all other libraries in the selection.
     /// </summary>
-    public class NativeLibraryWithMacOrFallback : INativeLibrary
+    public class NativeLibraryWithMacOrFallback
+        : INativeLibrary
     {
-        private NativeLibraryName _libraryName;
-        private bool _skipCheck;
+        private readonly NativeLibraryName _libraryName;
 
         /// <inheritdoc/>
-        public NativeLibraryMetadata? Metadata
-        {
-            get
-            {
-                return new NativeLibraryMetadata(_libraryName, false, false, AvxLevel.None);
-            }
-        }
+        public NativeLibraryMetadata Metadata => new(_libraryName, false, false, AvxLevel.None);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="libraryName"></param>
-        /// <param name="skipCheck"></param>
-        public NativeLibraryWithMacOrFallback(NativeLibraryName libraryName, bool skipCheck)
+        public NativeLibraryWithMacOrFallback(NativeLibraryName libraryName)
         {
             _libraryName = libraryName;
-            _skipCheck = skipCheck;
         }
 
         /// <inheritdoc/>
         public IEnumerable<string> Prepare(SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
-            var path = GetPath(systemInfo, AvxLevel.None, logCallback);
-            return path is null ?[] : [path];
+            yield return GetPath(systemInfo);
         }
 
-        private string? GetPath(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
+        private string GetPath(SystemInfo systemInfo)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
             string relativePath;
@@ -50,11 +41,7 @@ namespace LLama.Native
             }
             else
             {
-                var avxStr = NativeLibraryConfig.AvxLevelToString(AvxLevel.None);
-                if (!string.IsNullOrEmpty(avxStr))
-                    avxStr += "/";
-
-                relativePath = $"runtimes/{os}/native/{avxStr}{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
+                relativePath = $"runtimes/{os}/native/{libPrefix}{_libraryName.GetLibraryName()}{fileExtension}";
             }
 
             return relativePath;

@@ -19,7 +19,7 @@ namespace LLama.Common
         public int MainGpu { get; set; } = 0;
 
         /// <inheritdoc />
-        public GPUSplitMode SplitMode { get; set; } = GPUSplitMode.None;
+        public GPUSplitMode? SplitMode { get; set; }
 
         /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
@@ -53,6 +53,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public TensorSplitsCollection TensorSplits { get; set; } = new();
+
+        /// <inheritdoc />
+        public bool CheckTensors { get; }
 
         /// <inheritdoc />
         public List<MetadataOverride> MetadataOverrides { get; set; } = new();

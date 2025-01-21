@@ -441,9 +441,6 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaTokenAttr llama_token_get_attr(SafeLlamaModelHandle model, LLamaToken token);
 
-        //[DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        //private static extern GGMLTensor llama_get_model_tensor(SafeLlamaModelHandle model, string name);
-
         /// <summary>
         /// Returns true if the model contains an encoder that requires llama_encode() call
         /// </summary>

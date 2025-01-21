@@ -4,14 +4,24 @@
     </PropertyGroup>
     <ItemGroup Condition="'$(IncludeBuiltInRuntimes)' == 'true'">
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/noavx/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/ggml.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/ggml.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>runtimes/win-x64/native/noavx/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/ggml-base.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/win-x64/native/noavx/ggml-base.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/noavx/ggml-cpu.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx/llama.dll</Link>
@@ -20,55 +30,124 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx/ggml-base.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/ggml-cpu.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/win-x64/native/avx/ggml-cpu.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx2/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx2/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx2/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx2/ggml-cpu.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx512/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx512/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/avx512/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/avx512/ggml-cpu.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda11/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/cuda11/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda11/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/ggml-cuda.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/cuda11/ggml-cuda.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/cuda12/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml-cuda.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/cuda12/ggml-cuda.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/vulkan/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/vulkan/ggml-base.dll</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/vulkan/ggml.dll</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/ggml-vulkan.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-x64/native/vulkan/ggml-vulkan.dll</Link>
+      </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllama.so">
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libllama.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libggml.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/noavx/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/noavx/libggml-cpu.so</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx/libllama.so</Link>
@@ -77,6 +156,17 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/avx/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx/libggml-cpu.so</Link>
+      </None>
+
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx2/libllama.so</Link>
@@ -85,6 +175,15 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx2/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/avx2/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx2/libggml-cpu.so</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx512/libllama.so</Link>
@@ -93,6 +192,15 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx512/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/avx512/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/avx512/libggml-cpu.so</Link>
+      </None>
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda11/libllama.so</Link>
@@ -101,6 +209,16 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda11/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/cuda11/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libggml-cuda.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/cuda11/libggml-cuda.so</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
@@ -109,6 +227,16 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/cuda12/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml-cuda.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/cuda12/libggml-cuda.so</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/vulkan/libllama.so</Link>
@@ -117,7 +245,32 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/vulkan/libggml.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-x64/native/vulkan/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libggml-vulkan.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-x64/native/vulkan/libggml-vulkan.so</Link>
+      </None>
 
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml-base.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-arm64/native/libggml-base.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml-cpu.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-arm64/native/libggml-cpu.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml-metal.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-arm64/native/libggml-metal.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml-blas.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-arm64/native/libggml-blas.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libggml.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/libggml.dylib</Link>
@@ -134,7 +287,19 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/ggml-metal.metal</Link>
       </None>
-        
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml-base.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/libggml-base.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml-cpu.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/libggml-cpu.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml-blas.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/libggml-blas.dylib</Link>
+      </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libggml.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libggml.dylib</Link>
@@ -148,6 +313,18 @@
         <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
       </None>
 
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml-base.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/rosetta2/libggml-base.dylib</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml-cpu.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/rosetta2/libggml-cpu.dylib</Link>
+      </None>        
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml-blas.dylib">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/osx-x64/native/rosetta2/libggml-blas.dylib</Link>
+      </None>        
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/rosetta2/libggml.dylib</Link>
@@ -161,7 +338,7 @@
         <Link>runtimes/osx-x64/native/rosetta2/libllava_shared.dylib</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/llava_shared.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/noavx/llava_shared.dll</Link>
       </None>
@@ -190,7 +367,7 @@
         <Link>runtimes/win-x64/native/vulkan/llava_shared.dll</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllava_shared.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libllava_shared.so</Link>
       </None>

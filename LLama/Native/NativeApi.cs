@@ -172,6 +172,15 @@ namespace LLama.Native
             static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
         }
 
+        /// <summary>
+        /// Get list of built-in chat templates
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int llama_chat_builtin_templates(char** output, nuint len);
+
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_add_bos_token(SafeLlamaModelHandle model);

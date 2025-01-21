@@ -1,6 +1,5 @@
-﻿using LLama.Native;
+using LLama.Native;
 using Spectre.Console;
-using System.Runtime.InteropServices;
 
 AnsiConsole.MarkupLineInterpolated(
     $"""
@@ -18,7 +17,7 @@ AnsiConsole.MarkupLineInterpolated(
     """);
 
 // Configure logging. Change this to `true` to see log messages from llama.cpp
-var showLLamaCppLogs = false;
+var showLLamaCppLogs = true;
 NativeLibraryConfig
    .All
    .WithLogCallback((level, message) =>
@@ -31,8 +30,7 @@ NativeLibraryConfig
 NativeLibraryConfig
    .All
    .WithCuda()
-   //.WithAutoDownload() // An experimental feature
-   .DryRun(out var loadedllamaLibrary, out var loadedLLavaLibrary);
+   .WithVulkan();
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();

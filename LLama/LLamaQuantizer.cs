@@ -106,9 +106,6 @@ namespace LLama
                 case LLamaFtype.MOSTLY_IQ3_S:
                 case LLamaFtype.MOSTLY_IQ3_M:
 
-                case LLamaFtype.MOSTLY_Q4_0_4_4:
-                case LLamaFtype.MOSTLY_Q4_0_4_8:
-                case LLamaFtype.MOSTLY_Q4_0_8_8:
                     return true;
 
                 case LLamaFtype.GUESSED:

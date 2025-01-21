@@ -10,8 +10,6 @@ namespace LLama.Native
         /// <inheritdoc/>
         public IEnumerable<INativeLibrary> Apply(NativeLibraryConfig.Description description, SystemInfo systemInfo, NativeLogConfig.LLamaLogCallback? logCallback)
         {
-            List<INativeLibrary> results = new();
-
             // Show the configuration we're working with
             Log(description.ToString(), LLamaLogLevel.Info, logCallback);
 
@@ -24,12 +22,12 @@ namespace LLama.Native
             {
                 if (description.UseCuda)
                 {
-                    yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.SkipCheck);
+                    yield return new NativeLibraryWithCuda(systemInfo.CudaMajorVersion, description.Library, description.AvxLevel, description.SkipCheck);
                 }
 
                 if (description.UseVulkan)
                 {
-                    yield return new NativeLibraryWithVulkan(systemInfo.VulkanVersion, description.Library, description.SkipCheck);
+                    yield return new NativeLibraryWithVulkan(systemInfo.VulkanVersion, description.Library, description.AvxLevel, description.SkipCheck);
                 }
 
                 if((!description.UseCuda || !description.UseVulkan) || description.AllowFallback)
@@ -56,7 +54,7 @@ namespace LLama.Native
 
                 if(systemInfo.OSPlatform == OSPlatform.OSX || description.AllowFallback)
                 {
-                    yield return new NativeLibraryWithMacOrFallback(description.Library, description.SkipCheck);
+                    yield return new NativeLibraryWithMacOrFallback(description.Library);
                 }
             }
         }
