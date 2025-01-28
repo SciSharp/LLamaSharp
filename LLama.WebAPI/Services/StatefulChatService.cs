@@ -17,7 +17,7 @@ public sealed class StatefulChatService
     {
         var @params = new Common.ModelParams(configuration["ModelPath"]!)
         {
-            ContextSize = 512,
+            ContextSize = 4 * 512,
         };
 
         // todo: share weights from a central service
@@ -48,7 +48,7 @@ public sealed class StatefulChatService
             new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text),
             new Common.InferenceParams
             {
-                AntiPrompts = [ "User:" ],
+                AntiPrompts = ["User:"],
 
                 SamplingPipeline = new DefaultSamplingPipeline
                 {
@@ -80,7 +80,7 @@ public sealed class StatefulChatService
             new Common.ChatHistory.Message(Common.AuthorRole.User, input.Text),
             new Common.InferenceParams
             {
-                AntiPrompts = [ "User:" ],
+                AntiPrompts = ["User:"],
 
                 SamplingPipeline = new DefaultSamplingPipeline
                 {

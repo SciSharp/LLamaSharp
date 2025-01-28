@@ -13,7 +13,7 @@ namespace LLama.WebAPI.Services
         {
             var @params = new Common.ModelParams(configuration["ModelPath"]!)
             {
-                ContextSize = 512,
+                ContextSize = 4 * 512,
             };
 
             // todo: share weights from a central service
