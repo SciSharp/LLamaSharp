@@ -57,7 +57,7 @@ namespace LLama
         /// <param name="logger"></param>
         public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            Images = new List<byte[]>();
+            Images = [ ];
             _weights = weights;
             _params = @params;
             _logger = logger;
@@ -119,7 +119,7 @@ namespace LLama
                 var id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, _batch.TokenCount - 1);
 
                 // Check if this token should end generation
-                if (_weights.Tokens.IsEndOfGeneration(id))
+                if (id.IsEndOfGeneration(_weights.Vocab))
                     break;
 
                 // Decode this token into text
@@ -138,7 +138,7 @@ namespace LLama
                 // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L497
                 if (n_past + tokens.Count >= Context.ContextSize)
                 {
-                    var canAddBos = Context.ShouldAddBosToken();
+                    var canAddBos = Context.Vocab.ShouldAddBOS;
                     var tokensKeep = inferenceParams.TokensKeep;
 
                     // number of tokens to keep when resetting context

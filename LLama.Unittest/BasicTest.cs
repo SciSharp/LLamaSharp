@@ -29,7 +29,7 @@ namespace LLama.Unittest
         [Fact]
         public void BasicModelProperties()
         {
-            Assert.Equal(128256, _model.VocabCount);
+            Assert.Equal(128256, _model.Vocab.Count);
             Assert.Equal(131072, _model.ContextSize);
             Assert.Equal(2048, _model.EmbeddingSize);
         }

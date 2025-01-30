@@ -14,11 +14,6 @@ public sealed class LLamaTemplate
 {
     #region private state
     /// <summary>
-    /// The model this template is for. May be null if a custom template was supplied to the constructor.
-    /// </summary>
-    private readonly SafeLlamaModelHandle? _model;
-
-    /// <summary>
     /// Custom template. May be null if a model was supplied to the constructor.
     /// </summary>
     private readonly byte[]? _customTemplate;
@@ -85,7 +80,7 @@ public sealed class LLamaTemplate
             if (index >= Count)
                 throw new ArgumentOutOfRangeException(nameof(index), "Index must be < Count");
 
-            return _messages[index]!;
+            return _messages[index];
         }
     }
 
@@ -111,9 +106,10 @@ public sealed class LLamaTemplate
     /// Construct a new template, using the default model template
     /// </summary>
     /// <param name="model"></param>
-    public LLamaTemplate(SafeLlamaModelHandle model)
+    /// <param name="name"></param>
+    public LLamaTemplate(SafeLlamaModelHandle model, string? name = null)
+        : this(model.GetTemplate(name))
     {
-        _model = model;
     }
 
     /// <summary>
@@ -130,9 +126,9 @@ public sealed class LLamaTemplate
     /// </summary>
     /// <remarks>Only support a pre-defined list of templates. See more: https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template</remarks>
     /// <param name="customTemplate"></param>
-    public LLamaTemplate(string customTemplate)
+    public LLamaTemplate(string? customTemplate)
     {
-        _customTemplate = Encoding.GetBytes(customTemplate + "\0");
+        _customTemplate = customTemplate == null ? null : Encoding.GetBytes(customTemplate + "\0");
     }
     #endregion
 
@@ -229,7 +225,7 @@ public sealed class LLamaTemplate
                     Array.Resize(ref _nativeChatMessages, _messages.Length);
                 for (var i = 0; i < Count; i++)
                 {
-                    ref var m = ref _messages[i]!;
+                    ref var m = ref _messages[i];
                     totalInputBytes += m.RoleBytes.Length + m.ContentBytes.Length;
 
                     // Pin byte arrays in place
@@ -300,7 +296,7 @@ public sealed class LLamaTemplate
             fixed (byte* outputPtr = output)
             fixed (LLamaChatMessage* messagesPtr = messages)
             {
-                return NativeApi.llama_chat_apply_template(_model, customTemplatePtr, messagesPtr, (nuint)messages.Length, AddAssistant, outputPtr, output.Length);
+                return NativeApi.llama_chat_apply_template(customTemplatePtr, messagesPtr, (nuint)messages.Length, AddAssistant, outputPtr, output.Length);
             }
         }
     }

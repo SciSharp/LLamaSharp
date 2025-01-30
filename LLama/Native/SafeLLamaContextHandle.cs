@@ -15,17 +15,6 @@ namespace LLama.Native
     {
         #region properties and fields
         /// <summary>
-        /// Total number of tokens in vocabulary of this model
-        /// </summary>
-        public int VocabCount => ThrowIfDisposed().VocabCount;
-
-        /// <summary>
-        /// The underlying vocabulary for the model
-        /// </summary>
-        /// <returns></returns>
-        public LLamaVocabType LLamaVocabType => ThrowIfDisposed().VocabType;
-
-        /// <summary>
         /// Total number of tokens in the context
         /// </summary>
         public uint ContextSize => llama_n_ctx(this);
@@ -73,6 +62,11 @@ namespace LLama.Native
         /// </summary>
         public SafeLlamaModelHandle ModelHandle => ThrowIfDisposed();
 
+        /// <summary>
+        /// Get the vocabulary for the model this context is using
+        /// </summary>
+        public SafeLlamaModelHandle.Vocabulary Vocab => ThrowIfDisposed().Vocab;
+
         private SafeLlamaModelHandle? _model;
         #endregion
 
@@ -109,7 +103,7 @@ namespace LLama.Native
         /// <exception cref="RuntimeError"></exception>
         public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaContextParams lparams)
         {
-            var ctx = llama_new_context_with_model(model, lparams);
+            var ctx = llama_init_from_model(model, lparams);
             if (ctx == null)
                 throw new RuntimeError("Failed to create context from model");
 
@@ -137,7 +131,7 @@ namespace LLama.Native
         /// <param name="params"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern SafeLLamaContextHandle llama_new_context_with_model(SafeLlamaModelHandle model, LLamaContextParams @params);
+        private static extern SafeLLamaContextHandle llama_init_from_model(SafeLlamaModelHandle model, LLamaContextParams @params);
 
         /// <summary>
         /// Frees all allocated memory in the given llama_context
@@ -359,13 +353,13 @@ namespace LLama.Native
         private static extern void llama_synchronize(SafeLLamaContextHandle ctx);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_lora_adapter_set(SafeLLamaContextHandle context, IntPtr adapter, float scale);
+        private static extern int llama_set_adapter_lora(SafeLLamaContextHandle context, IntPtr adapter, float scale);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_lora_adapter_remove(SafeLLamaContextHandle context, IntPtr adapter);
+        private static extern int llama_rm_adapter_lora(SafeLLamaContextHandle context, IntPtr adapter);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_lora_adapter_clear(SafeLLamaContextHandle context);
+        private static extern int llama_clear_adapter_lora(SafeLLamaContextHandle context);
 
         /// <summary>
         /// Get the pooling type for this context
@@ -409,7 +403,7 @@ namespace LLama.Native
             if (!lora.Loaded)
                 throw new ArgumentException("Cannot add LoRA adapter which has been unloaded");
 
-            var err = llama_lora_adapter_set(this, lora.Pointer, scale);
+            var err = llama_set_adapter_lora(this, lora.Pointer, scale);
             if (err != 0)
                 throw new RuntimeError("Failed to set lora adapter");
         }
@@ -424,7 +418,7 @@ namespace LLama.Native
             if (lora.Model != ModelHandle)
                 return false;
 
-            var err = llama_lora_adapter_remove(this, lora.Pointer);
+            var err = llama_rm_adapter_lora(this, lora.Pointer);
             return err == 0;
         }
 
@@ -433,7 +427,7 @@ namespace LLama.Native
         /// </summary>
         public void ClearLoraAdapters()
         {
-            llama_lora_adapter_clear(this);
+            llama_clear_adapter_lora(this);
         }
         #endregion
 
@@ -459,7 +453,7 @@ namespace LLama.Native
             unsafe
             {
                 var logits = llama_get_logits(this);
-                return new Span<float>(logits, model.VocabCount * numTokens);
+                return new Span<float>(logits, model.Vocab.Count * numTokens);
             }
         }
 
@@ -478,7 +472,7 @@ namespace LLama.Native
                 if (logits == null)
                     throw new GetLogitsInvalidIndexException(i);
 
-                return new Span<float>(logits, model.VocabCount);
+                return new Span<float>(logits, model.Vocab.Count);
             }
         }
         #endregion

@@ -386,10 +386,13 @@ public class SafeLLamaSamplerChainHandle
     /// <param name="model"></param>
     public void AddFillInMiddleInfill(SafeLlamaModelHandle model)
     {
-        llama_sampler_chain_add(this, llama_sampler_init_infill(model));
+        unsafe
+        {
+            llama_sampler_chain_add(this, llama_sampler_init_infill(model.Vocab.VocabNative));
+        }
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_init_infill(SafeLlamaModelHandle model);
+        static extern unsafe IntPtr llama_sampler_init_infill(LLamaVocabNative* vocab);
     }
 
     /// <summary>
@@ -401,11 +404,14 @@ public class SafeLLamaSamplerChainHandle
     /// <returns></returns>
     public void AddGrammar(SafeLlamaModelHandle model, string grammar, string root)
     {
-        llama_sampler_chain_add(this, llama_sampler_init_grammar(model, grammar, root));
+        unsafe
+        {
+            llama_sampler_chain_add(this, llama_sampler_init_grammar(model.Vocab.VocabNative, grammar, root));
+        }
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_init_grammar(SafeLlamaModelHandle model, string grammar_str, string grammar_root);
+        static extern unsafe IntPtr llama_sampler_init_grammar(LLamaVocabNative* model, string grammar_str, string grammar_root);
         // ReSharper restore InconsistentNaming
     }
 
@@ -470,7 +476,8 @@ public class SafeLLamaSamplerChainHandle
             llama_sampler_chain_add(
                 this,
                 llama_sampler_init_dry(
-                    model,
+                    model.Vocab.VocabNative,
+                    model.ContextSize,
                     multiplier,
                     @base,
                     allowedLength,
@@ -488,7 +495,8 @@ public class SafeLLamaSamplerChainHandle
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern unsafe IntPtr llama_sampler_init_dry(
-            SafeLlamaModelHandle model,
+            LLamaVocabNative* vocab,
+            int n_ctx_train,
             float dry_multiplier,
             float dry_base,
             int    dry_allowed_length,

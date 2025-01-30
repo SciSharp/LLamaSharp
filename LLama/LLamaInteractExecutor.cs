@@ -213,7 +213,7 @@ namespace LLama
                     return (true, Array.Empty<string>());
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.Tokens.EOS)
+            if (_embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
             {
                 return (true, new[] { " [end of text]\n" });
             }
@@ -246,7 +246,7 @@ namespace LLama
                     }
                     else
                     {
-                        tokensToKeep += Convert.ToInt32(Context.ShouldAddBosToken()); // always keep the BOS token
+                        tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS); // always keep the BOS token
                     }
 
                     HandleRunOutOfContext(tokensToKeep);
@@ -310,9 +310,9 @@ namespace LLama
 
                 _last_n_tokens.Enqueue(id);
 
-                if (id == Context.NativeHandle.ModelHandle.Tokens.EOS)
+                if (id == Context.NativeHandle.ModelHandle.Vocab.EOS)
                 {
-                    id = Context.NativeHandle.ModelHandle.Tokens.Newline!.Value;
+                    id = Context.NativeHandle.ModelHandle.Vocab.Newline!.Value;
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
                         var first_antiprompt = Context.Tokenize(args.Antiprompts[0], false);

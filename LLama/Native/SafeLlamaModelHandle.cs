@@ -15,34 +15,24 @@ namespace LLama.Native
         : SafeLLamaHandleBase
     {
         /// <summary>
-        /// Total number of tokens in vocabulary of this model
-        /// </summary>
-        public int VocabCount => llama_n_vocab(this);
-
-        /// <summary>
-        /// Get the vocabulary type for this model
-        /// </summary>
-        public LLamaVocabType VocabType => llama_vocab_type(this);
-
-        /// <summary>
         /// Get the rope (positional embedding) type for this model
         /// </summary>
-        public LLamaRopeType RopeType => llama_rope_type(this);
+        public LLamaRopeType RopeType => llama_model_rope_type(this);
 
         /// <summary>
-        /// Total number of tokens in the context
+        /// The number of tokens in the context that this model was trained for
         /// </summary>
-        public int ContextSize => llama_n_ctx_train(this);
+        public int ContextSize => llama_model_n_ctx_train(this);
 
         /// <summary>
         /// Get the rope frequency this model was trained with
         /// </summary>
-        public float RopeFrequency => llama_rope_freq_scale_train(this);
+        public float RopeFrequency => llama_model_rope_freq_scale_train(this);
 
         /// <summary>
         /// Dimension of embedding vectors
         /// </summary>
-        public int EmbeddingSize => llama_n_embd(this);
+        public int EmbeddingSize => llama_model_n_embd(this);
 
         /// <summary>
         /// Get the size of this model in bytes
@@ -57,12 +47,12 @@ namespace LLama.Native
         /// <summary>
         /// Get the number of layers in this model
         /// </summary>
-        public int LayerCount => llama_n_layers(this);
+        public int LayerCount => llama_model_n_layer(this);
 
-        ///// <summary>
-        ///// Get the number of heads in this model
-        ///// </summary>
-        //public int HeadCount => llama_n_heads(this);
+        /// <summary>
+        /// Get the number of heads in this model
+        /// </summary>
+        public int HeadCount => llama_model_n_head(this);
 
         /// <summary>
         /// Returns true if the model contains an encoder that requires llama_encode() call
@@ -106,17 +96,17 @@ namespace LLama.Native
         /// <returns></returns>
         public int MetadataCount => llama_model_meta_count(this);
 
-        private ModelTokens? _tokens;
+        private Vocabulary? _vocab;
 
         /// <summary>
-        /// Get the special tokens of this model
+        /// Get the vocabulary of this model
         /// </summary>
-        public ModelTokens Tokens => _tokens ??= new ModelTokens(this);
+        public Vocabulary Vocab => _vocab ??= new Vocabulary(this);
 
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
-            llama_free_model(handle);
+            llama_model_free(handle);
             return true;
         }
 
@@ -137,7 +127,7 @@ namespace LLama.Native
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"Model file '{modelPath}' is not readable");
 
-            var handle = llama_load_model_from_file(modelPath, lparams);
+            var handle = llama_model_load_from_file(modelPath, lparams);
             if (handle.IsInvalid)
                 throw new LoadWeightsFailedException(modelPath);
 
@@ -151,14 +141,28 @@ namespace LLama.Native
             NativeApi.llama_empty_call();
         }
 
+        [DllImport(NativeApi.libraryName)]
+        private static extern unsafe byte* llama_model_chat_template(SafeLlamaModelHandle model, string? name);
+
         /// <summary>
-        /// Load all of the weights of a model into memory.
+        /// Load the model from a file
+        /// If the file is split into multiple parts, the file name must follow this pattern: {name}-%05d-of-%05d.gguf
+        /// If the split file name does not follow this pattern, use llama_model_load_from_splits
         /// </summary>
         /// <param name="path"></param>
         /// <param name="params"></param>
         /// <returns>The loaded model, or null on failure.</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern SafeLlamaModelHandle llama_load_model_from_file(string path, LLamaModelParams @params);
+        private static extern SafeLlamaModelHandle llama_model_load_from_file(string path, LLamaModelParams @params);
+
+        /// <summary>
+        /// Load the model from multiple splits (support custom naming scheme)
+        /// The paths must be in the correct order
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        //todo: support llama_model_load_from_splits
+        private static extern unsafe SafeLlamaModelHandle llama_model_load_from_splits(char** paths, nuint nPaths, LLamaModelParams @params);
 
         /// <summary>
         /// Apply a LoRA adapter to a loaded model
@@ -181,7 +185,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="model"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_free_model(IntPtr model);
+        private static extern void llama_model_free(IntPtr model);
 
         /// <summary>
         /// Get the number of metadata key/value pairs
@@ -272,10 +276,7 @@ namespace LLama.Native
         private static extern int llama_n_vocab(SafeLlamaModelHandle model);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaVocabType llama_vocab_type(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaRopeType llama_rope_type(SafeLlamaModelHandle model);
+        private static extern LLamaRopeType llama_model_rope_type(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the size of the context window for the model
@@ -283,7 +284,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_n_ctx_train(SafeLlamaModelHandle model);
+        private static extern int llama_model_n_ctx_train(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the dimension of embedding vectors from this model
@@ -291,7 +292,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_n_embd(SafeLlamaModelHandle model);
+        private static extern int llama_model_n_embd(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the number of layers in this model
@@ -299,15 +300,15 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_n_layers(SafeLlamaModelHandle model);
+        private static extern int llama_model_n_layer(SafeLlamaModelHandle model);
 
-        ///// <summary>
-        ///// Get the number of heads in this model
-        ///// </summary>
-        ///// <param name="model"></param>
-        ///// <returns></returns>
-        //[DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        //private static extern int llama_n_heads(SafeLlamaModelHandle model);
+        /// <summary>
+        /// Get the number of heads in this model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_model_n_head(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get a string describing the model type
@@ -341,74 +342,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern float llama_rope_freq_scale_train(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Get the "Beginning of sentence" token
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaToken llama_token_bos(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Get the "End of sentence" token
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaToken llama_token_eos(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Get the "classification" token
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaToken llama_token_cls(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Get the "sentence separator" token
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaToken llama_token_sep(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Get the "new line" token
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaToken llama_token_nl(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Get the "padding" token
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaToken llama_token_pad(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// codellama infill tokens, End of infill middle
-        /// </summary>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_eot(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_fim_pre(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_fim_suf(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_fim_mid(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_fim_pad(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_fim_rep(SafeLlamaModelHandle model);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_token_fim_sep(SafeLlamaModelHandle model);
+        private static extern float llama_model_rope_freq_scale_train(SafeLlamaModelHandle model);
 
         /// <summary>
         /// For encoder-decoder models, this function returns id of the token that must be provided
@@ -417,29 +351,6 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_model_decoder_start_token(SafeLlamaModelHandle model);
-
-        /// <summary>
-        /// Check if the token is supposed to end generation (end-of-generation, eg. EOS, EOT, etc.)
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool llama_token_is_eog(SafeLlamaModelHandle model, LLamaToken token);
-
-        /// <summary>
-        /// Identify if Token Id is a control token or a render-able token
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool llama_token_is_control(SafeLlamaModelHandle model, LLamaToken token);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaTokenAttr llama_token_get_attr(SafeLlamaModelHandle model, LLamaToken token);
 
         /// <summary>
         /// Returns true if the model contains an encoder that requires llama_encode() call
@@ -460,7 +371,7 @@ namespace LLama.Native
         private static extern bool llama_model_has_decoder(SafeLlamaModelHandle model);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr llama_lora_adapter_init(SafeLlamaModelHandle model, string path);
+        private static extern IntPtr llama_adapter_lora_init(SafeLlamaModelHandle model, string path);
 
         /// <summary>
         /// Returns true if the model is recurrent (like Mamba, RWKV, etc.)
@@ -470,6 +381,9 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_model_is_recurrent(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern unsafe LLamaVocabNative* llama_model_get_vocab(SafeLlamaModelHandle model);
         #endregion
 
         #region LoRA
@@ -491,7 +405,7 @@ namespace LLama.Native
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"LoRA file '{path}' is not readable");
 
-            var ptr = llama_lora_adapter_init(this, path);
+            var ptr = llama_adapter_lora_init(this, path);
             return new LoraAdapter(this, path, ptr);
         }
         #endregion
@@ -507,7 +421,7 @@ namespace LLama.Native
         /// <returns>The size of this token. **nothing will be written** if this is larger than `dest`</returns>
         public uint TokenToSpan(LLamaToken token, Span<byte> dest, int lstrip = 0, bool special = false)
         {
-            var length = NativeApi.llama_token_to_piece(this, token, dest, lstrip, special);
+            var length = NativeApi.llama_token_to_piece(Vocab, token, dest, lstrip, special);
             return (uint)Math.Abs(length);
         }
 
@@ -569,13 +483,13 @@ namespace LLama.Native
                         encoding.GetBytes(textPtr, text.Length, bytesPtr, bytes.Length);
 
                         // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                        var count = -NativeApi.llama_tokenize(this, bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, addBos, special);
+                        var count = -NativeApi.llama_tokenize(llama_model_get_vocab(this), bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, addBos, special);
 
                         // Tokenize again, this time outputting into an array of exactly the right size
                         var tokens = new LLamaToken[count];
                         fixed (LLamaToken* tokensPtr = tokens)
                         {
-                            _ = NativeApi.llama_tokenize(this, bytesPtr, bytesCount, tokensPtr, count, addBos, special);
+                            _ = NativeApi.llama_tokenize(llama_model_get_vocab(this), bytesPtr, bytesCount, tokensPtr, count, addBos, special);
                             return tokens;
                         }
                     }
@@ -684,38 +598,63 @@ namespace LLama.Native
         }
         #endregion
 
+        #region template
+        /// <summary>
+        /// Get the default chat template. Returns nullptr if not available
+        /// If name is NULL, returns the default chat template
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public string? GetTemplate(string? name = null)
+        {
+            unsafe
+            {
+                var bytesPtr = llama_model_chat_template(this, name);
+                if (bytesPtr == null)
+                    return null;
+
+                // Find null terminator
+                var spanBytes = new Span<byte>(bytesPtr, int.MaxValue);
+                spanBytes = spanBytes.Slice(0, spanBytes.IndexOf((byte)0));
+
+                return Encoding.UTF8.GetStringFromSpan(spanBytes);
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Get tokens for a model
         /// </summary>
-        public sealed class ModelTokens
+        public sealed class Vocabulary
         {
             private readonly SafeLlamaModelHandle _model;
-            private readonly string? _eot;
-            private readonly string? _eos;
 
-            internal ModelTokens(SafeLlamaModelHandle model)
+            internal unsafe LLamaVocabNative* VocabNative => llama_model_get_vocab(_model);
+
+            internal Vocabulary(SafeLlamaModelHandle model)
             {
                 _model = model;
-                _eot = LLamaTokenToString(EOT, true);
-                _eos = LLamaTokenToString(EOS, true);
             }
 
             private string? LLamaTokenToString(LLamaToken? token, bool isSpecialToken)
             {
+                if (!token.HasValue)
+                    return null;
+
+                // Try to convert using a fixed size buffer
                 const int buffSize = 32;
                 Span<byte> buff = stackalloc byte[buffSize];
-                var tokenLength = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
+                var tokenLength = _model.TokenToSpan((LLamaToken)token, buff, special: isSpecialToken);
                 
+                // Negative indicates that there was no result
                 if (tokenLength <= 0)
-                {
                     return null;
-                }
                 
-                // if the original buffer wasn't large enough, create a new one
+                // if the original buffer wasn't large enough, try again with one that's the right size
                 if (tokenLength > buffSize)
                 {
                     buff = stackalloc byte[(int)tokenLength];
-                    _ = _model.TokenToSpan(token ?? LLamaToken.InvalidToken, buff, special: isSpecialToken);
+                    _ = _model.TokenToSpan((LLamaToken)token, buff, special: isSpecialToken);
                 }
 
                 var slice = buff.Slice(0, (int)tokenLength);
@@ -728,74 +667,200 @@ namespace LLama.Native
             }
 
             /// <summary>
+            /// Total number of tokens in this vocabulary
+            /// </summary>
+            public int Count
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return LLamaVocabNative.llama_vocab_n_tokens(VocabNative);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Get the the type of this vocabulary
+            /// </summary>
+            public LLamaVocabType Type
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return LLamaVocabNative.llama_vocab_type(VocabNative);
+                    }
+                }
+            }
+
+            /// <summary>
             /// Get the Beginning of Sentence token for this model
             /// </summary>
-            public LLamaToken? BOS => Normalize(llama_token_bos(_model));
+            public LLamaToken? BOS
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_bos(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Get the End of Sentence token for this model
             /// </summary>
-            public LLamaToken? EOS => Normalize(llama_token_eos(_model));
-            
-            /// <summary>
-            /// The textual representation of the end of speech special token for this model
-            /// </summary>
-            public string? EndOfSpeechToken => _eos;
+            public LLamaToken? EOS
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_eos(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Get the newline token for this model
             /// </summary>
-            public LLamaToken? Newline => Normalize(llama_token_nl(_model));
+            public LLamaToken? Newline
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_nl(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
-            /// Get the newline token for this model
+            /// Get the padding token for this model
             /// </summary>
-            public LLamaToken? Pad => Normalize(llama_token_pad(_model));
-
-            /// <summary>
-            /// Get the classification token for this model
-            /// </summary>
-            public LLamaToken? CLS => Normalize(llama_token_cls(_model));
+            public LLamaToken? Pad
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_pad(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Get the sentence separator token for this model
             /// </summary>
-            public LLamaToken? SEP => Normalize(llama_token_sep(_model));
+            public LLamaToken? SEP
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_sep(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Codellama beginning of infill prefix
             /// </summary>
-            public LLamaToken? InfillPrefix => Normalize(llama_token_fim_pre(_model));
+            public LLamaToken? InfillPrefix
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_fim_pre(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Codellama beginning of infill middle
             /// </summary>
-            public LLamaToken? InfillMiddle => Normalize(llama_token_fim_mid(_model));
+            public LLamaToken? InfillMiddle
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_fim_mid(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Codellama beginning of infill suffix
             /// </summary>
-            public LLamaToken? InfillSuffix => Normalize(llama_token_fim_suf(_model));
+            public LLamaToken? InfillSuffix
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_fim_suf(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Codellama pad
             /// </summary>
-            public LLamaToken? InfillPad => Normalize(llama_token_fim_pad(_model));
+            public LLamaToken? InfillPad
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_fim_pad(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Codellama rep
             /// </summary>
-            public LLamaToken? InfillRep => Normalize(llama_token_fim_rep(_model));
+            public LLamaToken? InfillRep
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_fim_rep(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// Codellama rep
             /// </summary>
-            public LLamaToken? InfillSep => Normalize(llama_token_fim_sep(_model));
+            public LLamaToken? InfillSep
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_fim_sep(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
-            /// Codellama end of infill middle
+            /// end-of-turn token
             /// </summary>
-            public LLamaToken? EOT => Normalize(llama_token_eot(_model));
+            public LLamaToken? EOT
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_eot(VocabNative));
+                    }
+                }
+            }
 
             /// <summary>
             /// For encoder-decoder models, this function returns id of the token that must be provided
@@ -804,38 +869,31 @@ namespace LLama.Native
             public LLamaToken? DecoderStartToken => Normalize(llama_model_decoder_start_token(_model));
 
             /// <summary>
-            /// Returns the string representation of this model's end_of_text token
+            /// Check if the current model requires a BOS token added
             /// </summary>
-            public string? EndOfTurnToken => _eot;
-
-            /// <summary>
-            /// Check if the given token should end generation
-            /// </summary>
-            /// <param name="token"></param>
-            /// <returns></returns>
-            public bool IsEndOfGeneration(LLamaToken token)
+            public bool ShouldAddBOS
             {
-                return llama_token_is_eog(_model, token);
+                get
+                {
+                    unsafe
+                    {
+                        return LLamaVocabNative.llama_vocab_get_add_bos(llama_model_get_vocab(_model));
+                    }
+                }
             }
 
             /// <summary>
-            /// Check if the given token should end generation
+            /// Check if the current model requires a EOS token added
             /// </summary>
-            /// <param name="token"></param>
-            /// <returns></returns>
-            public bool IsControl(LLamaToken token)
+            public bool ShouldAddEOS
             {
-                return llama_token_is_control(_model, token);
-            }
-
-            /// <summary>
-            /// Get attributes for the given token
-            /// </summary>
-            /// <param name="token"></param>
-            /// <returns></returns>
-            public LLamaTokenAttr GetAttributes(LLamaToken token)
-            {
-                return llama_token_get_attr(_model, token);
+                get
+                {
+                    unsafe
+                    {
+                        return LLamaVocabNative.llama_vocab_get_add_eos(llama_model_get_vocab(_model));
+                    }
+                }
             }
         }
     }

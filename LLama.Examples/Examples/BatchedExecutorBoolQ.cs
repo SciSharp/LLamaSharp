@@ -193,8 +193,8 @@ public class BatchedExecutorBoolQ
 
             var token = _sampler.Sample(_executor.Context, _conversation.GetSampleIndex());
 
-            var tokens = _executor.Context.NativeHandle.ModelHandle.Tokens;
-            if (tokens.IsEndOfGeneration(token) || tokens.Newline == token)
+            var vocab = _executor.Context.Vocab;
+            if (token.IsEndOfGeneration(vocab) || vocab.Newline == token)
             {
                 _sampledToken = default;
                 _finished = true;

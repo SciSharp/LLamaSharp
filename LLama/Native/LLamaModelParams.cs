@@ -35,11 +35,6 @@ namespace LLama.Native
         public float* tensor_split;
 
         /// <summary>
-        /// comma separated list of RPC servers to use for offloading
-        /// </summary>
-        public byte* rpc_servers;
-
-        /// <summary>
         /// called with a progress value between 0 and 1, pass NULL to disable. If the provided progress_callback
         /// returns true, model loading continues. If it returns false, model loading is immediately aborted.
         /// </summary>

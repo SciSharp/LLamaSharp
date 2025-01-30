@@ -19,6 +19,11 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Call once at the end of the program - currently only used for MPI
+        /// </summary>
+        public static extern void llama_backend_free();
+
+        /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
         /// </summary>
         /// <returns></returns>
@@ -105,9 +110,6 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_load_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId dest_seq_id, LLamaToken* tokens_out, nuint n_token_capacity, out nuint n_token_count_out);
 
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe byte* llama_token_get_text(SafeLlamaModelHandle model, LLamaToken token);
-
         /// <summary>
         /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
         /// </summary>
@@ -126,10 +128,7 @@ namespace LLama.Native
         /// Set abort callback
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx, IntPtr /* ggml_abort_callback */ abort_callback, IntPtr abort_callback_data);
-
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern float llama_token_get_score(SafeLlamaModelHandle model, LLamaToken token);
+        public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
 
         /// <summary>
         /// Get the n_seq_max for this context
@@ -153,10 +152,7 @@ namespace LLama.Native
 
         /// <summary>
         /// Apply chat template. Inspired by hf apply_chat_template() on python.
-        /// Both "model" and "custom_template" are optional, but at least one is required. "custom_template" has higher precedence than "model"
-        /// NOTE: This function does not use a jinja parser. It only support a pre-defined list of template. See more: https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
         /// </summary>
-        /// <param name="model"></param>
         /// <param name="tmpl">A Jinja template to use for this chat. If this is nullptr, the model’s default chat template will be used instead.</param>
         /// <param name="chat">Pointer to a list of multiple llama_chat_message</param>
         /// <param name="n_msg">Number of llama_chat_message in this chat</param>
@@ -164,12 +160,12 @@ namespace LLama.Native
         /// <param name="buf">A buffer to hold the output formatted prompt. The recommended alloc size is 2 * (total number of characters of all messages)</param>
         /// <param name="length">The size of the allocated buffer</param>
         /// <returns>The total number of bytes of the formatted prompt. If is it larger than the size of buffer, you may need to re-alloc it and then re-apply the template.</returns>
-        public static unsafe int llama_chat_apply_template(SafeLlamaModelHandle? model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length)
+        public static unsafe int llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length)
         {
-            return internal_llama_chat_apply_template(model?.DangerousGetHandle() ?? IntPtr.Zero, tmpl, chat, n_msg, add_ass, buf, length);
+            return internal_llama_chat_apply_template(tmpl, chat, n_msg, add_ass, buf, length);
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_chat_apply_template")]
-            static extern int internal_llama_chat_apply_template(IntPtr model, byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
+            static extern int internal_llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
         }
 
         /// <summary>
@@ -180,14 +176,6 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe int llama_chat_builtin_templates(char** output, nuint len);
-
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool llama_add_bos_token(SafeLlamaModelHandle model);
-
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool llama_add_eos_token(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Print out timing information for this context
@@ -206,13 +194,13 @@ namespace LLama.Native
         /// <summary>
         /// Convert a single token into text
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="vocab"></param>
         /// <param name="llamaToken"></param>
         /// <param name="buffer">buffer to write string into</param>
         /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
         /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle model, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special)
+        public static int llama_token_to_piece(SafeLlamaModelHandle.Vocabulary vocab, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special)
         {
             // Handle invalid tokens
             if ((int)llamaToken < 0)
@@ -222,12 +210,12 @@ namespace LLama.Native
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(model, llamaToken, bufferPtr, buffer.Length, lstrip, special);
+                    return llama_token_to_piece_native(vocab.VocabNative, llamaToken, bufferPtr, buffer.Length, lstrip, special);
                 }
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(SafeLlamaModelHandle model, LLamaToken llamaToken, byte* buffer, int length, int lstrip, [MarshalAs(UnmanagedType.U1)] bool special);
+            static extern unsafe int llama_token_to_piece_native(LLamaVocabNative* model, LLamaToken llamaToken, byte* buffer, int length, int lstrip, [MarshalAs(UnmanagedType.U1)] bool special);
         }
 
         /// <summary>
@@ -244,7 +232,7 @@ namespace LLama.Native
         /// Returns a negative number on failure - the number of tokens that would have been returned
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_tokenize(SafeLlamaModelHandle model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
+        internal static extern unsafe int llama_tokenize(LLamaVocabNative* model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
 
         /// <summary>
         /// Convert the provided tokens into text (inverse of llama_tokenize()).
@@ -258,7 +246,7 @@ namespace LLama.Native
         /// <param name="unparseSpecial">unparse_special If true, special tokens are rendered in the output.</param>
         /// <returns>Returns the number of chars/bytes on success, no more than textLengthMax. Returns a negative number on failure - the number of chars/bytes that would have been returned.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_detokenize(SafeLlamaModelHandle model, LLamaToken* tokens, int nTokens, byte* textOut, int textLengthMax, bool removeSpecial, bool unparseSpecial);
+        internal static extern unsafe int llama_detokenize(LLamaVocabNative* model, LLamaToken* tokens, int nTokens, byte* textOut, int textLengthMax, bool removeSpecial, bool unparseSpecial);
 
         /// <summary>
         /// Register a callback to receive llama log messages
@@ -405,7 +393,7 @@ namespace LLama.Native
         /// <param name="il_end"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_control_vector_apply(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
+        public static extern unsafe int llama_apply_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
 
         /// <summary>
         /// Build a split GGUF final path for this chunk.
@@ -432,13 +420,6 @@ namespace LLama.Native
         /// <returns>Returns the split_prefix length.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no, int split_count);
-
-        /// <summary>
-        /// Manually free a LoRA adapter. loaded adapters will be free when the associated model is deleted
-        /// </summary>
-        /// <param name="adapter"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_lora_adapter_free(IntPtr adapter);
 
         //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         //todo: public static void llama_attach_threadpool(SafeLLamaContextHandle ctx, ggml_threadpool_t threadpool, ggml_threadpool_t threadpool_batch);

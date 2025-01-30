@@ -57,7 +57,7 @@ namespace LLama.Unittest
         {
             Assert.Equal(128u, _context.ContextSize);
             Assert.Equal(2048, _context.EmbeddingSize);
-            Assert.Equal(128256, _context.VocabCount);
+            Assert.Equal(128256, _context.Vocab.Count);
         }
     }
 }

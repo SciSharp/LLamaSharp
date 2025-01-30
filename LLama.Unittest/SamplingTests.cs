@@ -1,15 +1,14 @@
 using LLama.Common;
 using LLama.Native;
-
 using System.Numerics.Tensors;
-using System.Runtime.InteropServices;
 using System.Text;
 
 using Xunit.Abstractions;
 
 namespace LLama.Unittest
 {
-    public class SamplingTests : IDisposable
+    public class SamplingTests
+        : IDisposable
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly LLamaWeights _model;
@@ -61,7 +60,7 @@ namespace LLama.Unittest
                 var array = LLamaTokenDataArray.Create(logits);
                 {
                     using var _ = LLamaTokenDataArrayNative.Create(array, out var cur_p);
-                    var rawLogits = new float[_model.VocabCount];
+                    var rawLogits = new float[_model.Vocab.Count];
                     for (int j = 0; j < cur_p.Data.Length; j++)
                     {
                         rawLogits[(int) cur_p.Data[j].ID] = cur_p.Data[j].Logit;
@@ -119,7 +118,7 @@ namespace LLama.Unittest
 
                 for (int b = 0; b < batch_count; b++)
                 {
-                    var logits = all_logits.Slice(b * _model.VocabCount, _model.VocabCount);
+                    var logits = all_logits.Slice(b * _model.Vocab.Count, _model.Vocab.Count);
 
                     // Test raw sampling
                     Assert.Equal(expected, TensorPrimitives.IndexOfMax(logits));
@@ -128,7 +127,7 @@ namespace LLama.Unittest
                     var array = LLamaTokenDataArray.Create(logits);
                     {
                         using var _ = LLamaTokenDataArrayNative.Create(array, out var cur_p);
-                        var rawLogits = new float[_model.VocabCount];
+                        var rawLogits = new float[_model.Vocab.Count];
                         for (int j = 0; j < cur_p.Data.Length; j++)
                         {
                             rawLogits[(int) cur_p.Data[j].ID] = cur_p.Data[j].Logit;
@@ -170,7 +169,7 @@ namespace LLama.Unittest
                 penaltyCount: 60, repeat: 1, freq: 0, presence: 0
             );
 
-            if (logit_bias != null) { chain.AddLogitBias(context.VocabCount, logit_bias); }
+            if (logit_bias != null) { chain.AddLogitBias(context.Vocab.Count, logit_bias); }
 
             chain.AddTopK(10);
             chain.AddTemperature(0.1f);

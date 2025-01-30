@@ -27,7 +27,7 @@ public class BatchedExecutorSimple
         using var executor = new BatchedExecutor(model, parameters);
         
         // we'll need this for evaluating if we are at the end of generation
-        var modelTokens = executor.Context.NativeHandle.ModelHandle.Tokens;
+        var vocab = executor.Context.NativeHandle.ModelHandle.Vocab;
         
         // Print some info
         var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
@@ -115,7 +115,7 @@ public class BatchedExecutorSimple
                     var token = conversationData.Conversation.Sample(conversationData.Sampler);
 
                     // Some special tokens indicate that this sequence has ended. Check if that's what has been chosen by the sampling pipeline.
-                    if (modelTokens.IsEndOfGeneration(token))
+                    if (token.IsEndOfGeneration(vocab))
                     {
                         conversationData.MarkComplete();
                     }
