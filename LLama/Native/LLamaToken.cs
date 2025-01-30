@@ -69,6 +69,19 @@ public readonly record struct LLamaToken
     }
 
     /// <summary>
+    /// Get score for this token
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <returns></returns>
+    public float GetScore(SafeLlamaModelHandle.Vocabulary vocab)
+    {
+        unsafe
+        {
+            return LLamaVocabNative.llama_vocab_get_score(vocab.VocabNative, this);
+        }
+    }
+
+    /// <summary>
     /// Check if this is a control token
     /// </summary>
     /// <param name="model"></param>

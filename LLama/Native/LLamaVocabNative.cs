@@ -5,21 +5,17 @@ namespace LLama.Native;
 /// </summary>
 internal struct LLamaVocabNative
 {
-    //todo:llama_vocab
-
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int llama_vocab_n_tokens(LLamaVocabNative* vocab);
 
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe LLamaVocabType llama_vocab_type(LLamaVocabNative* vocab);
 
-    // Get the default chat template. Returns nullptr if not available
-    // If name is NULL, returns the default chat template
-    //LLAMA_API const char* llama_model_chat_template(const struct llama_model * model, const char* name);
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe byte* llama_vocab_get_text(LLamaVocabNative* vocab, LLamaToken token);
 
-    //LLAMA_API const char* llama_vocab_get_text(LLamaVocabNative* vocab, llama_token token);
-
-    //LLAMA_API float llama_vocab_get_score(LLamaVocabNative* vocab, llama_token token);
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe float llama_vocab_get_score(LLamaVocabNative* vocab, LLamaToken token);
 
     /// <summary>
     /// Get attributes for a specific token
