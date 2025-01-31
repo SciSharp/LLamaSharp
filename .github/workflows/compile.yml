@@ -431,13 +431,13 @@ jobs:
         if: ${{ matrix.build == 'arm64' }}
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/bin/ggml-metal/libggml-metal.dylib
+            path: ./build/bin/libggml-metal.dylib
             name: ggml-metal-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload ggml-blas
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/bin/ggml-blas/libggml-blas.dylib
+            path: ./build/bin/libggml-blas.dylib
             name: ggml-blas-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload llama
