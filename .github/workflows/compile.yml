@@ -51,28 +51,28 @@ jobs:
           ls -R
       - uses: actions/upload-artifact@v4
         with:
-          path: ./build/src/libllama.so
+          path: ./build/bin/libllama.so
           name: llama-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml.so
+          path: ./build/bin/libggml.so
           name: ggml-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml-base.so
+          path: ./build/bin/libggml-base.so
           name: ggml-base-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml-cpu.so
+          path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/examples/llava/libllava_shared.so
+          path: ./build/bin/libllava_shared.so
           name: llava-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
 
@@ -231,35 +231,35 @@ jobs:
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/src/libllama.so
+                path: ./build/bin/libllama.so
                 name: llama-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload ggml artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-              path: ./build/ggml/src/libggml.so
+              path: ./build/bin/libggml.so
               name: ggml-bin-linux-vulkan-x64.so
               if-no-files-found: error
           - name: Upload ggml-base artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/ggml/src/libggml-base.so
+                path: ./build/bin/libggml-base.so
                 name: ggml-base-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload ggml-vulkan artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/ggml/src/ggml-vulkan/libggml-vulkan.so
+                path: ./build/bin/libggml-vulkan.so
                 name: ggml-vulkan-bin-linux-vulkan-x64.so
                 if-no-files-found: error
           - name: Upload llava artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/examples/llava/libllava_shared.so
+                path: ./build/bin/libllava_shared.so
                 name: llava-bin-linux-vulkan-x64.so
                 if-no-files-found: error
                 
@@ -346,35 +346,35 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/src/libllama.so
+          path: ./build/bin/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml.so
+          path: ./build/bin/libggml.so
           name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml-base (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml-base.so
+          path: ./build/bin/libggml-base.so
           name: ggml-base-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml-cuda (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/ggml-cuda/libggml-cuda.so
+          path: ./build/bin/libggml-cuda.so
           name: ggml-cuda-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload llava artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/examples/llava/libllava_shared.so
+          path: ./build/bin/libllava_shared.so
           name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
  
@@ -412,44 +412,44 @@ jobs:
       - name: Upload ggml
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/ggml/src/libggml.dylib
+            path: ./build/bin/libggml.dylib
             name: ggml-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload ggml-base
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/ggml/src/libggml-base.dylib
+            path: ./build/bin/libggml-base.dylib
             name: ggml-base-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload ggml-cpu
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/ggml/src/libggml-cpu.dylib
+            path: ./build/bin/libggml-cpu.dylib
             name: ggml-cpu-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload ggml-metal
         if: ${{ matrix.build == 'arm64' }}
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/ggml/src/ggml-metal/libggml-metal.dylib
+            path: ./build/bin/ggml-metal/libggml-metal.dylib
             name: ggml-metal-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload ggml-blas
         uses: actions/upload-artifact@v4
         with:
-            path: ./build/ggml/src/ggml-blas/libggml-blas.dylib
+            path: ./build/bin/ggml-blas/libggml-blas.dylib
             name: ggml-blas-bin-osx-${{ matrix.build }}.dylib
             if-no-files-found: error
       - name: Upload llama
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/src/libllama.dylib
+          path: ./build/bin/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/examples/llava/libllava_shared.dylib
+          path: ./build/bin/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
       - name: Upload Metal
