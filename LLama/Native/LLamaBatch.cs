@@ -117,7 +117,7 @@ public class LLamaBatch
         {
             var actual = _logitPositions.Any(x => x.Item2 == i);
             var expected = _logits[i] != 0;
-            Debug.Assert(actual == expected);
+            Debug.Assert(actual == expected, $"Expected {actual} == {expected} @ index:{i}");
         }
 #endif
 
@@ -266,6 +266,14 @@ public class LLamaBatch
         TokenCount = 0;
 
         _logitPositions.Clear();
+
+        Array.Clear(_logits, 0, _logits.Length);
+        Array.Clear(_tokens, 0, _tokens.Length);
+        Array.Clear(_positions, 0, _positions.Length);
+        Array.Clear(_sequenceIdsPtrs, 0, _sequenceIdsPtrs.Length);
+
+        foreach (var seqIds in _sequenceIds)
+            Array.Clear(seqIds, 0, seqIds.Length);
     }
 
     /// <summary>

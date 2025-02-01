@@ -33,7 +33,7 @@ public class LLama2ChatSession
         session.WithHistoryTransform(new Llama2HistoryTransformer());
 
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
-            [model.Tokens.EndOfTurnToken ?? "User:", "�"],
+            ["User:", "�"],
             redundancyLength: 5));
 
         var inferenceParams = new InferenceParams
@@ -44,7 +44,7 @@ public class LLama2ChatSession
             },
 
             MaxTokens = -1, // keep generating tokens until the anti prompt is encountered
-            AntiPrompts = [model.Tokens.EndOfTurnToken ?? "User:"] // model specific end of turn string (or default)
+            AntiPrompts = ["User:"] // model specific end of turn string (or default)
         };
 
         Console.ForegroundColor = ConsoleColor.Yellow;

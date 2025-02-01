@@ -49,7 +49,36 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public LLamaTokenAttr GetAttributes(SafeLlamaModelHandle model)
     {
-        return model.Tokens.GetAttributes(this);
+        unsafe
+        {
+            return LLamaVocabNative.llama_vocab_get_attr(model.Vocab.VocabNative, this);
+        }
+    }
+
+    /// <summary>
+    /// Get attributes for this token
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <returns></returns>
+    public LLamaTokenAttr GetAttributes(SafeLlamaModelHandle.Vocabulary vocab)
+    {
+        unsafe
+        {
+            return LLamaVocabNative.llama_vocab_get_attr(vocab.VocabNative, this);
+        }
+    }
+
+    /// <summary>
+    /// Get score for this token
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <returns></returns>
+    public float GetScore(SafeLlamaModelHandle.Vocabulary vocab)
+    {
+        unsafe
+        {
+            return LLamaVocabNative.llama_vocab_get_score(vocab.VocabNative, this);
+        }
     }
 
     /// <summary>
@@ -59,7 +88,20 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public bool IsControl(SafeLlamaModelHandle model)
     {
-        return model.Tokens.IsControl(this);
+        return IsControl(model.Vocab);
+    }
+
+    /// <summary>
+    /// Check if this is a control token
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <returns></returns>
+    public bool IsControl(SafeLlamaModelHandle.Vocabulary vocab)
+    {
+        unsafe
+        {
+            return LLamaVocabNative.llama_vocab_is_control(vocab.VocabNative, this);
+        }
     }
 
     /// <summary>
@@ -69,7 +111,20 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public bool IsEndOfGeneration(SafeLlamaModelHandle model)
     {
-        return model.Tokens.IsEndOfGeneration(this);
+        return IsEndOfGeneration(model.Vocab);
+    }
+
+    /// <summary>
+    /// Check if this token should end generation
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <returns></returns>
+    public bool IsEndOfGeneration(SafeLlamaModelHandle.Vocabulary vocab)
+    {
+        unsafe
+        {
+            return LLamaVocabNative.llama_vocab_is_eog(vocab.VocabNative, this);
+        }
     }
 
     /// <inheritdoc />

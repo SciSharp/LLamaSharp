@@ -64,6 +64,7 @@ public sealed class TemplateTests
                                     + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
                                     + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>";
 
+        var eq = expected == templateResult;
         Assert.Equal(expected, templateResult);
     }
 
@@ -242,25 +243,6 @@ public sealed class TemplateTests
 
         const string expectedTemplate = $"<|start_header_id|>user<|end_header_id|>\n\n{userData}<|eot_id|>";
         Assert.Equal(expectedTemplate, templateResult);
-    }
-
-    [Fact]
-    public void EndOTurnToken_ReturnsExpected()
-    {
-        Assert.Equal("<|eot_id|>", _model.Tokens.EndOfTurnToken);
-    }
-
-    [Fact]
-    public void EndOSpeechToken_ReturnsExpected()
-    {
-        _output.WriteLine($"EOS: {_model.Tokens.EOS}");
-        _output.WriteLine($"EOT: {_model.Tokens.EOT}");
-        _output.WriteLine($"BOS: {_model.Tokens.BOS}");
-
-        var eosStr = ConvertTokenToString(_model.Tokens.EOS!.Value);
-        _output.WriteLine(eosStr ?? "null");
-
-        Assert.Equal("<|eot_id|>", _model.Tokens.EndOfSpeechToken);
     }
 
     private string? ConvertTokenToString(LLamaToken token)

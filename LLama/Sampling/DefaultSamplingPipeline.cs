@@ -142,7 +142,7 @@ public sealed class DefaultSamplingPipeline
             }
 
             // Add the biases to the sampler
-            chain.AddLogitBias(context.ModelHandle.VocabCount, biases.AsSpan(0, LogitBias.Count));
+            chain.AddLogitBias(context.Vocab.Count, biases.AsSpan(0, LogitBias.Count));
         }
         finally
         {

@@ -34,7 +34,7 @@ public class LLama3ChatSession
 
         // Add a transformer to eliminate printing the end of turn tokens, llama 3 specifically has an odd LF that gets printed sometimes
         session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
-            [model.Tokens.EndOfTurnToken ?? "User:", "�"],
+            ["User:", "�"],
             redundancyLength: 5));
 
         var inferenceParams = new InferenceParams
@@ -45,7 +45,7 @@ public class LLama3ChatSession
             },
 
             MaxTokens = -1, // keep generating tokens until the anti prompt is encountered
-            AntiPrompts = [model.Tokens.EndOfTurnToken ?? "User:"] // model specific end of turn string (or default)
+            AntiPrompts = ["User:"] // model specific end of turn string (or default)
         };
 
         Console.ForegroundColor = ConsoleColor.Yellow;

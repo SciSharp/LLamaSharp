@@ -23,11 +23,6 @@ namespace LLama
         public SafeLlamaModelHandle NativeHandle { get; }
 
         /// <summary>
-        /// Total number of tokens in vocabulary of this model
-        /// </summary>
-        public int VocabCount => NativeHandle.VocabCount;
-
-        /// <summary>
         /// Total number of tokens in the context
         /// </summary>
         public int ContextSize => NativeHandle.ContextSize;
@@ -50,7 +45,7 @@ namespace LLama
         /// <summary>
         /// Get the special tokens of this model
         /// </summary>
-        public SafeLlamaModelHandle.ModelTokens Tokens => NativeHandle.Tokens;
+        public SafeLlamaModelHandle.Vocabulary Vocab => NativeHandle.Vocab;
 
         /// <summary>
         /// All metadata keys in this model

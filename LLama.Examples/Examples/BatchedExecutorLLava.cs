@@ -76,7 +76,7 @@ public class BatchedExecutorLLava
                       await executor.Infer();
                       
                       var token = sampler.Sample(executor.Context.NativeHandle, conversation.GetSampleIndex());
-                      if (executor.Context.NativeHandle.ModelHandle.Tokens.IsEndOfGeneration(token))
+                      if (token.IsEndOfGeneration(executor.Context.Vocab))
                           break;
                       
                       decoder.Add(token);

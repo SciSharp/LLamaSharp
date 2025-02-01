@@ -21,11 +21,6 @@ namespace LLama
         private readonly ILogger? _logger;
 
         /// <summary>
-        /// Total number of tokens in vocabulary of this model
-        /// </summary>
-        public int VocabCount => NativeHandle.VocabCount;
-
-        /// <summary>
         /// Total number of tokens in the context
         /// </summary>
         public uint ContextSize => NativeHandle.ContextSize;
@@ -77,7 +72,7 @@ namespace LLama
         /// <summary>
         /// Get the special tokens for the model associated with this context
         /// </summary>
-        public SafeLlamaModelHandle.ModelTokens Tokens { get; }
+        public SafeLlamaModelHandle.Vocabulary Vocab { get; }
         
         /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
@@ -99,7 +94,7 @@ namespace LLama
             @params.ToLlamaContextParams(out var lparams);
             NativeHandle = SafeLLamaContextHandle.Create(model.NativeHandle, lparams);
 
-            Tokens = model.Tokens;
+            Vocab = model.Vocab;
         }
 
         /// <summary>
@@ -356,18 +351,6 @@ namespace LLama
             }
         }
         #endregion
-
-        /// <summary>
-        /// Gets whether or not the Bos token should be added.
-        /// From common.cpp https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/common/common.cpp#L2417
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldAddBosToken()
-        {
-            var addBos = NativeApi.llama_add_bos_token(NativeHandle.ModelHandle);
-            //return addBos != -1 ? Convert.ToBoolean(addBos) : NativeHandle.LLamaVocabType == LLamaVocabType.SentencePiece;
-            return addBos;
-        }
 
         #region eval overloads
         /// <summary>

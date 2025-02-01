@@ -8,7 +8,7 @@ namespace LLama.Native;
 /// A chain of sampler stages that can be used to select tokens from logits.
 /// </summary>
 /// <remarks>Wraps a handle returned from `llama_sampler_chain_init`. Other samplers are owned by this chain and are never directly exposed.</remarks>
-public class SafeLLamaSamplerChainHandle
+public sealed class SafeLLamaSamplerChainHandle
     : SafeLLamaHandleBase
 {
     /// <summary>
@@ -386,10 +386,13 @@ public class SafeLLamaSamplerChainHandle
     /// <param name="model"></param>
     public void AddFillInMiddleInfill(SafeLlamaModelHandle model)
     {
-        llama_sampler_chain_add(this, llama_sampler_init_infill(model));
+        unsafe
+        {
+            llama_sampler_chain_add(this, llama_sampler_init_infill(model.Vocab.VocabNative));
+        }
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_init_infill(SafeLlamaModelHandle model);
+        static extern unsafe IntPtr llama_sampler_init_infill(LLamaVocabNative* vocab);
     }
 
     /// <summary>
@@ -401,11 +404,70 @@ public class SafeLLamaSamplerChainHandle
     /// <returns></returns>
     public void AddGrammar(SafeLlamaModelHandle model, string grammar, string root)
     {
-        llama_sampler_chain_add(this, llama_sampler_init_grammar(model, grammar, root));
+        unsafe
+        {
+            llama_sampler_chain_add(this, llama_sampler_init_grammar(model.Vocab.VocabNative, grammar, root));
+        }
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern IntPtr llama_sampler_init_grammar(SafeLlamaModelHandle model, string grammar_str, string grammar_root);
+        static extern unsafe IntPtr llama_sampler_init_grammar(LLamaVocabNative* model, string grammar_str, string grammar_root);
+        // ReSharper restore InconsistentNaming
+    }
+
+    /// <summary>
+    /// Create a sampler using lazy grammar sampling: https://github.com/ggerganov/llama.cpp/pull/9639
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="grammar">Grammar in GBNF form</param>
+    /// <param name="root">Root rule of the grammar</param>
+    /// <param name="triggerTokens">A list of tokens that will trigger the grammar sampler.</param>
+    /// <param name="triggerWords">A list of words that will trigger the grammar sampler.</param>
+    /// <returns></returns>
+    public void AddLazyGrammar(
+        SafeLlamaModelHandle model,
+        string grammar, string root,
+        ReadOnlySpan<string> triggerWords,
+        ReadOnlySpan<LLamaToken> triggerTokens)
+    {
+        unsafe
+        {
+            // Convert strings, fix memory in place, build array of pointers
+            var handles = new List<MemoryHandle>();
+            var triggerWordsPtrs = stackalloc byte*[triggerWords.Length];
+            for (var i = 0; i < triggerWords.Length; i++)
+            {
+                var chars = Encoding.Default.GetBytes(triggerWords[i]);
+                handles.Add(chars.AsMemory().Pin());
+
+                triggerWordsPtrs[i] = (byte*)handles[i].Pointer;
+            }
+
+            fixed (LLamaToken* triggerTokensPtr = triggerTokens)
+            {
+                llama_sampler_chain_add(
+                    this,
+                    llama_sampler_init_grammar_lazy(
+                        model.Vocab.VocabNative,
+                        grammar, root,
+                        triggerWordsPtrs, (nuint)triggerWords.Length,
+                        triggerTokensPtr, (nuint)triggerTokens.Length
+                    )
+                );
+            }
+
+            // Clear up all the handles fixing the memory in place
+            for (var i = 0; i < handles.Count; i++)
+                handles[i].Dispose();
+        }
+
+        // ReSharper disable InconsistentNaming
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern unsafe IntPtr llama_sampler_init_grammar_lazy(
+            LLamaVocabNative* model,
+            string grammar_str, string grammar_root,
+            byte** trigger_words, nuint num_trigger_words,
+            LLamaToken* trigger_tokens, nuint num_trigger_tokens);
         // ReSharper restore InconsistentNaming
     }
 
@@ -470,7 +532,8 @@ public class SafeLLamaSamplerChainHandle
             llama_sampler_chain_add(
                 this,
                 llama_sampler_init_dry(
-                    model,
+                    model.Vocab.VocabNative,
+                    model.ContextSize,
                     multiplier,
                     @base,
                     allowedLength,
@@ -488,7 +551,8 @@ public class SafeLLamaSamplerChainHandle
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern unsafe IntPtr llama_sampler_init_dry(
-            SafeLlamaModelHandle model,
+            LLamaVocabNative* vocab,
+            int n_ctx_train,
             float dry_multiplier,
             float dry_base,
             int    dry_allowed_length,
@@ -617,9 +681,9 @@ internal struct LLamaSamplerINative
     /// Apply this sampler to a set of logits
     /// </summary>
     /// <param name="smpl"></param>
-    /// <param name="cur_p"></param>
+    /// <param name="logits"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ApplyDelegate(ref LLamaSamplerNative smpl, ref LLamaTokenDataArrayNative cur_p);
+    public delegate void ApplyDelegate(ref LLamaSamplerNative smpl, ref LLamaTokenDataArrayNative logits);
 
     /// <summary>
     /// Reset the internal state of this sampler

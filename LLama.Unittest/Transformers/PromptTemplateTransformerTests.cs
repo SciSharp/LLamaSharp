@@ -4,6 +4,7 @@ using LLama.Transformers;
 namespace LLama.Unittest.Transformers;
 
 public class PromptTemplateTransformerTests
+    : IDisposable
 {
     private readonly LLamaWeights _model;
     private readonly PromptTemplateTransformer TestableTransformer;
@@ -18,6 +19,11 @@ public class PromptTemplateTransformerTests
         _model = LLamaWeights.LoadFromFile(@params);
 
         TestableTransformer = new PromptTemplateTransformer(_model, true);
+    }
+
+    public void Dispose()
+    {
+        _model.Dispose();
     }
 
     [Fact]

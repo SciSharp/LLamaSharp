@@ -172,7 +172,7 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.Tokens.EOS)
+            if (_embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
             {
                 args.WaitForInput = true;
             }
