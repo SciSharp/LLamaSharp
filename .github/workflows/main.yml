@@ -53,8 +53,7 @@ jobs:
     - name: Test
       run: dotnet test LLamaSharp.sln -c ${{ matrix.config }} -l "console;verbosity=detailed" --diag:logs/log.txt --filter Category!=NoCI
     - name: Upload artifacts
-      if: always()
       uses: actions/upload-artifact@v4
       with:
         path: logs/
-        name: logs
+        name: logs-${{ matrix.os }}
