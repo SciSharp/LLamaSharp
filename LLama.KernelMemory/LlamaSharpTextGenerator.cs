@@ -1,6 +1,7 @@
 using LLama;
 using LLama.Common;
 using LLama.Sampling;
+using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
 
 namespace LLamaSharp.KernelMemory
@@ -73,9 +74,11 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<string> GenerateTextAsync(string prompt, TextGenerationOptions options, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<GeneratedTextContent> GenerateTextAsync(string prompt, TextGenerationOptions options, CancellationToken cancellationToken = default)
         {
-            return _executor.InferAsync(prompt, OptionsToParams(options, _defaultInferenceParams), cancellationToken: cancellationToken);
+            return _executor
+                  .InferAsync(prompt, OptionsToParams(options, _defaultInferenceParams), cancellationToken: cancellationToken)
+                  .Select(a => new GeneratedTextContent(a));
         }
 
         private static InferenceParams OptionsToParams(TextGenerationOptions options, InferenceParams? defaultParams)
