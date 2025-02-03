@@ -73,7 +73,6 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config.ContextSize ?? 2048,
                 GpuLayerCount = config.GpuLayerCount ?? 20,
-                Embeddings = true,
                 MainGpu = config.MainGpu,
                 SplitMode = config.SplitMode
             };
