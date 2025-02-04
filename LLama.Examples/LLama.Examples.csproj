@@ -24,7 +24,7 @@
     <PackageReference Include="Whisper.net" Version="1.7.4" />
     <PackageReference Include="Whisper.net.Runtime" Version="1.7.2" />
     <PackageReference Include="Whisper.net.Runtime.Clblast" Version="1.5.0" />
-    <PackageReference Include="Whisper.net.Runtime.CoreML" Version="1.7.2" />
+    <PackageReference Include="Whisper.net.Runtime.CoreML" Version="1.7.4" />
     <PackageReference Include="Whisper.net.Runtime.Cublas" Version="1.5.0" />
   </ItemGroup>
 
