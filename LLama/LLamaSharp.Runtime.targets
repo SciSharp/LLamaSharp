@@ -200,6 +200,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/avx512/libggml-cpu.so</Link>
       </None>
+	  
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -252,6 +253,75 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libggml-vulkan.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/vulkan/libggml-vulkan.so</Link>
+      </None>
+	  
+	  
+	  <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-noavx/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/noavx/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/noavx/libggml.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-noavx/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-musl-x64/native/noavx/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-noavx/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/noavx/libggml-cpu.so</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx/libggml.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-musl-x64/native/avx/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx/libggml-cpu.so</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx2/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx2/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx2/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx2/libggml.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx2/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-musl-x64/native/avx2/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx2/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx2/libggml-cpu.so</Link>
+      </None>
+
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libllama.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx512/libllama.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libggml.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx512/libggml.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libggml-base.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>runtimes/linux-musl-x64/native/avx512/libggml-base.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libggml-cpu.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx512/libggml-cpu.so</Link>
       </None>
 
 
