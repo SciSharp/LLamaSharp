@@ -619,29 +619,29 @@ jobs:
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so  deps/avx512/libllava_shared.so
 
           # Linux Musl
-          cp artifacts/ggml-bin-linux-noavx-musl-x64.so/libggml.so           deps/noavx/libggml-musl.so
-          cp artifacts/ggml-base-bin-linux-noavx-musl-x64.so/libggml-base.so deps/noavx/libggml-musl-base.so
-          cp artifacts/ggml-cpu-bin-linux-noavx-musl-x64.so/libggml-cpu.so   deps/noavx/libggml-musl-cpu.so
-          cp artifacts/llama-bin-linux-noavx-musl-x64.so/libllama.so         deps/noavx/libllama-musl.so
-          cp artifacts/llava-bin-linux-noavx-musl-x64.so/libllava_shared.so  deps/noavx/libllava_shared-musl.so
+          cp artifacts/ggml-bin-linux-noavx-musl-x64.so/libggml.so           deps/linux-musl-x64/noavx/libggml.so
+          cp artifacts/ggml-base-bin-linux-noavx-musl-x64.so/libggml-base.so deps/linux-musl-x64/noavx/libggml-base.so
+          cp artifacts/ggml-cpu-bin-linux-noavx-musl-x64.so/libggml-cpu.so   deps/linux-musl-x64/noavx/libggml-cpu.so
+          cp artifacts/llama-bin-linux-noavx-musl-x64.so/libllama.so         deps/linux-musl-x64/noavx/libllama.so
+          cp artifacts/llava-bin-linux-noavx-musl-x64.so/libllava_shared.so  deps/linux-musl-x64/noavx/libllava_shared.so
 
-          cp artifacts/ggml-bin-linux-avx-musl-x64.so/libggml.so             deps/avx/libggml-musl.so
-          cp artifacts/ggml-base-bin-linux-avx-musl-x64.so/libggml-base.so   deps/avx/libggml-musl-base.so
-          cp artifacts/ggml-cpu-bin-linux-avx-musl-x64.so/libggml-cpu.so     deps/avx/libggml-musl-cpu.so
-          cp artifacts/llama-bin-linux-avx-musl-x64.so/libllama.so           deps/avx/libllama-musl.so
-          cp artifacts/llava-bin-linux-avx-musl-x64.so/libllava_shared.so    deps/avx/libllava_shared-musl.so
+          cp artifacts/ggml-bin-linux-avx-musl-x64.so/libggml.so             deps/linux-musl-x64/avx/libggml.so
+          cp artifacts/ggml-base-bin-linux-avx-musl-x64.so/libggml-base.so   deps/linux-musl-x64/avx/libggml-base.so
+          cp artifacts/ggml-cpu-bin-linux-avx-musl-x64.so/libggml-cpu.so     deps/linux-musl-x64/avx/libggml-cpu.so
+          cp artifacts/llama-bin-linux-avx-musl-x64.so/libllama.so           deps/linux-musl-x64/avx/libllama.so
+          cp artifacts/llava-bin-linux-avx-musl-x64.so/libllava_shared.so    deps/linux-musl-x64/avx/libllava_shared.so
 
-          cp artifacts/ggml-bin-linux-avx2-musl-x64.so/libggml.so            deps/avx2/libggml-musl.so
-          cp artifacts/ggml-base-bin-linux-avx2-musl-x64.so/libggml-base.so  deps/avx2/libggml-musl-base.so
-          cp artifacts/ggml-cpu-bin-linux-avx2-musl-x64.so/libggml-cpu.so    deps/avx2/libggml-musl-cpu.so
-          cp artifacts/llama-bin-linux-avx2-musl-x64.so/libllama.so          deps/avx2/libllama-musl.so
-          cp artifacts/llava-bin-linux-avx2-musl-x64.so/libllava_shared.so   deps/avx2/libllava_shared-musl.so
+          cp artifacts/ggml-bin-linux-avx2-musl-x64.so/libggml.so            deps/linux-musl-x64/avx2/libggml.so
+          cp artifacts/ggml-base-bin-linux-avx2-musl-x64.so/libggml-base.so  deps/linux-musl-x64/avx2/libggml-base.so
+          cp artifacts/ggml-cpu-bin-linux-avx2-musl-x64.so/libggml-cpu.so    deps/linux-musl-x64/avx2/libggml-cpu.so
+          cp artifacts/llama-bin-linux-avx2-musl-x64.so/libllama.so          deps/linux-musl-x64/avx2/libllama.so
+          cp artifacts/llava-bin-linux-avx2-musl-x64.so/libllava_shared.so   deps/linux-musl-x64/avx2/libllava_shared.so
 
-          cp artifacts/ggml-bin-linux-avx512-musl-x64.so/libggml.so           deps/avx512/libggml-musl.so
-          cp artifacts/ggml-base-bin-linux-avx512-musl-x64.so/libggml-base.so deps/avx512/libggml-musl-base.so
-          cp artifacts/ggml-cpu-bin-linux-avx512-musl-x64.so/libggml-cpu.so   deps/avx512/libggml-musl-cpu.so
-          cp artifacts/llama-bin-linux-avx512-musl-x64.so/libllama.so         deps/avx512/libllama-musl.so
-          cp artifacts/llava-bin-linux-avx512-musl-x64.so/libllava_shared.so  deps/avx512/libllava_shared-musl.so
+          cp artifacts/ggml-bin-linux-avx512-musl-x64.so/libggml.so           deps/linux-musl-x64/avx512/libggml.so
+          cp artifacts/ggml-base-bin-linux-avx512-musl-x64.so/libggml-base.so deps/linux-musl-x64/avx512/libggml-base.so
+          cp artifacts/ggml-cpu-bin-linux-avx512-musl-x64.so/libggml-cpu.so   deps/linux-musl-x64/avx512/libggml-cpu.so
+          cp artifacts/llama-bin-linux-avx512-musl-x64.so/libllama.so         deps/linux-musl-x64/avx512/libllama.so
+          cp artifacts/llava-bin-linux-avx512-musl-x64.so/libllava_shared.so  deps/linux-musl-x64/avx512/libllava_shared.so
 
           # Windows
           cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll            deps/noavx/ggml.dll
