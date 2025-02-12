@@ -7,8 +7,6 @@ on:
         description: 'Branch, tag, or commit to use for llama.cpp'
         required: true
         default: 'master'
-  push:
-    branches: [cron_job]
   #schedule:
   #  - cron: "22 22 * * 2"
 concurrency:
