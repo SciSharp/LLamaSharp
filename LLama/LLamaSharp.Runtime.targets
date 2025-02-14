@@ -260,7 +260,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-musl-x64/native/noavx/libllama.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libggml.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-noavx/libggml.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-musl-x64/native/noavx/libggml.so</Link>
       </None>
