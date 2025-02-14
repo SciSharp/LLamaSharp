@@ -213,9 +213,9 @@ namespace LLama
                     return (true, Array.Empty<string>());
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
+            if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
             {
-                return (true, new[] { " [end of text]\n" });
+                return (true, Array.Empty<string>());
             }
 
             if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
