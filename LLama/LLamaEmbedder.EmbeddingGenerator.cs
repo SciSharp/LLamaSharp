@@ -14,18 +14,31 @@ public partial class LLamaEmbedder
     private EmbeddingGeneratorMetadata? _metadata;
 
     /// <inheritdoc />
-    EmbeddingGeneratorMetadata IEmbeddingGenerator<string, Embedding<float>>.Metadata =>
-        _metadata ??= new(
-            nameof(LLamaEmbedder),
-            modelId: Context.NativeHandle.ModelHandle.ReadMetadata().TryGetValue("general.name", out var name) ? name : null,
-            dimensions: EmbeddingSize);
+    object? IEmbeddingGenerator<string, Embedding<float>>.GetService(Type serviceType, object? serviceKey)
+    {
+        if (serviceKey is null)
+        {
+            if (serviceType == typeof(EmbeddingGeneratorMetadata))
+            {
+                return _metadata ??= new(
+                    nameof(LLamaEmbedder),
+                    modelId: Context.NativeHandle.ModelHandle.ReadMetadata().TryGetValue("general.name", out var name) ? name : null,
+                    dimensions: EmbeddingSize);
+            }
 
-    /// <inheritdoc />
-    object? IEmbeddingGenerator<string, Embedding<float>>.GetService(Type serviceType, object? key) =>
-        key is not null ? null :
-        serviceType?.IsInstanceOfType(Context) is true ? Context :
-        serviceType?.IsInstanceOfType(this) is true ? this :
-        null;
+            if (serviceType?.IsInstanceOfType(Context) is true)
+            {
+                return Context;
+            }
+
+            if (serviceType?.IsInstanceOfType(this) is true)
+            {
+                return this;
+            }
+        }
+
+        return null;
+    }
 
     /// <inheritdoc />
     async Task<GeneratedEmbeddings<Embedding<float>>> IEmbeddingGenerator<string, Embedding<float>>.GenerateAsync(IEnumerable<string> values, EmbeddingGenerationOptions? options, CancellationToken cancellationToken)
