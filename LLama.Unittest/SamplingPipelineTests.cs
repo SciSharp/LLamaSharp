@@ -63,6 +63,20 @@ namespace LLama.Unittest
             Assert.False(pipeline.PreventEOS);
         }
 
+        [Fact]
+        public void Seed_IsInitializedWithRandomValue()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            // Act
+            uint seed = pipeline.Seed;
+
+            // Assert
+            Assert.InRange(seed, 0u, uint.MaxValue);
+        }
+
+
 
         // Example test for CreateChain method
         //[Fact]
