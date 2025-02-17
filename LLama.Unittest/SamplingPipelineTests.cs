@@ -77,6 +77,20 @@ namespace LLama.Unittest
         }
 
 
+        [Fact]
+        public void Seed_IsInitializedWithSpecificValue()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            // Act
+            uint seed = 32;
+
+            // Assert
+            Assert.Equal(32, (float)seed);
+        }
+
+
 
         // Example test for CreateChain method
         //[Fact]
