@@ -7,7 +7,7 @@ public class MemoryDisposalTests
     [Fact]
     public void ModelDisposal()
     {
-        var @params = new ModelParams(Constants.GenerativeModelPath)
+        var @params = new ModelParams(Constants.GenerativeModelPath2)
         {
             ContextSize = 2048,
             GpuLayerCount = 0,
@@ -22,7 +22,7 @@ public class MemoryDisposalTests
     [Fact]
     public void ContextDisposal()
     {
-        var @params = new ModelParams(Constants.GenerativeModelPath)
+        var @params = new ModelParams(Constants.GenerativeModelPath2)
         {
             ContextSize = 128,
             GpuLayerCount = 0,            
