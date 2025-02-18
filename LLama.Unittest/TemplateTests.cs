@@ -15,7 +15,7 @@ public sealed class TemplateTests
     public TemplateTests(ITestOutputHelper output)
     {
         _output = output;
-        var @params = new ModelParams(Constants.GenerativeModelPath)
+        var @params = new ModelParams(Constants.GenerativeModelPath2)
         {
             ContextSize = 1,
             GpuLayerCount = Constants.CIGpuLayerCount
@@ -55,14 +55,16 @@ public sealed class TemplateTests
         Assert.Equal(8, templater.Count);
 
         var templateResult = Encoding.UTF8.GetString(dest);
-        const string expected = "<|start_header_id|>assistant<|end_header_id|>\n\nhello<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nworld<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n111<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\naaa<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n222<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nbbb<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>";
+        const string expected = "<|im_start|>assistant\nhello<|im_end|>\n" +
+                                "<|im_start|>user\nworld<|im_end|>\n" +
+                                "<|im_start|>assistant\n111<|im_end|>\n" +
+                                "<|im_start|>user\naaa<|im_end|>\n" +
+                                "<|im_start|>assistant\n222<|im_end|>\n" +
+                                "<|im_start|>user\nbbb<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "333<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "ccc<|im_end|>\n";
 
         var eq = expected == templateResult;
         Assert.Equal(expected, templateResult);
@@ -131,15 +133,23 @@ public sealed class TemplateTests
         Assert.Equal(8, templater.Count);
 
         var templateResult = Encoding.UTF8.GetString(dest);
-        const string expected = "<|start_header_id|>assistant<|end_header_id|>\n\nhello<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nworld<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n111<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\naaa<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n222<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nbbb<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n";
+        const string expected = "<|im_start|>assistant\n" +
+                                "hello<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "world<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "111<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "aaa<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "222<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "bbb<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "333<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "ccc<|im_end|>\n" +
+                                "<|im_start|>assistant\n";
 
         Assert.Equal(expected, templateResult);
     }
@@ -241,31 +251,7 @@ public sealed class TemplateTests
         var dest = templater.Apply();
         var templateResult = Encoding.UTF8.GetString(dest);
 
-        const string expectedTemplate = $"<|start_header_id|>user<|end_header_id|>\n\n{userData}<|eot_id|>";
+        const string expectedTemplate = $"<|im_start|>user\n{userData}<|im_end|>\n";
         Assert.Equal(expectedTemplate, templateResult);
-    }
-
-    private string? ConvertTokenToString(LLamaToken token)
-    {
-        _output.WriteLine($"ConvertTokenToString: {token}");
-
-        const int buffSize = 32;
-        Span<byte> buff = stackalloc byte[buffSize];
-        var tokenLength = _model.NativeHandle.TokenToSpan(token, buff, 0, true);
-
-        _output.WriteLine($"tokenLength = {tokenLength}");
-        if (tokenLength <= 0)
-            return null;
-
-        // if the original buffer wasn't large enough, create a new one
-        _output.WriteLine($"tokenLength = {tokenLength}, buffSize = {buffSize}");
-        if (tokenLength > buffSize)
-        {
-            buff = stackalloc byte[(int)tokenLength];
-            _ = _model.NativeHandle.TokenToSpan(token, buff, 0, true);
-        }
-
-        var slice = buff.Slice(0, (int)tokenLength);
-        return Encoding.UTF8.GetStringFromSpan(slice);
     }
 }

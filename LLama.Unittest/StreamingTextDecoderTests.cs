@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Common;
 using Xunit.Abstractions;
 
@@ -14,7 +14,7 @@ public class StreamingTextDecoderTests
     public StreamingTextDecoderTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        _params = new ModelParams(Constants.GenerativeModelPath);
+        _params = new ModelParams(Constants.GenerativeModelPath2);
         _model = LLamaWeights.LoadFromFile(_params);
     }
 
