@@ -14,8 +14,8 @@ namespace LLama.Unittest.KernelMemory
         protected ITextTokenizer? _generator;
 #pragma warning restore KMEXP00 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
-        protected InferenceParams _infParams;
-        protected LLamaSharpConfig _lsConfig;
+        protected readonly InferenceParams _infParams;
+        protected readonly LLamaSharpConfig _lsConfig;
 
         public ITextTokenizerTests(ITestOutputHelper testOutputHelper)
         {
@@ -34,7 +34,7 @@ namespace LLama.Unittest.KernelMemory
         [InlineData("...___---")]
         [InlineData("15 + 6 = 21 && 68 * 75 = 5100")]
         [InlineData("  \n  \r\n  \t   ")]
-        public void GetTokens_ShouldReturnListOfTokensForInputString(string? text)
+        public void GetTokens_ShouldReturnListOfTokensForInputString(string text)
         {
             var tokens = _generator!.GetTokens(text);
             var tokensCount = _generator.CountTokens(text);
@@ -74,7 +74,7 @@ namespace LLama.Unittest.KernelMemory
         [Theory]
         [InlineData("And a little bit of unicode για να κρατήσουμε τα πράγματα ενδιαφέροντα")]
         [InlineData("猫坐在垫子上 😀🤨🤐😏")]
-        public void GetTokens_Unicode_ShouldReturnListOfTokensForInputString(string? text)
+        public void GetTokens_Unicode_ShouldReturnListOfTokensForInputString(string text)
         {
             var tokens = _generator!.GetTokens(text);
             var tokensCount = _generator.CountTokens(text);

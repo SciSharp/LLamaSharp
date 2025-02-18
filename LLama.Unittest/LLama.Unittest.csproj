@@ -31,6 +31,9 @@
   
     <DownloadFile SourceUrl="https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_0.gguf" DestinationFolder="Models" DestinationFileName="Llama-3.2-1B-Instruct-Q4_0.gguf" SkipUnchangedFiles="true">
 	</DownloadFile>
+
+    <DownloadFile SourceUrl="https://huggingface.co/HuggingFaceTB/smollm-360M-instruct-v0.2-Q8_0-GGUF/resolve/main/smollm-360m-instruct-add-basics-q8_0.gguf" DestinationFolder="Models" DestinationFileName="smollm-360m-instruct-add-basics-q8_0.gguf" SkipUnchangedFiles="true">
+    </DownloadFile>
     
 	<DownloadFile SourceUrl="https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q3_K_XS.gguf" DestinationFolder="Models" DestinationFileName="llava-v1.6-mistral-7b.Q3_K_XS.gguf" SkipUnchangedFiles="true">
 	</DownloadFile>
@@ -58,6 +61,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\Llama-3.2-1B-Instruct-Q4_0.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\smollm-360m-instruct-add-basics-q8_0.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\llava-v1.6-mistral-7b.Q3_K_XS.gguf">

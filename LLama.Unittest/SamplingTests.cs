@@ -22,7 +22,7 @@ namespace LLama.Unittest
         public SamplingTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _params = new ModelParams(Constants.GenerativeModelPath) {
+            _params = new ModelParams(Constants.GenerativeModelPath2) {
                 ContextSize = 200,
                 BatchSize = 200,
                 GpuLayerCount = Constants.CIGpuLayerCount,
