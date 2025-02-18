@@ -36,6 +36,7 @@ public static class LLamaExecutorExtensions
         IHistoryTransform? historyTransform = null,
         ITextStreamTransform? outputTransform = null) : IChatClient
     {
+        private static readonly ChatClientMetadata s_metadata = new(nameof(LLamaExecutorChatClient));
         private static readonly InferenceParams s_defaultParams = new();
         private static readonly DefaultSamplingPipeline s_defaultPipeline = new();
         private static readonly string[] s_antiPrompts = ["User:", "Assistant:", "System:"];
@@ -48,20 +49,18 @@ public static class LLamaExecutorExtensions
             new LLamaTransforms.KeywordTextOutputStreamTransform(s_antiPrompts);
 
         /// <inheritdoc/>
-        public ChatClientMetadata Metadata { get; } = new(nameof(LLamaExecutorChatClient));
-
-        /// <inheritdoc/>
         public void Dispose() { }
 
         /// <inheritdoc/>
-        public object? GetService(Type serviceType, object? key = null) =>
-            key is not null ? null :
+        public object? GetService(Type serviceType, object? serviceKey = null) =>
+            serviceKey is not null ? null :
+            serviceType == typeof(ChatClientMetadata) ? s_metadata :
             serviceType?.IsInstanceOfType(_executor) is true ? _executor :
             serviceType?.IsInstanceOfType(this) is true ? this :
             null;
 
         /// <inheritdoc/>
-        public async Task<ChatCompletion> CompleteAsync(
+        public async Task<ChatResponse> GetResponseAsync(
             IList<ChatMessage> chatMessages, ChatOptions? options = null, CancellationToken cancellationToken = default)
         {
             var result = _executor.InferAsync(CreatePrompt(chatMessages), CreateInferenceParams(options), cancellationToken);
@@ -79,7 +78,7 @@ public static class LLamaExecutorExtensions
         }
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<StreamingChatCompletionUpdate> CompleteStreamingAsync(
+        public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
             IList<ChatMessage> chatMessages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var result = _executor.InferAsync(CreatePrompt(chatMessages), CreateInferenceParams(options), cancellationToken);
@@ -142,8 +141,8 @@ public static class LLamaExecutorExtensions
                 MaxTokens = options?.MaxOutputTokens ?? 256, // arbitrary upper limit
                 SamplingPipeline = new DefaultSamplingPipeline()
                 {
-                    FrequencyPenalty = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.FrequencyPenalty), out float af) is true ? af : s_defaultPipeline.FrequencyPenalty,
-                    PresencePenalty = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.PresencePenalty), out float ap) is true ? ap : s_defaultPipeline.PresencePenalty,
+                    FrequencyPenalty = options?.FrequencyPenalty ?? s_defaultPipeline.FrequencyPenalty,
+                    PresencePenalty = options?.PresencePenalty ?? s_defaultPipeline.PresencePenalty,
                     PreventEOS = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.PreventEOS), out bool eos) is true ? eos : s_defaultPipeline.PreventEOS,
                     PenalizeNewline = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.PenalizeNewline), out bool pnl) is true ? pnl : s_defaultPipeline.PenalizeNewline,
                     RepeatPenalty = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.RepeatPenalty), out float rp) is true ? rp : s_defaultPipeline.RepeatPenalty,
@@ -152,8 +151,8 @@ public static class LLamaExecutorExtensions
                     MinKeep = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.MinKeep), out int mk) is true ? mk : s_defaultPipeline.MinKeep,
                     MinP = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.MinP), out float mp) is true ? mp : s_defaultPipeline.MinP,
                     Seed = options?.Seed is long seed ? (uint)seed : (uint)(t_random ??= new()).Next(),
-                    Temperature = options?.Temperature ?? 0,
-                    TopP = options?.TopP ?? 0,
+                    Temperature = options?.Temperature ?? s_defaultPipeline.Temperature,
+                    TopP = options?.TopP ?? s_defaultPipeline.TopP,
                     TopK = options?.TopK ?? s_defaultPipeline.TopK,
                     TypicalP = options?.AdditionalProperties?.TryGetValue(nameof(DefaultSamplingPipeline.TypicalP), out float tp) is true ? tp : s_defaultPipeline.TypicalP,
                 },
