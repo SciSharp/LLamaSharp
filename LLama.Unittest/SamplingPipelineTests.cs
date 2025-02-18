@@ -89,6 +89,19 @@ namespace LLama.Unittest
             // Assert
             Assert.Equal(32, (float)seed);
         }
+        [Fact]
+        public void SetMinKeep()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            //Act
+            pipeline.MinKeep = 5;
+
+            //Assert
+            Assert.Equal(5, pipeline.MinKeep);
+        }
+
 
 
 
