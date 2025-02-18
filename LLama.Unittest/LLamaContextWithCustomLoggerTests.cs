@@ -28,7 +28,7 @@ namespace LLama.Unittest
 
         public LLamaContextWithCustomLoggerTests()
         {
-            var @params = new ModelParams(Constants.GenerativeModelPath)
+            var @params = new ModelParams(Constants.GenerativeModelPath2)
             {
                 ContextSize = 128,
                 GpuLayerCount = Constants.CIGpuLayerCount,
@@ -56,8 +56,8 @@ namespace LLama.Unittest
         public void CheckProperties()
         {
             Assert.Equal(128u, _context.ContextSize);
-            Assert.Equal(2048, _context.EmbeddingSize);
-            Assert.Equal(128256, _context.Vocab.Count);
+            Assert.Equal(960, _context.EmbeddingSize);
+            Assert.Equal(49152, _context.Vocab.Count);
         }
     }
 }

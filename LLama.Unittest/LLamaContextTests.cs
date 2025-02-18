@@ -11,7 +11,7 @@ namespace LLama.Unittest
 
         public LLamaContextTests()
         {
-            var @params = new ModelParams(Constants.GenerativeModelPath)
+            var @params = new ModelParams(Constants.GenerativeModelPath2)
             {
                 ContextSize = 128,
                 GpuLayerCount = Constants.CIGpuLayerCount,
@@ -30,16 +30,16 @@ namespace LLama.Unittest
         public void CheckProperties()
         {
             Assert.Equal(128u, _context.ContextSize);
-            Assert.Equal(2048, _context.EmbeddingSize);
-            Assert.Equal(128256, _context.Vocab.Count);
+            Assert.Equal(960, _context.EmbeddingSize);
+            Assert.Equal(49152, _context.Vocab.Count);
         }
 
         [Fact]
         public void Tokenize()
         {
-            var tokens = _context.Tokenize("The quick brown fox", true);
+            var tokens = _context.Tokenize("The quick brown fox");
 
-            Assert.Equal(new LLamaToken[] { 128000, 791, 4062, 14198, 39935 }, tokens);
+            Assert.Equal(new LLamaToken[] { 504, 2365, 6354, 16438 }, tokens);
         }
 
         [Fact]
@@ -71,14 +71,6 @@ namespace LLama.Unittest
 
                 Assert.Equal(s, str.TrimStart(' '));
             }
-        }
-
-        [Fact]
-        public void TokenizeWithoutBOS()
-        {
-            var tokens = _context.Tokenize("The quick brown fox", false);
-
-            Assert.Equal(new LLamaToken[] { 791, 4062, 14198, 39935 }, tokens);
         }
 
         [Fact]

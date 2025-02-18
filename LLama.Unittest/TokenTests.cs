@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using LLama.Common;
 using LLama.Extensions;
 
@@ -12,7 +12,7 @@ public sealed class TokenTests
 
     public TokenTests()
     {
-        _params = new ModelParams(Constants.GenerativeModelPath)
+        _params = new ModelParams(Constants.GenerativeModelPath2)
         {
             ContextSize = 2048,
             GpuLayerCount = Constants.CIGpuLayerCount,
