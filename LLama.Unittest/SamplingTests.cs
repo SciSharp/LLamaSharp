@@ -1,5 +1,6 @@
 using LLama.Common;
 using LLama.Native;
+using LLama.Sampling;
 using System.Numerics.Tensors;
 using System.Text;
 
@@ -176,6 +177,232 @@ namespace LLama.Unittest
             chain.AddDistributionSampler(seed: 42);
 
             return chain;
+        }
+        /// <summary>
+        /// Test changing temperature
+        /// </summary>
+        [Fact]
+        public void SamplingWithTemperature()
+        {
+            using var context = new LLamaContext(_model, _params);
+            var tokens = _model.NativeHandle.Tokenize("The quick brown fox", false, false, Encoding.UTF8);
+
+            _batch.Add(token: tokens[0], pos: 0, sequence: LLamaSeqId.Zero, logits: true);
+            DecodeAndClear(context);
+
+            var logits = context.NativeHandle.GetLogits(numTokens: 1);
+
+            // Apply low temperature
+            var arrayLow = LLamaTokenDataArray.Create(logits);
+            using (var nativeArrayLow = LLamaTokenDataArrayNative.Create(arrayLow, out var cur_p_low))
+            {
+                using (var chainLow = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default()))
+                {
+                    chainLow.AddTemperature(0.1f);
+                    chainLow.Apply(ref cur_p_low);
+                    float lowTempSample = cur_p_low.Data[0].Logit;
+                    // Apply high temperature
+                    var arrayHigh = LLamaTokenDataArray.Create(logits); // Create a fresh array for high temperature
+                    using (var nativeArrayHigh = LLamaTokenDataArrayNative.Create(arrayHigh, out var cur_p_high))
+                    {
+                        using (var chainHigh = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default()))
+                        {
+                            chainHigh.AddTemperature(1.5f);
+                            chainHigh.Apply(ref cur_p_high);
+                            float highTempSample = cur_p_high.Data[0].Logit;
+                            Assert.NotEqual(lowTempSample, highTempSample);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Test that TopK works
+        /// </summary>
+        [Fact]
+        public void SamplingWithTopK()
+        {
+            using var context = new LLamaContext(_model, _params);
+            var tokens = _model.NativeHandle.Tokenize("The quick brown fox", false, false, Encoding.UTF8);
+
+            _batch.Add(token: tokens[0], pos: 0, sequence: LLamaSeqId.Zero, logits: true);
+            DecodeAndClear(context);
+
+            var logits = context.NativeHandle.GetLogits(numTokens: 1);
+            var array = LLamaTokenDataArray.Create(logits);
+
+            // First sampling (TopK=5)
+            using var _ = LLamaTokenDataArrayNative.Create(array, out var cur_p);
+            using var chain5 = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
+
+            chain5.AddTopK(5);
+            chain5.Apply(ref cur_p);
+            int sampledToken5 = (int)cur_p.Data[(int)cur_p.Selected].ID;
+           
+            // Second sampling (TopK=50)
+            using var _2 = LLamaTokenDataArrayNative.Create(array, out var cur_p_broader);
+            using var chain50 = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
+
+            chain50.AddTopK(50);
+            chain50.Apply(ref cur_p_broader);
+            int sampledToken50 = (int)cur_p_broader.Data[(int)cur_p_broader.Selected].ID;
+
+            // Convert cur_p_broader to a List of tokens (IDs)
+            List<LLama.Native.LLamaToken> tokenList = new List<LLama.Native.LLamaToken>();
+            for (int i = 0; i < (int)cur_p_broader.Size; i++)
+            {
+                tokenList.Add(cur_p_broader.Data[i].ID);
+            }
+
+            // Use StreamingTokenDecoder to decode the token list
+            var decoder = new StreamingTokenDecoder(context);
+            decoder.AddRange(tokenList);
+            var text50 = decoder.Read();  // Convert tokens to text
+
+
+            // Convert cur_p to a List of tokens (IDs)
+            tokenList = new List<LLama.Native.LLamaToken>();
+            for (int i = 0; i < (int)cur_p.Size; i++)
+            {
+                tokenList.Add(cur_p.Data[i].ID);
+            }
+
+            // Use StreamingTokenDecoder to decode the token list
+            decoder = new StreamingTokenDecoder(context);
+            decoder.AddRange(tokenList);
+            var text5 = decoder.Read();  // Convert tokens to text
+
+            Assert.NotEqual(text5, text50);
+        }
+
+        /// <summary>
+        /// test frequency pentalty out of range exception when less than -2
+        /// </summary>
+        [Fact]
+        public void FrequencyPenalty_ThrowsException_WhenValueIsLessThanMinusTwo()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new DefaultSamplingPipeline
+            {
+                FrequencyPenalty = -2.1f
+            });
+        }
+
+
+        /// <summary>
+        /// test frequency pentalty out of range exception when greater than 2
+        /// </summary>
+        [Fact]
+        public void FrequencyPenalty_ThrowsException_WhenValueIsGreaterThanTwo()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new DefaultSamplingPipeline
+            {
+                FrequencyPenalty = 2.1f
+            });
+        }
+
+        /// <summary>
+        /// Test Argument out of range exception when presence penalty less than -2
+        /// </summary>
+        [Fact]
+        public void PresencePenalty_ThrowsException_WhenValueIsLessThanMinusTwo()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new DefaultSamplingPipeline
+            {
+                PresencePenalty = -2.1f
+            });
+        }
+
+        /// <summary>
+        /// Test argument out of range exception when presence penalty is greater than 2
+        /// </summary>
+        [Fact]
+        public void PresencePenalty_ThrowsException_WhenValueIsGreaterThanTwo()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new DefaultSamplingPipeline
+            {
+                PresencePenalty = 2.1f
+            });
+        }
+
+        /// <summary>
+        /// Test the default sampling pipeline defaults
+        /// </summary>
+        [Fact]
+        public void DefaultValues_AreSetCorrectly()
+        {
+            var pipeline = new DefaultSamplingPipeline();
+
+            Assert.Equal(1, pipeline.RepeatPenalty);
+            Assert.Equal(0.75f, pipeline.Temperature);
+            Assert.Equal(40, pipeline.TopK);
+            Assert.Equal(1, pipeline.TypicalP);
+            Assert.Equal(0.9f, pipeline.TopP);
+            Assert.Equal(0.1f, pipeline.MinP);
+            Assert.Equal(64, pipeline.PenaltyCount);
+            Assert.False(pipeline.PenalizeNewline);
+            Assert.False(pipeline.PreventEOS);
+        }
+
+        /// <summary>
+        /// Test the pipeline seed
+        /// </summary>
+        [Fact]
+        public void Seed_IsInitializedWithRandomValue()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            // Act
+            uint seed = pipeline.Seed;
+
+            // Assert
+            Assert.InRange(seed, 0u, uint.MaxValue);
+        }
+
+        /// <summary>
+        /// test the pipeline seed with a specific value
+        /// </summary>
+        [Fact]
+        public void Seed_IsInitializedWithSpecificValue()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            // Act
+            uint seed = 32;
+
+            // Assert
+            Assert.Equal(32, (float)seed);
+        }
+        /// <summary>
+        /// test minkeep with a specific value
+        /// </summary>
+        [Fact]
+        public void SetMinKeep()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            //Act
+            pipeline.MinKeep = 5;
+
+            //Assert
+            Assert.Equal(5, pipeline.MinKeep);
+        }
+
+        /// <summary>
+        /// test the minkeep default
+        /// </summary>
+        [Fact]
+        public void GetMinKeepDefault()
+        {
+            // Arrange
+            var pipeline = new DefaultSamplingPipeline();
+
+            //Assert
+            Assert.Equal(1, pipeline.MinKeep);
         }
     }
 }
