@@ -178,7 +178,7 @@ namespace LLama.Unittest
 
             return chain;
         }
-       
+
         [Fact]
         public void SamplingWithMockTopK()
         {
