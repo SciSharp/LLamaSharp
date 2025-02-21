@@ -23,7 +23,7 @@ public abstract class BaseSamplingPipeline
     protected abstract SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context);
 
     /// <inheritdoc />
-    public void Dispose()
+    public virtual void Dispose()
     {
         _chain?.Dispose();
         _chain = null;
@@ -32,21 +32,32 @@ public abstract class BaseSamplingPipeline
     }
 
     /// <inheritdoc />
-    public LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
+    public virtual LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
     {
         _chain ??= CreateChain(ctx);
 
         return _chain.Sample(ctx, index);
     }
 
+    /// <summary>
+    /// Apply this sampling chain to a LLamaTokenDataArrayNative
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <param name="data"></param>
+    public virtual void Apply(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative data)
+    {
+        _chain ??= CreateChain(ctx);
+        _chain.Apply(ref data);
+    }
+
     /// <inheritdoc />
-    public void Reset()
+    public virtual void Reset()
     {
         _chain?.Reset();
     }
 
     /// <inheritdoc />
-    public void Accept(LLamaToken token)
+    public virtual void Accept(LLamaToken token)
     {
         _chain?.Accept(token);
     }

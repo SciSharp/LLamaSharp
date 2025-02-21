@@ -113,6 +113,11 @@ public sealed class DefaultSamplingPipeline
     /// </summary>
     public uint Seed { get; set; } = GetRandomSeed();
 
+    /// <summary>
+    /// A chain with just the grammar
+    /// </summary>
+    private SafeLLamaSamplerChainHandle? _grammarChain;
+
 
     private static readonly Random RandomSeedGenerator = new();
     private static uint GetRandomSeed()
@@ -121,6 +126,41 @@ public sealed class DefaultSamplingPipeline
             return (uint) RandomSeedGenerator.Next(0, int.MaxValue) + (uint) RandomSeedGenerator.Next(0, int.MaxValue);
     }
 
+    /// <inheritdoc />
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        _grammarChain?.Dispose();
+        _grammarChain = null;
+    }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        base.Reset();
+
+        _grammarChain?.Reset();
+    }
+
+    /// <inheritdoc />
+    public override void Accept(LLamaToken token)
+    {
+        base.Accept(token);
+
+        _grammarChain?.Accept(token);
+    }
+
+    private SafeLLamaSamplerChainHandle CreateGrammarChain(SafeLLamaContextHandle context)
+    {
+        if (Grammar == null)
+            throw new InvalidOperationException(nameof(Grammar) + " is null");
+
+        var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
+        chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
+        chain.AddDistributionSampler(Seed);
+        return chain;
+    }
 
     /// <inheritdoc />
     protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
@@ -149,9 +189,6 @@ public sealed class DefaultSamplingPipeline
             ArrayPool<LLamaLogitBias>.Shared.Return(biases);
         }
 
-        if (Grammar != null)
-            chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
-
         chain.AddPenalties(PenaltyCount, RepeatPenalty, FrequencyPenalty, PresencePenalty);
 
         chain.AddTopK(TopK);
@@ -163,5 +200,37 @@ public sealed class DefaultSamplingPipeline
         chain.AddDistributionSampler(Seed);
 
         return chain;
+    }
+
+    public override LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
+    {
+        if (Grammar == null)
+            return base.Sample(ctx, index);
+
+        // Create a chain with the grammar
+        _grammarChain ??= CreateGrammarChain(ctx);
+
+        //todo: pass in rented temporary to LLamaTokenDataArray.Create (x2)
+
+        using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index)), out var nativeAll))
+        {
+            // Apply the chain without the grammar to select one token which may or may not be valid
+            Apply(ctx, ref nativeAll);
+            var candidateToken = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
+
+            // Now create another token data array with just that one token
+            using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(new[] { new LLamaTokenData(candidateToken, 1, 0) }, true), out var nativeSingleCandidate))
+            {
+                // Apply the grammar to this single candidate.
+                _grammarChain.Apply(ref nativeSingleCandidate);
+
+                // Test if that single token was rejected by the grammar
+                if (!float.IsNegativeInfinity(nativeSingleCandidate.Data[0].Logit))
+                    return candidateToken;
+            }
+        }
+
+        // If we get here the grammar rejected the token, fallback to applying the grammar first and then the entire pipeline
+        throw new NotImplementedException();
     }
 }
