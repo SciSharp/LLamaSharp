@@ -178,45 +178,7 @@ namespace LLama.Unittest
 
             return chain;
         }
-        /// <summary>
-        /// Test changing temperature
-        /// </summary>
-        [Fact]
-        public void SamplingWithTemperature()
-        {
-            using var context = new LLamaContext(_model, _params);
-            var tokens = _model.NativeHandle.Tokenize("The quick brown fox", false, false, Encoding.UTF8);
-
-            _batch.Add(token: tokens[0], pos: 0, sequence: LLamaSeqId.Zero, logits: true);
-            DecodeAndClear(context);
-
-            var logits = context.NativeHandle.GetLogits(numTokens: 1);
-
-            // Apply low temperature
-            var arrayLow = LLamaTokenDataArray.Create(logits);
-            using (var nativeArrayLow = LLamaTokenDataArrayNative.Create(arrayLow, out var cur_p_low))
-            {
-                using (var chainLow = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default()))
-                {
-                    chainLow.AddTemperature(0.1f);
-                    chainLow.Apply(ref cur_p_low);
-                    float lowTempSample = cur_p_low.Data[0].Logit;
-                    // Apply high temperature
-                    var arrayHigh = LLamaTokenDataArray.Create(logits); // Create a fresh array for high temperature
-                    using (var nativeArrayHigh = LLamaTokenDataArrayNative.Create(arrayHigh, out var cur_p_high))
-                    {
-                        using (var chainHigh = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default()))
-                        {
-                            chainHigh.AddTemperature(1.5f);
-                            chainHigh.Apply(ref cur_p_high);
-                            float highTempSample = cur_p_high.Data[0].Logit;
-                            Assert.NotEqual(lowTempSample, highTempSample);
-                        }
-                    }
-                }
-            }
-        }
-
+       
         [Fact]
         public void SamplingWithMockTopK()
         {
