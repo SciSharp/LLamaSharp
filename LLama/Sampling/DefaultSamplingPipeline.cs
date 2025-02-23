@@ -112,6 +112,11 @@ public sealed class DefaultSamplingPipeline
     /// Seed to use for random sampling
     /// </summary>
     public uint Seed { get; set; } = GetRandomSeed();
+    
+    /// <summary>
+    /// Selected grammar optimization mode for processing
+    /// </summary>
+    public GrammarOptimizationMode GrammarOptimization { get; init; } = GrammarOptimizationMode.None;
 
     /// <summary>
     /// A chain with just the grammar
@@ -261,5 +266,26 @@ public sealed class DefaultSamplingPipeline
             ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferVocabSize);
             ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferSingleItem);
         }
+    }
+    
+    /// <summary>
+    /// Grammar Optimization Mode
+    /// </summary>
+    public enum GrammarOptimizationMode
+    {
+        /// <summary>
+        /// No grammar optimization, slow because it has to apply the grammar to the entire vocab.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Attempts to return early by only applying the grammar to the selected token and checking if it's valid.
+        /// </summary>
+        Basic,
+
+        /// <summary>
+        /// Attempts to return early by applying the grammar to the top K tokens and checking if the selected token is valid.
+        /// </summary>
+        Extended
     }
 }
