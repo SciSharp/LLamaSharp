@@ -7,18 +7,18 @@ public class PromptTemplateTransformerTests
     : IDisposable
 {
     private readonly LLamaWeights _model;
-    private readonly PromptTemplateTransformer TestableTransformer;
+    private readonly PromptTemplateTransformer _testableTransformer;
 
     public PromptTemplateTransformerTests()
     {
-        var @params = new ModelParams(Constants.GenerativeModelPath)
+        var @params = new ModelParams(Constants.GenerativeModelPath2)
         {
             ContextSize = 1,
             GpuLayerCount = Constants.CIGpuLayerCount
         };
         _model = LLamaWeights.LoadFromFile(@params);
 
-        TestableTransformer = new PromptTemplateTransformer(_model, true);
+        _testableTransformer = new PromptTemplateTransformer(_model, true);
     }
 
     public void Dispose()
@@ -30,11 +30,11 @@ public class PromptTemplateTransformerTests
     public void HistoryToText_EncodesCorrectly()
     {
         const string userData = nameof(userData);
-        var template = TestableTransformer.HistoryToText(new ChatHistory(){
+        var template = _testableTransformer.HistoryToText(new ChatHistory(){
             Messages = [new ChatHistory.Message(AuthorRole.User, userData)]
         });
 
-        const string expected = $"<|start_header_id|>user<|end_header_id|>\n\n{userData}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n";
+        const string expected = $"<|im_start|>user\n{userData}<|im_end|>\n<|im_start|>assistant\n";
         Assert.Equal(expected, template);
     }
 
@@ -66,15 +66,23 @@ public class PromptTemplateTransformerTests
 
         // Call once with empty array to discover length
         var templateResult = PromptTemplateTransformer.ToModelPrompt(templater);
-        const string expected = "<|start_header_id|>assistant<|end_header_id|>\n\nhello<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nworld<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n111<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\naaa<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n222<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nbbb<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n333<|eot_id|>"
-                                    + "<|start_header_id|>user<|end_header_id|>\n\nccc<|eot_id|>"
-                                    + "<|start_header_id|>assistant<|end_header_id|>\n\n";
+        const string expected = "<|im_start|>assistant\n" +
+                                "hello<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "world<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "111<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "aaa<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "222<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "bbb<|im_end|>\n" +
+                                "<|im_start|>assistant\n" +
+                                "333<|im_end|>\n" +
+                                "<|im_start|>user\n" +
+                                "ccc<|im_end|>\n" +
+                                "<|im_start|>assistant\n";
 
         Assert.Equal(expected, templateResult);
     }
