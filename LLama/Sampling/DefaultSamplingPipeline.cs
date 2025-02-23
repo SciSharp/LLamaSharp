@@ -163,7 +163,6 @@ public sealed class DefaultSamplingPipeline
 
         var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
         chain.AddGrammar(context.ModelHandle, Grammar.Gbnf, Grammar.Root);
-        chain.AddDistributionSampler(Seed);
         return chain;
     }
 
