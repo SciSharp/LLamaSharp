@@ -114,7 +114,7 @@ public sealed class DefaultSamplingPipeline
     public uint Seed { get; set; } = GetRandomSeed();
     
     /// <summary>
-    /// Selected grammar optimization mode for processing
+    /// Selected grammar optimization mode
     /// </summary>
     public GrammarOptimizationMode GrammarOptimization { get; init; } = GrammarOptimizationMode.None;
 
