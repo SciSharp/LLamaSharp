@@ -39,6 +39,14 @@ public abstract class BaseSamplingPipeline
         return _chain.Sample(ctx, index);
     }
 
+    /// <inheritdoc />
+    public virtual void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArray data)
+    {
+        _chain ??= CreateChain(ctx);
+        using (LLamaTokenDataArrayNative.Create(data, out var native))
+            _chain.Apply(ref native);
+    }
+
     /// <summary>
     /// Apply this sampling chain to a LLamaTokenDataArrayNative
     /// </summary>

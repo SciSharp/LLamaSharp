@@ -167,26 +167,29 @@ public sealed class DefaultSamplingPipeline
     {
         var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
 
-        // Rent a temporary array and copy the biases into it
-        var biases = ArrayPool<LLamaLogitBias>.Shared.Rent(LogitBias.Count);
-        try
+        if (LogitBias.Count > 0)
         {
-            var index = 0;
-            foreach (var bias in LogitBias)
+            // Rent a temporary array and copy the biases into it
+            var biases = ArrayPool<LLamaLogitBias>.Shared.Rent(LogitBias.Count);
+            try
             {
-                biases[index++] = new LLamaLogitBias
+                var index = 0;
+                foreach (var bias in LogitBias)
                 {
-                    Token = bias.Key,
-                    Bias = bias.Value
-                };
-            }
+                    biases[index++] = new LLamaLogitBias
+                    {
+                        Token = bias.Key,
+                        Bias = bias.Value
+                    };
+                }
 
-            // Add the biases to the sampler
-            chain.AddLogitBias(context.Vocab.Count, biases.AsSpan(0, LogitBias.Count));
-        }
-        finally
-        {
-            ArrayPool<LLamaLogitBias>.Shared.Return(biases);
+                // Add the biases to the sampler
+                chain.AddLogitBias(context.Vocab.Count, biases.AsSpan(0, LogitBias.Count));
+            }
+            finally
+            {
+                ArrayPool<LLamaLogitBias>.Shared.Return(biases);
+            }
         }
 
         chain.AddPenalties(PenaltyCount, RepeatPenalty, FrequencyPenalty, PresencePenalty);
@@ -202,6 +205,7 @@ public sealed class DefaultSamplingPipeline
         return chain;
     }
 
+    /// <inheritdoc />
     public override LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
     {
         if (Grammar == null)
@@ -210,27 +214,52 @@ public sealed class DefaultSamplingPipeline
         // Create a chain with the grammar
         _grammarChain ??= CreateGrammarChain(ctx);
 
-        //todo: pass in rented temporary to LLamaTokenDataArray.Create (x2)
-
-        using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index)), out var nativeAll))
+        // Rent some buffers to use later
+        var rentedBufferVocabSize = ArrayPool<LLamaTokenData>.Shared.Rent(ctx.ModelHandle.Vocab.Count);
+        var rentedBufferSingleItem = ArrayPool<LLamaTokenData>.Shared.Rent(1);
+        try
         {
-            // Apply the chain without the grammar to select one token which may or may not be valid
-            Apply(ctx, ref nativeAll);
-            var candidateToken = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
-
-            // Now create another token data array with just that one token
-            using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(new[] { new LLamaTokenData(candidateToken, 1, 0) }, true), out var nativeSingleCandidate))
+            using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index), rentedBufferVocabSize), out var nativeAll))
             {
-                // Apply the grammar to this single candidate.
-                _grammarChain.Apply(ref nativeSingleCandidate);
+                // Apply the chain without the grammar to select one token which may or may not be valid
+                Apply(ctx, ref nativeAll);
+                var candidateToken = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
 
-                // Test if that single token was rejected by the grammar
-                if (!float.IsNegativeInfinity(nativeSingleCandidate.Data[0].Logit))
-                    return candidateToken;
+                // Now create another token data array with just that one token
+                rentedBufferSingleItem[0] = new LLamaTokenData(candidateToken, 1, 0);
+                using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(rentedBufferSingleItem, true), out var nativeSingleCandidate))
+                {
+                    // Apply the grammar to this single candidate.
+                    _grammarChain.Apply(ref nativeSingleCandidate);
+
+                    // Test if that single token was rejected by the grammar
+                    if (!float.IsNegativeInfinity(nativeSingleCandidate.Data[0].Logit))
+                    {
+                        Accept(candidateToken);
+                        return candidateToken;
+                    }
+                }
+            }
+
+            // If we get here the grammar rejected the token
+            using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index), rentedBufferVocabSize), out var nativeAll))
+            {
+                // Apply the grammar _first_. This is slower (since it has to work on the entire vocab), but guaranteed to work
+                _grammarChain.Apply(ref nativeAll);
+
+                // Now apply the rest of the pipeline
+                Apply(ctx, ref nativeAll);
+
+                // Take the selected token
+                var token = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
+                Accept(token);
+                return token;
             }
         }
-
-        // If we get here the grammar rejected the token, fallback to applying the grammar first and then the entire pipeline
-        throw new NotImplementedException();
+        finally
+        {
+            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferVocabSize);
+            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferSingleItem);
+        }
     }
 }
