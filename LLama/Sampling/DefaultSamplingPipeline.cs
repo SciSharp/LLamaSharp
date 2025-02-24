@@ -116,7 +116,7 @@ public sealed class DefaultSamplingPipeline
     /// <summary>
     /// Selected grammar optimization mode
     /// </summary>
-    public GrammarOptimizationMode GrammarOptimization { get; init; } = GrammarOptimizationMode.None;
+    public GrammarOptimizationMode GrammarOptimization { get; init; } = GrammarOptimizationMode.Extended;
 
     /// <summary>
     /// A chain with just the grammar
