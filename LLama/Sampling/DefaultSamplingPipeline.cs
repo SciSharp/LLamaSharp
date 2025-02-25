@@ -219,9 +219,11 @@ public sealed class DefaultSamplingPipeline
         _grammarChain ??= CreateGrammarChain(ctx);
 
         // Rent some buffers to use later
-        var rentedBufferVocabSize = ArrayPool<LLamaTokenData>.Shared.Rent(ctx.ModelHandle.Vocab.Count);
-        var rentedBufferSingleItem = ArrayPool<LLamaTokenData>.Shared.Rent(1);
-        
+        var rentedBufferVocabSizeArr = ArrayPool<LLamaTokenData>.Shared.Rent(ctx.ModelHandle.Vocab.Count);
+        var rentedBufferVocabSize = rentedBufferVocabSizeArr.AsMemory(0, ctx.ModelHandle.Vocab.Count);
+        var rentedBufferSingleItemArr = ArrayPool<LLamaTokenData>.Shared.Rent(1);
+        var rentedBufferSingleItem = rentedBufferSingleItemArr.AsMemory(0, 1);
+
         try
         {
             // Handle grammar optimization modes
@@ -237,7 +239,7 @@ public sealed class DefaultSamplingPipeline
                     var candidateToken = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
 
                     // Now create another token data array with just that one token
-                    rentedBufferSingleItem[0] = new LLamaTokenData(candidateToken, 1, 0);
+                    rentedBufferSingleItem.Span[0] = new LLamaTokenData(candidateToken, 1, 0);
                     using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(rentedBufferSingleItem, true), out var nativeSingleCandidate))
                     {
                         // Apply the grammar chain to the single candidate
@@ -255,14 +257,15 @@ public sealed class DefaultSamplingPipeline
                     if (GrammarOptimization == GrammarOptimizationMode.Extended)
                     {
                         // Calculate a safe TopK value
-                        int safeTopK = Math.Min(TopK, nativeAll.Data.Length);
+                        var safeTopK = Math.Min(TopK, nativeAll.Data.Length);
 
                         // Rent a buffer for the TopK candidates
-                        var rentedBufferTopK = ArrayPool<LLamaTokenData>.Shared.Rent(safeTopK);
+                        var rentedBufferTopKArr = ArrayPool<LLamaTokenData>.Shared.Rent(safeTopK);
+                        var rentedBufferTopK = rentedBufferTopKArr.AsMemory(0, safeTopK);
                         try
                         {
                             // Copy only the TopK tokens from the existing candidate pool to the new buffer
-                            nativeAll.Data.Slice(0, safeTopK).CopyTo(rentedBufferTopK.AsSpan(0, safeTopK));
+                            nativeAll.Data.Slice(0, safeTopK).CopyTo(rentedBufferTopK.Span);
 
                             // Create a native array with the TopK tokens
                             using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(rentedBufferTopK, true), out var nativeTopK))
@@ -284,7 +287,7 @@ public sealed class DefaultSamplingPipeline
                         }
                         finally
                         {
-                            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferTopK);
+                            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferTopKArr);
                         }
                     }
                 }
@@ -307,8 +310,8 @@ public sealed class DefaultSamplingPipeline
         }
         finally
         {
-            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferVocabSize);
-            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferSingleItem);
+            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferVocabSizeArr);
+            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferSingleItemArr);
         }
     }
     
