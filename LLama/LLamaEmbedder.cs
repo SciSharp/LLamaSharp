@@ -64,7 +64,7 @@ public sealed partial class LLamaEmbedder
     private async Task<(IReadOnlyList<float[]> Embeddings, int Tokens)> GetEmbeddingsWithTokenCount(string input, CancellationToken cancellationToken = default)
     {
         // Add all of the tokens to the batch
-        var tokens = Context.Tokenize(input);
+        var tokens = Context.Tokenize(input, special: true);
         var batch = new LLamaBatch();
         for (var i = 0; i < tokens.Length; i++)
             batch.Add(tokens[i], i, LLamaSeqId.Zero, true);
