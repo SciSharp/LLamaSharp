@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using LLama.Exceptions;
 
@@ -631,34 +632,51 @@ namespace LLama.Native
 
             internal unsafe LLamaVocabNative* VocabNative => llama_model_get_vocab(_model);
 
+            /// <summary>
+            /// Cache of all the tokens in the vocabulary, and their string representation
+            /// </summary>
+            public readonly IReadOnlyDictionary<LLamaToken, string> TokenToString;
+
             internal Vocabulary(SafeLlamaModelHandle model)
             {
                 _model = model;
+                TokenToString = GetVocabCache();
+
+                unsafe
+                {
+                    var vocabNative = llama_model_get_vocab(_model);
+                    Count = LLamaVocabNative.llama_vocab_n_tokens(vocabNative);
+                    Type = LLamaVocabNative.llama_vocab_type(vocabNative);
+                    BOS = Normalize(LLamaVocabNative.llama_vocab_bos(vocabNative));
+                    EOS = Normalize(LLamaVocabNative.llama_vocab_eos(vocabNative));
+                    Newline = Normalize(LLamaVocabNative.llama_vocab_nl(vocabNative));
+                    Pad = Normalize(LLamaVocabNative.llama_vocab_pad(vocabNative));
+                    SEP = Normalize(LLamaVocabNative.llama_vocab_sep(vocabNative));
+                    InfillPrefix = Normalize(LLamaVocabNative.llama_vocab_fim_pre(vocabNative));
+                    InfillMiddle = Normalize(LLamaVocabNative.llama_vocab_fim_mid(vocabNative));
+                    InfillSuffix = Normalize(LLamaVocabNative.llama_vocab_fim_suf(vocabNative));
+                    InfillPad = Normalize(LLamaVocabNative.llama_vocab_fim_pad(vocabNative));
+                    InfillRep = Normalize(LLamaVocabNative.llama_vocab_fim_rep(vocabNative));
+                    InfillSep = Normalize(LLamaVocabNative.llama_vocab_fim_sep(vocabNative));
+                    EOT = Normalize(LLamaVocabNative.llama_vocab_eot(vocabNative));
+                    DecoderStartToken = Normalize(llama_model_decoder_start_token(_model));
+                    ShouldAddBOS = LLamaVocabNative.llama_vocab_get_add_bos(vocabNative);
+                    ShouldAddEOS = LLamaVocabNative.llama_vocab_get_add_eos(vocabNative);
+                }
             }
 
-            private string? LLamaTokenToString(LLamaToken? token, bool isSpecialToken)
+            private Dictionary<LLamaToken, string> GetVocabCache()
             {
-                if (!token.HasValue)
-                    return null;
-
-                // Try to convert using a fixed size buffer
-                const int buffSize = 32;
-                Span<byte> buff = stackalloc byte[buffSize];
-                var tokenLength = _model.TokenToSpan((LLamaToken)token, buff, special: isSpecialToken);
-                
-                // Negative indicates that there was no result
-                if (tokenLength <= 0)
-                    return null;
-                
-                // if the original buffer wasn't large enough, try again with one that's the right size
-                if (tokenLength > buffSize)
-                {
-                    buff = stackalloc byte[(int)tokenLength];
-                    _ = _model.TokenToSpan((LLamaToken)token, buff, special: isSpecialToken);
-                }
-
-                var slice = buff.Slice(0, (int)tokenLength);
-                return Encoding.UTF8.GetStringFromSpan(slice);
+                var decoder = Encoding.UTF8.GetDecoder();
+                var (bytesArr, charsArr) = (new byte[1024], new char[1024]);
+                return Enumerable.Range(0, Count).ToDictionary(
+                    keySelector: i => (LLamaToken) i,
+                    elementSelector: i =>
+                    {
+                        decoder.Convert(bytesArr, 0, (int) _model.TokenToSpan(i, bytesArr), charsArr, 0, charsArr.Length, true, out var _, out var charsUsed, out var _);
+                        return string.Join("", charsArr.Take(charsUsed));
+                    }
+                );
             }
 
             private static LLamaToken? Normalize(LLamaToken token)
@@ -669,232 +687,88 @@ namespace LLama.Native
             /// <summary>
             /// Total number of tokens in this vocabulary
             /// </summary>
-            public int Count
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return LLamaVocabNative.llama_vocab_n_tokens(VocabNative);
-                    }
-                }
-            }
+            public int Count { get; init; }
 
             /// <summary>
             /// Get the the type of this vocabulary
             /// </summary>
-            public LLamaVocabType Type
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return LLamaVocabNative.llama_vocab_type(VocabNative);
-                    }
-                }
-            }
+            public LLamaVocabType Type { get; init; }
 
             /// <summary>
             /// Get the Beginning of Sentence token for this model
             /// </summary>
-            public LLamaToken? BOS
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_bos(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? BOS { get; init; }
 
             /// <summary>
             /// Get the End of Sentence token for this model
             /// </summary>
-            public LLamaToken? EOS
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_eos(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? EOS { get; init; }
 
             /// <summary>
             /// Get the newline token for this model
             /// </summary>
-            public LLamaToken? Newline
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_nl(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? Newline { get; init; }
 
             /// <summary>
             /// Get the padding token for this model
             /// </summary>
-            public LLamaToken? Pad
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_pad(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? Pad { get; init; }
 
             /// <summary>
             /// Get the sentence separator token for this model
             /// </summary>
-            public LLamaToken? SEP
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_sep(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? SEP { get; init; }
 
             /// <summary>
             /// Codellama beginning of infill prefix
             /// </summary>
-            public LLamaToken? InfillPrefix
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_fim_pre(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? InfillPrefix { get; init; }
 
             /// <summary>
             /// Codellama beginning of infill middle
             /// </summary>
-            public LLamaToken? InfillMiddle
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_fim_mid(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? InfillMiddle { get; init; }
 
             /// <summary>
             /// Codellama beginning of infill suffix
             /// </summary>
-            public LLamaToken? InfillSuffix
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_fim_suf(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? InfillSuffix { get; init; }
 
             /// <summary>
             /// Codellama pad
             /// </summary>
-            public LLamaToken? InfillPad
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_fim_pad(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? InfillPad { get; init; }
 
             /// <summary>
             /// Codellama rep
             /// </summary>
-            public LLamaToken? InfillRep
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_fim_rep(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? InfillRep { get; init; }
 
             /// <summary>
             /// Codellama rep
             /// </summary>
-            public LLamaToken? InfillSep
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_fim_sep(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? InfillSep { get; init; }
 
             /// <summary>
             /// end-of-turn token
             /// </summary>
-            public LLamaToken? EOT
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return Normalize(LLamaVocabNative.llama_vocab_eot(VocabNative));
-                    }
-                }
-            }
+            public LLamaToken? EOT { get; init; }
 
             /// <summary>
             /// For encoder-decoder models, this function returns id of the token that must be provided
             /// to the decoder to start generating output sequence.
             /// </summary>
-            public LLamaToken? DecoderStartToken => Normalize(llama_model_decoder_start_token(_model));
+            public LLamaToken? DecoderStartToken { get; init; }
 
             /// <summary>
             /// Check if the current model requires a BOS token added
             /// </summary>
-            public bool ShouldAddBOS
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return LLamaVocabNative.llama_vocab_get_add_bos(llama_model_get_vocab(_model));
-                    }
-                }
-            }
+            public bool ShouldAddBOS { get; init; }
 
             /// <summary>
             /// Check if the current model requires a EOS token added
             /// </summary>
-            public bool ShouldAddEOS
-            {
-                get
-                {
-                    unsafe
-                    {
-                        return LLamaVocabNative.llama_vocab_get_add_eos(llama_model_get_vocab(_model));
-                    }
-                }
-            }
+            public bool ShouldAddEOS { get; init; }
         }
     }
 }
