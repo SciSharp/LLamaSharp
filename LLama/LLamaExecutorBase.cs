@@ -395,7 +395,7 @@ namespace LLama
             public bool NeedToSaveSession { get; set; }
         }
 
-#pragma warning disable // Missing XML and irrelevant nullable warnings
+#pragma warning disable CS1591, CS8618 // Missing XML and irrelevant nullable warnings
         [JsonConverter(typeof(PolymorphicJSONConverter<ExecutorBaseState>))]
         public class ExecutorBaseState
         {
