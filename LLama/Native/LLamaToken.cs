@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Linq;
 
 namespace LLama.Native;
 

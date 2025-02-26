@@ -635,17 +635,17 @@ namespace LLama.Native
             /// <summary>
             /// Map of each token in this vocabulary to its string representation
             /// </summary>
-            public readonly IReadOnlyDictionary<LLamaToken, string> TokenToString;
+            internal readonly IReadOnlyDictionary<LLamaToken, string> TokenToString;
 
             /// <summary>
             /// Contains unique tokens that are supposed to end the generation (e.g.: EOS, EOT, etc)
             /// </summary>
-            public readonly HashSet<LLamaToken> EOGTokens;
+            internal readonly IReadOnlyList<LLamaToken> EOGTokens;
 
             /// <summary>
             /// Contains unique tokens that exist for inference control rather than text output
             /// </summary>
-            public readonly HashSet<LLamaToken> ControlTokens;
+            internal readonly IReadOnlyList<LLamaToken> ControlTokens;
 
             internal Vocabulary(SafeLlamaModelHandle model)
             {
@@ -674,8 +674,8 @@ namespace LLama.Native
                     ShouldAddBOS = LLamaVocabNative.llama_vocab_get_add_bos(vocabNative);
                     ShouldAddEOS = LLamaVocabNative.llama_vocab_get_add_eos(vocabNative);
 
-                    EOGTokens = new HashSet<LLamaToken>(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)));
-                    ControlTokens = new HashSet<LLamaToken>(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)));
+                    EOGTokens = TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)).ToList();
+                    ControlTokens = TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)).ToList();
                 }
             }
 
@@ -701,88 +701,88 @@ namespace LLama.Native
             /// <summary>
             /// Total number of tokens in this vocabulary
             /// </summary>
-            public int Count { get; init; }
+            public int Count { get; }
 
             /// <summary>
             /// Get the the type of this vocabulary
             /// </summary>
-            public LLamaVocabType Type { get; init; }
+            public LLamaVocabType Type { get; }
 
             /// <summary>
             /// Get the Beginning of Sentence token for this model
             /// </summary>
-            public LLamaToken? BOS { get; init; }
+            public LLamaToken? BOS { get; }
 
             /// <summary>
             /// Get the End of Sentence token for this model
             /// </summary>
-            public LLamaToken? EOS { get; init; }
+            public LLamaToken? EOS { get; }
 
             /// <summary>
             /// Get the newline token for this model
             /// </summary>
-            public LLamaToken? Newline { get; init; }
+            public LLamaToken? Newline { get; }
 
             /// <summary>
             /// Get the padding token for this model
             /// </summary>
-            public LLamaToken? Pad { get; init; }
+            public LLamaToken? Pad { get; }
 
             /// <summary>
             /// Get the sentence separator token for this model
             /// </summary>
-            public LLamaToken? SEP { get; init; }
+            public LLamaToken? SEP { get; }
 
             /// <summary>
             /// Codellama beginning of infill prefix
             /// </summary>
-            public LLamaToken? InfillPrefix { get; init; }
+            public LLamaToken? InfillPrefix { get; }
 
             /// <summary>
             /// Codellama beginning of infill middle
             /// </summary>
-            public LLamaToken? InfillMiddle { get; init; }
+            public LLamaToken? InfillMiddle { get; }
 
             /// <summary>
             /// Codellama beginning of infill suffix
             /// </summary>
-            public LLamaToken? InfillSuffix { get; init; }
+            public LLamaToken? InfillSuffix { get; }
 
             /// <summary>
             /// Codellama pad
             /// </summary>
-            public LLamaToken? InfillPad { get; init; }
+            public LLamaToken? InfillPad { get; }
 
             /// <summary>
             /// Codellama rep
             /// </summary>
-            public LLamaToken? InfillRep { get; init; }
+            public LLamaToken? InfillRep { get; }
 
             /// <summary>
             /// Codellama rep
             /// </summary>
-            public LLamaToken? InfillSep { get; init; }
+            public LLamaToken? InfillSep { get; }
 
             /// <summary>
             /// end-of-turn token
             /// </summary>
-            public LLamaToken? EOT { get; init; }
+            public LLamaToken? EOT { get; }
 
             /// <summary>
             /// For encoder-decoder models, this function returns id of the token that must be provided
             /// to the decoder to start generating output sequence.
             /// </summary>
-            public LLamaToken? DecoderStartToken { get; init; }
+            public LLamaToken? DecoderStartToken { get; }
 
             /// <summary>
             /// Check if the current model requires a BOS token added
             /// </summary>
-            public bool ShouldAddBOS { get; init; }
+            public bool ShouldAddBOS { get; }
 
             /// <summary>
             /// Check if the current model requires a EOS token added
             /// </summary>
-            public bool ShouldAddEOS { get; init; }
+            public bool ShouldAddEOS { get; }
         }
     }
 }
