@@ -633,15 +633,26 @@ namespace LLama.Native
             internal unsafe LLamaVocabNative* VocabNative => llama_model_get_vocab(_model);
 
             /// <summary>
-            /// Cache of all the tokens in the vocabulary, and their string representation
+            /// Map of each token in this vocabulary to its string representation
             /// </summary>
             public readonly IReadOnlyDictionary<LLamaToken, string> TokenToString;
+
+            /// <summary>
+            /// Contains unique tokens that are supposed to end the generation (e.g.: EOS, EOT, etc)
+            /// </summary>
+            public readonly HashSet<LLamaToken> EOGTokens;
+
+            /// <summary>
+            /// Contains unique tokens that exist for inference control rather than text output
+            /// </summary>
+            public readonly HashSet<LLamaToken> ControlTokens;
 
             internal Vocabulary(SafeLlamaModelHandle model)
             {
                 _model = model;
                 TokenToString = GetVocabCache();
 
+                // Cache the various properties that llama.cpp API exposes about the vocab
                 unsafe
                 {
                     var vocabNative = llama_model_get_vocab(_model);
@@ -662,6 +673,9 @@ namespace LLama.Native
                     DecoderStartToken = Normalize(llama_model_decoder_start_token(_model));
                     ShouldAddBOS = LLamaVocabNative.llama_vocab_get_add_bos(vocabNative);
                     ShouldAddEOS = LLamaVocabNative.llama_vocab_get_add_eos(vocabNative);
+
+                    EOGTokens = new HashSet<LLamaToken>(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)));
+                    ControlTokens = new HashSet<LLamaToken>(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)));
                 }
             }
 

@@ -98,10 +98,7 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public bool IsControl(SafeLlamaModelHandle.Vocabulary vocab)
     {
-        unsafe
-        {
-            return LLamaVocabNative.llama_vocab_is_control(vocab.VocabNative, this);
-        }
+        return vocab.ControlTokens.Contains(this);
     }
 
     /// <summary>
@@ -121,10 +118,7 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public bool IsEndOfGeneration(SafeLlamaModelHandle.Vocabulary vocab)
     {
-        unsafe
-        {
-            return LLamaVocabNative.llama_vocab_is_eog(vocab.VocabNative, this);
-        }
+        return vocab.EOGTokens.Contains(this);
     }
 
     /// <inheritdoc />
