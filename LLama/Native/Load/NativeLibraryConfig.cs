@@ -376,7 +376,7 @@ namespace LLama.Native
         /// <returns>Whether the running is successful.</returns>
         public bool DryRun(out INativeLibrary? loadedLibrary)
         {
-            LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {this.NativeLibraryName.GetLibraryName()}...");
+            LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {NativeLibraryName.GetLibraryName()}...");
             return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary) != IntPtr.Zero;
         }
     }

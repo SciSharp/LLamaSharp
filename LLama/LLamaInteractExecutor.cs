@@ -123,7 +123,7 @@ namespace LLama
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
-                if (!this.IsMultiModal)
+                if (!IsMultiModal)
                 {
                     _embed_inps = Context.Tokenize(text, true, true).ToList();
                 }
@@ -142,7 +142,7 @@ namespace LLama
                         text += "\n";
                     }
 
-                    if (!this.IsMultiModal)
+                    if (!IsMultiModal)
                     {
                         var line_inp = Context.Tokenize(text, false, true);
                         _embed_inps.AddRange(line_inp);
@@ -160,9 +160,7 @@ namespace LLama
 
         /// <inheritdoc />
         private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true )
-        {
-            int usedTokens = 0;
-            
+        {   
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
             if (_imageInPrompt && IsMultiModal)
@@ -182,7 +180,6 @@ namespace LLama
                 var segment2 = Context.Tokenize(postImagePrompt, false, true);
                 _embed_inps.AddRange(segment1);
                 _embed_inps.AddRange(segment2);
-                usedTokens += (segment1.Length + segment2.Length);
             }
             else
             {

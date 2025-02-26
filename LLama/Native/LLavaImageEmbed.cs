@@ -13,7 +13,7 @@ public unsafe struct LLavaImageEmbed
     public float* embed;
 
     /// <summary>
-    /// 
+    /// The position of the image's tokens.
     /// </summary>
     public int n_image_pos;
 }
