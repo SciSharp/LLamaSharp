@@ -178,7 +178,7 @@ public class BatchedExecutorBoolQ
 
             // Prompt
             _conversation = executor.Create();
-            _conversation.Prompt(_executor.Context.Tokenize(templatedQuestion));
+            _conversation.Prompt(_executor.Context.Tokenize(templatedQuestion, special: true));
 
             Question = question;
             Answer = answer;
