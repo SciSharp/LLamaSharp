@@ -28,6 +28,9 @@ public enum LLamaPoolingType
     /// </summary>
     CLS = 2,
 
+    /// <summary>
+    /// Return the embeddings of the last token
+    /// </summary>
     Last = 3,
 
     /// <summary>

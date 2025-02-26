@@ -15,7 +15,6 @@ namespace LLama.Examples.Examples
             Console.WriteLine("This example is from: \n" +
                 "https://github.com/microsoft/semantic-kernel/blob/main/dotnet/samples/KernelSyntaxExamples/Example14_SemanticMemory.cs");
 
-            var seed = 1337u;
             // Load weights into memory
             var parameters = new ModelParams(modelPath)
             {

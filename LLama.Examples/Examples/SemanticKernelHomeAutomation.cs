@@ -68,7 +68,7 @@ namespace LLama.Examples.Examples
         }
     }
 
-    class Worker(
+    internal class Worker(
         IHostApplicationLifetime hostApplicationLifetime,
         [FromKeyedServices("HomeAutomationKernel")] Kernel kernel) : BackgroundService
     {
@@ -92,7 +92,7 @@ namespace LLama.Examples.Examples
                  TopP = 0.1f
             };
 
-            string? input = null;
+            string? input;
 
             while ((input = Console.ReadLine()) != null)
             {
@@ -123,19 +123,19 @@ namespace LLama.Examples.Examples
                 ChatMessageContent chatResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, llamaSharpPromptExecutionSettings, _kernel, stoppingToken);
 
                 FunctionResult? fres = null;
-                if (chatResult.Content.Contains("[TURN ON THE LIGHT]"))
+                if (chatResult.Content!.Contains("[TURN ON THE LIGHT]"))
                 {
-                    fres = await _kernel.InvokeAsync("OfficeLight", "TurnOn");
+                    fres = await _kernel.InvokeAsync("OfficeLight", "TurnOn", cancellationToken: stoppingToken);
                 }
                 else if (chatResult.Content.Contains("[TURN OFF THE LIGHT]"))
                 {
-                    fres = await _kernel.InvokeAsync("OfficeLight", "TurnOff");
+                    fres = await _kernel.InvokeAsync("OfficeLight", "TurnOff", cancellationToken: stoppingToken);
                 }
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 if (fres != null || chatResult.Content.Contains("[WHICH LIGHT IS ON]"))
                 {
-                    fres = await _kernel.InvokeAsync("OfficeLight", "IsTurnedOn");
+                    fres = await _kernel.InvokeAsync("OfficeLight", "IsTurnedOn", cancellationToken: stoppingToken);
                     Console.Write($">>> Result:\n {(fres.GetValue<bool>()==true?"The light is ON.": "The light is OFF.")}\n\n> ");
                 }
                 else
@@ -154,7 +154,7 @@ namespace LLama.Examples.Examples
     /// Class that represents a controllable light.
     /// </summary>
     [Description("Represents a light")]
-    class MyLightPlugin(bool turnedOn = false)
+    internal class MyLightPlugin(bool turnedOn = false)
     {
         private bool _turnedOn = turnedOn;
 

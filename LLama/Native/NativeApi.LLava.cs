@@ -53,6 +53,8 @@ public static partial class NativeApi
     /// </summary>
     /// <param name="ctx_llama">Llama Context</param>
     /// <param name="embed">Embedding handle</param>
+    /// <param name="n_batch"></param>
+    /// <param name="n_past"></param>
     /// <returns>True on success</returns>
     [DllImport(llavaLibraryName, EntryPoint = "llava_eval_image_embed", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.U1)]

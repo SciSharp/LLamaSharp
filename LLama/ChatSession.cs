@@ -779,7 +779,7 @@ public record SessionState
 
         return new SessionState(
             contextState,
-            executorState,
+            executorState!,
             history,
             inputTransforms.ToList(),
             outputTransform,

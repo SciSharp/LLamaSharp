@@ -30,11 +30,13 @@ namespace LLama
             private readonly string _unknownName;
             private readonly bool _isInstructMode;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             public string UserName => _userName;
             public string AssistantName => _assistantName;
             public string SystemName => _systemName;
             public string UnknownName => _unknownName;
             public bool IsInstructMode => _isInstructMode;
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
             /// <summary>
             /// 

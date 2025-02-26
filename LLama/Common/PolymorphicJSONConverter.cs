@@ -45,7 +45,7 @@ namespace LLama.Common
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-            writer.WriteString("Name", value.GetType().Name);
+            writer.WriteString("Name", value!.GetType().Name);
             writer.WritePropertyName("Data");
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
             writer.WriteEndObject();
