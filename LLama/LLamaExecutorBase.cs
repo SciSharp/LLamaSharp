@@ -395,6 +395,7 @@ namespace LLama
             public bool NeedToSaveSession { get; set; }
         }
 
+#pragma warning disable // Missing XML and nullable warnings that
         [JsonConverter(typeof(PolymorphicJSONConverter<ExecutorBaseState>))]
         public class ExecutorBaseState
         {
@@ -431,5 +432,6 @@ namespace LLama
             [JsonPropertyName("mirostat_mu")]
             public float? MirostatMu { get; set; }
         }
+#pragma warning restore
     }
 }

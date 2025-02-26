@@ -123,7 +123,7 @@ namespace LLama.Examples.Examples
                 ChatMessageContent chatResult = await chatCompletionService.GetChatMessageContentAsync(chatHistory, llamaSharpPromptExecutionSettings, _kernel, stoppingToken);
 
                 FunctionResult? fres = null;
-                if (chatResult.Content.Contains("[TURN ON THE LIGHT]"))
+                if (chatResult.Content!.Contains("[TURN ON THE LIGHT]"))
                 {
                     fres = await _kernel.InvokeAsync("OfficeLight", "TurnOn");
                 }

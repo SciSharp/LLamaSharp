@@ -19,11 +19,6 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Call once at the end of the program - currently only used for MPI
-        /// </summary>
-        public static extern void llama_backend_free();
-
-        /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
         /// </summary>
         /// <returns></returns>
@@ -104,9 +99,15 @@ namespace LLama.Native
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
 
+        /// <summary>
+        /// Saves the specified sequence as a file on specified filepath. Can later be loaded via <see cref="llama_state_load_file(SafeLLamaContextHandle, string, LLamaToken[], ulong, out ulong)"/>
+        /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_save_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId seq_id, LLamaToken* tokens, nuint n_token_count);
 
+        /// <summary>
+        /// Loads a sequence saved as a file via <see cref="llama_state_save_file(SafeLLamaContextHandle, string, LLamaToken[], ulong)"/> into the specified sequence
+        /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_load_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId dest_seq_id, LLamaToken* tokens_out, nuint n_token_capacity, out nuint n_token_count_out);
 

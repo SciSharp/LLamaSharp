@@ -10,6 +10,7 @@ namespace LLama.Native
     /// <param name="AvxLevel">Which AvxLevel it's compiled with.</param>
     public record class NativeLibraryMetadata(NativeLibraryName NativeLibraryName, bool UseCuda, bool UseVulkan, AvxLevel AvxLevel)
     {
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"(NativeLibraryName: {NativeLibraryName}, UseCuda: {UseCuda}, UseVulkan: {UseVulkan}, AvxLevel: {AvxLevel})";

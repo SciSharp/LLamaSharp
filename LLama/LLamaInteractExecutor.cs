@@ -27,8 +27,6 @@ namespace LLama
         private List<SafeLlavaImageEmbedHandle> _imageEmbedHandles = new List<SafeLlavaImageEmbedHandle>();
         private bool _imageInPrompt = false;
 
-        private ISamplingPipeline? _pipeline;
-
         /// <summary>
         /// 
         /// </summary>
@@ -39,6 +37,12 @@ namespace LLama
         {
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="clipModel"></param>
+        /// <param name="logger"></param>
         public InteractiveExecutor(LLamaContext context, LLavaWeights clipModel, ILogger? logger = null)
             : base(context, clipModel, logger)
         {
@@ -69,15 +73,15 @@ namespace LLama
             if (data is InteractiveExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
-                _embed_inps = state.EmbedInps.ToList();
+                _embed_inps = state.EmbedInps!.ToList();
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
-                _embeds = state.Embeds.ToList();
-                _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens);
+                _embeds = state.Embeds!.ToList();
+                _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens!);
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
-                _session_tokens = state.SessionTokens.ToList();
+                _session_tokens = state.SessionTokens!.ToList();
             }
             else
                 throw new ArgumentException("Invalid state data type.");
@@ -99,7 +103,7 @@ namespace LLama
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
-                await LoadState(state);
+                await LoadState(state!);
             }
         }
 
@@ -161,11 +165,11 @@ namespace LLama
             
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
-            if (_imageInPrompt && IsMultiModal )
+            if (_imageInPrompt && IsMultiModal)
             {
                 foreach (var image in Images)
                 {
-                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel.NativeHandle, Context, image));
+                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel!.NativeHandle, Context, image));
                 }
 
                 int imageIndex = text.IndexOf("<image>");
@@ -195,7 +199,7 @@ namespace LLama
             }
             return Task.CompletedTask;
         }
-        
+
         /// <summary>
         /// Return whether to break the generation.
         /// </summary>
@@ -267,7 +271,7 @@ namespace LLama
                    
                     // Images
                     foreach( var image in _imageEmbedHandles )
-                        ClipModel.EvalImageEmbed(Context, image, ref _pastTokensCount);
+                        ClipModel!.EvalImageEmbed(Context, image, ref _pastTokensCount);
                         
                     // Post-image Tokens
                     end = await Context.DecodeAsync(_embeds.GetRange(_EmbedImagePosition, _embeds.Count - _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
@@ -301,7 +305,7 @@ namespace LLama
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {
                     args.NeedToSaveSession = false;
-                    SaveSessionFile(_pathSession);
+                    SaveSessionFile(_pathSession!);
                 }
 
 
