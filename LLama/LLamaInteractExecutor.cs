@@ -315,7 +315,7 @@ namespace LLama
                     id = Context.NativeHandle.ModelHandle.Vocab.Newline!.Value;
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
-                        var first_antiprompt = Context.Tokenize(args.Antiprompts[0], false);
+                        var first_antiprompt = Context.Tokenize(args.Antiprompts[0], false, true);
                         _embed_inps.AddRange(first_antiprompt);
                     }
                 }
