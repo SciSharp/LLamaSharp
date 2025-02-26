@@ -7,7 +7,7 @@ namespace LLama.Native
     /// <summary>
     /// Direct translation of the llama.cpp API
     /// </summary>
-	public static partial class NativeApi
+    public static partial class NativeApi
     {
         /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
@@ -17,6 +17,13 @@ namespace LLama.Native
         {
             llama_max_devices();
         }
+
+#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
+        /// <summary>
+        /// Call once at the end of the program - currently only used for MPI
+        /// </summary>
+        public static extern void llama_backend_free();
+#pragma warning restore CS0626 // Method, operator, or accessor is marked external and has no attributes on it
 
         /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
