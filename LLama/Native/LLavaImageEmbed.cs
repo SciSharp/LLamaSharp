@@ -8,7 +8,7 @@ namespace LLama.Native;
 public unsafe struct LLavaImageEmbed
 {
     /// <summary>
-    /// The embeddings of the embedded image. Should be a float[]
+    /// The embeddings of the embedded image.
     /// </summary>
     public float* embed;
 
