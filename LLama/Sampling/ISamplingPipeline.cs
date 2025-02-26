@@ -18,6 +18,13 @@ public interface ISamplingPipeline
     LLamaToken Sample(SafeLLamaContextHandle ctx, int index);
 
     /// <summary>
+    /// Apply this pipeline to a set of token data
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <param name="data"></param>
+    public void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArray data);
+
+    /// <summary>
     /// Reset all internal state of the sampling pipeline
     /// </summary>
     void Reset();
