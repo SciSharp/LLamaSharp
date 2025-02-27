@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace LLama.Extensions
@@ -20,5 +20,16 @@ namespace LLama.Extensions
             for (var i = 0; i < items.Length; i++)
                 list.Add(items[i]);
         }
+
+#if !NET6_0_OR_GREATER
+        public static void CopyTo<T>(this List<T> list, Span<T> dest)
+        {
+            if (dest.Length < list.Count)
+                throw new ArgumentException($"dest is too small ({dest.Length} < {list.Count})");
+
+            for (var i = 0; i < list.Count; i++)
+                dest[i] = list[i];
+        }
+#endif
     }
 }
