@@ -76,6 +76,72 @@ jobs:
           name: llava-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
 
+  compile-musl:
+    name: Compile (musl)
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build: 'noavx'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+          - build: 'avx2'
+            defines: ''
+          - build: 'avx'
+            defines: '-DGGML_AVX2=OFF'
+          - build: 'avx512'
+            defines: '-DGGML_AVX512=ON'
+    runs-on: ubuntu-20.04
+    container:
+      image: alpine:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update && apk add --no-cache \
+            build-base \
+            cmake \
+            git \
+            linux-headers \
+            g++
+      - uses: actions/checkout@v4
+        with:
+          repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
+      - name: Build
+        id: cmake_build_musl
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          ls -R
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libllama.so
+          name: llama-bin-musl-${{ matrix.build }}-x64.so
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libggml.so
+          name: ggml-bin-musl-${{ matrix.build }}-x64.so
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libggml-base.so
+          name: ggml-base-bin-musl-${{ matrix.build }}-x64.so
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libggml-cpu.so
+          name: ggml-cpu-bin-musl-${{ matrix.build }}-x64.so
+          if-no-files-found: error
+      - name: Upload Llava
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libllava_shared.so
+          name: llava-bin-musl-${{ matrix.build }}-x64.so
+          if-no-files-found: error
+
   compile-windows:
     name: Compile (Windows)
     strategy:
@@ -519,6 +585,7 @@ jobs:
     if: ${{ always() }}
     needs: [
       "compile-linux",
+      "compile-musl",
       "compile-windows",
       "compile-vulkan",
       "compile-cublas",
@@ -534,7 +601,7 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{noavx,avx,avx2,avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan,android-arm64-v8a,android-x86,android-x86_64}
+          mkdir --parents deps/{noavx,avx,avx2,avx512,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan,android-arm64-v8a,android-x86,android-x86_64}
 
           # Linux
           cp artifacts/ggml-bin-linux-noavx-x64.so/libggml.so           deps/noavx/libggml.so
@@ -560,6 +627,31 @@ jobs:
           cp artifacts/ggml-cpu-bin-linux-avx512-x64.so/libggml-cpu.so   deps/avx512/libggml-cpu.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so         deps/avx512/libllama.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so  deps/avx512/libllava_shared.so
+
+          # Musl
+          cp artifacts/ggml-bin-musl-noavx-x64.so/libggml.so           deps/musl-noavx/libggml.so
+          cp artifacts/ggml-base-bin-musl-noavx-x64.so/libggml-base.so deps/musl-noavx/libggml-base.so
+          cp artifacts/ggml-cpu-bin-musl-noavx-x64.so/libggml-cpu.so   deps/musl-noavx/libggml-cpu.so
+          cp artifacts/llama-bin-musl-noavx-x64.so/libllama.so         deps/musl-noavx/libllama.so
+          cp artifacts/llava-bin-musl-noavx-x64.so/libllava_shared.so  deps/musl-noavx/libllava_shared.so
+
+          cp artifacts/ggml-bin-musl-avx-x64.so/libggml.so             deps/musl-avx/libggml.so
+          cp artifacts/ggml-base-bin-musl-avx-x64.so/libggml-base.so   deps/musl-avx/libggml-base.so
+          cp artifacts/ggml-cpu-bin-musl-avx-x64.so/libggml-cpu.so     deps/musl-avx/libggml-cpu.so
+          cp artifacts/llama-bin-musl-avx-x64.so/libllama.so           deps/musl-avx/libllama.so
+          cp artifacts/llava-bin-musl-avx-x64.so/libllava_shared.so    deps/musl-avx/libllava_shared.so
+
+          cp artifacts/ggml-bin-musl-avx2-x64.so/libggml.so            deps/musl-avx2/libggml.so
+          cp artifacts/ggml-base-bin-musl-avx2-x64.so/libggml-base.so  deps/musl-avx2/libggml-base.so
+          cp artifacts/ggml-cpu-bin-musl-avx2-x64.so/libggml-cpu.so    deps/musl-avx2/libggml-cpu.so
+          cp artifacts/llama-bin-musl-avx2-x64.so/libllama.so          deps/musl-avx2/libllama.so
+          cp artifacts/llava-bin-musl-avx2-x64.so/libllava_shared.so   deps/musl-avx2/libllava_shared.so
+
+          cp artifacts/ggml-bin-musl-avx512-x64.so/libggml.so           deps/musl-avx512/libggml.so
+          cp artifacts/ggml-base-bin-musl-avx512-x64.so/libggml-base.so deps/musl-avx512/libggml-base.so
+          cp artifacts/ggml-cpu-bin-musl-avx512-x64.so/libggml-cpu.so   deps/musl-avx512/libggml-cpu.so
+          cp artifacts/llama-bin-musl-avx512-x64.so/libllama.so         deps/musl-avx512/libllama.so
+          cp artifacts/llava-bin-musl-avx512-x64.so/libllava_shared.so  deps/musl-avx512/libllava_shared.so
 
           # Windows
           cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll            deps/noavx/ggml.dll
