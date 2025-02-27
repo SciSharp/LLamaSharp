@@ -174,27 +174,23 @@ public sealed class DefaultSamplingPipeline
 
         if (LogitBias.Count > 0)
         {
-            // Rent a temporary array and copy the biases into it
-            var biases = ArrayPool<LLamaLogitBias>.Shared.Rent(LogitBias.Count);
-            try
-            {
-                var index = 0;
-                foreach (var bias in LogitBias)
-                {
-                    biases[index++] = new LLamaLogitBias
-                    {
-                        Token = bias.Key,
-                        Bias = bias.Value
-                    };
-                }
+            // Rent a temporary array
+            using var rental = SpanRental<LLamaLogitBias>.Rent(LogitBias.Count, out var biases);
 
-                // Add the biases to the sampler
-                chain.AddLogitBias(context.Vocab.Count, biases.AsSpan(0, LogitBias.Count));
-            }
-            finally
+            // copy the biases into it
+            var index = 0;
+            foreach (var bias in LogitBias)
             {
-                ArrayPool<LLamaLogitBias>.Shared.Return(biases);
+                biases[index++] = new LLamaLogitBias
+                {
+                    Token = bias.Key,
+                    Bias = bias.Value
+                };
             }
+
+            // Add the biases to the sampler
+            chain.AddLogitBias(context.Vocab.Count, biases);
+
         }
 
         chain.AddPenalties(PenaltyCount, RepeatPenalty, FrequencyPenalty, PresencePenalty);
