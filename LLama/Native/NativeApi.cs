@@ -7,7 +7,7 @@ namespace LLama.Native
     /// <summary>
     /// Direct translation of the llama.cpp API
     /// </summary>
-	public static partial class NativeApi
+    public static partial class NativeApi
     {
         /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
@@ -18,10 +18,12 @@ namespace LLama.Native
             llama_max_devices();
         }
 
+#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
         /// <summary>
         /// Call once at the end of the program - currently only used for MPI
         /// </summary>
         public static extern void llama_backend_free();
+#pragma warning restore CS0626 // Method, operator, or accessor is marked external and has no attributes on it
 
         /// <summary>
         /// Get the maximum number of devices supported by llama.cpp
@@ -104,9 +106,15 @@ namespace LLama.Native
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
 
+        /// <summary>
+        /// Saves the specified sequence as a file on specified filepath. Can later be loaded via <see cref="llama_state_load_file(SafeLLamaContextHandle, string, LLamaToken[], ulong, out ulong)"/>
+        /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_save_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId seq_id, LLamaToken* tokens, nuint n_token_count);
 
+        /// <summary>
+        /// Loads a sequence saved as a file via <see cref="llama_state_save_file(SafeLLamaContextHandle, string, LLamaToken[], ulong)"/> into the specified sequence
+        /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_load_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId dest_seq_id, LLamaToken* tokens_out, nuint n_token_capacity, out nuint n_token_count_out);
 

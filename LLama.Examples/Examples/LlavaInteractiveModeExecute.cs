@@ -93,7 +93,7 @@ namespace LLama.Examples.Examples
                     Console.WriteLine($"Here are the images, that are sent to the chat model in addition to your message.");
                     Console.WriteLine();
 
-                    foreach (var consoleImage in imageBytes?.Select(bytes => new CanvasImage(bytes)))
+                    foreach (var consoleImage in imageBytes?.Select(bytes => new CanvasImage(bytes)) ?? Array.Empty<CanvasImage>())
                     {
                         consoleImage.MaxWidth = 50;
                         AnsiConsole.Write(consoleImage);

@@ -25,8 +25,6 @@ namespace LLama
         private LLamaToken[] _inp_pfx;
         private LLamaToken[] _inp_sfx;
 
-        private ISamplingPipeline? _pipeline;
-
         /// <summary>
         /// 
         /// </summary>
@@ -72,17 +70,17 @@ namespace LLama
             if(data is InstructExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
-                _embed_inps = state.EmbedInps.ToList();
+                _embed_inps = state.EmbedInps!.ToList();
                 _is_prompt_run = state.IsPromptRun;
                 _consumedTokensCount = state.ConsumedTokensCount;
-                _embeds = state.Embeds.ToList();
-                _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens);
-                _inp_pfx = state.InputPrefixTokens;
-                _inp_sfx = state.InputSuffixTokens;
+                _embeds = state.Embeds!.ToList();
+                _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens!);
+                _inp_pfx = state.InputPrefixTokens!;
+                _inp_sfx = state.InputSuffixTokens!;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
                 _pathSession = state.SessionFilePath;
-                _session_tokens = state.SessionTokens.ToList();
+                _session_tokens = state.SessionTokens!.ToList();
             }
             else
             {
@@ -107,7 +105,7 @@ namespace LLama
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var state = await JsonSerializer.DeserializeAsync<InstructExecutorState>(fs);
-                await LoadState(state);
+                await LoadState(state!);
             }
         }
 
@@ -224,7 +222,7 @@ namespace LLama
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {
                     args.NeedToSaveSession = false;
-                    SaveSessionFile(_pathSession);
+                    SaveSessionFile(_pathSession!);
                 }
 
                 // Sample with the pipeline
@@ -266,12 +264,12 @@ namespace LLama
             /// Instruction prefix tokens.
             /// </summary>
             [JsonPropertyName("inp_pfx")]
-            public LLamaToken[] InputPrefixTokens { get; set; }
+            public LLamaToken[]? InputPrefixTokens { get; set; }
             /// <summary>
             /// Instruction suffix tokens.
             /// </summary>
             [JsonPropertyName("inp_sfx")]
-            public LLamaToken[] InputSuffixTokens { get; set; }
+            public LLamaToken[]? InputSuffixTokens { get; set; }
         }
     }
 }

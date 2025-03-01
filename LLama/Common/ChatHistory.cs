@@ -64,8 +64,8 @@ namespace LLama.Common
             /// <param name="content">Message content</param>
             public Message(AuthorRole authorRole, string content)
             {
-                this.AuthorRole = authorRole;
-                this.Content = content;
+                AuthorRole = authorRole;
+                Content = content;
             }
         }
 
@@ -87,7 +87,7 @@ namespace LLama.Common
         /// <param name="messageHistory"></param>
         public ChatHistory(Message[] messageHistory)
         {
-            this.Messages = messageHistory.ToList();
+            Messages = messageHistory.ToList();
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace LLama.Common
         /// <param name="content">Message content</param>
         public void AddMessage(AuthorRole authorRole, string content)
         {
-            this.Messages.Add(new Message(authorRole, content));
+            Messages.Add(new Message(authorRole, content));
         }
 
         /// <summary>
