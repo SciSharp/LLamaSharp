@@ -603,15 +603,24 @@ namespace LLama.Native
         /// Get the default chat template. Returns nullptr if not available
         /// If name is NULL, returns the default chat template
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The name of the template, in case there are many or differently named. Set to 'null' for the default behaviour of finding an appropriate match.</param>
+        /// <param name="strict">Setting this to true will cause the call to throw if no valid templates are found.</param>
         /// <returns></returns>
-        public string? GetTemplate(string? name = null)
+        public string? GetTemplate(string? name = null, bool strict = true)
         {
             unsafe
             {
                 var bytesPtr = llama_model_chat_template(this, name);
                 if (bytesPtr == null)
-                    return null;
+                {
+                    if (strict)
+                        throw new Exception($"Tried to retrieve template for '{name}' but no templates were found.\n" +
+                                            $"This might mean that the model was exported incorrectly, or that this is a base model that contains no template.\n" +
+                                            $"This exception can be disabled by passing 'strict=false' as a parameter when retrieving the template.");
+                    else
+                        return null;
+
+                }
 
                 // Find null terminator
                 var spanBytes = new Span<byte>(bytesPtr, int.MaxValue);
