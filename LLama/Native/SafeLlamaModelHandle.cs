@@ -614,9 +614,7 @@ namespace LLama.Native
                 if (bytesPtr == null)
                 {
                     if (strict)
-                        throw new Exception($"Tried to retrieve template for '{name}' but no templates were found.\n" +
-                                            $"This might mean that the model was exported incorrectly, or that this is a base model that contains no template.\n" +
-                                            $"This exception can be disabled by passing 'strict=false' as a parameter when retrieving the template.");
+                        throw new TemplateNotFoundException(name ?? "default template");
                     else
                         return null;
 
