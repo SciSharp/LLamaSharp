@@ -78,6 +78,21 @@ public class MissingTemplateException
 }
 
 /// <summary>
+/// `llama_decode` return a non-zero status code
+/// </summary>
+public class TemplateNotFoundException
+    : RuntimeError
+{
+    /// <inheritdoc />
+    public TemplateNotFoundException(string name)
+        : base($"llama_model_chat_template failed: Tried to retrieve template '{name}' but it couldn't be found.\n" +
+                                            $"This might mean that the model was exported incorrectly, or that this is a base model that contains no templates.\n" +
+                                            $"This exception can be disabled by passing 'strict=false' as a parameter when retrieving the template.")
+    {
+    } 
+}
+
+/// <summary>
 /// `llama_get_logits_ith` returned null, indicating that the index was invalid
 /// </summary>
 public class GetLogitsInvalidIndexException
