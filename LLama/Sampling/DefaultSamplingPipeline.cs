@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Native;
 
 namespace LLama.Sampling;
@@ -173,27 +174,22 @@ public sealed class DefaultSamplingPipeline
 
         if (LogitBias.Count > 0)
         {
-            // Rent a temporary array and copy the biases into it
-            var biases = ArrayPool<LLamaLogitBias>.Shared.Rent(LogitBias.Count);
-            try
-            {
-                var index = 0;
-                foreach (var bias in LogitBias)
-                {
-                    biases[index++] = new LLamaLogitBias
-                    {
-                        Token = bias.Key,
-                        Bias = bias.Value
-                    };
-                }
+            using var biases = SpanOwner<LLamaLogitBias>.Allocate(LogitBias.Count);
 
-                // Add the biases to the sampler
-                chain.AddLogitBias(context.Vocab.Count, biases.AsSpan(0, LogitBias.Count));
-            }
-            finally
+            // copy the biases into it
+            var index = 0;
+            foreach (var bias in LogitBias)
             {
-                ArrayPool<LLamaLogitBias>.Shared.Return(biases);
+                biases.Span[index++] = new LLamaLogitBias
+                {
+                    Token = bias.Key,
+                    Bias = bias.Value
+                };
             }
+
+            // Add the biases to the sampler
+            chain.AddLogitBias(context.Vocab.Count, biases.Span);
+
         }
 
         chain.AddPenalties(PenaltyCount, RepeatPenalty, FrequencyPenalty, PresencePenalty);
@@ -219,99 +215,82 @@ public sealed class DefaultSamplingPipeline
         _grammarChain ??= CreateGrammarChain(ctx);
 
         // Rent some buffers to use later
-        var rentedBufferVocabSizeArr = ArrayPool<LLamaTokenData>.Shared.Rent(ctx.ModelHandle.Vocab.Count);
-        var rentedBufferVocabSize = rentedBufferVocabSizeArr.AsMemory(0, ctx.ModelHandle.Vocab.Count);
-        var rentedBufferSingleItemArr = ArrayPool<LLamaTokenData>.Shared.Rent(1);
-        var rentedBufferSingleItem = rentedBufferSingleItemArr.AsMemory(0, 1);
+        using var bufferVocabSize = MemoryOwner<LLamaTokenData>.Allocate(ctx.ModelHandle.Vocab.Count);
+        using var bufferSingleItem = MemoryOwner<LLamaTokenData>.Allocate(1);
 
-        try
+        // Handle grammar optimization modes
+        if (GrammarOptimization != GrammarOptimizationMode.None)
         {
-            // Handle grammar optimization modes
-            if (GrammarOptimization != GrammarOptimizationMode.None)
+            // Basic optimization : Apply the grammar to the selected token and check if it's valid
+            using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index), bufferVocabSize.Memory), out var nativeAll))
             {
-                // Basic optimization : Apply the grammar to the selected token and check if it's valid
-                using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index), rentedBufferVocabSize), out var nativeAll))
+                // Apply the chain without the grammar to select one token which may or may not be valid
+                Apply(ctx, ref nativeAll);
+                    
+                // Select the candidate token
+                var candidateToken = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
+
+                // Now create another token data array with just that one token
+                bufferSingleItem.Span[0] = new LLamaTokenData(candidateToken, 1, 0);
+                using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(bufferSingleItem.Memory, true), out var nativeSingleCandidate))
                 {
-                    // Apply the chain without the grammar to select one token which may or may not be valid
-                    Apply(ctx, ref nativeAll);
-                    
-                    // Select the candidate token
-                    var candidateToken = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
+                    // Apply the grammar chain to the single candidate
+                    _grammarChain.Apply(ref nativeSingleCandidate);
 
-                    // Now create another token data array with just that one token
-                    rentedBufferSingleItem.Span[0] = new LLamaTokenData(candidateToken, 1, 0);
-                    using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(rentedBufferSingleItem, true), out var nativeSingleCandidate))
+                    // Check if the token passes the grammar
+                    if (!float.IsNegativeInfinity(nativeSingleCandidate.Data[0].Logit))
                     {
-                        // Apply the grammar chain to the single candidate
-                        _grammarChain.Apply(ref nativeSingleCandidate);
-
-                        // Check if the token passes the grammar
-                        if (!float.IsNegativeInfinity(nativeSingleCandidate.Data[0].Logit))
-                        {
-                            Accept(candidateToken);
-                            return candidateToken;
-                        }
+                        Accept(candidateToken);
+                        return candidateToken;
                     }
+                }
                     
-                    // Extended optimization : Apply the grammar to the TopK tokens and check if the selected token is valid
-                    if (GrammarOptimization == GrammarOptimizationMode.Extended)
+                // Extended optimization : Apply the grammar to the TopK tokens and check if the selected token is valid
+                if (GrammarOptimization == GrammarOptimizationMode.Extended)
+                {
+                    // Calculate a safe TopK value
+                    var safeTopK = Math.Min(TopK, nativeAll.Data.Length);
+
+                    // Rent a buffer for the TopK candidates
+                    using var bufferTopK = MemoryOwner<LLamaTokenData>.Allocate(safeTopK);
+
+                    // Copy only the TopK tokens from the existing candidate pool to the new buffer
+                    nativeAll.Data.Slice(0, safeTopK).CopyTo(bufferTopK.Span);
+
+                    // Create a native array with the TopK tokens
+                    using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(bufferTopK.Memory, true), out var nativeTopK))
                     {
-                        // Calculate a safe TopK value
-                        var safeTopK = Math.Min(TopK, nativeAll.Data.Length);
-
-                        // Rent a buffer for the TopK candidates
-                        var rentedBufferTopKArr = ArrayPool<LLamaTokenData>.Shared.Rent(safeTopK);
-                        var rentedBufferTopK = rentedBufferTopKArr.AsMemory(0, safeTopK);
-                        try
-                        {
-                            // Copy only the TopK tokens from the existing candidate pool to the new buffer
-                            nativeAll.Data.Slice(0, safeTopK).CopyTo(rentedBufferTopK.Span);
-
-                            // Create a native array with the TopK tokens
-                            using (LLamaTokenDataArrayNative.Create(new LLamaTokenDataArray(rentedBufferTopK, true), out var nativeTopK))
-                            {
-                                // Apply the grammar chain to the TopK candidates
-                                _grammarChain.Apply(ref nativeTopK);
+                        // Apply the grammar chain to the TopK candidates
+                        _grammarChain.Apply(ref nativeTopK);
                                 
-                                // Select the candidate token
-                                var candidateTokenTopK = nativeTopK.Data[checked((int)nativeTopK.Selected)];
+                        // Select the candidate token
+                        var candidateTokenTopK = nativeTopK.Data[checked((int)nativeTopK.Selected)];
                                 
-                                // Check if the token passes the grammar
-                                if (!float.IsNegativeInfinity(candidateTokenTopK.Logit))
-                                {
-                                    // Accept and return the token
-                                    Accept(candidateTokenTopK.ID);
-                                    return candidateTokenTopK.ID;
-                                }
-                            }
-                        }
-                        finally
+                        // Check if the token passes the grammar
+                        if (!float.IsNegativeInfinity(candidateTokenTopK.Logit))
                         {
-                            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferTopKArr);
+                            // Accept and return the token
+                            Accept(candidateTokenTopK.ID);
+                            return candidateTokenTopK.ID;
                         }
                     }
                 }
             }
-            
-            // If we get here the grammar rejected the token
-            using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index), rentedBufferVocabSize), out var nativeAll))
-            {
-                // Apply the grammar _first_. This is slower (since it has to work on the entire vocab), but guaranteed to work
-                _grammarChain.Apply(ref nativeAll);
-
-                // Now apply the rest of the pipeline
-                Apply(ctx, ref nativeAll);
-
-                // Take the selected token
-                var token = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
-                Accept(token);
-                return token;
-            }
         }
-        finally
+            
+        // If we get here the grammar rejected the token
+        using (LLamaTokenDataArrayNative.Create(LLamaTokenDataArray.Create(ctx.GetLogitsIth(index), bufferVocabSize.Memory), out var nativeAll))
         {
-            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferVocabSizeArr);
-            ArrayPool<LLamaTokenData>.Shared.Return(rentedBufferSingleItemArr);
+            // Apply the grammar _first_. This is slower (since it has to work on the entire vocab), but guaranteed to work
+            _grammarChain.Apply(ref nativeAll);
+
+            // Now apply the rest of the pipeline
+            Apply(ctx, ref nativeAll);
+
+            // Take the selected token
+            var token = nativeAll.Data[checked((int)nativeAll.Selected)].ID;
+            Accept(token);
+            return token;
         }
     }
     

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Exceptions;
 
 namespace LLama.Native
@@ -247,12 +248,12 @@ namespace LLama.Native
         private static int llama_model_meta_val_str(SafeLlamaModelHandle model, string key, Span<byte> dest)
         {
             var bytesCount = Encoding.UTF8.GetByteCount(key);
-            var bytes = ArrayPool<byte>.Shared.Rent(bytesCount);
+            using var bytes = SpanOwner<byte>.Allocate(bytesCount);
 
             unsafe
             {
                 fixed (char* keyPtr = key)
-                fixed (byte* bytesPtr = bytes)
+                fixed (byte* bytesPtr = bytes.Span)
                 fixed (byte* destPtr = dest)
                 {
                     // Convert text into bytes
@@ -471,33 +472,27 @@ namespace LLama.Native
 
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
-            var bytes = ArrayPool<byte>.Shared.Rent(bytesCount + 1);
-            try
+            using var bytes = SpanOwner<byte>.Allocate(bytesCount + 1, AllocationMode.Clear);
+
+            unsafe
             {
-                unsafe
+                fixed (char* textPtr = text)
+                fixed (byte* bytesPtr = bytes.Span)
                 {
-                    fixed (char* textPtr = text)
-                    fixed (byte* bytesPtr = bytes)
+                    // Convert text into bytes
+                    encoding.GetBytes(textPtr, text.Length, bytesPtr, bytes.Length);
+
+                    // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
+                    var count = -NativeApi.llama_tokenize(llama_model_get_vocab(this), bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, addBos, special);
+
+                    // Tokenize again, this time outputting into an array of exactly the right size
+                    var tokens = new LLamaToken[count];
+                    fixed (LLamaToken* tokensPtr = tokens)
                     {
-                        // Convert text into bytes
-                        encoding.GetBytes(textPtr, text.Length, bytesPtr, bytes.Length);
-
-                        // Tokenize once with no output, to get the token count. Output will be negative (indicating that there was insufficient space)
-                        var count = -NativeApi.llama_tokenize(llama_model_get_vocab(this), bytesPtr, bytesCount, (LLamaToken*)IntPtr.Zero, 0, addBos, special);
-
-                        // Tokenize again, this time outputting into an array of exactly the right size
-                        var tokens = new LLamaToken[count];
-                        fixed (LLamaToken* tokensPtr = tokens)
-                        {
-                            _ = NativeApi.llama_tokenize(llama_model_get_vocab(this), bytesPtr, bytesCount, tokensPtr, count, addBos, special);
-                            return tokens;
-                        }
+                        _ = NativeApi.llama_tokenize(llama_model_get_vocab(this), bytesPtr, bytesCount, tokensPtr, count, addBos, special);
+                        return tokens;
                     }
                 }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(bytes, true);
             }
         }
         #endregion
