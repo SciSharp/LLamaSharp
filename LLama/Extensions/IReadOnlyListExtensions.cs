@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Native;
-using LLama.Pooling;
 
 namespace LLama.Extensions
 {
@@ -50,7 +50,7 @@ namespace LLama.Extensions
                 longest = Math.Max(longest, candidate.Length);
 
             // Rent an array to detokenize into
-            using var builderArray = SpanRental<char>.Rent(longest);
+            using var builderArray = SpanOwner<char>.Allocate(longest);
 
             // Convert as many tokens as possible into the builderArray
             var characters = model.TokensToSpan(tokens, builderArray.Span, encoding);

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics.Tensors;
 using System.Runtime.CompilerServices;
-using LLama.Pooling;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace LLama.Native
 {
@@ -102,18 +102,18 @@ namespace LLama.Native
 
             // Calculate softmax. Using TensorPrimitives is very fast (it uses SIMD etc) and is
             // definitely correct! So just copy to a temp and use that.
-            using var rental = SpanRental<float>.Rent(data.Length, out var tempLogitsSpan);
+            using var tempLogitsSpan = SpanOwner<float>.Allocate(data.Length);
 
             // Copy to temporary
             for (var i = 0; i < data.Length; i++)
-                tempLogitsSpan[i] = data[i].Logit;
+                tempLogitsSpan.Span[i] = data[i].Logit;
 
             // Softmax
-            TensorPrimitives.SoftMax(tempLogitsSpan, tempLogitsSpan);
+            TensorPrimitives.SoftMax(tempLogitsSpan.Span, tempLogitsSpan.Span);
 
             // Copy back
             for (var i = 0; i < data.Length; i++)
-                data[i].Probability = tempLogitsSpan[i];
+                data[i].Probability = tempLogitsSpan.Span[i];
 
         }
 

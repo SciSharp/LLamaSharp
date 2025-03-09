@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Exceptions;
-using LLama.Pooling;
 
 namespace LLama.Native
 {
@@ -248,12 +248,12 @@ namespace LLama.Native
         private static int llama_model_meta_val_str(SafeLlamaModelHandle model, string key, Span<byte> dest)
         {
             var bytesCount = Encoding.UTF8.GetByteCount(key);
-            using var rental = SpanRental<byte>.Rent(bytesCount, out var bytes);
+            using var bytes = SpanOwner<byte>.Allocate(bytesCount);
 
             unsafe
             {
                 fixed (char* keyPtr = key)
-                fixed (byte* bytesPtr = bytes)
+                fixed (byte* bytesPtr = bytes.Span)
                 fixed (byte* destPtr = dest)
                 {
                     // Convert text into bytes
@@ -472,12 +472,12 @@ namespace LLama.Native
 
             // Convert string to bytes, adding one extra byte to the end (null terminator)
             var bytesCount = encoding.GetByteCount(text);
-            using var rental = SpanRental<byte>.Rent(bytesCount + 1, out var bytes, clear:true);
+            using var bytes = SpanOwner<byte>.Allocate(bytesCount + 1, AllocationMode.Clear);
 
             unsafe
             {
                 fixed (char* textPtr = text)
-                fixed (byte* bytesPtr = bytes)
+                fixed (byte* bytesPtr = bytes.Span)
                 {
                     // Convert text into bytes
                     encoding.GetBytes(textPtr, text.Length, bytesPtr, bytes.Length);
