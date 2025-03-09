@@ -105,19 +105,21 @@ public sealed class LLamaTemplate
     /// <summary>
     /// Construct a new template, using the default model template
     /// </summary>
-    /// <param name="model"></param>
-    /// <param name="name"></param>
-    public LLamaTemplate(SafeLlamaModelHandle model, string? name = null)
-        : this(model.GetTemplate(name))
+    /// <param name="model">The native handle of the loaded model.</param>
+    /// <param name="name">The name of the template, in case there are many or differently named. Set to 'null' for the default behaviour of finding an appropriate match.</param>
+    /// <param name="strict">Setting this to true will cause the call to throw if no valid templates are found.</param>
+    public LLamaTemplate(SafeLlamaModelHandle model, string? name = null, bool strict = true)
+        : this(model.GetTemplate(name, strict))
     {
     }
 
     /// <summary>
     /// Construct a new template, using the default model template
     /// </summary>
-    /// <param name="weights"></param>
-    public LLamaTemplate(LLamaWeights weights)
-        : this(weights.NativeHandle)
+    /// <param name="weights">The handle of the loaded model's weights.</param>
+    /// <param name="strict">Setting this to true will cause the call to throw if no valid templates are found.</param>
+    public LLamaTemplate(LLamaWeights weights, bool strict = true)
+        : this(weights.NativeHandle, strict: strict)
     {
     }
 

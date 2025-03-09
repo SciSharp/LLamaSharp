@@ -245,6 +245,7 @@ namespace LLama.Native
         /// <param name="AllowFallback"></param>
         /// <param name="SkipCheck"></param>
         /// <param name="SearchDirectories"></param>
+        /// <param name="UseVulkan"></param>
         public record Description(string? Path, NativeLibraryName Library, bool UseCuda, bool UseVulkan, AvxLevel AvxLevel, bool AllowFallback, bool SkipCheck, 
             string[] SearchDirectories)
         {
@@ -276,6 +277,9 @@ namespace LLama.Native
     }
 #endif
 
+    /// <summary>
+    /// Global configuration handle for the Native (cpp) library.
+    /// </summary>
     public sealed partial class NativeLibraryConfig
     {
         /// <summary>
@@ -372,7 +376,7 @@ namespace LLama.Native
         /// <returns>Whether the running is successful.</returns>
         public bool DryRun(out INativeLibrary? loadedLibrary)
         {
-            LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {this.NativeLibraryName.GetLibraryName()}...");
+            LogCallback?.Invoke(LLamaLogLevel.Debug, $"Beginning dry run for {NativeLibraryName.GetLibraryName()}...");
             return NativeLibraryUtils.TryLoadLibrary(this, out loadedLibrary) != IntPtr.Zero;
         }
     }

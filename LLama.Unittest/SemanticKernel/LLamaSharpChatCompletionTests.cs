@@ -12,13 +12,13 @@ namespace LLama.Unittest.SemanticKernel
 
         public LLamaSharpChatCompletionTests()
         {
-            this.mockStatelessExecutor = new Mock<ILLamaExecutor>();
+            mockStatelessExecutor = new Mock<ILLamaExecutor>();
         }
 
         private LLamaSharpChatCompletion CreateLLamaSharpChatCompletion()
         {
             return new LLamaSharpChatCompletion(
-                this.mockStatelessExecutor.Object,
+                mockStatelessExecutor.Object,
                 null,
                 null,
                 null);
@@ -28,7 +28,7 @@ namespace LLama.Unittest.SemanticKernel
         public async Task GetChatMessageContentsAsync_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
-            var unitUnderTest = this.CreateLLamaSharpChatCompletion();
+            var unitUnderTest = CreateLLamaSharpChatCompletion();
             ChatHistory chatHistory = new ChatHistory();
             PromptExecutionSettings? executionSettings = null;
             Kernel? kernel = null;
@@ -51,7 +51,7 @@ namespace LLama.Unittest.SemanticKernel
         public async Task GetStreamingChatMessageContentsAsync_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
-            var unitUnderTest = this.CreateLLamaSharpChatCompletion();
+            var unitUnderTest = CreateLLamaSharpChatCompletion();
             ChatHistory chatHistory = new ChatHistory();
             PromptExecutionSettings? executionSettings = null;
             Kernel? kernel = null;
