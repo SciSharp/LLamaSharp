@@ -61,9 +61,9 @@ public static class LLamaExecutorExtensions
 
         /// <inheritdoc/>
         public async Task<ChatResponse> GetResponseAsync(
-            IList<ChatMessage> chatMessages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+            IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
         {
-            var result = _executor.InferAsync(CreatePrompt(chatMessages), CreateInferenceParams(options), cancellationToken);
+            var result = _executor.InferAsync(CreatePrompt(messages), CreateInferenceParams(options), cancellationToken);
 
             StringBuilder text = new();
             await foreach (var token in _outputTransform.TransformAsync(result))
@@ -79,23 +79,21 @@ public static class LLamaExecutorExtensions
 
         /// <inheritdoc/>
         public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
-            IList<ChatMessage> chatMessages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+            IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var result = _executor.InferAsync(CreatePrompt(chatMessages), CreateInferenceParams(options), cancellationToken);
+            var result = _executor.InferAsync(CreatePrompt(messages), CreateInferenceParams(options), cancellationToken);
 
             await foreach (var token in _outputTransform.TransformAsync(result))
             {
-                yield return new() 
+                yield return new(ChatRole.Assistant, token) 
                 {
                     CreatedAt = DateTime.UtcNow,
-                    Role = ChatRole.Assistant,
-                    Text = token,
                 };
             }
         }
 
         /// <summary>Format the chat messages into a string prompt.</summary>
-        private string CreatePrompt(IList<ChatMessage> messages)
+        private string CreatePrompt(IEnumerable<ChatMessage> messages)
         {
             if (messages is null)
             {

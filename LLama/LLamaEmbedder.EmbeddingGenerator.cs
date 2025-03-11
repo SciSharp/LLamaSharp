@@ -14,7 +14,7 @@ public partial class LLamaEmbedder
     private EmbeddingGeneratorMetadata? _metadata;
 
     /// <inheritdoc />
-    object? IEmbeddingGenerator<string, Embedding<float>>.GetService(Type serviceType, object? serviceKey)
+    object? IEmbeddingGenerator.GetService(Type serviceType, object? serviceKey)
     {
         if (serviceKey is null)
         {
