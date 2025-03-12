@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace LLama.Native;
 
@@ -205,16 +206,10 @@ public class LLamaBatch
         // the list. Instead rent an array and copy the data into it. This avoids an allocation, but can't
         // avoid the copying.
 
-        var rented = ArrayPool<LLamaSeqId>.Shared.Rent(sequences.Count);
-        try
-        {
-            sequences.CopyTo(rented, 0);
-            return Add(token, pos, rented.AsSpan(0, sequences.Count), logits);
-        }
-        finally
-        {
-            ArrayPool<LLamaSeqId>.Shared.Return(rented);
-        }
+        using var rented = SpanOwner<LLamaSeqId>.Allocate(sequences.Count);
+        sequences.CopyTo(rented.Span);
+        return Add(token, pos, rented.Span, logits);
+
 #endif
     }
 
