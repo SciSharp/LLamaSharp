@@ -14,6 +14,10 @@ namespace LLama.Unittest
             var @params = new ModelParams(Constants.GenerativeModelPath2)
             {
                 ContextSize = 128,
+                BatchSize = 8,
+                UBatchSize = 8,
+                SeqMax = 1,
+                VocabOnly = false,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
             _weights = LLamaWeights.LoadFromFile(@params);
@@ -84,6 +88,11 @@ namespace LLama.Unittest
         [Fact]
         public void SaveLoadState()
         {
+            // Make sure there's something in the context worth saving
+            var batch = new LLamaBatch();
+            batch.Add(17, 0, LLamaSeqId.Zero, true);
+            _context.Decode(batch);
+
             using var state1 = _context.GetState();
 
             var stream = new MemoryStream();
@@ -99,6 +108,11 @@ namespace LLama.Unittest
         [Fact]
         public async Task SaveLoadStateAsync()
         {
+            // Make sure there's something in the context worth saving
+            var batch = new LLamaBatch();
+            batch.Add(17, 0, LLamaSeqId.Zero, true);
+            _context.Decode(batch);
+
             using var state1 = _context.GetState();
 
             var stream = new MemoryStream();
