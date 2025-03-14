@@ -313,19 +313,19 @@ namespace LLama.Native
         /// <summary>
         /// Defragment the KV cache. This will be applied:
         ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_cache_update()
+        ///   - explicitly with llama_kv_self_update()
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_kv_cache_defrag(SafeLLamaContextHandle ctx);
+        private static extern void llama_kv_self_defrag(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Apply the KV cache updates (such as K-shifts, defragmentation, etc.)
         /// </summary>
         /// <param name="ctx"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_kv_cache_update(SafeLLamaContextHandle ctx);
+        private static extern void llama_kv_self_update(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Check if the context supports KV cache shifting
@@ -333,7 +333,7 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool llama_kv_cache_can_shift(SafeLLamaContextHandle ctx);
+        private static extern bool llama_kv_self_can_shift(SafeLLamaContextHandle ctx);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaPerfContextTimings llama_perf_context(SafeLLamaContextHandle ctx);
@@ -386,6 +386,9 @@ namespace LLama.Native
         /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe float* llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern LLamaKvCacheNative llama_get_kv_self(SafeLLamaContextHandle ctx);
         #endregion
 
         #region LoRA
@@ -751,25 +754,25 @@ namespace LLama.Native
         /// <summary>
         /// Check if the context supports KV cache shifting
         /// </summary>
-        public bool KvCacheCanShift => llama_kv_cache_can_shift(this);
+        public bool KvCacheCanShift => llama_kv_self_can_shift(this);
 
         /// <summary>
         /// Apply KV cache updates (such as K-shifts, defragmentation, etc.)
         /// </summary>
         public void KvCacheUpdate()
         {
-            llama_kv_cache_update(this);
+            llama_kv_self_update(this);
         }
 
         /// <summary>
         /// Defragment the KV cache. This will be applied:
         ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_cache_update()
+        ///   - explicitly with llama_kv_self_update()
         /// </summary>
         /// <returns></returns>
         public void KvCacheDefrag()
         {
-            llama_kv_cache_defrag(this);
+            llama_kv_self_defrag(this);
         }
 
         /// <summary>
@@ -788,7 +791,7 @@ namespace LLama.Native
         /// <returns></returns>
         public int KvCacheCountCells()
         {
-            return NativeApi.llama_get_kv_cache_used_cells(this);
+            return NativeApi.llama_kv_self_used_cells(this);
         }
 
         /// <summary>
@@ -798,7 +801,7 @@ namespace LLama.Native
         /// <returns></returns>
         public int KvCacheCountTokens()
         {
-            return NativeApi.llama_get_kv_cache_token_count(this);
+            return NativeApi.llama_kv_self_n_tokens(this);
         }
 
         /// <summary>
@@ -806,7 +809,7 @@ namespace LLama.Native
         /// </summary>
         public void KvCacheClear()
         {
-            NativeApi.llama_kv_cache_clear(this);
+            NativeApi.llama_kv_self_clear(this);
         }
 
         /// <summary>
@@ -817,7 +820,7 @@ namespace LLama.Native
         /// <param name="p1"></param>
         public void KvCacheRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
         {
-            NativeApi.llama_kv_cache_seq_rm(this, seq, p0, p1);
+            NativeApi.llama_kv_self_seq_rm(this, seq, p0, p1);
         }
 
         /// <summary>
@@ -831,7 +834,7 @@ namespace LLama.Native
         /// <param name="p1"></param>
         public void KvCacheSequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
         {
-            NativeApi.llama_kv_cache_seq_cp(this, src, dest, p0, p1);
+            NativeApi.llama_kv_self_seq_cp(this, src, dest, p0, p1);
         }
 
         /// <summary>
@@ -840,7 +843,7 @@ namespace LLama.Native
         /// <param name="seq"></param>
         public void KvCacheSequenceKeep(LLamaSeqId seq)
         {
-            NativeApi.llama_kv_cache_seq_keep(this, seq);
+            NativeApi.llama_kv_self_seq_keep(this, seq);
         }
 
         /// <summary>
@@ -854,7 +857,10 @@ namespace LLama.Native
         /// <param name="delta"></param>
         public void KvCacheSequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
         {
-            NativeApi.llama_kv_cache_seq_add(this, seq, p0, p1, delta);
+            if (!KvCacheCanShift)
+                throw new InvalidOperationException("Cannot shift KV cache (KvCacheCanShift=False)");
+
+            NativeApi.llama_kv_self_seq_add(this, seq, p0, p1, delta);
         }
 
         /// <summary>
@@ -869,7 +875,10 @@ namespace LLama.Native
         /// <param name="divisor"></param>
         public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
         {
-            NativeApi.llama_kv_cache_seq_div(this, seq, p0, p1, divisor);
+            if (!KvCacheCanShift)
+                throw new InvalidOperationException("Cannot shift KV cache (KvCacheCanShift=False)");
+
+            NativeApi.llama_kv_self_seq_div(this, seq, p0, p1, divisor);
         }
 
         /// <summary>
@@ -879,7 +888,7 @@ namespace LLama.Native
         /// <returns></returns>
         public LLamaPos KvCacheMaxPosition(LLamaSeqId seq)
         {
-            return NativeApi.llama_kv_cache_seq_pos_max(this, seq);
+            return NativeApi.llama_kv_self_seq_pos_max(this, seq);
         }
         #endregion
     }
