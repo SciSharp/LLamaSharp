@@ -73,7 +73,6 @@ public class KernelMemorySaveAndLoad
         TextPartitioningOptions parseOptions = new()
         {
             MaxTokensPerParagraph = 300,
-            MaxTokensPerLine = 100,
             OverlappingTokens = 30
         };
 
