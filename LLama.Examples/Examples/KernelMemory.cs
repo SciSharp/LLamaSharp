@@ -1,4 +1,4 @@
-﻿using LLamaSharp.KernelMemory;
+using LLamaSharp.KernelMemory;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.Configuration;
 using System.Diagnostics;
@@ -78,7 +78,6 @@ namespace LLama.Examples.Examples
             TextPartitioningOptions parseOptions = new()
             {
                 MaxTokensPerParagraph = 300,
-                MaxTokensPerLine = 100,
                 OverlappingTokens = 30
             };
 
