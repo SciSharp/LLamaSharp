@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Native;
 
 namespace LLama.Extensions
@@ -49,23 +50,17 @@ namespace LLama.Extensions
                 longest = Math.Max(longest, candidate.Length);
 
             // Rent an array to detokenize into
-            var builderArray = ArrayPool<char>.Shared.Rent(longest);
-            try
-            {
-                // Convert as many tokens as possible into the builderArray
-                var characters = model.TokensToSpan(tokens, builderArray.AsSpan(0, longest), encoding);
+            using var builderArray = SpanOwner<char>.Allocate(longest);
 
-                // Check every query to see if it's present
-                foreach (var query in queries)
-                    if (characters.EndsWith(query.AsSpan()))
-                        return true;
+            // Convert as many tokens as possible into the builderArray
+            var characters = model.TokensToSpan(tokens, builderArray.Span, encoding);
 
-                return false;
-            }
-            finally
-            {
-                ArrayPool<char>.Shared.Return(builderArray);
-            }
+            // Check every query to see if it's present
+            foreach (var query in queries)
+                if (characters.EndsWith(query.AsSpan()))
+                    return true;
+
+            return false;
         }
 
         /// <summary>

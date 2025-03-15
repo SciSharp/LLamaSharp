@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Native;
 
 namespace LLama.Batched;
@@ -224,18 +225,13 @@ public sealed class Conversation
         Prompt(span, allLogits);
 #else
         // Borrow an array and copy tokens into it
-        var arr = ArrayPool<LLamaToken>.Shared.Rent(tokens.Count);
-        try
-        {
-            for (var i = 0; i < tokens.Count; i++)
-                arr[i] = tokens[i];
+        using var span = SpanOwner<LLamaToken>.Allocate(tokens.Count);
 
-            Prompt(arr.AsSpan());
-        }
-        finally
-        {
-            ArrayPool<LLamaToken>.Shared.Return(arr);
-        }
+        for (var i = 0; i < tokens.Count; i++)
+            span.Span[i] = tokens[i];
+
+        Prompt(span.Span);
+
 #endif
     }
     
