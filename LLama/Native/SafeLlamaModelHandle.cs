@@ -635,62 +635,60 @@ namespace LLama.Native
             /// <summary>
             /// Map of each token in this vocabulary to its string representation
             /// </summary>
-            internal readonly IReadOnlyDictionary<LLamaToken, string> TokenToString;
+            public readonly IReadOnlyDictionary<LLamaToken, string> TokenToString;
 
             /// <summary>
             /// Contains unique tokens that are supposed to end the generation (e.g.: EOS, EOT, etc)
             /// </summary>
-            internal readonly IReadOnlyList<LLamaToken> EOGTokens;
+            internal readonly HashSet<LLamaToken> EOGTokens;
 
             /// <summary>
             /// Contains unique tokens that exist for inference control rather than text output
             /// </summary>
-            internal readonly IReadOnlyList<LLamaToken> ControlTokens;
+            internal readonly HashSet<LLamaToken> ControlTokens;
 
-            internal Vocabulary(SafeLlamaModelHandle model)
+            internal unsafe Vocabulary(SafeLlamaModelHandle model)
             {
                 _model = model;
-                TokenToString = GetVocabCache();
 
                 // Cache the various properties that llama.cpp API exposes about the vocab
-                unsafe
-                {
-                    var vocabNative = llama_model_get_vocab(_model);
-                    Count = LLamaVocabNative.llama_vocab_n_tokens(vocabNative);
-                    Type = LLamaVocabNative.llama_vocab_type(vocabNative);
-                    BOS = Normalize(LLamaVocabNative.llama_vocab_bos(vocabNative));
-                    EOS = Normalize(LLamaVocabNative.llama_vocab_eos(vocabNative));
-                    Newline = Normalize(LLamaVocabNative.llama_vocab_nl(vocabNative));
-                    Pad = Normalize(LLamaVocabNative.llama_vocab_pad(vocabNative));
-                    SEP = Normalize(LLamaVocabNative.llama_vocab_sep(vocabNative));
-                    InfillPrefix = Normalize(LLamaVocabNative.llama_vocab_fim_pre(vocabNative));
-                    InfillMiddle = Normalize(LLamaVocabNative.llama_vocab_fim_mid(vocabNative));
-                    InfillSuffix = Normalize(LLamaVocabNative.llama_vocab_fim_suf(vocabNative));
-                    InfillPad = Normalize(LLamaVocabNative.llama_vocab_fim_pad(vocabNative));
-                    InfillRep = Normalize(LLamaVocabNative.llama_vocab_fim_rep(vocabNative));
-                    InfillSep = Normalize(LLamaVocabNative.llama_vocab_fim_sep(vocabNative));
-                    EOT = Normalize(LLamaVocabNative.llama_vocab_eot(vocabNative));
-                    DecoderStartToken = Normalize(llama_model_decoder_start_token(_model));
-                    ShouldAddBOS = LLamaVocabNative.llama_vocab_get_add_bos(vocabNative);
-                    ShouldAddEOS = LLamaVocabNative.llama_vocab_get_add_eos(vocabNative);
+                var vocabNative = llama_model_get_vocab(_model);
+                Count = LLamaVocabNative.llama_vocab_n_tokens(vocabNative);
+                Type = LLamaVocabNative.llama_vocab_type(vocabNative);
 
-                    EOGTokens = TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)).ToList();
-                    ControlTokens = TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)).ToList();
-                }
-            }
+                BOS = Normalize(LLamaVocabNative.llama_vocab_bos(vocabNative));
+                EOS = Normalize(LLamaVocabNative.llama_vocab_eos(vocabNative));
+                EOT = Normalize(LLamaVocabNative.llama_vocab_eot(vocabNative));
+                Pad = Normalize(LLamaVocabNative.llama_vocab_pad(vocabNative));
+                SEP = Normalize(LLamaVocabNative.llama_vocab_sep(vocabNative));
+                Newline = Normalize(LLamaVocabNative.llama_vocab_nl(vocabNative));
 
-            private Dictionary<LLamaToken, string> GetVocabCache()
-            {
+                InfillPrefix = Normalize(LLamaVocabNative.llama_vocab_fim_pre(vocabNative));
+                InfillMiddle = Normalize(LLamaVocabNative.llama_vocab_fim_mid(vocabNative));
+                InfillSuffix = Normalize(LLamaVocabNative.llama_vocab_fim_suf(vocabNative));
+                InfillPad = Normalize(LLamaVocabNative.llama_vocab_fim_pad(vocabNative));
+                InfillRep = Normalize(LLamaVocabNative.llama_vocab_fim_rep(vocabNative));
+                InfillSep = Normalize(LLamaVocabNative.llama_vocab_fim_sep(vocabNative));
+
+                DecoderStartToken = Normalize(llama_model_decoder_start_token(_model));
+                ShouldAddBOS = LLamaVocabNative.llama_vocab_get_add_bos(vocabNative);
+                ShouldAddEOS = LLamaVocabNative.llama_vocab_get_add_eos(vocabNative);
+
+                // Cache `TokenToString` for quick access
                 var decoder = Encoding.UTF8.GetDecoder();
                 var (bytesArr, charsArr) = (new byte[1024], new char[1024]);
-                return Enumerable.Range(0, Count).ToDictionary(
+                TokenToString = Enumerable.Range(0, Count).ToDictionary(
                     keySelector: i => (LLamaToken) i,
                     elementSelector: i =>
                     {
-                        decoder.Convert(bytesArr, 0, (int) _model.TokenToSpan(i, bytesArr), charsArr, 0, charsArr.Length, true, out var _, out var charsUsed, out var _);
+                        var length = NativeApi.llama_token_to_piece(vocabNative, (LLamaToken) i, bytesArr, 0, true);
+                        decoder.Convert(bytesArr, 0, length, charsArr, 0, charsArr.Length, true, out var _, out var charsUsed, out var _);
                         return string.Join("", charsArr.Take(charsUsed));
                     }
                 );
+
+                EOGTokens = new(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)));
+                ControlTokens = new(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)));
             }
 
             private static LLamaToken? Normalize(LLamaToken token)

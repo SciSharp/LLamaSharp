@@ -7,7 +7,7 @@ namespace LLama.Native
     /// <summary>
     /// Direct translation of the llama.cpp API
     /// </summary>
-	public static partial class NativeApi
+    public static partial class NativeApi
     {
         /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
@@ -202,15 +202,31 @@ namespace LLama.Native
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
         public static int llama_token_to_piece(SafeLlamaModelHandle.Vocabulary vocab, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special)
         {
+            unsafe
+            {
+                return llama_token_to_piece(vocab.VocabNative, llamaToken, buffer, lstrip, special);
+            }
+        }
+
+        /// <summary>
+        /// Convert a single token into text
+        /// </summary>
+        /// <param name="vocabNative"></param>
+        /// <param name="llamaToken"></param>
+        /// <param name="buffer">buffer to write string into</param>
+        /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
+        /// <param name="special">If true, special tokens are rendered in the output</param>
+        /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
+        internal static unsafe int llama_token_to_piece(LLamaVocabNative* vocabNative, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special) {
             // Handle invalid tokens
-            if ((int)llamaToken < 0)
+            if ((int) llamaToken < 0)
                 return 0;
 
             unsafe
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(vocab.VocabNative, llamaToken, bufferPtr, buffer.Length, lstrip, special);
+                    return llama_token_to_piece_native(vocabNative, llamaToken, bufferPtr, buffer.Length, lstrip, special);
                 }
             }
 
