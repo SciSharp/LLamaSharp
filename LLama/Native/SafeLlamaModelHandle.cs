@@ -640,12 +640,12 @@ namespace LLama.Native
             /// <summary>
             /// Contains unique tokens that are supposed to end the generation (e.g.: EOS, EOT, etc)
             /// </summary>
-            internal readonly HashSet<LLamaToken> EOGTokens;
+            internal readonly HashSet<int> EOGTokens;
 
             /// <summary>
             /// Contains unique tokens that exist for inference control rather than text output
             /// </summary>
-            internal readonly HashSet<LLamaToken> ControlTokens;
+            internal readonly HashSet<int> ControlTokens;
 
             internal unsafe Vocabulary(SafeLlamaModelHandle model)
             {
@@ -687,8 +687,8 @@ namespace LLama.Native
                     }
                 );
 
-                EOGTokens = new(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)));
-                ControlTokens = new(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)));
+                EOGTokens = new(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_eog(vocabNative, token)).Select(x => (int) x));
+                ControlTokens = new(TokenToString.Keys.Where(token => LLamaVocabNative.llama_vocab_is_control(vocabNative, token)).Select(x => (int) x));
             }
 
             private static LLamaToken? Normalize(LLamaToken token)

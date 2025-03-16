@@ -99,7 +99,7 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public bool IsControl(SafeLlamaModelHandle.Vocabulary vocab)
     {
-        return vocab.ControlTokens.Contains(this);
+        return vocab.ControlTokens.Contains((int) this);
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public readonly record struct LLamaToken
     /// <returns></returns>
     public bool IsEndOfGeneration(SafeLlamaModelHandle.Vocabulary vocab)
     {
-        return vocab.EOGTokens.Contains(this);
+        return vocab.EOGTokens.Contains((int) this);
     }
 
     /// <inheritdoc />
