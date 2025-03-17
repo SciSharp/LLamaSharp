@@ -89,6 +89,18 @@ namespace LLama.Unittest.SemanticKernel
         }
 
         [Fact]
+        public void ChatRequestSettings_Null_ReturnsDefaultObject()
+        {
+            // Act
+            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(null);
+
+            // Assert
+            Assert.NotNull(requestSettings);  // Ensure it is NOT null
+            Assert.Null(requestSettings.MaxTokens); // Default behavior
+        }
+
+
+        [Fact]
         public void ChatRequestSettings_FromAIRequestSettingsWithExtraPropertiesInSnakeCase()
         {
             // Arrange
