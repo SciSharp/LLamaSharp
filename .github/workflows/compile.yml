@@ -467,11 +467,11 @@ jobs:
       matrix:
         include:
           - build: 'x86'
-            defines: '-DANDROID_ABI=x86 -DCMAKE_C_FLAGS=-march=i686'
+            defines: '-DANDROID_ABI=x86 -DCMAKE_C_FLAGS=-march=i686 -DCMAKE_CXX_FLAGS=-march=i686'
           - build: 'x86_64'
-            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64'
+            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64'
           - build: 'arm64-v8a'
-            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.4a+dotprod'
+            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
@@ -487,29 +487,27 @@ jobs:
       - name: Build
         id: cmake_build
         env:
-          CMAKE_FLAGS: '-DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DGGML_OPENMP=OFF -DGGML_LLAMAFILE=OFF -B build-android'
+          CMAKE_FLAGS: '-DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DGGML_OPENMP=OFF -DGGML_LLAMAFILE=OFF'
         run: |
-          mkdir build
-          cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-          cd ..
-          ls -R
+          # export-lora not supported on 32 bit machines hence breaks x86 build
+          sed -i '/add_subdirectory(export-lora)/d' examples/CMakeLists.txt # remove export-lora from examples
+          cmake ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ matrix.defines }} -B build
+          cmake --build build --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - name: Upload Llama
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/src/libllama.so
+          path: ./build/bin/libllama.so
           name: llama-bin-android-${{ matrix.build }}.so
       - name: Upload GGML
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml.so
+          path: ./build/bin/libggml.so
           name: ggml-bin-android-${{ matrix.build }}.so
           if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/examples/llava/libllava_shared.so
+          path: ./build/bin/libllava_shared.so
           name: llava-bin-android-${{ matrix.build }}.so
 
   build-deps:
