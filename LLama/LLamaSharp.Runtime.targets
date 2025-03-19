@@ -396,4 +396,64 @@
         <Link>runtimes/linux-x64/native/vulkan/libllava_shared.so</Link>
       </None>
     </ItemGroup>
+
+    <!-- Android Native Libs (Start) -->
+    <ItemGroup
+        Condition="$(AndroidSupportedAbis.Contains('x86')) or $(RuntimeIdentifiers.Contains('android-x86'))">
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86/libllama.so">
+            <Link>runtimes/android-x86/native/libllama.so</Link>
+            <Abi>x86</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86/libggml.so">
+            <Link>runtimes/android-x86/native/libggml.so</Link>
+            <Abi>x86</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86/libllava_shared.so">
+            <Link>runtimes/android-x86/native/libllava_shared.so</Link>
+            <Abi>x86</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+
+    <ItemGroup
+        Condition="$(AndroidSupportedAbis.Contains('x86_64')) or $(RuntimeIdentifiers.Contains('android-x64'))">
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86_64/libllama.so">
+            <Link>lib/x86_64/libllama.so</Link>
+            <Abi>x86_64</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86_64/libggml.so">
+            <Link>lib/x86_64/libggml.so</Link>
+            <Abi>x86_64</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86_64/libllava_shared.so">
+            <Link>lib/x86_64/libllava_shared.so</Link>
+            <Abi>x86_64</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+
+    <ItemGroup
+        Condition="$(AndroidSupportedAbis.Contains('arm64-v8a')) or $(RuntimeIdentifiers.Contains('android-arm64'))">
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-arm64-v8a/libllama.so">
+            <Link>lib/arm64-v8a/libllama.so</Link>
+            <Abi>arm64-v8a</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-arm64-v8a/libggml.so">
+            <Link>lib/arm64-v8a/libggml.so</Link>
+            <Abi>arm64-v8a</Abi>
+        </AndroidNativeLibrary>
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-arm64-v8a/libllava_shared.so">
+            <Link>lib/arm64-v8a/libllava_shared.so</Link>
+            <Abi>arm64-v8a</Abi>
+        </AndroidNativeLibrary>
+    </ItemGroup>
+    <!-- Android Native Libs (End) -->
+    
 </Project>
