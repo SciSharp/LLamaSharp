@@ -129,7 +129,7 @@ public sealed class Conversation
         _forked = true;
 
         // Assign tokens to the new sequence
-        NativeApi.llama_kv_cache_seq_cp(Executor.Context.NativeHandle, ConversationId, c.ConversationId, 0, _end);
+        Executor.Context.NativeHandle.KvCacheSequenceCopy(ConversationId, c.ConversationId, 0, _end);
 
         return c;
     }

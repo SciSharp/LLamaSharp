@@ -280,6 +280,18 @@ public sealed class SafeLLamaSamplerChainHandle
     }
 
     /// <summary>
+    /// Top n sigma sampling as described in academic paper "Top-nσ: Not All Logits Are You Need" https://arxiv.org/pdf/2411.07641
+    /// </summary>
+    /// <returns></returns>
+    public void AddTopNSigma(float n)
+    {
+        llama_sampler_chain_add(this, llama_sampler_init_top_n_sigma(n));
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr llama_sampler_init_top_n_sigma(float n);
+    }
+
+    /// <summary>
     /// Nucleus sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
     /// </summary>
     /// <returns></returns>
@@ -421,53 +433,37 @@ public sealed class SafeLLamaSamplerChainHandle
     /// <param name="model"></param>
     /// <param name="grammar">Grammar in GBNF form</param>
     /// <param name="root">Root rule of the grammar</param>
-    /// <param name="triggerTokens">A list of tokens that will trigger the grammar sampler.</param>
-    /// <param name="triggerWords">A list of words that will trigger the grammar sampler.</param>
+    /// <param name="patterns">A list of patterns that will trigger the grammar sampler. Pattern will be matched from the start of the generation output, and grammar sampler will be fed content starting from its first match group.</param>
+    /// <param name="triggerTokens">A list of tokens that will trigger the grammar sampler. Grammar sampler will be fed content starting from the trigger token included..</param>
     /// <returns></returns>
     public void AddLazyGrammar(
         SafeLlamaModelHandle model,
         string grammar, string root,
-        ReadOnlySpan<string> triggerWords,
+        ReadOnlySpan<string> patterns,
         ReadOnlySpan<LLamaToken> triggerTokens)
     {
         unsafe
         {
-            // Convert strings, fix memory in place, build array of pointers
-            var handles = new List<MemoryHandle>();
-            var triggerWordsPtrs = stackalloc byte*[triggerWords.Length];
-            for (var i = 0; i < triggerWords.Length; i++)
-            {
-                var chars = Encoding.Default.GetBytes(triggerWords[i]);
-                handles.Add(chars.AsMemory().Pin());
-
-                triggerWordsPtrs[i] = (byte*)handles[i].Pointer;
-            }
-
-            fixed (LLamaToken* triggerTokensPtr = triggerTokens)
-            {
-                llama_sampler_chain_add(
-                    this,
-                    llama_sampler_init_grammar_lazy(
-                        model.Vocab.VocabNative,
-                        grammar, root,
-                        triggerWordsPtrs, (nuint)triggerWords.Length,
-                        triggerTokensPtr, (nuint)triggerTokens.Length
-                    )
-                );
-            }
-
-            // Clear up all the handles fixing the memory in place
-            for (var i = 0; i < handles.Count; i++)
-                handles[i].Dispose();
+            llama_sampler_chain_add(
+                this,
+                llama_sampler_init_grammar_lazy_patterns(
+                    model.Vocab.VocabNative,
+                    grammar, root,
+                    patterns.ToArray(),
+                    triggerTokens.ToArray(), (nuint)triggerTokens.Length
+                )
+            );
         }
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        static extern unsafe IntPtr llama_sampler_init_grammar_lazy(
+        static extern unsafe IntPtr llama_sampler_init_grammar_lazy_patterns(
             LLamaVocabNative* model,
             string grammar_str, string grammar_root,
-            byte** trigger_words, nuint num_trigger_words,
-            LLamaToken* trigger_tokens, nuint num_trigger_tokens);
+            string[] triggerPatterns,
+            LLamaToken[] triggerTokens,
+            nuint num_trigger_tokens
+        );
         // ReSharper restore InconsistentNaming
     }
 
@@ -590,9 +586,12 @@ public sealed class SafeLLamaSamplerChainHandle
     #endregion
 
     #region Native API
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern unsafe LLamaSamplerNative* llama_sampler_init(LLamaSamplerINative* iface, IntPtr ctx);
+
     // ReSharper disable InconsistentNaming
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-    private static extern void llama_sampler_free(IntPtr model);
+    private static extern void llama_sampler_free(IntPtr /* llama_sampler* */ sampler);
 
     // important: this takes ownership of the sampler object and will free it when llama_sampler_free is called on the chain
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -757,8 +756,6 @@ internal class CustomSamplerHandle
 
     public static CustomSamplerHandle Create(ICustomSampler sampler)
     {
-        var nameArr = Encoding.UTF8.GetBytes(sampler.Name + '\0');
-
         var handle = new CustomSamplerHandle(sampler);
         handle._gcHandle = GCHandle.Alloc(handle);
 
@@ -773,12 +770,14 @@ internal class CustomSamplerHandle
             handle._samplerNativeInterfacePtr->Clone = (delegate*<LLamaSamplerNative*, IntPtr>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.CloneDelegate>(Clone);
             handle._samplerNativeInterfacePtr->Free = (delegate*<LLamaSamplerNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.FreeDelegate>(Free);
 
-            // Allocate space for a `LLamaSamplerNative` struct. So we can pass pointers to it.
-            handle._samplerNativePtr = (LLamaSamplerNative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerNative));
-            handle._samplerNativePtr->Context = (IntPtr)handle._gcHandle;
-            handle._samplerNativePtr->Interface = handle._samplerNativeInterfacePtr;
+            // Allocate `LLamaSamplerNative` struct.
+            handle._samplerNativePtr = SafeLLamaSamplerChainHandle.llama_sampler_init(
+                handle._samplerNativeInterfacePtr,
+                (IntPtr)handle._gcHandle
+            );
 
             // Allocate space for the name string
+            var nameArr = Encoding.UTF8.GetBytes(sampler.Name + '\0');
             handle._samplerNamePtr = (byte*)Marshal.AllocHGlobal(nameArr.Length);
             nameArr.AsSpan().CopyTo(new Span<byte>(handle._samplerNamePtr, nameArr.Length));
         }
@@ -831,12 +830,6 @@ internal class CustomSamplerHandle
     private static unsafe void Free(ref LLamaSamplerNative smpl)
     {
         var sampler = GetSampler(ref smpl);
-
-        if (sampler._samplerNativePtr != null)
-        {
-            Marshal.FreeHGlobal((IntPtr)sampler._samplerNativePtr);
-            sampler._samplerNativePtr = null;
-        }
 
         if (sampler._samplerNativeInterfacePtr != null)
         {

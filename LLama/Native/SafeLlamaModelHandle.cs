@@ -56,6 +56,11 @@ namespace LLama.Native
         public int HeadCount => llama_model_n_head(this);
 
         /// <summary>
+        /// Get the number of KV heads in this model
+        /// </summary>
+        public int KVHeadCount => llama_model_n_head(this);
+
+        /// <summary>
         /// Returns true if the model contains an encoder that requires llama_encode() call
         /// </summary>
         public bool HasEncoder => llama_model_has_encoder(this);
@@ -310,6 +315,14 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_model_n_head(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Get the number of KV heads in this model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_model_n_head_kv(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get a string describing the model type

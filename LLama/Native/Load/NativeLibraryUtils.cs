@@ -218,10 +218,22 @@ namespace LLama.Native
 
             if (platform == OSPlatform.Linux)
             {
-                os = "linux-x64";
-                fileExtension = ".so";
-                libPrefix = "lib";
-                return;
+                if(RuntimeInformation.RuntimeIdentifier.ToLower().StartsWith("alpine"))
+                {
+                    // alpine linux distro
+                    os = "linux-musl-x64";
+                    fileExtension = ".so";
+                    libPrefix = "lib";
+                    return;
+                }
+                else
+                {
+                    // other linux distro
+                    os = "linux-x64";
+                    fileExtension = ".so";
+                    libPrefix = "lib";
+                    return;
+                }
             }
 
             if (platform == OSPlatform.OSX)

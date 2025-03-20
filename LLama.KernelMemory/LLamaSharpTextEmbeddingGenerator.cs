@@ -33,9 +33,10 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config.ContextSize,
                 GpuLayerCount = config.GpuLayerCount ?? 20,
-                Embeddings = true,
+
                 PoolingType = LLamaPoolingType.Mean,
             };
+
             _weights = LLamaWeights.LoadFromFile(@params);
             _embedder = new LLamaEmbedder(_weights, @params);
             _ownsWeights = true;
