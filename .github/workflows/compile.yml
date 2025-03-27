@@ -44,7 +44,7 @@ jobs:
             arch: x64
           - build: 'aarch64'
             defines: '-DGGML_NATIVE=OFF -DGGML_CPU_AARCH64=ON -DGGML_CPU_ARM_ARCH=generic'
-            os: ubuntu-20.04-arm
+            os: ubuntu-22.04-arm
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
