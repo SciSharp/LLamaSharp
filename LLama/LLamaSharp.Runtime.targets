@@ -218,6 +218,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-arm64/native/libggml-cpu.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/linux-arm64/libllava_shared.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-arm64/native/libllava_shared.so</Link>
+      </None>
 
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
