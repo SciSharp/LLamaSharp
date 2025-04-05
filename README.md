@@ -65,7 +65,7 @@ There are integrations for the following libraries, making it easier to develop 
 - [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
 - [BotSharp](https://github.com/SciSharp/BotSharp): an open source machine learning framework for AI Bot platform builder.
 - [Langchain](https://github.com/tryAGI/LangChain): a framework for developing applications powered by language models.
-
+- [MaIN.NET](https://github.com/wisedev-code/MaIN.NET): simplistic approach to orchestrating agents/chats from different (llm) providers
 
 The following examples show how to build APPs with LLamaSharp.
 
