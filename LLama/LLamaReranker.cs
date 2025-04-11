@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using LLama.Abstractions;
 using LLama.Exceptions;
 using LLama.Native;
@@ -65,52 +66,30 @@ public sealed partial class LLamaReranker
     public async Task<IReadOnlyList<float>> GetRelevanceScores(string input, IReadOnlyList<string> documents, bool normalize = false, CancellationToken cancellationToken = default)
     {
         List<float> scores = new List<float>(documents.Count);
-        var batch = new LLamaBatch();
         var inputTokens = Context.Tokenize(input);
-        foreach (var (index, document) in documents.Select((item, index) => (index, item)))
+        var batch = new LLamaBatch();
+        var clearFlag = 0;
+
+        for(var idx = 0; idx < documents.Count; idx++)
         {
-            var docTokens = Context.Tokenize(document);
+            var docTokens = Context.Tokenize(documents[idx]);
             LLamaToken[] tokens = [.. inputTokens, .. docTokens];
+
+            if (batch.TokenCount + tokens.Length > Context.ContextSize)
+            {
+                scores.AddRange(await CalcRelevanceScores(batch, normalize, cancellationToken));
+                batch.Clear();
+                clearFlag = idx;
+            }
+
             for (var i = 0; i < tokens.Length; i++)
-                batch.Add(tokens[i], i, (LLamaSeqId)index, true);
+                batch.Add(tokens[i], i, (LLamaSeqId)(idx - clearFlag), true);
         }
-
-        // clear previous kv_cache values
-        Context.NativeHandle.KvCacheClear();
-
-        // Check if we should cancel the work, just before doing anything expensive (encode/decode)
-        cancellationToken.ThrowIfCancellationRequested();
-
-        // Run model
-        switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+        if (batch.LogitPositionCount > 0)
         {
-            case (true, false):
-                {
-                    var result = await Context.EncodeAsync(batch, cancellationToken);
-                    if (result != EncodeResult.Ok)
-                        throw new RuntimeError($"Failed to encode: {result}");
-                    break;
-                }
-
-            case (false, true):
-                {
-                    var result = await Context.DecodeAsync(batch, cancellationToken);
-                    if (result != DecodeResult.Ok)
-                        throw new RuntimeError($"Failed to decode: {result}");
-                    break;
-                }
-
-            default:
-                throw new NotSupportedException("Unsupported model type");
+            scores.AddRange(await CalcRelevanceScores(batch, normalize, cancellationToken));
+            batch.Clear();
         }
-
-        for (var i = 0; i < documents.Count; i++)
-        {
-            var score = Context.NativeHandle.GetEmbeddingsSeq((LLamaSeqId)i)[0];
-            scores.Add(normalize ? Sigmoid(score) : score);
-        }
-
-        Context.NativeHandle.KvCacheClear();
 
         return scores;
     }
@@ -167,6 +146,51 @@ public sealed partial class LLamaReranker
         Context.NativeHandle.KvCacheClear();
 
         return (normalize ? Sigmoid(score) : score, tokens.Length);
+    }
+
+    private async Task<IReadOnlyList<float>> CalcRelevanceScores(LLamaBatch batch, bool normalize = false, CancellationToken cancellationToken = default)
+    {
+        var (logicCap, _) = batch.GetLogitPositions()[batch.LogitPositionCount - 1];
+        var seqNum = logicCap.Value + 1;
+        List<float> scores = new List<float>(seqNum);
+        // clear previous kv_cache values
+        Context.NativeHandle.KvCacheClear();
+
+        // Check if we should cancel the work, just before doing anything expensive (encode/decode)
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Run model
+        switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+        {
+            case (true, false):
+                {
+                    var result = await Context.EncodeAsync(batch, cancellationToken);
+                    if (result != EncodeResult.Ok)
+                        throw new RuntimeError($"Failed to encode: {result}");
+                    break;
+                }
+
+            case (false, true):
+                {
+                    var result = await Context.DecodeAsync(batch, cancellationToken);
+                    if (result != DecodeResult.Ok)
+                        throw new RuntimeError($"Failed to decode: {result}");
+                    break;
+                }
+
+            default:
+                throw new NotSupportedException("Unsupported model type");
+        }
+
+        for (var seq = 0; seq < seqNum; seq++)
+        {
+            var score = Context.NativeHandle.GetEmbeddingsSeq((LLamaSeqId)seq)[0];
+            scores.Add(normalize ? Sigmoid(score) : score);
+        }
+
+        Context.NativeHandle.KvCacheClear();
+
+        return scores;
     }
 
     private float Sigmoid(float x)
