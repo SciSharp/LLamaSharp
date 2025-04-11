@@ -22,8 +22,8 @@ public partial class LLamaEmbedder
             {
                 return _metadata ??= new(
                     nameof(LLamaEmbedder),
-                    modelId: Context.NativeHandle.ModelHandle.ReadMetadata().TryGetValue("general.name", out var name) ? name : null,
-                    dimensions: EmbeddingSize);
+                    defaultModelId: Context.NativeHandle.ModelHandle.ReadMetadata().TryGetValue("general.name", out var name) ? name : null,
+                    defaultModelDimensions: EmbeddingSize);
             }
 
             if (serviceType?.IsInstanceOfType(Context) is true)
