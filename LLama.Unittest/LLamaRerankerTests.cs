@@ -61,12 +61,12 @@ public sealed class LLamaRerankerTests
         };
         var scores = await _reranker.GetRelevanceScores(input, documents, normalize: true);
 
+        Assert.NotNull(scores);
         Assert.True(documents.Length == scores.Count);
 
-        int maxIndex = scores
-            .Select((score, index) => new { Score = score, Index = index })
-            .MaxBy(x => x.Score)
-            .Index;
+        int maxIndex = scores.Select((score, index) => (score, index))
+                             .MaxBy(x => x.score)
+                             .index;
 
         var maxScoreDocument = documents[maxIndex];
         Assert.Equal(documents[2], maxScoreDocument);
