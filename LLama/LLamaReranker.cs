@@ -19,16 +19,6 @@ public sealed partial class LLamaReranker
     : IDisposable
 {
     /// <summary>
-    /// string BOS
-    /// </summary>
-    public string StrBOS { get; }
-    /// <summary>
-    /// string EOS
-    /// </summary>
-    public string StrEOS { get; }
-
-
-    /// <summary>
     /// Dimension of embedding vectors
     /// </summary>
     public int EmbeddingSize => Context.EmbeddingSize;
@@ -54,8 +44,6 @@ public sealed partial class LLamaReranker
             throw new NotSupportedException("Computing rank score, PoolingType must be equal to LLamaPoolingType.Rank");
         Context = weights.CreateContext(@params, logger);
         NativeApi.llama_set_embeddings(Context.NativeHandle, true);
-        StrBOS = Context.Vocab.LLamaTokenToString(Context.Vocab.BOS, true) ?? "<s>";
-        StrEOS = Context.Vocab.LLamaTokenToString(Context.Vocab.EOS, true) ?? "</s>";
     }
 
     /// <inheritdoc />
@@ -65,7 +53,7 @@ public sealed partial class LLamaReranker
     }
 
     /// <summary>
-    /// Retrieve relevance scores for input and document by reranking
+    /// Retrieve relevance scores for input and documents by reranking, execute once.
     /// </summary>
     /// <param name="input"></param>
     /// <param name="documents"></param>
@@ -74,22 +62,73 @@ public sealed partial class LLamaReranker
     /// <returns></returns>
     /// <exception cref="RuntimeError"></exception>
     /// <exception cref="NotSupportedException"></exception>
-    public async Task<IReadOnlyList<float>> GetRelevanceScores(string input, IReadOnlyList<string> documents, bool normalize = false, CancellationToken cancellationToken = default) {
+    public async Task<IReadOnlyList<float>> GetRelevanceScores(string input, IReadOnlyList<string> documents, bool normalize = false, CancellationToken cancellationToken = default)
+    {
         List<float> scores = new List<float>(documents.Count);
-        foreach (var document in documents)
+        var batch = new LLamaBatch();
+        var inputTokens = Context.Tokenize(input);
+        foreach (var (index, document) in documents.Select((item, index) => (index, item)))
         {
-            var score = (await GetRelevanceScoreWithTokenCount(input, document, cancellationToken).ConfigureAwait(false)).Score;
+            var docTokens = Context.Tokenize(document);
+            LLamaToken[] tokens = [.. inputTokens, .. docTokens];
+            for (var i = 0; i < tokens.Length; i++)
+                batch.Add(tokens[i], i, (LLamaSeqId)index, true);
+        }
+
+        // clear previous kv_cache values
+        Context.NativeHandle.KvCacheClear();
+
+        // Check if we should cancel the work, just before doing anything expensive (encode/decode)
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Run model
+        switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+        {
+            case (true, false):
+                {
+                    var result = await Context.EncodeAsync(batch, cancellationToken);
+                    if (result != EncodeResult.Ok)
+                        throw new RuntimeError($"Failed to encode: {result}");
+                    break;
+                }
+
+            case (false, true):
+                {
+                    var result = await Context.DecodeAsync(batch, cancellationToken);
+                    if (result != DecodeResult.Ok)
+                        throw new RuntimeError($"Failed to decode: {result}");
+                    break;
+                }
+
+            default:
+                throw new NotSupportedException("Unsupported model type");
+        }
+
+        for (var i = 0; i < documents.Count; i++)
+        {
+            var score = Context.NativeHandle.GetEmbeddingsSeq((LLamaSeqId)i)[0];
             scores.Add(normalize ? Sigmoid(score) : score);
         }
+
+        Context.NativeHandle.KvCacheClear();
+
         return scores;
     }
 
-
-    private async Task<(float Score, int Tokens)> GetRelevanceScoreWithTokenCount(string input, string document, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Retrieve relevance score for input and document by reranking
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="document"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="RuntimeError"></exception>
+    /// <exception cref="NotSupportedException"></exception>
+    public async Task<(float Score, int Tokens)> GetRelevanceScoreWithTokenCount(string input, string document, bool normalize = false, CancellationToken cancellationToken = default)
     {
-        var prompt = $"{input}</s><s>{document}";
-        // Add all of the tokens to the batch
-        var tokens = Context.Tokenize(prompt, special: true);
+        var inputTokens = Context.Tokenize(input);
+        var docTokens = Context.Tokenize(document);
+        LLamaToken[] tokens = [..inputTokens, ..docTokens];
         var batch = new LLamaBatch();
         for (var i = 0; i < tokens.Length; i++)
             batch.Add(tokens[i], i, LLamaSeqId.Zero, true);
@@ -127,7 +166,7 @@ public sealed partial class LLamaReranker
 
         Context.NativeHandle.KvCacheClear();
 
-        return (score, tokens.Length);
+        return (normalize ? Sigmoid(score) : score, tokens.Length);
     }
 
     private float Sigmoid(float x)
