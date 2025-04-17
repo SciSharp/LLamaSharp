@@ -20,6 +20,6 @@ namespace LLama.Web.Common
         public IReadOnlyList<string> AntiPrompts { get; set; } = Array.Empty<string>();
 
         /// <inheritdoc />
-        public required ISamplingPipeline SamplingPipeline { get; set; }
+        public ISamplingPipeline SamplingPipeline { get; set; } = new DefaultSamplingPipeline();
     }
 }
