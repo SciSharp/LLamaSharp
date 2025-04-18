@@ -66,7 +66,13 @@
     <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
     <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
     
-	<file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
+    <file src="runtimes/deps/linux-arm64/libggml.so" target="runtimes\linux-arm64\native\libggml.so" />
+    <file src="runtimes/deps/linux-arm64/libggml-base.so" target="runtimes\linux-arm64\native\libggml-base.so" />
+    <file src="runtimes/deps/linux-arm64/libggml-cpu.so" target="runtimes\linux-arm64\native\libggml-cpu.so" />
+    <file src="runtimes/deps/linux-arm64/libllama.so" target="runtimes\linux-arm64\native\libllama.so" />
+    <file src="runtimes/deps/linux-arm64/libllava_shared.so" target="runtimes\linux-arm64\native\libllava_shared.so" />
+
+	  <file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
     <file src="runtimes/deps/musl-noavx/libggml-base.so" target="runtimes\linux-musl-x64\native\noavx\libggml-base.so" />
     <file src="runtimes/deps/musl-noavx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\noavx\libggml-cpu.so" />
     <file src="runtimes/deps/musl-noavx/libllama.so" target="runtimes\linux-musl-x64\native\noavx\libllama.so" />
