@@ -38,6 +38,10 @@ jobs:
       with:
         dotnet-version: |
           8.0.x
+    - name: Install Mobile Workloads
+      run: |
+        dotnet workload install android --ignore-failed-sources
+        dotnet workload install maui --ignore-failed-sources
     - name: Cache Packages
       uses: actions/cache@v4
       with:
