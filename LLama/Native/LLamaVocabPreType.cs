@@ -4,6 +4,7 @@ namespace LLama.Native;
 /// 
 /// </summary>
 /// <remarks>llama_vocab_pre_type</remarks>
+// ReSharper disable InconsistentNaming
 internal enum LLamaVocabPreType
 {
     Default = 0,
@@ -36,4 +37,6 @@ internal enum LLamaVocabPreType
     CHAMELEON = 26,
     MINERVA = 27,
     DEEPSEEK3_LLM = 28,
+    GPT4O = 29,
 }
+// ReSharper restore InconsistentNaming

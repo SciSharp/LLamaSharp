@@ -193,8 +193,8 @@ namespace LLama
             int n_left = _pastTokensCount - tokensToKeep;
             int n_discard = n_left / 2;
 
-            NativeApi.llama_kv_cache_seq_rm(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
-            NativeApi.llama_kv_cache_seq_add(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
+            NativeApi.llama_kv_self_seq_rm(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
+            NativeApi.llama_kv_self_seq_add(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
 
             _pastTokensCount -= n_discard;
             // stop saving session if we run out of context

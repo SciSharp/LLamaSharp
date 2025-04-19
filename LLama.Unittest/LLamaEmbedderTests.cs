@@ -45,8 +45,8 @@ public sealed class LLamaEmbedderTests
         var generator = (IEmbeddingGenerator<string, Embedding<float>>)embedder;
         Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>());
         Assert.Equal(nameof(LLamaEmbedder), generator.GetService<EmbeddingGeneratorMetadata>()?.ProviderName);
-        Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>()?.ModelId);
-        Assert.NotEmpty(generator.GetService<EmbeddingGeneratorMetadata>()?.ModelId!);
+        Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>()?.DefaultModelId);
+        Assert.NotEmpty(generator.GetService<EmbeddingGeneratorMetadata>()?.DefaultModelId!);
         Assert.Same(embedder, generator.GetService<LLamaEmbedder>());
         Assert.Same(generator, generator.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
         Assert.Null(generator.GetService<string>());

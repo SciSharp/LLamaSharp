@@ -7,7 +7,7 @@
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.21.0</Version>
+    <Version>0.22.0</Version>
     <Authors>Rinne, Martin Evans, jlsantiago and all the other contributors in https://github.com/SciSharp/LLamaSharp/graphs/contributors.</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -43,21 +43,21 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
-    <PackageReference Include="System.Memory" Version="4.6.0" PrivateAssets="all" />
+    <PackageReference Include="System.Memory" Version="4.6.2" PrivateAssets="all" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.3.0-preview.1.25161.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
-    <PackageReference Include="System.Numerics.Tensors" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.4.0-preview.1.25207.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+    <PackageReference Include="System.Numerics.Tensors" Version="9.0.3" />
   </ItemGroup>
 
   <PropertyGroup>
-    <BinaryReleaseId>5783575c9d99</BinaryReleaseId>
+    <BinaryReleaseId>be7c3034108473be</BinaryReleaseId>
   </PropertyGroup>
 
   <PropertyGroup>

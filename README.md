@@ -65,7 +65,7 @@ There are integrations for the following libraries, making it easier to develop 
 - [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
 - [BotSharp](https://github.com/SciSharp/BotSharp): an open source machine learning framework for AI Bot platform builder.
 - [Langchain](https://github.com/tryAGI/LangChain): a framework for developing applications powered by language models.
-
+- [MaIN.NET](https://github.com/wisedev-code/MaIN.NET): simplistic approach to orchestrating agents/chats from different (llm) providers
 
 The following examples show how to build APPs with LLamaSharp.
 
@@ -120,8 +120,9 @@ Generally, we recommend downloading models with quantization rather than fp16, b
 Here is a simple example to chat with a bot based on a LLM in LLamaSharp. Please replace the model path with yours.
 
 ```cs
-using LLama.Common;
 using LLama;
+using LLama.Common;
+using LLama.Sampling;
 
 string modelPath = @"<Your Model Path>"; // change it to your own model path.
 
@@ -262,6 +263,8 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.19.0 |  | [`958367bf`](https://github.com/ggerganov/llama.cpp/tree/958367bf530d943a902afa1ce1c342476098576b) |
 | v0.20.0 |  | [`0827b2c1`](https://github.com/ggerganov/llama.cpp/tree/0827b2c1da299805288abbd556d869318f2b121e) |
 | v0.21.0 | [DeepSeek R1](https://huggingface.co/collections/unsloth/deepseek-r1-all-versions-678e1c48f5d2fce87892ace5) | [`5783575c`](https://github.com/ggerganov/llama.cpp/tree/5783575c9d99c4d9370495800663aa5397ceb0be) |
+| v0.22.0 | Gemma3 | [`be7c3034`](https://github.com/ggerganov/llama.cpp/tree/be7c3034108473beda214fd1d7c98fd6a7a3bdf5) |
+| v0.23.0 | Gemma3 | [`be7c3034`](https://github.com/ggerganov/llama.cpp/tree/be7c3034108473beda214fd1d7c98fd6a7a3bdf5) |
 
 ## License
 

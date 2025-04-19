@@ -42,60 +42,60 @@
         <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
         <file src="runtimes/deps/avx512/llava_shared.dll" target="runtimes\win-x64\native\avx512\llava_shared.dll" />
 
-        <file src="runtimes/deps/noavx/libggml.so" target="runtimes\linux-x64\native\noavx\libggml.so" />
-        <file src="runtimes/deps/noavx/libggml-base.so" target="runtimes\linux-x64\native\noavx\libggml-base.so" />
-        <file src="runtimes/deps/noavx/libggml-cpu.so" target="runtimes\linux-x64\native\noavx\libggml-cpu.so" />
-        <file src="runtimes/deps/noavx/libllama.so" target="runtimes\linux-x64\native\noavx\libllama.so" />
-        <file src="runtimes/deps/noavx/libllava_shared.so" target="runtimes\linux-x64\native\noavx\libllava_shared.so" />
-
-        <file src="runtimes/deps/avx/libggml.so" target="runtimes\linux-x64\native\avx\libggml.so" />
-        <file src="runtimes/deps/avx/libggml-base.so" target="runtimes\linux-x64\native\avx\libggml-base.so" />
-        <file src="runtimes/deps/avx/libggml-cpu.so" target="runtimes\linux-x64\native\avx\libggml-cpu.so" />
-        <file src="runtimes/deps/avx/libllama.so" target="runtimes\linux-x64\native\avx\libllama.so" />
-        <file src="runtimes/deps/avx/libllava_shared.so" target="runtimes\linux-x64\native\avx\libllava_shared.so" />
-
-        <file src="runtimes/deps/avx2/libggml.so" target="runtimes\linux-x64\native\avx2\libggml.so" />
-        <file src="runtimes/deps/avx2/libggml-base.so" target="runtimes\linux-x64\native\avx2\libggml-base.so" />
-        <file src="runtimes/deps/avx2/libggml-cpu.so" target="runtimes\linux-x64\native\avx2\libggml-cpu.so" />
-        <file src="runtimes/deps/avx2/libllama.so" target="runtimes\linux-x64\native\avx2\libllama.so" />
-        <file src="runtimes/deps/avx2/libllava_shared.so" target="runtimes\linux-x64\native\avx2\libllava_shared.so" />
-
-        <file src="runtimes/deps/avx512/libggml.so" target="runtimes\linux-x64\native\avx512\libggml.so" />
-        <file src="runtimes/deps/avx512/libggml-base.so" target="runtimes\linux-x64\native\avx512\libggml-base.so" />
-        <file src="runtimes/deps/avx512/libggml-cpu.so" target="runtimes\linux-x64\native\avx512\libggml-cpu.so" />
-        <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
-        <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
-
-        <file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
-        <file src="runtimes/deps/musl-noavx/libggml-base.so" target="runtimes\linux-musl-x64\native\noavx\libggml-base.so" />
-        <file src="runtimes/deps/musl-noavx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\noavx\libggml-cpu.so" />
-        <file src="runtimes/deps/musl-noavx/libllama.so" target="runtimes\linux-musl-x64\native\noavx\libllama.so" />
-        <file src="runtimes/deps/musl-noavx/libllava_shared.so" target="runtimes\linux-musl-x64\native\noavx\libllava_shared.so" />
-
-        <file src="runtimes/deps/musl-avx/libggml.so" target="runtimes\linux-musl-x64\native\avx\libggml.so" />
-        <file src="runtimes/deps/musl-avx/libggml-base.so" target="runtimes\linux-musl-x64\native\avx\libggml-base.so" />
-        <file src="runtimes/deps/musl-avx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx\libggml-cpu.so" />
-        <file src="runtimes/deps/musl-avx/libllama.so" target="runtimes\linux-musl-x64\native\avx\libllama.so" />
-        <file src="runtimes/deps/musl-avx/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx\libllava_shared.so" />
-
-        <file src="runtimes/deps/musl-avx2/libggml.so" target="runtimes\linux-musl-x64\native\avx2\libggml.so" />
-        <file src="runtimes/deps/musl-avx2/libggml-base.so" target="runtimes\linux-musl-x64\native\avx2\libggml-base.so" />
-        <file src="runtimes/deps/musl-avx2/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx2\libggml-cpu.so" />
-        <file src="runtimes/deps/musl-avx2/libllama.so" target="runtimes\linux-musl-x64\native\avx2\libllama.so" />
-        <file src="runtimes/deps/musl-avx2/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx2\libllava_shared.so" />
-
-        <file src="runtimes/deps/musl-avx512/libggml.so" target="runtimes\linux-musl-x64\native\avx512\libggml.so" />
-        <file src="runtimes/deps/musl-avx512/libggml-base.so" target="runtimes\linux-musl-x64\native\avx512\libggml-base.so" />
-        <file src="runtimes/deps/musl-avx512/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx512\libggml-cpu.so" />
-        <file src="runtimes/deps/musl-avx512/libllama.so" target="runtimes\linux-musl-x64\native\avx512\libllama.so" />
-        <file src="runtimes/deps/musl-avx512/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx512\libllava_shared.so" />
-
-        <file src="runtimes/deps/osx-x64/libggml.dylib" target="runtimes\osx-x64\native\libggml.dylib" />
-        <file src="runtimes/deps/osx-x64/libggml-base.dylib" target="runtimes\osx-x64\native\libggml-base.dylib" />
-        <file src="runtimes/deps/osx-x64/libggml-cpu.dylib" target="runtimes\osx-x64\native\libggml-cpu.dylib" />
-        <file src="runtimes/deps/osx-x64/libggml-blas.dylib" target="runtimes\osx-x64\native\libggml-blas.dylib" />
-        <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
-        <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
+    <file src="runtimes/deps/noavx/libggml.so" target="runtimes\linux-x64\native\noavx\libggml.so" />
+    <file src="runtimes/deps/noavx/libggml-base.so" target="runtimes\linux-x64\native\noavx\libggml-base.so" />
+    <file src="runtimes/deps/noavx/libggml-cpu.so" target="runtimes\linux-x64\native\noavx\libggml-cpu.so" />
+    <file src="runtimes/deps/noavx/libllama.so" target="runtimes\linux-x64\native\noavx\libllama.so" />
+    <file src="runtimes/deps/noavx/libllava_shared.so" target="runtimes\linux-x64\native\noavx\libllava_shared.so" />
+      
+    <file src="runtimes/deps/avx/libggml.so" target="runtimes\linux-x64\native\avx\libggml.so" />
+    <file src="runtimes/deps/avx/libggml-base.so" target="runtimes\linux-x64\native\avx\libggml-base.so" />
+    <file src="runtimes/deps/avx/libggml-cpu.so" target="runtimes\linux-x64\native\avx\libggml-cpu.so" />
+    <file src="runtimes/deps/avx/libllama.so" target="runtimes\linux-x64\native\avx\libllama.so" />
+    <file src="runtimes/deps/avx/libllava_shared.so" target="runtimes\linux-x64\native\avx\libllava_shared.so" />
+      
+    <file src="runtimes/deps/avx2/libggml.so" target="runtimes\linux-x64\native\avx2\libggml.so" />
+    <file src="runtimes/deps/avx2/libggml-base.so" target="runtimes\linux-x64\native\avx2\libggml-base.so" />
+    <file src="runtimes/deps/avx2/libggml-cpu.so" target="runtimes\linux-x64\native\avx2\libggml-cpu.so" />
+    <file src="runtimes/deps/avx2/libllama.so" target="runtimes\linux-x64\native\avx2\libllama.so" />
+    <file src="runtimes/deps/avx2/libllava_shared.so" target="runtimes\linux-x64\native\avx2\libllava_shared.so" />
+      
+    <file src="runtimes/deps/avx512/libggml.so" target="runtimes\linux-x64\native\avx512\libggml.so" />
+    <file src="runtimes/deps/avx512/libggml-base.so" target="runtimes\linux-x64\native\avx512\libggml-base.so" />
+    <file src="runtimes/deps/avx512/libggml-cpu.so" target="runtimes\linux-x64\native\avx512\libggml-cpu.so" />
+    <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
+    <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
+    
+	<file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
+    <file src="runtimes/deps/musl-noavx/libggml-base.so" target="runtimes\linux-musl-x64\native\noavx\libggml-base.so" />
+    <file src="runtimes/deps/musl-noavx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\noavx\libggml-cpu.so" />
+    <file src="runtimes/deps/musl-noavx/libllama.so" target="runtimes\linux-musl-x64\native\noavx\libllama.so" />
+    <file src="runtimes/deps/musl-noavx/libllava_shared.so" target="runtimes\linux-musl-x64\native\noavx\libllava_shared.so" />
+      
+    <file src="runtimes/deps/musl-avx/libggml.so" target="runtimes\linux-musl-x64\native\avx\libggml.so" />
+    <file src="runtimes/deps/musl-avx/libggml-base.so" target="runtimes\linux-musl-x64\native\avx\libggml-base.so" />
+    <file src="runtimes/deps/musl-avx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx\libggml-cpu.so" />
+    <file src="runtimes/deps/musl-avx/libllama.so" target="runtimes\linux-musl-x64\native\avx\libllama.so" />
+    <file src="runtimes/deps/musl-avx/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx\libllava_shared.so" />
+      
+    <file src="runtimes/deps/musl-avx2/libggml.so" target="runtimes\linux-musl-x64\native\avx2\libggml.so" />
+    <file src="runtimes/deps/musl-avx2/libggml-base.so" target="runtimes\linux-musl-x64\native\avx2\libggml-base.so" />
+    <file src="runtimes/deps/musl-avx2/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx2\libggml-cpu.so" />
+    <file src="runtimes/deps/musl-avx2/libllama.so" target="runtimes\linux-musl-x64\native\avx2\libllama.so" />
+    <file src="runtimes/deps/musl-avx2/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx2\libllava_shared.so" />
+      
+    <file src="runtimes/deps/musl-avx512/libggml.so" target="runtimes\linux-musl-x64\native\avx512\libggml.so" />
+    <file src="runtimes/deps/musl-avx512/libggml-base.so" target="runtimes\linux-musl-x64\native\avx512\libggml-base.so" />
+    <file src="runtimes/deps/musl-avx512/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx512\libggml-cpu.so" />
+    <file src="runtimes/deps/musl-avx512/libllama.so" target="runtimes\linux-musl-x64\native\avx512\libllama.so" />
+    <file src="runtimes/deps/musl-avx512/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx512\libllava_shared.so" />
+	
+    <file src="runtimes/deps/osx-x64/libggml.dylib" target="runtimes\osx-x64\native\libggml.dylib" />
+    <file src="runtimes/deps/osx-x64/libggml-base.dylib" target="runtimes\osx-x64\native\libggml-base.dylib" />
+    <file src="runtimes/deps/osx-x64/libggml-cpu.dylib" target="runtimes\osx-x64\native\libggml-cpu.dylib" />
+    <file src="runtimes/deps/osx-x64/libggml-blas.dylib" target="runtimes\osx-x64\native\libggml-blas.dylib" />
+    <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
+    <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
 
         <file src="runtimes/deps/osx-x64-rosetta2/libggml.dylib" target="runtimes\osx-x64\native\rosetta2\libggml.dylib" />
         <file src="runtimes/deps/osx-x64-rosetta2/libggml-base.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-base.dylib" />

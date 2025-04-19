@@ -10,7 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<Version>0.21.0</Version>
+		<Version>0.22.0</Version>
 		<Authors>Tim Miller, Xbotter</Authors>
 		<Company>SciSharp STACK</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -34,11 +34,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.39.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.44.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="System.Memory" Version="4.6.0" PrivateAssets="all" />
+		<PackageReference Include="System.Memory" Version="4.6.2" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>
