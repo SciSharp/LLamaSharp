@@ -66,6 +66,30 @@
         <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
         <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
 
+        <file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
+        <file src="runtimes/deps/musl-noavx/libggml-base.so" target="runtimes\linux-musl-x64\native\noavx\libggml-base.so" />
+        <file src="runtimes/deps/musl-noavx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\noavx\libggml-cpu.so" />
+        <file src="runtimes/deps/musl-noavx/libllama.so" target="runtimes\linux-musl-x64\native\noavx\libllama.so" />
+        <file src="runtimes/deps/musl-noavx/libllava_shared.so" target="runtimes\linux-musl-x64\native\noavx\libllava_shared.so" />
+
+        <file src="runtimes/deps/musl-avx/libggml.so" target="runtimes\linux-musl-x64\native\avx\libggml.so" />
+        <file src="runtimes/deps/musl-avx/libggml-base.so" target="runtimes\linux-musl-x64\native\avx\libggml-base.so" />
+        <file src="runtimes/deps/musl-avx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx\libggml-cpu.so" />
+        <file src="runtimes/deps/musl-avx/libllama.so" target="runtimes\linux-musl-x64\native\avx\libllama.so" />
+        <file src="runtimes/deps/musl-avx/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx\libllava_shared.so" />
+
+        <file src="runtimes/deps/musl-avx2/libggml.so" target="runtimes\linux-musl-x64\native\avx2\libggml.so" />
+        <file src="runtimes/deps/musl-avx2/libggml-base.so" target="runtimes\linux-musl-x64\native\avx2\libggml-base.so" />
+        <file src="runtimes/deps/musl-avx2/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx2\libggml-cpu.so" />
+        <file src="runtimes/deps/musl-avx2/libllama.so" target="runtimes\linux-musl-x64\native\avx2\libllama.so" />
+        <file src="runtimes/deps/musl-avx2/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx2\libllava_shared.so" />
+
+        <file src="runtimes/deps/musl-avx512/libggml.so" target="runtimes\linux-musl-x64\native\avx512\libggml.so" />
+        <file src="runtimes/deps/musl-avx512/libggml-base.so" target="runtimes\linux-musl-x64\native\avx512\libggml-base.so" />
+        <file src="runtimes/deps/musl-avx512/libggml-cpu.so" target="runtimes\linux-musl-x64\native\avx512\libggml-cpu.so" />
+        <file src="runtimes/deps/musl-avx512/libllama.so" target="runtimes\linux-musl-x64\native\avx512\libllama.so" />
+        <file src="runtimes/deps/musl-avx512/libllava_shared.so" target="runtimes\linux-musl-x64\native\avx512\libllava_shared.so" />
+
         <file src="runtimes/deps/osx-x64/libggml.dylib" target="runtimes\osx-x64\native\libggml.dylib" />
         <file src="runtimes/deps/osx-x64/libggml-base.dylib" target="runtimes\osx-x64\native\libggml-base.dylib" />
         <file src="runtimes/deps/osx-x64/libggml-cpu.dylib" target="runtimes\osx-x64\native\libggml-cpu.dylib" />
@@ -88,24 +112,6 @@
         <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
         <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
         <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
-
-        <file src="runtimes/deps/android-arm64-v8a/libllama.so" target="runtimes\android-arm64-v8a\native\libllama.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libggml.so" target="runtimes\android-arm64-v8a\native\libggml.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libggml-base.so" target="runtimes\android-arm64-v8a\native\libggml-base.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libggml-cpu.so" target="runtimes\android-arm64-v8a\native\libggml-cpu.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libllava_shared.so" target="runtimes\android-arm64-v8a\native\libllava_shared.so" />
-
-        <file src="runtimes/deps/android-x86_64/libllama.so" target="runtimes\android-x86_64\native\libllama.so" />
-        <file src="runtimes/deps/android-x86_64/libggml.so" target="runtimes\android-x86_64\native\libggml.so" />
-        <file src="runtimes/deps/android-x86_64/libggml-base.so" target="runtimes\android-x86_64\native\libggml-base.so" />
-        <file src="runtimes/deps/android-x86_64/libggml-cpu.so" target="runtimes\android-x86_64\native\libggml-cpu.so" />
-        <file src="runtimes/deps/android-x86_64/libllava_shared.so" target="runtimes\android-x86_64\native\libllava_shared.so" />
-
-        <file src="runtimes/deps/android-x86/libllama.so" target="runtimes\android-x86\native\libllama.so" />
-        <file src="runtimes/deps/android-x86/libggml.so" target="runtimes\android-x86\native\libggml.so" />
-        <file src="runtimes/deps/android-x86/libggml-base.so" target="runtimes\android-x86\native\libggml-base.so" />
-        <file src="runtimes/deps/android-x86/libggml-cpu.so" target="runtimes\android-x86\native\libggml-cpu.so" />
-        <file src="runtimes/deps/android-x86/libllava_shared.so" target="runtimes\android-x86\native\libllava_shared.so" />
 
         <file src="icon512.png" target="icon512.png" />
     </files>
