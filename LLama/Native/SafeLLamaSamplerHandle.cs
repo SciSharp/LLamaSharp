@@ -408,20 +408,36 @@ public sealed class SafeLLamaSamplerChainHandle
     }
 
     /// <summary>
-    /// Create a sampler which makes tokens impossible unless they match the grammar
+    /// Create a sampler which makes tokens impossible unless they match the grammar.
     /// </summary>
-    /// <param name="model"></param>
+    /// <param name="model">The model that this grammar will be used with</param>
     /// <param name="grammar"></param>
     /// <param name="root">Root rule of the grammar</param>
     /// <returns></returns>
     public void AddGrammar(SafeLlamaModelHandle model, string grammar, string root)
     {
+        AddGrammar(model.Vocab, grammar, root);
+    }
+
+    /// <summary>
+    /// Create a sampler which makes tokens impossible unless they match the grammar.
+    /// </summary>
+    /// <param name="vocab">The vocabulary that this grammar will be used with</param>
+    /// <param name="grammar"></param>
+    /// <param name="root">Root rule of the grammar</param>
+    /// <returns></returns>
+    public void AddGrammar(SafeLlamaModelHandle.Vocabulary vocab, string grammar, string root)
+    {
         unsafe
         {
-            llama_sampler_chain_add(this, llama_sampler_init_grammar(model.Vocab.VocabNative, grammar, root));
+            llama_sampler_chain_add(this, llama_sampler_init_grammar(vocab.VocabNative, grammar, root));
         }
 
         // ReSharper disable InconsistentNaming
+        // @details Intializes a GBNF grammar, see grammars/README.md for details.
+        // @param vocab The vocabulary that this grammar will be used with.
+        // @param grammar_str The production rules for the grammar, encoded as a string. Returns an empty grammar if empty. Returns NULL if parsing of grammar_str fails.
+        // @param grammar_root The name of the start symbol for the grammar.
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern unsafe IntPtr llama_sampler_init_grammar(LLamaVocabNative* model, string grammar_str, string grammar_root);
         // ReSharper restore InconsistentNaming

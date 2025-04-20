@@ -38,5 +38,9 @@ internal enum LLamaVocabPreType
     MINERVA = 27,
     DEEPSEEK3_LLM = 28,
     GPT4O = 29,
+    SUPERBPE = 30,
+    TRILLION = 31,
+    BAILINGMOE = 32,
+    LLAMA4 = 33,
 }
 // ReSharper restore InconsistentNaming
