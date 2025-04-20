@@ -334,7 +334,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2019]
+        os: [ubuntu-22.04, windows-2019]
         cuda: ['12.2.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
