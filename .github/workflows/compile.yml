@@ -28,13 +28,25 @@ jobs:
         include:
           - build: 'noavx'
             defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+            os: ubuntu-24.04
+            arch: x64
           - build: 'avx2'
             defines: ''
+            os: ubuntu-24.04
+            arch: x64
           - build: 'avx'
             defines: '-DGGML_AVX2=OFF'
+            os: ubuntu-24.04
+            arch: x64
           - build: 'avx512'
             defines: '-DGGML_AVX512=ON'
-    runs-on: ubuntu-24.04
+            os: ubuntu-24.04
+            arch: x64
+          - build: 'aarch64'
+            defines: '-DGGML_NATIVE=OFF -DGGML_CPU_AARCH64=ON -DGGML_CPU_ARM_ARCH=armv8-a'
+            os: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,28 +64,28 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libllama.so
-          name: llama-bin-linux-${{ matrix.build }}-x64.so
+          name: llama-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml.so
-          name: ggml-bin-linux-${{ matrix.build }}-x64.so
+          name: ggml-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml-base.so
-          name: ggml-base-bin-linux-${{ matrix.build }}-x64.so
+          name: ggml-base-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml-cpu.so
-          name: ggml-cpu-bin-linux-${{ matrix.build }}-x64.so
+          name: ggml-cpu-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libllava_shared.so
-          name: llava-bin-linux-${{ matrix.build }}-x64.so
+          name: llava-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error
 
   compile-musl:
@@ -409,35 +421,35 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml (Linux)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml.so
           name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml-base (Linux)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml-base.so
           name: ggml-base-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml-cuda (Linux)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml-cuda.so
           name: ggml-cuda-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload llava artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libllava_shared.so
@@ -601,7 +613,7 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{noavx,avx,avx2,avx512,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan,android-arm64-v8a,android-x86,android-x86_64}
+          mkdir --parents deps/{noavx,avx,avx2,avx512,linux-arm64,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu11.7.1,cu12.2.0,vulkan,android-arm64-v8a,android-x86,android-x86_64}
 
           # Linux
           cp artifacts/ggml-bin-linux-noavx-x64.so/libggml.so           deps/noavx/libggml.so
@@ -627,6 +639,13 @@ jobs:
           cp artifacts/ggml-cpu-bin-linux-avx512-x64.so/libggml-cpu.so   deps/avx512/libggml-cpu.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so         deps/avx512/libllama.so
           cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so  deps/avx512/libllava_shared.so
+
+          # Arm64
+          cp artifacts/ggml-bin-linux-aarch64-arm64.so/libggml.so           deps/linux-arm64/libggml.so
+          cp artifacts/ggml-base-bin-linux-aarch64-arm64.so/libggml-base.so deps/linux-arm64/libggml-base.so
+          cp artifacts/ggml-cpu-bin-linux-aarch64-arm64.so/libggml-cpu.so   deps/linux-arm64/libggml-cpu.so
+          cp artifacts/llama-bin-linux-aarch64-arm64.so/libllama.so         deps/linux-arm64/libllama.so
+          cp artifacts/llava-bin-linux-aarch64-arm64.so/libllava_shared.so  deps/linux-arm64/libllava_shared.so
 
           # Musl
           cp artifacts/ggml-bin-musl-noavx-x64.so/libggml.so           deps/musl-noavx/libggml.so
