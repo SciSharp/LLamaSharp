@@ -539,19 +539,17 @@ jobs:
           if-no-files-found: error
   
   compile-android:
-    # Disable android build
-    if: false
-
+    name: Compile (Android)
     strategy:
       fail-fast: true
       matrix:
         include:
           - build: 'x86'
-            defines: '-DANDROID_ABI=x86'
+            defines: '-DANDROID_ABI=x86 -DCMAKE_C_FLAGS=-march=i686 -DCMAKE_CXX_FLAGS=-march=i686'
           - build: 'x86_64'
-            defines: '-DANDROID_ABI=x86_64'
+            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64'
           - build: 'arm64-v8a'
-            defines: '-DANDROID_ABI=arm64-v8a'
+            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -567,28 +565,39 @@ jobs:
       - name: Build
         id: cmake_build
         env:
-          CMAKE_FLAGS: '-DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23'
+          CMAKE_FLAGS: '-DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 -DGGML_OPENMP=OFF -DGGML_LLAMAFILE=OFF'
         run: |
-          mkdir build
-          cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
-          cd ..
-          ls -R
+          # export-lora not supported on 32 bit machines hence breaks x86 build
+          sed -i '/add_subdirectory(export-lora)/d' examples/CMakeLists.txt # remove export-lora from examples
+          cmake ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ matrix.defines }} -B build
+          cmake --build build --config Release -j ${env:NUMBER_OF_PROCESSORS}
       - name: Upload Llama
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/src/libllama.so
+          path: ./build/bin/libllama.so
           name: llama-bin-android-${{ matrix.build }}.so
-      - uses: actions/upload-artifact@v4
+      - name: Upload GGML
+        uses: actions/upload-artifact@v4
         with:
-          path: ./build/ggml/src/libggml.so
+          path: ./build/bin/libggml.so
           name: ggml-bin-android-${{ matrix.build }}.so
+          if-no-files-found: error
+      - name: Upload GGML Base
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libggml-base.so
+          name: ggml-base-bin-android-${{ matrix.build }}.so
+          if-no-files-found: error
+      - name: Upload GGML CPU
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./build/bin/libggml-cpu.so
+          name: ggml-cpu-bin-android-${{ matrix.build }}.so
           if-no-files-found: error
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/examples/llava/libllava_shared.so
+          path: ./build/bin/libllava_shared.so
           name: llava-bin-android-${{ matrix.build }}.so
 
   build-deps:
@@ -722,17 +731,23 @@ jobs:
           cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib  deps/osx-x64-rosetta2/libllava_shared.dylib
 
           # Android
-          #cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so           deps/android-arm64-v8a/libggml.so
-          #cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so         deps/android-arm64-v8a/libllama.so
-          #cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so  deps/android-arm64-v8a/libllava_shared.so
-
-          #cp artifacts/ggml-bin-android-x86.so/libggml.so                 deps/android-x86/libggml.so
-          #cp artifacts/llama-bin-android-x86.so/libllama.so               deps/android-x86/libllama.so
-          #cp artifacts/llava-bin-android-x86.so/libllava_shared.so        deps/android-x86/libllava_shared.so
-
-          #cp artifacts/ggml-bin-android-x86_64.so/libggml.so              deps/android-x86_64/libggml.so
-          #cp artifacts/llama-bin-android-x86_64.so/libllama.so            deps/android-x86_64/libllama.so
-          #cp artifacts/llava-bin-android-x86_64.so/libllava_shared.so     deps/android-x86_64/libllava_shared.so
+          cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so               deps/android-arm64-v8a/libggml.so
+          cp artifacts/ggml-base-bin-android-arm64-v8a.so/libggml-base.so     deps/android-arm64-v8a/libggml-base.so
+          cp artifacts/ggml-cpu-bin-android-arm64-v8a.so/libggml-cpu.so       deps/android-arm64-v8a/libggml-cpu.so
+          cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
+          cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so      deps/android-arm64-v8a/libllava_shared.so
+                                                                              
+          cp artifacts/ggml-bin-android-x86.so/libggml.so                     deps/android-x86/libggml.so
+          cp artifacts/ggml-base-bin-android-x86.so/libggml-base.so           deps/android-x86/libggml-base.so
+          cp artifacts/ggml-cpu-bin-android-x86.so/libggml-cpu.so             deps/android-x86/libggml-cpu.so
+          cp artifacts/llama-bin-android-x86.so/libllama.so                   deps/android-x86/libllama.so
+          cp artifacts/llava-bin-android-x86.so/libllava_shared.so            deps/android-x86/libllava_shared.so
+                                                                              
+          cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
+          cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
+          cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so
+          cp artifacts/llama-bin-android-x86_64.so/libllama.so                deps/android-x86_64/libllama.so
+          cp artifacts/llava-bin-android-x86_64.so/libllava_shared.so         deps/android-x86_64/libllava_shared.so
 
           # Windows CUDA
           cp artifacts/ggml-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll            deps/cu11.7.1/ggml.dll
