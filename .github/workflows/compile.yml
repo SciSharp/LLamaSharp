@@ -544,8 +544,6 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - build: 'x86'
-            defines: '-DANDROID_ABI=x86 -DCMAKE_C_FLAGS=-march=i686 -DCMAKE_CXX_FLAGS=-march=i686'
           - build: 'x86_64'
             defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64'
           - build: 'arm64-v8a'
