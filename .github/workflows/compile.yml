@@ -735,12 +735,6 @@ jobs:
           cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
           cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so      deps/android-arm64-v8a/libllava_shared.so
                                                                               
-          cp artifacts/ggml-bin-android-x86.so/libggml.so                     deps/android-x86/libggml.so
-          cp artifacts/ggml-base-bin-android-x86.so/libggml-base.so           deps/android-x86/libggml-base.so
-          cp artifacts/ggml-cpu-bin-android-x86.so/libggml-cpu.so             deps/android-x86/libggml-cpu.so
-          cp artifacts/llama-bin-android-x86.so/libllama.so                   deps/android-x86/libllama.so
-          cp artifacts/llava-bin-android-x86.so/libllava_shared.so            deps/android-x86/libllava_shared.so
-                                                                              
           cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
           cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
           cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so
