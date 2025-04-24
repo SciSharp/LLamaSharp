@@ -31,9 +31,11 @@ namespace LLamaSharp.KernelMemory
 
             var @params = new ModelParams(config.ModelPath)
             {
-                ContextSize = config.ContextSize,
+                ContextSize = config.ContextSize ?? 2048,
                 GpuLayerCount = config.GpuLayerCount ?? 20,
-
+                Embeddings = true,
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode,
                 PoolingType = LLamaPoolingType.Mean,
             };
 
