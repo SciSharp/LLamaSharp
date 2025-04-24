@@ -809,7 +809,8 @@ namespace LLama.Native
         /// </summary>
         public void KvCacheClear()
         {
-            NativeApi.llama_kv_self_clear(this);
+            //NativeApi.llama_kv_self_clear(this);
+            NativeApi.llama_kv_cache_clear(this);
         }
 
         /// <summary>
