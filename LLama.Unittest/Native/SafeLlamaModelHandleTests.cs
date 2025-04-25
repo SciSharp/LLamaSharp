@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Common;
 using LLama.Extensions;
+using Xunit;
 
 namespace LLama.Unittest.Native;
 

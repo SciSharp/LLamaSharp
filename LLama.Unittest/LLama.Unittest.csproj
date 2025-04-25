@@ -25,6 +25,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Xunit.SkippableFact" Version="1.5.23" />
   </ItemGroup>
 
     <!-- Define each file to download.
@@ -113,9 +114,7 @@
     <!-- Main target to process each file by calling the DownloadSingleFile target for each item.
        The MSBuild task will batch over the DownloadFileItem items, passing in each file’s metadata. -->
     <Target Name="DownloadAllFiles" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
-        <MSBuild Projects="$(MSBuildProjectFile)"
-                 Targets="DownloadSingleFile"
-                 Properties="SourceUrl=%(DownloadFileItem.SourceUrl);DestinationFolder=%(DownloadFileItem.DestinationFolder);LocalFileName=%(DownloadFileItem.LocalFileName);TargetFramework=once" />
+        <MSBuild Projects="$(MSBuildProjectFile)" Targets="DownloadSingleFile" Properties="SourceUrl=%(DownloadFileItem.SourceUrl);DestinationFolder=%(DownloadFileItem.DestinationFolder);LocalFileName=%(DownloadFileItem.LocalFileName);TargetFramework=once" />
     </Target>
 
     <ItemGroup>
