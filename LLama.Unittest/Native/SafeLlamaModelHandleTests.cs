@@ -19,14 +19,10 @@ public class SafeLlamaModelHandleTests
         _model = LLamaWeights.LoadFromFile(@params);
     }
 
-    [Fact]
+    [SkippableFact]
     public void MetadataValByKey_ReturnsCorrectly()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            Assert.True(true, "Skipping this test on macOS because for some reason the meta data is incorrect, but the rest of tests work well on mscOS.");
-            return;
-        }
+        Skip.If(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), "Skipping this test on macOS because for some reason the meta data is incorrect, but the rest of tests work well on mscOS [Check later!].");
 
         const string key = "general.name";
         var template = _model.NativeHandle.MetadataValueByKey(key);
