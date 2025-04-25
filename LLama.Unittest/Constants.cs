@@ -20,15 +20,16 @@ namespace LLama.Unittest
         {
             get
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    #if DEBUG
-                      return 20;
-                    #else
-                      return 0;                      
-                    #endif
-                }
-                else return 20;
+                return 0;
+                //if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                //{
+                //    #if DEBUG
+                //      return 20;
+                //    #else
+                //      return 0;                      
+                //    #endif
+                //}
+                //else return 20;
             }
         }
     }
