@@ -100,7 +100,7 @@
          We assume TempDownload now contains the downloaded file.
          (You might want to refine this if TempDownload could ever contain multiple files.) -->
         <ItemGroup Condition=" '$(DownloadNeeded)'=='true' ">
-            <TempFile Include="TempDownload\*.*" />
+            <TempFile Include="TempDownload/*.*" />
         </ItemGroup>
         <Message Text="Downloaded file (temp): @(TempFile)" Importance="high" Condition=" '$(DownloadNeeded)'=='true' " />
         <Move SourceFiles="@(TempFile)" DestinationFiles="$(DesiredFile)" Condition=" '$(DownloadNeeded)'=='true' and @(TempFile) != '' " />
