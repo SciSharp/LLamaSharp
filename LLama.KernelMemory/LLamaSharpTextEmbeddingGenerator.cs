@@ -33,7 +33,7 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                Embeddings = true,
+                Embeddings = false,
                 MainGpu = config?.MainGpu ?? 0,
                 SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
                 PoolingType = LLamaPoolingType.Mean,
@@ -58,7 +58,7 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                Embeddings = true,
+                Embeddings = false,
                 MainGpu = config?.MainGpu ?? 0,
                 SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
                 PoolingType = LLamaPoolingType.Mean,
