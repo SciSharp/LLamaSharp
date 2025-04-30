@@ -270,6 +270,7 @@ public sealed class SafeLLamaSamplerChainHandle
     /// <summary>
     /// Top-K sampling described in academic paper "The Curious Case of Neural Text Degeneration" https://arxiv.org/abs/1904.09751
     /// </summary>
+    /// <remarks>Setting k &lt;= 0 makes this a noop</remarks>
     /// <returns></returns>
     public void AddTopK(int k)
     {

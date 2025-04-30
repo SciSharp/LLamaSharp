@@ -42,5 +42,6 @@ internal enum LLamaVocabPreType
     TRILLION = 31,
     BAILINGMOE = 32,
     LLAMA4 = 33,
+    PIXTRAL = 34,
 }
 // ReSharper restore InconsistentNaming
