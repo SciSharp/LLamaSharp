@@ -762,11 +762,11 @@ jobs:
           name: deps
 
 
-#      - name: Remove Artifacts
-#        uses: geekyeggo/delete-artifact@v5
-#        with:
-#          name: |
-#            llama-*
-#            mtdm-*
-#            *.metal
-#            ggml-*
+      - name: Remove Artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            llama-*
+            mtdm-*
+            *.metal
+            ggml-*
