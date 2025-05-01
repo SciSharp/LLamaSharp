@@ -515,8 +515,8 @@ jobs:
       - name: Upload Llava
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/bin/libllava_shared.dylib
-          name: llava-bin-osx-${{ matrix.build }}.dylib
+          path: ./build/bin/libmtmd_shared.dylib
+          name: mtmd-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
       - name: Upload Metal
         if: ${{ matrix.build == 'arm64' }}
@@ -685,7 +685,7 @@ jobs:
           cp artifacts/ggml-blas-bin-osx-arm64.dylib/libggml-blas.dylib   deps/osx-arm64/libggml-blas.dylib
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib    deps/osx-arm64/libllava_shared.dylib
+          cp artifacts/llava-bin-osx-arm64.dylib/libmtmd_shared.dylib    deps/osx-arm64/libmtmd_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
             
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
@@ -693,14 +693,14 @@ jobs:
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64.dylib/libggml-blas.dylib   deps/osx-x64/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
-          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
+          cp artifacts/llava-bin-osx-x64.dylib/libmtmd_shared.dylib    deps/osx-x64/libmtmd_shared.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib   deps/osx-x64-rosetta2/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64-rosetta2.dylib/libggml-blas.dylib deps/osx-x64-rosetta2/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib         deps/osx-x64-rosetta2/libllama.dylib
-          cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib  deps/osx-x64-rosetta2/libllava_shared.dylib
+          cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libmtmd_shared.dylib  deps/osx-x64-rosetta2/libmtmd_shared.dylib
 
           # Android
           #cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so           deps/android-arm64-v8a/libggml.so
@@ -762,11 +762,11 @@ jobs:
           name: deps
 
 
-      - name: Remove Artifacts
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: |
-            llama-*
-            llava-*
-            *.metal
-            ggml-*
+#      - name: Remove Artifacts
+#        uses: geekyeggo/delete-artifact@v5
+#        with:
+#          name: |
+#            llama-*
+#            llava-*
+#            *.metal
+#            ggml-*
