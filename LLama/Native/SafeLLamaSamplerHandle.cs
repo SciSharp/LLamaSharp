@@ -435,7 +435,7 @@ public sealed class SafeLLamaSamplerChainHandle
         }
 
         // ReSharper disable InconsistentNaming
-        // @details Intializes a GBNF grammar, see grammars/README.md for details.
+        // @details Initializes a GBNF grammar, see grammars/README.md for details.
         // @param vocab The vocabulary that this grammar will be used with.
         // @param grammar_str The production rules for the grammar, encoded as a string. Returns an empty grammar if empty. Returns NULL if parsing of grammar_str fails.
         // @param grammar_root The name of the start symbol for the grammar.
