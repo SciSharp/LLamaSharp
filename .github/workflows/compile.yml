@@ -658,25 +658,25 @@ jobs:
           cp artifacts/ggml-base-bin-win-noavx-x64.dll/ggml-base.dll  deps/noavx/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-noavx-x64.dll/ggml-cpu.dll    deps/noavx/ggml-cpu.dll
           cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll          deps/noavx/llama.dll
-          cp artifacts/mtdm-bin-win-noavx-x64.dll/mtdm_shared.dll   deps/noavx/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-noavx-x64.dll/mtmd_shared.dll   deps/noavx/mtmd_shared.dll
 
           cp artifacts/ggml-bin-win-avx-x64.dll/ggml.dll           deps/avx/ggml.dll
           cp artifacts/ggml-base-bin-win-avx-x64.dll/ggml-base.dll deps/avx/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-avx-x64.dll/ggml-cpu.dll   deps/avx/ggml-cpu.dll
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll         deps/avx/llama.dll
-          cp artifacts/mtdm-bin-win-avx-x64.dll/mtdm_shared.dll  deps/avx/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-avx-x64.dll/mtmd_shared.dll  deps/avx/mtmd_shared.dll
 
           cp artifacts/ggml-bin-win-avx2-x64.dll/ggml.dll           deps/avx2/ggml.dll
           cp artifacts/ggml-base-bin-win-avx2-x64.dll/ggml-base.dll deps/avx2/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-avx2-x64.dll/ggml-cpu.dll   deps/avx2/ggml-cpu.dll
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll         deps/avx2/llama.dll
-          cp artifacts/mtdm-bin-win-avx2-x64.dll/mtdm_shared.dll  deps/avx2/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-avx2-x64.dll/mtmd_shared.dll  deps/avx2/mtmd_shared.dll
 
           cp artifacts/ggml-bin-win-avx512-x64.dll/ggml.dll           deps/avx512/ggml.dll
           cp artifacts/ggml-base-bin-win-avx512-x64.dll/ggml-base.dll deps/avx512/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-avx512-x64.dll/ggml-cpu.dll   deps/avx512/ggml-cpu.dll
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll         deps/avx512/llama.dll
-          cp artifacts/mtdm-bin-win-avx512-x64.dll/mtdm_shared.dll  deps/avx512/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-avx512-x64.dll/mtmd_shared.dll  deps/avx512/mtmd_shared.dll
 
           # MacOS
           cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib             deps/osx-arm64/libggml.dylib
@@ -685,7 +685,7 @@ jobs:
           cp artifacts/ggml-blas-bin-osx-arm64.dylib/libggml-blas.dylib   deps/osx-arm64/libggml-blas.dylib
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
-          cp artifacts/mtdm-bin-osx-arm64.dylib/libmtmd_shared.dylib    deps/osx-arm64/libmtmd_shared.dylib
+          cp artifacts/mtmd-bin-osx-arm64.dylib/libmtmd_shared.dylib    deps/osx-arm64/libmtmd_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
             
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
@@ -693,67 +693,67 @@ jobs:
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64.dylib/libggml-blas.dylib   deps/osx-x64/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
-          cp artifacts/mtdm-bin-osx-x64.dylib/libmtmd_shared.dylib    deps/osx-x64/libmtmd_shared.dylib
+          cp artifacts/mtmd-bin-osx-x64.dylib/libmtmd_shared.dylib    deps/osx-x64/libmtmd_shared.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib   deps/osx-x64-rosetta2/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64-rosetta2.dylib/libggml-blas.dylib deps/osx-x64-rosetta2/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib         deps/osx-x64-rosetta2/libllama.dylib
-          cp artifacts/mtdm-bin-osx-x64-rosetta2.dylib/libmtmd_shared.dylib  deps/osx-x64-rosetta2/libmtmd_shared.dylib
+          cp artifacts/mtmd-bin-osx-x64-rosetta2.dylib/libmtmd_shared.dylib  deps/osx-x64-rosetta2/libmtmd_shared.dylib
 
           # Android
           #cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so           deps/android-arm64-v8a/libggml.so
           #cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so         deps/android-arm64-v8a/libllama.so
-          #cp artifacts/mtdm-bin-android-arm64-v8a.so/libmtdm_shared.so  deps/android-arm64-v8a/libmtdm_shared.so
+          #cp artifacts/mtmd-bin-android-arm64-v8a.so/libmtmd_shared.so  deps/android-arm64-v8a/libmtmd_shared.so
 
           #cp artifacts/ggml-bin-android-x86.so/libggml.so                 deps/android-x86/libggml.so
           #cp artifacts/llama-bin-android-x86.so/libllama.so               deps/android-x86/libllama.so
-          #cp artifacts/mtdm-bin-android-x86.so/libmtdm_shared.so        deps/android-x86/libmtdm_shared.so
+          #cp artifacts/mtmd-bin-android-x86.so/libmtmd_shared.so        deps/android-x86/libmtmd_shared.so
 
           #cp artifacts/ggml-bin-android-x86_64.so/libggml.so              deps/android-x86_64/libggml.so
           #cp artifacts/llama-bin-android-x86_64.so/libllama.so            deps/android-x86_64/libllama.so
-          #cp artifacts/mtdm-bin-android-x86_64.so/libmtdm_shared.so     deps/android-x86_64/libmtdm_shared.so
+          #cp artifacts/mtmd-bin-android-x86_64.so/libmtmd_shared.so     deps/android-x86_64/libmtmd_shared.so
 
           # Windows CUDA
           cp artifacts/ggml-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll            deps/cu11.7.1/ggml.dll
           cp artifacts/ggml-base-bin-win-cublas-cu11.7.1-x64.dll/ggml-base.dll  deps/cu11.7.1/ggml-base.dll
           cp artifacts/ggml-cuda-bin-win-cublas-cu11.7.1-x64.dll/ggml-cuda.dll  deps/cu11.7.1/ggml-cuda.dll
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll          deps/cu11.7.1/llama.dll
-          cp artifacts/mtdm-bin-win-cublas-cu11.7.1-x64.dll/mtdm_shared.dll   deps/cu11.7.1/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-cublas-cu11.7.1-x64.dll/mtmd_shared.dll   deps/cu11.7.1/mtmd_shared.dll
           
           cp artifacts/ggml-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll            deps/cu12.2.0/ggml.dll
           cp artifacts/ggml-base-bin-win-cublas-cu12.2.0-x64.dll/ggml-base.dll  deps/cu12.2.0/ggml-base.dll
           cp artifacts/ggml-cuda-bin-win-cublas-cu12.2.0-x64.dll/ggml-cuda.dll  deps/cu12.2.0/ggml-cuda.dll
           cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll          deps/cu12.2.0/llama.dll
-          cp artifacts/mtdm-bin-win-cublas-cu12.2.0-x64.dll/mtdm_shared.dll   deps/cu12.2.0/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-cublas-cu12.2.0-x64.dll/mtmd_shared.dll   deps/cu12.2.0/mtmd_shared.dll
 
           # Linux CUDA
           cp artifacts/ggml-bin-linux-cublas-cu11.7.1-x64.so/libggml.so              deps/cu11.7.1/libggml.so
           cp artifacts/ggml-base-bin-linux-cublas-cu11.7.1-x64.so/libggml-base.so    deps/cu11.7.1/libggml-base.so
           cp artifacts/ggml-cuda-bin-linux-cublas-cu11.7.1-x64.so/libggml-cuda.so    deps/cu11.7.1/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so            deps/cu11.7.1/libllama.so
-          cp artifacts/mtdm-bin-linux-cublas-cu11.7.1-x64.so/libmtdm_shared.so     deps/cu11.7.1/libmtdm_shared.so
+          cp artifacts/mtmd-bin-linux-cublas-cu11.7.1-x64.so/libmtmd_shared.so     deps/cu11.7.1/libmtmd_shared.so
 
           cp artifacts/ggml-bin-linux-cublas-cu12.2.0-x64.so/libggml.so              deps/cu12.2.0/libggml.so
           cp artifacts/ggml-base-bin-linux-cublas-cu12.2.0-x64.so/libggml-base.so    deps/cu12.2.0/libggml-base.so
           cp artifacts/ggml-cuda-bin-linux-cublas-cu12.2.0-x64.so/libggml-cuda.so    deps/cu12.2.0/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so            deps/cu12.2.0/libllama.so
-          cp artifacts/mtdm-bin-linux-cublas-cu12.2.0-x64.so/libmtdm_shared.so     deps/cu12.2.0/libmtdm_shared.so
+          cp artifacts/mtmd-bin-linux-cublas-cu12.2.0-x64.so/libmtmd_shared.so     deps/cu12.2.0/libmtmd_shared.so
 
           # Windows Vulkan
           cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll               deps/vulkan/ggml.dll
           cp artifacts/ggml-base-bin-win-vulkan-x64.dll/ggml-base.dll     deps/vulkan/ggml-base.dll
           cp artifacts/ggml-vulkan-bin-win-vulkan-x64.dll/ggml-vulkan.dll deps/vulkan/ggml-vulkan.dll
           cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll             deps/vulkan/llama.dll
-          cp artifacts/mtdm-bin-win-vulkan-x64.dll/mtdm_shared.dll      deps/vulkan/mtdm_shared.dll
+          cp artifacts/mtmd-bin-win-vulkan-x64.dll/mtmd_shared.dll      deps/vulkan/mtmd_shared.dll
             
           # Linux Vulkan
           cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so                deps/vulkan/libggml.so
           cp artifacts/ggml-base-bin-linux-vulkan-x64.so/libggml-base.so      deps/vulkan/libggml-base.so
           cp artifacts/ggml-vulkan-bin-linux-vulkan-x64.so/libggml-vulkan.so  deps/vulkan/libggml-vulkan.so
           cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so              deps/vulkan/libllama.so
-          cp artifacts/mtdm-bin-linux-vulkan-x64.so/libmtdm_shared.so       deps/vulkan/libmtdm_shared.so
+          cp artifacts/mtmd-bin-linux-vulkan-x64.so/libmtmd_shared.so       deps/vulkan/libmtmd_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -767,6 +767,6 @@ jobs:
         with:
           name: |
             llama-*
-            mtdm-*
+            mtmd-*
             *.metal
             ggml-*
