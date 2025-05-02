@@ -439,5 +439,36 @@ namespace LLama.Native
         // it would expose the raw pointer to the model, without properly wrapping it in a SafeLLamaModelHandle.
         //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         //public static void llama_model* llama_get_model(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Get the number of available backend devices
+        /// </summary>
+        /// <returns>Count of available backend devices</returns>
+        [DllImport(ggmlLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern nuint ggml_backend_dev_count();
+
+        /// <summary>
+        /// Get a backend device by index
+        /// </summary>
+        /// <param name="i">Device index</param>
+        /// <returns>Pointer to the backend device</returns>
+        [DllImport(ggmlLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ggml_backend_dev_get(nuint i);
+
+        /// <summary>
+        /// Get the buffer type for a backend device
+        /// </summary>
+        /// <param name="dev">Backend device pointer</param>
+        /// <returns>Pointer to the buffer type</returns>
+        [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ggml_backend_dev_buffer_type(IntPtr dev);
+
+        /// <summary>
+        /// Get the name of a buffer type
+        /// </summary>
+        /// <param name="buft">Buffer type pointer</param>
+        /// <returns>Name of the buffer type</returns>
+        [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ggml_backend_buft_name(IntPtr buft);
     }
 }
