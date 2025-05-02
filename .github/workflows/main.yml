@@ -39,9 +39,14 @@ jobs:
         dotnet-version: |
           8.0.x
     - name: Install Mobile Workloads
+      if: ${{ contains(runner.os, 'windows') }}
       run: |
         dotnet workload install android --ignore-failed-sources
         dotnet workload install maui --ignore-failed-sources
+    - name: Remove Mobile Project
+      if: ${{ !contains(runner.os, 'windows') }}
+      run: |
+        dotnet sln LLamaSharp.sln remove Llama.Mobile
     - name: Cache Packages
       uses: actions/cache@v4
       with:
