@@ -1,8 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <Import Project="..\LLama\LLamaSharp.Runtime.targets" />
+
+    <PropertyGroup>
+        <IsSupportedPlatform Condition="'$(OS)' == 'Windows_NT'">true</IsSupportedPlatform>
+        <IsSupportedPlatform Condition="'$(OS)' != 'Windows_NT'">false</IsSupportedPlatform>
+    </PropertyGroup>
+
+    <Target Name="SkipUnsupportedPlatformBuild" BeforeTargets="Build" Condition="'$(IsSupportedPlatform)' == 'false'">
+        <Message Importance="high" Text="Skipping build of $(MSBuildProjectName): unsupported on this platform." />
+        <Error Text="Skipping $(MSBuildProjectName). Not supported on this platform." Condition="'$(BuildingInsideVisualStudio)' != 'true'" />
+    </Target>
+
     <PropertyGroup>
         <TargetFrameworks>net8.0-android</TargetFrameworks>
-
+        
         <!--Temporarily Disable iOS and MacCatalyst until native lib support is added-->
         <!--<TargetFrameworks>$(TargetFrameworks);net8.0-ios;net8.0-maccatalyst</TargetFrameworks>-->
 
