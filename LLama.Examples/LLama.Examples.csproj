@@ -22,7 +22,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
     <PackageReference Include="Spectre.Console.ImageSharp" Version="0.50.0" />
-    <PackageReference Include="Whisper.net" Version="1.7.4" />
+    <PackageReference Include="Whisper.net" Version="1.8.1" />
     <PackageReference Include="Whisper.net.Runtime" Version="1.8.1" />
     <PackageReference Include="Whisper.net.Runtime.Clblast" Version="1.5.0" />
     <PackageReference Include="Whisper.net.Runtime.CoreML" Version="1.7.4" />
