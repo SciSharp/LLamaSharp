@@ -15,9 +15,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3" />
-    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.97.250211.1" />
+    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.98.250323.1" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.44.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.6.2-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.44.0-alpha" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
     <PackageReference Include="Spectre.Console" Version="0.49.1" />
