@@ -39,6 +39,12 @@ namespace LLama.Abstractions
         GPUSplitMode? SplitMode { get; }
 
         /// <summary>
+        /// Buffer type overrides for specific tensor patterns, allowing you to specify hardware devices to use for individual tensors or sets of tensors.
+        /// Equivalent to --override-tensor or -ot on the llama.cpp command line or tensor_buft_overrides internally.
+        /// </summary>
+        List<TensorBufferOverride> TensorBufferOverrides { get; }
+
+        /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
         /// </summary>
         int GpuLayerCount { get; }

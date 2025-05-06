@@ -11,6 +11,8 @@ namespace LLama.Extensions;
 /// </summary>
 public static class IModelParamsExtensions
 {
+    private static LLamaTensorBufferOverrideHelper bufferOverrideHelper = new();
+
     /// <summary>
     /// Convert the given `IModelParams` into a `LLamaModelParams`
     /// </summary>
@@ -43,6 +45,19 @@ public static class IModelParamsExtensions
         unsafe
         {
             result.tensor_split = (float*)disposer.Add(@params.TensorSplits.Pin()).Pointer;
+        }
+
+        // Add tensor buffer overrides, if any
+        if (@params.TensorBufferOverrides.Count > 0)
+        {
+            disposer.Add(bufferOverrideHelper);
+
+            foreach (var tensorOverride in @params.TensorBufferOverrides)
+            {
+                bufferOverrideHelper.AddOverride(tensorOverride.Pattern, tensorOverride.BufferType);
+            }
+
+            bufferOverrideHelper.ApplyToModelParams(ref result);
         }
 
         if (@params.MetadataOverrides.Count == 0)

@@ -18,3 +18,5 @@ extend-exclude = [
 [default.extend-words]
 # Used in a comment in SafeLLamaSamplerHandle.cs, as a prefix of "hello"
 teh = "hel"
+# ot is the shorthand version of llama.cpp's override-tensor parameter
+ot = "ot"
