@@ -37,6 +37,7 @@
 ## 📖Documentation
 
 - [Quick start](https://scisharp.github.io/LLamaSharp/latest/QuickStart/)
+- [Ask AI via deep-wiki](https://deepwiki.com/SciSharp/LLamaSharp)
 - [FAQ](https://scisharp.github.io/LLamaSharp/latest/FAQ/)
 - [Tutorial](https://scisharp.github.io/LLamaSharp/latest/Tutorials/NativeLibraryConfig/)
 - [Full documentation](https://scisharp.github.io/LLamaSharp/latest/)
@@ -65,7 +66,7 @@ There are integrations for the following libraries, making it easier to develop 
 - [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
 - [BotSharp](https://github.com/SciSharp/BotSharp): an open source machine learning framework for AI Bot platform builder.
 - [Langchain](https://github.com/tryAGI/LangChain): a framework for developing applications powered by language models.
-
+- [MaIN.NET](https://github.com/wisedev-code/MaIN.NET): simplistic approach to orchestrating agents/chats from different (llm) providers
 
 The following examples show how to build APPs with LLamaSharp.
 
@@ -120,8 +121,9 @@ Generally, we recommend downloading models with quantization rather than fp16, b
 Here is a simple example to chat with a bot based on a LLM in LLamaSharp. Please replace the model path with yours.
 
 ```cs
-using LLama.Common;
 using LLama;
+using LLama.Common;
+using LLama.Sampling;
 
 string modelPath = @"<Your Model Path>"; // change it to your own model path.
 

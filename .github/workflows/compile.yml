@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_CURL=OFF
 
 jobs:
   compile-linux:
@@ -28,23 +28,23 @@ jobs:
         include:
           - build: 'noavx'
             defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             arch: x64
           - build: 'avx2'
             defines: ''
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             arch: x64
           - build: 'avx'
             defines: '-DGGML_AVX2=OFF'
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             arch: x64
           - build: 'avx512'
             defines: '-DGGML_AVX512=ON'
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             arch: x64
           - build: 'aarch64'
             defines: '-DGGML_NATIVE=OFF -DGGML_CPU_AARCH64=ON -DGGML_CPU_ARM_ARCH=armv8-a'
-            os: ubuntu-22.04-arm
+            os: ubuntu-24.04-arm
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
@@ -102,7 +102,7 @@ jobs:
             defines: '-DGGML_AVX2=OFF'
           - build: 'avx512'
             defines: '-DGGML_AVX512=ON'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container:
       image: alpine:latest
     steps:
@@ -346,7 +346,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019]
+        os: [ubuntu-22.04, windows-2019]
         cuda: ['12.2.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
@@ -421,35 +421,35 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libllama.so
           name: llama-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml.so
           name: ggml-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml-base (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml-base.so
           name: ggml-base-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload artifacts ggml-cuda (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libggml-cuda.so
           name: ggml-cuda-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
       - name: Upload llava artifacts (Linux)
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libllava_shared.so
@@ -552,7 +552,7 @@ jobs:
             defines: '-DANDROID_ABI=x86_64'
           - build: 'arm64-v8a'
             defines: '-DANDROID_ABI=arm64-v8a'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
