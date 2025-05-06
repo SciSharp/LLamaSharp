@@ -46,7 +46,7 @@
             <LocalFileName>smollm-360m-instruct-add-basics-q8_0.gguf</LocalFileName>
         </DownloadFileItem>
 
-        <DownloadFileItem Include="smollm-360m-instruct-add-basics-q8_0">
+        <DownloadFileItem Include="jina-reranker-v1-tiny-en-FP16.gguf">
             <SourceUrl>https://huggingface.co/gpustack/jina-reranker-v1-tiny-en-GGUF/resolve/main/jina-reranker-v1-tiny-en-FP16.gguf</SourceUrl>
             <DestinationFolder>Models</DestinationFolder>
             <LocalFileName>jina-reranker-v1-tiny-en-FP16.gguf</LocalFileName>
