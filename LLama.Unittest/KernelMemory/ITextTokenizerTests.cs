@@ -22,7 +22,7 @@ namespace LLama.Unittest.KernelMemory
             _testOutputHelper = testOutputHelper;
 
             _infParams = new() { AntiPrompts = ["\n\n"] };
-            _lsConfig = new(Constants.GenerativeModelPath) { DefaultInferenceParams = _infParams, ContextSize = 512 };
+            _lsConfig = new(Constants.GenerativeModelPath) { DefaultInferenceParams = _infParams, ContextSize = 512, SplitMode = LLama.Native.GPUSplitMode.Layer };
 
             testOutputHelper.WriteLine($"Using model {Path.GetFileName(_lsConfig.ModelPath)}");
         }        
