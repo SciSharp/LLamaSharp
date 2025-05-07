@@ -88,19 +88,28 @@ namespace LLama.Native
                             // On other platforms (Windows, Linux), we need to load the CPU backend from the specified AVX level directory
                             // We are using the AVX level supplied by NativeLibraryConfig, which automatically detects the highest supported AVX level for us
                             
-                            // ggml-cpu
-                            dependencyPaths.Add(Path.Combine(
-                                $"runtimes/{os}/native/{NativeLibraryConfig.AvxLevelToString(library.Metadata.AvxLevel)}",
-                                $"{libPrefix}ggml-cpu{ext}"
-                            ));
+                            if (os == "linux-arm64"){
+                                dependencyPaths.Add(Path.Combine(
+                                    $"runtimes/{os}/native", 
+                                    $"{libPrefix}ggml-cpu{ext}"
+                                ));
+                            }
+                            else{
+                                // ggml-cpu
+                                dependencyPaths.Add(Path.Combine(
+                                    $"runtimes/{os}/native/{NativeLibraryConfig.AvxLevelToString(library.Metadata.AvxLevel)}",
+                                    $"{libPrefix}ggml-cpu{ext}"
+                                ));
 
-                            // ggml-cuda
-                            if (library.Metadata.UseCuda)
-                                dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-cuda{ext}"));
-                    
-                            // ggml-vulkan
-                            if (library.Metadata.UseVulkan)
-                                dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-vulkan{ext}"));
+                                // ggml-cuda
+                                if (library.Metadata.UseCuda)
+                                    dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-cuda{ext}"));
+                        
+                                // ggml-vulkan
+                                if (library.Metadata.UseVulkan)
+                                    dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-vulkan{ext}"));
+                            }
+
                         }
                     }
                     
@@ -218,6 +227,13 @@ namespace LLama.Native
 
             if (platform == OSPlatform.Linux)
             {
+                if(System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported){
+                    // linux arm64
+                    os = "linux-arm64";
+                    fileExtension = ".so";
+                    libPrefix = "lib";
+                    return;
+                }
                 if(RuntimeInformation.RuntimeIdentifier.ToLower().StartsWith("alpine"))
                 {
                     // alpine linux distro

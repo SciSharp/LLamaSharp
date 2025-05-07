@@ -651,7 +651,18 @@ namespace LLama.Native
                 _model = model;
             }
 
-            private string? LLamaTokenToString(LLamaToken? token, bool isSpecialToken)
+            private static LLamaToken? Normalize(LLamaToken token)
+            {
+                return token == -1 ? null : token;
+            }
+
+            /// <summary>
+            /// Translate LLamaToken to String
+            /// </summary>
+            /// <param name="token"></param>
+            /// <param name="isSpecialToken"></param>
+            /// <returns></returns>
+            public string? LLamaTokenToString(LLamaToken? token, bool isSpecialToken)
             {
                 if (!token.HasValue)
                     return null;
@@ -674,11 +685,6 @@ namespace LLama.Native
 
                 var slice = buff.Slice(0, (int)tokenLength);
                 return Encoding.UTF8.GetStringFromSpan(slice);
-            }
-
-            private static LLamaToken? Normalize(LLamaToken token)
-            {
-                return token == -1 ? null : token;
             }
 
             /// <summary>

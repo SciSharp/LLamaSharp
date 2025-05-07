@@ -46,6 +46,12 @@
             <LocalFileName>smollm-360m-instruct-add-basics-q8_0.gguf</LocalFileName>
         </DownloadFileItem>
 
+        <DownloadFileItem Include="jina-reranker-v1-tiny-en-FP16.gguf">
+            <SourceUrl>https://huggingface.co/gpustack/jina-reranker-v1-tiny-en-GGUF/resolve/main/jina-reranker-v1-tiny-en-FP16.gguf</SourceUrl>
+            <DestinationFolder>Models</DestinationFolder>
+            <LocalFileName>jina-reranker-v1-tiny-en-FP16.gguf</LocalFileName>
+        </DownloadFileItem>
+
         <DownloadFileItem Include="llava-v1.6-mistral-7b">
             <SourceUrl>https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q3_K_XS.gguf</SourceUrl>
             <DestinationFolder>Models</DestinationFolder>
@@ -128,6 +134,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\Llama-3.2-1B-Instruct-Q4_0.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\jina-reranker-v1-tiny-en-FP16.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\smollm-360m-instruct-add-basics-q8_0.gguf">
