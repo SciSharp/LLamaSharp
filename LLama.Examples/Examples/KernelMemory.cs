@@ -46,7 +46,7 @@ namespace LLama.Examples.Examples
 
             // Ask a predefined question
             Console.ForegroundColor = ConsoleColor.Green;
-            string question1 = "What formats does KM support";
+            string question1 = "What is Kernel Memory";
             Console.WriteLine($"Question: {question1}");
             await AnswerQuestion(memory, question1);
 
