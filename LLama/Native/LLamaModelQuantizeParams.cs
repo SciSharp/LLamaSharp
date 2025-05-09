@@ -90,6 +90,11 @@ namespace LLama.Native
         public IntPtr kv_overrides;
 
         /// <summary>
+        /// pointer to vector containing tensor types
+        /// </summary>
+        public IntPtr tensor_types;
+
+        /// <summary>
         /// Create a LLamaModelQuantizeParams with default values
         /// </summary>
         /// <returns></returns>

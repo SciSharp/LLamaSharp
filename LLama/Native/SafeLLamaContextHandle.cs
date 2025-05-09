@@ -389,6 +389,15 @@ namespace LLama.Native
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaKvCacheNative llama_get_kv_self(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Set whether the model is in warmup mode or not
+        /// If true, all model tensors are activated during llama_decode() to load and cache their weights.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="warmup"></param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_set_warmup(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool warmup);
         #endregion
 
         #region LoRA

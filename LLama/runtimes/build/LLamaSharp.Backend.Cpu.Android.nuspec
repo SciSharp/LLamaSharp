@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+    <metadata>
+        <id>LLamaSharp.Backend.Cpu.Android</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Cpu.Android, the backend for LLamaSharp</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Cpu.Android is a backend for LLamaSharp to use with Android Cpu only.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+    </metadata>
+
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.Android.props" />
+
+        <file src="runtimes/deps/android-arm64-v8a/libllama.so" target="runtimes\android-arm64-v8a\native\libllama.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libggml.so" target="runtimes\android-arm64-v8a\native\libggml.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libggml-base.so" target="runtimes\android-arm64-v8a\native\libggml-base.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libggml-cpu.so" target="runtimes\android-arm64-v8a\native\libggml-cpu.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libllava_shared.so" target="runtimes\android-arm64-v8a\native\libllava_shared.so" />
+
+        <file src="runtimes/deps/android-x86_64/libllama.so" target="runtimes\android-x86_64\native\libllama.so" />
+        <file src="runtimes/deps/android-x86_64/libggml.so" target="runtimes\android-x86_64\native\libggml.so" />
+        <file src="runtimes/deps/android-x86_64/libggml-base.so" target="runtimes\android-x86_64\native\libggml-base.so" />
+        <file src="runtimes/deps/android-x86_64/libggml-cpu.so" target="runtimes\android-x86_64\native\libggml-cpu.so" />
+        <file src="runtimes/deps/android-x86_64/libllava_shared.so" target="runtimes\android-x86_64\native\libllava_shared.so" />
+
+        <file src="runtimes/deps/android-x86/libllama.so" target="runtimes\android-x86\native\libllama.so" />
+        <file src="runtimes/deps/android-x86/libggml.so" target="runtimes\android-x86\native\libggml.so" />
+        <file src="runtimes/deps/android-x86/libggml-base.so" target="runtimes\android-x86\native\libggml-base.so" />
+        <file src="runtimes/deps/android-x86/libggml-cpu.so" target="runtimes\android-x86\native\libggml-cpu.so" />
+        <file src="runtimes/deps/android-x86/libllava_shared.so" target="runtimes\android-x86\native\libllava_shared.so" />
+
+        <file src="icon512.png" target="icon512.png" />
+    </files>
+</package>
