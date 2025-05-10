@@ -33,9 +33,12 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                //Embeddings = true,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
 
@@ -58,9 +61,12 @@ namespace LLamaSharp.KernelMemory
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                //Embeddings = true,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
             _weights = weights;
@@ -98,7 +104,7 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <inheritdoc/>
-        public int CountTokens(string text) => _embedder.Context.Tokenize(text, special: true).Length;
+        public int CountTokens(string text) => _embedder.CountTokens(text);
 
         /// <summary>
         /// Get the list of tokens for the input text
@@ -108,15 +114,6 @@ namespace LLamaSharp.KernelMemory
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
         /// <see cref="CountTokens(string)"/>
-        public IReadOnlyList<string> GetTokens(string text)
-        {
-            /* see relevant unit tests for important implementation notes regarding unicode */
-            var context = _embedder.Context;
-            var numericTokens = context.Tokenize(text, special: true);
-            var decoder = new StreamingTokenDecoder(context);
-            return numericTokens
-                .Select(x => { decoder.Add(x); return decoder.Read(); })
-                .ToList();
-        }
+        public IReadOnlyList<string> GetTokens(string text) => _embedder.GetTokens(text);
     }
 }
