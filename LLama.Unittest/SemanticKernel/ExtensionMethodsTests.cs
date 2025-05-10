@@ -21,6 +21,20 @@ namespace LLama.Unittest.SemanticKernel
         }
 
         [Fact]
+        public void ToLLamaSharpChatHistory_NullChatHistory_ThrowsArgumentNullException()
+        {
+            // Arrange
+            Microsoft.SemanticKernel.ChatCompletion.ChatHistory chatHistory = null;
+            bool ignoreCase = true;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                ExtensionMethods.ToLLamaSharpChatHistory(chatHistory, ignoreCase));
+
+            Assert.Equal("chatHistory", exception.ParamName);
+        }
+
+        [Fact]
         public void ToLLamaSharpInferenceParams_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
@@ -33,5 +47,20 @@ namespace LLama.Unittest.SemanticKernel
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public void ToLLamaSharpInferenceParams_NullRequestSettings_ThrowsArgumentNullException()
+        {
+            // Arrange
+            LLamaSharpPromptExecutionSettings requestSettings = null;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                ExtensionMethods.ToLLamaSharpInferenceParams(requestSettings));
+
+            // Ensure the exception is thrown for the correct parameter
+            Assert.Equal("requestSettings", exception.ParamName);
+        }
+        
     }
 }
