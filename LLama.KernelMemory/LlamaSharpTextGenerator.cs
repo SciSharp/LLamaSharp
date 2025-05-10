@@ -17,9 +17,6 @@ namespace LLamaSharp.KernelMemory
         private readonly LLamaWeights _weights;
         private readonly bool _ownsWeights;
 
-        private readonly LLamaContext _context;
-        private readonly bool _ownsContext;
-
         private readonly InferenceParams? _defaultInferenceParams;
 
         public int MaxTokenTotal { get; }
@@ -35,13 +32,16 @@ namespace LLamaSharp.KernelMemory
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true
             };
             _weights = LLamaWeights.LoadFromFile(parameters);
-            _context = _weights.CreateContext(parameters);
             _executor = new StatelessExecutor(_weights, parameters);
-            _defaultInferenceParams = config.DefaultInferenceParams;
-            _ownsWeights = _ownsContext = true;
+            _defaultInferenceParams = config!.DefaultInferenceParams;
+            _ownsWeights = true;
             MaxTokenTotal = (int)parameters.ContextSize;
         }
 
@@ -50,16 +50,25 @@ namespace LLamaSharp.KernelMemory
         /// If executor is not specified, then a StatelessExecutor will be created with `context.Params`. So far only `StatelessExecutor` is expected.
         /// </summary>
         /// <param name="weights">A LLamaWeights object.</param>
-        /// <param name="context">A LLamaContext object.</param>
         /// <param name="executor">An executor. Currently only StatelessExecutor is expected.</param>
-        /// <param name="inferenceParams">Inference parameters to use by default</param>
-        public LlamaSharpTextGenerator(LLamaWeights weights, LLamaContext context, StatelessExecutor? executor = null, InferenceParams? inferenceParams = null)
+        public LlamaSharpTextGenerator(LLamaWeights weights, LLamaSharpConfig config, StatelessExecutor? executor = null)
         {
+            InferenceParams? inferenceParams = config.DefaultInferenceParams;
             _weights = weights;
-            _context = context;
-            _executor = executor ?? new StatelessExecutor(_weights, _context.Params);
+            var parameters = new ModelParams("")
+            {
+                ContextSize = config?.ContextSize ?? 2048,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true
+            };
+            _executor = executor ?? new StatelessExecutor(_weights, parameters);
             _defaultInferenceParams = inferenceParams;
-            MaxTokenTotal = (int)_context.ContextSize;
+            MaxTokenTotal = (int)parameters.ContextSize;
         }
 
         /// <inheritdoc/>
@@ -68,10 +77,6 @@ namespace LLamaSharp.KernelMemory
             if (_ownsWeights)
             {
                 _weights.Dispose();
-            }
-            if (_ownsContext)
-            {
-                _context.Dispose();
             }
         }
 
@@ -118,7 +123,7 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <inheritdoc/>
-        public int CountTokens(string text) => _context.Tokenize(text, special: true).Length;
+        public int CountTokens(string text) => _executor.CountTokens(text);
 
         /// <summary>
         /// Get the list of tokens for the input text
@@ -128,14 +133,7 @@ namespace LLamaSharp.KernelMemory
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
         /// <see cref="CountTokens(string)"/>
-        public IReadOnlyList<string> GetTokens(string text)
-        {
-            /* see relevant unit tests for important implementation notes regarding unicode */
-            var numericTokens = _context.Tokenize(text, special: true);
-            var decoder = new StreamingTokenDecoder(_context);
-            return numericTokens
-                .Select(x => { decoder.Add(x); return decoder.Read(); })
-                .ToList();
-        }
+        public IReadOnlyList<string> GetTokens(string text) => _executor.GetTokens(text);
+
     }
 }
