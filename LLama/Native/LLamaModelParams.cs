@@ -14,10 +14,10 @@ namespace LLama.Native
         /// </summary>
         private IntPtr devices;
 
-        // NULL-terminated list of buffer types to use for tensors that match a pattern
-        // actual type: llama_model_tensor_buft_override* 
-        // todo: add support for tensor_buft_overrides
-        private IntPtr tensor_buft_overrides;
+        /// <summary>
+        /// NULL-terminated list of buffer types to use for tensors that match a pattern
+        /// </summary>
+        public LLamaModelTensorBufferOverride* tensor_buft_overrides;
 
         /// <summary>
         /// // number of layers to store in VRAM

@@ -45,6 +45,20 @@ public static class IModelParamsExtensions
             result.tensor_split = (float*)disposer.Add(@params.TensorSplits.Pin()).Pointer;
         }
 
+        // Add tensor buffer overrides, if any
+        if (@params.TensorBufferOverrides.Count > 0)
+        {
+            var bufferOverrideHelper = new LLamaTensorBufferOverrideHelper();
+            disposer.Add(bufferOverrideHelper);
+
+            foreach (var tensorOverride in @params.TensorBufferOverrides)
+            {
+                bufferOverrideHelper.AddOverride(tensorOverride.Pattern, tensorOverride.BufferType);
+            }
+
+            bufferOverrideHelper.ApplyToModelParams(ref result);
+        }
+
         if (@params.MetadataOverrides.Count == 0)
         {
             unsafe

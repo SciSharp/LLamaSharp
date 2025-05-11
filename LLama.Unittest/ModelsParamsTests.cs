@@ -41,6 +41,11 @@ namespace LLama.Unittest
             actual.MetadataOverrides = null!;
             expected.MetadataOverrides = null!;
 
+            // Same deal
+            Assert.True(expected.TensorBufferOverrides.SequenceEqual(actual.TensorBufferOverrides));
+            actual.TensorBufferOverrides = null!;
+            expected.TensorBufferOverrides = null!;
+
             // Check encoding is the same
             var b1 = expected.Encoding.GetBytes("Hello");
             var b2 = actual.Encoding.GetBytes("Hello");

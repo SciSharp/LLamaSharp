@@ -107,6 +107,8 @@ namespace LLama.Native
 
         internal const string libraryName = "llama";
         internal const string llavaLibraryName = "llava_shared";
+        internal const string ggmlLibraryName = "ggml";
+        internal const string ggmlBaseLibraryName = "ggml-base";
 
         private static INativeLibrary? _loadedLLamaLibrary = null;
         private static INativeLibrary? _loadedLLavaLibrary = null;
