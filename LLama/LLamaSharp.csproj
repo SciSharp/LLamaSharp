@@ -51,13 +51,13 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.4.0-preview.1.25207.5" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.4.3-preview.1.25230.7" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
     <PackageReference Include="System.Numerics.Tensors" Version="9.0.3" />
   </ItemGroup>
 
   <PropertyGroup>
-    <BinaryReleaseId>be7c3034108473be</BinaryReleaseId>
+    <BinaryReleaseId>ceda28ef8e310_v2</BinaryReleaseId>
   </PropertyGroup>
 
   <PropertyGroup>

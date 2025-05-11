@@ -290,6 +290,14 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void llama_kv_self_clear(SafeLLamaContextHandle ctx);
 
+        [Obsolete("Use `llama_kv_self_clear` instead")]
+        /// <summary>
+        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
+        /// </summary>
+        /// <param name="ctx"></param>        
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void llama_kv_cache_clear(SafeLLamaContextHandle ctx);
+        
         /// <summary>
         /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
         /// </summary>

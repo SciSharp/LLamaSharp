@@ -32,8 +32,10 @@ namespace LLamaSharp.KernelMemory
         {
             var parameters = new ModelParams(config.ModelPath)
             {
-                ContextSize = config.ContextSize ?? 2048,
-                GpuLayerCount = config.GpuLayerCount ?? 20,
+                ContextSize = config?.ContextSize ?? 2048,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
             };
             _weights = LLamaWeights.LoadFromFile(parameters);
             _context = _weights.CreateContext(parameters);

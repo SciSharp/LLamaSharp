@@ -54,7 +54,7 @@ public class KernelMemorySaveAndLoad
             await IngestDocuments(memory);
         }
 
-        await AskSingleQuestion(memory, "What formats does KM support?");
+        await AskSingleQuestion(memory, "What is Kernel Memory");
         await StartUserChatSession(memory);
     }
 
