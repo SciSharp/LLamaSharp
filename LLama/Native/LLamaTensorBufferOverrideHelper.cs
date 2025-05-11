@@ -90,7 +90,7 @@ namespace LLama.Native
         {
             if (_overrides.Count == 0)
             {
-                modelParams.tensor_buft_overrides = IntPtr.Zero;
+                modelParams.tensor_buft_overrides = null;
                 return;
             }
 
@@ -117,7 +117,7 @@ namespace LLama.Native
             Marshal.StructureToPtr(new LLamaModelTensorBufferOverride { Pattern = IntPtr.Zero, BufferType = IntPtr.Zero }, nullTermPtr, false);
 
             // Update model params
-            modelParams.tensor_buft_overrides = _overrideArray;
+            modelParams.tensor_buft_overrides = (LLamaModelTensorBufferOverride*)_overrideArray.ToPointer();
         }
 
         /// <inheritdoc />
