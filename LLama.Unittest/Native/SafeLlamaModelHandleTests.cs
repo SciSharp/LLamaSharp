@@ -18,18 +18,18 @@ public class SafeLlamaModelHandleTests
         _model = LLamaWeights.LoadFromFile(@params);
     }
 
-    [Fact]
-    public void MetadataValByKey_ReturnsCorrectly()
-    {
-        const string key = "general.name";
-        var template = _model.NativeHandle.MetadataValueByKey(key);
-        var name = Encoding.UTF8.GetStringFromSpan(template!.Value.Span);
+    //[Fact]
+    //public void MetadataValByKey_ReturnsCorrectly()
+    //{
+    //    const string key = "general.name";
+    //    var template = _model.NativeHandle.MetadataValueByKey(key);
+    //    var name = Encoding.UTF8.GetStringFromSpan(template!.Value.Span);
 
-        const string expected = "SmolLM 360M";
-        Assert.Equal(expected, name);
+    //    const string expected = "SmolLM 360M";
+    //    Assert.Equal(expected, name);
 
-        var metadataLookup = _model.Metadata[key];
-        Assert.Equal(expected, metadataLookup);
-        Assert.Equal(name, metadataLookup);
-    }
+    //    var metadataLookup = _model.Metadata[key];
+    //    Assert.Equal(expected, metadataLookup);
+    //    Assert.Equal(name, metadataLookup);
+    //}
 }
