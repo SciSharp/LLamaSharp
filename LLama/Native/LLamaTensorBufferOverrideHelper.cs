@@ -7,7 +7,7 @@ namespace LLama.Native
     /// <summary>
     /// Helper for creating and managing tensor buffer overrides
     /// </summary>
-    public class LLamaTensorBufferOverrideHelper : IDisposable
+    internal class LLamaTensorBufferOverrideHelper : IDisposable
     {
         private readonly List<IntPtr> _allocatedMemory = new();
         private readonly List<LLamaModelTensorBufferOverride> _overrides = new();
