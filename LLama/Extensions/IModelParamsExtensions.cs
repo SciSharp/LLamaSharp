@@ -11,8 +11,6 @@ namespace LLama.Extensions;
 /// </summary>
 public static class IModelParamsExtensions
 {
-    private static LLamaTensorBufferOverrideHelper bufferOverrideHelper = new();
-
     /// <summary>
     /// Convert the given `IModelParams` into a `LLamaModelParams`
     /// </summary>
@@ -50,6 +48,7 @@ public static class IModelParamsExtensions
         // Add tensor buffer overrides, if any
         if (@params.TensorBufferOverrides.Count > 0)
         {
+            var bufferOverrideHelper = new LLamaTensorBufferOverrideHelper();
             disposer.Add(bufferOverrideHelper);
 
             foreach (var tensorOverride in @params.TensorBufferOverrides)
