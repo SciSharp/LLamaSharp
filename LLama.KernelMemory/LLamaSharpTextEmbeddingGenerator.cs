@@ -31,9 +31,11 @@ namespace LLamaSharp.KernelMemory
 
             var @params = new ModelParams(config.ModelPath)
             {
-                ContextSize = config.ContextSize,
-                GpuLayerCount = config.GpuLayerCount ?? 20,
-
+                ContextSize = config?.ContextSize ?? 2048,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                //Embeddings = true,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
                 PoolingType = LLamaPoolingType.Mean,
             };
 
@@ -54,11 +56,11 @@ namespace LLamaSharp.KernelMemory
 
             var @params = new ModelParams(config.ModelPath)
             {
-                ContextSize = config.ContextSize ?? 2048,
-                GpuLayerCount = config.GpuLayerCount ?? 20,
-                Embeddings = true,
-                MainGpu = config.MainGpu,
-                SplitMode = config.SplitMode,
+                ContextSize = config?.ContextSize ?? 2048,
+                GpuLayerCount = config?.GpuLayerCount ?? 20,
+                //Embeddings = true,
+                MainGpu = config?.MainGpu ?? 0,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
                 PoolingType = LLamaPoolingType.Mean,
             };
             _weights = weights;

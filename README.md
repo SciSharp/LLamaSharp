@@ -37,6 +37,7 @@
 ## 📖Documentation
 
 - [Quick start](https://scisharp.github.io/LLamaSharp/latest/QuickStart/)
+- [Ask AI via deep-wiki](https://deepwiki.com/SciSharp/LLamaSharp)
 - [FAQ](https://scisharp.github.io/LLamaSharp/latest/FAQ/)
 - [Tutorial](https://scisharp.github.io/LLamaSharp/latest/Tutorials/NativeLibraryConfig/)
 - [Full documentation](https://scisharp.github.io/LLamaSharp/latest/)

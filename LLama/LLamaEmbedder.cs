@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Exceptions;
 using LLama.Native;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LLama;
 
@@ -65,9 +67,8 @@ public sealed partial class LLamaEmbedder
     {
         // Add all of the tokens to the batch
         var tokens = Context.Tokenize(input, special: true);
-        var batch = new LLamaBatch();
-        for (var i = 0; i < tokens.Length; i++)
-            batch.Add(tokens[i], i, LLamaSeqId.Zero, true);
+        if (tokens.Length > Context.ContextSize)
+            throw new ArgumentException($"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})", nameof(input));
 
         // clear previous kv_cache values
         Context.NativeHandle.KvCacheClear();
@@ -75,27 +76,42 @@ public sealed partial class LLamaEmbedder
         // Check if we should cancel the work, just before doing anything expensive (encode/decode)
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Run model
-        switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+        // Evaluate prompt in batch-size chunks
+        var n_past = 0;
+        var batch = new LLamaBatch();
+        var batchSize = (int)Context.Params.BatchSize;
+        for (var i = 0; i < tokens.Length; i += batchSize)
         {
-            case (true, false):
-            {
-                var result = await Context.EncodeAsync(batch, cancellationToken);
-                if (result != EncodeResult.Ok)
-                    throw new RuntimeError($"Failed to encode: {result}");
-                break;
-            }
+            var n_eval = tokens.Length - i;
+            if (n_eval > batchSize)
+                n_eval = batchSize;
 
-            case (false, true):
-            {
-                var result = await Context.DecodeAsync(batch, cancellationToken);
-                if (result != DecodeResult.Ok)
-                    throw new RuntimeError($"Failed to decode: {result}");
-                break;
-            }
+            batch.Clear();
+            batch.AddRange(tokens.AsSpan(i, n_eval), n_past, LLamaSeqId.Zero, true);
+            n_past += n_eval;
 
-            default:
-                throw new NotSupportedException("Unsupported model type");
+            // Run model
+            switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+            {
+                case (true, false):
+                    {
+                        var result = await Context.EncodeAsync(batch, cancellationToken);
+                        if (result != EncodeResult.Ok)
+                            throw new RuntimeError($"Failed to encode: {result}");
+                        break;
+                    }
+
+                case (false, true):
+                    {
+                        var result = await Context.DecodeAsync(batch, cancellationToken);
+                        if (result != DecodeResult.Ok)
+                            throw new RuntimeError($"Failed to decode: {result}");
+                        break;
+                    }
+
+                default:
+                    throw new NotSupportedException("Unsupported model type");
+            }
         }
 
         // Extract results
@@ -112,6 +128,13 @@ public sealed partial class LLamaEmbedder
         else
         {
             results.Add(Context.NativeHandle.GetEmbeddingsSeq(LLamaSeqId.Zero).ToArray());
+        }
+
+        // Normalize the embeddings vector
+        // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
+        foreach (var embedding in results)
+        {
+            embedding.EuclideanNormalization();
         }
 
         Context.NativeHandle.KvCacheClear();
