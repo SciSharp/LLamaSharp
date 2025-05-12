@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package >
-  <metadata>
-    <id>LLamaSharp.Backend.Cpu</id>
-    <version>$version$</version>
-    <title>LLamaSharp.Backend.Cpu, the backend for LLamaSharp</title>
-    <authors>llama.cpp Authors</authors>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
-    <icon>icon512.png</icon>
-    <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
-    <description>LLamaSharp.Backend.Cpu is a backend for LLamaSharp to use with Cpu only.</description>
-    <releaseNotes></releaseNotes>
-    <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
-    <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
-  </metadata>
+    <metadata>
+        <id>LLamaSharp.Backend.Cpu</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Cpu, the backend for LLamaSharp</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Cpu is a backend for LLamaSharp to use with Cpu only.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+    </metadata>
 
-  <files>
-    <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.props" />
 
-    <file src="runtimes/deps/noavx/ggml.dll" target="runtimes\win-x64\native\noavx\ggml.dll" />
-    <file src="runtimes/deps/noavx/ggml-base.dll" target="runtimes\win-x64\native\noavx\ggml-base.dll" />
-    <file src="runtimes/deps/noavx/ggml-cpu.dll" target="runtimes\win-x64\native\noavx\ggml-cpu.dll" />
-    <file src="runtimes/deps/noavx/llama.dll" target="runtimes\win-x64\native\noavx\llama.dll" />
-    <file src="runtimes/deps/noavx/llava_shared.dll" target="runtimes\win-x64\native\noavx\llava_shared.dll" />
-      
-    <file src="runtimes/deps/avx/ggml.dll" target="runtimes\win-x64\native\avx\ggml.dll" />
-    <file src="runtimes/deps/avx/ggml-base.dll" target="runtimes\win-x64\native\avx\ggml-base.dll" />
-    <file src="runtimes/deps/avx/ggml-cpu.dll" target="runtimes\win-x64\native\avx\ggml-cpu.dll" />
-    <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
-    <file src="runtimes/deps/avx/llava_shared.dll" target="runtimes\win-x64\native\avx\llava_shared.dll" />
-      
-    <file src="runtimes/deps/avx2/ggml.dll" target="runtimes\win-x64\native\avx2\ggml.dll" />
-    <file src="runtimes/deps/avx2/ggml-base.dll" target="runtimes\win-x64\native\avx2\ggml-base.dll" />
-    <file src="runtimes/deps/avx2/ggml-cpu.dll" target="runtimes\win-x64\native\avx2\ggml-cpu.dll" />
-    <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />
-    <file src="runtimes/deps/avx2/llava_shared.dll" target="runtimes\win-x64\native\avx2\llava_shared.dll" />
-      
-    <file src="runtimes/deps/avx512/ggml.dll" target="runtimes\win-x64\native\avx512\ggml.dll" />
-    <file src="runtimes/deps/avx512/ggml-base.dll" target="runtimes\win-x64\native\avx512\ggml-base.dll" />
-    <file src="runtimes/deps/avx512/ggml-cpu.dll" target="runtimes\win-x64\native\avx512\ggml-cpu.dll" />
-    <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
-    <file src="runtimes/deps/avx512/llava_shared.dll" target="runtimes\win-x64\native\avx512\llava_shared.dll" />
+        <file src="runtimes/deps/noavx/ggml.dll" target="runtimes\win-x64\native\noavx\ggml.dll" />
+        <file src="runtimes/deps/noavx/ggml-base.dll" target="runtimes\win-x64\native\noavx\ggml-base.dll" />
+        <file src="runtimes/deps/noavx/ggml-cpu.dll" target="runtimes\win-x64\native\noavx\ggml-cpu.dll" />
+        <file src="runtimes/deps/noavx/llama.dll" target="runtimes\win-x64\native\noavx\llama.dll" />
+        <file src="runtimes/deps/noavx/llava_shared.dll" target="runtimes\win-x64\native\noavx\llava_shared.dll" />
+
+        <file src="runtimes/deps/avx/ggml.dll" target="runtimes\win-x64\native\avx\ggml.dll" />
+        <file src="runtimes/deps/avx/ggml-base.dll" target="runtimes\win-x64\native\avx\ggml-base.dll" />
+        <file src="runtimes/deps/avx/ggml-cpu.dll" target="runtimes\win-x64\native\avx\ggml-cpu.dll" />
+        <file src="runtimes/deps/avx/llama.dll" target="runtimes\win-x64\native\avx\llama.dll" />
+        <file src="runtimes/deps/avx/llava_shared.dll" target="runtimes\win-x64\native\avx\llava_shared.dll" />
+
+        <file src="runtimes/deps/avx2/ggml.dll" target="runtimes\win-x64\native\avx2\ggml.dll" />
+        <file src="runtimes/deps/avx2/ggml-base.dll" target="runtimes\win-x64\native\avx2\ggml-base.dll" />
+        <file src="runtimes/deps/avx2/ggml-cpu.dll" target="runtimes\win-x64\native\avx2\ggml-cpu.dll" />
+        <file src="runtimes/deps/avx2/llama.dll" target="runtimes\win-x64\native\avx2\llama.dll" />
+        <file src="runtimes/deps/avx2/llava_shared.dll" target="runtimes\win-x64\native\avx2\llava_shared.dll" />
+
+        <file src="runtimes/deps/avx512/ggml.dll" target="runtimes\win-x64\native\avx512\ggml.dll" />
+        <file src="runtimes/deps/avx512/ggml-base.dll" target="runtimes\win-x64\native\avx512\ggml-base.dll" />
+        <file src="runtimes/deps/avx512/ggml-cpu.dll" target="runtimes\win-x64\native\avx512\ggml-cpu.dll" />
+        <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
+        <file src="runtimes/deps/avx512/llava_shared.dll" target="runtimes\win-x64\native\avx512\llava_shared.dll" />
 
     <file src="runtimes/deps/noavx/libggml.so" target="runtimes\linux-x64\native\noavx\libggml.so" />
     <file src="runtimes/deps/noavx/libggml-base.so" target="runtimes\linux-x64\native\noavx\libggml-base.so" />
@@ -66,7 +66,13 @@
     <file src="runtimes/deps/avx512/libllama.so" target="runtimes\linux-x64\native\avx512\libllama.so" />
     <file src="runtimes/deps/avx512/libllava_shared.so" target="runtimes\linux-x64\native\avx512\libllava_shared.so" />
     
-	<file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
+    <file src="runtimes/deps/linux-arm64/libggml.so" target="runtimes\linux-arm64\native\libggml.so" />
+    <file src="runtimes/deps/linux-arm64/libggml-base.so" target="runtimes\linux-arm64\native\libggml-base.so" />
+    <file src="runtimes/deps/linux-arm64/libggml-cpu.so" target="runtimes\linux-arm64\native\libggml-cpu.so" />
+    <file src="runtimes/deps/linux-arm64/libllama.so" target="runtimes\linux-arm64\native\libllama.so" />
+    <file src="runtimes/deps/linux-arm64/libllava_shared.so" target="runtimes\linux-arm64\native\libllava_shared.so" />
+
+	  <file src="runtimes/deps/musl-noavx/libggml.so" target="runtimes\linux-musl-x64\native\noavx\libggml.so" />
     <file src="runtimes/deps/musl-noavx/libggml-base.so" target="runtimes\linux-musl-x64\native\noavx\libggml-base.so" />
     <file src="runtimes/deps/musl-noavx/libggml-cpu.so" target="runtimes\linux-musl-x64\native\noavx\libggml-cpu.so" />
     <file src="runtimes/deps/musl-noavx/libllama.so" target="runtimes\linux-musl-x64\native\noavx\libllama.so" />
@@ -97,22 +103,22 @@
     <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
     <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
 
-    <file src="runtimes/deps/osx-x64-rosetta2/libggml.dylib" target="runtimes\osx-x64\native\rosetta2\libggml.dylib" />
-    <file src="runtimes/deps/osx-x64-rosetta2/libggml-base.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-base.dylib" />
-    <file src="runtimes/deps/osx-x64-rosetta2/libggml-cpu.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-cpu.dylib" />
-    <file src="runtimes/deps/osx-x64-rosetta2/libggml-blas.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-blas.dylib" />
-    <file src="runtimes/deps/osx-x64-rosetta2/libllama.dylib" target="runtimes\osx-x64\native\rosetta2\libllama.dylib" />
-    <file src="runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib" target="runtimes\osx-x64\native\rosetta2\libllava_shared.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libggml.dylib" target="runtimes\osx-x64\native\rosetta2\libggml.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libggml-base.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-base.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libggml-cpu.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-cpu.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libggml-blas.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-blas.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libllama.dylib" target="runtimes\osx-x64\native\rosetta2\libllama.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib" target="runtimes\osx-x64\native\rosetta2\libllava_shared.dylib" />
 
-    <file src="runtimes/deps/osx-arm64/libggml.dylib" target="runtimes\osx-arm64\native\libggml.dylib" />
-    <file src="runtimes/deps/osx-arm64/libggml-base.dylib" target="runtimes\osx-arm64\native\libggml-base.dylib" />
-    <file src="runtimes/deps/osx-arm64/libggml-cpu.dylib" target="runtimes\osx-arm64\native\libggml-cpu.dylib" />
-    <file src="runtimes/deps/osx-arm64/libggml-blas.dylib" target="runtimes\osx-arm64\native\libggml-blas.dylib" />
-    <file src="runtimes/deps/osx-arm64/libggml-metal.dylib" target="runtimes\osx-arm64\native\libggml-metal.dylib" />
-    <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
-    <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
-    <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
-      
-    <file src="icon512.png" target="icon512.png" />
-  </files>
+        <file src="runtimes/deps/osx-arm64/libggml.dylib" target="runtimes\osx-arm64\native\libggml.dylib" />
+        <file src="runtimes/deps/osx-arm64/libggml-base.dylib" target="runtimes\osx-arm64\native\libggml-base.dylib" />
+        <file src="runtimes/deps/osx-arm64/libggml-cpu.dylib" target="runtimes\osx-arm64\native\libggml-cpu.dylib" />
+        <file src="runtimes/deps/osx-arm64/libggml-blas.dylib" target="runtimes\osx-arm64\native\libggml-blas.dylib" />
+        <file src="runtimes/deps/osx-arm64/libggml-metal.dylib" target="runtimes\osx-arm64\native\libggml-metal.dylib" />
+        <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
+        <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
+        <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
+
+        <file src="icon512.png" target="icon512.png" />
+    </files>
 </package>

@@ -27,6 +27,9 @@ namespace LLama.Web.Common
         public GPUSplitMode? SplitMode { get; set; }
 
         /// <inheritdoc />
+        public List<TensorBufferOverride> TensorBufferOverrides { get; set; } = new();
+
+        /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
         /// <inheritdoc />
