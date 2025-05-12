@@ -7,12 +7,12 @@ namespace LLama.Native
     /// Original type: llama_model_tensor_buft_override
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct LLamaModelTensorBufferOverride
+    public unsafe struct LLamaModelTensorBufferOverride
     {
         /// <summary>
         /// Tensor name pattern to match
         /// </summary>
-        public IntPtr Pattern;
+        public byte* Pattern;
 
         /// <summary>
         /// Backend buffer type to use for matching tensors, as obtained via ggml_backend_dev_buffer_type
