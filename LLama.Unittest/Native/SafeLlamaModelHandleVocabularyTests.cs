@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LLama.Unittest.Native;
 
-public class SafeLlamaModelHandleVocabularyTests
+public class SafeLlamaModelHandleVocabularyTests: IDisposable
 {
     private readonly LLamaWeights _model;
 
@@ -20,6 +20,11 @@ public class SafeLlamaModelHandleVocabularyTests
             GpuLayerCount = Constants.CIGpuLayerCount
         };
         _model = LLamaWeights.LoadFromFile(@params);
+    }
+
+    public void Dispose()
+    {
+        _model.Dispose();
     }
 
     [Fact]

@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace LLama.Unittest;
 
-public sealed class LLamaRerankerTests
+public sealed class LLamaRerankerTests: IDisposable
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly LLamaReranker _reranker;
@@ -24,6 +24,11 @@ public sealed class LLamaRerankerTests
         };
         using var weights = LLamaWeights.LoadFromFile(@params);
         _reranker = new LLamaReranker(weights, @params);
+    }
+
+    public void Dispose()
+    {
+        _reranker.Dispose();
     }
 
     [Fact]
