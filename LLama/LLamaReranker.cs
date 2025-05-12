@@ -100,7 +100,6 @@ public sealed partial class LLamaReranker
     /// <param name="input"></param>
     /// <param name="document"></param>
     /// <param name="cancellationToken"></param>
-    /// <param name="normalize">Whether to normalize the score to the range (0, 1)</param>
     /// <returns></returns>
     /// <exception cref="RuntimeError"></exception>
     /// <exception cref="NotSupportedException"></exception>
