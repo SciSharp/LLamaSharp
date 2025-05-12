@@ -169,44 +169,5 @@ namespace LLama
                     throw new LLamaDecodeError(returnCode);
             }
         }
-
-        /// <inheritdoc/>
-        public int CountTokens(string text)
-        {
-            // Ensure the context from last time is disposed (it always should be)
-            if (!Context.NativeHandle.IsClosed)
-                Context.Dispose();
-            Context = _weights.CreateContext(_params, _logger);
-            int count = Context.Tokenize(text, special: true).Length;
-            Context.Dispose();
-
-            return count;
-        }
-
-        /// <summary>
-        /// Get the list of tokens for the input text
-        /// </summary>
-        /// <param name="text">Input string to be tokenized</param>
-        /// <returns>Read-only list of tokens for the input test</returns>
-        /// <remarks>
-        /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
-        /// <see cref="CountTokens(string)"/>
-        public IReadOnlyList<string> GetTokens(string text)
-        {
-            // Ensure the context from last time is disposed (it always should be)
-            if (!Context.NativeHandle.IsClosed)
-                Context.Dispose();
-            Context = _weights.CreateContext(_params, _logger);
-
-            /* see relevant unit tests for important implementation notes regarding unicode */
-            var numericTokens = Context.Tokenize(text, special: true);
-            var decoder = new StreamingTokenDecoder(Context);
-            var tokens = numericTokens
-                .Select(x => { decoder.Add(x); return decoder.Read(); })
-                .ToList();
-            Context.Dispose();
-
-            return tokens ?? new List<string>();
-        }
     }
 }

@@ -18,6 +18,8 @@ namespace LLamaSharp.KernelMemory
         private readonly LLamaEmbedder _embedder;
         private readonly bool _ownsEmbedder;
 
+        private readonly ModelParams? @params;
+
         /// <inheritdoc/>
         public int MaxTokens { get; }
 
@@ -29,7 +31,7 @@ namespace LLamaSharp.KernelMemory
         {
             MaxTokens = (int?)config.ContextSize ?? 2048;
 
-            var @params = new ModelParams(config.ModelPath)
+            @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
@@ -57,7 +59,7 @@ namespace LLamaSharp.KernelMemory
         {
             MaxTokens = (int?)config.ContextSize ?? 2048;
 
-            var @params = new ModelParams(config.ModelPath)
+            @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
@@ -103,8 +105,12 @@ namespace LLamaSharp.KernelMemory
             return new Embedding(embeddings.First());
         }
 
-        /// <inheritdoc/>
-        public int CountTokens(string text) => _embedder.CountTokens(text);
+        /// <summary>
+        /// Count tokens in the input text
+        /// </summary>
+        /// <param name="text">input text</param>
+        /// <returns></returns>
+        public int CountTokens(string text) => _weights?.CountTokens(text, @params!) ?? 0;
 
         /// <summary>
         /// Get the list of tokens for the input text
@@ -114,6 +120,6 @@ namespace LLamaSharp.KernelMemory
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
         /// <see cref="CountTokens(string)"/>
-        public IReadOnlyList<string> GetTokens(string text) => _embedder.GetTokens(text);
+        public IReadOnlyList<string> GetTokens(string text) => _weights?.GetTokens(text, @params!) ?? new List<string>();
     }
 }

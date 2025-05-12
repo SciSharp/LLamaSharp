@@ -19,6 +19,8 @@ namespace LLamaSharp.KernelMemory
 
         private readonly InferenceParams? _defaultInferenceParams;
 
+        private readonly ModelParams? @params;
+
         public int MaxTokenTotal { get; }
 
         /// <summary>
@@ -27,7 +29,7 @@ namespace LLamaSharp.KernelMemory
         /// <param name="config">The configuration for LLamaSharp.</param>
         public LlamaSharpTextGenerator(LLamaSharpConfig config)
         {
-            var parameters = new ModelParams(config.ModelPath)
+            @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
@@ -38,11 +40,11 @@ namespace LLamaSharp.KernelMemory
                 FlashAttention = true,
                 UseMemorymap = true
             };
-            _weights = LLamaWeights.LoadFromFile(parameters);
-            _executor = new StatelessExecutor(_weights, parameters);
+            _weights = LLamaWeights.LoadFromFile(@params);
+            _executor = new StatelessExecutor(_weights, @params);
             _defaultInferenceParams = config!.DefaultInferenceParams;
             _ownsWeights = true;
-            MaxTokenTotal = (int)parameters.ContextSize;
+            MaxTokenTotal = (int)@params.ContextSize;
         }
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace LLamaSharp.KernelMemory
         {
             InferenceParams? inferenceParams = config.DefaultInferenceParams;
             _weights = weights;
-            var parameters = new ModelParams("")
+            @params = new ModelParams("")
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
@@ -66,9 +68,9 @@ namespace LLamaSharp.KernelMemory
                 FlashAttention = true,
                 UseMemorymap = true
             };
-            _executor = executor ?? new StatelessExecutor(_weights, parameters);
+            _executor = executor ?? new StatelessExecutor(_weights, @params);
             _defaultInferenceParams = inferenceParams;
-            MaxTokenTotal = (int)parameters.ContextSize;
+            MaxTokenTotal = (int)@params.ContextSize;
         }
 
         /// <inheritdoc/>
@@ -122,8 +124,12 @@ namespace LLamaSharp.KernelMemory
             };
         }
 
-        /// <inheritdoc/>
-        public int CountTokens(string text) => _executor.CountTokens(text);
+        /// <summary>
+        /// Count tokens in the input text
+        /// </summary>
+        /// <param name="text">input text</param>
+        /// <returns></returns>
+        public int CountTokens(string text) => _weights?.CountTokens(text, @params!) ?? 0;
 
         /// <summary>
         /// Get the list of tokens for the input text
@@ -133,7 +139,6 @@ namespace LLamaSharp.KernelMemory
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
         /// <see cref="CountTokens(string)"/>
-        public IReadOnlyList<string> GetTokens(string text) => _executor.GetTokens(text);
-
+        public IReadOnlyList<string> GetTokens(string text) => _weights?.GetTokens(text, @params!) ?? new List<string>();
     }
 }
