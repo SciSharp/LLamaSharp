@@ -30,12 +30,6 @@
         <file src="runtimes/deps/android-x86_64/libggml-cpu.so" target="runtimes\android-x86_64\native\libggml-cpu.so" />
         <file src="runtimes/deps/android-x86_64/libllava_shared.so" target="runtimes\android-x86_64\native\libllava_shared.so" />
 
-        <file src="runtimes/deps/android-x86/libllama.so" target="runtimes\android-x86\native\libllama.so" />
-        <file src="runtimes/deps/android-x86/libggml.so" target="runtimes\android-x86\native\libggml.so" />
-        <file src="runtimes/deps/android-x86/libggml-base.so" target="runtimes\android-x86\native\libggml-base.so" />
-        <file src="runtimes/deps/android-x86/libggml-cpu.so" target="runtimes\android-x86\native\libggml-cpu.so" />
-        <file src="runtimes/deps/android-x86/libllava_shared.so" target="runtimes\android-x86\native\libllava_shared.so" />
-
         <file src="icon512.png" target="icon512.png" />
     </files>
 </package>
