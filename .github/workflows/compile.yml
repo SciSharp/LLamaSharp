@@ -81,11 +81,11 @@ jobs:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error
-      - name: Upload Llava
+      - name: Upload mtmd
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/bin/libllava_shared.so
-          name: llava-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
+          path: ./build/bin/libmtmd_shared.so
+          name: mtmd-bin-linux-${{ matrix.build }}-x64.so
           if-no-files-found: error
 
   compile-musl:
@@ -147,11 +147,11 @@ jobs:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-musl-${{ matrix.build }}-x64.so
           if-no-files-found: error
-      - name: Upload Llava
+      - name: Upload mtmd
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/bin/libllava_shared.so
-          name: llava-bin-musl-${{ matrix.build }}-x64.so
+          path: ./build/bin/libmtmd_shared.so
+          name: mtmd-bin-musl-${{ matrix.build }}-x64.so
           if-no-files-found: error
 
   compile-windows:
@@ -210,11 +210,11 @@ jobs:
           name: ggml-cpu-bin-win-${{ matrix.build }}-x64.dll
           if-no-files-found: error
 
-      - name: Upload artifacts (llava)
+      - name: Upload artifacts (mtmd)
         uses: actions/upload-artifact@v4
         with:
-          path: .\build\bin\Release\llava_shared.dll
-          name: llava-bin-win-${{ matrix.build }}-x64.dll
+          path: .\build\bin\Release\mtmd_shared.dll
+          name: mtmd-bin-win-${{ matrix.build }}-x64.dll
           if-no-files-found: error
           
   compile-vulkan:
@@ -298,12 +298,12 @@ jobs:
                 path: .\build\bin\Release\ggml-vulkan.dll
                 name: ggml-vulkan-bin-win-vulkan-x64.dll
                 if-no-files-found: error
-          - name: Upload llava artifacts (Windows)
+          - name: Upload mtmd artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
             with:
-                path: .\build\bin\Release\llava_shared.dll
-                name: llava-bin-win-vulkan-x64.dll
+                path: .\build\bin\Release\mtmd_shared.dll
+                name: mtmd-bin-win-vulkan-x64.dll
                 if-no-files-found: error
           - name: Upload llama artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
@@ -333,12 +333,12 @@ jobs:
                 path: ./build/bin/libggml-vulkan.so
                 name: ggml-vulkan-bin-linux-vulkan-x64.so
                 if-no-files-found: error
-          - name: Upload llava artifacts (Linux)
+          - name: Upload mtmd artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
             with:
-                path: ./build/bin/libllava_shared.so
-                name: llava-bin-linux-vulkan-x64.so
+                path: ./build/bin/libmtmd_shared.so
+                name: mtmd-bin-linux-vulkan-x64.so
                 if-no-files-found: error
                 
   compile-cublas:
@@ -412,12 +412,12 @@ jobs:
           path: .\build\bin\Release\ggml-cuda.dll
           name: ggml-cuda-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
-      - name: Upload llava artifacts (Windows)
+      - name: Upload mtmd artifacts (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         uses: actions/upload-artifact@v4
         with:
-          path: .\build\bin\Release\llava_shared.dll
-          name: llava-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
+          path: .\build\bin\Release\mtmd_shared.dll
+          name: mtmd-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
 
       - name: Upload artifacts (Linux)
@@ -448,12 +448,12 @@ jobs:
           path: ./build/bin/libggml-cuda.so
           name: ggml-cuda-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
-      - name: Upload llava artifacts (Linux)
+      - name: Upload mtmd artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/bin/libllava_shared.so
-          name: llava-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
+          path: ./build/bin/libmtmd_shared.so
+          name: mtmd-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
  
   compile-macos:
@@ -524,11 +524,11 @@ jobs:
           path: ./build/bin/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
-      - name: Upload Llava
+      - name: Upload mtmd
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/bin/libllava_shared.dylib
-          name: llava-bin-osx-${{ matrix.build }}.dylib
+          path: ./build/bin/libmtmd_shared.dylib
+          name: mtmd-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
       - name: Upload Metal
         if: ${{ matrix.build == 'arm64' }}
@@ -592,11 +592,11 @@ jobs:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-android-${{ matrix.build }}.so
           if-no-files-found: error
-      - name: Upload Llava
+      - name: Upload mtmd
         uses: actions/upload-artifact@v4
         with:
-          path: ./build/bin/libllava_shared.so
-          name: llava-bin-android-${{ matrix.build }}.so
+          path: ./build/examples/mtmd/libmtmd_shared.so
+          name: mtmd-bin-android-${{ matrix.build }}.so
 
   build-deps:
     runs-on: ubuntu-latest
@@ -627,25 +627,25 @@ jobs:
           cp artifacts/ggml-base-bin-linux-noavx-x64.so/libggml-base.so deps/noavx/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-noavx-x64.so/libggml-cpu.so   deps/noavx/libggml-cpu.so
           cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/noavx/libllama.so
-          cp artifacts/llava-bin-linux-noavx-x64.so/libllava_shared.so  deps/noavx/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-noavx-x64.so/libmtmd_shared.so  deps/noavx/libmtmd_shared.so
 
           cp artifacts/ggml-bin-linux-avx-x64.so/libggml.so             deps/avx/libggml.so
           cp artifacts/ggml-base-bin-linux-avx-x64.so/libggml-base.so   deps/avx/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-avx-x64.so/libggml-cpu.so     deps/avx/libggml-cpu.so
           cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so
-          cp artifacts/llava-bin-linux-avx-x64.so/libllava_shared.so    deps/avx/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-avx-x64.so/libmtmd_shared.so    deps/avx/libmtmd_shared.so
 
           cp artifacts/ggml-bin-linux-avx2-x64.so/libggml.so            deps/avx2/libggml.so
           cp artifacts/ggml-base-bin-linux-avx2-x64.so/libggml-base.so  deps/avx2/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-avx2-x64.so/libggml-cpu.so    deps/avx2/libggml-cpu.so
           cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so
-          cp artifacts/llava-bin-linux-avx2-x64.so/libllava_shared.so   deps/avx2/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-avx2-x64.so/libmtmd_shared.so   deps/avx2/libmtmd_shared.so
 
           cp artifacts/ggml-bin-linux-avx512-x64.so/libggml.so           deps/avx512/libggml.so
           cp artifacts/ggml-base-bin-linux-avx512-x64.so/libggml-base.so deps/avx512/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-avx512-x64.so/libggml-cpu.so   deps/avx512/libggml-cpu.so
           cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so         deps/avx512/libllama.so
-          cp artifacts/llava-bin-linux-avx512-x64.so/libllava_shared.so  deps/avx512/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-avx512-x64.so/libmtmd_shared.so  deps/avx512/libmtmd_shared.so
 
           # Arm64
           cp artifacts/ggml-bin-linux-aarch64-arm64.so/libggml.so           deps/linux-arm64/libggml.so
@@ -659,50 +659,50 @@ jobs:
           cp artifacts/ggml-base-bin-musl-noavx-x64.so/libggml-base.so deps/musl-noavx/libggml-base.so
           cp artifacts/ggml-cpu-bin-musl-noavx-x64.so/libggml-cpu.so   deps/musl-noavx/libggml-cpu.so
           cp artifacts/llama-bin-musl-noavx-x64.so/libllama.so         deps/musl-noavx/libllama.so
-          cp artifacts/llava-bin-musl-noavx-x64.so/libllava_shared.so  deps/musl-noavx/libllava_shared.so
+          cp artifacts/mtmd-bin-musl-noavx-x64.so/libmtmd_shared.so  deps/musl-noavx/libmtmd_shared.so
 
           cp artifacts/ggml-bin-musl-avx-x64.so/libggml.so             deps/musl-avx/libggml.so
           cp artifacts/ggml-base-bin-musl-avx-x64.so/libggml-base.so   deps/musl-avx/libggml-base.so
           cp artifacts/ggml-cpu-bin-musl-avx-x64.so/libggml-cpu.so     deps/musl-avx/libggml-cpu.so
           cp artifacts/llama-bin-musl-avx-x64.so/libllama.so           deps/musl-avx/libllama.so
-          cp artifacts/llava-bin-musl-avx-x64.so/libllava_shared.so    deps/musl-avx/libllava_shared.so
+          cp artifacts/mtmd-bin-musl-avx-x64.so/libmtmd_shared.so    deps/musl-avx/libmtmd_shared.so
 
           cp artifacts/ggml-bin-musl-avx2-x64.so/libggml.so            deps/musl-avx2/libggml.so
           cp artifacts/ggml-base-bin-musl-avx2-x64.so/libggml-base.so  deps/musl-avx2/libggml-base.so
           cp artifacts/ggml-cpu-bin-musl-avx2-x64.so/libggml-cpu.so    deps/musl-avx2/libggml-cpu.so
           cp artifacts/llama-bin-musl-avx2-x64.so/libllama.so          deps/musl-avx2/libllama.so
-          cp artifacts/llava-bin-musl-avx2-x64.so/libllava_shared.so   deps/musl-avx2/libllava_shared.so
+          cp artifacts/mtmd-bin-musl-avx2-x64.so/libmtmd_shared.so   deps/musl-avx2/libmtmd_shared.so
 
           cp artifacts/ggml-bin-musl-avx512-x64.so/libggml.so           deps/musl-avx512/libggml.so
           cp artifacts/ggml-base-bin-musl-avx512-x64.so/libggml-base.so deps/musl-avx512/libggml-base.so
           cp artifacts/ggml-cpu-bin-musl-avx512-x64.so/libggml-cpu.so   deps/musl-avx512/libggml-cpu.so
           cp artifacts/llama-bin-musl-avx512-x64.so/libllama.so         deps/musl-avx512/libllama.so
-          cp artifacts/llava-bin-musl-avx512-x64.so/libllava_shared.so  deps/musl-avx512/libllava_shared.so
+          cp artifacts/mtmd-bin-musl-avx512-x64.so/libmtmd_shared.so  deps/musl-avx512/libmtmd_shared.so
 
           # Windows
           cp artifacts/ggml-bin-win-noavx-x64.dll/ggml.dll            deps/noavx/ggml.dll
           cp artifacts/ggml-base-bin-win-noavx-x64.dll/ggml-base.dll  deps/noavx/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-noavx-x64.dll/ggml-cpu.dll    deps/noavx/ggml-cpu.dll
           cp artifacts/llama-bin-win-noavx-x64.dll/llama.dll          deps/noavx/llama.dll
-          cp artifacts/llava-bin-win-noavx-x64.dll/llava_shared.dll   deps/noavx/llava_shared.dll
+          cp artifacts/mtmd-bin-win-noavx-x64.dll/mtmd_shared.dll   deps/noavx/mtmd_shared.dll
 
           cp artifacts/ggml-bin-win-avx-x64.dll/ggml.dll           deps/avx/ggml.dll
           cp artifacts/ggml-base-bin-win-avx-x64.dll/ggml-base.dll deps/avx/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-avx-x64.dll/ggml-cpu.dll   deps/avx/ggml-cpu.dll
           cp artifacts/llama-bin-win-avx-x64.dll/llama.dll         deps/avx/llama.dll
-          cp artifacts/llava-bin-win-avx-x64.dll/llava_shared.dll  deps/avx/llava_shared.dll
+          cp artifacts/mtmd-bin-win-avx-x64.dll/mtmd_shared.dll  deps/avx/mtmd_shared.dll
 
           cp artifacts/ggml-bin-win-avx2-x64.dll/ggml.dll           deps/avx2/ggml.dll
           cp artifacts/ggml-base-bin-win-avx2-x64.dll/ggml-base.dll deps/avx2/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-avx2-x64.dll/ggml-cpu.dll   deps/avx2/ggml-cpu.dll
           cp artifacts/llama-bin-win-avx2-x64.dll/llama.dll         deps/avx2/llama.dll
-          cp artifacts/llava-bin-win-avx2-x64.dll/llava_shared.dll  deps/avx2/llava_shared.dll
+          cp artifacts/mtmd-bin-win-avx2-x64.dll/mtmd_shared.dll  deps/avx2/mtmd_shared.dll
 
           cp artifacts/ggml-bin-win-avx512-x64.dll/ggml.dll           deps/avx512/ggml.dll
           cp artifacts/ggml-base-bin-win-avx512-x64.dll/ggml-base.dll deps/avx512/ggml-base.dll
           cp artifacts/ggml-cpu-bin-win-avx512-x64.dll/ggml-cpu.dll   deps/avx512/ggml-cpu.dll
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll         deps/avx512/llama.dll
-          cp artifacts/llava-bin-win-avx512-x64.dll/llava_shared.dll  deps/avx512/llava_shared.dll
+          cp artifacts/mtmd-bin-win-avx512-x64.dll/mtmd_shared.dll  deps/avx512/mtmd_shared.dll
 
           # MacOS
           cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib             deps/osx-arm64/libggml.dylib
@@ -711,7 +711,7 @@ jobs:
           cp artifacts/ggml-blas-bin-osx-arm64.dylib/libggml-blas.dylib   deps/osx-arm64/libggml-blas.dylib
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib    deps/osx-arm64/libllava_shared.dylib
+          cp artifacts/mtmd-bin-osx-arm64.dylib/libmtmd_shared.dylib    deps/osx-arm64/libmtmd_shared.dylib
           cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
             
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
@@ -719,14 +719,14 @@ jobs:
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64.dylib/libggml-blas.dylib   deps/osx-x64/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
-          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
+          cp artifacts/mtmd-bin-osx-x64.dylib/libmtmd_shared.dylib    deps/osx-x64/libmtmd_shared.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib   deps/osx-x64-rosetta2/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64-rosetta2.dylib/libggml-blas.dylib deps/osx-x64-rosetta2/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64-rosetta2.dylib/libllama.dylib         deps/osx-x64-rosetta2/libllama.dylib
-          cp artifacts/llava-bin-osx-x64-rosetta2.dylib/libllava_shared.dylib  deps/osx-x64-rosetta2/libllava_shared.dylib
+          cp artifacts/mtmd-bin-osx-x64-rosetta2.dylib/libmtmd_shared.dylib  deps/osx-x64-rosetta2/libmtmd_shared.dylib
 
           # Android
           cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so               deps/android-arm64-v8a/libggml.so
@@ -739,47 +739,47 @@ jobs:
           cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
           cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so
           cp artifacts/llama-bin-android-x86_64.so/libllama.so                deps/android-x86_64/libllama.so
-          cp artifacts/llava-bin-android-x86_64.so/libllava_shared.so         deps/android-x86_64/libllava_shared.so
+          cp artifacts/mtmd-bin-android-x86_64.so/libmtmd_shared.so           deps/android-x86_64/libmtmd_shared.so
 
           # Windows CUDA
           cp artifacts/ggml-bin-win-cublas-cu11.7.1-x64.dll/ggml.dll            deps/cu11.7.1/ggml.dll
           cp artifacts/ggml-base-bin-win-cublas-cu11.7.1-x64.dll/ggml-base.dll  deps/cu11.7.1/ggml-base.dll
           cp artifacts/ggml-cuda-bin-win-cublas-cu11.7.1-x64.dll/ggml-cuda.dll  deps/cu11.7.1/ggml-cuda.dll
           cp artifacts/llama-bin-win-cublas-cu11.7.1-x64.dll/llama.dll          deps/cu11.7.1/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu11.7.1-x64.dll/llava_shared.dll   deps/cu11.7.1/llava_shared.dll
+          cp artifacts/mtmd-bin-win-cublas-cu11.7.1-x64.dll/mtmd_shared.dll   deps/cu11.7.1/mtmd_shared.dll
           
           cp artifacts/ggml-bin-win-cublas-cu12.2.0-x64.dll/ggml.dll            deps/cu12.2.0/ggml.dll
           cp artifacts/ggml-base-bin-win-cublas-cu12.2.0-x64.dll/ggml-base.dll  deps/cu12.2.0/ggml-base.dll
           cp artifacts/ggml-cuda-bin-win-cublas-cu12.2.0-x64.dll/ggml-cuda.dll  deps/cu12.2.0/ggml-cuda.dll
           cp artifacts/llama-bin-win-cublas-cu12.2.0-x64.dll/llama.dll          deps/cu12.2.0/llama.dll
-          cp artifacts/llava-bin-win-cublas-cu12.2.0-x64.dll/llava_shared.dll   deps/cu12.2.0/llava_shared.dll
+          cp artifacts/mtmd-bin-win-cublas-cu12.2.0-x64.dll/mtmd_shared.dll   deps/cu12.2.0/mtmd_shared.dll
 
           # Linux CUDA
           cp artifacts/ggml-bin-linux-cublas-cu11.7.1-x64.so/libggml.so              deps/cu11.7.1/libggml.so
           cp artifacts/ggml-base-bin-linux-cublas-cu11.7.1-x64.so/libggml-base.so    deps/cu11.7.1/libggml-base.so
           cp artifacts/ggml-cuda-bin-linux-cublas-cu11.7.1-x64.so/libggml-cuda.so    deps/cu11.7.1/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu11.7.1-x64.so/libllama.so            deps/cu11.7.1/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu11.7.1-x64.so/libllava_shared.so     deps/cu11.7.1/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-cublas-cu11.7.1-x64.so/libmtmd_shared.so     deps/cu11.7.1/libmtmd_shared.so
 
           cp artifacts/ggml-bin-linux-cublas-cu12.2.0-x64.so/libggml.so              deps/cu12.2.0/libggml.so
           cp artifacts/ggml-base-bin-linux-cublas-cu12.2.0-x64.so/libggml-base.so    deps/cu12.2.0/libggml-base.so
           cp artifacts/ggml-cuda-bin-linux-cublas-cu12.2.0-x64.so/libggml-cuda.so    deps/cu12.2.0/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu12.2.0-x64.so/libllama.so            deps/cu12.2.0/libllama.so
-          cp artifacts/llava-bin-linux-cublas-cu12.2.0-x64.so/libllava_shared.so     deps/cu12.2.0/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-cublas-cu12.2.0-x64.so/libmtmd_shared.so     deps/cu12.2.0/libmtmd_shared.so
 
           # Windows Vulkan
           cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll               deps/vulkan/ggml.dll
           cp artifacts/ggml-base-bin-win-vulkan-x64.dll/ggml-base.dll     deps/vulkan/ggml-base.dll
           cp artifacts/ggml-vulkan-bin-win-vulkan-x64.dll/ggml-vulkan.dll deps/vulkan/ggml-vulkan.dll
           cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll             deps/vulkan/llama.dll
-          cp artifacts/llava-bin-win-vulkan-x64.dll/llava_shared.dll      deps/vulkan/llava_shared.dll
+          cp artifacts/mtmd-bin-win-vulkan-x64.dll/mtmd_shared.dll      deps/vulkan/mtmd_shared.dll
             
           # Linux Vulkan
           cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so                deps/vulkan/libggml.so
           cp artifacts/ggml-base-bin-linux-vulkan-x64.so/libggml-base.so      deps/vulkan/libggml-base.so
           cp artifacts/ggml-vulkan-bin-linux-vulkan-x64.so/libggml-vulkan.so  deps/vulkan/libggml-vulkan.so
           cp artifacts/llama-bin-linux-vulkan-x64.so/libllama.so              deps/vulkan/libllama.so
-          cp artifacts/llava-bin-linux-vulkan-x64.so/libllava_shared.so       deps/vulkan/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-vulkan-x64.so/libmtmd_shared.so       deps/vulkan/libmtmd_shared.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -793,6 +793,6 @@ jobs:
         with:
           name: |
             llama-*
-            llava-*
+            mtmd-*
             *.metal
             ggml-*
