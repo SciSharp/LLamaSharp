@@ -3,6 +3,7 @@ using LLama.Common;
 using LLama.Sampling;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
+using System.Text;
 
 namespace LLamaSharp.KernelMemory
 {
@@ -125,20 +126,30 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <summary>
-        /// Count tokens in the input text
+        /// Count the tokens in the input text
         /// </summary>
         /// <param name="text">input text</param>
+        /// <param name="parameters">context parameters</param>
         /// <returns></returns>
-        public int CountTokens(string text) => _weights?.CountTokens(text, @params!) ?? 0;
+        public int CountTokens(string text)
+        {
+            return _weights!.Tokenize(text, true, special: true, Encoding.UTF8).Length;
+        }
 
         /// <summary>
         /// Get the list of tokens for the input text
         /// </summary>
         /// <param name="text">Input string to be tokenized</param>
+        /// <param name="parameters">Context parameters</param>
         /// <returns>Read-only list of tokens for the input test</returns>
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
-        /// <see cref="CountTokens(string)"/>
-        public IReadOnlyList<string> GetTokens(string text) => _weights?.GetTokens(text, @params!) ?? new List<string>();
+        /// <see cref="CountTokens(string, IContextParams)"/>
+        public IReadOnlyList<string> GetTokens(string text)
+        {
+            var numericTokens = _weights!.Tokenize(text, true, special: true, Encoding.UTF8);
+            var decoder = new StreamingTokenDecoder(Encoding.UTF8, _weights);
+            return numericTokens.Select(x => { decoder.Add(x); return decoder.Read(); }).ToList();
+        }
     }
 }

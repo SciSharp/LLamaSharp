@@ -166,35 +166,5 @@ namespace LLama
         {
             return NativeHandle.Tokenize(text, add_bos, special, encoding);
         }
-
-        /// <summary>
-        /// Count the tokens in the input text
-        /// </summary>
-        /// <param name="text">input text</param>
-        /// <param name="parameters">context parameters</param>
-        /// <returns></returns>
-        public int CountTokens(string text, IContextParams parameters)
-        {
-            using var context = CreateContext(parameters);
-            var count = context.Tokenize(text, special: true).Length;
-            return count;
-        }
-
-        /// <summary>
-        /// Get the list of tokens for the input text
-        /// </summary>
-        /// <param name="text">Input string to be tokenized</param>
-        /// <param name="parameters">Context parameters</param>
-        /// <returns>Read-only list of tokens for the input test</returns>
-        /// <remarks>
-        /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
-        /// <see cref="CountTokens(string, IContextParams)"/>
-        public IReadOnlyList<string> GetTokens(string text, IContextParams parameters)
-        {
-            using var context = CreateContext(parameters);
-            var numericTokens = context.Tokenize(text, special: true);
-            var decoder = new StreamingTokenDecoder(context);
-            return numericTokens.Select(x => { decoder.Add(x); return decoder.Read(); }).ToList();
-        }
     }
 }
