@@ -652,7 +652,7 @@ jobs:
           cp artifacts/ggml-base-bin-linux-aarch64-arm64.so/libggml-base.so deps/linux-arm64/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-aarch64-arm64.so/libggml-cpu.so   deps/linux-arm64/libggml-cpu.so
           cp artifacts/llama-bin-linux-aarch64-arm64.so/libllama.so         deps/linux-arm64/libllama.so
-          cp artifacts/llava-bin-linux-aarch64-arm64.so/libllava_shared.so  deps/linux-arm64/libllava_shared.so
+          cp artifacts/mtmd-bin-linux-aarch64-arm64.so/libmtmd_shared.so  deps/linux-arm64/libmtmd_shared.so
 
           # Musl
           cp artifacts/ggml-bin-musl-noavx-x64.so/libggml.so           deps/musl-noavx/libggml.so
@@ -733,7 +733,7 @@ jobs:
           cp artifacts/ggml-base-bin-android-arm64-v8a.so/libggml-base.so     deps/android-arm64-v8a/libggml-base.so
           cp artifacts/ggml-cpu-bin-android-arm64-v8a.so/libggml-cpu.so       deps/android-arm64-v8a/libggml-cpu.so
           cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
-          cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so      deps/android-arm64-v8a/libllava_shared.so
+          cp artifacts/mtmd-bin-android-arm64-v8a.so/libmtmd_shared.so      deps/android-arm64-v8a/libmtmd_shared.so
                                                                               
           cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
           cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
