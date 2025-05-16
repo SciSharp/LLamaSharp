@@ -652,7 +652,7 @@ jobs:
           cp artifacts/ggml-base-bin-linux-aarch64-arm64.so/libggml-base.so deps/linux-arm64/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-aarch64-arm64.so/libggml-cpu.so   deps/linux-arm64/libggml-cpu.so
           cp artifacts/llama-bin-linux-aarch64-arm64.so/libllama.so         deps/linux-arm64/libllama.so
-          cp artifacts/mtmd-bin-linux-aarch64-arm64.so/libmtmd_shared.so  deps/linux-arm64/libmtmd_shared.so
+          cp artifacts/mtmd-bin-linux-aarch64-arm64.so/libmtmd_shared.so    deps/linux-arm64/libmtmd_shared.so
 
           # Musl
           cp artifacts/ggml-bin-musl-noavx-x64.so/libggml.so           deps/musl-noavx/libggml.so
