@@ -67,25 +67,28 @@ namespace LLamaSharp.KernelMemory
         /// <param name="weights"></param>
         /// <param name="context"></param>		        
         /// <returns>The KernelMemoryBuilder instance with LLamaSharpTextEmbeddingGeneration and LLamaSharpTextGeneration added.</returns>		
-        public static IKernelMemoryBuilder WithLLamaSharpDefaults(this IKernelMemoryBuilder builder, LLamaSharpConfig config, LLamaWeights? weights=null, LLamaContext? context=null)
+        public static IKernelMemoryBuilder WithLLamaSharpDefaults(this IKernelMemoryBuilder builder, LLamaSharpConfig config, LLamaWeights? weights=null)
         {
             var parameters = new ModelParams(config.ModelPath)
             {
                 ContextSize = config.ContextSize ?? 2048,
                 GpuLayerCount = config.GpuLayerCount ?? 20,
                 MainGpu = config.MainGpu,
-                SplitMode = config.SplitMode
+                SplitMode = config.SplitMode,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true
             };
 
-            if (weights == null || context == null)
+            if (weights == null)
             {
                 weights = LLamaWeights.LoadFromFile(parameters);
-                context = weights.CreateContext(parameters);
             }
 
             var executor = new StatelessExecutor(weights, parameters);
             builder.WithLLamaSharpTextEmbeddingGeneration(new LLamaSharpTextEmbeddingGenerator(config, weights));
-            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, context, executor, config.DefaultInferenceParams));
+            builder.WithLLamaSharpTextGeneration(new LlamaSharpTextGenerator(weights, config, executor));
             return builder;
         }		
     }

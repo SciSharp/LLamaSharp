@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
@@ -20,12 +21,16 @@ public sealed partial class LLamaEmbedder
     /// <summary>
     /// Dimension of embedding vectors
     /// </summary>
-    public int EmbeddingSize => Context.EmbeddingSize;
+    public int EmbeddingSize { get; private set; }
 
     /// <summary>
     /// LLama Context
     /// </summary>
-    public LLamaContext Context { get; }
+    public LLamaContext Context { get; private set; }
+
+    private LLamaWeights _weights;
+    private IContextParams _params;
+    private ILogger? _logger;
 
     /// <summary>
     /// Create a new embedder, using the given LLamaWeights
@@ -41,7 +46,11 @@ public sealed partial class LLamaEmbedder
             throw new NotSupportedException("Computing embeddings in encoder-decoder models is not supported");
 
         Context = weights.CreateContext(@params, logger);
-        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+        EmbeddingSize = Context.EmbeddingSize;
+        Context.Dispose();
+        _weights = weights;
+        _params = @params;
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -65,13 +74,17 @@ public sealed partial class LLamaEmbedder
 
     private async Task<(IReadOnlyList<float[]> Embeddings, int Tokens)> GetEmbeddingsWithTokenCount(string input, CancellationToken cancellationToken = default)
     {
+        // Ensure the context from last time is disposed (it always should be)
+        if (!Context.NativeHandle.IsClosed)
+            Context.Dispose();
+
+        Context = _weights.CreateContext(_params, _logger);
+        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+
         // Add all of the tokens to the batch
         var tokens = Context.Tokenize(input, special: true);
         if (tokens.Length > Context.ContextSize)
             throw new ArgumentException($"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})", nameof(input));
-
-        // clear previous kv_cache values
-        Context.NativeHandle.KvCacheClear();
 
         // Check if we should cancel the work, just before doing anything expensive (encode/decode)
         cancellationToken.ThrowIfCancellationRequested();
@@ -137,7 +150,7 @@ public sealed partial class LLamaEmbedder
             embedding.EuclideanNormalization();
         }
 
-        Context.NativeHandle.KvCacheClear();
+        Context.Dispose();
 
         return (results, tokens.Length);
     }
