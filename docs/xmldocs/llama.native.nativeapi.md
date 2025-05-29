@@ -340,7 +340,7 @@ Number of threads
 Binary image in jpeg format
 
 `image_bytes_length` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-Bytes lenght of the image
+Bytes length of the image
 
 #### Returns
 
@@ -671,7 +671,7 @@ public static Span<float> llama_get_embeddings(SafeLLamaContextHandle ctx)
 
 Apply chat template. Inspired by hf apply_chat_template() on python.
  Both "model" and "custom_template" are optional, but at least one is required. "custom_template" has higher precedence than "model"
- NOTE: This function does not use a jinja parser. It only support a pre-defined list of template. See more: https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
+ NOTE: This function does not use a jinja parser. It only supports a pre-defined list of template. See more: https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
 
 ```csharp
 public static int llama_chat_apply_template(SafeLlamaModelHandle model, Char* tmpl, LLamaChatMessage* chat, IntPtr n_msg, bool add_ass, Char* buf, int length)
