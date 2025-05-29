@@ -75,7 +75,7 @@ public IHistoryTransform HistoryTransform { get; set; }
 
 ### **History**
 
-The the chat history messages for this session.
+The chat history messages for this session.
 
 ```csharp
 public Message[] History { get; set; }

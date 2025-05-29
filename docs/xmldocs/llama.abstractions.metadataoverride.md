@@ -15,7 +15,7 @@ Implements [IEquatable&lt;MetadataOverride&gt;](https://docs.microsoft.com/en-us
 
 ### **Key**
 
-Get the key being overriden by this override
+Get the key being overridden by this override
 
 ```csharp
 public string Key { get; }

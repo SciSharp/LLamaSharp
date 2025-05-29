@@ -702,7 +702,7 @@ namespace LLama.Native
             }
 
             /// <summary>
-            /// Get the the type of this vocabulary
+            /// Get the type of this vocabulary
             /// </summary>
             public LLamaVocabType Type
             {

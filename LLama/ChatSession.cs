@@ -637,7 +637,7 @@ public record SessionState
     public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
     
     /// <summary>
-    /// The the chat history messages for this session.
+    /// The chat history messages for this session.
     /// </summary>
     public ChatHistory.Message[] History { get; set; } = [ ];
 
