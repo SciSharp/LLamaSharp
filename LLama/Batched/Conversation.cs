@@ -410,7 +410,7 @@ public sealed class Conversation
         }
 
         /// <summary>
-        /// Removes all tokens starting from the given position
+        /// Removes <see cref="count"/> tokens starting from <see cref="start"/>
         /// </summary>
         /// <param name="start">Start position (inclusive)</param>
         /// <param name="count">Number of tokens</param>
@@ -419,7 +419,8 @@ public sealed class Conversation
             if (count <= 0)
                 return;
 
-            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, -1);
+            var end = start.Value + count;
+            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, end);
         }
         #endregion
 
