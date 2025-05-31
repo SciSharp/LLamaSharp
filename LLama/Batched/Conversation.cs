@@ -84,7 +84,7 @@ public sealed class Conversation
         _disposed = true;
 
         // Remove this conversation from the KV cache
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _end);
+        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, -1, -1);
 
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
@@ -419,8 +419,7 @@ public sealed class Conversation
             if (count <= 0)
                 return;
 
-            var end = start.Value + count;
-            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, end);
+            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, -1);
         }
         #endregion
 
