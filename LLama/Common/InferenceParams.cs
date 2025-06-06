@@ -30,6 +30,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public ISamplingPipeline SamplingPipeline { get; set; } = new DefaultSamplingPipeline();
+
+        /// <inheritdoc />
+        public bool DecodeSpecialTokens { get; set; }
     }
 
     /// <summary>

@@ -28,5 +28,13 @@ namespace LLama.Abstractions
 		/// Set a custom sampling pipeline to use.
 		/// </summary>
 		ISamplingPipeline SamplingPipeline { get; set; }
+
+		/// <summary>
+		/// If true, special characters will be converted to text. If false they will be invisible.
+		/// </summary>
+		/// <remark>
+		/// Controls the behavior of decoders like <see cref="StreamingTokenDecoder" />
+		/// </remark>
+		public bool DecodeSpecialTokens { get; set; }
 	}
 }
