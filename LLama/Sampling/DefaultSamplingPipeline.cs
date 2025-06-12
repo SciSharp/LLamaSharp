@@ -8,7 +8,7 @@ namespace LLama.Sampling;
 /// <summary>
 /// An implementation of ISamplePipeline which mimics the default llama.cpp sampling
 /// </summary>
-public sealed class DefaultSamplingPipeline
+public class DefaultSamplingPipeline
     : BaseSamplingPipeline
 {
     /// <summary>
