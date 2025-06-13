@@ -2,7 +2,7 @@
 
 Namespace: LLama.Extensions
 
-Extention methods to the IContextParams interface
+Extension methods to the IContextParams interface
 
 ```csharp
 public static class IContextParamsExtensions
