@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ITextTransform
 
 Namespace: LLama.Abstractions
@@ -13,6 +17,8 @@ An interface for text transformations.
 ```csharp
 public interface ITextTransform
 ```
+
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), JsonConverterAttribute
 
 ## Methods
 
@@ -43,3 +49,7 @@ ITextTransform Clone()
 #### Returns
 
 [ITextTransform](./llama.abstractions.itexttransform.md)<br>
+
+---
+
+[`< Back`](./)

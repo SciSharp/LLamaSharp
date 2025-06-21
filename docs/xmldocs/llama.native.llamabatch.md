@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaBatch
 
 Namespace: LLama.Native
@@ -8,7 +12,8 @@ A batch allows submitting multiple tokens to multiple sequences simultaneously
 public class LLamaBatch
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaBatch](./llama.native.llamabatch.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaBatch](./llama.native.llamabatch.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -47,20 +52,6 @@ public LLamaBatch()
 ```
 
 ## Methods
-
-### **ToNativeBatch(LLamaNativeBatch&)**
-
-```csharp
-internal GroupDisposable ToNativeBatch(LLamaNativeBatch& batch)
-```
-
-#### Parameters
-
-`batch` [LLamaNativeBatch&](./llama.native.llamanativebatch&.md)<br>
-
-#### Returns
-
-[GroupDisposable](./llama.native.groupdisposable.md)<br>
 
 ### **Add(LLamaToken, LLamaPos, ReadOnlySpan&lt;LLamaSeqId&gt;, Boolean)**
 
@@ -187,18 +178,6 @@ Set TokenCount to zero for this batch
 public void Clear()
 ```
 
-### **GetLogitPositions(Span&lt;ValueTuple&lt;LLamaSeqId, Int32&gt;&gt;)**
+---
 
-Get the positions where logits can be sampled from
-
-```csharp
-internal Span<ValueTuple<LLamaSeqId, int>> GetLogitPositions(Span<ValueTuple<LLamaSeqId, int>> dest)
-```
-
-#### Parameters
-
-`dest` [Span&lt;ValueTuple&lt;LLamaSeqId, Int32&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
-
-#### Returns
-
-[Span&lt;ValueTuple&lt;LLamaSeqId, Int32&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[`< Back`](./)

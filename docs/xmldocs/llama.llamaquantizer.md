@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaQuantizer
 
 Namespace: LLama
@@ -8,7 +12,8 @@ The quantizer to quantize the model.
 public static class LLamaQuantizer
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaQuantizer](./llama.llamaquantizer.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaQuantizer](./llama.llamaquantizer.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Methods
 
@@ -81,3 +86,7 @@ Whether the quantization is successful.
 #### Exceptions
 
 [ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+---
+
+[`< Back`](./)

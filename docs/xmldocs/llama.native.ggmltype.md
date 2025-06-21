@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # GGMLType
 
 Namespace: LLama.Native
@@ -9,7 +13,7 @@ public enum GGMLType
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [Enum](https://docs.microsoft.com/en-us/dotnet/api/system.enum) → [GGMLType](./llama.native.ggmltype.md)<br>
-Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable), [IFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.iformattable), [IConvertible](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible)
+Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable), [ISpanFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.ispanformattable), [IFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.iformattable), [IConvertible](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible)
 
 ## Fields
 
@@ -33,3 +37,7 @@ Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icom
 | GGML_TYPE_I16 | 17 | Integer, 16 bit |
 | GGML_TYPE_I32 | 18 | Integer, 32 bit |
 | GGML_TYPE_COUNT | 19 | The value of this entry is the count of the number of possible quant types. |
+
+---
+
+[`< Back`](./)

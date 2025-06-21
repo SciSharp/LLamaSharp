@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ILLamaParams
 
 Namespace: LLama.Abstractions
@@ -13,3 +17,7 @@ Implements [IModelParams](./llama.abstractions.imodelparams.md), [IContextParams
 **Remarks:**
 
 Mostly exists for backwards compatibility reasons, when these two were not split.
+
+---
+
+[`< Back`](./)

@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ITextStreamTransform
 
 Namespace: LLama.Abstractions
@@ -7,6 +11,8 @@ Takes a stream of tokens and transforms them.
 ```csharp
 public interface ITextStreamTransform
 ```
+
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), JsonConverterAttribute
 
 ## Methods
 
@@ -37,3 +43,7 @@ ITextStreamTransform Clone()
 #### Returns
 
 [ITextStreamTransform](./llama.abstractions.itextstreamtransform.md)<br>
+
+---
+
+[`< Back`](./)

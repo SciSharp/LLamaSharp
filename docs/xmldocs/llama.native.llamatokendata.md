@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaTokenData
 
 Namespace: LLama.Native
@@ -12,28 +16,28 @@ Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) 
 
 ## Fields
 
-### **id**
+### **ID**
 
 token id
 
 ```csharp
-public LLamaToken id;
+public LLamaToken ID;
 ```
 
-### **logit**
+### **Logit**
 
 log-odds of the token
 
 ```csharp
-public float logit;
+public float Logit;
 ```
 
-### **p**
+### **Probability**
 
 probability of the token
 
 ```csharp
-public float p;
+public float Probability;
 ```
 
 ## Constructors
@@ -43,7 +47,7 @@ public float p;
 Create a new LLamaTokenData
 
 ```csharp
-LLamaTokenData(LLamaToken id, float logit, float p)
+LLamaTokenData(LLamaToken id, float logit, float probability)
 ```
 
 #### Parameters
@@ -52,4 +56,8 @@ LLamaTokenData(LLamaToken id, float logit, float p)
 
 `logit` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`p` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`probability` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+---
+
+[`< Back`](./)
