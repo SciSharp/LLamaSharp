@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ChatHistory
 
 Namespace: LLama.Common
@@ -8,7 +12,8 @@ The chat history class
 public class ChatHistory
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ChatHistory](./llama.common.chathistory.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ChatHistory](./llama.common.chathistory.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -91,3 +96,7 @@ public static ChatHistory FromJson(string json)
 #### Returns
 
 [ChatHistory](./llama.common.chathistory.md)<br>
+
+---
+
+[`< Back`](./)

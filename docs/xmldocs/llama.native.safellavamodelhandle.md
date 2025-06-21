@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # SafeLlavaModelHandle
 
 Namespace: LLama.Native
@@ -9,9 +13,42 @@ public sealed class SafeLlavaModelHandle : SafeLLamaHandleBase, System.IDisposab
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+
+## Fields
+
+### **handle**
+
+```csharp
+protected IntPtr handle;
+```
 
 ## Properties
+
+### **EmbeddingDimensions**
+
+Get the number of dimensions in an embedding
+
+```csharp
+public int EmbeddingDimensions { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **PatchCount**
+
+Get the number of "patches" in an image embedding
+
+```csharp
+public int PatchCount { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **IsInvalid**
 
@@ -32,6 +69,14 @@ public bool IsClosed { get; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+## Constructors
+
+### **SafeLlavaModelHandle()**
+
+```csharp
+public SafeLlavaModelHandle()
+```
 
 ## Methods
 
@@ -70,7 +115,7 @@ SafeHandle of the Clip Model
 
 [InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 
-[RuntimeError](./llama.exceptions.runtimeerror.md)<br>
+[LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)<br>
 
 ### **CreateImageEmbeddings(LLamaContext, String)**
 
@@ -93,6 +138,27 @@ Image filename (it supports jpeg format only)
 [SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
 return the SafeHandle of these embeddings
 
+### **CreateImageEmbeddings(String, Int32)**
+
+Create the Image Embeddings.
+
+```csharp
+public SafeLlavaImageEmbedHandle CreateImageEmbeddings(string image, int threads)
+```
+
+#### Parameters
+
+`image` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Image in binary format (it supports jpeg format only)
+
+`threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of threads to use
+
+#### Returns
+
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+return the SafeHandle of these embeddings
+
 ### **CreateImageEmbeddings(LLamaContext, Byte[])**
 
 Create the Image Embeddings.
@@ -108,6 +174,27 @@ LLama Context
 
 `image` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
 Image in binary format (it supports jpeg format only)
+
+#### Returns
+
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+return the SafeHandle of these embeddings
+
+### **CreateImageEmbeddings(Byte[], Int32)**
+
+Create the Image Embeddings.
+
+```csharp
+public SafeLlavaImageEmbedHandle CreateImageEmbeddings(Byte[] image, int threads)
+```
+
+#### Parameters
+
+`image` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
+Image in binary format (it supports jpeg format only)
+
+`threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of threads to use
 
 #### Returns
 
@@ -136,3 +223,7 @@ The current embeddings to evaluate
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 True on success
+
+---
+
+[`< Back`](./)

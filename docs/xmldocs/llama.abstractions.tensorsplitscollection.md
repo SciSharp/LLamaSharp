@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # TensorSplitsCollection
 
 Namespace: LLama.Abstractions
@@ -5,11 +9,12 @@ Namespace: LLama.Abstractions
 A fixed size array to set the tensor splits across multiple GPUs
 
 ```csharp
-public sealed class TensorSplitsCollection : System.Collections.Generic.IEnumerable`1[[System.Single, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Collections.IEnumerable
+public sealed class TensorSplitsCollection : System.Collections.Generic.IEnumerable`1[[System.Single, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Collections.IEnumerable
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)<br>
-Implements [IEnumerable&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1), [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)
+Implements [IEnumerable&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1), [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [DefaultMemberAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.defaultmemberattribute), JsonConverterAttribute
 
 ## Properties
 
@@ -71,16 +76,6 @@ Set all values to zero
 public void Clear()
 ```
 
-### **Pin()**
-
-```csharp
-internal MemoryHandle Pin()
-```
-
-#### Returns
-
-[MemoryHandle](https://docs.microsoft.com/en-us/dotnet/api/system.buffers.memoryhandle)<br>
-
 ### **GetEnumerator()**
 
 ```csharp
@@ -90,3 +85,7 @@ public IEnumerator<float> GetEnumerator()
 #### Returns
 
 [IEnumerator&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerator-1)<br>
+
+---
+
+[`< Back`](./)

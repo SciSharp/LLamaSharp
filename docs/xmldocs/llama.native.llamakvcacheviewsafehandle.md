@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaKvCacheViewSafeHandle
 
 Namespace: LLama.Native
@@ -5,13 +9,99 @@ Namespace: LLama.Native
 A safe handle for a LLamaKvCacheView
 
 ```csharp
-public class LLamaKvCacheViewSafeHandle : SafeLLamaHandleBase, System.IDisposable
+public sealed class LLamaKvCacheViewSafeHandle : SafeLLamaHandleBase, System.IDisposable
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+
+## Fields
+
+### **handle**
+
+```csharp
+protected IntPtr handle;
+```
 
 ## Properties
+
+### **CellCount**
+
+Number of KV cache cells. This will be the same as the context size.
+
+```csharp
+public int CellCount { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **TokenCount**
+
+Get the total number of tokens in the KV cache.
+ 
+ For example, if there are two populated
+ cells, the first with 1 sequence id in it and the second with 2 sequence
+ ids then you'll have 3 tokens.
+
+```csharp
+public int TokenCount { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **MaxSequenceCount**
+
+Maximum number of sequences visible for a cell. There may be more sequences than this
+ in reality, this is simply the maximum number this view can see.
+
+```csharp
+public int MaxSequenceCount { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **UsedCellCount**
+
+Number of populated cache cells
+
+```csharp
+public int UsedCellCount { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **MaxContiguous**
+
+Maximum contiguous empty slots in the cache.
+
+```csharp
+public int MaxContiguous { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **MaxContiguousIdx**
+
+Index to the start of the MaxContiguous slot range. Can be negative when cache is full.
+
+```csharp
+public int MaxContiguousIdx { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **IsInvalid**
 
@@ -32,22 +122,6 @@ public bool IsClosed { get; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-## Constructors
-
-### **LLamaKvCacheViewSafeHandle(SafeLLamaContextHandle, LLamaKvCacheView)**
-
-Initialize a LLamaKvCacheViewSafeHandle which will call `llama_kv_cache_view_free` when disposed
-
-```csharp
-public LLamaKvCacheViewSafeHandle(SafeLLamaContextHandle ctx, LLamaKvCacheView view)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`view` [LLamaKvCacheView](./llama.native.llamakvcacheview.md)<br>
 
 ## Methods
 
@@ -82,20 +156,60 @@ protected bool ReleaseHandle()
 
 ### **Update()**
 
-Update this view
+Read the current KV cache state into this view.
 
 ```csharp
 public void Update()
 ```
 
-### **GetView()**
+### **GetCell(Int32)**
 
-Get the raw KV cache view
+Get the cell at the given index
 
 ```csharp
-public LLamaKvCacheView& GetView()
+public LLamaPos GetCell(int index)
 ```
+
+#### Parameters
+
+`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The index of the cell [0, CellCount)
 
 #### Returns
 
-[LLamaKvCacheView&](./llama.native.llamakvcacheview&.md)<br>
+[LLamaPos](./llama.native.llamapos.md)<br>
+Data about the cell at the given index
+
+#### Exceptions
+
+[ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
+Thrown if index is out of range (0 &lt;= index &lt; CellCount)
+
+### **GetCellSequences(Int32)**
+
+Get all of the sequences assigned to the cell at the given index. This will contain [LLamaKvCacheViewSafeHandle.MaxSequenceCount](./llama.native.llamakvcacheviewsafehandle.md#maxsequencecount) entries
+ sequences even if the cell actually has more than that many sequences, allocate a new view with a larger maxSequences parameter
+ if necessary. Invalid sequences will be negative values.
+
+```csharp
+public Span<LLamaSeqId> GetCellSequences(int index)
+```
+
+#### Parameters
+
+`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The index of the cell [0, CellCount)
+
+#### Returns
+
+[Span&lt;LLamaSeqId&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+A span containing the sequences assigned to this cell
+
+#### Exceptions
+
+[ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
+Thrown if index is out of range (0 &lt;= index &lt; CellCount)
+
+---
+
+[`< Back`](./)

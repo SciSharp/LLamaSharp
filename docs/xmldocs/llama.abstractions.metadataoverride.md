@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # MetadataOverride
 
 Namespace: LLama.Abstractions
@@ -9,7 +13,8 @@ public sealed class MetadataOverride : System.IEquatable`1[[LLama.Abstractions.M
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [MetadataOverride](./llama.abstractions.metadataoverride.md)<br>
-Implements [IEquatable&lt;MetadataOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
+Implements [IEquatable&lt;MetadataOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), JsonConverterAttribute
 
 ## Properties
 
@@ -69,27 +74,21 @@ public MetadataOverride(string key, bool value)
 
 `value` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
+### **MetadataOverride(String, String)**
+
+Create a new override for a string key
+
+```csharp
+public MetadataOverride(string key, string value)
+```
+
+#### Parameters
+
+`key` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`value` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
 ## Methods
-
-### **WriteValue(LLamaModelMetadataOverride&)**
-
-```csharp
-internal void WriteValue(LLamaModelMetadataOverride& dest)
-```
-
-#### Parameters
-
-`dest` [LLamaModelMetadataOverride&](./llama.native.llamamodelmetadataoverride&.md)<br>
-
-### **WriteValue(Utf8JsonWriter)**
-
-```csharp
-internal void WriteValue(Utf8JsonWriter writer)
-```
-
-#### Parameters
-
-`writer` Utf8JsonWriter<br>
 
 ### **ToString()**
 
@@ -148,3 +147,7 @@ public MetadataOverride <Clone>$()
 #### Returns
 
 [MetadataOverride](./llama.abstractions.metadataoverride.md)<br>
+
+---
+
+[`< Back`](./)

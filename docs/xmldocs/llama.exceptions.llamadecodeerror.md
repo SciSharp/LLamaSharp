@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaDecodeError
 
 Namespace: LLama.Exceptions
@@ -116,3 +120,21 @@ public LLamaDecodeError(DecodeResult returnCode)
 #### Parameters
 
 `returnCode` [DecodeResult](./llama.native.decoderesult.md)<br>
+
+## Events
+
+### **SerializeObjectState**
+
+#### Caution
+
+BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information.
+
+---
+
+```csharp
+protected event EventHandler<SafeSerializationEventArgs> SerializeObjectState;
+```
+
+---
+
+[`< Back`](./)

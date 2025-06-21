@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # FixedSizeQueue&lt;T&gt;
 
 Namespace: LLama.Common
@@ -14,7 +18,8 @@ public class FixedSizeQueue<T> : , , , System.Collections.IEnumerable
 `T`<br>
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [FixedSizeQueue&lt;T&gt;](./llama.common.fixedsizequeue-1.md)<br>
-Implements IReadOnlyList&lt;T&gt;, IReadOnlyCollection&lt;T&gt;, IEnumerable&lt;T&gt;, [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)
+Implements IReadOnlyList&lt;T&gt;, IReadOnlyCollection&lt;T&gt;, IEnumerable&lt;T&gt;, [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [DefaultMemberAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.defaultmemberattribute)
 
 ## Properties
 
@@ -104,3 +109,7 @@ public IEnumerator<T> GetEnumerator()
 #### Returns
 
 IEnumerator&lt;T&gt;<br>
+
+---
+
+[`< Back`](./)

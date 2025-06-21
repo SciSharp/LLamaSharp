@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # IContextParamsExtensions
 
 Namespace: LLama.Extensions
@@ -8,7 +12,8 @@ Extension methods to the IContextParams interface
 public static class IContextParamsExtensions
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [IContextParamsExtensions](./llama.extensions.icontextparamsextensions.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [IContextParamsExtensions](./llama.extensions.icontextparamsextensions.md)<br>
+Attributes [ExtensionAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
 
 ## Methods
 
@@ -31,3 +36,7 @@ public static void ToLlamaContextParams(IContextParams params, LLamaContextParam
 [FileNotFoundException](https://docs.microsoft.com/en-us/dotnet/api/system.io.filenotfoundexception)<br>
 
 [ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+---
+
+[`< Back`](./)

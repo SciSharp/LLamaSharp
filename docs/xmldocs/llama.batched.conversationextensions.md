@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ConversationExtensions
 
 Namespace: LLama.Batched
@@ -8,9 +12,54 @@ Extension method for [Conversation](./llama.batched.conversation.md)
 public static class ConversationExtensions
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ConversationExtensions](./llama.batched.conversationextensions.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ConversationExtensions](./llama.batched.conversationextensions.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [ExtensionAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
 
 ## Methods
+
+### **Sample(Conversation, SafeLLamaSamplerChainHandle, Int32)**
+
+Sample a token from this conversation using the given sampler chain
+
+```csharp
+public static LLamaToken Sample(Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset)
+```
+
+#### Parameters
+
+`conversation` [Conversation](./llama.batched.conversation.md)<br>
+[Conversation](./llama.batched.conversation.md) to sample from
+
+`sampler` [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
+
+`offset` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Offset from the end of the conversation to the logits to sample, see [Conversation.GetSampleIndex(Int32)](./llama.batched.conversation.md#getsampleindexint32) for more details
+
+#### Returns
+
+[LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **Sample(Conversation, ISamplingPipeline, Int32)**
+
+Sample a token from this conversation using the given sampling pipeline
+
+```csharp
+public static LLamaToken Sample(Conversation conversation, ISamplingPipeline sampler, int offset)
+```
+
+#### Parameters
+
+`conversation` [Conversation](./llama.batched.conversation.md)<br>
+[Conversation](./llama.batched.conversation.md) to sample from
+
+`sampler` [ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>
+
+`offset` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Offset from the end of the conversation to the logits to sample, see [Conversation.GetSampleIndex(Int32)](./llama.batched.conversation.md#getsampleindexint32) for more details
+
+#### Returns
+
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
 ### **Rewind(Conversation, Int32)**
 
@@ -53,3 +102,7 @@ How much to shift tokens over by
 
 `keep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The number of tokens at the start which should not be shifted
+
+---
+
+[`< Back`](./)

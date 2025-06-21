@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # GreedySamplingPipeline
 
 Namespace: LLama.Sampling
@@ -9,21 +13,22 @@ public class GreedySamplingPipeline : BaseSamplingPipeline, ISamplingPipeline, S
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md) → [GreedySamplingPipeline](./llama.sampling.greedysamplingpipeline.md)<br>
-Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
 ### **Grammar**
 
-Grammar to constrain valid tokens
+Grammar to apply to constrain possible tokens
 
 ```csharp
-public SafeLLamaGrammarHandle Grammar { get; set; }
+public Grammar Grammar { get; set; }
 ```
 
 #### Property Value
 
-[SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
+[Grammar](./llama.sampling.grammar.md)<br>
 
 ## Constructors
 
@@ -35,44 +40,20 @@ public GreedySamplingPipeline()
 
 ## Methods
 
-### **ProcessLogits(SafeLLamaContextHandle, Span&lt;Single&gt;, ReadOnlySpan&lt;LLamaToken&gt;)**
+### **CreateChain(SafeLLamaContextHandle)**
 
 ```csharp
-protected void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+protected SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
 ```
 
 #### Parameters
 
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`logits` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
-
-`lastTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
-
-### **ProcessTokenDataArray(SafeLLamaContextHandle, LLamaTokenDataArray, ReadOnlySpan&lt;LLamaToken&gt;)**
-
-```csharp
-protected LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`candidates` [LLamaTokenDataArray](./llama.native.llamatokendataarray.md)<br>
-
-`lastTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`context` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
 #### Returns
 
-[LLamaToken](./llama.native.llamatoken.md)<br>
+[SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
 
-### **Clone()**
+---
 
-```csharp
-public ISamplingPipeline Clone()
-```
-
-#### Returns
-
-[ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>
+[`< Back`](./)
