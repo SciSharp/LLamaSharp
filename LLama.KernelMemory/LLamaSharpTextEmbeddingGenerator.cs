@@ -3,6 +3,7 @@ using LLama.Common;
 using LLama.Native;
 using Microsoft.KernelMemory;
 using Microsoft.KernelMemory.AI;
+using System.Text;
 
 namespace LLamaSharp.KernelMemory
 {
@@ -18,6 +19,8 @@ namespace LLamaSharp.KernelMemory
         private readonly LLamaEmbedder _embedder;
         private readonly bool _ownsEmbedder;
 
+        private readonly ModelParams? @params;
+
         /// <inheritdoc/>
         public int MaxTokens { get; }
 
@@ -29,13 +32,16 @@ namespace LLamaSharp.KernelMemory
         {
             MaxTokens = (int?)config.ContextSize ?? 2048;
 
-            var @params = new ModelParams(config.ModelPath)
+            @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                //Embeddings = true,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
 
@@ -54,13 +60,16 @@ namespace LLamaSharp.KernelMemory
         {
             MaxTokens = (int?)config.ContextSize ?? 2048;
 
-            var @params = new ModelParams(config.ModelPath)
+            @params = new ModelParams(config.ModelPath)
             {
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
-                //Embeddings = true,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.None,
+                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                BatchSize = 512,
+                UBatchSize = 512,
+                FlashAttention = true,
+                UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
             _weights = weights;
@@ -97,26 +106,31 @@ namespace LLamaSharp.KernelMemory
             return new Embedding(embeddings.First());
         }
 
-        /// <inheritdoc/>
-        public int CountTokens(string text) => _embedder.Context.Tokenize(text, special: true).Length;
+        /// <summary>
+        /// Count the tokens in the input text
+        /// </summary>
+        /// <param name="text">input text</param>
+        /// <param name="parameters">context parameters</param>
+        /// <returns></returns>
+        public int CountTokens(string text)
+        {
+            return _weights!.Tokenize(text, true, special: true, Encoding.UTF8).Length;
+        }
 
         /// <summary>
         /// Get the list of tokens for the input text
         /// </summary>
         /// <param name="text">Input string to be tokenized</param>
+        /// <param name="parameters">Context parameters</param>
         /// <returns>Read-only list of tokens for the input test</returns>
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
-        /// <see cref="CountTokens(string)"/>
+        /// <see cref="CountTokens(string, IContextParams)"/>
         public IReadOnlyList<string> GetTokens(string text)
         {
-            /* see relevant unit tests for important implementation notes regarding unicode */
-            var context = _embedder.Context;
-            var numericTokens = context.Tokenize(text, special: true);
-            var decoder = new StreamingTokenDecoder(context);
-            return numericTokens
-                .Select(x => { decoder.Add(x); return decoder.Read(); })
-                .ToList();
+            var numericTokens = _weights!.Tokenize(text, true, special: true, Encoding.UTF8);
+            var decoder = new StreamingTokenDecoder(Encoding.UTF8, _weights);
+            return numericTokens.Select(x => { decoder.Add(x); return decoder.Read(); }).ToList();
         }
     }
 }

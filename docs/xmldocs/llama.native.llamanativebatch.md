@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaNativeBatch
 
 Namespace: LLama.Native
@@ -41,6 +45,7 @@ public Single* embd;
 ### **pos**
 
 the positions of the respective token in the sequence
+ (if set to NULL, the token position will be tracked automatically by llama_decode)
 
 ```csharp
 public LLamaPos* pos;
@@ -57,6 +62,7 @@ public Int32* n_seq_id;
 ### **seq_id**
 
 the sequence to which the respective token belongs
+ (if set to NULL, the sequence ID will be assumed to be 0)
 
 ```csharp
 public LLamaSeqId** seq_id;
@@ -65,7 +71,12 @@ public LLamaSeqId** seq_id;
 ### **logits**
 
 if zero, the logits for the respective token will not be output
+ (if set to NULL, only the logits for last token will be returned)
 
 ```csharp
 public Byte* logits;
 ```
+
+---
+
+[`< Back`](./)

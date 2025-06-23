@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # IHistoryTransform
 
 Namespace: LLama.Abstractions
@@ -7,6 +11,8 @@ Transform history to plain text and vice versa.
 ```csharp
 public interface IHistoryTransform
 ```
+
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), JsonConverterAttribute
 
 ## Methods
 
@@ -59,3 +65,7 @@ IHistoryTransform Clone()
 #### Returns
 
 [IHistoryTransform](./llama.abstractions.ihistorytransform.md)<br>
+
+---
+
+[`< Back`](./)

@@ -84,7 +84,7 @@ public sealed class Conversation
         _disposed = true;
 
         // Remove this conversation from the KV cache
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, 0, _end);
+        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, -1, -1);
 
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
@@ -410,7 +410,7 @@ public sealed class Conversation
         }
 
         /// <summary>
-        /// Removes all tokens starting from the given position
+        /// Removes <see cref="count"/> tokens starting from <see cref="start"/>
         /// </summary>
         /// <param name="start">Start position (inclusive)</param>
         /// <param name="count">Number of tokens</param>

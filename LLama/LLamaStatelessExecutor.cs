@@ -88,7 +88,10 @@ namespace LLama
                 throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
 
             // Create decoders for the token stream
-            var decoder = new StreamingTokenDecoder(Context);
+            var decoder = new StreamingTokenDecoder(Context)
+            {
+                DecodeSpecialTokens = inferenceParams.DecodeSpecialTokens,
+            };
             var antiprocessor = new AntipromptProcessor(inferenceParams.AntiPrompts);
 
             if (ApplyTemplate)

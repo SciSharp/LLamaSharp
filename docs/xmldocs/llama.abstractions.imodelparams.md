@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # IModelParams
 
 Namespace: LLama.Abstractions
@@ -8,12 +12,17 @@ The parameters for initializing a LLama model.
 public interface IModelParams
 ```
 
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
+
 ## Properties
 
 ### **MainGpu**
 
 main_gpu interpretation depends on split_mode:
- NoneThe GPU that is used for the entire mode.RowThe GPU that is used for small tensors and intermediate results.LayerIgnored.
+
+- **None** - The GPU that is used for the entire mode.
+- **Row** - The GPU that is used for small tensors and intermediate results.
+- **Layer** - Ignored.
 
 ```csharp
 public abstract int MainGpu { get; set; }
@@ -28,12 +37,25 @@ public abstract int MainGpu { get; set; }
 How to split the model across multiple GPUs
 
 ```csharp
-public abstract GPUSplitMode SplitMode { get; }
+public abstract Nullable<GPUSplitMode> SplitMode { get; }
 ```
 
 #### Property Value
 
-[GPUSplitMode](./llama.native.gpusplitmode.md)<br>
+[Nullable&lt;GPUSplitMode&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+
+### **TensorBufferOverrides**
+
+Buffer type overrides for specific tensor patterns, allowing you to specify hardware devices to use for individual tensors or sets of tensors.
+ Equivalent to --override-tensor or -ot on the llama.cpp command line or tensor_buft_overrides internally.
+
+```csharp
+public abstract List<TensorBufferOverride> TensorBufferOverrides { get; }
+```
+
+#### Property Value
+
+[List&lt;TensorBufferOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ### **GpuLayerCount**
 
@@ -107,29 +129,17 @@ public abstract bool VocabOnly { get; }
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **LoraAdapters**
+### **CheckTensors**
 
-List of LoRA adapters to apply
+Validate model tensor data before loading
 
 ```csharp
-public abstract AdapterCollection LoraAdapters { get; }
+public abstract bool CheckTensors { get; }
 ```
 
 #### Property Value
 
-[AdapterCollection](./llama.abstractions.adaptercollection.md)<br>
-
-### **LoraBase**
-
-base model path for the lora adapter (lora_base)
-
-```csharp
-public abstract string LoraBase { get; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **MetadataOverrides**
 
@@ -142,3 +152,7 @@ public abstract List<MetadataOverride> MetadataOverrides { get; }
 #### Property Value
 
 [List&lt;MetadataOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+---
+
+[`< Back`](./)

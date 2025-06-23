@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # SessionState
 
 Namespace: LLama
@@ -9,9 +13,20 @@ public class SessionState : System.IEquatable`1[[LLama.SessionState, LLamaSharp,
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [SessionState](./llama.sessionstate.md)<br>
-Implements [IEquatable&lt;SessionState&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
+Implements [IEquatable&lt;SessionState&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
+
+### **EqualityContract**
+
+```csharp
+protected Type EqualityContract { get; }
+```
+
+#### Property Value
+
+[Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
 
 ### **ExecutorState**
 
@@ -75,7 +90,7 @@ public IHistoryTransform HistoryTransform { get; set; }
 
 ### **History**
 
-The the chat history messages for this session.
+The chat history messages for this session.
 
 ```csharp
 public Message[] History { get; set; }
@@ -108,6 +123,16 @@ public SessionState(State contextState, ExecutorBaseState executorState, ChatHis
 `outputTransform` [ITextStreamTransform](./llama.abstractions.itextstreamtransform.md)<br>
 
 `historyTransform` [IHistoryTransform](./llama.abstractions.ihistorytransform.md)<br>
+
+### **SessionState(SessionState)**
+
+```csharp
+protected SessionState(SessionState original)
+```
+
+#### Parameters
+
+`original` [SessionState](./llama.sessionstate.md)<br>
 
 ## Methods
 
@@ -215,3 +240,7 @@ public SessionState <Clone>$()
 #### Returns
 
 [SessionState](./llama.sessionstate.md)<br>
+
+---
+
+[`< Back`](./)
