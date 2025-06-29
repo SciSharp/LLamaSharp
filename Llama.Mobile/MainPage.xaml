@@ -1,14 +1,106 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Llama.Mobile.MainPage">
-    <Label
-        x:Name="label1"
-        Text="Hello, World!"
-        Style="{StaticResource Headline}"
-        HorizontalOptions="Center"
-        VerticalOptions="Center"
-        SemanticProperties.HeadingLevel="Level1" />
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+            x:Class="Llama.Mobile.MainPage"  
+            Title="Bob, the AI assisant"  
+            xmlns:src="clr-namespace:Llama.Mobile.Src"  
+            >  
+
+   <ContentPage.Resources>  
+       <src:InverseBooleanConverter x:Key="InverseBooleanConverter"/>  
+
+       <DataTemplate x:Key="UserMessageTemplate">  
+           <Grid ColumnDefinitions="*,auto">  
+               <Frame BackgroundColor="LightBlue"  
+                      Padding="10"  
+                      CornerRadius="16"  
+                      HasShadow="False"  
+                      Margin="40,4,4,4"  
+                      HorizontalOptions="End"  
+                      BorderColor="#B0C4DE">  
+                   <Label Text="{Binding Text}" TextColor="Black"/>  
+               </Frame>  
+               <BoxView Grid.Column="1"  
+                        WidthRequest="10"  
+                        HeightRequest="10"  
+                        BackgroundColor="LightBlue"  
+                        CornerRadius="10,10,10,10"  
+                        Margin="0,0,8,8"  
+                        VerticalOptions="End"  
+                        HorizontalOptions="End"/>  
+           </Grid>  
+       </DataTemplate>  
+       <DataTemplate x:Key="OtherMessageTemplate">  
+           <Grid ColumnDefinitions="auto,*">  
+               <BoxView Grid.Column="0"  
+                        WidthRequest="10"  
+                        HeightRequest="10"  
+                        BackgroundColor="LightGray"  
+                        CornerRadius="10,10,10,10"  
+                        Margin="8,0,0,8"  
+                        VerticalOptions="End"  
+                        HorizontalOptions="Start"/>  
+               <Frame Grid.Column="1"  
+                      BackgroundColor="LightGray"  
+                      Padding="10"  
+                      CornerRadius="16"  
+                      HasShadow="False"  
+                      Margin="4,4,40,4"  
+                      HorizontalOptions="Start"  
+                      BorderColor="#D3D3D3">  
+                   <Grid>  
+                       <Label Text="{Binding Text}" TextColor="Black" IsVisible="{Binding IsPreparing, Converter={StaticResource InverseBooleanConverter}}" />  
+                       <ActivityIndicator IsRunning="True" IsVisible="{Binding IsPreparing}" WidthRequest="20" HeightRequest="20" />  
+                   </Grid>  
+               </Frame>  
+           </Grid>  
+       </DataTemplate>  
+
+       <src:ChatMessageTemplateSelector x:Key="ChatTemplateSelector"  
+                                     UserTemplate="{StaticResource UserMessageTemplate}"  
+                                     OtherTemplate="{StaticResource OtherMessageTemplate}" />  
+   </ContentPage.Resources>  
+
+   <Grid RowDefinitions="Auto,*,Auto,Auto">  
+       <HorizontalStackLayout Grid.Row="0" x:Name="pn_loading">  
+           <Label  
+           Text="Loading the model"  
+           VerticalOptions="Center"  
+           HorizontalOptions="StartAndExpand"/>  
+           <ActivityIndicator  
+           IsRunning="True"  
+           IsVisible="True"  
+           WidthRequest="25"  
+           HeightRequest="25"  
+           VerticalOptions="Center"  
+           HorizontalOptions="EndAndExpand"/>  
+       </HorizontalStackLayout>  
+
+       <CollectionView  
+       ItemsSource="{Binding Messages}"  
+       ItemTemplate="{StaticResource ChatTemplateSelector}"  
+       x:Name="chat"  
+       Grid.Row="1"  
+       VerticalOptions="FillAndExpand">  
+           <CollectionView.ItemsLayout>  
+               <LinearItemsLayout Orientation="Vertical"/>  
+           </CollectionView.ItemsLayout>  
+       </CollectionView>  
+
+       <Entry  
+        x:Name="tx_userPrompt"  
+        Placeholder="Ask to the model"  
+        Margin="10"  
+        Grid.Row="2"/>  
+
+       <Button   
+        x:Name="btn_ask"  
+        Text="Ask"  
+        Clicked="OnAskClicked"  
+        IsEnabled="False"  
+        Margin="10,0,10,10"  
+        Grid.Row="3"/>  
+   </Grid>  
 
 </ContentPage>

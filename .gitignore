@@ -352,3 +352,4 @@ site/
 /LLama/runtimes/deps
 /LLama/runtimes/deps.zip
 /LLama/runtimes/release_id.txt
+/Llama.Mobile/Resources/Raw/Llama-3.2-1B-Instruct-Q4_0.gguf
