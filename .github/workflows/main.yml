@@ -24,7 +24,7 @@ jobs:
             os: macos-14 # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
             config: release            
           - build: windows-release
-            os: windows-2019
+            os: windows-2022
             config: release
     steps:
     - name: Free Disk Space (Ubuntu)
