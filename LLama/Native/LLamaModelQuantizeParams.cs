@@ -95,6 +95,11 @@ namespace LLama.Native
         public IntPtr tensor_types;
 
         /// <summary>
+        /// Pointer to vector containing layer indices to prune
+        /// </summary>
+        public IntPtr prune_layers;
+
+        /// <summary>
         /// Create a LLamaModelQuantizeParams with default values
         /// </summary>
         /// <returns></returns>

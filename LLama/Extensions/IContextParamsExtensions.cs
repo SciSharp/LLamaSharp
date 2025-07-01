@@ -55,6 +55,11 @@ namespace LLama.Extensions
 
             result.n_threads = Threads(@params.Threads);
             result.n_threads_batch = Threads(@params.BatchThreads);
+
+            if (@params.SwaFull.HasValue)
+                result.swa_full = @params.SwaFull.Value;
+            if (@params.OpOffload.HasValue)
+                result.op_offload = @params.OpOffload.Value;
         }
 
         private static int Threads(int? value)

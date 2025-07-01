@@ -114,7 +114,7 @@ public sealed partial class LLamaReranker
             batch.Add(tokens[i], i, LLamaSeqId.Zero, true);
 
         // clear previous kv_cache values
-        Context.NativeHandle.KvCacheClear();
+        Context.NativeHandle.MemoryClear();
 
         // Check if we should cancel the work, just before doing anything expensive (encode/decode)
         cancellationToken.ThrowIfCancellationRequested();
@@ -144,7 +144,7 @@ public sealed partial class LLamaReranker
 
         var score = Context.NativeHandle.GetEmbeddingsSeq(LLamaSeqId.Zero)[0];
 
-        Context.NativeHandle.KvCacheClear();
+        Context.NativeHandle.MemoryClear();
 
         return (normalize ? Sigmoid(score) : score, tokens.Length);
     }
@@ -155,7 +155,7 @@ public sealed partial class LLamaReranker
         var seqNum = logicCap.Value + 1;
         List<float> scores = new List<float>(seqNum);
         // clear previous kv_cache values
-        Context.NativeHandle.KvCacheClear();
+        Context.NativeHandle.MemoryClear();
 
         // Check if we should cancel the work, just before doing anything expensive (encode/decode)
         cancellationToken.ThrowIfCancellationRequested();
@@ -189,7 +189,7 @@ public sealed partial class LLamaReranker
             scores.Add(normalize ? Sigmoid(score) : score);
         }
 
-        Context.NativeHandle.KvCacheClear();
+        Context.NativeHandle.MemoryClear();
 
         return scores;
     }

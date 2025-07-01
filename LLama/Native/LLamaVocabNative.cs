@@ -119,4 +119,8 @@ internal struct LLamaVocabNative
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.U1)]
     public static extern unsafe bool llama_vocab_get_add_eos(LLamaVocabNative* vocab);
+
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    public static extern unsafe bool llama_vocab_get_add_sep(LLamaVocabNative* vocab);
 }

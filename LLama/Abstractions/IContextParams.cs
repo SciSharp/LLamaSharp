@@ -109,8 +109,7 @@ public interface IContextParams
     bool FlashAttention { get; }
 
     /// <summary>
-    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
-    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to <see langword="null"/> or &lt; 0 to disable (default)
+    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
     /// </summary>
     float? DefragThreshold { get; }
 
@@ -123,4 +122,17 @@ public interface IContextParams
     /// Attention type to use for embeddings
     /// </summary>
     LLamaAttentionType AttentionType { get; }
+
+    /// <summary>
+    /// Offload host tensor operations to device
+    /// </summary>
+    bool? OpOffload { get; }
+
+    /// <summary>
+    /// Use full-size SWA cache (https://github.com/ggml-org/llama.cpp/pull/13194#issuecomment-2868343055)
+    /// </summary>
+    /// <remarks>Setting to false when n_seq_max > 1 can cause bad performance in some cases
+    ///       ref: https://github.com/ggml-org/llama.cpp/pull/13845#issuecomment-2924800573
+    /// </remarks>
+    bool? SwaFull { get; }
 }

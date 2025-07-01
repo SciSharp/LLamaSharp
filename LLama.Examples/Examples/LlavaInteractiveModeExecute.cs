@@ -79,7 +79,7 @@ namespace LLama.Examples.Examples
                     // When the prompt contains images we clear KV_CACHE to restart conversation
                     // See:
                     // https://github.com/ggerganov/llama.cpp/discussions/3620
-                    ex.Context.NativeHandle.KvCacheRemove( LLamaSeqId.Zero, -1, -1 );
+                    ex.Context.NativeHandle.MemorySequenceRemove( LLamaSeqId.Zero, -1, -1 );
 
                     int index = 0;
                     foreach (var path in imagePathsWithCurlyBraces)
