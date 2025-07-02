@@ -103,12 +103,12 @@ public MainPage()
     {
         btn_ask.IsEnabled = false;
         Messages.Add(new Message { Type = messageType.User, Text = tx_userPrompt.Text, IsPreparing = false });
+        string userPrompt = tx_userPrompt.Text;
         tx_userPrompt.Text="";
         Message response = new Message { Type = messageType.other, Text = "", IsPreparing = true };
         Messages.Add(response);
         chat.ScrollTo(Messages.Last(), position: ScrollToPosition.End, animate: false);
-
-        await foreach (string text in Session.ChatAsync(new ChatHistory.Message(AuthorRole.User, tx_userPrompt.Text), InferenceParams))
+        await foreach (string text in Session.ChatAsync(new ChatHistory.Message(AuthorRole.User, userPrompt), InferenceParams))
         {
             response.IsPreparing = false;
             response.AppendText(text); 
