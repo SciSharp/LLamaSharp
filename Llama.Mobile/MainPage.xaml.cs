@@ -21,7 +21,7 @@ public partial class MainPage : ContentPage
 
     public ObservableCollection<Message> Messages { get; } = new();
 
-    //put the gguf model in rasources/raw
+    //Put the gguf model in the directory resources/raw and write its name in the following string
     private const string modelName = "Llama-3.2-1B-Instruct-Q4_0.gguf";
 
     private ChatSession? _session;
@@ -60,10 +60,10 @@ public MainPage()
 
         if (!File.Exists(modelPath))
         {
-            //get a stream of the model stored in the apk
+            //get the data stream of the model stored in the apk
             using Stream inputStream = await FileSystem.Current.OpenAppPackageFileAsync(modelName);
 
-            //copy the data from the inputStream in to a file, with te same name, in the the app data directory
+            //copy the data from the inputStream in to a new file, with te same name, in the the app data directory
             using FileStream outputStream = File.Create(modelPath);
             await inputStream.CopyToAsync(outputStream);
             outputStream.Close();
@@ -87,6 +87,9 @@ public MainPage()
         chatHistory.AddMessage(AuthorRole.Assistant, "Hello. How may I help you today?");
 
         Session = new(executor, chatHistory);
+        Session.WithOutputTransform(new LLamaTransforms.KeywordTextOutputStreamTransform(
+            new string[] { "\n\nUser:", "\nUser:", "User:", "Assistant: " },
+            redundancyLength: 8));
 
         pn_loading.IsVisible = false;
         btn_ask.IsEnabled = true;
@@ -100,61 +103,17 @@ public MainPage()
     {
         btn_ask.IsEnabled = false;
         Messages.Add(new Message { Type = messageType.User, Text = tx_userPrompt.Text, IsPreparing = false });
+        tx_userPrompt.Text="";
         Message response = new Message { Type = messageType.other, Text = "", IsPreparing = true };
         Messages.Add(response);
         chat.ScrollTo(Messages.Last(), position: ScrollToPosition.End, animate: false);
 
-        StringBuilder sp = new StringBuilder();
-        bool assistantHeaderRemoved = false;
-        bool userRemoved = false;
         await foreach (string text in Session.ChatAsync(new ChatHistory.Message(AuthorRole.User, tx_userPrompt.Text), InferenceParams))
         {
-            //raw model output cleaning from words like "Assistant:" and "User:"
-            //if your model produces a clean output you can just only leave the following two instruction
-            //inside this loop:
-            //response.IsPreparing = false;
-            //response.AppendText(text); 
-
-            if (!assistantHeaderRemoved)
-            {
-                sp.Append(text);
-                if (sp.Length >= 11)
-                {
-                    sp = sp.Remove(0, 11);
-                    assistantHeaderRemoved = true;
-                    response.Text = sp.ToString();
-                    response.IsPreparing = false;
-                    sp.Clear();
-                }
-                continue;
-            }
-
-            if (text.EndsWith("User"))
-            {
-                response.AppendText(text.Remove(text.Length - 4));
-                userRemoved = true;
-            }
-            else if (userRemoved)
-            {
-                if (text == ":")
-                {
-                    break;
-                }
-                else
-                {
-                    response.AppendText("User" + text);
-                    userRemoved = false;
-                }
-
-            }
-            else
-            {
-                response.AppendText(text);
-            }
-
+            response.IsPreparing = false;
+            response.AppendText(text); 
             chat.ScrollTo(Messages.Last(), position: ScrollToPosition.End, animate: false);
         }
-        response.Text = response.Text.TrimEnd('\n');
         btn_ask.IsEnabled = true;
     }
 }

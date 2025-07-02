@@ -13,7 +13,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net8.0-android</TargetFrameworks>
-        
+
         <!--Temporarily Disable iOS and MacCatalyst until native lib support is added-->
         <!--<TargetFrameworks>$(TargetFrameworks);net8.0-ios;net8.0-maccatalyst</TargetFrameworks>-->
 
@@ -51,7 +51,64 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
+    <Target Name="EnsureFolders">
+        <MakeDir Directories="Resources\Raw" Condition="!Exists('Resources\Raw')" />
+    </Target>
+
+    <!-- Download a single file:
+       - Computes the full target file name (DesiredFile).
+       - If DesiredFile already exists, the download is skipped.
+       - Otherwise, creates a temporary folder (TempDownload), 
+         downloads the file there using DownloadFile, and then moves it
+         to DesiredFile. Finally, cleans up the temporary folder.  -->
+    <Target Name="DownloadSingleFile" DependsOnTargets="EnsureFolders">
+        <!-- (These properties come in via the MSBuild call.) -->
+        <PropertyGroup>
+            <DesiredFile>$([System.IO.Path]::Combine($(DestinationFolder), $(LocalFileName)))</DesiredFile>
+        </PropertyGroup>
+
+        <Message Text="Processing file: $(DesiredFile)" Importance="high" />
+
+        <!-- Define a flag based on whether the file already exists -->
+        <PropertyGroup>
+            <DownloadNeeded Condition="!Exists('$(DesiredFile)')">true</DownloadNeeded>
+            <DownloadNeeded Condition="Exists('$(DesiredFile)')">false</DownloadNeeded>
+        </PropertyGroup>
+        <Message Text="Download needed: $(DownloadNeeded)" Importance="high" />
+
+        <!-- If the file is already present, skip the download (by simply exiting this target) -->
+        <Message Text="File $(DesiredFile) already exists; skipping download." Importance="high" Condition=" '$(DownloadNeeded)'=='false' " />
+
+        <!-- Only download if required -->
+        <DownloadFile SourceUrl="$(SourceUrl)" DestinationFolder="TempDownload" SkipUnchangedFiles="true" Condition=" '$(DownloadNeeded)'=='true' " />
+
+        <!-- If a file was downloaded, move it to the desired name.
+         We assume TempDownload now contains the downloaded file.
+         (You might want to refine this if TempDownload could ever contain multiple files.) -->
+        <ItemGroup Condition=" '$(DownloadNeeded)'=='true' ">
+            <TempFile Include="TempDownload/*.*" />
+        </ItemGroup>
+        <Message Text="Downloaded file (temp): @(TempFile)" Importance="high" Condition=" '$(DownloadNeeded)'=='true' " />
+        <Move SourceFiles="@(TempFile)" DestinationFiles="$(DesiredFile)" Condition=" '$(DownloadNeeded)'=='true' and @(TempFile) != '' " />
+        <Message Text="Renamed downloaded file to $(DesiredFile)" Importance="high" Condition=" '$(DownloadNeeded)'=='true' and @(TempFile) != '' " />
+
+        <!-- Remove the temporary download folder -->
+        <RemoveDir Directories="TempDownload" Condition="Exists('TempDownload')" />
+    </Target>
+
+    <!-- Main target to process each file by calling the DownloadSingleFile target for each item.
+       The MSBuild task will batch over the DownloadFileItem items, passing in each file’s metadata. -->
+    <Target Name="DownloadAllFiles" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
+        <MSBuild Projects="$(MSBuildProjectFile)" Targets="DownloadSingleFile" Properties="SourceUrl=%(DownloadFileItem.SourceUrl);DestinationFolder=%(DownloadFileItem.DestinationFolder);LocalFileName=%(DownloadFileItem.LocalFileName);TargetFramework=once" />
+    </Target>
+
     <ItemGroup>
+        <DownloadFileItem Include="Llama-3.2-1B-Instruct-Q4_0">
+            <SourceUrl>https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_0.gguf</SourceUrl>
+            <DestinationFolder>Resources/Raw</DestinationFolder>
+            <LocalFileName>Llama-3.2-1B-Instruct-Q4_0.gguf</LocalFileName>
+        </DownloadFileItem>
+
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
@@ -76,7 +133,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
+        <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
     </ItemGroup>
 
 </Project>
