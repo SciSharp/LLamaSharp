@@ -91,7 +91,7 @@ public MainPage()
             new string[] { "\n\nUser:", "\nUser:", "User:", "Assistant: " },
             redundancyLength: 8));
 
-        pn_loading.IsVisible = false;
+        pnl_loading.IsVisible = false;
         btn_ask.IsEnabled = true;
 
         await Task.Delay(100); //on the emulator without this little delay the popup isn't shown

@@ -3,7 +3,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
             x:Class="Llama.Mobile.MainPage"  
-            Title="Bob, the AI assisant"  
+            Title="Bob, the AI assistant"  
             xmlns:src="clr-namespace:Llama.Mobile.Src"  
             >
 
@@ -63,7 +63,7 @@
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto" Margin="10,0,10,0">
-        <HorizontalStackLayout Grid.Row="0" x:Name="pn_loading">
+        <HorizontalStackLayout Grid.Row="0" x:Name="pnl_loading">
             <Label  
            Text="Loading the model"  
            VerticalOptions="Center"  
