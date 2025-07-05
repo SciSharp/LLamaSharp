@@ -346,7 +346,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-2019]
+        os: [ubuntu-22.04, windows-2022]
         cuda: ['12.2.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
@@ -385,35 +385,35 @@ jobs:
           ls -R
 
       - name: Upload artifacts (Windows)
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llama.dll
           name: llama-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
       - name: Upload artifacts (ggml)
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\ggml.dll
           name: ggml-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
       - name: Upload artifacts (ggml-base)
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\ggml-base.dll
           name: ggml-base-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
       - name: Upload artifacts (ggml-cuda)
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\ggml-cuda.dll
           name: ggml-cuda-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
           if-no-files-found: error
       - name: Upload llava artifacts (Windows)
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/upload-artifact@v4
         with:
           path: .\build\bin\Release\llava_shared.dll
