@@ -81,8 +81,7 @@ jobs:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
           if-no-files-found: error         
-      - name: Upload mtmd
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libmtmd_shared.so
           name: mtmd-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
@@ -147,8 +146,7 @@ jobs:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-musl-${{ matrix.build }}-x64.so
           if-no-files-found: error        
-      - name: Upload mtmd
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libmtmd_shared.so
           name: mtmd-bin-musl-${{ matrix.build }}-x64.so
@@ -345,7 +343,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-2022]
+        os: [ubuntu-22.04, windows-2019]
         cuda: ['12.2.0', '11.7.1']
     runs-on: ${{ matrix.os }}
     steps:
