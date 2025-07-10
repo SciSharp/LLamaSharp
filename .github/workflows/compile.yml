@@ -344,7 +344,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, windows-2022]
-        cuda: ['12.2.0', '11.7.1']
+        cuda: ['12.4.0']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Clone
