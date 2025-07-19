@@ -41,7 +41,6 @@ namespace LLama.Native
 
             return new SystemInfo(platform, GetCudaMajorVersion(), GetVulkanVersion());
         }
-
         #region Vulkan version
         private static string? GetVulkanVersion()
         {
@@ -65,7 +64,6 @@ namespace LLama.Native
             // Return null if we failed to get the Vulkan version
             return null;
         }
-
         private static string? GetVulkanSummary()
         {
             // Note: on Linux, this requires `vulkan-tools` to be installed. (`sudo apt install vulkan-tools`)
@@ -96,7 +94,6 @@ namespace LLama.Native
                 return null;
             }
         }
-
         static string? ExtractVulkanVersionFromSummary(string vulkanSummary)
         {
             // We have three ways of parsing the Vulkan version from the summary (output is a different between Windows and Linux)
@@ -199,22 +196,18 @@ namespace LLama.Native
                     }
                 }
             }
-
             if (string.IsNullOrEmpty(version))
                 return -1;
 
             return ExtractMajorVersion(ref version);
         }
-
         private static int ExtractMajorVersion(ref string version)
         {
             version = version.Split('.')[0];
             if (int.TryParse(version, out var majorVersion))
                 return majorVersion;
-
             return -1;
         }
-
         private static string GetCudaVersionFromPath(string cudaPath)
         {
             try
@@ -237,7 +230,6 @@ namespace LLama.Native
                 return string.Empty;
             }
         }
-
         // Put it here to avoid calling NativeApi when getting the cuda version.
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern int AddDllDirectory(string NewDirectory);
