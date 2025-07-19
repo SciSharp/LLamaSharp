@@ -46,13 +46,11 @@ namespace LLama.Native
         {
             // Get Vulkan Summary
             string? vulkanSummary = GetVulkanSummary();
-
             // If we have a Vulkan summary
             if (vulkanSummary != null)
             {
                 // Extract Vulkan version from summary
                 string? vulkanVersion = ExtractVulkanVersionFromSummary(vulkanSummary);
-
                 // If we have a Vulkan version
                 if (vulkanVersion != null)
                 {
@@ -60,7 +58,6 @@ namespace LLama.Native
                     return vulkanVersion;
                 }
             }
-
             // Return null if we failed to get the Vulkan version
             return null;
         }
@@ -83,7 +80,6 @@ namespace LLama.Native
                     }
                 };
                 var (exitCode, output, error, ok) = process.SafeRun(TimeSpan.FromSeconds(12));
-
                 // If ok return the output else return null 
                 return ok ? output :
                     null;
@@ -99,32 +95,25 @@ namespace LLama.Native
             // We have three ways of parsing the Vulkan version from the summary (output is a different between Windows and Linux)
             // For now, I have decided to go with the full version number, and leave it up to the user to parse it further if needed
             // I have left the other patterns in, in case we need them in the future
-
             // Output on linux : 4206847 (1.3.255)
             // Output on windows : 1.3.255
             string pattern = @"apiVersion\s*=\s*([^\r\n]+)";
-
             // Output on linux : 4206847
             // Output on windows : 1.3.255
             //string pattern = @"apiVersion\s*=\s*([\d\.]+)";
-
             // Output on linux : 1.3.255
             // Output on windows : 1.3.255
             //string pattern = @"apiVersion\s*=\s*(?:\d+\s*)?(?:\(\s*)?([\d]+\.[\d]+\.[\d]+)(?:\s*\))?";
-
             // Create a Regex object to match the pattern
             Regex regex = new Regex(pattern);
-
             // Match the pattern in the input string
             Match match = regex.Match(vulkanSummary);
-
             // If a match is found
             if (match.Success)
             {
                 // Return the version number
                 return match.Groups[1].Value;
             }
-
             // Return null if no match is found
             return null;
         }
@@ -142,15 +131,12 @@ namespace LLama.Native
                 {
                     return -1;
                 }
-
                 //Ensuring cuda bin path is reachable. Especially for MAUI environment.
                 string cudaBinPath = Path.Combine(cudaPath, "bin");
-
                 if (Directory.Exists(cudaBinPath))
                 {
                     AddDllDirectory(cudaBinPath);
                 }
-
                 version = GetCudaVersionFromPath(cudaPath);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -160,14 +146,12 @@ namespace LLama.Native
                 {
                     return ExtractMajorVersion(ref env_version);
                 }
-
                 // List of default cuda paths
                 string[] defaultCudaPaths =
                 [
                     "/usr/local/bin/cuda",
                     "/usr/local/cuda",
                 ];
-
                 // Loop through every default path to find the version
                 foreach (var path in defaultCudaPaths)
                 {
@@ -178,7 +162,6 @@ namespace LLama.Native
                     if (!string.IsNullOrEmpty(version))
                         break;
                 }
-
                 if (string.IsNullOrEmpty(version))
                 {
                     cudaPath = Environment.GetEnvironmentVariable("LD_LIBRARY_PATH");
@@ -233,7 +216,6 @@ namespace LLama.Native
         // Put it here to avoid calling NativeApi when getting the cuda version.
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern int AddDllDirectory(string NewDirectory);
-
         private const string cudaVersionFile = "version.json";
         #endregion
     }
