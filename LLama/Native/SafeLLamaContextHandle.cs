@@ -504,8 +504,6 @@ namespace LLama.Native
 
             unsafe
             {
-                SafeLlamaModelHandle.
-
                 var embd = llama_get_embeddings_seq(this, seq);
                 Debug.Assert(embd != null);
                 return new Span<float>(embd, model.EmbeddingSize);

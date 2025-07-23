@@ -12,7 +12,7 @@ public static partial class NativeApi
     /// </summary>
     /// <param name="mem"></param>
     /// <param name="data"></param>
-    public static extern void llama_memory_clear(IntPtr /* llama_memory_t */ mem, bool data);
+    public static extern void llama_memory_clear(IntPtr /* llama_memory_t */ mem, [MarshalAs(UnmanagedType.U1)] bool data);
 
     /// <summary>
     /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
