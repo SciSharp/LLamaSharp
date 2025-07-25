@@ -4,14 +4,12 @@ namespace LLama.Native;
 
 public static partial class NativeApi
 {
-    // ReSharper disable once InconsistentNaming
-    internal struct llama_memory_i;
-
     /// <summary>
     /// Clear the memory contents. If data == true, the data buffers will also be cleared together with the metadata
     /// </summary>
     /// <param name="mem"></param>
     /// <param name="data"></param>
+    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
     public static extern void llama_memory_clear(IntPtr /* llama_memory_t */ mem, [MarshalAs(UnmanagedType.U1)] bool data);
 
     /// <summary>
