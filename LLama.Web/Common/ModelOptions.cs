@@ -117,6 +117,9 @@ namespace LLama.Web.Common
         public bool? SwaFull { get; set; }
 
         /// <inheritdoc />
+        public bool? KVUnified { get; set; }
+
+        /// <inheritdoc />
         public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />

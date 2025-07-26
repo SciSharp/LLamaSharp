@@ -129,6 +129,14 @@ public interface IContextParams
     bool? OpOffload { get; }
 
     /// <summary>
+    /// use a unified buffer across the input sequences when computing the attention.
+    /// try to disable when n_seq_max > 1 for improved performance when the sequences do not share a large prefix
+    /// <br />
+    /// ref: <a href="https://github.com/ggml-org/llama.cpp/pull/14363">https://github.com/ggml-org/llama.cpp/pull/14363</a>
+    /// </summary>
+    bool? KVUnified { get; }
+
+    /// <summary>
     /// Use full-size SWA cache (https://github.com/ggml-org/llama.cpp/pull/13194#issuecomment-2868343055)
     /// </summary>
     /// <remarks>Setting to false when n_seq_max > 1 can cause bad performance in some cases
