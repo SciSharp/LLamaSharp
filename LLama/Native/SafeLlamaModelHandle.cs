@@ -819,6 +819,20 @@ namespace LLama.Native
             }
 
             /// <summary>
+            /// Get the masking token for this model
+            /// </summary>
+            public LLamaToken? Mask
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_mask(VocabNative));
+                    }
+                }
+            }
+
+            /// <summary>
             /// Get the sentence separator token for this model
             /// </summary>
             public LLamaToken? SEP

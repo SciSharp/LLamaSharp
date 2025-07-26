@@ -60,6 +60,8 @@ namespace LLama.Extensions
                 result.swa_full = @params.SwaFull.Value;
             if (@params.OpOffload.HasValue)
                 result.op_offload = @params.OpOffload.Value;
+            if (@params.KVUnified.HasValue)
+                result.kv_unified = @params.KVUnified.Value;
         }
 
         private static int Threads(int? value)

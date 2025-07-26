@@ -38,6 +38,11 @@ public struct LLamaPerfContextTimings
     /// number of eval calls
     /// </summary>
     private int n_eval;
+
+    /// <summary>
+    /// number of times a ggml compute graph had been reused
+    /// </summary>
+    private int n_reused;
     
     /// <summary>
     /// Timestamp when reset was last called

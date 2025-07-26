@@ -202,6 +202,19 @@ namespace LLama.Native
         private sbyte _swa_full;
 
         /// <summary>
+        /// use a unified buffer across the input sequences when computing the attention.
+        /// try to disable when n_seq_max > 1 for improved performance when the sequences do not share a large prefix
+        /// <br />
+        /// ref: https://github.com/ggml-org/llama.cpp/pull/14363
+        /// </summary>
+        public bool kv_unified
+        {
+            readonly get => Convert.ToBoolean(_kv_unified);
+            set => _kv_unified = Convert.ToSByte(value);
+        }
+        private sbyte _kv_unified;
+
+        /// <summary>
         /// Get the default LLamaContextParams
         /// </summary>
         /// <returns></returns>
