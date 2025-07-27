@@ -42,6 +42,13 @@
         <file src="runtimes/deps/avx512/llama.dll" target="runtimes\win-x64\native\avx512\llama.dll" />
         <file src="runtimes/deps/avx512/llava_shared.dll" target="runtimes\win-x64\native\avx512\llava_shared.dll" />
 
+        <!-- Windows ARM64 -->
+        <file src="runtimes/deps/win-arm64/ggml.dll" target="runtimes\win-arm64\native\ggml.dll" />
+        <file src="runtimes/deps/win-arm64/ggml-base.dll" target="runtimes\win-arm64\native\ggml-base.dll" />
+        <file src="runtimes/deps/win-arm64/ggml-cpu.dll" target="runtimes\win-arm64\native\ggml-cpu.dll" />
+        <file src="runtimes/deps/win-arm64/llama.dll" target="runtimes\win-arm64\native\llama.dll" />
+        <file src="runtimes/deps/win-arm64/llava_shared.dll" target="runtimes\win-arm64\native\llava_shared.dll" />
+
     <file src="runtimes/deps/noavx/libggml.so" target="runtimes\linux-x64\native\noavx\libggml.so" />
     <file src="runtimes/deps/noavx/libggml-base.so" target="runtimes\linux-x64\native\noavx\libggml-base.so" />
     <file src="runtimes/deps/noavx/libggml-cpu.so" target="runtimes\linux-x64\native\noavx\libggml-cpu.so" />

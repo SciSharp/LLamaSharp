@@ -219,7 +219,9 @@ namespace LLama.Native
         {
             if (platform == OSPlatform.Windows)
             {
-                os = "win-x64";
+                os = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
+                    ? "win-arm64"
+                    : "win-x64";
                 fileExtension = ".dll";
                 libPrefix = "";
                 return;
