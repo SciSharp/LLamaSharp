@@ -101,14 +101,14 @@
     <file src="runtimes/deps/osx-x64/libggml-cpu.dylib" target="runtimes\osx-x64\native\libggml-cpu.dylib" />
     <file src="runtimes/deps/osx-x64/libggml-blas.dylib" target="runtimes\osx-x64\native\libggml-blas.dylib" />
     <file src="runtimes/deps/osx-x64/libllama.dylib" target="runtimes\osx-x64\native\libllama.dylib" />
-    <file src="runtimes/deps/osx-x64/libllava_shared.dylib" target="runtimes\osx-x64\native\libllava_shared.dylib" />
+    <file src="runtimes/deps/osx-x64/libmtmd.dylib" target="runtimes\osx-x64\native\libmtmd.dylib" />
 
         <file src="runtimes/deps/osx-x64-rosetta2/libggml.dylib" target="runtimes\osx-x64\native\rosetta2\libggml.dylib" />
         <file src="runtimes/deps/osx-x64-rosetta2/libggml-base.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-base.dylib" />
         <file src="runtimes/deps/osx-x64-rosetta2/libggml-cpu.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-cpu.dylib" />
         <file src="runtimes/deps/osx-x64-rosetta2/libggml-blas.dylib" target="runtimes\osx-x64\native\rosetta2\libggml-blas.dylib" />
         <file src="runtimes/deps/osx-x64-rosetta2/libllama.dylib" target="runtimes\osx-x64\native\rosetta2\libllama.dylib" />
-        <file src="runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib" target="runtimes\osx-x64\native\rosetta2\libllava_shared.dylib" />
+        <file src="runtimes/deps/osx-x64-rosetta2/libmtmd.dylib" target="runtimes\osx-x64\native\rosetta2\libmtmd.dylib" />
 
         <file src="runtimes/deps/osx-arm64/libggml.dylib" target="runtimes\osx-arm64\native\libggml.dylib" />
         <file src="runtimes/deps/osx-arm64/libggml-base.dylib" target="runtimes\osx-arm64\native\libggml-base.dylib" />
@@ -117,7 +117,7 @@
         <file src="runtimes/deps/osx-arm64/libggml-metal.dylib" target="runtimes\osx-arm64\native\libggml-metal.dylib" />
         <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="runtimes\osx-arm64\native\ggml-metal.metal" />
         <file src="runtimes/deps/osx-arm64/libllama.dylib" target="runtimes\osx-arm64\native\libllama.dylib" />
-        <file src="runtimes/deps/osx-arm64/libllava_shared.dylib" target="runtimes\osx-arm64\native\libllava_shared.dylib" />
+        <file src="runtimes/deps/osx-arm64/libmtmd.dylib" target="runtimes\osx-arm64\native\libmtmd.dylib" />
 
         <file src="icon512.png" target="icon512.png" />
     </files>
