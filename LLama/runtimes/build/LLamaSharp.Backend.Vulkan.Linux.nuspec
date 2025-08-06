@@ -27,7 +27,7 @@
         <file src="runtimes/deps/vulkan/libggml-vulkan.so" target="runtimes/linux-x64/native/vulkan/libggml-vulkan.so" />
 
         <file src="runtimes/deps/vulkan/libllama.so" target="runtimes/linux-x64/native/vulkan/libllama.so" />
-        <file src="runtimes/deps/vulkan/libllava_shared.so" target="runtimes/linux-x64/native/vulkan/libllava_shared.so" />
+        <file src="runtimes/deps/vulkan/libmtmd.so" target="runtimes/linux-x64/native/vulkan/libmtmd.so" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>
