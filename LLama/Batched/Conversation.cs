@@ -84,7 +84,7 @@ public sealed class Conversation
         _disposed = true;
 
         // Remove this conversation from the KV cache
-        Executor.Context.NativeHandle.KvCacheRemove(ConversationId, -1, -1);
+        Executor.Context.NativeHandle.MemorySequenceRemove(ConversationId, -1, -1);
 
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
@@ -129,7 +129,7 @@ public sealed class Conversation
         _forked = true;
 
         // Assign tokens to the new sequence
-        Executor.Context.NativeHandle.KvCacheSequenceCopy(ConversationId, c.ConversationId, 0, _end);
+        Executor.Context.NativeHandle.MemorySequenceCopy(ConversationId, c.ConversationId, 0, _end);
 
         return c;
     }
@@ -406,7 +406,7 @@ public sealed class Conversation
         /// <param name="end">End position (exclusive)</param>
         public void Remove(LLamaPos start, LLamaPos end)
         {
-            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, end);
+            _conversation.Executor.Context.NativeHandle.MemorySequenceRemove(_conversation.ConversationId, start, end);
         }
 
         /// <summary>
@@ -420,7 +420,7 @@ public sealed class Conversation
                 return;
 
             var end = start.Value + count;
-            _conversation.Executor.Context.NativeHandle.KvCacheRemove(_conversation.ConversationId, start, end);
+            _conversation.Executor.Context.NativeHandle.MemorySequenceRemove(_conversation.ConversationId, start, end);
         }
         #endregion
 
@@ -435,7 +435,7 @@ public sealed class Conversation
         /// <param name="delta">Amount to add on to each token position</param>
         public void Add(LLamaPos start, LLamaPos end, int delta)
         {
-            _conversation.Executor.Context.NativeHandle.KvCacheSequenceAdd(_conversation.ConversationId, start, end, delta);
+            _conversation.Executor.Context.NativeHandle.MemorySequenceAdd(_conversation.ConversationId, start, end, delta);
         }
         #endregion
 
@@ -452,7 +452,7 @@ public sealed class Conversation
             if (divisor <= 0)
                 throw new ArgumentOutOfRangeException(nameof(divisor));
 
-            _conversation.Executor.Context.NativeHandle.KvCacheSequenceDivide(_conversation.ConversationId, start, end, divisor);
+            _conversation.Executor.Context.NativeHandle.MemorySequenceDivide(_conversation.ConversationId, start, end, divisor);
         }
         #endregion
     }

@@ -101,7 +101,7 @@ namespace LLama.Native
         public uint yarn_orig_ctx;
 
         /// <summary>
-        /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+        /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
         /// </summary>
         public float defrag_threshold;
 
@@ -127,10 +127,17 @@ namespace LLama.Native
         /// </summary>
         public GGMLType type_v;
 
+        //todo: implement abort callback support
         /// <summary>
-        /// Deprecated!
+        /// ggml_abort_callback
         /// </summary>
-        private sbyte _logits_all;
+        public IntPtr abort_callback;
+
+        //todo: implement abort callback support
+        /// <summary>
+        /// User data passed into abort_callback
+        /// </summary>
+        public IntPtr abort_callback_user_data;
 
         /// <summary>
         /// if true, extract embeddings (together with logits)
@@ -172,17 +179,40 @@ namespace LLama.Native
         }
         private sbyte _no_perf;
 
-        //todo: implement abort callback support
         /// <summary>
-        /// ggml_abort_callback
+        /// offload host tensor operations to device
         /// </summary>
-        public IntPtr abort_callback;
+        public bool op_offload
+        {
+            readonly get => Convert.ToBoolean(_op_offload);
+            set => _op_offload = Convert.ToSByte(value);
+        }
+        private sbyte _op_offload;
 
-        //todo: implement abort callback support
         /// <summary>
-        /// User data passed into abort_callback
+        /// use full-size SWA cache (https://github.com/ggml-org/llama.cpp/pull/13194#issuecomment-2868343055)
+        /// NOTE: setting to false when n_seq_max > 1 can cause bad performance in some cases
+        ///       ref: https://github.com/ggml-org/llama.cpp/pull/13845#issuecomment-2924800573
         /// </summary>
-        public IntPtr abort_callback_user_data;
+        public bool swa_full
+        {
+            readonly get => Convert.ToBoolean(_swa_full);
+            set => _swa_full = Convert.ToSByte(value);
+        }
+        private sbyte _swa_full;
+
+        /// <summary>
+        /// use a unified buffer across the input sequences when computing the attention.
+        /// try to disable when n_seq_max > 1 for improved performance when the sequences do not share a large prefix
+        /// <br />
+        /// ref: https://github.com/ggml-org/llama.cpp/pull/14363
+        /// </summary>
+        public bool kv_unified
+        {
+            readonly get => Convert.ToBoolean(_kv_unified);
+            set => _kv_unified = Convert.ToSByte(value);
+        }
+        private sbyte _kv_unified;
 
         /// <summary>
         /// Get the default LLamaContextParams

@@ -111,6 +111,15 @@ namespace LLama.Web.Common
         public bool VocabOnly { get; set; }
 
         /// <inheritdoc />
+        public bool? OpOffload { get; set; }
+
+        /// <inheritdoc />
+        public bool? SwaFull { get; set; }
+
+        /// <inheritdoc />
+        public bool? KVUnified { get; set; }
+
+        /// <inheritdoc />
         public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />

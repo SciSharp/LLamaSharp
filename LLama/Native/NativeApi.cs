@@ -33,6 +33,13 @@ namespace LLama.Native
         public static extern long llama_max_devices();
 
         /// <summary>
+        /// Maximum number of parallel sequences
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern long llama_max_parallel_sequences();
+
+        /// <summary>
         /// Check if memory mapping is supported
         /// </summary>
         /// <returns></returns>
@@ -125,7 +132,7 @@ namespace LLama.Native
         public static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
 
         /// <summary>
-        /// Set whether the model is in embeddings mode or not. 
+        /// Set whether the context outputs embeddings or not
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="embeddings">If true, embeddings will be returned but logits will not</param>
@@ -237,7 +244,7 @@ namespace LLama.Native
         /// <param name="add_special">add_special Allow to add BOS and EOS tokens if model is configured to do so.</param>
         /// <param name="parse_special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext. Does not insert a leading space.</param>
         /// <returns>Returns the number of tokens on success, no more than n_max_tokens.
-        /// Returns a negative number on failure - the number of tokens that would have been returned
+        /// Returns a negative number on failure - the number of tokens that would have been returned. Returns INT32_MIN on overflow (e.g., tokenization result size exceeds int32_t limit)
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int llama_tokenize(LLamaVocabNative* model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
@@ -266,111 +273,6 @@ namespace LLama.Native
             NativeLogConfig.llama_log_set(logCallback);
         }
         
-        /// <summary>
-        /// Returns the number of tokens in the KV cache (slow, use only for debug)
-        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int llama_kv_self_n_tokens(SafeLLamaContextHandle ctx);
-        
-        /// <summary>
-        /// Returns the number of used KV cells (i.e. have at least one sequence assigned to them)
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int llama_kv_self_used_cells(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_clear(SafeLLamaContextHandle ctx);
-
-        [Obsolete("Use `llama_kv_self_clear` instead")]
-        /// <summary>
-        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
-        /// </summary>
-        /// <param name="ctx"></param>        
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_cache_clear(SafeLLamaContextHandle ctx);
-        
-        /// <summary>
-        /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <returns>Returns false if a partial sequence cannot be removed. Removing a whole sequence never fails</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool llama_kv_self_seq_rm(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1);
-
-        /// <summary>
-        /// Copy all tokens that belong to the specified sequence to another sequence
-        /// Note that this does not allocate extra KV cache memory - it simply assigns the tokens to the new sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="src"></param>
-        /// <param name="dest"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_cp(SafeLLamaContextHandle ctx, LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1);
-
-        /// <summary>
-        /// Removes all tokens that do not belong to the specified sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_keep(SafeLLamaContextHandle ctx, LLamaSeqId seq);
-
-        /// <summary>
-        /// Adds relative position "delta" to all tokens that belong to the specified sequence and have positions in [p0, p1)
-        /// If the KV cache is RoPEd, the KV data is updated accordingly:
-        ///  - lazily on next llama_decode()
-        ///  - explicitly with llama_kv_self_update()
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="delta"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_add(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta);
-
-        /// <summary>
-        /// Integer division of the positions by factor of `d > 1`
-        /// If the KV cache is RoPEd, the KV data is updated accordingly:
-        ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_self_update()
-        /// <br />
-        /// p0 &lt; 0 : [0,  p1]
-        /// <br />
-        /// p1 &lt; 0 : [p0, inf)
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="d"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_div(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int d);
-
-        /// <summary>
-        /// Returns the largest position present in the KV cache for the specified sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern LLamaPos llama_kv_self_seq_pos_max(SafeLLamaContextHandle ctx, LLamaSeqId seq);
-
         /// <summary>
         /// Allocates a batch of tokens on the heap
         /// Each token can be assigned up to n_seq_max sequence ids

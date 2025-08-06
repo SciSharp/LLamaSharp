@@ -128,7 +128,8 @@ namespace LLama
             }
             if (File.Exists(filename))
             {
-                _logger?.LogInformation($"[LLamaExecutor] Attempting to load saved session from {filename}");
+                _logger?.LogInformation("[LLamaExecutor] Attempting to load saved session from {0}", filename);
+
                 var session_tokens = new LLamaToken[Context.ContextSize];
                 if (!NativeApi.llama_state_load_file(Context.NativeHandle, _pathSession, session_tokens, (ulong)Context.ContextSize, out var n_token_count_out))
                 {
@@ -136,7 +137,7 @@ namespace LLama
                     throw new RuntimeError($"Failed to load session file {_pathSession}");
                 }
                 _session_tokens = session_tokens.Take((int)n_token_count_out).ToList();
-                _logger?.LogInformation($"[LLamaExecutor] Loaded a session with prompt size of {session_tokens.Length} tokens");
+                _logger?.LogInformation("[LLamaExecutor] Loaded a session with prompt size of {0} tokens", session_tokens.Length);
             }
             else
             {
@@ -190,11 +191,11 @@ namespace LLama
             // if we run out of context:
             // - take the tokensToKeep first tokens from the original prompt (via n_past)
             // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
-            int n_left = _pastTokensCount - tokensToKeep;
-            int n_discard = n_left / 2;
+            var n_left = _pastTokensCount - tokensToKeep;
+            var n_discard = n_left / 2;
 
-            NativeApi.llama_kv_self_seq_rm(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
-            NativeApi.llama_kv_self_seq_add(Context.NativeHandle, LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
+            Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
+            Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
 
             _pastTokensCount -= n_discard;
             // stop saving session if we run out of context

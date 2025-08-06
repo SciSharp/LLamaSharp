@@ -147,7 +147,9 @@ namespace LLama.Native
         /// <param name="abort_callback"></param>
         /// <param name="abort_callback_data"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        // ReSharper disable InconsistentNaming
         private static extern unsafe void llama_set_abort_callback(SafeLLamaContextHandle ctx, GgmlAbortCallback abort_callback, void* abort_callback_data);
+        // ReSharper restore InconsistentNaming
 
         /// <summary>
         /// If this returns true computation is cancelled
@@ -157,20 +159,27 @@ namespace LLama.Native
         private unsafe delegate bool GgmlAbortCallback(void* data);
 
         /// <summary>
+        /// Process a batch of tokens.
+        /// Requires the context to have a memory.
+        /// For encode-decoder contexts, processes the batch using the decoder.
+        /// Positive return values does not mean a fatal error, but rather a warning.
+        /// Upon fatal-error or abort, the ubatches that managed to be been processed will remain in the memory state of the context
+        ///   To handle this correctly, query the memory state using llama_memory_seq_pos_min() and llama_memory_seq_pos_max()
+        /// Upon other return values, the memory state is restored to the state before this call
+        ///    0 - success
+        ///    1 - could not find a memory slot for the batch (try reducing the size of the batch or increase the context)
+        ///    2 - aborted     (processed ubatches will remain in the context's memory)
+        ///   -1 - invalid input batch
+        /// &lt; -1 - fatal error (processed ubatches will remain in the context's memory)
         /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="batch"></param>
-        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
-        ///  - 0: success<br />
-        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
-        ///  - &lt; 0: error<br />
-        /// </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_decode(SafeLLamaContextHandle ctx, LLamaNativeBatch batch);
 
         /// <summary>
-        /// Processes a batch of tokens with the encoder part of the encoder-decoder model. Stores the encoder output
-        /// internally for later use by the decoder cross-attention layers.
+        /// Process a batch of tokens.
+        /// In contrast to llama_decode() - this call does not use KV cache.
+        /// For encode-decoder contexts, processes the batch using the encoder.
+        /// Can store the encoder output internally for later use by the decoder's cross-attention layers.
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="batch"></param>
@@ -186,7 +195,9 @@ namespace LLama.Native
         /// <param name="n_threads_batch">n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)</param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        // ReSharper disable InconsistentNaming
         private static extern void llama_set_n_threads(SafeLLamaContextHandle ctx, int n_threads, int n_threads_batch);
+        // ReSharper restore InconsistentNaming
 
         /// <summary>
         /// Get the number of threads used for generation of a single token.
@@ -250,7 +261,7 @@ namespace LLama.Native
         private static extern uint llama_n_ubatch(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Returns the **actual** size in bytes of the state (logits, embedding and kv_cache).
+        /// Returns the **actual** size in bytes of the state (logits, embedding and memory).
         /// Only use when saving the state, not when restoring it, otherwise the size may be too small.
         /// </summary>
         /// <param name="ctx"></param>
@@ -280,13 +291,13 @@ namespace LLama.Native
         private static extern unsafe nuint llama_state_set_data(SafeLLamaContextHandle ctx, byte* src, nuint size);
 
         /// <summary>
-        /// Get the exact size needed to copy the KV cache of a single sequence
+        /// Get the exact size needed to copy the state of a single sequence
         /// </summary>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern nuint llama_state_seq_get_size(SafeLLamaContextHandle ctx, LLamaSeqId seqId);
 
         /// <summary>
-        /// Copy the KV cache of a single sequence into the specified buffer
+        /// Copy the state of a single sequence into the specified buffer
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="dst"></param>
@@ -309,31 +320,6 @@ namespace LLama.Native
         /// </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe nuint llama_state_seq_set_data(SafeLLamaContextHandle ctx, byte* src, nuint size, LLamaSeqId destSeqId);
-
-        /// <summary>
-        /// Defragment the KV cache. This will be applied:
-        ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_self_update()
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_kv_self_defrag(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Apply the KV cache updates (such as K-shifts, defragmentation, etc.)
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_kv_self_update(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Check if the context supports KV cache shifting
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool llama_kv_self_can_shift(SafeLLamaContextHandle ctx);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaPerfContextTimings llama_perf_context(SafeLLamaContextHandle ctx);
@@ -372,7 +358,7 @@ namespace LLama.Native
         /// <summary>
         /// Get the embeddings for a sequence id.
         /// Returns NULL if pooling_type is LLAMA_POOLING_TYPE_NONE
-        /// when pooling_type == LLAMA_POOLING_TYPE_RANK, returns float[1] with the rank of the sequence
+        /// when pooling_type == LLAMA_POOLING_TYPE_RANK, returns float[n_cls_out] with the rank(s) of the sequence
         /// otherwise: float[n_embd] (1-dimensional)
         /// </summary>
         /// <returns>A pointer to the first float in an embedding, length = ctx.EmbeddingSize</returns>
@@ -388,7 +374,7 @@ namespace LLama.Native
         private static extern unsafe float* llama_get_embeddings_ith(SafeLLamaContextHandle ctx, int i);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern LLamaKvCacheNative llama_get_kv_self(SafeLLamaContextHandle ctx);
+        private static extern IntPtr llama_get_memory(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Set whether the model is in warmup mode or not
@@ -580,7 +566,7 @@ namespace LLama.Native
         /// internally for later use by the decoder cross-attention layers.
         /// </summary>
         /// <param name="batch"></param>
-        /// <returns>0 = success <br />&lt; 0 = error (the KV cache state is restored to the state before this call)</returns>
+        /// <returns>0 = success <br />&lt; 0 = error (the memory state is restored to the state before this call)</returns>
         public DecodeResult Encode(LLamaBatch batch)
         {
             if (batch.TokenCount == 0)
@@ -592,13 +578,19 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Process a batch of tokens.
+        /// Requires the context to have a memory.
+        /// For encode-decoder contexts, processes the batch using the decoder.
+        /// Positive return values does not mean a fatal error, but rather a warning.
+        /// Upon fatal-error or abort, the ubatches that managed to be been processed will remain in the memory state of the context
+        ///   To handle this correctly, query the memory state using llama_memory_seq_pos_min() and llama_memory_seq_pos_max()
+        /// Upon other return values, the memory state is restored to the state before this call
+        ///    0 - success
+        ///    1 - could not find a memory slot for the batch (try reducing the size of the batch or increase the context)
+        ///    2 - aborted     (processed ubatches will remain in the context's memory)
+        ///   -1 - invalid input batch
+        /// &lt; -1 - fatal error (processed ubatches will remain in the context's memory)
         /// </summary>
-        /// <param name="batch"></param>
-        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
-        ///  - 0: success<br />
-        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
-        ///  - &lt; 0: error (the KV cache state is restored to the state before this call)<br />
-        /// </returns>
         public DecodeResult Decode(LLamaBatch batch)
         {
             if (batch.TokenCount == 0)
@@ -617,6 +609,7 @@ namespace LLama.Native
         /// <param name="batch"></param>
         /// <param name="n_past"></param>
         /// <returns>A tuple, containing the decode result and the number of tokens that have <b>not</b> been decoded yet.</returns>
+        // ReSharper disable once InconsistentNaming
         internal (DecodeResult, int) Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, ref int n_past)
         {
             if (tokens.Count == 0)
@@ -645,15 +638,21 @@ namespace LLama.Native
 
             return (DecodeResult.Ok, 0);
         }
-        
+
         /// <summary>
+        /// Process a batch of tokens.
+        /// Requires the context to have a memory.
+        /// For encode-decoder contexts, processes the batch using the decoder.
+        /// Positive return values does not mean a fatal error, but rather a warning.
+        /// Upon fatal-error or abort, the ubatches that managed to be been processed will remain in the memory state of the context
+        ///   To handle this correctly, query the memory state using llama_memory_seq_pos_min() and llama_memory_seq_pos_max()
+        /// Upon other return values, the memory state is restored to the state before this call
+        ///    0 - success
+        ///    1 - could not find a memory slot for the batch (try reducing the size of the batch or increase the context)
+        ///    2 - aborted     (processed ubatches will remain in the context's memory)
+        ///   -1 - invalid input batch
+        /// &lt; -1 - fatal error (processed ubatches will remain in the context's memory)
         /// </summary>
-        /// <param name="batch"></param>
-        /// <returns>Positive return values does not mean a fatal error, but rather a warning:<br />
-        ///  - 0: success<br />
-        ///  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br />
-        ///  - &lt; 0: error<br />
-        /// </returns>
         public DecodeResult Decode(LLamaBatchEmbeddings batch)
         {
             if (batch.EmbeddingsCount == 0)
@@ -675,7 +674,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Get the size of the KV cache for a single sequence ID, when saved as bytes
+        /// Get the size of the memory state for a single sequence ID, when saved as bytes
         /// </summary>
         /// <param name="sequence"></param>
         /// <returns></returns>
@@ -759,66 +758,20 @@ namespace LLama.Native
         }
         #endregion
 
-        #region KV Cache Management
-        /// <summary>
-        /// Check if the context supports KV cache shifting
-        /// </summary>
-        public bool KvCacheCanShift => llama_kv_self_can_shift(this);
+        #region Memory Management
 
         /// <summary>
-        /// Apply KV cache updates (such as K-shifts, defragmentation, etc.)
+        /// Check if the context supports memory shifting
         /// </summary>
-        public void KvCacheUpdate()
-        {
-            llama_kv_self_update(this);
-        }
+        public bool MemoryCanShift => NativeApi.llama_memory_can_shift(llama_get_memory(this));
 
         /// <summary>
-        /// Defragment the KV cache. This will be applied:
-        ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_self_update()
+        /// Clear the memory
         /// </summary>
-        /// <returns></returns>
-        public void KvCacheDefrag()
+        /// <param name="data">If true, the data buffers will also be cleared together with the metadata</param>
+        public void MemoryClear(bool data = true)
         {
-            llama_kv_self_defrag(this);
-        }
-
-        /// <summary>
-        /// Get a new KV cache view that can be used to debug the KV cache
-        /// </summary>
-        /// <param name="maxSequences"></param>
-        /// <returns></returns>
-        public LLamaKvCacheViewSafeHandle KvCacheGetDebugView(int maxSequences = 4)
-        {
-            return LLamaKvCacheViewSafeHandle.Allocate(this, maxSequences);
-        }
-
-        /// <summary>
-        /// Count the number of used cells in the KV cache (i.e. have at least one sequence assigned to them)
-        /// </summary>
-        /// <returns></returns>
-        public int KvCacheCountCells()
-        {
-            return NativeApi.llama_kv_self_used_cells(this);
-        }
-
-        /// <summary>
-        /// Returns the number of tokens in the KV cache (slow, use only for debug)
-        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
-        /// </summary>
-        /// <returns></returns>
-        public int KvCacheCountTokens()
-        {
-            return NativeApi.llama_kv_self_n_tokens(this);
-        }
-
-        /// <summary>
-        /// Clear the KV cache - both cell info is erased and KV data is zeroed
-        /// </summary>
-        public void KvCacheClear()
-        {
-            NativeApi.llama_kv_self_clear(this);
+            NativeApi.llama_memory_clear(llama_get_memory(this), data);
         }
 
         /// <summary>
@@ -827,54 +780,52 @@ namespace LLama.Native
         /// <param name="seq"></param>
         /// <param name="p0"></param>
         /// <param name="p1"></param>
-        public void KvCacheRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
+        public void MemorySequenceRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
         {
-            NativeApi.llama_kv_self_seq_rm(this, seq, p0, p1);
+            NativeApi.llama_memory_seq_rm(llama_get_memory(this), seq, p0, p1);
         }
 
         /// <summary>
         /// Copy all tokens that belong to the specified sequence to another sequence. Note that
-        /// this does not allocate extra KV cache memory - it simply assigns the tokens to the
+        /// this does not allocate extra memory - it simply assigns the tokens to the
         /// new sequence
         /// </summary>
         /// <param name="src"></param>
         /// <param name="dest"></param>
         /// <param name="p0"></param>
         /// <param name="p1"></param>
-        public void KvCacheSequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
+        public void MemorySequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
         {
-            NativeApi.llama_kv_self_seq_cp(this, src, dest, p0, p1);
+            NativeApi.llama_memory_seq_cp(llama_get_memory(this), src, dest, p0, p1);
         }
 
         /// <summary>
         /// Removes all tokens that do not belong to the specified sequence
         /// </summary>
         /// <param name="seq"></param>
-        public void KvCacheSequenceKeep(LLamaSeqId seq)
+        public void MemorySequenceKeep(LLamaSeqId seq)
         {
-            NativeApi.llama_kv_self_seq_keep(this, seq);
+            NativeApi.llama_memory_seq_keep(llama_get_memory(this), seq);
         }
 
         /// <summary>
         /// Adds relative position "delta" to all tokens that belong to the specified sequence
-        /// and have positions in [p0, p1. If the KV cache is RoPEd, the KV data is updated
-        /// accordingly
+        /// and have positions in [p0, p1)
         /// </summary>
         /// <param name="seq"></param>
         /// <param name="p0"></param>
         /// <param name="p1"></param>
         /// <param name="delta"></param>
-        public void KvCacheSequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
+        public void MemorySequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
         {
-            if (!KvCacheCanShift)
-                throw new InvalidOperationException("Cannot shift KV cache (KvCacheCanShift=False)");
+            if (!MemoryCanShift)
+                throw new InvalidOperationException("Cannot shift memory (MemoryCanShift == false)");
 
-            NativeApi.llama_kv_self_seq_add(this, seq, p0, p1, delta);
+            NativeApi.llama_memory_seq_add(llama_get_memory(this), seq, p0, p1, delta);
         }
 
         /// <summary>
-        /// Integer division of the positions by factor of `d > 1`.
-        /// If the KV cache is RoPEd, the KV data is updated accordingly.<br />
+        /// Integer division of the positions by factor of `d > 1`.<br />
         /// p0 &lt; 0 : [0,  p1]<br />
         /// p1 &lt; 0 : [p0, inf)
         /// </summary>
@@ -882,22 +833,32 @@ namespace LLama.Native
         /// <param name="p0"></param>
         /// <param name="p1"></param>
         /// <param name="divisor"></param>
-        public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
+        public void MemorySequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
         {
-            if (!KvCacheCanShift)
-                throw new InvalidOperationException("Cannot shift KV cache (KvCacheCanShift=False)");
+            if (!MemoryCanShift)
+                throw new InvalidOperationException("Cannot shift memory (MemoryCanShift == false)");
 
-            NativeApi.llama_kv_self_seq_div(this, seq, p0, p1, divisor);
+            NativeApi.llama_memory_seq_add(llama_get_memory(this), seq, p0, p1, divisor);
         }
 
         /// <summary>
-        /// Returns the largest position present in the KV cache for the specified sequence
+        /// Returns the smallest position present in memory for the specified sequence
         /// </summary>
         /// <param name="seq"></param>
         /// <returns></returns>
-        public LLamaPos KvCacheMaxPosition(LLamaSeqId seq)
+        public LLamaPos MemorySequenceMinPosition(LLamaSeqId seq)
         {
-            return NativeApi.llama_kv_self_seq_pos_max(this, seq);
+            return NativeApi.llama_memory_seq_pos_min(llama_get_memory(this), seq);
+        }
+
+        /// <summary>
+        /// Returns the largest position present in memory for the specified sequence
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <returns></returns>
+        public LLamaPos MemorySequenceMaxPosition(LLamaSeqId seq)
+        {
+            return NativeApi.llama_memory_seq_pos_max(llama_get_memory(this), seq);
         }
         #endregion
     }

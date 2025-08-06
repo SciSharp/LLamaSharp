@@ -199,7 +199,7 @@ public class ChatSession
         }
         if (state.ContextState is null)
         {
-            Executor.Context.NativeHandle.KvCacheClear();
+            Executor.Context.NativeHandle.MemoryClear();
         }
         else
         {

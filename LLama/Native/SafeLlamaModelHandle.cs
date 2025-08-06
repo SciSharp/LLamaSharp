@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CommunityToolkit.HighPerformance.Buffers;
 using LLama.Exceptions;
@@ -58,7 +59,12 @@ namespace LLama.Native
         /// <summary>
         /// Get the number of KV heads in this model
         /// </summary>
-        public int KVHeadCount => llama_model_n_head(this);
+        public int KVHeadCount => llama_model_n_head_kv(this);
+
+        /// <summary>
+        /// Get the number of SWA in this model
+        /// </summary>
+        public int SWACount => llama_model_n_swa(this);
 
         /// <summary>
         /// Returns true if the model contains an encoder that requires llama_encode() call
@@ -138,6 +144,20 @@ namespace LLama.Native
                 throw new LoadWeightsFailedException(modelPath);
 
             return handle;
+        }
+
+        /// <summary>
+        /// Save this model to a file
+        /// </summary>
+        /// <param name="modelPath"></param>
+        public void SaveToFile(string modelPath)
+        {
+            // If the file already exists, delete it. llama.cpp would overwrite, but doing this in C# has better errors in
+            // case of inaccessible/read-only files.
+            if (File.Exists(modelPath))
+                File.Delete(modelPath);
+
+            llama_model_save_to_file(this, modelPath);
         }
 
         #region native API
@@ -325,6 +345,14 @@ namespace LLama.Native
         private static extern int llama_model_n_head_kv(SafeLlamaModelHandle model);
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_model_n_swa(SafeLlamaModelHandle model);
+
+        /// <summary>
         /// Get a string describing the model type
         /// </summary>
         /// <param name="model"></param>
@@ -398,6 +426,25 @@ namespace LLama.Native
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe LLamaVocabNative* llama_model_get_vocab(SafeLlamaModelHandle model);
+
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_model_save_to_file(SafeLlamaModelHandle model, string path);
+
+        /// <summary>
+        /// Returns the number of classifier outputs (only valid for classifier models)
+        /// Undefined behavior for non-classifier models
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private static extern uint llama_model_n_cls_out(SafeLlamaModelHandle model);
+
+        /// <summary>
+        /// Returns label of classifier output by index (&lt;n_cls_out). Returns nullptr if no label provided
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        private static extern string? llama_model_cls_label(SafeLlamaModelHandle model, uint i);
         #endregion
 
         #region LoRA
@@ -767,6 +814,20 @@ namespace LLama.Native
                     unsafe
                     {
                         return Normalize(LLamaVocabNative.llama_vocab_pad(VocabNative));
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Get the masking token for this model
+            /// </summary>
+            public LLamaToken? Mask
+            {
+                get
+                {
+                    unsafe
+                    {
+                        return Normalize(LLamaVocabNative.llama_vocab_mask(VocabNative));
                     }
                 }
             }

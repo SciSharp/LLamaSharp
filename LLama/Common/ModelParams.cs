@@ -112,6 +112,15 @@ namespace LLama.Common
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
 
+        /// <inheritdoc />
+        public bool? OpOffload { get; set; }
+
+        /// <inheritdoc />
+        public bool? SwaFull { get; set; }
+
+        /// <inheritdoc />
+        public bool? KVUnified { get; set; }
+
         /// <summary>
         /// `Encoding` cannot be directly JSON serialized, instead store the name as a string which can
         /// </summary>

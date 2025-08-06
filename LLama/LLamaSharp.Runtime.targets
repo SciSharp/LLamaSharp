@@ -76,37 +76,19 @@
       </None>
 
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llama.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/llama.dll</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/ggml-base.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/ggml-base.dll</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/ggml.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/ggml.dll</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/ggml-cuda.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/ggml-cuda.dll</Link>
-      </None>
-
-
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/llama.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/llama.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/llama.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml-base.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/ggml-base.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/ggml-base.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/ggml.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/ggml.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/ggml-cuda.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/ggml-cuda.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/cuda12/ggml-cuda.dll</Link>
       </None>
@@ -218,43 +200,25 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-arm64/native/libggml-cpu.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/linux-arm64/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/linux-arm64/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-arm64/native/libllava_shared.so</Link>
+        <Link>runtimes/linux-arm64/native/libmtmd.so</Link>
       </None>
 
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllama.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda11/libllama.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libggml.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda11/libggml.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libggml-base.so">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <Link>runtimes/linux-x64/native/cuda11/libggml-base.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libggml-cuda.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda11/libggml-cuda.so</Link>
-      </None>
-
-
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllama.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libllama.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/libggml.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libggml.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml-base.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/libggml-base.so">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>runtimes/linux-x64/native/cuda12/libggml-base.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libggml-cuda.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/libggml-cuda.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/cuda12/libggml-cuda.so</Link>
       </None>
@@ -371,9 +335,9 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-arm64/native/libllama.dylib</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libllava_shared.dylib">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/libmtmd.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-arm64/native/libllava_shared.dylib</Link>
+        <Link>runtimes/osx-arm64/native/libmtmd.dylib</Link>
       </None>
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-arm64/ggml-metal.metal">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -400,9 +364,9 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/libllama.dylib</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libllava_shared.dylib">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64/libmtmd.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-x64/native/libllava_shared.dylib</Link>
+        <Link>runtimes/osx-x64/native/libmtmd.dylib</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libggml-base.dylib">
@@ -425,67 +389,59 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/osx-x64/native/rosetta2/libllama.dylib</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libllava_shared.dylib">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/osx-x64-rosetta2/libmtmd.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/osx-x64/native/rosetta2/libllava_shared.dylib</Link>
+        <Link>runtimes/osx-x64/native/rosetta2/libmtmd.dylib</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/noavx/llava_shared.dll</Link>
+        <Link>runtimes/win-x64/native/noavx/libmtmd.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx/llava_shared.dll</Link>
+        <Link>runtimes/win-x64/native/avx/libmtmd.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx2/llava_shared.dll</Link>
+        <Link>runtimes/win-x64/native/avx2/libmtmd.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/avx512/llava_shared.dll</Link>
+        <Link>runtimes/win-x64/native/avx512/libmtmd.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda11/llava_shared.dll</Link>
+        <Link>runtimes/win-x64/native/cuda12/libmtmd.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/llava_shared.dll">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/cuda12/llava_shared.dll</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/llava_shared.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-x64/native/vulkan/llava_shared.dll</Link>
+        <Link>runtimes/win-x64/native/vulkan/libmtmd.dll</Link>
       </None>
 
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/noavx/libllava_shared.so</Link>
+        <Link>runtimes/linux-x64/native/noavx/libmtmd.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/avx/libllava_shared.so</Link>
+        <Link>runtimes/linux-x64/native/avx/libmtmd.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx2/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/avx2/libllava_shared.so</Link>
+        <Link>runtimes/linux-x64/native/avx2/libmtmd.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/avx512/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/avx512/libllava_shared.so</Link>
+        <Link>runtimes/linux-x64/native/avx512/libmtmd.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu11.7.1/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.4.0/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda11/libllava_shared.so</Link>
+        <Link>runtimes/linux-x64/native/cuda12/libmtmd.so</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/cu12.2.0/libllava_shared.so">
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libmtmd.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/cuda12/libllava_shared.so</Link>
-      </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/libllava_shared.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/linux-x64/native/vulkan/libllava_shared.so</Link>
+        <Link>runtimes/linux-x64/native/vulkan/libmtmd.so</Link>
       </None>
     </ItemGroup>
 
@@ -513,8 +469,8 @@
             <Abi>x86</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86/libllava_shared.so">
-            <Link>runtimes/android-x86/native/libllava_shared.so</Link>
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86/libmtmd.so">
+            <Link>runtimes/android-x86/native/libmtmd.so</Link>
             <Abi>x86</Abi>
         </AndroidNativeLibrary>
     </ItemGroup>
@@ -542,8 +498,8 @@
             <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86_64/libllava_shared.so">
-            <Link>lib/x86_64/libllava_shared.so</Link>
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-x86_64/libmtmd.so">
+            <Link>lib/x86_64/libmtmd.so</Link>
             <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
     </ItemGroup>
@@ -571,8 +527,8 @@
             <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-arm64-v8a/libllava_shared.so">
-            <Link>lib/arm64-v8a/libllava_shared.so</Link>
+            Include="$(MSBuildThisFileDirectory)runtimes/deps/android-arm64-v8a/libmtmd.so">
+            <Link>lib/arm64-v8a/libmtmd.so</Link>
             <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
     </ItemGroup>

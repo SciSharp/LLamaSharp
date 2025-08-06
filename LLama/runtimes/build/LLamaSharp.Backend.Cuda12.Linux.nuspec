@@ -22,12 +22,12 @@
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.props" />
 
-        <file src="runtimes/deps/cu12.2.0/libggml.so" target="runtimes/linux-x64/native/cuda12/libggml.so" />
-        <file src="runtimes/deps/cu12.2.0/libggml-base.so" target="runtimes/linux-x64/native/cuda12/libggml-base.so" />
-        <file src="runtimes/deps/cu12.2.0/libggml-cuda.so" target="runtimes/linux-x64/native/cuda12/libggml-cuda.so" />
+        <file src="runtimes/deps/cu12.4.0/libggml.so" target="runtimes/linux-x64/native/cuda12/libggml.so" />
+        <file src="runtimes/deps/cu12.4.0/libggml-base.so" target="runtimes/linux-x64/native/cuda12/libggml-base.so" />
+        <file src="runtimes/deps/cu12.4.0/libggml-cuda.so" target="runtimes/linux-x64/native/cuda12/libggml-cuda.so" />
 
-        <file src="runtimes/deps/cu12.2.0/libllama.so" target="runtimes/linux-x64/native/cuda12/libllama.so" />
-        <file src="runtimes/deps/cu12.2.0/libllava_shared.so" target="runtimes/linux-x64/native/cuda12/libllava_shared.so" />
+        <file src="runtimes/deps/cu12.4.0/libllama.so" target="runtimes/linux-x64/native/cuda12/libllama.so" />
+        <file src="runtimes/deps/cu12.4.0/libllava_shared.so" target="runtimes/linux-x64/native/cuda12/libllava_shared.so" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>
