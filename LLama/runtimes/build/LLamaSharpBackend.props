@@ -1,18 +1,16 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <!--
+    <!--
   NuGet packages.config doesn't support native assemblies automatically,
   so copy the native assemblies to the output directory.
   -->
-  <ItemGroup Condition="Exists('packages.config') OR
-                        Exists('$(MSBuildProjectName).packages.config') OR
-                        Exists('packages.$(MSBuildProjectName).config')">
-    <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </Content>
-  </ItemGroup>
+    <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Visible>false</Visible>
+            <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+    </ItemGroup>
 
     <!-- Start Android-->
     <ItemGroup
