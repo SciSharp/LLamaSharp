@@ -14,35 +14,6 @@
 
     <!-- Start Android-->
     <ItemGroup
-        Condition="$(AndroidSupportedAbis.Contains('x86')) or $(RuntimeIdentifiers.Contains('android-x86'))">
-        <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86\native\libllama.so">
-            <Link>runtimes\android-x86\native\libllama.so</Link>
-            <Abi>x86</Abi>
-        </AndroidNativeLibrary>
-        <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86\native\libggml.so">
-            <Link>runtimes\android-x86\native\libggml.so</Link>
-            <Abi>x86</Abi>
-        </AndroidNativeLibrary>
-        <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86\native\libggml-base.so">
-            <Link>runtimes\android-x86\native\libggml-base.so</Link>
-            <Abi>x86</Abi>
-        </AndroidNativeLibrary>
-        <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86\native\libggml-cpu.so">
-            <Link>runtimes\android-x86\native\libggml-cpu.so</Link>
-            <Abi>x86</Abi>
-        </AndroidNativeLibrary>
-        <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86\native\libmtmd.so">
-            <Link>runtimes\android-x86\native\libmtmd.so</Link>
-            <Abi>x86</Abi>
-        </AndroidNativeLibrary>
-    </ItemGroup>
-
-    <ItemGroup
         Condition="$(AndroidSupportedAbis.Contains('x86_64')) or $(RuntimeIdentifiers.Contains('android-x64'))">
         <AndroidNativeLibrary Visible="false"
             Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86_64\native\libllama.so">
