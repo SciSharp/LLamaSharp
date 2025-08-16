@@ -271,4 +271,3 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 ## License
 
 This project is licensed under the terms of the MIT license.
-
