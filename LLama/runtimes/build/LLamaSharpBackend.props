@@ -5,7 +5,7 @@
   so copy the native assemblies to the output directory.
   -->
     <ItemGroup>
-        <Content Include="$(MSBuildThisFileDirectory)\..\..\runtimes\**\*.*">
+        <Content Include="$(MSBuildThisFileDirectory)\..\..\LLamaSharpRuntimes\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Visible>false</Visible>
             <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
@@ -16,59 +16,59 @@
     <ItemGroup
         Condition="$(AndroidSupportedAbis.Contains('x86_64')) or $(RuntimeIdentifiers.Contains('android-x64'))">
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86_64\native\libllama.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-x86_64\native\libllama.so">
             <Link>lib\x86_64\libllama.so</Link>
             <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86_64\native\libggml.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-x86_64\native\libggml.so">
             <Link>lib\x86_64\libggml.so</Link>
             <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86_64\native\libggml-base.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-x86_64\native\libggml-base.so">
             <Link>lib\x86_64\libggml-base.so</Link>
             <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86_64\native\libggml-cpu.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-x86_64\native\libggml-cpu.so">
             <Link>lib\x86_64\libggml-cpu.so</Link>
             <Abi>x86_64</Abi>
         </AndroidNativeLibrary>
-        <!--<AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-x86_64\native\libmtmd.so">
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-x86_64\native\libmtmd.so">
             <Link>lib\x86_64\libmtmd.so</Link>
             <Abi>x86_64</Abi>
-        </AndroidNativeLibrary>-->
+        </AndroidNativeLibrary>
     </ItemGroup>
 
     <ItemGroup
         Condition="$(AndroidSupportedAbis.Contains('arm64-v8a')) or $(RuntimeIdentifiers.Contains('android-arm64'))">
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-arm64-v8a\native\libllama.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-arm64-v8a\native\libllama.so">
             <Link>lib\arm64-v8a\libllama.so</Link>
             <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-arm64-v8a\native\libggml.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-arm64-v8a\native\libggml.so">
             <Link>lib\arm64-v8a\libggml.so</Link>
             <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-arm64-v8a\native\libggml-base.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-arm64-v8a\native\libggml-base.so">
             <Link>lib\arm64-v8a\libggml-base.so</Link>
             <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
         <AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-arm64-v8a\native\libggml-cpu.so">
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-arm64-v8a\native\libggml-cpu.so">
             <Link>lib\arm64-v8a\libggml-cpu.so</Link>
             <Abi>arm64-v8a</Abi>
         </AndroidNativeLibrary>
-        <!--<AndroidNativeLibrary Visible="false"
-            Include="$(MSBuildThisFileDirectory)..\..\runtimes\android-arm64-v8a\native\libmtmd.so">
+        <AndroidNativeLibrary Visible="false"
+            Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\android-arm64-v8a\native\libmtmd.so">
             <Link>lib\arm64-v8a\libmtmd.so</Link>
             <Abi>arm64-v8a</Abi>
-        </AndroidNativeLibrary>-->
+        </AndroidNativeLibrary>
     </ItemGroup>
     <!-- End Android -->
 
