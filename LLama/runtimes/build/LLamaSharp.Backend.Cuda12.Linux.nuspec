@@ -22,12 +22,12 @@
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.props" />
 
-        <file src="../deps/cu12.4.0/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libggml.so" />
-        <file src="../deps/cu12.4.0/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libggml-base.so" />
-        <file src="../deps/cu12.4.0/libggml-cuda.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libggml-cuda.so" />
+        <file src="runtimes/deps/cu12.4.0/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libggml.so" />
+        <file src="runtimes/deps/cu12.4.0/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libggml-base.so" />
+        <file src="runtimes/deps/cu12.4.0/libggml-cuda.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libggml-cuda.so" />
 
-        <file src="../deps/cu12.4.0/libllama.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libllama.so" />
-        <file src="../deps/cu12.4.0/libmtmd.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libmtmd.so" />
+        <file src="runtimes/deps/cu12.4.0/libllama.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libllama.so" />
+        <file src="runtimes/deps/cu12.4.0/libmtmd.so" target="LLamaSharpRuntimes/linux-x64/native/cuda12/libmtmd.so" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>
