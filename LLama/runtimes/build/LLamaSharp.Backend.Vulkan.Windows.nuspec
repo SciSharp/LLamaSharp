@@ -20,7 +20,7 @@
     </metadata>
 
     <files>
-        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.Windows.props" />
         
         <file src="runtimes/deps/vulkan/ggml.dll" target="LLamaSharpRuntimes\win-x64\native\vulkan\ggml.dll" />
         <file src="runtimes/deps/vulkan/ggml-base.dll" target="LLamaSharpRuntimes\win-x64\native\vulkan\ggml-base.dll" />

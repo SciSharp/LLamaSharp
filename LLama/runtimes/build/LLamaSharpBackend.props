@@ -5,7 +5,7 @@
   so copy the native assemblies to the output directory.
   -->
     <ItemGroup>
-        <Content Include="$(MSBuildThisFileDirectory)\..\..\LLamaSharpRuntimes\**\*.*">
+        <Content Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Visible>false</Visible>
             <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>

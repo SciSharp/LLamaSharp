@@ -20,7 +20,7 @@
     </metadata>
 
     <files>
-        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.props" />
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda12.Windows.props" />
 
         <file src="runtimes/deps/cu12.4.0/ggml.dll" target="LLamaSharpRuntimes\win-x64\native\cuda12\ggml.dll" />
         <file src="runtimes/deps/cu12.4.0/ggml-base.dll" target="LLamaSharpRuntimes\win-x64\native\cuda12\ggml-base.dll" />

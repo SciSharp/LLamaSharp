@@ -20,7 +20,7 @@
     </metadata>
 
     <files>
-        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.Linux.props" />
 
         <file src="runtimes/deps/vulkan/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libggml.so" />
         <file src="runtimes/deps/vulkan/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libggml-base.so" />
