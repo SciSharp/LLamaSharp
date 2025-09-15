@@ -38,7 +38,6 @@ namespace LLamaSharp.KernelMemory
                 SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
                 BatchSize = 512,
                 UBatchSize = 512,
-                FlashAttention = true,
                 UseMemorymap = true
             };
             _weights = LLamaWeights.LoadFromFile(@params);
@@ -66,7 +65,6 @@ namespace LLamaSharp.KernelMemory
                 SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
                 BatchSize = 512,
                 UBatchSize = 512,
-                FlashAttention = true,
                 UseMemorymap = true
             };
             _executor = executor ?? new StatelessExecutor(_weights, @params);

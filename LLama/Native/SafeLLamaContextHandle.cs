@@ -348,7 +348,7 @@ namespace LLama.Native
         /// <param name="key"></param>
         /// <param name="buf"></param>
         /// <param name="buf_size"></param>
-        /// <returns></returns>
+        /// <returns>The length of the value string (on success) -1 otherwise </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_adapter_meta_val_str(IntPtr adapter, string key, StringBuilder buf, UIntPtr buf_size);
         
@@ -356,7 +356,7 @@ namespace LLama.Native
         /// Get the number of metadata key value pairs
         /// </summary>
         /// <param name="adapter"></param>
-        /// <returns></returns>
+        /// <returns>The count of meta key value pairs</returns>
         [DllImport(NativeApi.libraryName, CallingConvention =  CallingConvention.Cdecl)]
         private static extern int llama_adapter_meta_count(IntPtr adapter);
         
@@ -367,7 +367,7 @@ namespace LLama.Native
         /// <param name="i"></param>
         /// <param name="buf"></param>
         /// <param name="buf_size"></param>
-        /// <returns></returns>
+        /// <returns>The length of string i.e meta key (on success) -1 otherwise</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_adapter_meta_key_by_index(IntPtr adapter, int i, StringBuilder buf, UIntPtr buf_size);
         
@@ -378,7 +378,7 @@ namespace LLama.Native
         /// <param name="i"></param>
         /// <param name="buf"></param>
         /// <param name="buf_size"></param>
-        /// <returns></returns>
+        /// <returns>The length of value string (on success) -1 otherwise</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_adapter_meta_val_by_index(IntPtr adapter, int i, StringBuilder buf,  UIntPtr buf_size);
 
