@@ -104,11 +104,6 @@ public interface IContextParams
     bool NoKqvOffload { get; }
 
     /// <summary>
-    /// Whether to use flash attention
-    /// </summary>
-    bool FlashAttention { get; }
-
-    /// <summary>
     /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
     /// </summary>
     float? DefragThreshold { get; }

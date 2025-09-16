@@ -104,7 +104,7 @@ namespace LLama.Unittest
                 }
             }
 
-            // Add " repeat" and test whether next tokens will be "this phrase forever.".
+            // Add " repeat" and test whether next tokens will be "this phrase forever."
             for (int i = 0; i < 4; i++)
             {
                 for (int b = 0; b < batch_count; b++)
