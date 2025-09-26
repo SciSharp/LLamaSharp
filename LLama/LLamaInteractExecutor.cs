@@ -1,14 +1,15 @@
-using LLama.Common;
-using LLama.Native;
-using LLama.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using LLama.Abstractions;
+using LLama.Common;
 using LLama.Exceptions;
+using LLama.Native;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ namespace LLama
     public class InteractiveExecutor : StatefulExecutorBase
     {
         private bool _is_prompt_run = true;
-        
+
         // LLava
         private int _EmbedImagePosition = -1;
         private List<SafeLlavaImageEmbedHandle> _imageEmbedHandles = new List<SafeLlavaImageEmbedHandle>();
@@ -36,7 +37,7 @@ namespace LLama
             : base(context, logger)
         {
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -46,7 +47,7 @@ namespace LLama
         public InteractiveExecutor(LLamaContext context, LLavaWeights clipModel, ILogger? logger = null)
             : base(context, clipModel, logger)
         {
-        }        
+        }
 
         /// <inheritdoc />
         public override ExecutorBaseState GetStateData()
@@ -68,7 +69,7 @@ namespace LLama
             return state;
         }
         /// <inheritdoc />
-        public override Task LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken)
         {
             if (data is InteractiveExecutorState state)
             {
@@ -88,22 +89,24 @@ namespace LLama
 
             return Task.CompletedTask;
         }
+
         /// <inheritdoc />
-        public override async Task SaveState(string filename)
+        public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
             var state = (InteractiveExecutorState)GetStateData();
-            using(var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                await JsonSerializer.SerializeAsync(fs, state);
+                await JsonSerializer.SerializeAsync(fs, state, cancellationToken: cancellationToken);
             }
         }
+
         /// <inheritdoc />
-        public override async Task LoadState(string filename)
+        public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
-                await LoadState(state!);
+                await LoadState(state!, cancellationToken);
             }
         }
 
@@ -111,13 +114,13 @@ namespace LLama
         /// Define whether to continue the loop to generate responses.
         /// </summary>
         /// <returns></returns>
-        protected override Task<bool> GetLoopCondition(InferStateArgs args)
+        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
             return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
         }
 
         /// <inheritdoc />
-        protected override Task PreprocessInputs(string? text, InferStateArgs args)
+        protected override async Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_is_prompt_run)
             {
@@ -129,7 +132,7 @@ namespace LLama
                 }
                 else
                 {
-                    PreprocessLlava(text, args, true);
+                    await PreprocessLlava(text, args, true);
                 }
             }
             else
@@ -150,17 +153,15 @@ namespace LLama
                     }
                     else
                     {
-                        PreprocessLlava(text, args, false);
+                        await PreprocessLlava(text, args, false);
                     }
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true )
-        {   
+        private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true)
+        {
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
             if (_imageInPrompt && IsMultiModal)
@@ -191,7 +192,7 @@ namespace LLama
                 {
                     var line_inp = Context.Tokenize(text, false, true);
                     _embed_inps.AddRange(line_inp);
-                    args.RemainedTokens -= line_inp.Length;                    
+                    args.RemainedTokens -= line_inp.Length;
                 }
             }
             return Task.CompletedTask;
@@ -203,20 +204,24 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
                 if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                {
                     args.WaitForInput = true;
+                }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
-                    return (true, Array.Empty<string>());
+                {
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
+                }
             }
 
             if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
             {
-                return (true, Array.Empty<string>());
+                return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
             }
 
             if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
@@ -225,11 +230,11 @@ namespace LLama
                 args.WaitForInput = true;
             }
 
-            return (false, Array.Empty<string>());
+            return Task.FromResult<(bool, IReadOnlyList<string>)>((false, []));
         }
 
         /// <inheritdoc />
-        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             var batch = new LLamaBatch();
 
@@ -258,18 +263,18 @@ namespace LLama
                 // Changes to support Multi-Modal LLMs.
                 //
                 (DecodeResult, int, int) header, end, result;
-                if (IsMultiModal &&  _EmbedImagePosition > 0)
+                if (IsMultiModal && _EmbedImagePosition > 0)
                 {
                     // Tokens previous to the images
                     header = await Context.DecodeAsync(_embeds.GetRange(0, _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
                     _pastTokensCount = header.Item3;
 
                     if (header.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(header.Item1);
-                   
+
                     // Images
-                    foreach( var image in _imageEmbedHandles )
+                    foreach (var image in _imageEmbedHandles)
                         ClipModel!.EvalImageEmbed(Context, image, ref _pastTokensCount);
-                        
+
                     // Post-image Tokens
                     end = await Context.DecodeAsync(_embeds.GetRange(_EmbedImagePosition, _embeds.Count - _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
                     _pastTokensCount = end.Item3;
@@ -285,7 +290,7 @@ namespace LLama
 
                     if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
                 }
-                
+
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
