@@ -69,7 +69,7 @@ namespace LLama
             return state;
         }
         /// <inheritdoc />
-        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken)
+        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
             if (data is InteractiveExecutorState state)
             {
@@ -203,6 +203,7 @@ namespace LLama
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {

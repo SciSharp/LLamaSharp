@@ -101,7 +101,7 @@ namespace LLama
             }
         }
         /// <inheritdoc />
-        public override async Task LoadState(string filename, CancellationToken cancellationToken)
+        public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
