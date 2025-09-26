@@ -120,7 +120,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
+        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_is_prompt_run)
             {
@@ -132,7 +132,7 @@ namespace LLama
                 }
                 else
                 {
-                    await PreprocessLlava(text, args, true);
+                    PreprocessLlava(text, args, true);
                 }
             }
             else
@@ -153,14 +153,16 @@ namespace LLama
                     }
                     else
                     {
-                        await PreprocessLlava(text, args, false);
+                        PreprocessLlava(text, args, false);
                     }
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true)
+        private void PreprocessLlava(string text, InferStateArgs args, bool addBos = true)
         {
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
@@ -195,7 +197,6 @@ namespace LLama
                     args.RemainedTokens -= line_inp.Length;
                 }
             }
-            return Task.CompletedTask;
         }
 
         /// <summary>
