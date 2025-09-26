@@ -239,36 +239,41 @@ namespace LLama
         /// Decide whether to continue the loop.
         /// </summary>
         /// <param name="args"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected abstract Task<bool> GetLoopCondition(InferStateArgs args);
+        protected abstract Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Preprocess the inputs before the inference.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="args"></param>
-        protected abstract Task PreprocessInputs(string? text, InferStateArgs args);
+        /// <param name="cancellationToken"></param>
+        protected abstract Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Do some post processing after the inference.
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
+        protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The core inference logic.
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
-        protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args);
+        /// <param name="cancellationToken"></param>
+        protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Save the current state to a file.
         /// </summary>
         /// <param name="filename"></param>
-        public abstract Task SaveState(string filename);
+        /// <param name="cancellationToken"></param>
+        public abstract Task SaveState(string filename, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get the current state data.
@@ -280,13 +285,15 @@ namespace LLama
         /// Load the state from data.
         /// </summary>
         /// <param name="data"></param>
-        public abstract Task LoadState(ExecutorBaseState data);
+        /// <param name="cancellationToken"></param>
+        public abstract Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Load the state from a file.
         /// </summary>
         /// <param name="filename"></param>
-        public abstract Task LoadState(string filename);
+        /// <param name="cancellationToken"></param>
+        public abstract Task LoadState(string filename, CancellationToken cancellationToken = default);
 
 
         /// <summary>
@@ -310,15 +317,15 @@ namespace LLama
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
             };
 
-            await PreprocessInputs(text, args);
+            await PreprocessInputs(text, args, cancellationToken);
 
-            while (await GetLoopCondition(args))
+            while (await GetLoopCondition(args, cancellationToken))
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     break;
                 }
-                await InferInternal(inferenceParams, args);
+                await InferInternal(inferenceParams, args, cancellationToken);
 
                 if (args.ReturnValue)
                 {
@@ -326,7 +333,7 @@ namespace LLama
                     yield return _decoder.Read();
                 }
 
-                var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args);
+                var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args, cancellationToken);
                 if (extraOutputs is { Count: > 0 })
                 {
                     foreach (var item in extraOutputs)
@@ -346,8 +353,9 @@ namespace LLama
         /// It could reduce the latency of the first time response if the first input from the user is not immediate.
         /// </summary>
         /// <param name="prompt">Prompt to process</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual async Task PrefillPromptAsync(string prompt)
+        public virtual async Task PrefillPromptAsync(string prompt, CancellationToken cancellationToken = default)
         {
             var inferenceParams = new InferenceParams
             {
@@ -362,11 +370,11 @@ namespace LLama
                 NeedToSaveSession = false
             };
 
-            await PreprocessInputs(prompt, args);
+            await PreprocessInputs(prompt, args, cancellationToken);
             // First run adds the prompt to the _embeds
-            await InferInternal(inferenceParams, args);
+            await InferInternal(inferenceParams, args, cancellationToken);
             // Second run puts it through decode
-            await InferInternal(inferenceParams, args);
+            await InferInternal(inferenceParams, args, cancellationToken);
         }   
 
         /// <summary>
