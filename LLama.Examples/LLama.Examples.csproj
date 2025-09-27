@@ -9,7 +9,7 @@
     <!-- Set IncludeBuiltInRuntimes to false to include your own runtime libraries and not link the defaults -->
     <IncludeBuiltInRuntimes>true</IncludeBuiltInRuntimes>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <LangVersion>12</LangVersion>
+	  <LangVersion>13</LangVersion>
 	<NoWarn>1701;1702;8604;SKEXP0001;SKEXP0050;SKEXP0052;SKEXP0003</NoWarn>
   </PropertyGroup>
 

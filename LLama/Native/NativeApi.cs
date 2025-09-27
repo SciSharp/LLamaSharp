@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -323,21 +324,115 @@ namespace LLama.Native
         /// <param name="split_no"></param>
         /// <param name="split_count"></param>
         /// <returns>Returns the split_path length.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_split_path(string split_path, nuint maxlen, string path_prefix, int split_no, int split_count);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_split_path")]
+        private static extern unsafe int llama_split_path_native(byte* split_path, nuint maxlen, byte* path_prefix, int split_no, int split_count);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_split_prefix")]
+        private static extern unsafe int llama_split_prefix_native(byte* split_prefix, nuint maxlen, byte* split_path, int split_no, int split_count);
+
+        private static byte[] EncodeNullTerminatedUtf8(string value, string paramName)
+        {
+            if (value is null)
+                throw new ArgumentNullException(paramName);
+
+            var bytes = Encoding.UTF8.GetBytes(value);
+            var buffer = new byte[bytes.Length + 1];
+            Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
+ //           buffer[^1] = 0;
+            return buffer;
+        }
 
         /// <summary>
-        /// Extract the path prefix from the split_path if and only if the split_no and split_count match.
-        /// llama_split_prefix(split_prefix, 64, "/models/ggml-model-q4_0-00002-of-00004.gguf", 2, 4) => split_prefix = "/models/ggml-model-q4_0"
+        /// Build the fully-qualified path for a specific split file in a GGUF shard set.
         /// </summary>
-        /// <param name="split_prefix"></param>
-        /// <param name="maxlen"></param>
-        /// <param name="split_path"></param>
-        /// <param name="split_no"></param>
-        /// <param name="split_count"></param>
-        /// <returns>Returns the split_prefix length.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no, int split_count);
+        /// <param name="splitPathBuffer">Writable buffer that receives the UTF-8 encoded path.</param>
+        /// <param name="pathPrefix">Base path (e.g. "/models/ggml-model-q4_0").</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <returns>Number of bytes written to <paramref name="splitPathBuffer"/>.</returns>
+        public static int llama_split_path(Span<byte> splitPathBuffer, string pathPrefix, int splitNo, int splitCount)
+        {
+            if (splitPathBuffer.Length == 0)
+                throw new ArgumentException("Buffer must not be empty.", nameof(splitPathBuffer));
+
+            var pathPrefixBytes = EncodeNullTerminatedUtf8(pathPrefix, nameof(pathPrefix));
+
+            unsafe
+            {
+                fixed (byte* splitPtr = splitPathBuffer)
+                fixed (byte* prefixPtr = pathPrefixBytes)
+                {
+                    return llama_split_path_native(splitPtr, (nuint)splitPathBuffer.Length, prefixPtr, splitNo, splitCount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Build the fully-qualified path for a specific split file in a GGUF shard set.
+        /// </summary>
+        /// <param name="pathPrefix">Base path (e.g. "/models/ggml-model-q4_0").</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <param name="maxLength">Maximum number of bytes to allocate for the resulting UTF-8 string.</param>
+        /// <returns>UTF-8 decoded split path.</returns>
+        public static string llama_split_path(string pathPrefix, int splitNo, int splitCount, int maxLength = 1024)
+        {
+            if (maxLength <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxLength));
+
+            var buffer = new byte[maxLength];
+            var written = llama_split_path((Span<byte>)buffer, pathPrefix, splitNo, splitCount);
+            if (written <= 0)
+                throw new InvalidOperationException("Failed to build split path using llama_split_path.");
+
+            return Encoding.UTF8.GetString(buffer, 0, written);
+        }
+
+        /// <summary>
+        /// Extract the shard prefix from a GGUF split path when the split metadata matches.
+        /// </summary>
+        /// <param name="splitPrefixBuffer">Writable buffer that receives the UTF-8 encoded prefix.</param>
+        /// <param name="splitPath">Full path to a shard file.</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <returns>Number of bytes written to <paramref name="splitPrefixBuffer"/>.</returns>
+        public static int llama_split_prefix(Span<byte> splitPrefixBuffer, string splitPath, int splitNo, int splitCount)
+        {
+            if (splitPrefixBuffer.Length == 0)
+                throw new ArgumentException("Buffer must not be empty.", nameof(splitPrefixBuffer));
+
+            var splitPathBytes = EncodeNullTerminatedUtf8(splitPath, nameof(splitPath));
+
+            unsafe
+            {
+                fixed (byte* prefixPtr = splitPrefixBuffer)
+                fixed (byte* pathPtr = splitPathBytes)
+                {
+                    return llama_split_prefix_native(prefixPtr, (nuint)splitPrefixBuffer.Length, pathPtr, splitNo, splitCount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Extract the shard prefix from a GGUF split path when the split metadata matches.
+        /// </summary>
+        /// <param name="splitPath">Full path to a shard file.</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <param name="maxLength">Maximum number of bytes to allocate for the resulting UTF-8 string.</param>
+        /// <returns>UTF-8 decoded split prefix.</returns>
+        public static string llama_split_prefix(string splitPath, int splitNo, int splitCount, int maxLength = 1024)
+        {
+            if (maxLength <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxLength));
+
+            var buffer = new byte[maxLength];
+            var written = llama_split_prefix((Span<byte>)buffer, splitPath, splitNo, splitCount);
+            if (written <= 0)
+                throw new InvalidOperationException("Failed to extract split prefix using llama_split_prefix.");
+
+            return Encoding.UTF8.GetString(buffer, 0, written);
+        }
 
         //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         //todo: public static void llama_attach_threadpool(SafeLLamaContextHandle ctx, ggml_threadpool_t threadpool, ggml_threadpool_t threadpool_batch);
