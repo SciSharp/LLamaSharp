@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -25,6 +26,9 @@ namespace LLama
         private readonly string _instructionPrefix;
         private LLamaToken[] _inp_pfx;
         private LLamaToken[] _inp_sfx;
+        private SafeMtmdInputChunks? _mtmdChunks;
+        private string? _mtmdMarker;
+        private readonly string _instructionSuffix;
 
         /// <summary>
         /// 
@@ -42,6 +46,20 @@ namespace LLama
             _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
             _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
             _instructionPrefix = instructionPrefix;
+            _instructionSuffix = instructionSuffix;
+        }
+
+        public InstructExecutor(LLamaContext context,
+                                SafeMtmdWeights clipModel,
+                                string instructionPrefix = "\n\n### Instruction:\n\n",
+                                string instructionSuffix = "\n\n### Response:\n\n",
+                                ILogger? logger = null)
+            : base(context, clipModel, logger)
+        {
+            _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
+            _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
+            _instructionPrefix = instructionPrefix;
+            _instructionSuffix = instructionSuffix;
         }
 
         /// <inheritdoc />
@@ -68,7 +86,8 @@ namespace LLama
         /// <inheritdoc />
         public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
-            if (data is InstructExecutorState state)
+            DisposeMtmdChunks();
+            if(data is InstructExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps!.ToList();
@@ -128,7 +147,14 @@ namespace LLama
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
-                _embed_inps = Context.Tokenize(text, true, true).ToList();
+                if (!IsMultiModal)
+                {
+                    _embed_inps = Context.Tokenize(text, true, true).ToList();
+                }
+                else
+                {
+                    return PreprocessMtmd(text, args, addBos: true, replaceExisting: true);
+                }
             }
             else
             {
@@ -141,15 +167,156 @@ namespace LLama
                     {
                         text += "\n";
                     }
-                    _embed_inps.AddRange(_inp_pfx);
+                    if (!IsMultiModal)
+                    {
+                        _embed_inps.AddRange(_inp_pfx);
 
-                    var line_inp = Context.Tokenize(text, false, true);
-                    _embed_inps.AddRange(line_inp);
+                        var line_inp = Context.Tokenize(text, false, true);
+                        _embed_inps.AddRange(line_inp);
 
-                    _embed_inps.AddRange(_inp_sfx);
+                        _embed_inps.AddRange(_inp_sfx);
 
-                    args.RemainedTokens -= line_inp.Length;
+                        args.RemainedTokens -= line_inp.Length;
+                    }
+                    else
+                    {
+                        var builder = new StringBuilder();
+                        builder.Append(_instructionPrefix);
+                        builder.Append(text);
+                        builder.Append(_instructionSuffix);
+                        return PreprocessMtmd(builder.ToString(), args, addBos: false, replaceExisting: false);
+                    }
                 }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private void DisposeMtmdChunks()
+        {
+            _mtmdChunks?.Dispose();
+            _mtmdChunks = null;
+        }
+
+        private void DisposeEmbeds()
+        {
+            if (Embeds.Count == 0)
+                return;
+
+            foreach (var embed in Embeds)
+                embed.Dispose();
+
+            Embeds.Clear();
+        }
+
+        private string GetMtmdMarker()
+        {
+            if (_mtmdMarker is not null)
+                return _mtmdMarker;
+
+            _mtmdMarker = NativeApi.MtmdDefaultMarker() ?? "<media>";
+            return _mtmdMarker;
+        }
+
+        private static List<LLamaToken> BuildTokensWithFiller(List<LLamaToken> tokens, int totalPositions, LLamaToken fillerToken)
+        {
+            if (totalPositions <= tokens.Count)
+                return new List<LLamaToken>(tokens);
+
+            var result = new List<LLamaToken>(totalPositions);
+            result.AddRange(tokens);
+            result.AddRange(Enumerable.Repeat(fillerToken, totalPositions - tokens.Count));
+            return result;
+        }
+
+        private LLamaToken GetFillerToken(string marker)
+        {
+            var markerTokens = Context.Tokenize(marker, false, true);
+            if (markerTokens.Length > 0)
+                return markerTokens[markerTokens.Length - 1];
+
+            var eos = Context.Vocab.EOS;
+            if (eos.HasValue)
+                return eos.Value;
+
+            return default(LLamaToken);
+        }
+
+        private Task PreprocessMtmd(string text, InferStateArgs args, bool addBos, bool replaceExisting)
+        {
+            if (ClipModel is null)
+                throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");
+
+            DisposeMtmdChunks();
+
+            var marker = GetMtmdMarker();
+            var prompt = text;
+
+            if (Embeds.Count > 0)
+            {
+                if (prompt.Contains("<image>"))
+                    prompt = prompt.Replace("<image>", marker);
+
+                if (!prompt.Contains(marker))
+                {
+                    var suffix = string.Concat(Enumerable.Repeat(marker, Embeds.Count));
+                    prompt = string.Concat(prompt, suffix);
+                }
+            }
+
+            SafeMtmdInputChunks? chunks = null;
+            try
+            {
+                var status = ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
+                if (status != 0 || chunks is null)
+                {
+                    ClipModel.ClearMedia();
+                    throw new RuntimeError($"Failed to tokenize multimodal prompt. Status: {status}.");
+                }
+
+                _mtmdChunks = chunks;
+
+                var tokens = new List<LLamaToken>();
+                foreach (var chunk in chunks.Enumerate())
+                {
+                    using var scopedChunk = chunk;
+                    if (scopedChunk.Type != SafeMtmdInputChunk.SafeMtmdInputChunkType.Text)
+                        continue;
+
+                    foreach (var token in scopedChunk.GetTextTokensSpan())
+                        tokens.Add(unchecked((int)token));
+                }
+
+                var totalPositions = (int)ClipModel.CountPositions(chunks);
+                var fillerToken = GetFillerToken(marker);
+
+                if (replaceExisting)
+                {
+                    _embed_inps = BuildTokensWithFiller(tokens, totalPositions, fillerToken);
+                    _consumedTokensCount = 0;
+                }
+                else
+                {
+                    if (_embed_inps.Count == 0)
+                        _embed_inps = new List<LLamaToken>();
+
+                    _embed_inps.AddRange(tokens);
+                    var fillerCount = totalPositions - tokens.Count;
+                    if (fillerCount > 0)
+                        _embed_inps.AddRange(Enumerable.Repeat(fillerToken, fillerCount));
+
+                    args.RemainedTokens -= tokens.Count;
+                }
+            }
+            catch
+            {
+                chunks?.Dispose();
+                _mtmdChunks = null;
+                throw;
+            }
+            finally
+            {
+                DisposeEmbeds();
             }
 
             return Task.CompletedTask;
@@ -217,11 +384,43 @@ namespace LLama
                     _n_session_consumed = _session_tokens.Count;
                 }
             }
+            else if (IsMultiModal && _mtmdChunks is not null)
+            {
+                _is_prompt_run = false;
+                var nPast = (long)_pastTokensCount;
+                var previousConsumed = _consumedTokensCount;
+                var evalStatus = ClipModel!.EvaluateChunks(_mtmdChunks, Context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)Context.BatchSize), logitsLast: true);
+                if (evalStatus != 0)
+                {
+                    _logger?.LogError("[InstructExecutor] Failed to evaluate multimodal chunks. Status: {Status}", evalStatus);
+                    DisposeMtmdChunks();
+                    throw new RuntimeError($"Failed to evaluate multimodal chunks. Status: {evalStatus}.");
+                }
+
+                _pastTokensCount = checked((int)nPast);
+                DisposeMtmdChunks();
+
+                if (!string.IsNullOrEmpty(_pathSession) && _embed_inps.Count > previousConsumed)
+                {
+                    _session_tokens.AddRange(_embed_inps.Skip(previousConsumed));
+                    _n_session_consumed = _session_tokens.Count;
+                }
+
+                _consumedTokensCount = _embed_inps.Count;
+                _embeds.Clear();
+            }
 
             _embeds.Clear();
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
+                if (inferenceParams.MaxTokens == 0)
+                {
+                    _embeds.Clear();
+                    args.WaitForInput = true;
+                    args.ReturnValue = false;
+                    return;
+                }
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {
