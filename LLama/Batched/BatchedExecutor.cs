@@ -19,6 +19,7 @@ public sealed class BatchedExecutor
     private int _batchQueueHead;
     private int _batchedTokenCount;
     private bool _batchedTokenCountDirty = true;
+    // Skip compacting the queue until this many processed batches accumulate at the front.
     private const int CleanupThreshold = 16;
     
     /// <summary>
@@ -205,6 +206,7 @@ public sealed class BatchedExecutor
             _batchedTokenCountDirty = true;
         }
 
+        // Remove batches that have already been consumed so the head index does not grow without bound.
         void CleanupQueue()
         {
             if (_batchQueueHead == 0)

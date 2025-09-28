@@ -16,7 +16,9 @@ namespace LLama.Common
         private int _count;
         private T[]? _window;
 
+        // Minimum capacity for the temporary buffer used to expose a contiguous view.
         private const int MinimumWindowSize = 4;
+        // Resize multiplier for the temporary buffer to reduce copy churn as it grows.
         private const int WindowGrowthFactor = 2;
 
         /// <inheritdoc />
@@ -123,6 +125,9 @@ namespace LLama.Common
             return GetEnumerator();
         }
 
+        /// <summary>
+        /// Returns up to <paramref name="count"/> of the most recent items as a contiguous span.
+        /// </summary>
         internal ReadOnlySpan<T> AsSpan(int count)
         {
             count = Math.Min(count, _count);
