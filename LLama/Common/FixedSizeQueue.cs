@@ -67,8 +67,25 @@ namespace LLama.Common
                 throw new ArgumentException($"The max size set for the queue is {size}, but got {dataCount} initial values.");
 #endif
 
+            if (data is ICollection<T> collection)
+            {
+                if (collection.Count > size)
+                    throw new ArgumentException($"The max size set for the queue is {size}, but got {collection.Count} initial values.");
+
+                foreach (var item in collection)
+                    Enqueue(item);
+                return;
+            }
+
+            var index = 0;
             foreach (var item in data)
+            {
+                if (index >= size)
+                    throw new ArgumentException($"The max size set for the queue is {size}, but got {index + 1} initial values.");
+
                 Enqueue(item);
+                index++;
+            }
         }
 
         /// <summary>
