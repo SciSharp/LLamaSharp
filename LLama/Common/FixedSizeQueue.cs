@@ -16,6 +16,9 @@ namespace LLama.Common
         private int _count;
         private T[]? _window;
 
+        private const int MinimumWindowSize = 4;
+        private const int WindowGrowthFactor = 2;
+
         /// <inheritdoc />
         public T this[int index]
         {
@@ -133,10 +136,10 @@ namespace LLama.Common
                 return new ReadOnlySpan<T>(_buffer, start, count);
             }
 
-            _window ??= new T[Math.Min(Capacity, Math.Max(4, count))];
+            _window ??= new T[Math.Min(Capacity, Math.Max(MinimumWindowSize, count))];
             if (_window.Length < count)
             {
-                Array.Resize(ref _window, Math.Min(Capacity, Math.Max(_window.Length * 2, count)));
+                Array.Resize(ref _window, Math.Min(Capacity, Math.Max(_window.Length * WindowGrowthFactor, count)));
             }
 
             var firstSegmentLength = Capacity - start;
