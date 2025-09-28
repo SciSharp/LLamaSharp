@@ -19,6 +19,7 @@ public sealed class BatchedExecutor
     private int _batchQueueHead;
     private int _batchedTokenCount;
     private bool _batchedTokenCountDirty = true;
+    private const int CleanupThreshold = 16;
     
     /// <summary>
     /// Set to 1 using interlocked exchange while inference is running
@@ -216,7 +217,7 @@ public sealed class BatchedExecutor
                 return;
             }
 
-            if (_batchQueueHead > 16 && _batchQueueHead > _batchQueue.Count / 2)
+            if (_batchQueueHead > CleanupThreshold && _batchQueueHead > _batchQueue.Count / 2)
             {
                 _batchQueue.RemoveRange(0, _batchQueueHead);
                 _batchQueueHead = 0;
