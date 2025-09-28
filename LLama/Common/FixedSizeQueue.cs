@@ -46,7 +46,7 @@ namespace LLama.Common
         public FixedSizeQueue(int size)
         {
             if (size <= 0)
-                throw new ArgumentOutOfRangeException(nameof(size), size, "Capacity must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(size), size, "Capacity must be greater than zero.");
 
             Capacity = size;
             _buffer = new T[size];
