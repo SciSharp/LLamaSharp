@@ -55,7 +55,7 @@ namespace LLama.Common
         }
 
         /// <summary>
-        /// Fill the queue with existing data. Please ensure that data.Count &lt;= size
+        /// Fill the queue with existing data. Please ensure that data.Count <= size
         /// </summary>
         /// <param name="size"></param>
         /// <param name="data"></param>
