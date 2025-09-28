@@ -6,21 +6,33 @@ using System.Linq;
 namespace LLama.Common
 {
     /// <summary>
-    /// A queue with fixed storage size.
-    /// Currently it's only a naive implementation and needs to be further optimized in the future.
+    /// A queue with fixed storage size backed by a circular buffer.
     /// </summary>
     public class FixedSizeQueue<T>
         : IReadOnlyList<T>
     {
-        private readonly List<T> _storage;
+        private readonly T[] _buffer;
+        private int _start;
+        private int _count;
+        private T[]? _window;
 
         /// <inheritdoc />
-        public T this[int index] => _storage[index];
+        public T this[int index]
+        {
+            get
+            {
+                if ((uint)index >= (uint)_count)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+
+                var actualIndex = (_start + index) % Capacity;
+                return _buffer[actualIndex];
+            }
+        }
 
         /// <summary>
         /// Number of items in this queue
         /// </summary>
-        public int Count => _storage.Count;
+        public int Count => _count;
 
         /// <summary>
         /// Maximum number of items allowed in this queue
@@ -28,53 +40,61 @@ namespace LLama.Common
         public int Capacity { get; }
 
         /// <summary>
-        /// Create a new queue
+        /// Create a new queue.
         /// </summary>
-        /// <param name="size">the maximum number of items to store in this queue</param>
+        /// <param name="size">The maximum number of items to store in this queue.</param>
         public FixedSizeQueue(int size)
         {
+            if (size <= 0)
+                throw new ArgumentOutOfRangeException(nameof(size), size, "Capacity must be positive.");
+
             Capacity = size;
-            _storage = new();
+            _buffer = new T[size];
+            _start = 0;
+            _count = 0;
         }
 
         /// <summary>
-        /// Fill the quene with the data. Please ensure that data.Count &lt;= size
+        /// Fill the queue with existing data. Please ensure that data.Count &lt;= size
         /// </summary>
         /// <param name="size"></param>
         /// <param name="data"></param>
         public FixedSizeQueue(int size, IEnumerable<T> data)
+            : this(size)
         {
 #if NET6_0_OR_GREATER
-            // Try to check the size without enumerating the entire IEnumerable. This may not be able to get the count,
-            // in which case we'll have to check later
             if (data.TryGetNonEnumeratedCount(out var dataCount) && dataCount > size)
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {dataCount} initial values.");
+                throw new ArgumentException($"The max size set for the queue is {size}, but got {dataCount} initial values.");
 #endif
 
-            // Size of "data" is unknown, copy it all into a list
-            Capacity = size;
-            _storage = new List<T>(data);
-
-            // Now check if that list is a valid size.
-            if (_storage.Count > Capacity)
-                throw new ArgumentException($"The max size set for the quene is {size}, but got {_storage.Count} initial values.");
+            foreach (var item in data)
+                Enqueue(item);
         }
 
         /// <summary>
-        /// Enquene an element.
+        /// Enqueue an element. When the queue is full the oldest element is overwritten.
         /// </summary>
-        /// <returns></returns>
         public void Enqueue(T item)
         {
-            _storage.Add(item);
-            if (_storage.Count > Capacity)
-                _storage.RemoveAt(0);
+            if (_count < Capacity)
+            {
+                var tail = (_start + _count) % Capacity;
+                _buffer[tail] = item;
+                _count++;
+            }
+            else
+            {
+                _buffer[_start] = item;
+                _start++;
+                if (_start == Capacity)
+                    _start = 0;
+            }
         }
 
         /// <inheritdoc />
         public IEnumerator<T> GetEnumerator()
         {
-            return _storage.GetEnumerator();
+            return Enumerate().GetEnumerator();
         }
 
         /// <inheritdoc />
@@ -85,15 +105,35 @@ namespace LLama.Common
 
         internal ReadOnlySpan<T> AsSpan(int count)
         {
-            // Ensure the request isn't for more tokens than actually exist
-            count = Math.Min(count, Count);
+            count = Math.Min(count, _count);
+            if (count == 0)
+                return ReadOnlySpan<T>.Empty;
 
-            // Take `count` items from the end
-#if NET8_0_OR_GREATER
-            return CollectionsMarshal.AsSpan(_storage)[^count..];
-#else
-            return _storage.ToArray().AsSpan(_storage.Count - count, count);
-#endif
+            var start = (_start + _count - count + Capacity) % Capacity;
+
+            if (start + count <= Capacity)
+            {
+                return new ReadOnlySpan<T>(_buffer, start, count);
+            }
+
+            _window ??= new T[Math.Min(Capacity, Math.Max(4, count))];
+            if (_window.Length < count)
+            {
+                Array.Resize(ref _window, Math.Min(Capacity, Math.Max(_window.Length * 2, count)));
+            }
+
+            var firstSegmentLength = Capacity - start;
+            Array.Copy(_buffer, start, _window, 0, firstSegmentLength);
+            Array.Copy(_buffer, 0, _window, firstSegmentLength, count - firstSegmentLength);
+            return _window.AsSpan(0, count);
+        }
+
+        private IEnumerable<T> Enumerate()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return this[i];
+            }
         }
     }
 }
