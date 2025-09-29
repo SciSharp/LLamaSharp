@@ -338,7 +338,6 @@ namespace LLama.Native
             var bytes = Encoding.UTF8.GetBytes(value);
             var buffer = new byte[bytes.Length + 1];
             Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
- //           buffer[^1] = 0;
             return buffer;
         }
 
