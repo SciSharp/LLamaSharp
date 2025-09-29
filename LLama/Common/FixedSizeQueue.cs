@@ -125,34 +125,6 @@ namespace LLama.Common
             return GetEnumerator();
         }
 
-        /// <summary>
-        /// Returns up to <paramref name="count"/> of the most recent items as a contiguous span.
-        /// </summary>
-        internal ReadOnlySpan<T> AsSpan(int count)
-        {
-            count = Math.Min(count, _count);
-            if (count == 0)
-                return ReadOnlySpan<T>.Empty;
-
-            var start = (_start + _count - count + Capacity) % Capacity;
-
-            if (start + count <= Capacity)
-            {
-                return new ReadOnlySpan<T>(_buffer, start, count);
-            }
-
-            _window ??= new T[Math.Min(Capacity, Math.Max(MinimumWindowSize, count))];
-            if (_window.Length < count)
-            {
-                Array.Resize(ref _window, Math.Min(Capacity, Math.Max(_window.Length * WindowGrowthFactor, count)));
-            }
-
-            var firstSegmentLength = Capacity - start;
-            Array.Copy(_buffer, start, _window, 0, firstSegmentLength);
-            Array.Copy(_buffer, 0, _window, firstSegmentLength, count - firstSegmentLength);
-            return _window.AsSpan(0, count);
-        }
-
         private IEnumerable<T> Enumerate()
         {
             for (var i = 0; i < _count; i++)
