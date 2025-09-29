@@ -158,7 +158,7 @@ namespace LLama
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
                     args.WaitForInput = true;
                     return (true, Array.Empty<string>());
