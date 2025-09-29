@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Exceptions;
 using LLama.Native;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LLama;
 
@@ -26,18 +23,26 @@ public sealed partial class LLamaEmbedder
     /// <summary>
     /// LLama Context
     /// </summary>
+    /// <remarks>
+    /// If the context was not provided externally, the returned context will be in a disposed state.
+    /// </remarks>
     public LLamaContext Context { get; private set; }
 
-    private LLamaWeights _weights;
-    private IContextParams _params;
-    private ILogger? _logger;
+    private readonly LLamaWeights? _weights;
+    private readonly IContextParams _params;
+    private readonly ILogger? _logger;
+    private readonly bool _hasExternalContext;
 
     /// <summary>
-    /// Create a new embedder, using the given LLamaWeights
+    /// Create a new embedder, using the given <see cref="LLamaWeights"/>.
+    /// This will create and dispose a new <see cref="LLamaContext"/> for each embedding request.
+    /// If you want to manage the context lifetime yourself, consider using the other constructor that takes a <see cref="LLamaContext"/>.
     /// </summary>
-    /// <param name="weights"></param>
-    /// <param name="params"></param>
-    /// <param name="logger"></param>
+    /// <param name="weights">weights to use for generating embeddings. The weights must be for a model that supports embeddings (i.e. it must have an encoder or a decoder, but not both).</param>
+    /// <param name="params">context parameters to use when creating the context</param>
+    /// <param name="logger">optional logger</param>
+    /// <exception cref="ArgumentException">raised if the provided context has batch size different from ubatch size</exception>
+    /// <exception cref="NotSupportedException">raised if the provided context is for an encoder-decoder model</exception>
     public LLamaEmbedder(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
     {
         if (@params.UBatchSize != @params.BatchSize)
@@ -51,12 +56,39 @@ public sealed partial class LLamaEmbedder
         _weights = weights;
         _params = @params;
         _logger = logger;
+        _hasExternalContext = false;
+    }
+    
+    /// <summary>
+    /// Creates a new embedder using the given <see cref="LLamaContext"/>.
+    /// The caller is responsible for managing the lifetime of the context, and must ensure that the context remains valid
+    /// for the entire lifetime of this <see cref="LLamaEmbedder"/>. The context will not be disposed when this embedder is disposed.
+    /// </summary>
+    /// <param name="context">context to use for generating embeddings. The context must be configured with a model that supports embeddings (i.e. it must have an encoder or a decoder, but not both).</param>
+    /// <param name="logger">optional logger</param>
+    /// <exception cref="ArgumentException">raised if the provided context has batch size different from ubatch size</exception>
+    /// <exception cref="NotSupportedException">raised if the provided context is for an encoder-decoder model</exception>
+    public LLamaEmbedder(LLamaContext context, ILogger? logger = null)
+    {
+        if(context.Params.UBatchSize != context.Params.BatchSize)
+            throw new ArgumentException("For non-causal models, batch size must be equal to ubatch size", nameof(context));
+        
+        if (context.NativeHandle.ModelHandle is { HasEncoder: true, HasDecoder: true })
+            throw new NotSupportedException("Computing embeddings in encoder-decoder models is not supported");
+        
+        Context = context;
+        EmbeddingSize = Context.EmbeddingSize;
+        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+        _params = context.Params;
+        _logger = logger;
+        _hasExternalContext = true;
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        Context.Dispose();
+        if(!_hasExternalContext && !Context.NativeHandle.IsClosed)
+            Context.Dispose();
     }
 
     /// <summary>
@@ -72,14 +104,17 @@ public sealed partial class LLamaEmbedder
     public async Task<IReadOnlyList<float[]>> GetEmbeddings(string input, CancellationToken cancellationToken = default) =>
         (await GetEmbeddingsWithTokenCount(input, cancellationToken).ConfigureAwait(false)).Embeddings;
 
+
     private async Task<(IReadOnlyList<float[]> Embeddings, int Tokens)> GetEmbeddingsWithTokenCount(string input, CancellationToken cancellationToken = default)
     {
-        // Ensure the context from last time is disposed (it always should be)
-        if (!Context.NativeHandle.IsClosed)
-            Context.Dispose();
+        if (!_hasExternalContext)
+        {
+            if (!Context.NativeHandle.IsClosed)
+                Context.Dispose();
 
-        Context = _weights.CreateContext(_params, _logger);
-        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+            Context = _weights!.CreateContext(_params, _logger);
+            NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+        }
 
         // Add all of the tokens to the batch
         var tokens = Context.Tokenize(input, special: true);
@@ -150,7 +185,8 @@ public sealed partial class LLamaEmbedder
             embedding.EuclideanNormalization();
         }
 
-        Context.Dispose();
+        if (!_hasExternalContext)
+            Context.Dispose();
 
         return (results, tokens.Length);
     }
