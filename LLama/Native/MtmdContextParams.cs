@@ -138,7 +138,16 @@ internal sealed class PinnedUtf8String : IDisposable
 
     public static PinnedUtf8String? Create(string? value) => value is null ? null : new PinnedUtf8String(value);
 
-    public IntPtr Pointer => _buffer is null ? IntPtr.Zero : _handle.AddrOfPinnedObject();
+    public IntPtr Pointer
+    {
+        get
+        {
+            if (_buffer is null || !_handle.IsAllocated)
+                return IntPtr.Zero;
+
+            return _handle.AddrOfPinnedObject();
+        }
+    }
 
     public void Dispose()
     {
