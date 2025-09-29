@@ -9,7 +9,7 @@ namespace LLama.Native
     internal static class NativeLibraryUtils
     {
         /// <summary>
-        /// Try to load libllama/llava_shared, using CPU feature detection to try and load a more specialised DLL if possible
+        /// Try to load libllama/mtmd, using CPU feature detection to try and load a more specialised DLL if possible
         /// </summary>
         /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
         internal static IntPtr TryLoadLibrary(NativeLibraryConfig config, out INativeLibrary? loadedLibrary)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using LLama.Native;
 
 namespace LLama.Abstractions
 {
@@ -22,12 +23,12 @@ namespace LLama.Abstractions
         /// <summary>
         /// Multi-Modal Projections / Clip Model weights
         /// </summary>
-        public LLavaWeights? ClipModel { get;  }
+        public SafeMtmdWeights? ClipModel { get;  }
 
         /// <summary>
-        /// List of images: List of images in byte array format.
+        /// List of media: List of media for Multi-Modal models.
         /// </summary>
-        public List<byte[]> Images { get; }
+        public List<SafeMtmdEmbed> Embeds { get; }
 
         /// <summary>
         /// Asynchronously infers a response from the model.
