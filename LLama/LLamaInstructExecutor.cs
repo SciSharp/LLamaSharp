@@ -124,7 +124,7 @@ namespace LLama
 
             if (_is_prompt_run)
             {
-                // When running the first input (prompt) in inteactive mode, we should specially process it.
+                // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
                 _embed_inps = Context.Tokenize(text, true, true).ToList();
             }
