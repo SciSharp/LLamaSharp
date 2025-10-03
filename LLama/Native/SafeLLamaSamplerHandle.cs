@@ -616,7 +616,7 @@ public sealed class SafeLLamaSamplerChainHandle
 
     // This is a tricky method to work with!
     // It can't return a handle, because that would create a second handle to these resources.
-    // Instead It returns the raw pointer, and that can be looked up in the _samplers dictionary.
+    // Instead , It returns the raw pointer, and that can be looked up in the _samplers dictionary.
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     private static extern IntPtr llama_sampler_chain_get(SafeLLamaSamplerChainHandle chain, int i);
     // ReSharper restore InconsistentNaming

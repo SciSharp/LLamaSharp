@@ -100,7 +100,16 @@ namespace LLama.Native
             set => _check_tensors = Convert.ToSByte(value);
         }
         private sbyte _check_tensors;
-
+        
+        /// <summary>
+        /// use extra buffer types (used for weight repacking) 
+        /// </summary>
+        public bool use_extra_bufts
+        {
+            readonly get => Convert.ToBoolean(_use_extra_bufts);
+            set => _use_extra_bufts = Convert.ToSByte(value);
+        }
+        private sbyte _use_extra_bufts;
         /// <summary>
         /// Create a LLamaModelParams with default values
         /// </summary>
