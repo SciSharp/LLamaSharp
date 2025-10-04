@@ -41,43 +41,40 @@ public sealed class LLamaEmbedderTests
 
         var spoon = (await embedder.GetEmbeddings("The spoon is not real")).Single().EuclideanNormalization();
         Assert.DoesNotContain(float.NaN, spoon);
+        
+        using var context = new LLamaContext(weights, @params);
+        var managedEmbedder = new LLamaEmbedder(context);
+        IEmbeddingGenerator<string, Embedding<float>> generator = managedEmbedder;
+        Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>());
+        Assert.Equal(nameof(LLamaEmbedder), generator.GetService<EmbeddingGeneratorMetadata>()?.ProviderName);
+        Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>()?.DefaultModelId);
+        Assert.NotEmpty(generator.GetService<EmbeddingGeneratorMetadata>()?.DefaultModelId!);
+        Assert.Same(managedEmbedder, generator.GetService<LLamaEmbedder>());
+        Assert.Same(generator, generator.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
+        Assert.Null(generator.GetService<string>());
 
-        if (false)
-        {
-            //TODO: the below does not work with the new memory efficient context handling - we probably need to define Microsoft.Extensions.AI.IEmbeddingGenerator GetService interface that creates the context on the fly
+        var embeddings = await generator.GenerateAsync(
+        [
+            "The cat is cute",
+        "The kitten is cute",
+        "The spoon is not real"
+        ]);
+        Assert.All(cat.Zip(embeddings[0].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
+        Assert.All(kitten.Zip(embeddings[1].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
+        Assert.All(spoon.Zip(embeddings[2].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
 
-            var generator = (IEmbeddingGenerator<string, Embedding<float>>)embedder;
-            Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>());
-            Assert.Equal(nameof(LLamaEmbedder), generator.GetService<EmbeddingGeneratorMetadata>()?.ProviderName);
-            Assert.NotNull(generator.GetService<EmbeddingGeneratorMetadata>()?.DefaultModelId);
-            Assert.NotEmpty(generator.GetService<EmbeddingGeneratorMetadata>()?.DefaultModelId!);
-            Assert.Same(embedder, generator.GetService<LLamaEmbedder>());
-            Assert.Same(generator, generator.GetService<IEmbeddingGenerator<string, Embedding<float>>>());
-            Assert.Null(generator.GetService<string>());
+        _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
+        _testOutputHelper.WriteLine($"Kitten = [{string.Join(",", kitten.AsMemory().Slice(0, 7).ToArray())}...]");
+        _testOutputHelper.WriteLine($"Spoon  = [{string.Join(",", spoon.AsMemory().Slice(0, 7).ToArray())}...]");
 
-            var embeddings = await generator.GenerateAsync(
-            [
-                "The cat is cute",
-            "The kitten is cute",
-            "The spoon is not real"
-            ]);
-            Assert.All(cat.Zip(embeddings[0].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
-            Assert.All(kitten.Zip(embeddings[1].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
-            Assert.All(spoon.Zip(embeddings[2].Vector.Span.EuclideanNormalization()), e => Assert.Equal(e.First, e.Second, 0.001));
+        var close = 1 - Dot(cat, kitten);
+        var far = 1 - Dot(cat, spoon);
 
-            _testOutputHelper.WriteLine($"Cat    = [{string.Join(",", cat.AsMemory().Slice(0, 7).ToArray())}...]");
-            _testOutputHelper.WriteLine($"Kitten = [{string.Join(",", kitten.AsMemory().Slice(0, 7).ToArray())}...]");
-            _testOutputHelper.WriteLine($"Spoon  = [{string.Join(",", spoon.AsMemory().Slice(0, 7).ToArray())}...]");
+        _testOutputHelper.WriteLine("");
+        _testOutputHelper.WriteLine($"Cat.Kitten (Close): {close:F4}");
+        _testOutputHelper.WriteLine($"Cat.Spoon  (Far):   {far:F4}");
 
-            var close = 1 - Dot(cat, kitten);
-            var far = 1 - Dot(cat, spoon);
-
-            _testOutputHelper.WriteLine("");
-            _testOutputHelper.WriteLine($"Cat.Kitten (Close): {close:F4}");
-            _testOutputHelper.WriteLine($"Cat.Spoon  (Far):   {far:F4}");
-
-            Assert.True(close < far);
-        }
+        Assert.True(close < far);
     }
 
     [Fact]
