@@ -40,7 +40,7 @@ namespace LLama.Native
             // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
             using (var fs = new FileStream(modelPath, FileMode.Open))
                 if (!fs.CanRead)
-                    throw new InvalidOperationException($"Mtmd MMP Model file '{modelPath}' is not readable");
+                    throw new InvalidOperationException($"Mtmd Model file '{modelPath}' is not readable");
 
             using var pathUtf8 = PinnedUtf8String.Create(modelPath) ?? throw new ArgumentNullException(nameof(modelPath));
 
@@ -138,21 +138,13 @@ namespace LLama.Native
             if (result == 0)
             {
                 chunks = new SafeMtmdInputChunks(output);
-                foreach (var media in _pendingMedia)
-                    media.Dispose();
-                _pendingMedia.Clear();
             }
             else
             {
                 NativeApi.mtmd_input_chunks_free(output);
             }
 
-            if (result != 0)
-            {
-                foreach (var media in _pendingMedia)
-                    media.Dispose();
-                _pendingMedia.Clear();
-            }
+            ClearMedia();
 
             return result;
         }
