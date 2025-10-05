@@ -1,16 +1,27 @@
-﻿using LLamaSharp.SemanticKernel;
+using LLamaSharp.SemanticKernel;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 
 namespace LLama.Unittest.SemanticKernel
 {
     public class ChatRequestSettingsTests
     {
-        [Fact]
-        public void ChatRequestSettings_FromRequestSettingsNull()
+        public static IEnumerable<object[]> NullRequestSettingsData()
+        {
+            yield return new object[] { null, typeof(PromptExecutionSettings) };
+            yield return new object[] { null, typeof(ChatOptions) };
+        }
+
+        [Theory]
+        [MemberData(nameof(NullRequestSettingsData))]
+        public void ChatRequestSettings_FromRequestSettingsNull(object settings, Type botType)
         {
             // Arrange
             // Act
-            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(null, null);
+            LLamaSharpPromptExecutionSettings requestSettings = botType == typeof(PromptExecutionSettings)
+                ? LLamaSharpPromptExecutionSettings.FromRequestSettings((PromptExecutionSettings?)settings, null)
+                : LLamaSharpPromptExecutionSettings.FromRequestSettings((ChatOptions?)settings, null);
+
 
             // Assert
             Assert.NotNull(requestSettings);
@@ -26,12 +37,15 @@ namespace LLama.Unittest.SemanticKernel
             Assert.Equal(0, requestSettings.TopP);
         }
 
-        [Fact]
-        public void ChatRequestSettings_FromRequestSettingsNullWithMaxTokens()
+        [Theory]
+        [MemberData(nameof(NullRequestSettingsData))]
+        public void ChatRequestSettings_FromRequestSettingsNullWithMaxTokens(object settings, Type botType)
         {
             // Arrange
             // Act
-            var requestSettings = LLamaSharpPromptExecutionSettings.FromRequestSettings(null, 200);
+            LLamaSharpPromptExecutionSettings requestSettings = botType == typeof(PromptExecutionSettings)
+                ? LLamaSharpPromptExecutionSettings.FromRequestSettings((PromptExecutionSettings?)settings, 200)
+                : LLamaSharpPromptExecutionSettings.FromRequestSettings((ChatOptions?)settings, 200);
 
             // Assert
             Assert.NotNull(requestSettings);

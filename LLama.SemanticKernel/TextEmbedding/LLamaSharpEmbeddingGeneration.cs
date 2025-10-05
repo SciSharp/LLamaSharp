@@ -1,11 +1,12 @@
 using LLama;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Embeddings;
 
 namespace LLamaSharp.SemanticKernel.TextEmbedding;
 
 public sealed class LLamaSharpEmbeddingGeneration
-    : ITextEmbeddingGenerationService
+    : IEmbeddingGenerator, ITextEmbeddingGenerationService, IDisposable
 {
     private readonly LLamaEmbedder _embedder;
 
@@ -27,5 +28,20 @@ public sealed class LLamaSharpEmbeddingGeneration
             result.Add((await _embedder.GetEmbeddings(item, cancellationToken)).First());
 
         return result;
+    }
+
+    /// <inheritdoc/>
+    public object? GetService(Type serviceType, object? serviceKey = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        if (_embedder is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 }
