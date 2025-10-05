@@ -203,6 +203,11 @@ namespace LLama.Native
         LLAMA_FTYPE_MOSTLY_TQ2_0 = 37,
 
         /// <summary>
+        /// except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_MXFP4_MOE = 38,
+
+        /// <summary>
         /// File type was not specified
         /// </summary>
         GUESSED = 1024

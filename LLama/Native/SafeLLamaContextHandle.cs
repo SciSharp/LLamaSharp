@@ -294,7 +294,7 @@ namespace LLama.Native
         /// Get the exact size needed to copy the state of a single sequence
         /// </summary>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern nuint llama_state_seq_get_size(SafeLLamaContextHandle ctx, LLamaSeqId seqId);
+        private static extern nuint llama_state_seq_get_size(SafeLLamaContextHandle ctx, LLamaSeqId seqId, uint llama_state_seq_flags);
 
         /// <summary>
         /// Copy the state of a single sequence into the specified buffer
@@ -303,9 +303,10 @@ namespace LLama.Native
         /// <param name="dst"></param>
         /// <param name="size"></param>
         /// <param name="seqId"></param>
+        /// <param name="llama_state_seq_flags"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern unsafe nuint llama_state_seq_get_data(SafeLLamaContextHandle ctx, byte* dst, nuint size, LLamaSeqId seqId);
+        private static extern unsafe nuint llama_state_seq_get_data(SafeLLamaContextHandle ctx, byte* dst, nuint size, LLamaSeqId seqId, uint llama_state_seq_flags);
 
         /// <summary>
         /// Copy the sequence data (originally copied with `llama_state_seq_get_data`) into the specified sequence
@@ -314,12 +315,13 @@ namespace LLama.Native
         /// <param name="src"></param>
         /// <param name="size"></param>
         /// <param name="destSeqId"></param>
+        /// <param name="llama_state_seq_flags"></param>
         /// <returns>
         ///  - Positive: Ok
         ///  - Zero: Failed to load
         /// </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern unsafe nuint llama_state_seq_set_data(SafeLLamaContextHandle ctx, byte* src, nuint size, LLamaSeqId destSeqId);
+        private static extern unsafe nuint llama_state_seq_set_data(SafeLLamaContextHandle ctx, byte* src, nuint size, LLamaSeqId destSeqId, uint llama_state_seq_flags);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaPerfContextTimings llama_perf_context(SafeLLamaContextHandle ctx);
@@ -680,7 +682,7 @@ namespace LLama.Native
         /// <returns></returns>
         public nuint GetStateSize(LLamaSeqId sequence)
         {
-            return llama_state_seq_get_size(this, sequence);
+            return llama_state_seq_get_size(this, sequence, 0u);
         }
 
         /// <summary>
@@ -712,7 +714,7 @@ namespace LLama.Native
             if (size < required)
                 throw new ArgumentOutOfRangeException(nameof(size), $"Allocated space is too small, {size} < {required}");
 
-            return llama_state_seq_get_data(this, dest, size, sequence);
+            return llama_state_seq_get_data(this, dest, size, sequence, 0u);
         }
 
         /// <summary>
@@ -735,7 +737,7 @@ namespace LLama.Native
         /// <returns>Number of bytes read from the src pointer</returns>
         public unsafe nuint SetState(byte* src, nuint size, LLamaSeqId sequence)
         {
-            return llama_state_seq_set_data(this, src, size, sequence);
+            return llama_state_seq_set_data(this, src, size, sequence, 1u);
         }
         #endregion
 
