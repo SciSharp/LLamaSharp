@@ -67,6 +67,7 @@ namespace LLama
             };
             return state;
         }
+
         /// <inheritdoc />
         public override Task LoadState(ExecutorBaseState data)
         {
@@ -88,23 +89,23 @@ namespace LLama
 
             return Task.CompletedTask;
         }
+        
         /// <inheritdoc />
         public override async Task SaveState(string filename)
         {
             var state = (InteractiveExecutorState)GetStateData();
-            using(var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
                 await JsonSerializer.SerializeAsync(fs, state);
             }
         }
+
         /// <inheritdoc />
         public override async Task LoadState(string filename)
         {
-            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
-                await LoadState(state!);
-            }
+            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
+            await LoadState(state!);
         }
 
         /// <summary>
@@ -122,7 +123,11 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
-                if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
+                if (text == null)
+                {
+                    throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
+                }
+                
                 if (!IsMultiModal)
                 {
                     _embed_inps = Context.Tokenize(text, true, true).ToList();
@@ -203,15 +208,19 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override (bool, IReadOnlyList<string>) PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
                 if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
+                {
                     args.WaitForInput = true;
+                }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
+                {
                     return (true, Array.Empty<string>());
+                }
             }
 
             if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))

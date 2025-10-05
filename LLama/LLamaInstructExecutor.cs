@@ -99,6 +99,7 @@ namespace LLama
                 await JsonSerializer.SerializeAsync(fs, state);
             }
         }
+
         /// <inheritdoc />
         public override async Task LoadState(string filename)
         {
@@ -154,7 +155,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override (bool, IReadOnlyList<string>) PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
@@ -205,7 +206,9 @@ namespace LLama
                 _pastTokensCount = pastTokensCount;
 
                 if (result != DecodeResult.Ok)
+                {
                     throw new LLamaDecodeError(result);
+                }
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -250,6 +253,7 @@ namespace LLama
 
             return;
         }
+        
         /// <summary>
         /// The descriptor of the state of the instruct executor.
         /// </summary>

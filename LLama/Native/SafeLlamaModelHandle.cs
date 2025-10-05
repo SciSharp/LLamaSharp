@@ -436,6 +436,7 @@ namespace LLama.Native
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern uint llama_model_n_cls_out(SafeLlamaModelHandle model);
 
         /// <summary>
@@ -444,6 +445,7 @@ namespace LLama.Native
         /// <param name="model"></param>
         /// <param name="i"></param>
         /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern string? llama_model_cls_label(SafeLlamaModelHandle model, uint i);
         #endregion
 

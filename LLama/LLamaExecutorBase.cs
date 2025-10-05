@@ -262,7 +262,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
+        protected abstract (bool, IReadOnlyList<string>) PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
 
         /// <summary>
         /// The core inference logic.
@@ -338,7 +338,7 @@ namespace LLama
                     yield return decoded;
                 }
 
-                var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args);
+                var (breakGeneration, extraOutputs) = PostProcess(inferenceParams, args);
                 if (extraOutputs is { Count: > 0 })
                 {
                     foreach (var item in extraOutputs)
