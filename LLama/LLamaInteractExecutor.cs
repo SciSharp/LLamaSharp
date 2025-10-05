@@ -144,7 +144,7 @@ namespace LLama
                 }
                 else
                 {
-                    PreprocessMtmd(text, args, true);
+                    return PreprocessMtmd(text, args, addBos: true, replaceExisting: true);
                 }
             }
             else
@@ -165,168 +165,9 @@ namespace LLama
                     }
                     else
                     {
-                        PreprocessMtmd(text, args, false);
+                        return PreprocessMtmd(text, args, addBos: false, replaceExisting: false);
                     }
                 }
-            }
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Release any queued multimodal chunks and reset state.
-        /// </summary>
-        private void DisposeMtmdChunks()
-        {
-            _mtmdChunks?.Dispose();
-            _mtmdChunks = null;
-        }
-
-        /// <summary>
-        /// Dispose and clear any pending multimodal embeddings queued for evaluation.
-        /// </summary>
-        private void DisposeEmbeds()
-        {
-            if (Embeds.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var embed in Embeds)
-            {
-                embed.Dispose();
-            }
-
-            Embeds.Clear();
-        }
-
-        /// <summary>
-        /// Retrieve the marker token used to signal media segments to the tokenizer.
-        /// </summary>
-        private string GetMtmdMarker()
-        {
-            if (_mtmdMarker is not null)
-            {
-                return _mtmdMarker;
-            }
-
-            _mtmdMarker = NativeApi.MtmdDefaultMarker() ?? "<media>";
-            return _mtmdMarker;
-        }
-
-        private static List<LLamaToken> BuildTokensWithFiller(List<LLamaToken> tokens, int totalPositions, LLamaToken fillerToken)
-        {
-            if (totalPositions <= tokens.Count)
-                return new List<LLamaToken>(tokens);
-
-            var result = new List<LLamaToken>(totalPositions);
-            result.AddRange(tokens);
-            result.AddRange(Enumerable.Repeat(fillerToken, totalPositions - tokens.Count));
-            return result;
-        }
-
-        private LLamaToken GetFillerToken(string marker)
-        {
-            var markerTokens = Context.Tokenize(marker, false, true);
-            if (markerTokens.Length > 0)
-                return markerTokens[markerTokens.Length - 1];
-
-            var eos = Context.Vocab.EOS;
-            if (eos.HasValue)
-                return eos.Value;
-
-            return default(LLamaToken);
-        }
-
-        /// <summary>
-        /// Preprocess multimodal prompts by aligning media markers and tokenizing via MTMD helpers.
-        /// </summary>
-        /// <param name="text">Prompt text containing optional media markers.</param>
-        /// <param name="args">Mutable inference state.</param>
-        /// <param name="addBos">Whether to treat the prompt as a fresh run and add the BOS token.</param>
-        private Task PreprocessMtmd(string text, InferStateArgs args, bool addBos = true)
-        {
-            if (ClipModel is null)
-            {
-                throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");
-            }
-
-            DisposeMtmdChunks();
-
-            var marker = GetMtmdMarker();
-            var prompt = text;
-
-            if (Embeds.Count > 0)
-            {
-                if (prompt.Contains("<image>"))
-                {
-                    prompt = prompt.Replace("<image>", marker);
-                }
-
-                if (!prompt.Contains(marker))
-                {
-                    var suffix = string.Concat(Enumerable.Repeat(marker, Embeds.Count));  // Ensure tokenizer sees one marker per embed.
-                    prompt = string.Concat(prompt, suffix);
-                }
-            }
-
-            SafeMtmdInputChunks? chunks = null;
-            try
-            {
-                var status = ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
-                if (status != 0 || chunks is null)
-                {
-                    ClipModel.ClearMedia();
-                    throw new RuntimeError($"Failed to tokenize multimodal prompt. Status: {status}.");
-                }
-
-                _mtmdChunks = chunks;  // Own the chunk collection until evaluation completes.
-
-                var tokens = new List<LLamaToken>();
-                foreach (var chunk in chunks.Enumerate())
-                {
-                    using var scopedChunk = chunk;
-                    if (scopedChunk.Type != SafeMtmdInputChunk.SafeMtmdInputChunkType.Text)
-                    {
-                        continue;
-                    }
-
-                    foreach (var token in scopedChunk.GetTextTokensSpan())
-                    {
-                        tokens.Add(unchecked((int)token));
-                    }
-                }
-
-                var totalPositions = (int)ClipModel.CountPositions(chunks);
-                var fillerToken = GetFillerToken(marker);
-
-                if (addBos)
-                {
-                    _embed_inps = BuildTokensWithFiller(tokens, totalPositions, fillerToken);
-                    _consumedTokensCount = 0;
-                }
-                else
-                {
-                    if (_embed_inps.Count == 0)
-                        _embed_inps = new List<LLamaToken>();
-
-                    _embed_inps.AddRange(tokens);
-                    var fillerCount = totalPositions - tokens.Count;
-                    if (fillerCount > 0)
-                        _embed_inps.AddRange(Enumerable.Repeat(fillerToken, fillerCount));
-
-                    args.RemainedTokens -= tokens.Count;
-                }
-            }
-            catch
-            {
-                chunks?.Dispose();
-                _mtmdChunks = null;
-                throw;
-            }
-            finally
-            {
-                DisposeEmbeds();  // Flush any embeds decoded in prior step; MTMD replays them via chunk eval.
             }
 
             return Task.CompletedTask;
@@ -393,35 +234,16 @@ namespace LLama
                     HandleRunOutOfContext(tokensToKeep);
                 }
 
-                if (_mtmdChunks is null)
+                if (MtmdChunks is null)
                 {
                     TryReuseMatchingPrefix();
                 }
 
-                if (IsMultiModal && _mtmdChunks is not null)
+                if (IsMultiModal && MtmdChunks is not null)
                 {
                     var nPast = (long)_pastTokensCount;
                     var previousConsumed = _consumedTokensCount;
-                    var evalStatus = ClipModel!.EvaluateChunks(_mtmdChunks, Context.NativeHandle, ref nPast, seqId: 0,
-                        nBatch: checked((int)Context.BatchSize), logitsLast: true);
-                    if (evalStatus != 0)
-                    {
-                        _logger?.LogError("[InteractiveExecutor] Failed to evaluate multimodal chunks. Status: {Status}", evalStatus);
-                        DisposeMtmdChunks();
-                        throw new RuntimeError($"Failed to evaluate multimodal chunks. Status: {evalStatus}.");
-                    }
-
-                    _pastTokensCount = checked((int)nPast);
-                    DisposeMtmdChunks();
-
-                    if (!string.IsNullOrEmpty(_pathSession) && _embed_inps.Count > previousConsumed)
-                    {
-                        _session_tokens.AddRange(_embed_inps.Skip(previousConsumed));
-                        _n_session_consumed = _session_tokens.Count;
-                    }
-
-                    _consumedTokensCount = _embed_inps.Count;
-                    _embeds.Clear();
+                    EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InteractiveExecutor));
                 }
                 else
                 {
@@ -437,30 +259,12 @@ namespace LLama
                     }
                 }
             }
-            else if (IsMultiModal && _mtmdChunks is not null)
+            else if (IsMultiModal && MtmdChunks is not null)
             {
                 _is_prompt_run = false;
                 var nPast = (long)_pastTokensCount;
                 var previousConsumed = _consumedTokensCount;
-                var evalStatus = ClipModel!.EvaluateChunks(_mtmdChunks, Context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)Context.BatchSize), logitsLast: true);
-                if (evalStatus != 0)
-                {
-                    _logger?.LogError("[InteractiveExecutor] Failed to evaluate multimodal chunks. Status: {Status}", evalStatus);
-                    DisposeMtmdChunks();
-                    throw new RuntimeError($"Failed to evaluate multimodal chunks. Status: {evalStatus}.");
-                }
-
-                _pastTokensCount = checked((int)nPast);
-                DisposeMtmdChunks();
-
-                if (!string.IsNullOrEmpty(_pathSession) && _embed_inps.Count > previousConsumed)
-                {
-                    _session_tokens.AddRange(_embed_inps.Skip(previousConsumed));
-                    _n_session_consumed = _session_tokens.Count;
-                }
-
-                _consumedTokensCount = _embed_inps.Count;
-                _embeds.Clear();
+                EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InteractiveExecutor));
             }
             
             _embeds.Clear();
