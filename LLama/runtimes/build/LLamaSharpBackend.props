@@ -1,10 +1,21 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <!--
-  NuGet packages.config doesn't support native assemblies automatically,
-  so copy the native assemblies to the output directory.
-  -->
-    <ItemGroup>
+    NuGet packages.config doesn't support native assemblies automatically,
+    so copy the native assemblies to the output directory.
+    -->
+    
+    <!--import only the assemblies for the corresponding operating system / runtime environment.-->
+    <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\$(RuntimeIdentifier)')">
+        <Content Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\$(RuntimeIdentifier)\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Visible>false</Visible>
+            <Link>runtimes\$(RuntimeIdentifier)\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </Content>
+    </ItemGroup>
+
+    <!-- Fallback for when RuntimeIdentifier is not specified -->
+    <ItemGroup Condition="!Exists('$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\$(RuntimeIdentifier)')">
         <Content Include="$(MSBuildThisFileDirectory)..\..\LLamaSharpRuntimes\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Visible>false</Visible>
@@ -12,6 +23,7 @@
         </Content>
     </ItemGroup>
 
+    
     <!-- Start Android-->
     <ItemGroup
         Condition="$(AndroidSupportedAbis.Contains('x86_64')) or $(RuntimeIdentifiers.Contains('android-x64'))">
