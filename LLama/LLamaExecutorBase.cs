@@ -262,7 +262,7 @@ namespace LLama
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected abstract (bool, IReadOnlyList<string>) PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
+        protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args);
 
         /// <summary>
         /// The core inference logic.
@@ -317,7 +317,7 @@ namespace LLama
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
             };
 
-            AntipromptProcessor.SetAntiprompts(inferenceParams.AntiPrompts ?? Array.Empty<string>());
+            AntipromptProcessor.SetAntiprompts(inferenceParams.AntiPrompts ?? []);
 
             await PreprocessInputs(text, args);
 
@@ -338,7 +338,7 @@ namespace LLama
                     yield return decoded;
                 }
 
-                var (breakGeneration, extraOutputs) = PostProcess(inferenceParams, args);
+                var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args);
                 if (extraOutputs is { Count: > 0 })
                 {
                     foreach (var item in extraOutputs)

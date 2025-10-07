@@ -155,19 +155,19 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override (bool, IReadOnlyList<string>) PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
                 if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
                     args.WaitForInput = true;
-                    return (true, Array.Empty<string>());
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    return (true, new[] { "\n> " });
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, [ "\n> " ]));
                 }
             }
 
@@ -181,7 +181,7 @@ namespace LLama
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
-            return (false, Array.Empty<string>());
+            return Task.FromResult<(bool, IReadOnlyList<string>)>((false, []));
         }
 
         /// <inheritdoc />
