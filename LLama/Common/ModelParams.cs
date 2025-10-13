@@ -96,6 +96,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
+        
+        /// <inheritdoc />
+        public bool? FlashAttention { get; set; }
 
         /// <inheritdoc />
         [Obsolete]

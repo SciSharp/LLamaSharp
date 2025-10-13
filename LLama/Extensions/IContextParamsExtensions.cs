@@ -51,6 +51,13 @@ namespace LLama.Extensions
             result.offload_kqv = !@params.NoKqvOffload;
             result.llama_pooling_type = @params.PoolingType;
             result.attention_type = @params.AttentionType;
+            result.llama_flash_attn_type = @params.FlashAttention switch
+            {
+                true => LLamaFlashAttentionType.LLAMA_FLASH_ATTENTION_TYPE_ENABLED,
+                false => LLamaFlashAttentionType.LLAMA_FLASH_ATTENTION_TYPE_DISABLED,
+                null => LLamaFlashAttentionType.LLAMA_FLASH_ATTENTION_TYPE_AUTO
+            };
+            result.kv_unified = true;
 
             result.n_threads = Threads(@params.Threads);
             result.n_threads_batch = Threads(@params.BatchThreads);
