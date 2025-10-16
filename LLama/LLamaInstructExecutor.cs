@@ -99,6 +99,7 @@ namespace LLama
                 await JsonSerializer.SerializeAsync(fs, state);
             }
         }
+
         /// <inheritdoc />
         public override async Task LoadState(string filename)
         {
@@ -154,19 +155,19 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
                 if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
                     args.WaitForInput = true;
-                    return (true, Array.Empty<string>());
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    return (true, new[] { "\n> " });
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, [ "\n> " ]));
                 }
             }
 
@@ -180,7 +181,7 @@ namespace LLama
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
-            return (false, Array.Empty<string>());
+            return Task.FromResult<(bool, IReadOnlyList<string>)>((false, []));
         }
 
         /// <inheritdoc />
@@ -205,7 +206,9 @@ namespace LLama
                 _pastTokensCount = pastTokensCount;
 
                 if (result != DecodeResult.Ok)
+                {
                     throw new LLamaDecodeError(result);
+                }
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -250,6 +253,7 @@ namespace LLama
 
             return;
         }
+        
         /// <summary>
         /// The descriptor of the state of the instruct executor.
         /// </summary>

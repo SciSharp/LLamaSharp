@@ -20,6 +20,8 @@ namespace LLama.Examples.Examples
             {
                 Console.WriteLine("Quantization failed!");
             }
+
+            await Task.CompletedTask;
         }
     }
 }
