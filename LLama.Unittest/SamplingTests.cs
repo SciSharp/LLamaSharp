@@ -25,6 +25,7 @@ namespace LLama.Unittest
             _params = new ModelParams(Constants.GenerativeModelPath2) {
                 ContextSize = 200,
                 BatchSize = 200,
+                SeqMax = 4,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
             _model = LLamaWeights.LoadFromFile(_params);
@@ -104,7 +105,7 @@ namespace LLama.Unittest
                 }
             }
 
-            // Add " repeat" and test whether next tokens will be "this phrase forever.".
+            // Add " repeat" and test whether next tokens will be "this phrase forever."
             for (int i = 0; i < 4; i++)
             {
                 for (int b = 0; b < batch_count; b++)
