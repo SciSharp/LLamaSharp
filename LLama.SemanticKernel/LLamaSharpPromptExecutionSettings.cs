@@ -1,3 +1,4 @@
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -95,6 +96,47 @@ public class LLamaSharpPromptExecutionSettings : PromptExecutionSettings
         }
 
         throw new ArgumentException($"Invalid request settings, cannot convert to {nameof(LLamaSharpPromptExecutionSettings)}", nameof(requestSettings));
+    }
+
+    internal static LLamaSharpPromptExecutionSettings FromRequestSettings(ChatOptions? options, int? defaultMaxTokens = null)
+    {
+        if (options == null)
+        {
+            return new LLamaSharpPromptExecutionSettings
+            {
+                MaxTokens = defaultMaxTokens
+            };
+        }
+
+        // Handle nullable float? to double conversion and nullability
+        double GetDoubleOrDefault(float? value, double defaultValue = 0.0) => value.HasValue ? (double)value.Value : defaultValue;
+
+        // Handle StopSequences: ensure always IList<string>
+        IList<string> stopSequences = options.StopSequences != null
+            ? new List<string>(options.StopSequences)
+            : new List<string>();
+
+        // ResultsPerPrompt, MaxTokens, TokenSelectionBiases, ResponseFormat: check for property existence
+        // Since these properties do not exist on ChatOptions, use defaults
+        int resultsPerPrompt = 1;
+        int? maxTokens = defaultMaxTokens;
+        IDictionary<int, int> tokenSelectionBiases = new Dictionary<int, int>();
+        string responseFormat = options.ResponseFormat?.ToString() ?? string.Empty;
+
+        var settings = new LLamaSharpPromptExecutionSettings
+        {
+            Temperature = GetDoubleOrDefault(options.Temperature),
+            TopP = GetDoubleOrDefault(options.TopP),
+            PresencePenalty = GetDoubleOrDefault(options.PresencePenalty),
+            FrequencyPenalty = GetDoubleOrDefault(options.FrequencyPenalty),
+            StopSequences = stopSequences,
+            ResultsPerPrompt = resultsPerPrompt,
+            MaxTokens = maxTokens ?? options.MaxOutputTokens,
+            TokenSelectionBiases = tokenSelectionBiases,
+            ResponseFormat = responseFormat
+        };
+
+        return settings;
     }
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
