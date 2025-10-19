@@ -72,7 +72,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Configure the prefferred avx support level of the backend. 
+        /// Configure the preferred AVX support level of the backend. 
         /// Default value is detected automatically due to your operating system.
         /// </summary>
         /// <param name="level"></param>
@@ -463,7 +463,7 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Configure the prefferred avx support level of the backend.
+        /// Configure the preferred AVX support level of the backend.
         /// </summary>
         /// <param name="level"></param>
         /// <returns></returns>

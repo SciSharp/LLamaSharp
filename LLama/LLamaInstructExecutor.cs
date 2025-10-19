@@ -141,7 +141,7 @@ namespace LLama
 
             if (_is_prompt_run)
             {
-                // When running the first input (prompt) in inteactive mode, we should specially process it.
+                // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
                 if (!IsMultiModal)
                 {
@@ -193,7 +193,7 @@ namespace LLama
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
                     args.WaitForInput = true;
                     return (true, Array.Empty<string>());

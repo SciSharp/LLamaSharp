@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using LLama.Native;
 
@@ -181,7 +183,12 @@ namespace LLama
             if (_characters.Count == 0)
                 return "";
 
-            var str = string.Join("", _characters);
+#if NET5_0_OR_GREATER
+            var span = CollectionsMarshal.AsSpan(_characters);
+            var str = new string(span);
+#else
+            var str = new string(_characters.ToArray());
+#endif
             _characters.Clear();
             return str;
         }

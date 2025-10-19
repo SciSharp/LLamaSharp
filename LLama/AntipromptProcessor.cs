@@ -11,7 +11,7 @@ namespace LLama
         private int _longestAntiprompt;
         private readonly List<string> _antiprompts = new();
 
-        private string? _string;
+        private string _buffer = string.Empty;
 
 
         /// <summary>
@@ -46,6 +46,8 @@ namespace LLama
             _longestAntiprompt = 0;
             foreach (var antiprompt in _antiprompts)
                 _longestAntiprompt = Math.Max(_longestAntiprompt, antiprompt.Length);
+
+            _buffer = string.Empty;
         }
 
         /// <summary>
@@ -55,18 +57,18 @@ namespace LLama
         /// <returns>true if the text buffer ends with any antiprompt</returns>
         public bool Add(string text)
         {
-            _string += text;
+            _buffer += text;
 
             // When the string gets very long (4x antiprompt length) trim it down (to 2x antiprompt length).
             // This trimming leaves a lot of extra characters because two sequences can be considered "equal" in unicode
             // even with different numbers of characters. Hopefully there are enough characters here to handle all those weird circumstances!
             var maxLength = Math.Max(32, _longestAntiprompt * 4);
             var trimLength = Math.Max(16, _longestAntiprompt * 2);
-            if (_string.Length > maxLength)
-                _string = _string.Substring(_string.Length - trimLength);
+            if (_buffer.Length > maxLength)
+                _buffer = _buffer.Substring(_buffer.Length - trimLength);
 
             foreach (var antiprompt in _antiprompts)
-                if (_string.EndsWith(antiprompt, StringComparison.CurrentCulture))
+                if (_buffer.EndsWith(antiprompt, StringComparison.CurrentCulture))
                     return true;
 
             return false;

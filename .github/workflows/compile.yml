@@ -465,6 +465,8 @@ jobs:
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=ON -DGGML_AVX2=ON'
           - build: 'x64-rosetta2'
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
+    env:
+      MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
     runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v4
@@ -481,7 +483,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.MACOS_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
       - name: Upload ggml
