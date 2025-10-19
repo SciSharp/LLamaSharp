@@ -68,6 +68,7 @@ namespace LLama
             };
             return state;
         }
+
         /// <inheritdoc />
         public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
@@ -103,11 +104,10 @@ namespace LLama
         /// <inheritdoc />
         public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
-            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
-                await LoadState(state!, cancellationToken);
-            }
+            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+
+            var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
+            await LoadState(state!, cancellationToken);
         }
 
         /// <summary>
@@ -125,7 +125,11 @@ namespace LLama
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
-                if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
+                if (text == null)
+                {
+                    throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
+                }
+
                 if (!IsMultiModal)
                 {
                     _embed_inps = Context.Tokenize(text, true, true).ToList();
@@ -210,20 +214,20 @@ namespace LLama
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
                     args.WaitForInput = true;
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
+                    return Task.FromResult((true, (IReadOnlyList<string>)[]));
                 }
             }
 
             if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
             {
-                return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
+                return Task.FromResult((true, (IReadOnlyList<string>)[]));
             }
 
             if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
@@ -232,7 +236,7 @@ namespace LLama
                 args.WaitForInput = true;
             }
 
-            return Task.FromResult<(bool, IReadOnlyList<string>)>((false, []));
+            return Task.FromResult((true, (IReadOnlyList<string>)[]));
         }
 
         /// <inheritdoc />

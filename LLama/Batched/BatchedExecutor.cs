@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
@@ -16,7 +15,12 @@ public sealed class BatchedExecutor
     : IDisposable
 {
     private int _nextSequenceId;
-    private readonly List<IBatch> _batchQueue = [ ];
+    private readonly List<IBatch> _batchQueue = [];
+    private int _batchQueueHead;
+    private int _batchedTokenCount;
+    private bool _batchedTokenCountDirty = true;
+    // Skip compacting the queue until this many processed batches accumulate at the front.
+    private const int CleanupThreshold = 16;
     
     /// <summary>
     /// Set to 1 using interlocked exchange while inference is running
@@ -42,12 +46,27 @@ public sealed class BatchedExecutor
     /// <summary>
     /// Get the number of tokens in the batch, waiting for <see cref="Infer"/> to be called
     /// </summary>
-    public int BatchedTokenCount => _batchQueue.Sum(a => a.ItemCount);
+    public int BatchedTokenCount
+    {
+        get
+        {
+            if (_batchedTokenCountDirty)
+            {
+                var total = 0;
+                for (var i = _batchQueueHead; i < _batchQueue.Count; i++)
+                    total += _batchQueue[i].ItemCount;
+                _batchedTokenCount = total;
+                _batchedTokenCountDirty = false;
+            }
+
+            return _batchedTokenCount;
+        }
+    }
 
     /// <summary>
     /// Number of batches in the queue, waiting for <see cref="Infer"/> to be called
     /// </summary>
-    public int BatchQueueCount => _batchQueue.Count;
+    public int BatchQueueCount => _batchQueue.Count - _batchQueueHead;
 
     /// <summary>
     /// Check if this executor has been disposed.
@@ -147,12 +166,13 @@ public sealed class BatchedExecutor
             // again after the issue has been fixed (e.g. some KV cache space has been freed) to retry this operation.
             if (status != DecodeResult.Ok)
             {
-                _batchQueue.Insert(0, next);
+                RequeueFront(next);
                 return status;
             }
             
             // Everything was ok, advance the epoch
             Epoch++;
+            CleanupQueue();
             
             return status;
         }
@@ -166,12 +186,44 @@ public sealed class BatchedExecutor
         
         IBatch? GetNextBatch()
         {
-            if (_batchQueue.Count == 0)
+            if (_batchQueueHead >= _batchQueue.Count)
+            {
+                _batchQueue.Clear();
+                _batchQueueHead = 0;
                 return null;
-            
-            var nextBatch = _batchQueue[0];
-            _batchQueue.RemoveAt(0);
+            }
+
+            var nextBatch = _batchQueue[_batchQueueHead];
+            _batchQueueHead++;
+            _batchedTokenCountDirty = true;
             return nextBatch;
+        }
+
+        void RequeueFront(IBatch batch)
+        {
+            Debug.Assert(_batchQueueHead > 0, "Cannot requeue batch when queue head is at zero.");
+            _batchQueue[--_batchQueueHead] = batch;
+            _batchedTokenCountDirty = true;
+        }
+
+        // Remove batches that have already been consumed so the head index does not grow without bound.
+        void CleanupQueue()
+        {
+            if (_batchQueueHead == 0)
+                return;
+
+            if (_batchQueueHead >= _batchQueue.Count)
+            {
+                _batchQueue.Clear();
+                _batchQueueHead = 0;
+                return;
+            }
+
+            if (_batchQueueHead > CleanupThreshold && _batchQueueHead > _batchQueue.Count / 2)
+            {
+                _batchQueue.RemoveRange(0, _batchQueueHead);
+                _batchQueueHead = 0;
+            }
         }
     }
 
@@ -202,7 +254,7 @@ public sealed class BatchedExecutor
             throw new ArgumentOutOfRangeException(nameof(minCapacity), $"Request batch capacity must be less than or equal to BatchSize ({Context.BatchSize})");
 
         // Find a batch with space for at least minCapacity tokens
-        for (var i = 0; i < _batchQueue.Count; i++)
+        for (var i = _batchQueueHead; i < _batchQueue.Count; i++)
         {
             var item = _batchQueue[i];
             if (item is not TokenBatch { Batch: var batch })
@@ -213,13 +265,17 @@ public sealed class BatchedExecutor
                 continue;
 
             if (batch.TokenCount < Context.BatchSize)
-                return (batch, Epoch + (uint)(i + 1) * 2);
+            {
+                _batchedTokenCountDirty = true;
+                return (batch, Epoch + (uint)(i - _batchQueueHead + 1) * 2);
+            }
         }
         
         // Add a new batch to the end of the queue
         var end = new LLamaBatch();
         _batchQueue.Add(new TokenBatch(end));
-        return (end, Epoch + (uint)_batchQueue.Count * 2);
+        _batchedTokenCountDirty = true;
+        return (end, Epoch + (uint)(_batchQueue.Count - _batchQueueHead) * 2);
     }
     
     /// <summary>
@@ -234,7 +290,7 @@ public sealed class BatchedExecutor
             throw new ArgumentOutOfRangeException(nameof(minCapacity), $"Request batch capacity must be less than or equal to BatchSize ({Context.BatchSize})");
         
         // Find a batch with space for at least minCapacity embeddings
-        for (var i = 0; i < _batchQueue.Count; i++)
+        for (var i = _batchQueueHead; i < _batchQueue.Count; i++)
         {
             var item = _batchQueue[i];
             if (item is not EmbeddingBatch { Batch: var batch })
@@ -245,13 +301,17 @@ public sealed class BatchedExecutor
                 continue;
             
             if (batch.EmbeddingsCount < Context.BatchSize)
-                return (batch, Epoch + (uint)(i + 1) * 2);
+            {
+                _batchedTokenCountDirty = true;
+                return (batch, Epoch + (uint)(i - _batchQueueHead + 1) * 2);
+            }
         }
         
         // Add a new batch to the end of the queue
         var end = new LLamaBatchEmbeddings(Context.EmbeddingSize);
         _batchQueue.Add(new EmbeddingBatch(end));
-        return (end, Epoch + (uint)_batchQueue.Count * 2);
+        _batchedTokenCountDirty = true;
+        return (end, Epoch + (uint)(_batchQueue.Count - _batchQueueHead) * 2);
     }
 
     #region batches

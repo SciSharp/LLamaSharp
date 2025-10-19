@@ -246,7 +246,8 @@ public class DefaultSamplingPipeline
                 }
                     
                 // Extended optimization : Apply the grammar to the TopK tokens and check if the selected token is valid
-                if (GrammarOptimization == GrammarOptimizationMode.Extended)
+                // Only run if TopK > 0
+                if (GrammarOptimization == GrammarOptimizationMode.Extended && TopK > 0)
                 {
                     // Calculate a safe TopK value
                     var safeTopK = Math.Min(TopK, nativeAll.Data.Length);

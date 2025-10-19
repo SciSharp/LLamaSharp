@@ -64,6 +64,11 @@ namespace LLama
         /// </summary>
         public LLamaContext Context { get; }
 
+        /// <summary>
+        /// Tracks anti-prompts across streamed output.
+        /// </summary>
+        protected AntipromptProcessor AntipromptProcessor { get; }
+
         // LLava Section 
         //
         /// <inheritdoc />
@@ -98,6 +103,7 @@ namespace LLama
             _n_session_consumed = 0;
             _last_n_tokens = new FixedSizeQueue<LLamaToken>((int)Context.ContextSize);
             _decoder = new StreamingTokenDecoder(context);
+            AntipromptProcessor = new AntipromptProcessor();
         }
         
         /// <summary>
@@ -214,7 +220,8 @@ namespace LLama
                 {
                     if (_embeds[i] != _session_tokens[_n_session_consumed])
                     {
-                        _session_tokens = _session_tokens.Take(_n_session_consumed).ToList();
+                        if (_session_tokens.Count > _n_session_consumed)
+                            _session_tokens.RemoveRange(_n_session_consumed, _session_tokens.Count - _n_session_consumed);
                         break;
                     }
 
@@ -317,6 +324,7 @@ namespace LLama
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
             };
 
+            AntipromptProcessor.SetAntiprompts(inferenceParams.AntiPrompts ?? []);
             await PreprocessInputs(text, args, cancellationToken);
 
             while (await GetLoopCondition(args, cancellationToken))
@@ -325,12 +333,16 @@ namespace LLama
                 {
                     break;
                 }
+                
+                args.LastOutput = string.Empty;
                 await InferInternal(inferenceParams, args, cancellationToken);
 
                 if (args.ReturnValue)
                 {
                     _decoder.AddRange(_embeds);
-                    yield return _decoder.Read();
+                    var decoded = _decoder.Read();
+                    args.LastOutput = decoded;
+                    yield return decoded;
                 }
 
                 var (breakGeneration, extraOutputs) = await PostProcess(inferenceParams, args, cancellationToken);
@@ -402,6 +414,11 @@ namespace LLama
             /// 
             /// </summary>
             public bool NeedToSaveSession { get; set; }
+
+            /// <summary>
+            /// Most recent decoded output from the model.
+            /// </summary>
+            public string LastOutput { get; set; } = string.Empty;
         }
 
 #pragma warning disable CS1591, CS8618 // Missing XML and irrelevant nullable warnings

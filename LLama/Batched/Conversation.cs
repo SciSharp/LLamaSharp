@@ -410,7 +410,7 @@ public sealed class Conversation
         }
 
         /// <summary>
-        /// Removes <see cref="count"/> tokens starting from <see cref="start"/>
+        /// Removes <paramref name="count"/> tokens starting from <paramref name="start"/>
         /// </summary>
         /// <param name="start">Start position (inclusive)</param>
         /// <param name="count">Number of tokens</param>
