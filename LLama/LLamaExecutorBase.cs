@@ -317,7 +317,7 @@ namespace LLama
                 NeedToSaveSession = !string.IsNullOrEmpty(_pathSession) && _n_matching_session_tokens < _embed_inps.Count
             };
 
-            AntipromptProcessor.SetAntiprompts(inferenceParams.AntiPrompts ?? Array.Empty<string>());
+            AntipromptProcessor.SetAntiprompts(inferenceParams.AntiPrompts ?? []);
 
             await PreprocessInputs(text, args);
 

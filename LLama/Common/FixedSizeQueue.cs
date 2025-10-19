@@ -14,7 +14,6 @@ namespace LLama.Common
         private readonly T[] _buffer;
         private int _start;
         private int _count;
-        private T[]? _window;
 
         // Minimum capacity for the temporary buffer used to expose a contiguous view.
         private const int MinimumWindowSize = 4;
