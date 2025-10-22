@@ -18,9 +18,9 @@ public sealed class LLamaRerankerTests: IDisposable
         var @params = new ModelParams(Constants.RerankingModelPath)
         {
             ContextSize = 0,
+            SeqMax = 1,
             PoolingType = LLamaPoolingType.Rank,
             GpuLayerCount = Constants.CIGpuLayerCount,
-
         };
         using var weights = LLamaWeights.LoadFromFile(@params);
         _reranker = new LLamaReranker(weights, @params);

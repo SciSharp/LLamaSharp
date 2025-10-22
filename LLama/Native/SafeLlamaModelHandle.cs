@@ -80,7 +80,12 @@ namespace LLama.Native
         /// Returns true if the model is recurrent (like Mamba, RWKV, etc.)
         /// </summary>
         public bool IsRecurrent => llama_model_is_recurrent(this);
-
+        
+        /// <summary>
+        /// Returns true if the model is diffusion based (like LLaDA , Dream etc )  
+        /// </summary>
+        public bool IsDiffusion => llama_model_is_diffusion(this);
+        
         /// <summary>
         /// Get a description of this model
         /// </summary>
@@ -424,6 +429,10 @@ namespace LLama.Native
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool llama_model_is_recurrent(SafeLlamaModelHandle model);
 
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_model_is_diffusion(SafeLlamaModelHandle model);
+        
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe LLamaVocabNative* llama_model_get_vocab(SafeLlamaModelHandle model);
 

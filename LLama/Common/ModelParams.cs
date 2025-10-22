@@ -1,3 +1,4 @@
+using System;
 using LLama.Abstractions;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -95,12 +96,12 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
+        
+        /// <inheritdoc />
+        public bool? FlashAttention { get; set; }
 
         /// <inheritdoc />
-
-        public bool FlashAttention { get; set; }
-
-        /// <inheritdoc />
+        [Obsolete]
         public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
