@@ -1,14 +1,14 @@
-using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
+using LLama.Native;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
 namespace LLama
 {
@@ -73,7 +73,7 @@ namespace LLama
         /// Get the special tokens for the model associated with this context
         /// </summary>
         public SafeLlamaModelHandle.Vocabulary Vocab { get; }
-        
+
         /// <summary>
         /// Create a new LLamaContext for the given LLamaWeights
         /// </summary>
@@ -396,7 +396,7 @@ namespace LLama
         {
             return Task.Run(() => Decode(batch), cancellationToken);
         }
-        
+
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
@@ -406,10 +406,10 @@ namespace LLama
                 return 0;
             if (batch.EmbeddingsCount > BatchSize)
                 throw new ArgumentException("Input contains more tokens than configured batch size", nameof(batch));
-            
+
             return (DecodeResult)NativeHandle.Decode(batch);
         }
-        
+
         /// <summary>
         /// </summary>
         /// <param name="batch"></param>
@@ -425,15 +425,16 @@ namespace LLama
         /// <param name="id"></param>
         /// <param name="batch"></param>
         /// <param name="n_past"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>A tuple, containing the decode result, the number of tokens that have <b>not</b> been decoded yet and the total number of tokens that have been decoded.</returns>
-        public Task<(DecodeResult, int, int)> DecodeAsync(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, int n_past)
+        public Task<(DecodeResult, int, int)> DecodeAsync(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, int n_past, CancellationToken cancellationToken = default)
         {
             return Task.Run(() =>
             {
                 var past = n_past;
                 var res = NativeHandle.Decode(tokens, id, batch, ref past);
                 return (res.Item1, res.Item2, past);
-                });
+            }, cancellationToken);
         }
         #endregion
 

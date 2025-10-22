@@ -1,14 +1,15 @@
-using LLama.Common;
-using LLama.Native;
-using LLama.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using LLama.Abstractions;
+using LLama.Common;
 using LLama.Exceptions;
+using LLama.Native;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
@@ -69,7 +70,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public override Task LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
             if (data is InteractiveExecutorState state)
             {
@@ -91,34 +92,35 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public override async Task SaveState(string filename)
+        public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
             var state = (InteractiveExecutorState)GetStateData();
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                await JsonSerializer.SerializeAsync(fs, state);
+                await JsonSerializer.SerializeAsync(fs, state, cancellationToken: cancellationToken);
             }
         }
 
         /// <inheritdoc />
-        public override async Task LoadState(string filename)
+        public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+
             var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
-            await LoadState(state!);
+            await LoadState(state!, cancellationToken);
         }
 
         /// <summary>
         /// Define whether to continue the loop to generate responses.
         /// </summary>
         /// <returns></returns>
-        protected override Task<bool> GetLoopCondition(InferStateArgs args)
+        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
             return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
         }
 
         /// <inheritdoc />
-        protected override Task PreprocessInputs(string? text, InferStateArgs args)
+        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_is_prompt_run)
             {
@@ -164,7 +166,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true)
+        private void PreprocessLlava(string text, InferStateArgs args, bool addBos = true)
         {
             // If the prompt contains the tag <image> extract this.
             _imageInPrompt = text.Contains("<image>");
@@ -199,7 +201,6 @@ namespace LLama
                     args.RemainedTokens -= line_inp.Length;
                 }
             }
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -207,8 +208,9 @@ namespace LLama
         /// </summary>
         /// <param name="inferenceParams"></param>
         /// <param name="args"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
@@ -238,7 +240,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             var batch = new LLamaBatch();
 

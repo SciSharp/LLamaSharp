@@ -2,7 +2,7 @@ namespace LLama.Examples.Examples
 {
     public class QuantizeModel
     {
-        public static async Task Run()
+        public static Task Run()
         {
             string inputPath = UserSettings.GetModelPath();
 
@@ -21,7 +21,7 @@ namespace LLama.Examples.Examples
                 Console.WriteLine("Quantization failed!");
             }
 
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

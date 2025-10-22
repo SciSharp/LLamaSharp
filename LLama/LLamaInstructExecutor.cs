@@ -1,14 +1,15 @@
-using LLama.Abstractions;
-using LLama.Common;
-using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using LLama.Abstractions;
+using LLama.Common;
 using LLama.Exceptions;
+using LLama.Native;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
@@ -65,9 +66,9 @@ namespace LLama
             return state;
         }
         /// <inheritdoc />
-        public override Task LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
-            if(data is InstructExecutorState state)
+            if (data is InstructExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps!.ToList();
@@ -91,35 +92,35 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public override async Task SaveState(string filename)
+        public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
             var state = (InstructExecutorState)GetStateData();
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                await JsonSerializer.SerializeAsync(fs, state);
+                await JsonSerializer.SerializeAsync(fs, state, cancellationToken: cancellationToken);
             }
         }
 
         /// <inheritdoc />
-        public override async Task LoadState(string filename)
+        public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var state = await JsonSerializer.DeserializeAsync<InstructExecutorState>(fs);
-                await LoadState(state!);
+                await LoadState(state!, cancellationToken);
             }
         }
 
         /// <inheritdoc />
-        protected override Task<bool> GetLoopCondition(InferStateArgs args)
+        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
             return Task.FromResult(args.RemainedTokens != 0 || _is_prompt_run);
         }
 
         /// <inheritdoc />
-        protected override Task PreprocessInputs(string? text, InferStateArgs args)
+        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
         {
-            args.Antiprompts ??= [ ];
+            args.Antiprompts ??= [];
             if (!args.Antiprompts.Contains(_instructionPrefix))
                 args.Antiprompts.Add(_instructionPrefix);
 
@@ -155,7 +156,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
@@ -167,7 +168,7 @@ namespace LLama
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, [ "\n> " ]));
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, ["\n> "]));
                 }
             }
 
@@ -185,7 +186,7 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             var batch = new LLamaBatch();
 
@@ -253,7 +254,7 @@ namespace LLama
 
             return;
         }
-        
+
         /// <summary>
         /// The descriptor of the state of the instruct executor.
         /// </summary>
