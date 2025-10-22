@@ -64,7 +64,12 @@ namespace LLama.Native
         /// Attention type to use for embeddings
         /// </summary>
         public LLamaAttentionType attention_type;
-        
+
+        /// <summary>
+        ///  When to enable Flash Attention
+        /// </summary>
+        public LLamaAttentionType flash_attn_type;
+
         /// <summary>
         /// RoPE base frequency, 0 = from model
         /// </summary>
