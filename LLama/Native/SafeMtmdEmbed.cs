@@ -8,20 +8,25 @@ namespace LLama.Native
     /// Managed wrapper around <c>mtmd_bitmap*</c> resources. Instances own the native pointer
     /// and ensure proper cleanup when disposed.
     /// </summary>
-    public sealed class SafeMtmdEmbed : IDisposable
+    public sealed class SafeMtmdEmbed : SafeLLamaHandleBase
     {
         /// <summary>
         /// Raw pointer to the native bitmap structure. Internal so other wrappers can interop.
         /// </summary>
-        internal IntPtr NativePtr { get; private set; }
-
-        private bool _disposed;
+        internal IntPtr NativePtr
+        {
+            get
+            {
+                EnsureNotDisposed();
+                return DangerousGetHandle();
+            }
+        }
 
         private SafeMtmdEmbed(IntPtr ptr)
+            : base(ptr, ownsHandle: true)
         {
-            NativePtr = ptr != IntPtr.Zero
-                ? ptr
-                : throw new InvalidOperationException("Failed to create MTMD bitmap.");
+            if (IsInvalid)
+                throw new InvalidOperationException("Failed to create MTMD bitmap.");
         }
 
         /// <summary>
@@ -154,8 +159,7 @@ namespace LLama.Native
         {
             get
             {
-                EnsureNotDisposed();
-                return NativeApi.mtmd_bitmap_get_nx(NativePtr);
+                return WithHandle(ptr => NativeApi.mtmd_bitmap_get_nx(ptr));
             }
         }
 
@@ -166,8 +170,7 @@ namespace LLama.Native
         {
             get
             {
-                EnsureNotDisposed();
-                return NativeApi.mtmd_bitmap_get_ny(NativePtr);
+                return WithHandle(ptr => NativeApi.mtmd_bitmap_get_ny(ptr));
             }
         }
 
@@ -178,8 +181,7 @@ namespace LLama.Native
         {
             get
             {
-                EnsureNotDisposed();
-                return NativeApi.mtmd_bitmap_is_audio(NativePtr);
+                return WithHandle(ptr => NativeApi.mtmd_bitmap_is_audio(ptr));
             }
         }
 
@@ -190,14 +192,19 @@ namespace LLama.Native
         {
             get
             {
-                EnsureNotDisposed();
-                var ptr = NativeApi.mtmd_bitmap_get_id(NativePtr);
-                return NativeApi.PtrToStringUtf8(ptr);
+                return WithHandle(ptr =>
+                {
+                    var idPtr = NativeApi.mtmd_bitmap_get_id(ptr);
+                    return NativeApi.PtrToStringUtf8(idPtr);
+                });
             }
             set
             {
-                EnsureNotDisposed();
-                NativeApi.mtmd_bitmap_set_id(NativePtr, value);
+                WithHandle(ptr =>
+                {
+                    NativeApi.mtmd_bitmap_set_id(ptr, value);
+                    return 0;
+                });
             }
         }
 
@@ -210,38 +217,63 @@ namespace LLama.Native
         {
             EnsureNotDisposed();
 
-            var dataPtr = (byte*)NativeApi.mtmd_bitmap_get_data(NativePtr);
-            var length = checked((int)NativeApi.mtmd_bitmap_get_n_bytes(NativePtr).ToUInt64());
-            return dataPtr == null || length == 0 ? ReadOnlySpan<byte>.Empty : new ReadOnlySpan<byte>(dataPtr, length);
+            bool added = false;
+            try
+            {
+                DangerousAddRef(ref added);
+                var ptr = DangerousGetHandle();
+                var dataPtr = (byte*)NativeApi.mtmd_bitmap_get_data(ptr);
+                var length = checked((int)NativeApi.mtmd_bitmap_get_n_bytes(ptr).ToUInt64());
+                return dataPtr == null || length == 0
+                    ? ReadOnlySpan<byte>.Empty
+                    : new ReadOnlySpan<byte>(dataPtr, length);
+            }
+            finally
+            {
+                if (added)
+                    DangerousRelease();
+            }
         }
 
         /// <summary>
         /// Release the underlying native bitmap.
         /// </summary>
-        public void Dispose()
+        protected override bool ReleaseHandle()
         {
-            if (_disposed)
-                return;
-
-            if (NativePtr != IntPtr.Zero)
+            if (handle != IntPtr.Zero)
             {
-                NativeApi.mtmd_bitmap_free(NativePtr);
-                NativePtr = IntPtr.Zero;
+                NativeApi.mtmd_bitmap_free(handle);
+                SetHandle(IntPtr.Zero);
             }
 
-            _disposed = true;
-            GC.SuppressFinalize(this);
+            return true;
         }
-
-        /// <summary>
-        /// Finalizer to ensure native resources are reclaimed when Dispose is not invoked.
-        /// </summary>
-        ~SafeMtmdEmbed() => Dispose();
 
         private void EnsureNotDisposed()
         {
-            if (_disposed || NativePtr == IntPtr.Zero)
+            if (IsClosed || IsInvalid)
                 throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
+        }
+
+        private T WithHandle<T>(Func<IntPtr, T> action)
+        {
+            EnsureNotDisposed();
+
+            bool added = false;
+            try
+            {
+                DangerousAddRef(ref added);
+                var ptr = DangerousGetHandle();
+                if (ptr == IntPtr.Zero)
+                    throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
+
+                return action(ptr);
+            }
+            finally
+            {
+                if (added)
+                    DangerousRelease();
+            }
         }
     }
 }

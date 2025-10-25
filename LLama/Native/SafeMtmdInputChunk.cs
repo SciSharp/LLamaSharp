@@ -8,7 +8,7 @@ namespace LLama.Native;
 /// underlying native pointer (when created via <see cref="Copy"/>) or act as non-owning views
 /// produced by the tokenizer.
 /// </summary>
-public sealed class SafeMtmdInputChunk : IDisposable
+public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
 {
     /// <summary>
     /// Chunk modality returned by the native tokenizer.
@@ -23,15 +23,18 @@ public sealed class SafeMtmdInputChunk : IDisposable
     /// <summary>
     /// Raw pointer to the native chunk structure.
     /// </summary>
-    public IntPtr NativePtr { get; private set; }
-
-    private bool _ownsPtr;
-    private bool _disposed;
-
-    private SafeMtmdInputChunk(IntPtr ptr, bool owns)
+    public IntPtr NativePtr
     {
-        NativePtr = ptr;
-        _ownsPtr = owns;
+        get
+        {
+            EnsureNotDisposed();
+            return DangerousGetHandle();
+        }
+    }
+
+    private SafeMtmdInputChunk(IntPtr handle, bool ownsHandle)
+        : base(handle, ownsHandle)
+    {
     }
 
     /// <summary>
@@ -40,7 +43,7 @@ public sealed class SafeMtmdInputChunk : IDisposable
     /// <param name="ptr">Pointer returned by the native tokenizer.</param>
     /// <returns>Managed wrapper, or <c>null</c> when the pointer is null.</returns>
     public static SafeMtmdInputChunk Wrap(IntPtr ptr)
-        => ptr == IntPtr.Zero ? null : new SafeMtmdInputChunk(ptr, false);
+        => ptr == IntPtr.Zero ? null : new SafeMtmdInputChunk(ptr, ownsHandle: false);
 
     /// <summary>
     /// Create an owning copy of the current chunk. The caller becomes responsible for disposal.
@@ -49,10 +52,11 @@ public sealed class SafeMtmdInputChunk : IDisposable
     /// <exception cref="ObjectDisposedException">Thrown when the current wrapper has been disposed.</exception>
     public SafeMtmdInputChunk Copy()
     {
-        EnsureNotDisposed();
-
-        var p = NativeApi.mtmd_input_chunk_copy(NativePtr);
-        return p == IntPtr.Zero ? null : new SafeMtmdInputChunk(p, true);
+        return WithHandle(ptr =>
+        {
+            var clone = NativeApi.mtmd_input_chunk_copy(ptr);
+            return clone == IntPtr.Zero ? null : new SafeMtmdInputChunk(clone, ownsHandle: true);
+        });
     }
 
     /// <summary>
@@ -62,8 +66,7 @@ public sealed class SafeMtmdInputChunk : IDisposable
     {
         get
         {
-            EnsureNotDisposed();
-            return (SafeMtmdInputChunkType)NativeApi.mtmd_input_chunk_get_type(NativePtr);
+            return WithHandle(ptr => (SafeMtmdInputChunkType)NativeApi.mtmd_input_chunk_get_type(ptr));
         }
     }
 
@@ -74,8 +77,7 @@ public sealed class SafeMtmdInputChunk : IDisposable
     {
         get
         {
-            EnsureNotDisposed();
-            return NativeApi.mtmd_input_chunk_get_n_tokens(NativePtr).ToUInt64();
+            return WithHandle(ptr => NativeApi.mtmd_input_chunk_get_n_tokens(ptr).ToUInt64());
         }
     }
 
@@ -86,8 +88,11 @@ public sealed class SafeMtmdInputChunk : IDisposable
     {
         get
         {
-            EnsureNotDisposed();
-            return Marshal.PtrToStringAnsi(NativeApi.mtmd_input_chunk_get_id(NativePtr)) ?? string.Empty;
+            return WithHandle(ptr =>
+            {
+                var idPtr = NativeApi.mtmd_input_chunk_get_id(ptr);
+                return Marshal.PtrToStringAnsi(idPtr) ?? string.Empty;
+            });
         }
     }
 
@@ -98,8 +103,7 @@ public sealed class SafeMtmdInputChunk : IDisposable
     {
         get
         {
-            EnsureNotDisposed();
-            return NativeApi.mtmd_input_chunk_get_n_pos(NativePtr);
+            return WithHandle(ptr => NativeApi.mtmd_input_chunk_get_n_pos(ptr));
         }
     }
 
@@ -112,39 +116,63 @@ public sealed class SafeMtmdInputChunk : IDisposable
     {
         EnsureNotDisposed();
 
-        UIntPtr n;
-        var p = (uint*)NativeApi.mtmd_input_chunk_get_tokens_text(NativePtr, out n);
-        return p == null ? ReadOnlySpan<uint>.Empty : new ReadOnlySpan<uint>(p, checked((int)n.ToUInt64()));
+        bool added = false;
+        try
+        {
+            DangerousAddRef(ref added);
+            UIntPtr nTokens;
+            var tokensPtr = (uint*)NativeApi.mtmd_input_chunk_get_tokens_text(DangerousGetHandle(), out nTokens);
+            if (tokensPtr == null)
+                return ReadOnlySpan<uint>.Empty;
+
+            var length = checked((int)nTokens.ToUInt64());
+            return new ReadOnlySpan<uint>(tokensPtr, length);
+        }
+        finally
+        {
+            if (added)
+                DangerousRelease();
+        }
     }
 
     /// <summary>
-    /// Release the underlying native resources if this instance owns them.
+    /// Releases the native chunk when ownership is held by this instance.
     /// </summary>
-    public void Dispose()
+    protected override bool ReleaseHandle()
     {
-        if (_disposed)
-            return;
-
-        if (_ownsPtr && NativePtr != IntPtr.Zero)
+        if (handle != IntPtr.Zero)
         {
-            NativeApi.mtmd_input_chunk_free(NativePtr);
+            NativeApi.mtmd_input_chunk_free(handle);
+            SetHandle(IntPtr.Zero);
         }
 
-        NativePtr = IntPtr.Zero;
-        _ownsPtr = false;
-        _disposed = true;
-
-        GC.SuppressFinalize(this);
+        return true;
     }
-
-    /// <summary>
-    /// Finalizer to ensure native memory is reclaimed when Dispose is not called by owners.
-    /// </summary>
-    ~SafeMtmdInputChunk() => Dispose();
 
     private void EnsureNotDisposed()
     {
-        if (_disposed || NativePtr == IntPtr.Zero)
+        if (IsClosed || IsInvalid)
             throw new ObjectDisposedException(nameof(SafeMtmdInputChunk));
+    }
+
+    private T WithHandle<T>(Func<IntPtr, T> action)
+    {
+        EnsureNotDisposed();
+
+        bool added = false;
+        try
+        {
+            DangerousAddRef(ref added);
+            var ptr = DangerousGetHandle();
+            if (ptr == IntPtr.Zero)
+                throw new ObjectDisposedException(nameof(SafeMtmdInputChunk));
+
+            return action(ptr);
+        }
+        finally
+        {
+            if (added)
+                DangerousRelease();
+        }
     }
 }
