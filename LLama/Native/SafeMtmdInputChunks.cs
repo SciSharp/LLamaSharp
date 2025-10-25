@@ -6,44 +6,39 @@ namespace LLama.Native;
 /// <summary>
 /// Managed lifetime wrapper around a native <c>mtmd_input_chunks</c> collection returned by the tokenizer.
 /// </summary>
-public sealed class SafeMtmdInputChunks : IDisposable
+public sealed class SafeMtmdInputChunks : SafeLLamaHandleBase
 {
     /// <summary>
     /// Raw pointer to the native chunk collection. Internal to allow other wrappers to interop safely.
     /// </summary>
-    internal IntPtr NativePtr { get; private set; }
-
-    private bool _disposed;
+    internal IntPtr NativePtr
+    {
+        get
+        {
+            EnsureNotDisposed();
+            return DangerousGetHandle();
+        }
+    }
 
     internal SafeMtmdInputChunks(IntPtr ptr)
+        : base(ptr, ownsHandle: true)
     {
-        NativePtr = ptr;
+        if (IsInvalid)
+            throw new InvalidOperationException("Native MTMD chunk collection pointer is null.");
     }
 
     /// <summary>
-    /// Releases the native chunk collection and suppresses finalization.
+    /// Releases the native chunk collection.
     /// </summary>
-    public void Dispose()
+    protected override bool ReleaseHandle()
     {
-        if (_disposed)
-            return;
-
-        if (NativePtr != IntPtr.Zero)
+        if (handle != IntPtr.Zero)
         {
-            NativeApi.mtmd_input_chunks_free(NativePtr);
-            NativePtr = IntPtr.Zero;
+            NativeApi.mtmd_input_chunks_free(handle);
+            SetHandle(IntPtr.Zero);
         }
 
-        _disposed = true;
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    /// Finalizer to ensure native memory is reclaimed if Dispose is not called.
-    /// </summary>
-    ~SafeMtmdInputChunks()
-    {
-        Dispose();
+        return true;
     }
 
     /// <summary>
@@ -53,8 +48,7 @@ public sealed class SafeMtmdInputChunks : IDisposable
     {
         get
         {
-            EnsureNotDisposed();
-            return NativeApi.mtmd_input_chunks_size(NativePtr).ToUInt64();
+            return WithHandle(ptr => NativeApi.mtmd_input_chunks_size(ptr).ToUInt64());
         }
     }
 
@@ -68,10 +62,14 @@ public sealed class SafeMtmdInputChunks : IDisposable
     /// <exception cref="IndexOutOfRangeException">The requested index is outside of the valid range.</exception>
     public IntPtr GetChunkPtr(ulong index)
     {
-        EnsureNotDisposed();
+        return WithHandle(ptr =>
+        {
+            var size = NativeApi.mtmd_input_chunks_size(ptr).ToUInt64();
+            if (index >= size)
+                throw new IndexOutOfRangeException();
 
-        if (index >= Size) throw new IndexOutOfRangeException();
-        return NativeApi.mtmd_input_chunks_get(NativePtr, (UIntPtr)index);
+            return NativeApi.mtmd_input_chunks_get(ptr, (UIntPtr)index);
+        });
     }
 
     /// <summary>
@@ -84,7 +82,8 @@ public sealed class SafeMtmdInputChunks : IDisposable
     {
         EnsureNotDisposed();
 
-        for (ulong i = 0; i < Size; i++)
+        var count = Size;
+        for (ulong i = 0; i < count; i++)
         {
             var chunk = SafeMtmdInputChunk.Wrap(GetChunkPtr(i));
             if (chunk != null)
@@ -97,7 +96,28 @@ public sealed class SafeMtmdInputChunks : IDisposable
 
     private void EnsureNotDisposed()
     {
-        if (_disposed || NativePtr == IntPtr.Zero)
+        if (IsClosed || IsInvalid)
             throw new ObjectDisposedException(nameof(SafeMtmdInputChunks));
+    }
+
+    private T WithHandle<T>(Func<IntPtr, T> action)
+    {
+        EnsureNotDisposed();
+
+        bool added = false;
+        try
+        {
+            DangerousAddRef(ref added);
+            var ptr = DangerousGetHandle();
+            if (ptr == IntPtr.Zero)
+                throw new ObjectDisposedException(nameof(SafeMtmdInputChunks));
+
+            return action(ptr);
+        }
+        finally
+        {
+            if (added)
+                DangerousRelease();
+        }
     }
 }
