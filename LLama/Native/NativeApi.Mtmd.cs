@@ -9,35 +9,7 @@ namespace LLama.Native;
 /// </summary>
 public static partial class NativeApi
 {
-    /// <summary>
-    /// Convert a UTF-8 encoded native string pointer into a managed <see cref="string"/>.
-    /// Returns <c>null</c> when the pointer is zero.
-    /// </summary>
-    public static string? PtrToStringUtf8(IntPtr ptr)
-    {
-        if (ptr == IntPtr.Zero)
-            return null;
-
-#if NETSTANDARD2_0
-        unsafe
-        {
-            var current = (byte*)ptr;
-            var length = 0;
-            while (current[length] != 0)
-                length++;
-
-            if (length == 0)
-                return string.Empty;
-
-            var buffer = new byte[length];
-            Marshal.Copy(ptr, buffer, 0, length);
-            return Encoding.UTF8.GetString(buffer);
-        }
-#else
-        return Marshal.PtrToStringUTF8(ptr);
-#endif
-    }
-
+    
     /// <summary>
     /// Native context parameters returned by <see cref="mtmd_context_params_default"/>.
     /// </summary>
@@ -59,7 +31,7 @@ public static partial class NativeApi
     /// Retrieve the default multimodal marker text.
     /// </summary>
     public static string? MtmdDefaultMarker()
-        => PtrToStringUtf8(mtmd_default_marker());
+        => mtmd_default_marker().PtrToString();
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_context_params_default", CallingConvention = CallingConvention.Cdecl)]
     internal static extern mtmd_context_params mtmd_context_params_default();

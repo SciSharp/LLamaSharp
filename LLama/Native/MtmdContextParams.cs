@@ -51,35 +51,11 @@ public class MtmdContextParams
             PrintTimings = native.print_timings,
             NThreads = native.n_threads,
             Verbosity = native.verbosity,
-            ImageMarker = PtrToString(native.image_marker),
-            MediaMarker = PtrToString(native.media_marker)
+            ImageMarker = native.image_marker.PtrToString(),
+            MediaMarker = native.media_marker.PtrToString()
         };
     }
 
-    private static string? PtrToString(IntPtr ptr)
-    {
-        if (ptr == IntPtr.Zero)
-            return null;
-
-#if NETSTANDARD2_0
-        unsafe
-        {
-            var length = 0;
-            var current = (byte*)ptr;
-            while (current[length] != 0)
-                length++;
-
-            if (length == 0)
-                return string.Empty;
-
-            var buffer = new byte[length];
-            Marshal.Copy(ptr, buffer, 0, length);
-            return Encoding.UTF8.GetString(buffer);
-        }
-#else
-        return Marshal.PtrToStringUTF8(ptr);
-#endif
-    }
 
     /// <summary>
     /// Convert the managed representation to a native structure, pinning strings for the duration of the scope.

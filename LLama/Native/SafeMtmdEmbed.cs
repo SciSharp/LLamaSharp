@@ -195,7 +195,7 @@ namespace LLama.Native
                 return WithHandle(ptr =>
                 {
                     var idPtr = NativeApi.mtmd_bitmap_get_id(ptr);
-                    return NativeApi.PtrToStringUtf8(idPtr);
+                    return idPtr.PtrToString();
                 });
             }
             set
