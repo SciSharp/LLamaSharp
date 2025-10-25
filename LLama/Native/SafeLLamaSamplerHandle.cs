@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
+using LLama.Extensions;
 
 namespace LLama.Native;
 
@@ -119,7 +121,7 @@ public sealed class SafeLLamaSamplerChainHandle
         if (index < 0 || index >= Count)
             throw new ArgumentOutOfRangeException(nameof(index));
 
-        return Marshal.PtrToStringAnsi(llama_sampler_name(llama_sampler_chain_get(this, index))) ?? "Unknown Name";
+        return llama_sampler_name(llama_sampler_chain_get(this, index)).PtrToStringWithDefault("Unknown Name");
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr llama_sampler_name(IntPtr smpl);

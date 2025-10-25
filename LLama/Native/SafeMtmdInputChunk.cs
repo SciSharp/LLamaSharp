@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.InteropServices;
+using LLama.Extensions;
 
 namespace LLama.Native;
 
@@ -91,7 +91,7 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
             return WithHandle(ptr =>
             {
                 var idPtr = NativeApi.mtmd_input_chunk_get_id(ptr);
-                return Marshal.PtrToStringAnsi(idPtr) ?? string.Empty;
+                return idPtr.PtrToStringWithDefault(string.Empty);
             });
         }
     }
