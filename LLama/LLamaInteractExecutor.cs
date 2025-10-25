@@ -46,7 +46,7 @@ namespace LLama
         /// <param name="context">LLama context to operate against.</param>
         /// <param name="clipModel">Multimodal weights (MTMD) to attach to the executor.</param>
         /// <param name="logger">Optional logger for diagnostic output.</param>
-        public InteractiveExecutor(LLamaContext context, SafeMtmdWeights clipModel, ILogger? logger = null)
+        public InteractiveExecutor(LLamaContext context, MtmdWeights clipModel, ILogger? logger = null)
             : base(context, clipModel, logger)
         {
         }

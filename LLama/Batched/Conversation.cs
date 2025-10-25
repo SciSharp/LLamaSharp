@@ -86,7 +86,7 @@ public sealed class Conversation
             TotalPositions = totalPositions;
         }
 
-        public static MtmdChunkSequence Create(SafeMtmdInputChunks chunks, SafeMtmdWeights clipModel)
+        public static MtmdChunkSequence Create(SafeMtmdInputChunks chunks, MtmdWeights clipModel)
         {
             var textTokens = new List<LLamaToken>();
 

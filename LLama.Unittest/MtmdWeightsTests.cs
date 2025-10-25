@@ -12,7 +12,7 @@ namespace LLama.Unittest
         : IDisposable
     {
         private readonly LLamaWeights _llamaWeights;
-        private readonly SafeMtmdWeights _safeMtmdWeights;
+        private readonly MtmdWeights _mtmdWeights;
         private readonly LLamaContext _context;
         private readonly MtmdContextParams _mtmdParams;
         private readonly string _mediaMarker;
@@ -33,20 +33,20 @@ namespace LLama.Unittest
 
             _mediaMarker = _mtmdParams.MediaMarker ?? throw new InvalidOperationException("MTMD media marker unavailable.");
 
-            _safeMtmdWeights = SafeMtmdWeights.LoadFromFile(Constants.MtmdMmpPath, _llamaWeights, _mtmdParams);
+            _mtmdWeights = MtmdWeights.LoadFromFile(Constants.MtmdMmpPath, _llamaWeights, _mtmdParams);
             _context = _llamaWeights.CreateContext(@params);
         }
 
         public void Dispose()
         {
             _context.Dispose();
-            _safeMtmdWeights.Dispose();
+            _mtmdWeights.Dispose();
             _llamaWeights.Dispose();
         }
 
         private SafeMtmdInputChunks TokenizeWithEmbed(Func<SafeMtmdEmbed> loadEmbed)
         {
-            _safeMtmdWeights.ClearMedia();
+            _mtmdWeights.ClearMedia();
 
             var embed = loadEmbed();
             Assert.NotNull(embed);
@@ -58,7 +58,7 @@ namespace LLama.Unittest
                 Assert.False(embed.IsAudio);
                 Assert.True(embed.GetDataSpan().Length > 0);
 
-                var status = _safeMtmdWeights.Tokenize(_mediaMarker, addSpecial: true, parseSpecial: true, out var chunks);
+                var status = _mtmdWeights.Tokenize(_mediaMarker, addSpecial: true, parseSpecial: true, out var chunks);
                 Assert.Equal(0, status);
                 Assert.NotNull(chunks);
 
@@ -69,7 +69,7 @@ namespace LLama.Unittest
         private void AssertChunksEvaluate(SafeMtmdInputChunks chunks)
         {
             long nPast = 0;
-            var eval = _safeMtmdWeights.EvaluateChunks(chunks, _context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)_context.BatchSize), logitsLast: true);
+            var eval = _mtmdWeights.EvaluateChunks(chunks, _context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)_context.BatchSize), logitsLast: true);
             Assert.Equal(0, eval);
             Assert.True(nPast > 0);
         }
@@ -77,7 +77,7 @@ namespace LLama.Unittest
         [Fact,Trait("Category", "NoCI")]
         public void EmbedImageAsFileName()
         {
-            using var chunks = TokenizeWithEmbed(() => _safeMtmdWeights.LoadMedia(Constants.MtmdImage));
+            using var chunks = TokenizeWithEmbed(() => _mtmdWeights.LoadMedia(Constants.MtmdImage));
             AssertChunksEvaluate(chunks);
         }
 
@@ -85,14 +85,14 @@ namespace LLama.Unittest
         public void EmbedImageAsBinary()
         {
             var imageBytes = File.ReadAllBytes(Constants.MtmdImage);
-            using var chunks = TokenizeWithEmbed(() => _safeMtmdWeights.LoadMedia(imageBytes));
+            using var chunks = TokenizeWithEmbed(() => _mtmdWeights.LoadMedia(imageBytes));
             AssertChunksEvaluate(chunks);
         }
 
         [Fact,Trait("Category", "NoCI")]
         public void TokenizeProvidesChunkMetadata()
         {
-            using var chunks = TokenizeWithEmbed(() => _safeMtmdWeights.LoadMedia(Constants.MtmdImage));
+            using var chunks = TokenizeWithEmbed(() => _mtmdWeights.LoadMedia(Constants.MtmdImage));
 
             Assert.True(chunks.Size > 0);
 
@@ -128,12 +128,12 @@ namespace LLama.Unittest
 
             Assert.True(imageChunks > 0);
             Assert.True(totalTokens > 0);
-            Assert.Equal(totalTokens, _safeMtmdWeights.CountTokens(chunks));
-            Assert.Equal(totalPositions, _safeMtmdWeights.CountPositions(chunks));
-            Assert.True(_safeMtmdWeights.SupportsVision);
-            Assert.False(_safeMtmdWeights.SupportsAudio);
+            Assert.Equal(totalTokens, _mtmdWeights.CountTokens(chunks));
+            Assert.Equal(totalPositions, _mtmdWeights.CountPositions(chunks));
+            Assert.True(_mtmdWeights.SupportsVision);
+            Assert.False(_mtmdWeights.SupportsAudio);
 
-            var audioBitrate = _safeMtmdWeights.AudioBitrate;
+            var audioBitrate = _mtmdWeights.AudioBitrate;
             Assert.True(audioBitrate <= 0);
         }
     }

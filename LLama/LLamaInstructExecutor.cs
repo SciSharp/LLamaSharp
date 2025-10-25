@@ -48,7 +48,7 @@ namespace LLama
         }
 
         public InstructExecutor(LLamaContext context,
-                                SafeMtmdWeights clipModel,
+                                MtmdWeights clipModel,
                                 string instructionPrefix = "\n\n### Instruction:\n\n",
                                 string instructionSuffix = "\n\n### Response:\n\n",
                                 ILogger? logger = null)
