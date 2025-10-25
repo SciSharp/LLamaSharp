@@ -13,7 +13,7 @@ public class MtmdExecutorTests : IDisposable
 {
     private readonly LLamaWeights _weights;
     private readonly MtmdContextParams _mtmdParams;
-    private readonly SafeMtmdWeights _mtmd;
+    private readonly MtmdWeights _mtmd;
     private readonly ModelParams _modelParams;
 
     public MtmdExecutorTests()
@@ -30,7 +30,7 @@ public class MtmdExecutorTests : IDisposable
         _mtmdParams.NThreads = Math.Max(1, Constants.CIGpuLayerCount);
         _mtmdParams.UseGpu = false;
 
-        _mtmd = SafeMtmdWeights.LoadFromFile(Constants.MtmdMmpPath, _weights, _mtmdParams);
+        _mtmd = MtmdWeights.LoadFromFile(Constants.MtmdMmpPath, _weights, _mtmdParams);
     }
 
     public void Dispose()

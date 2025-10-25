@@ -81,7 +81,7 @@ namespace LLama
         }
         
         /// <inheritdoc />
-        public SafeMtmdWeights? ClipModel { get;  }
+        public MtmdWeights? ClipModel { get;  }
 
         /// <inheritdoc />
         public List<SafeMtmdEmbed> Embeds { get; }
@@ -117,12 +117,12 @@ namespace LLama
         /// Initialize a multimodal executor with the supplied MTMD weights.
         /// </summary>
         /// <param name="context">LLama context used for all native interactions.</param>
-        /// <param name="safeMtmdWeights">Multimodal weights to associate with this executor.</param>
+        /// <param name="mtmdWeights">Multimodal weights to associate with this executor.</param>
         /// <param name="logger">Optional logger for diagnostic output.</param>
-        public StatefulExecutorBase(LLamaContext context, SafeMtmdWeights safeMtmdWeights, ILogger? logger = null) : 
+        public StatefulExecutorBase(LLamaContext context, MtmdWeights mtmdWeights, ILogger? logger = null) : 
                         this( context, logger )
         {
-            ClipModel = safeMtmdWeights;
+            ClipModel = mtmdWeights;
         }
 
         /// <summary>

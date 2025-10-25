@@ -9,26 +9,26 @@ namespace LLama;
 /// <summary>
 /// Lightweight wrapper around the MTMD native context and its helpers.
 /// </summary>
-public sealed class SafeMtmdWeights : IDisposable
+public sealed class MtmdWeights : IDisposable
 {
     public SafeMtmdModelHandle NativeHandle { get; }
 
-    private SafeMtmdWeights(SafeMtmdModelHandle handle)
+    private MtmdWeights(SafeMtmdModelHandle handle)
     {
         NativeHandle = handle ?? throw new ArgumentNullException(nameof(handle));
     }
 
-    public static SafeMtmdWeights LoadFromFile(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams)
+    public static MtmdWeights LoadFromFile(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams)
     {
         if (mmProject == null) throw new ArgumentNullException(nameof(mmProject));
         if (textModel == null) throw new ArgumentNullException(nameof(textModel));
         if (mtmdCtxParams == null) throw new ArgumentNullException(nameof(mtmdCtxParams));
 
         var handle = SafeMtmdModelHandle.LoadFromFile(mmProject, textModel, mtmdCtxParams);
-        return new SafeMtmdWeights(handle);
+        return new MtmdWeights(handle);
     }
 
-    public static Task<SafeMtmdWeights> LoadFromFileAsync(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams, CancellationToken token = default)
+    public static Task<MtmdWeights> LoadFromFileAsync(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams, CancellationToken token = default)
     {
         return Task.Run(() => LoadFromFile(mmProject, textModel, mtmdCtxParams), token);
     }

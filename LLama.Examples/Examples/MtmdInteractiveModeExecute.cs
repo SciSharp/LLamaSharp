@@ -30,7 +30,7 @@ namespace LLama.Examples.Examples
             using var context = model.CreateContext(parameters);
 
             // Mtmd Init
-            using var clipModel = await SafeMtmdWeights.LoadFromFileAsync(multiModalProj, model, mtmdParameters );
+            using var clipModel = await MtmdWeights.LoadFromFileAsync(multiModalProj, model, mtmdParameters );
 
             var mediaMarker = mtmdParameters.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>";
 
