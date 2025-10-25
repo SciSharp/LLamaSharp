@@ -30,7 +30,7 @@ public class BatchedExecutorMtmd
         mtmdParams.UseGpu = false;
         var marker = mtmdParams.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>";
 
-        using var mtmd = await SafeMtmdWeights.LoadFromFileAsync(UserSettings.GetMMProjPath(), model, mtmdParams); // multimodal helper weights
+        using var mtmd = await MtmdWeights.LoadFromFileAsync(UserSettings.GetMMProjPath(), model, mtmdParams); // multimodal helper weights
 
         using var executor = new BatchedExecutor(model, parameters, mtmd); // drives batched token + chunk evaluation
 

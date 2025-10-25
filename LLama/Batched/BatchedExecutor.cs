@@ -84,7 +84,7 @@ public sealed class BatchedExecutor
     {
     }
 
-    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, SafeMtmdWeights? clipModel)
+    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel)
     {
         Model = model;
         Context = model.CreateContext(contextParams);
@@ -92,7 +92,7 @@ public sealed class BatchedExecutor
         Epoch = 1;
     }
 
-    public SafeMtmdWeights? ClipModel { get; }
+    public MtmdWeights? ClipModel { get; }
 
     /// <summary>
     /// Start a new <see cref="Conversation"/>
@@ -374,11 +374,11 @@ public sealed class BatchedExecutor
 
     private class MtmdChunkBatch : IBatch
     {
-        private readonly SafeMtmdWeights _clipModel;
+        private readonly MtmdWeights _clipModel;
         private readonly Conversation _conversation;
         private readonly Conversation.MtmdChunkSequence _sequence;
 
-        public MtmdChunkBatch(SafeMtmdWeights clipModel, Conversation conversation, Conversation.MtmdChunkSequence sequence)
+        public MtmdChunkBatch(MtmdWeights clipModel, Conversation conversation, Conversation.MtmdChunkSequence sequence)
         {
             _clipModel = clipModel;
             _conversation = conversation;

@@ -23,7 +23,7 @@ namespace LLama.Abstractions
         /// <summary>
         /// Multi-Modal Projections / Clip Model weights
         /// </summary>
-        public SafeMtmdWeights? ClipModel { get;  }
+        public MtmdWeights? ClipModel { get;  }
 
         /// <summary>
         /// List of media: List of media for Multi-Modal models.

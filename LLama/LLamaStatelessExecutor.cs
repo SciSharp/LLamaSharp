@@ -28,7 +28,7 @@ namespace LLama
         public bool IsMultiModal => false;
 
         /// <inheritdoc />
-        public SafeMtmdWeights? ClipModel => default;
+        public MtmdWeights? ClipModel => default;
 
         /// <inheritdoc />
         public List<SafeMtmdEmbed> Embeds { get; }
