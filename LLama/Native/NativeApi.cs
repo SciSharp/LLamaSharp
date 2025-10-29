@@ -99,8 +99,7 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool llama_state_load_file(SafeLLamaContextHandle ctx, string path_session,
-            LLamaToken[] tokens_out, ulong n_token_capacity, out ulong n_token_count_out);
+        public static extern bool llama_state_load_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens_out, ulong n_token_capacity, out ulong n_token_count_out);
 
         /// <summary>
         /// Save session file
@@ -112,29 +111,25 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session,
-            LLamaToken[] tokens, ulong n_token_count);
+        public static extern bool llama_state_save_file(SafeLLamaContextHandle ctx, string path_session, LLamaToken[] tokens, ulong n_token_count);
 
         /// <summary>
         /// Saves the specified sequence as a file on specified filepath. Can later be loaded via <see cref="llama_state_load_file(SafeLLamaContextHandle, string, LLamaToken[], ulong, out ulong)"/>
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe nuint llama_state_seq_save_file(SafeLLamaContextHandle ctx, string filepath,
-            LLamaSeqId seq_id, LLamaToken* tokens, nuint n_token_count);
+        public static extern unsafe nuint llama_state_seq_save_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId seq_id, LLamaToken* tokens, nuint n_token_count);
 
         /// <summary>
         /// Loads a sequence saved as a file via <see cref="llama_state_save_file(SafeLLamaContextHandle, string, LLamaToken[], ulong)"/> into the specified sequence
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe nuint llama_state_seq_load_file(SafeLLamaContextHandle ctx, string filepath,
-            LLamaSeqId dest_seq_id, LLamaToken* tokens_out, nuint n_token_capacity, out nuint n_token_count_out);
+        public static extern unsafe nuint llama_state_seq_load_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId dest_seq_id, LLamaToken* tokens_out, nuint n_token_capacity, out nuint n_token_count_out);
 
         /// <summary>
         /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx,
-            [MarshalAs(UnmanagedType.U1)] bool causalAttn);
+        public static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
 
         /// <summary>
         /// Set whether the context outputs embeddings or not
@@ -142,15 +137,13 @@ namespace LLama.Native
         /// <param name="ctx"></param>
         /// <param name="embeddings">If true, embeddings will be returned but logits will not</param>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_embeddings(SafeLLamaContextHandle ctx,
-            [MarshalAs(UnmanagedType.U1)] bool embeddings);
+        public static extern void llama_set_embeddings(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool embeddings);
 
         /// <summary>
         /// Set abort callback
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx,
-            IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
+        public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
 
         /// <summary>
         /// Get the n_seq_max for this context

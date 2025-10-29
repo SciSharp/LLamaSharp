@@ -77,6 +77,7 @@ namespace LLamaSharp.KernelMemory
                 SplitMode = config.SplitMode,
                 BatchSize = 512,
                 UBatchSize = 512,
+                FlashAttention = true,
                 UseMemorymap = true
             };
 
