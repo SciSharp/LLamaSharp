@@ -175,15 +175,12 @@ namespace LLama.Native
         /// <param name="buf">A buffer to hold the output formatted prompt. The recommended alloc size is 2 * (total number of characters of all messages)</param>
         /// <param name="length">The size of the allocated buffer</param>
         /// <returns>The total number of bytes of the formatted prompt. If is it larger than the size of buffer, you may need to re-alloc it and then re-apply the template.</returns>
-        public static unsafe int llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg,
-            [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length)
+        public static unsafe int llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length)
         {
             return internal_llama_chat_apply_template(tmpl, chat, n_msg, add_ass, buf, length);
 
-            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl,
-                EntryPoint = "llama_chat_apply_template")]
-            static extern int internal_llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg,
-                [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl,EntryPoint = "llama_chat_apply_template")]
+            static extern int internal_llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
         }
 
         /// <summary>

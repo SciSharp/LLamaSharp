@@ -25,7 +25,6 @@ namespace LLama.Unittest
             _params = new ModelParams(Constants.GenerativeModelPath2) {
                 ContextSize = 200,
                 BatchSize = 200,
-                SeqMax = 4,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
             _model = LLamaWeights.LoadFromFile(_params);

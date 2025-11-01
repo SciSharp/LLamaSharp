@@ -37,7 +37,7 @@ namespace LLama.Extensions
             result.yarn_beta_slow = @params.YarnBetaSlow ?? 1f;
             result.yarn_orig_ctx = @params.YarnOriginalContext ?? 0;
             result.rope_scaling_type = @params.YarnScalingType ?? RopeScalingType.Unspecified;
-
+            
             result.defrag_threshold = @params.DefragThreshold ?? -1;
 
             result.cb_eval = IntPtr.Zero;

@@ -40,6 +40,7 @@ namespace LLamaSharp.KernelMemory
                 SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
                 BatchSize = 512,
                 UBatchSize = 512,
+                FlashAttention = true,
                 UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
@@ -67,6 +68,7 @@ namespace LLamaSharp.KernelMemory
                 SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
                 BatchSize = 512,
                 UBatchSize = 512,
+                FlashAttention = true,
                 UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };

@@ -16,7 +16,6 @@ namespace LLama.Unittest
                 ContextSize = 512,
                 BatchSize = 8,
                 UBatchSize = 8,
-                SeqMax = 1,
                 VocabOnly = false,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
