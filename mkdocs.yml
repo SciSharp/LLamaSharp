@@ -38,7 +38,7 @@ nav:
         - Interactive executor - basic: Examples/InteractiveModeExecute.md
         - Kernel memory integration - basic: Examples/KernelMemory.md
         - Kernel-memory - save & load: Examples/KernelMemorySaveAndLoad.md
-        - LLaVA - basic: Examples/LLavaInteractiveModeExecute.md
+        - MTMD interactive: Examples/MtmdInteractiveModeExecute.md
         - ChatSession - load & save: Examples/LoadAndSaveSession.md
         - Executor - save/load state: Examples/LoadAndSaveState.md
         - Quantization: Examples/QuantizeModel.md

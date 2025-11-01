@@ -3,7 +3,7 @@
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <RootNamespace>LLama</RootNamespace>
     <Nullable>enable</Nullable>
-    <LangVersion>12</LangVersion>
+    <LangVersion>13</LangVersion>
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
@@ -17,7 +17,7 @@
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
     <PackageTags>LLama, LLM, GPT, ChatGPT, NLP, AI, Chat Bot, SciSharp</PackageTags>
     <Description>
-      LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) in your local device. 
+      LLamaSharp is a cross-platform library to run 🦙LLaMA/Mtmd model (and others) in your local device. 
       Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. 
       With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.
     </Description>
