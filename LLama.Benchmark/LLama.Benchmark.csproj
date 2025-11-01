@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.4" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.5" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.4" />
   </ItemGroup>
 
