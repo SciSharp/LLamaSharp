@@ -1,4 +1,5 @@
 using LLama.Sampling;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.ChatCompletion;
 using AuthorRole = LLama.Common.AuthorRole;
 
@@ -21,6 +22,26 @@ public static class ExtensionMethods
                 role = AuthorRole.Unknown;
 
             history.AddMessage(role, chat.Content ?? "");
+        }
+
+        return history;
+    }
+
+    public static LLama.Common.ChatHistory ToLLamaSharpChatHistory(this IEnumerable<ChatMessage> messages, bool ignoreCase = true)
+    {
+        if (messages is null)
+        {
+            throw new ArgumentNullException(nameof(messages));
+        }
+
+        var history = new LLama.Common.ChatHistory();
+
+        foreach (var chat in messages)
+        {
+            if (!Enum.TryParse<AuthorRole>(chat.Role.Value, ignoreCase, out var role))
+                role = AuthorRole.Unknown;
+
+            history.AddMessage(role, chat.Text ?? "");
         }
 
         return history;
