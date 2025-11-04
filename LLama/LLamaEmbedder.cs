@@ -32,6 +32,7 @@ public sealed partial class LLamaEmbedder
     private readonly IContextParams _params;
     private readonly ILogger? _logger;
     private readonly bool _hasExternalContext;
+    private readonly LLamaSeqIdManager? _lamaSeqIdManager;
 
     /// <summary>
     /// Create a new embedder, using the given <see cref="LLamaWeights"/>.
@@ -57,6 +58,7 @@ public sealed partial class LLamaEmbedder
         _params = @params;
         _logger = logger;
         _hasExternalContext = false;
+        _lamaSeqIdManager = null;
     }
     
     /// <summary>
@@ -82,6 +84,7 @@ public sealed partial class LLamaEmbedder
         _params = context.Params;
         _logger = logger;
         _hasExternalContext = true;
+        _lamaSeqIdManager = new LLamaSeqIdManager(context.Params.SeqMax);
     }
 
     /// <inheritdoc />
@@ -89,6 +92,7 @@ public sealed partial class LLamaEmbedder
     {
         if(!_hasExternalContext && !Context.NativeHandle.IsClosed)
             Context.Dispose();
+        _lamaSeqIdManager?.Dispose();
     }
 
     /// <summary>
@@ -116,32 +120,37 @@ public sealed partial class LLamaEmbedder
             NativeApi.llama_set_embeddings(Context.NativeHandle, true);
         }
 
-        // Add all of the tokens to the batch
-        var tokens = Context.Tokenize(input, special: true);
-        if (tokens.Length > Context.ContextSize)
-            throw new ArgumentException($"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})", nameof(input));
-
-        // Check if we should cancel the work, just before doing anything expensive (encode/decode)
-        cancellationToken.ThrowIfCancellationRequested();
-
-        // Evaluate prompt in batch-size chunks
-        var n_past = 0;
-        var batch = new LLamaBatch();
-        var batchSize = (int)Context.Params.BatchSize;
-        for (var i = 0; i < tokens.Length; i += batchSize)
+        var seqId = _lamaSeqIdManager is not null ? await _lamaSeqIdManager.Next() : LLamaSeqId.Zero;
+        try
         {
-            var n_eval = tokens.Length - i;
-            if (n_eval > batchSize)
-                n_eval = batchSize;
+            // Add all the tokens to the batch
+            var tokens = Context.Tokenize(input, special: true);
+            if (tokens.Length > Context.ContextSize)
+                throw new ArgumentException(
+                    $"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})",
+                    nameof(input));
 
-            batch.Clear();
-            batch.AddRange(tokens.AsSpan(i, n_eval), n_past, LLamaSeqId.Zero, true);
-            n_past += n_eval;
+            // Check if we should cancel the work, just before doing anything expensive (encode/decode)
+            cancellationToken.ThrowIfCancellationRequested();
 
-            // Run model
-            switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+            // Evaluate prompt in batch-size chunks
+            var n_past = 0;
+            var batch = new LLamaBatch();
+            var batchSize = (int)Context.Params.BatchSize;
+            for (var i = 0; i < tokens.Length; i += batchSize)
             {
-                case (true, false):
+                var n_eval = tokens.Length - i;
+                if (n_eval > batchSize)
+                    n_eval = batchSize;
+
+                batch.Clear();
+                batch.AddRange(tokens.AsSpan(i, n_eval), n_past, seqId, true);
+                n_past += n_eval;
+
+                // Run model
+                switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+                {
+                    case (true, false):
                     {
                         var result = await Context.EncodeAsync(batch, cancellationToken);
                         if (result != EncodeResult.Ok)
@@ -149,7 +158,7 @@ public sealed partial class LLamaEmbedder
                         break;
                     }
 
-                case (false, true):
+                    case (false, true):
                     {
                         var result = await Context.DecodeAsync(batch, cancellationToken);
                         if (result != DecodeResult.Ok)
@@ -157,37 +166,46 @@ public sealed partial class LLamaEmbedder
                         break;
                     }
 
-                default:
-                    throw new NotSupportedException("Unsupported model type");
+                    default:
+                        throw new NotSupportedException("Unsupported model type");
+                }
+            }
+
+            // Extract results
+            var poolingType = Context.NativeHandle.PoolingType;
+            var resultsCount = poolingType == LLamaPoolingType.None ? tokens.Length : 1;
+            var results = new List<float[]>(resultsCount);
+
+            if (poolingType == LLamaPoolingType.None)
+            {
+                var positions = batch.GetLogitPositions();
+                foreach (var (_, pos) in positions)
+                    results.Add(Context.NativeHandle.GetEmbeddingsIth(pos).ToArray());
+            }
+            else
+            {
+                results.Add(Context.NativeHandle.GetEmbeddingsSeq(seqId).ToArray());
+            }
+
+            // Normalize the embeddings vector
+            // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
+            foreach (var embedding in results)
+            {
+                embedding.EuclideanNormalization();
+            }
+
+            if (!_hasExternalContext)
+                Context.Dispose();
+
+            return (results, tokens.Length);
+        }
+        finally
+        {
+            if (_lamaSeqIdManager != null)
+            {
+                Context.NativeHandle.MemorySequenceRemove(seqId,0,-1);
+                _lamaSeqIdManager.Return(seqId);
             }
         }
-
-        // Extract results
-        var poolingType = Context.NativeHandle.PoolingType;
-        var resultsCount = poolingType == LLamaPoolingType.None ? tokens.Length : 1;
-        var results = new List<float[]>(resultsCount);
-
-        if (poolingType == LLamaPoolingType.None)
-        {
-            var positions = batch.GetLogitPositions();
-            foreach (var (_, pos) in positions)
-                results.Add(Context.NativeHandle.GetEmbeddingsIth(pos).ToArray());
-        }
-        else
-        {
-            results.Add(Context.NativeHandle.GetEmbeddingsSeq(LLamaSeqId.Zero).ToArray());
-        }
-
-        // Normalize the embeddings vector
-        // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
-        foreach (var embedding in results)
-        {
-            embedding.EuclideanNormalization();
-        }
-
-        if (!_hasExternalContext)
-            Context.Dispose();
-
-        return (results, tokens.Length);
     }
 }
