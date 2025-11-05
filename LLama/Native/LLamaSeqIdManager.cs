@@ -23,9 +23,10 @@ public sealed class LLamaSeqIdManager : IDisposable
     /// <param name="maxSeqCount">maximum number of sequence IDs to manage.</param>
     public LLamaSeqIdManager(uint maxSeqCount)
     {
-        _semaphore = new SemaphoreSlim((int)maxSeqCount, (int)maxSeqCount);
+        var max = Math.Max((int)maxSeqCount, 1); // Ensure at least one sequence ID is available
+        _semaphore = new SemaphoreSlim(initialCount: max, maxCount: max);
         _availableIds = [];
-        for (var i = 0; i < maxSeqCount; i++)
+        for (var i = 0; i < max; i++)
         {
             _availableIds.Add(i);
         }
@@ -35,10 +36,12 @@ public sealed class LLamaSeqIdManager : IDisposable
     /// Returns the next available sequence ID.
     /// Callers will asynchronously wait if none are available.
     /// </summary>
-    /// <returns>>The next available sequence ID.</returns>
-    public async Task<LLamaSeqId> Next()
+    /// <param name="timeout">optional timeout for acquiring a sequence ID. If null, waits indefinitely.</param>
+    /// <param name="cancellationToken">cancellation token to cancel the wait operation.</param>
+    /// <returns>The next available sequence ID.</returns>
+    public async Task<LLamaSeqId> NextAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync();
+        await _semaphore.WaitAsync(timeout ?? TimeSpan.FromMilliseconds(-1), cancellationToken).ConfigureAwait(false);
         if (_availableIds.TryTake(out var seqId))
         {
             return (LLamaSeqId)seqId;

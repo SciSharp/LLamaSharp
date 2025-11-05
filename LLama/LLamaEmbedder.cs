@@ -60,7 +60,7 @@ public sealed partial class LLamaEmbedder
         _hasExternalContext = false;
         _lamaSeqIdManager = null;
     }
-    
+
     /// <summary>
     /// Creates a new embedder using the given <see cref="LLamaContext"/>.
     /// The caller is responsible for managing the lifetime of the context, and must ensure that the context remains valid
@@ -72,12 +72,12 @@ public sealed partial class LLamaEmbedder
     /// <exception cref="NotSupportedException">raised if the provided context is for an encoder-decoder model</exception>
     public LLamaEmbedder(LLamaContext context, ILogger? logger = null)
     {
-        if(context.Params.UBatchSize != context.Params.BatchSize)
+        if (context.Params.UBatchSize != context.Params.BatchSize)
             throw new ArgumentException("For non-causal models, batch size must be equal to ubatch size", nameof(context));
-        
+
         if (context.NativeHandle.ModelHandle is { HasEncoder: true, HasDecoder: true })
             throw new NotSupportedException("Computing embeddings in encoder-decoder models is not supported");
-        
+
         Context = context;
         EmbeddingSize = Context.EmbeddingSize;
         NativeApi.llama_set_embeddings(Context.NativeHandle, true);
@@ -90,7 +90,7 @@ public sealed partial class LLamaEmbedder
     /// <inheritdoc />
     public void Dispose()
     {
-        if(!_hasExternalContext && !Context.NativeHandle.IsClosed)
+        if (!_hasExternalContext && !Context.NativeHandle.IsClosed)
             Context.Dispose();
         _lamaSeqIdManager?.Dispose();
     }
@@ -120,92 +120,81 @@ public sealed partial class LLamaEmbedder
             NativeApi.llama_set_embeddings(Context.NativeHandle, true);
         }
 
-        var seqId = _lamaSeqIdManager is not null ? await _lamaSeqIdManager.Next() : LLamaSeqId.Zero;
-        try
+        using var seqId = await Context.AcquireSequenceIdAsync(removeMemoryOnRelease: true, cancellationToken: cancellationToken);
+        // Add all the tokens to the batch
+        var tokens = Context.Tokenize(input, special: true);
+        if (tokens.Length > Context.ContextSize)
+            throw new ArgumentException(
+                $"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})",
+                nameof(input));
+
+        // Check if we should cancel the work, just before doing anything expensive (encode/decode)
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Evaluate prompt in batch-size chunks
+        var n_past = 0;
+        var batch = new LLamaBatch();
+        var batchSize = (int)Context.Params.BatchSize;
+        for (var i = 0; i < tokens.Length; i += batchSize)
         {
-            // Add all the tokens to the batch
-            var tokens = Context.Tokenize(input, special: true);
-            if (tokens.Length > Context.ContextSize)
-                throw new ArgumentException(
-                    $"Embedding prompt is longer than the context window ({tokens.Length} > {Context.ContextSize})",
-                    nameof(input));
+            var n_eval = tokens.Length - i;
+            if (n_eval > batchSize)
+                n_eval = batchSize;
 
-            // Check if we should cancel the work, just before doing anything expensive (encode/decode)
-            cancellationToken.ThrowIfCancellationRequested();
+            batch.Clear();
+            batch.AddRange(tokens.AsSpan(i, n_eval), n_past, seqId, true);
+            n_past += n_eval;
 
-            // Evaluate prompt in batch-size chunks
-            var n_past = 0;
-            var batch = new LLamaBatch();
-            var batchSize = (int)Context.Params.BatchSize;
-            for (var i = 0; i < tokens.Length; i += batchSize)
+            // Run model
+            switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
             {
-                var n_eval = tokens.Length - i;
-                if (n_eval > batchSize)
-                    n_eval = batchSize;
-
-                batch.Clear();
-                batch.AddRange(tokens.AsSpan(i, n_eval), n_past, seqId, true);
-                n_past += n_eval;
-
-                // Run model
-                switch (Context.NativeHandle.ModelHandle.HasEncoder, Context.NativeHandle.ModelHandle.HasDecoder)
+                case (true, false):
                 {
-                    case (true, false):
-                    {
-                        var result = await Context.EncodeAsync(batch, cancellationToken);
-                        if (result != EncodeResult.Ok)
-                            throw new RuntimeError($"Failed to encode: {result}");
-                        break;
-                    }
-
-                    case (false, true):
-                    {
-                        var result = await Context.DecodeAsync(batch, cancellationToken);
-                        if (result != DecodeResult.Ok)
-                            throw new RuntimeError($"Failed to decode: {result}");
-                        break;
-                    }
-
-                    default:
-                        throw new NotSupportedException("Unsupported model type");
+                    var result = await Context.EncodeAsync(batch, cancellationToken);
+                    if (result != EncodeResult.Ok)
+                        throw new RuntimeError($"Failed to encode: {result}");
+                    break;
                 }
+
+                case (false, true):
+                {
+                    var result = await Context.DecodeAsync(batch, cancellationToken);
+                    if (result != DecodeResult.Ok)
+                        throw new RuntimeError($"Failed to decode: {result}");
+                    break;
+                }
+
+                default:
+                    throw new NotSupportedException("Unsupported model type");
             }
-
-            // Extract results
-            var poolingType = Context.NativeHandle.PoolingType;
-            var resultsCount = poolingType == LLamaPoolingType.None ? tokens.Length : 1;
-            var results = new List<float[]>(resultsCount);
-
-            if (poolingType == LLamaPoolingType.None)
-            {
-                var positions = batch.GetLogitPositions();
-                foreach (var (_, pos) in positions)
-                    results.Add(Context.NativeHandle.GetEmbeddingsIth(pos).ToArray());
-            }
-            else
-            {
-                results.Add(Context.NativeHandle.GetEmbeddingsSeq(seqId).ToArray());
-            }
-
-            // Normalize the embeddings vector
-            // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
-            foreach (var embedding in results)
-            {
-                embedding.EuclideanNormalization();
-            }
-
-            if (!_hasExternalContext)
-                Context.Dispose();
-
-            return (results, tokens.Length);
         }
-        finally
+
+        // Extract results
+        var poolingType = Context.NativeHandle.PoolingType;
+        var resultsCount = poolingType == LLamaPoolingType.None ? tokens.Length : 1;
+        var results = new List<float[]>(resultsCount);
+
+        if (poolingType == LLamaPoolingType.None)
         {
-            if (_lamaSeqIdManager != null)
-            {
-                Context.NativeHandle.MemorySequenceRemove(seqId,0,-1);
-                _lamaSeqIdManager.Return(seqId);
-            }
+            var positions = batch.GetLogitPositions();
+            foreach (var (_, pos) in positions)
+                results.Add(Context.NativeHandle.GetEmbeddingsIth(pos).ToArray());
         }
+        else
+        {
+            results.Add(Context.NativeHandle.GetEmbeddingsSeq(seqId).ToArray());
+        }
+
+        // Normalize the embeddings vector
+        // https://github.com/ggerganov/llama.cpp/blob/2891c8aa9af17f4ff636ff3868bc34ff72b56e25/examples/embedding/embedding.cpp#L92
+        foreach (var embedding in results)
+        {
+            embedding.EuclideanNormalization();
+        }
+
+        if (!_hasExternalContext)
+            Context.Dispose();
+
+        return (results, tokens.Length);
     }
 }

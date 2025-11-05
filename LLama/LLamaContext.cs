@@ -109,6 +109,84 @@ namespace LLama
             return NativeHandle.Tokenize(text, addBos, special, Encoding);
         }
 
+        #region Sequence ID management
+        private LLamaSeqIdManager? _seqIdManager;
+
+        /// <summary>
+        /// Get the sequence ID manager for this context.
+        /// </summary>
+        public LLamaSeqIdManager SequenceManager
+        {
+            get
+            {
+                var manager = _seqIdManager;
+                if (manager != null) return manager;
+                var newManager = new LLamaSeqIdManager(Params.SeqMax);
+                var original = Interlocked.CompareExchange(ref _seqIdManager, newManager, comparand: null);
+                manager = original ?? newManager;
+                return manager;
+            }
+        }
+
+        /// <summary>
+        /// Returns the next available sequence ID for use in model operations.
+        /// Callers will asynchronously wait if none are available.
+        /// On disposal, the sequence ID is returned to the owning <see cref="LLamaContext"/> for reuse.
+        /// </summary>
+        /// <remarks>
+        /// Failure to dispose the returned <see cref="ManagedLLamaSeqId"/> will likely result in undefined behavior.
+        /// </remarks>
+        /// <remarks>
+        /// The returned sequence represents an exclusive reservation on the sequence ID within the context.
+        /// For the duration of the <see cref="ManagedLLamaSeqId"/>, no other caller will receive the same sequence ID from this context.
+        /// </remarks>
+        /// <param name="removeMemoryOnRelease">flag indicating whether to remove memory associated with the sequence ID when it is released back to the manager.</param>
+        /// <param name="timeout">optional timeout for acquiring a sequence ID. If null, waits indefinitely.</param>
+        /// <param name="cancellationToken">cancellation token to cancel the wait operation.</param>
+        /// <returns>The next available sequence ID.</returns>
+        public async Task<ManagedLLamaSeqId> AcquireSequenceIdAsync(bool removeMemoryOnRelease = false, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+        {
+            var seqId = await SequenceManager.NextAsync(timeout, cancellationToken).ConfigureAwait(false);
+            return new ManagedLLamaSeqId(owner: this, seqId, removeMemoryOnRelease);
+        }
+
+        /// <summary>
+        /// Represents a managed <see cref="SeqId"/> that is returned to the owning <see cref="LLamaContext"/> when disposed.
+        /// </summary>
+        public readonly struct ManagedLLamaSeqId : IDisposable
+        {
+            private readonly LLamaContext? _owner;
+            private readonly bool _removeMemoryOnRelease;
+
+            /// <summary>
+            /// The sequence ID.
+            /// </summary>
+            public LLamaSeqId SeqId { get; }
+            
+            /// <summary>
+            /// Implicit conversion to <see cref="LLamaSeqId"/>.
+            /// </summary>
+            /// <param name="managedSeqId">managed sequence ID.</param>
+            /// <returns>the underlying sequence ID.</returns>
+            public static implicit operator LLamaSeqId(ManagedLLamaSeqId managedSeqId) => managedSeqId.SeqId;
+
+            internal ManagedLLamaSeqId(LLamaContext owner, LLamaSeqId seqId, bool removeMemoryOnRelease)
+            {
+                _owner = owner;
+                SeqId = seqId;
+                _removeMemoryOnRelease = removeMemoryOnRelease;
+            }
+
+            /// <inheritdoc />
+            public void Dispose()
+            {
+                if (_owner == null || _owner.NativeHandle.IsClosed) return;
+                if (_removeMemoryOnRelease) _owner.NativeHandle.MemorySequenceRemove(SeqId, 0, -1);
+                _owner.SequenceManager.Return(SeqId);
+            }
+        }
+        #endregion
+        
         /// <summary>
         /// Detokenize the tokens to text.
         /// </summary>
@@ -441,6 +519,7 @@ namespace LLama
         public void Dispose()
         {
             NativeHandle.Dispose();
+            _seqIdManager?.Dispose();
         }
 
         /// <summary>
