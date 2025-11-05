@@ -42,12 +42,23 @@ public sealed class LLamaSeqIdManager : IDisposable
     public async Task<LLamaSeqId> NextAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default)
     {
         await _semaphore.WaitAsync(timeout ?? TimeSpan.FromMilliseconds(-1), cancellationToken).ConfigureAwait(false);
-        if (_availableIds.TryTake(out var seqId))
-        {
-            return (LLamaSeqId)seqId;
-        }
 
-        throw new InvalidOperationException("No sequence ID available despite semaphore release");
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (_availableIds.TryTake(out var seqId))
+            {
+                return (LLamaSeqId)seqId;
+            }
+
+            throw new InvalidOperationException("No sequence ID available despite semaphore release");
+        }
+        catch
+        {
+            _semaphore.Release();
+            throw;
+        }
     }
 
     /// <summary>
