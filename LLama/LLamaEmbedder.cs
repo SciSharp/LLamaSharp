@@ -32,7 +32,6 @@ public sealed partial class LLamaEmbedder
     private readonly IContextParams _params;
     private readonly ILogger? _logger;
     private readonly bool _hasExternalContext;
-    private readonly LLamaSeqIdManager? _lamaSeqIdManager;
 
     /// <summary>
     /// Create a new embedder, using the given <see cref="LLamaWeights"/>.
@@ -58,7 +57,6 @@ public sealed partial class LLamaEmbedder
         _params = @params;
         _logger = logger;
         _hasExternalContext = false;
-        _lamaSeqIdManager = null;
     }
 
     /// <summary>
@@ -84,7 +82,6 @@ public sealed partial class LLamaEmbedder
         _params = context.Params;
         _logger = logger;
         _hasExternalContext = true;
-        _lamaSeqIdManager = new LLamaSeqIdManager(context.Params.SeqMax);
     }
 
     /// <inheritdoc />
@@ -92,7 +89,6 @@ public sealed partial class LLamaEmbedder
     {
         if (!_hasExternalContext && !Context.NativeHandle.IsClosed)
             Context.Dispose();
-        _lamaSeqIdManager?.Dispose();
     }
 
     /// <summary>
