@@ -32,7 +32,7 @@ namespace LLama.Unittest
         [Fact]
         public void CheckProperties()
         {
-            Assert.Equal(512u, _context.ContextSize);
+            Assert.Equal(_context.NativeHandle.MaxSeq * 256, _context.ContextSize);
             Assert.Equal(960, _context.EmbeddingSize);
             Assert.Equal(49152, _context.Vocab.Count);
         }

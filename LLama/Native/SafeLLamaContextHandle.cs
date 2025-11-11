@@ -33,6 +33,11 @@ namespace LLama.Native
         /// Get the physical maximum batch size for this context
         /// </summary>
         public uint UBatchSize => llama_n_ubatch(this);
+        
+        /// <summary>
+        /// Get the number of maximum sequences allowed
+        /// </summary>
+        public uint MaxSeq => NativeApi.llama_n_seq_max(this);
 
         /// <summary>
         /// Get or set the number of threads used for generation of a single token.
