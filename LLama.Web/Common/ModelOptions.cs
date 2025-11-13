@@ -102,7 +102,7 @@ namespace LLama.Web.Common
         public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
-        public bool FlashAttention { get; set; }
+        public bool? FlashAttention { get; set; }
 
         /// <inheritdoc />
         public Encoding Encoding { get; set; } = Encoding.UTF8;

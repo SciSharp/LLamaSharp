@@ -179,7 +179,7 @@ namespace LLama.Native
         {
             return internal_llama_chat_apply_template(tmpl, chat, n_msg, add_ass, buf, length);
 
-            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_chat_apply_template")]
+            [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl,EntryPoint = "llama_chat_apply_template")]
             static extern int internal_llama_chat_apply_template(byte* tmpl, LLamaChatMessage* chat, nuint n_msg, [MarshalAs(UnmanagedType.U1)] bool add_ass, byte* buf, int length);
         }
 
@@ -215,7 +215,8 @@ namespace LLama.Native
         /// <param name="lstrip">User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')</param>
         /// <param name="special">If true, special tokens are rendered in the output</param>
         /// <returns>The length written, or if the buffer is too small a negative that indicates the length required</returns>
-        public static int llama_token_to_piece(SafeLlamaModelHandle.Vocabulary vocab, LLamaToken llamaToken, Span<byte> buffer, int lstrip, bool special)
+        public static int llama_token_to_piece(SafeLlamaModelHandle.Vocabulary vocab, LLamaToken llamaToken,
+            Span<byte> buffer, int lstrip, bool special)
         {
             // Handle invalid tokens
             if ((int)llamaToken < 0)
@@ -225,12 +226,14 @@ namespace LLama.Native
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    return llama_token_to_piece_native(vocab.VocabNative, llamaToken, bufferPtr, buffer.Length, lstrip, special);
+                    return llama_token_to_piece_native(vocab.VocabNative, llamaToken, bufferPtr, buffer.Length, lstrip,
+                        special);
                 }
             }
 
             [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_token_to_piece")]
-            static extern unsafe int llama_token_to_piece_native(LLamaVocabNative* model, LLamaToken llamaToken, byte* buffer, int length, int lstrip, [MarshalAs(UnmanagedType.U1)] bool special);
+            static extern unsafe int llama_token_to_piece_native(LLamaVocabNative* model, LLamaToken llamaToken,
+                byte* buffer, int length, int lstrip, [MarshalAs(UnmanagedType.U1)] bool special);
         }
 
         /// <summary>
@@ -247,7 +250,9 @@ namespace LLama.Native
         /// Returns a negative number on failure - the number of tokens that would have been returned. Returns INT32_MIN on overflow (e.g., tokenization result size exceeds int32_t limit)
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int llama_tokenize(LLamaVocabNative* model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
+        internal static extern unsafe int llama_tokenize(LLamaVocabNative* model, byte* text, int text_len,
+            LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special,
+            [MarshalAs(UnmanagedType.U1)] bool parse_special);
 
         /// <summary>
         /// Convert the provided tokens into text (inverse of llama_tokenize()).
@@ -261,7 +266,8 @@ namespace LLama.Native
         /// <param name="unparseSpecial">unparse_special If true, special tokens are rendered in the output.</param>
         /// <returns>Returns the number of chars/bytes on success, no more than textLengthMax. Returns a negative number on failure - the number of chars/bytes that would have been returned.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe int llama_detokenize(LLamaVocabNative* model, LLamaToken* tokens, int nTokens, byte* textOut, int textLengthMax, bool removeSpecial, bool unparseSpecial);
+        internal static extern unsafe int llama_detokenize(LLamaVocabNative* model, LLamaToken* tokens, int nTokens,
+            byte* textOut, int textLengthMax, bool removeSpecial, bool unparseSpecial);
 
         /// <summary>
         /// Register a callback to receive llama log messages
@@ -272,7 +278,7 @@ namespace LLama.Native
         {
             NativeLogConfig.llama_log_set(logCallback);
         }
-        
+
         /// <summary>
         /// Allocates a batch of tokens on the heap
         /// Each token can be assigned up to n_seq_max sequence ids
@@ -311,7 +317,8 @@ namespace LLama.Native
         /// <param name="il_end"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_apply_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
+        public static extern unsafe int llama_apply_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len,
+            int n_embd, int il_start, int il_end);
 
         /// <summary>
         /// Build a split GGUF final path for this chunk.
@@ -324,7 +331,8 @@ namespace LLama.Native
         /// <param name="split_count"></param>
         /// <returns>Returns the split_path length.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_split_path(string split_path, nuint maxlen, string path_prefix, int split_no, int split_count);
+        public static extern int llama_split_path(string split_path, nuint maxlen, string path_prefix, int split_no,
+            int split_count);
 
         /// <summary>
         /// Extract the path prefix from the split_path if and only if the split_no and split_count match.
@@ -337,7 +345,8 @@ namespace LLama.Native
         /// <param name="split_count"></param>
         /// <returns>Returns the split_prefix length.</returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no, int split_count);
+        public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no,
+            int split_count);
 
         //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         //todo: public static void llama_attach_threadpool(SafeLLamaContextHandle ctx, ggml_threadpool_t threadpool, ggml_threadpool_t threadpool_batch);
@@ -380,5 +389,41 @@ namespace LLama.Native
         /// <returns>Name of the buffer type</returns>
         [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ggml_backend_buft_name(IntPtr buft);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="seq_id"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern UIntPtr llama_state_seq_get_size_ext(IntPtr ctx, int seq_id, uint flags);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="dst"></param>
+        /// <param name="size"></param>
+        /// <param name="seq_id"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern UIntPtr llama_state_seq_get_data_ext(IntPtr ctx, [Out] byte[] dst, UIntPtr size,
+            int seq_id, uint flags);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="src"></param>
+        /// <param name="size"></param>
+        /// <param name="dest_seq_id"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern UIntPtr llama_state_seq_set_data_ext(IntPtr ctx, byte[] src, UIntPtr size, int dest_seq_id,
+            uint flags);
     }
 }
