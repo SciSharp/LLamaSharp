@@ -65,11 +65,10 @@ namespace LLama.Native
         /// </summary>
         public LLamaAttentionType attention_type;
 
-        /// <summary>
-        ///  When to enable Flash Attention
+        /// when to enable Flash Attention
         /// </summary>
-        public LLamaAttentionType flash_attn_type;
-
+        public LLamaFlashAttentionType llama_flash_attn_type;
+        
         /// <summary>
         /// RoPE base frequency, 0 = from model
         /// </summary>

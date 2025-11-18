@@ -33,6 +33,11 @@ namespace LLama.Native
         /// Get the physical maximum batch size for this context
         /// </summary>
         public uint UBatchSize => llama_n_ubatch(this);
+        
+        /// <summary>
+        /// Get the number of maximum sequences allowed
+        /// </summary>
+        public uint MaxSeq => NativeApi.llama_n_seq_max(this);
 
         /// <summary>
         /// Get or set the number of threads used for generation of a single token.
@@ -342,6 +347,47 @@ namespace LLama.Native
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_set_adapter_lora(SafeLLamaContextHandle context, IntPtr adapter, float scale);
+
+        /// <summary>
+        /// Get metadata value as a string by key name
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="key"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of the value string (on success) -1 otherwise </returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_adapter_meta_val_str(IntPtr adapter, string key, StringBuilder buf, UIntPtr buf_size);
+        
+        /// <summary>
+        /// Get the number of metadata key value pairs
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <returns>The count of meta key value pairs</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention =  CallingConvention.Cdecl)]
+        private static extern int llama_adapter_meta_count(IntPtr adapter);
+        
+        /// <summary>
+        /// Get metadata key name by index
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="i"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of string i.e meta key (on success) -1 otherwise</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_adapter_meta_key_by_index(IntPtr adapter, int i, StringBuilder buf, UIntPtr buf_size);
+        
+        /// <summary>
+        /// Get metadata key value by index
+        /// </summary>
+        /// <param name="adapter"></param>
+        /// <param name="i"></param>
+        /// <param name="buf"></param>
+        /// <param name="buf_size"></param>
+        /// <returns>The length of value string (on success) -1 otherwise</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_adapter_meta_val_by_index(IntPtr adapter, int i, StringBuilder buf,  UIntPtr buf_size);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_rm_adapter_lora(SafeLLamaContextHandle context, IntPtr adapter);
