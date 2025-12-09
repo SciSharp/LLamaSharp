@@ -124,6 +124,7 @@
     </Target>
 
     <ItemGroup>
+    <ProjectReference Include="..\LLama.Jinja\LLamaSharp.Jinja.csproj" />
     <ProjectReference Include="..\LLama.KernelMemory\LLamaSharp.KernelMemory.csproj" />
     <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />

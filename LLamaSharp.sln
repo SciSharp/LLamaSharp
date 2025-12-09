@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33424.131
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.Unittest", "LLama.Unittest\LLama.Unittest.csproj", "{BAC1CFA9-E6AC-4BD0-A548-A8066D3C467E}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.Experimental", "LLama.Experimental\LLama.Experimental.csproj", "{BE4F977B-D4D9-472F-B506-EAE17542A810}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLama.Benchmark", "LLama.Benchmark\LLama.Benchmark.csproj", "{90D38FEE-68EA-459E-A4EE-268B9DFA1CD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLamaSharp.Jinja", "LLama.Jinja\LLamaSharp.Jinja.csproj", "{BF024808-8F7B-6266-82B2-AB6B7CA97067}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -196,6 +198,24 @@ Global
 		{90D38FEE-68EA-459E-A4EE-268B9DFA1CD5}.Release|Arm64.Build.0 = Release|Any CPU
 		{90D38FEE-68EA-459E-A4EE-268B9DFA1CD5}.Release|x64.ActiveCfg = Release|Any CPU
 		{90D38FEE-68EA-459E-A4EE-268B9DFA1CD5}.Release|x64.Build.0 = Release|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Debug|Arm64.ActiveCfg = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Debug|Arm64.Build.0 = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Debug|x64.Build.0 = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.GPU|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.GPU|Any CPU.Build.0 = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.GPU|Arm64.ActiveCfg = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.GPU|Arm64.Build.0 = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.GPU|x64.ActiveCfg = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.GPU|x64.Build.0 = Debug|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Release|Arm64.ActiveCfg = Release|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Release|Arm64.Build.0 = Release|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Release|x64.ActiveCfg = Release|Any CPU
+		{BF024808-8F7B-6266-82B2-AB6B7CA97067}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
