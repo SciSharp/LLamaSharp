@@ -5,7 +5,7 @@ namespace LLamaSharp.Jinja;
 
 /// <summary>
 /// Represents a collection of key/value pairs that are accessible by the key or index.
-/// A "real" ordered dictionary has been impemented in .NET 9 and later. This is a simplified implementation good enough for .NET 8.
+/// A "real" ordered dictionary has been implemented in .NET 9 and later. This is a simplified implementation good enough for .NET 8.
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
 /// <typeparam name="TValue"></typeparam>

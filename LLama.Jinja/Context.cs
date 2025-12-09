@@ -781,7 +781,7 @@ public sealed class Context
                 return Value.Null;
         }
         else if (IsKeyValueEnumerable(value))
-            // This handles e.g. IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> and similar by treating them as enumerables of key-value pairs and turning them into object properties.
+            // This handles e.g. IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> and similar by treating them as enumerable of key-value pairs and turning them into object properties.
             return CreateValueFromKeyValuePairEnumeration((System.Collections.IEnumerable)value);
         else if (value is Array array)
             if (IsKeyValuePairType(array.GetType().GetElementType()))

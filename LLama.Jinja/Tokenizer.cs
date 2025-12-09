@@ -607,8 +607,8 @@ internal sealed partial class Tokenizer
             }
             else if (PeekSymbols(["("]))
             {
-                var callParamers = ParseCallArgs();
-                value = new CallExpr(Location, value!, callParamers);
+                var callParameters = ParseCallArgs();
+                value = new CallExpr(Location, value!, callParameters);
             }
             ConsumeSpaces();
         }

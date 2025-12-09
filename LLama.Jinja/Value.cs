@@ -70,7 +70,7 @@ internal class Value : IEquatable<Value>, IComparable<Value>
     public bool IsDouble => _primitive is double;
     public bool IsPrimitive => _object is null && _array is null && _callable is null;
 
-    #region iteratable support
+    #region iterable support
     public bool IsIterable => IsArray || IsObject || IsString;
 
     [MemberNotNullWhen(true, nameof(_array))]
@@ -566,7 +566,7 @@ internal class Value : IEquatable<Value>, IComparable<Value>
             return new Value(left.Get<long>() - right.Get<long>());
         if (left.IsDouble && right.IsDouble)
             return new Value(left.Get<double>() - right.Get<double>());
-        throw new JinjaException($"Cannot substract values: {left.Dump()} - {right.Dump()}");
+        throw new JinjaException($"Cannot subtract values: {left.Dump()} - {right.Dump()}");
     }
 
     public static Value operator *(Value left, Value right)
