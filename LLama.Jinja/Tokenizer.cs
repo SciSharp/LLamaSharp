@@ -163,7 +163,7 @@ internal sealed partial class Tokenizer
             {
                 "true" or "True" => new Value(true),
                 "false" or "False" => new Value(false),
-                "None" => new Value(),
+                "None" => Value.Null,
                 _ => throw new JinjaException($"Unknown constant token: {token}"),
             };
         }
@@ -530,7 +530,7 @@ internal sealed partial class Tokenizer
 
             var nullToken = ConsumeToken(NullTokenRegex());
             if (!string.IsNullOrEmpty(nullToken))
-                return new LiteralExpr(location, new Value());
+                return new LiteralExpr(location, Value.Null);
 
             var identifier = ParseIdentifier();
             if (identifier is not null)

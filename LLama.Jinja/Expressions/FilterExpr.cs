@@ -14,7 +14,7 @@ internal sealed class FilterExpr : Expression
 
     protected override Value DoEvaluate(Context context)
     {
-        var result = new Value();
+        var result = Value.Null;
         var first = true;
         foreach (var part in _parts)
         {

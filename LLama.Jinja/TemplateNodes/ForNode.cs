@@ -32,7 +32,7 @@ internal sealed class ForNode : TemplateNode
                 throw new JinjaException("loop() expects exactly one positional iterable argument");
             var items = args.Args[0];
             Visit(items);
-            return new Value();
+            return Value.Null;
         }
 
         void Visit(Value iter)
@@ -80,8 +80,8 @@ internal sealed class ForNode : TemplateNode
                     loop.Set("length", (long)filteredItems.Count);
                     loop.Set("first", i == 0);
                     loop.Set("last", i == filteredItems.Count - 1);
-                    loop.Set("previtem", i > 0 ? filteredItems[i - 1] : new Value());
-                    loop.Set("nextitem", i < filteredItems.Count - 1 ? filteredItems[i + 1] : new Value());
+                    loop.Set("previtem", i > 0 ? filteredItems[i - 1] : Value.Null);
+                    loop.Set("nextitem", i < filteredItems.Count - 1 ? filteredItems[i + 1] : Value.Null);
                     try
                     {
                         _body.Render(writer, loopContext);

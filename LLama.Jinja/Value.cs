@@ -12,6 +12,11 @@ internal class Value : IEquatable<Value>, IComparable<Value>
     private readonly OrderedDictionary<Value, Value>? _object;
     private readonly CallableType? _callable;
     private readonly object? _primitive;
+    public static readonly Value Null = new Value();
+
+    private Value()
+    {
+    }
 
     private Value(IList<Value> array)
     {
@@ -130,10 +135,6 @@ internal class Value : IEquatable<Value>, IComparable<Value>
 
     #endregion
 
-    public Value()
-    {
-    }
-
     public Value(string value)
     {
         _primitive = value;
@@ -183,7 +184,7 @@ internal class Value : IEquatable<Value>, IComparable<Value>
         if (_array is not null)
         {
             if (!key.IsInteger)
-                return new Value();
+                return Null;
             var index = key.Get<long>();
             return _array[(int)(index < 0 ? _array.Count + index : index)];
         }
@@ -194,7 +195,7 @@ internal class Value : IEquatable<Value>, IComparable<Value>
             if (_object.TryGetValue(key, out var value))
                 return value;
         }
-        return new Value();
+        return Null;
     }
 
     public Value Get(string key) => Get(new Value(key));

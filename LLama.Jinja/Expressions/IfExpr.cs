@@ -24,7 +24,7 @@ internal sealed class IfExpr : Expression
             return _thenExpression.Evaluate(context);
         if (_elseExpression is not null)
             return _elseExpression.Evaluate(context);
-        return new Value(); // instead of null
+        return Value.Null; // instead of null
     }
 
     public override string ToString()

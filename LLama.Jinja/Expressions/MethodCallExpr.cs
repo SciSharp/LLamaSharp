@@ -33,17 +33,17 @@ internal sealed class MethodCallExpr : Expression
                 case "append":
                     vargs.ExpectArgs("append method", (1, 1));
                     obj.Add(vargs.Args[0]);
-                    return new Value();
+                    return Value.Null;
                 case "pop":
                     vargs.ExpectArgs("pop method", (0, 1));
-                    return obj.Pop(vargs.Args.Count == 0 ? new Value() : vargs.Args[0]);
+                    return obj.Pop(vargs.Args.Count == 0 ? Value.Null : vargs.Args[0]);
                 case "insert":
                     vargs.ExpectArgs("insert method", (2, 2));
                     var index = vargs.Args[0].Get<long>();
                     if (index < 0 || index > obj.Count)
                         throw new JinjaException("Index out of range for insert method");
                     obj.Insert((int)index, vargs.Args[1]);
-                    return new Value();
+                    return Value.Null;
             }
         }
         else if (obj.IsObject)
@@ -78,7 +78,7 @@ internal sealed class MethodCallExpr : Expression
                         vargs.ExpectArgs("get method", (1, 2));
                         var key = vargs.Args[0];
                         if (vargs.Args.Count == 1)
-                            return obj.Contains(key) ? obj.Get(key) : new Value();
+                            return obj.Contains(key) ? obj.Get(key) : Value.Null;
                         else
                             return obj.Contains(key) ? obj.Get(key) : vargs.Args[1];
                     }

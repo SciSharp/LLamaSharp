@@ -41,7 +41,7 @@ public sealed class Context
         else if (_parent is not null)
             return _parent.Get(value);
         else
-            return new Value();
+            return Value.Null;
     }
 
     internal Value Get(string value) => Get(new Value(value));
@@ -111,7 +111,7 @@ public sealed class Context
             if (!items.IsArray)
                 throw new JinjaException("object is not a list");
             if (items.Count == 0)
-                return new Value();
+                return Value.Null;
             return items[^1];
         }));
 
@@ -391,7 +391,7 @@ public sealed class Context
                 if (fn.IsNull)
                     throw new JinjaException($"Undefined filter: {args.Args[1].Dump()}");
                 var filterArgs = new ArgumentsValue();
-                filterArgs.Args.Add(new Value());
+                filterArgs.Args.Add(Value.Null);
                 for (var i = 2; i < args.Args.Count; i++)
                     filterArgs.Args.Add(args.Args[i]);
                 for (var i = 0; i < args.Args[0].Count; i++)
@@ -446,7 +446,7 @@ public sealed class Context
                 var hasTest = args.Args.Count >= 3;
                 Value testFn = null!;
                 var testArgs = new ArgumentsValue();
-                testArgs.Args.Add(new Value());
+                testArgs.Args.Add(Value.Null);
                 if (hasTest)
                 {
                     testFn = context.Get(args.Args[2].ToString() ?? "");
@@ -688,7 +688,7 @@ public sealed class Context
 
     internal static Context Make(Value values, Context? parent = null)
     {
-        return new Context(values.IsNull ? new Value() : values, parent ?? BuiltIns());
+        return new Context(values.IsNull ? Value.Null : values, parent ?? BuiltIns());
     }
 
     private static Value CreateValueFromJsonObject(JsonElement element)
@@ -737,7 +737,7 @@ public sealed class Context
     private static Value CreateValue(object? value)
     {
         if (value is null)
-            return new Value();
+            return Value.Null;
         else if (value is string s)
             return new Value(s);
         else if (value is long l)
@@ -764,7 +764,7 @@ public sealed class Context
             else if (element.ValueKind == JsonValueKind.String)
             {
                 var str = element.GetString();
-                return str is null ? new Value() : new Value(str);
+                return str is null ? Value.Null : new Value(str);
             }
             else if (element.ValueKind == JsonValueKind.Number)
                 if (element.TryGetInt64(out var longVal))
@@ -772,13 +772,13 @@ public sealed class Context
                 else if (element.TryGetDouble(out var doubleVal))
                     return new Value(doubleVal);
                 else
-                    return new Value();
+                    return Value.Null;
             else if (element.ValueKind == JsonValueKind.True)
                 return new Value(true);
             else if (element.ValueKind == JsonValueKind.False)
                 return new Value(false);
             else // JsonValueKind.Null or JsonValueKind.Undefined
-                return new Value();
+                return Value.Null;
         }
         else if (IsKeyValueEnumerable(value))
             // This handles e.g. IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> and similar by treating them as enumerables of key-value pairs and turning them into object properties.
