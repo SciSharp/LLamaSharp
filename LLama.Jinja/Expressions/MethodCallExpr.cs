@@ -77,10 +77,9 @@ internal sealed class MethodCallExpr : Expression
                     {
                         vargs.ExpectArgs("get method", (1, 2));
                         var key = vargs.Args[0];
-                        if (vargs.Args.Count == 1)
-                            return obj.Contains(key) ? obj.Get(key) : Value.Null;
-                        else
-                            return obj.Contains(key) ? obj.Get(key) : vargs.Args[1];
+                        return obj.Contains(key)
+                            ? obj.Get(key)
+                            : (vargs.Args.Count == 1 ? Value.Null : vargs.Args[1]);
                     }
 
                 default:
@@ -163,10 +162,9 @@ internal sealed class MethodCallExpr : Expression
                         vargs.ExpectArgs("title method", (0, 0));
                         var res = new StringBuilder(str);
                         for (var i = 0; i < res.Length; ++i)
-                            if (i == 0 || char.IsWhiteSpace(res[i - 1]))
-                                res[i] = char.ToUpperInvariant(res[i]);
-                            else
-                                res[i] = char.ToLowerInvariant(res[i]);
+                            res[i] = (i == 0 || char.IsWhiteSpace(res[i - 1]))
+                                ? char.ToUpperInvariant(res[i])
+                                : char.ToLowerInvariant(res[i]);
                         return new Value(res.ToString());
                     }
 
@@ -178,14 +176,15 @@ internal sealed class MethodCallExpr : Expression
                         var count = vargs.Args.Count == 3 ? vargs.Args[2].Get<long>() : str.Length;
                         var startPos = 0;
                         int nextPos;
+                        var sb = new StringBuilder();
                         while ((nextPos = str.IndexOf(before, startPos)) >= 0 && count-- > 0)
                         {
-                            str = str[0..nextPos]
-                                + after
-                                + str[(nextPos + before.Length)..];
-                            startPos = nextPos + after.Length;
+                            sb.Append(str, startPos, nextPos - startPos);
+                            sb.Append(after);
+                            startPos = nextPos + before.Length;
                         }
-                        return new Value(str);
+                        sb.Append(str, startPos, str.Length - startPos);
+                        return new Value(sb.ToString());
                     }
             }
         }
@@ -197,7 +196,7 @@ internal sealed class MethodCallExpr : Expression
         var sb = new StringBuilder();
         sb.Append(_object);
         sb.Append('.');
-        sb.Append(_method.ToString());
+        sb.Append(_method);
         sb.Append('(');
         sb.Append(_arguments);
         sb.Append(')');

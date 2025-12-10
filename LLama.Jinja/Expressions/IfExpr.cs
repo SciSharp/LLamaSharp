@@ -32,13 +32,13 @@ internal sealed class IfExpr : Expression
         var sb = new StringBuilder();
 
         sb.Append("if ");
-        sb.Append(_condition.ToString());
+        sb.Append(_condition);
         sb.Append(" then ");
-        sb.Append(_thenExpression.ToString());
+        sb.Append(_thenExpression);
         if (_elseExpression is not null)
         {
             sb.Append(" else ");
-            sb.Append(_elseExpression.ToString());
+            sb.Append(_elseExpression);
         }
         return sb.ToString();
     }

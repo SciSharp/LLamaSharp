@@ -237,7 +237,7 @@ internal class Value : IEquatable<Value>, IComparable<Value>
 
     public string Dump(int indent = -1, bool toJson = false)
     {
-        var writer = new StringWriter();
+        using var writer = new StringWriter();
         Dump(writer, indent, toJson: toJson);
         return writer.ToString();
     }
@@ -390,7 +390,7 @@ internal class Value : IEquatable<Value>, IComparable<Value>
             {
                 var i = index.Get<long>();
                 if (i < 0 || i >= _array.Count)
-                    throw new JinjaException($"pop undex out of range: {index.Dump()}");
+                    throw new JinjaException($"pop index out of range: {index.Dump()}");
                 if (i < 0)
                     i += _array.Count;
                 var ret = _array[(int)i];
@@ -423,9 +423,8 @@ internal class Value : IEquatable<Value>, IComparable<Value>
     {
         if (other is null)
             return false;
-        if (_callable is not null || other._callable is not null)
-            if (_callable != other._callable)
-                return false;
+        if ((_callable is not null || other._callable is not null) && _callable != other._callable)
+            return false;
         if (_array is not null)
         {
             if (other._array is null)
@@ -469,9 +468,9 @@ internal class Value : IEquatable<Value>, IComparable<Value>
         // we can't compute hash codes for individual array or object elements, since this would not match 
         // the semantics of Equals(Value?)
         if (_array is not null)
-            return _array.Count.GetHashCode();
+            return _array.Count;
         else if (_object is not null)
-            return _object.Count.GetHashCode();
+            return _object.Count;
         else if (_primitive is not null)
             return _primitive.GetHashCode();
         else if (_callable is not null)

@@ -4,7 +4,7 @@ internal enum SpaceHandling
 {
     Keep,
     Strip,
-    StrpSpaces,
+    StripSpaces,
     StripNewline
 }
 

@@ -1,4 +1,4 @@
-﻿namespace LLamaSharp.Jinja;
+namespace LLamaSharp.Jinja;
 
 public abstract class TemplateNode
 {
@@ -14,7 +14,7 @@ public abstract class TemplateNode
 
     public string Render(Context context)
     {
-        var writer = new StringWriter();
+        using var writer = new StringWriter();
         Render(writer, context);
         return writer.ToString();
     }
@@ -27,7 +27,7 @@ public abstract class TemplateNode
         }
         catch (LoopControlException ex) when (Location.Source is not null)
         {
-            throw new LoopControlException(ex.Message + Environment.NewLine + Location.ToString(), ex.ControlType);
+            throw new LoopControlException(ex.Message + Environment.NewLine + Location, ex.ControlType);
         }
         catch (JinjaException ex)
         {
@@ -36,7 +36,7 @@ public abstract class TemplateNode
         }
         catch (Exception ex) when (Location.Source is not null)
         {
-            throw new JinjaException(ex.Message + Environment.NewLine + Location.ToString(), ex);
+            throw new JinjaException(ex.Message + Environment.NewLine + Location, ex);
         }
     }
 }

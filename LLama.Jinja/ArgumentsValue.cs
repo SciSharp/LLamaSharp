@@ -2,8 +2,8 @@ namespace LLamaSharp.Jinja;
 
 internal class ArgumentsValue
 {
-    public List<Value> Args;
-    public List<(string Name, Value Value)> Kwargs;
+    public readonly List<Value> Args;
+    public readonly List<(string Name, Value Value)> Kwargs;
 
     public ArgumentsValue()
     {

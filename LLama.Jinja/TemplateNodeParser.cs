@@ -106,9 +106,8 @@ internal sealed partial class TemplateNodeParser
 
                 if (preSpace == SpaceHandling.Strip)
                     text = LeadingSpaceRegex().Replace(text, "");
-                else if (_options.TrimBlocks && (_it - 1) > 0 && _tokens[_it - 2] is not ExpressionTemplateToken)
-                    if (!string.IsNullOrEmpty(text) && text[0] == '\n')
-                        text = text[1..];
+                else if (_options.TrimBlocks && (_it - 1) > 0 && _tokens[_it - 2] is not ExpressionTemplateToken && !string.IsNullOrEmpty(text) && text[0] == '\n')
+                    text = text[1..];
 
                 if (_it == end && !_options.KeepTrailingNewline)
                 {

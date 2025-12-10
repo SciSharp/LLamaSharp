@@ -51,7 +51,7 @@ internal sealed class ArgumentsExpression
         sb.Append("Args: [");
         for (var i = 0; i < Args.Count; i++)
         {
-            sb.Append(Args[i].ToString());
+            sb.Append(Args[i]);
             if (i < Args.Count - 1)
                 sb.Append(", ");
         }
@@ -60,7 +60,7 @@ internal sealed class ArgumentsExpression
         {
             sb.Append(KwArgs[i].Name);
             sb.Append(": ");
-            sb.Append(KwArgs[i].Expression.ToString());
+            sb.Append(KwArgs[i].Expression);
             if (i < KwArgs.Count - 1)
                 sb.Append(", ");
         }

@@ -9,7 +9,7 @@ internal sealed class EndCallTemplateToken : TemplateToken
 
     public override string ToString()
     {
-        return "Endcall";
+        return "endcall";
     }
 }
 

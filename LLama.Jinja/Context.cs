@@ -206,7 +206,7 @@ public sealed class Context
                 for (var i = 0; i < items.Count; ++i)
                 {
                     if (i > 0) sb.Append(sep);
-                    sb.Append(items[i].ToString());
+                    sb.Append(items[i]);
                 }
                 return new Value(sb.ToString());
             }
@@ -416,15 +416,17 @@ public sealed class Context
             var indentStr = new string(' ', argsObj.Contains(new Value("indent")) ? (int)argsObj.Get("indent").Get<long>() : 0);
             var sb = new StringBuilder();
             var isFirst = true;
-            var reader = new StringReader(text);
-            string? line;
-            while ((line = reader.ReadLine()) is not null)
+            using (var reader = new StringReader(text))
             {
-                var needsIndent = !isFirst || first;
-                if (isFirst) isFirst = false;
-                else sb.Append('\n');
-                if (needsIndent) sb.Append(indentStr);
-                sb.Append(line);
+                string? line;
+                while ((line = reader.ReadLine()) is not null)
+                {
+                    var needsIndent = !isFirst || first;
+                    if (isFirst) isFirst = false;
+                    else sb.Append('\n');
+                    if (needsIndent) sb.Append(indentStr);
+                    sb.Append(line);
+                }
             }
             if (!string.IsNullOrEmpty(text) && text.EndsWith('\n'))
                 sb.Append('\n');
@@ -454,7 +456,7 @@ public sealed class Context
                         throw new JinjaException($"Undefined test: {args.Args[2].Dump()}");
                     for (var i = 3; i < args.Args.Count; i++)
                         testArgs.Args.Add(args.Args[i]);
-                    testArgs.Kwargs = args.Kwargs;
+                    testArgs.Kwargs.AddRange(args.Kwargs);
                 }
                 var res = Value.FromArray();
                 for (var i = 0; i < items.Count; i++)
@@ -815,12 +817,7 @@ public sealed class Context
 
     public static Context Make(object? bindings, Context? parent = null)
     {
-        Value values;
-
-        if (bindings is null)
-            values = Value.Object();
-        else
-            values = CreateValue(bindings);
+        var values = bindings is null ? Value.Object(): CreateValue(bindings);
         return Make(values, parent);
     }
 

@@ -577,14 +577,9 @@ internal sealed partial class Tokenizer
                     }
                 }
 
-                Expression? index;
-
-                if (hasFirstColon || hasSecondColon)
-                    index = new SliceExpr(sliceLoc, start!, end!, step!);
-                else
-                    index = start;
-                if (index is null)
-                    throw new JinjaException("Empty index in subscript");
+                var index = ((hasFirstColon || hasSecondColon)
+                    ? new SliceExpr(sliceLoc, start!, end!, step!)
+                    : start) ?? throw new JinjaException("Empty index in subscript");
                 if (string.IsNullOrEmpty(ConsumeToken("]")))
                     throw new JinjaException("Expected closing bracket in subscript");
 
@@ -891,7 +886,7 @@ internal sealed partial class Tokenizer
                     }
                     else if (keyword == "filter")
                     {
-                        var filter = ParseExpression() ?? throw new JinjaException("Expected expression in filte");
+                        var filter = ParseExpression() ?? throw new JinjaException("Expected expression in filter");
                         var postSpace = ParseBlockClose();
                         tokens.Add(new FilterTemplateToken(location, preSpace, postSpace, filter));
                     }
@@ -920,7 +915,6 @@ internal sealed partial class Tokenizer
                             throw new JinjaException("Internal error: Expected a comment");
                         throw new JinjaException("Missing end of comment tag");
                     }
-                    var textEnd = match.Index + match.Length;
                     text = _templateString[_it..match.Index];
                     _it = match.Index;
                     tokens.Add(new TextTemplateToken(location, SpaceHandling.Keep, SpaceHandling.Keep, text));

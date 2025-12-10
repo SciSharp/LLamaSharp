@@ -123,16 +123,13 @@ internal sealed class BinaryOpExpr : Expression
         }
         ;
 
-        if (l.IsCallable)
-        {
-            return Value.Callable((callContext, args) =>
+        return l.IsCallable 
+            ? Value.Callable((callContext, args) =>
             {
                 var ll = l.Call(callContext, args);
                 return DoEval(ll);
-            });
-        }
-        else
-            return DoEval(l);
+            })
+            : DoEval(l);
     }
 
     public override string ToString()
