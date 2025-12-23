@@ -467,7 +467,7 @@ jobs:
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
     env:
       MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
-    runs-on: macos-latest   
+    runs-on: macos-14   
     steps:
       - uses: actions/checkout@v4
         with:
