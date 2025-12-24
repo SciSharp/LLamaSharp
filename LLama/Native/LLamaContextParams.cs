@@ -65,7 +65,6 @@ namespace LLama.Native
         /// </summary>
         public LLamaAttentionType attention_type;
 
-        /// <summary>
         /// when to enable Flash Attention
         /// </summary>
         public LLamaFlashAttentionType llama_flash_attn_type;

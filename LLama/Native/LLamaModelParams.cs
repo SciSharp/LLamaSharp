@@ -99,6 +99,7 @@ namespace LLama.Native
             readonly get => Convert.ToBoolean(_check_tensors);
             set => _check_tensors = Convert.ToSByte(value);
         }
+
         private sbyte _check_tensors;
         
         /// <summary>

@@ -1,5 +1,6 @@
 using LLama;
 using LLama.Abstractions;
+using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System.Runtime.CompilerServices;
@@ -12,7 +13,7 @@ namespace LLamaSharp.SemanticKernel.ChatCompletion;
 /// <summary>
 /// LLamaSharp ChatCompletion
 /// </summary>
-public sealed class LLamaSharpChatCompletion : IChatCompletionService
+public sealed class LLamaSharpChatCompletion : IChatClient, IChatCompletionService
 {
     private readonly ILLamaExecutor _model;
     private readonly LLamaSharpPromptExecutionSettings _defaultRequestSettings;
@@ -64,14 +65,7 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     /// <inheritdoc/>
     public async Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, CancellationToken cancellationToken = default)
     {
-        var settings = executionSettings != null
-           ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
-           : _defaultRequestSettings;
-
-        var prompt = _getFormattedPrompt(chatHistory);
-        var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
-
-        var output = _outputTransform.TransformAsync(result);
+        var output = InferChatHistory(chatHistory, executionSettings, cancellationToken);
 
         var sb = new StringBuilder();
         await foreach (var token in output)
@@ -85,19 +79,25 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
     /// <inheritdoc/>
     public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(ChatHistory chatHistory, PromptExecutionSettings? executionSettings = null, Kernel? kernel = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var settings = executionSettings != null
-          ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
-          : _defaultRequestSettings;
-
-        var prompt = _getFormattedPrompt(chatHistory);
-        var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
-
-        var output = _outputTransform.TransformAsync(result);
+        var output = InferChatHistory(chatHistory, executionSettings, cancellationToken);
 
         await foreach (var token in output)
         {
             yield return new StreamingChatMessageContent(AuthorRole.Assistant, token);
         }
+    }
+
+    private IAsyncEnumerable<string> InferChatHistory(ChatHistory chatHistory, PromptExecutionSettings? executionSettings, CancellationToken cancellationToken)
+    {
+        var settings = executionSettings != null
+                   ? LLamaSharpPromptExecutionSettings.FromRequestSettings(executionSettings)
+                   : _defaultRequestSettings;
+
+        var prompt = _getFormattedPrompt(chatHistory);
+        var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
+
+        var output = _outputTransform.TransformAsync(result);
+        return output;
     }
 
     /// <summary>
@@ -129,5 +129,82 @@ public sealed class LLamaSharpChatCompletion : IChatCompletionService
         }
 
         return prompt;
+    }
+
+    private string _getFormattedPrompt(IEnumerable<ChatMessage> messages)
+    {
+        string prompt;
+        if (_isStatefulExecutor)
+        {
+            var state = (InteractiveExecutorState)((StatefulExecutorBase)_model).GetStateData();
+            if (state.IsPromptRun)
+            {
+                prompt = _historyTransform.HistoryToText(messages.ToLLamaSharpChatHistory());
+            }
+            else
+            {
+                ChatHistory tempHistory = new();
+                tempHistory.AddUserMessage(messages.Last().Text ?? "");
+                prompt = _historyTransform.HistoryToText(tempHistory.ToLLamaSharpChatHistory());
+            }
+        }
+        else
+        {
+            prompt = _historyTransform.HistoryToText(messages.ToLLamaSharpChatHistory());
+        }
+
+        return prompt;
+    }
+
+    public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        var output = InferChatMessage(messages, options, cancellationToken);
+
+        var sb = new StringBuilder();
+        await foreach (var token in output)
+        {
+            sb.Append(token);
+        }
+
+        return new ChatResponse(new ChatMessage(ChatRole.Assistant, sb.ToString()));
+    }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        var output = InferChatMessage(messages, options, cancellationToken);
+
+        await foreach (var token in output)
+        {
+            yield return new ChatResponseUpdate(ChatRole.Assistant, token);
+        }
+    }
+
+    private IAsyncEnumerable<string> InferChatMessage(IEnumerable<ChatMessage> messages, ChatOptions? options, CancellationToken cancellationToken)
+    {
+        var settings = options != null
+         ? LLamaSharpPromptExecutionSettings.FromRequestSettings(options)
+         : _defaultRequestSettings;
+
+        var prompt = _getFormattedPrompt(messages);
+        var result = _model.InferAsync(prompt, settings.ToLLamaSharpInferenceParams(), cancellationToken);
+
+        var output = _outputTransform.TransformAsync(result);
+        return output;
+    }
+
+    /// <inheritdoc/>
+    public object? GetService(Type serviceType, object? serviceKey = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        if (_outputTransform is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 }
