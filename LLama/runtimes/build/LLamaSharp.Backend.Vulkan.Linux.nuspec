@@ -20,14 +20,14 @@
     </metadata>
 
     <files>
-        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.props" />
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Vulkan.Linux.props" />
 
-        <file src="runtimes/deps/vulkan/libggml.so" target="runtimes/linux-x64/native/vulkan/libggml.so" />
-        <file src="runtimes/deps/vulkan/libggml-base.so" target="runtimes/linux-x64/native/vulkan/libggml-base.so" />
-        <file src="runtimes/deps/vulkan/libggml-vulkan.so" target="runtimes/linux-x64/native/vulkan/libggml-vulkan.so" />
+        <file src="runtimes/deps/vulkan/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libggml.so" />
+        <file src="runtimes/deps/vulkan/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libggml-base.so" />
+        <file src="runtimes/deps/vulkan/libggml-vulkan.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libggml-vulkan.so" />
 
-        <file src="runtimes/deps/vulkan/libllama.so" target="runtimes/linux-x64/native/vulkan/libllama.so" />
-        <file src="runtimes/deps/vulkan/libmtmd.so" target="runtimes/linux-x64/native/vulkan/libmtmd.so" />
+        <file src="runtimes/deps/vulkan/libllama.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libllama.so" />
+        <file src="runtimes/deps/vulkan/libmtmd.so" target="LLamaSharpRuntimes/linux-x64/native/vulkan/libmtmd.so" />
         
         <file src="icon512.png" target="icon512.png" />
     </files>

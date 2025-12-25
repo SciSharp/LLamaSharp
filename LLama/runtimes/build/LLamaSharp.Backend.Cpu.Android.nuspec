@@ -18,17 +18,17 @@
     <files>
         <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cpu.Android.props" />
 
-        <file src="runtimes/deps/android-arm64-v8a/libllama.so" target="runtimes\android-arm64-v8a\native\libllama.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libggml.so" target="runtimes\android-arm64-v8a\native\libggml.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libggml-base.so" target="runtimes\android-arm64-v8a\native\libggml-base.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libggml-cpu.so" target="runtimes\android-arm64-v8a\native\libggml-cpu.so" />
-        <file src="runtimes/deps/android-arm64-v8a/libmtmd.so" target="runtimes\android-arm64-v8a\native\libmtmd.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libllama.so" target="LLamaSharpRuntimes\android-arm64-v8a\native\libllama.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libggml.so" target="LLamaSharpRuntimes\android-arm64-v8a\native\libggml.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libggml-base.so" target="LLamaSharpRuntimes\android-arm64-v8a\native\libggml-base.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libggml-cpu.so" target="LLamaSharpRuntimes\android-arm64-v8a\native\libggml-cpu.so" />
+        <file src="runtimes/deps/android-arm64-v8a/libmtmd.so" target="LLamaSharpRuntimes\android-arm64-v8a\native\libmtmd.so" />
 
-        <file src="runtimes/deps/android-x86_64/libllama.so" target="runtimes\android-x86_64\native\libllama.so" />
-        <file src="runtimes/deps/android-x86_64/libggml.so" target="runtimes\android-x86_64\native\libggml.so" />
-        <file src="runtimes/deps/android-x86_64/libggml-base.so" target="runtimes\android-x86_64\native\libggml-base.so" />
-        <file src="runtimes/deps/android-x86_64/libggml-cpu.so" target="runtimes\android-x86_64\native\libggml-cpu.so" />
-        <file src="runtimes/deps/android-x86_64/libmtmd.so" target="runtimes\android-x86_64\native\libmtmd.so" />
+        <file src="runtimes/deps/android-x86_64/libllama.so" target="LLamaSharpRuntimes\android-x86_64\native\libllama.so" />
+        <file src="runtimes/deps/android-x86_64/libggml.so" target="LLamaSharpRuntimes\android-x86_64\native\libggml.so" />
+        <file src="runtimes/deps/android-x86_64/libggml-base.so" target="LLamaSharpRuntimes\android-x86_64\native\libggml-base.so" />
+        <file src="runtimes/deps/android-x86_64/libggml-cpu.so" target="LLamaSharpRuntimes\android-x86_64\native\libggml-cpu.so" />
+        <file src="runtimes/deps/android-x86_64/libmtmd.so" target="LLamaSharpRuntimes\android-x86_64\native\libmtmd.so" />
 
         <file src="icon512.png" target="icon512.png" />
     </files>
