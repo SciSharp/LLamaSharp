@@ -16,7 +16,7 @@ namespace LLama.Native
 
             // Set flag to indicate that this point has been passed. No native library config can be done after this point.
             NativeLibraryConfig.LLama.LibraryHasLoaded = true;
-            NativeLibraryConfig.LLava.LibraryHasLoaded = true;
+            NativeLibraryConfig.Mtmd.LibraryHasLoaded = true;
 
             // Immediately make a call which requires loading the llama DLL. This method call
             // can't fail unless the DLL hasn't been loaded.
@@ -45,7 +45,7 @@ namespace LLama.Native
 
 #if NET5_0_OR_GREATER
         private static IntPtr _loadedLlamaHandle;
-        private static IntPtr _loadedLlavaSharedHandle;
+        private static IntPtr _loadedMtmdHandle;
 #endif
 
         private static void SetDllImportResolver()
@@ -72,15 +72,15 @@ namespace LLama.Native
                     return _loadedLlamaHandle;
                 }
 
-                if (name == "llava_shared")
+                if (name == "mtmd")
                 {
-                    // If we've already loaded llava return the handle that was loaded last time.
-                    if (_loadedLlavaSharedHandle != IntPtr.Zero)
-                        return _loadedLlavaSharedHandle;
+                    // If we've already loaded Mtmd return the handle that was loaded last time.
+                    if (_loadedMtmdHandle != IntPtr.Zero)
+                        return _loadedMtmdHandle;
 
                     // Try to load a preferred library, based on CPU feature detection
-                    _loadedLlavaSharedHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLava, out _loadedLLavaLibrary);
-                    return _loadedLlavaSharedHandle;
+                    _loadedMtmdHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.Mtmd, out _loadedMtmdLibrary);
+                    return _loadedMtmdHandle;
                 }
 
                 // Return null pointer to indicate that nothing was loaded.
@@ -100,17 +100,17 @@ namespace LLama.Native
             return name switch
             {
                 NativeLibraryName.LLama => _loadedLLamaLibrary,
-                NativeLibraryName.LLava => _loadedLLavaLibrary,
+                NativeLibraryName.Mtmd => _loadedMtmdLibrary,
                 _ => throw new ArgumentException($"Library name {name} is not found.")
             };
         }
 
         internal const string libraryName = "llama";
-        internal const string llavaLibraryName = "llava_shared";
+        internal const string mtmdLibraryName = "mtmd";
         internal const string ggmlLibraryName = "ggml";
         internal const string ggmlBaseLibraryName = "ggml-base";
 
         private static INativeLibrary? _loadedLLamaLibrary = null;
-        private static INativeLibrary? _loadedLLavaLibrary = null;
+        private static INativeLibrary? _loadedMtmdLibrary = null;
     }
 }

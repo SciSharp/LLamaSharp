@@ -299,15 +299,15 @@ namespace LLama.Native
         public static NativeLibraryConfig LLama { get; }
 
         /// <summary>
-        /// Configuration for LLava native library
+        /// Configuration for Mtmd native library
         /// </summary>
-        public static NativeLibraryConfig LLava { get; }
+        public static NativeLibraryConfig Mtmd { get; }
 
         static NativeLibraryConfig()
         {
             LLama = new(NativeLibraryName.LLama);
-            LLava = new(NativeLibraryName.LLava);
-            All = new(LLama, LLava);
+            Mtmd = new(NativeLibraryName.Mtmd);
+            All = new(LLama, Mtmd);
         }
 
 #if NETSTANDARD2_0
@@ -413,9 +413,9 @@ namespace LLama.Native
         /// When this method is called, all the other configurations will be ignored.
         /// </summary>
         /// <param name="llamaPath">The full path to the llama library to load.</param>
-        /// <param name="llavaPath">The full path to the llava library to load.</param>
+        /// <param name="mtmdPath">The full path to the mtmd library to load.</param>
         /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfigContainer WithLibrary(string? llamaPath, string? llavaPath)
+        public NativeLibraryConfigContainer WithLibrary(string? llamaPath, string? mtmdPath)
         {
             foreach(var config in _configs)
             {
@@ -423,9 +423,9 @@ namespace LLama.Native
                 {
                     config.WithLibrary(llamaPath);
                 }
-                if(config.NativeLibraryName == NativeLibraryName.LLava && llavaPath is not null)
+                if(config.NativeLibraryName == NativeLibraryName.Mtmd && mtmdPath is not null)
                 {
-                    config.WithLibrary(llavaPath);
+                    config.WithLibrary(mtmdPath);
                 }
             }
 
@@ -594,7 +594,7 @@ namespace LLama.Native
         /// You can still modify the configuration after this calling but only before any call from <see cref="NativeApi"/>.
         /// </summary>
         /// <returns>Whether the running is successful.</returns>
-        public bool DryRun(out INativeLibrary? loadedLLamaNativeLibrary, out INativeLibrary? loadedLLavaNativeLibrary)
+        public bool DryRun(out INativeLibrary? loadedLLamaNativeLibrary, out INativeLibrary? loadedMtmdNativeLibrary)
         {
             bool success = true;
             foreach(var config in _configs)
@@ -604,16 +604,16 @@ namespace LLama.Native
                 {
                     loadedLLamaNativeLibrary = loadedLibrary;
                 }
-                else if(config.NativeLibraryName == NativeLibraryName.LLava)
+                else if(config.NativeLibraryName == NativeLibraryName.Mtmd)
                 {
-                    loadedLLavaNativeLibrary = loadedLibrary;
+                    loadedMtmdNativeLibrary = loadedLibrary;
                 }
                 else
                 {
                     throw new Exception("Unknown native library config during the dry run.");
                 }
             }
-            loadedLLamaNativeLibrary = loadedLLavaNativeLibrary = null;
+            loadedLLamaNativeLibrary = loadedMtmdNativeLibrary = null;
             return success;
         }
     }
@@ -628,9 +628,9 @@ namespace LLama.Native
         /// </summary>
         LLama,
         /// <summary>
-        /// The native library compiled from the LLaVA example of llama.cpp.
+        /// The native library compiled from the MTMD library of llama.cpp.
         /// </summary>
-        LLava
+        Mtmd
     }
 
     internal static class LibraryNameExtensions
@@ -641,8 +641,8 @@ namespace LLama.Native
             {
                 case NativeLibraryName.LLama:
                     return NativeApi.libraryName;
-                case NativeLibraryName.LLava:
-                    return NativeApi.llavaLibraryName;
+                case NativeLibraryName.Mtmd:
+                    return NativeApi.mtmdLibraryName;                
                 default:
                     throw new ArgumentOutOfRangeException(nameof(name), name, null);
             }
