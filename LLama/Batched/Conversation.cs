@@ -98,7 +98,7 @@ public sealed class Conversation
                         continue;
 
                     foreach (var token in chunk.GetTextTokensSpan())
-                        textTokens.Add((LLamaToken)unchecked((int)token));
+                        textTokens.Add(token);
                 }
             }
 
@@ -504,14 +504,14 @@ public sealed class Conversation
         _requiredEpoch = 0;
     }
 
-    internal long GetMtmdPast() => _end.Value;
+    internal int GetMtmdPast() => _end.Value;
 
-    internal void OnMtmdEvaluationCompleted(long newPast, MtmdChunkSequence sequence)
+    internal void OnMtmdEvaluationCompleted(int newPast, MtmdChunkSequence sequence)
     {
         _pendingMtmdSequence?.Dispose();
         _pendingMtmdSequence = null;
 
-        _end = (LLamaPos)checked((int)newPast);
+        _end = newPast;
 
         if (_batchSampleIndices.Length == 0)
             _batchSampleIndices = new int[4];

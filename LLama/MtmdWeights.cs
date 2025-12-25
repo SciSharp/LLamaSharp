@@ -57,13 +57,13 @@ public sealed class MtmdWeights : IDisposable
     /// <summary>
     /// Evaluate a chunk batch using the helper that performs mtmd encode + llama decode.
     /// </summary>
-    public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle llamaContext, ref long nPast, int seqId, int nBatch, bool logitsLast)
+    public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
         => NativeHandle.EvaluateChunks(chunks, llamaContext, ref nPast, seqId, nBatch, logitsLast);
 
-    public int EvaluateChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, ref long nPast, int seqId, int nBatch, bool logitsLast)
+    public int EvaluateChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
         => NativeHandle.EvaluateChunk(chunkPtr, llamaContext, ref nPast, seqId, nBatch, logitsLast);
 
-    public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref long nPast, int seqId, int nBatch)
+    public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref int nPast, int seqId, int nBatch)
         => NativeHandle.DecodeImageChunk(chunkPtr, llamaContext, encodedEmbeddings, ref nPast, seqId, nBatch);
 
     public ulong CountTokens(SafeMtmdInputChunks chunks) => NativeHandle.CountTokens(chunks);

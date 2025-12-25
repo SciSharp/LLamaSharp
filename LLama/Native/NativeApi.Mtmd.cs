@@ -138,7 +138,7 @@ public static partial class NativeApi
     internal static extern IntPtr mtmd_input_chunk_get_id(IntPtr chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern long mtmd_input_chunk_get_n_pos(IntPtr chunk);
+    internal static extern int mtmd_input_chunk_get_n_pos(IntPtr chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_copy", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr mtmd_input_chunk_copy(IntPtr chunk);
@@ -161,7 +161,7 @@ public static partial class NativeApi
     internal static extern IntPtr mtmd_image_tokens_get_id(IntPtr image_tokens);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern long mtmd_image_tokens_get_n_pos(IntPtr image_tokens);
+    internal static extern int mtmd_image_tokens_get_n_pos(IntPtr image_tokens);
 
     // tokenize ----------------------------------------------------------
 
@@ -247,29 +247,29 @@ public static partial class NativeApi
     internal static extern UIntPtr mtmd_helper_get_n_tokens(IntPtr chunks);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern long mtmd_helper_get_n_pos(IntPtr chunks);
+    internal static extern int mtmd_helper_get_n_pos(IntPtr chunks);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_eval_chunks", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_eval_chunks(
         IntPtr ctx,
         IntPtr lctx,
         IntPtr chunks,
-        long n_past,
+        int n_past,
         int seq_id,
         int n_batch,
         [MarshalAs(UnmanagedType.I1)] bool logits_last,
-        ref long new_n_past);
+        ref int new_n_past);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_eval_chunk_single", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_eval_chunk_single(
         IntPtr ctx,
         IntPtr lctx,
         IntPtr chunk,
-        long n_past,
+        int n_past,
         int seq_id,
         int n_batch,
         [MarshalAs(UnmanagedType.I1)] bool logits_last,
-        ref long new_n_past);
+        ref int new_n_past);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_decode_image_chunk", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_decode_image_chunk(
@@ -277,8 +277,8 @@ public static partial class NativeApi
         IntPtr lctx,
         IntPtr chunk,
         IntPtr encoded_embd,
-        long n_past,
+        int n_past,
         int seq_id,
         int n_batch,
-        ref long new_n_past);
+        ref int new_n_past);
 }

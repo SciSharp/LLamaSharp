@@ -20,7 +20,7 @@ public class MtmdExecutorTests : IDisposable
     {
         _modelParams = new ModelParams(Constants.MtmdModelPath)
         {
-            ContextSize = 1024 * 8,
+            ContextSize = 1024 * 32,
             GpuLayerCount = Constants.CIGpuLayerCount,
         };
 

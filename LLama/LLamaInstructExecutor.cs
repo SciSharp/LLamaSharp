@@ -255,7 +255,7 @@ namespace LLama
             else if (IsMultiModal && MtmdChunks is not null)
             {
                 _is_prompt_run = false;
-                var nPast = (long)_pastTokensCount;
+                var nPast = _pastTokensCount;
                 var previousConsumed = _consumedTokensCount;
                 EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InstructExecutor));
             }

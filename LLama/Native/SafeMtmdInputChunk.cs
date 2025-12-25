@@ -112,7 +112,7 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
     /// </summary>
     /// <returns>Read-only span exposing the chunk's tokens.</returns>
     /// <exception cref="ObjectDisposedException">Thrown when the wrapper has been disposed.</exception>
-    public unsafe ReadOnlySpan<uint> GetTextTokensSpan()
+    public unsafe ReadOnlySpan<int> GetTextTokensSpan()
     {
         EnsureNotDisposed();
 
@@ -121,12 +121,12 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
         {
             DangerousAddRef(ref added);
             UIntPtr nTokens;
-            var tokensPtr = (uint*)NativeApi.mtmd_input_chunk_get_tokens_text(DangerousGetHandle(), out nTokens);
+            var tokensPtr = (int*)NativeApi.mtmd_input_chunk_get_tokens_text(DangerousGetHandle(), out nTokens);
             if (tokensPtr == null)
-                return ReadOnlySpan<uint>.Empty;
+                return ReadOnlySpan<int>.Empty;
 
             var length = checked((int)nTokens.ToUInt64());
-            return new ReadOnlySpan<uint>(tokensPtr, length);
+            return new ReadOnlySpan<int>(tokensPtr, length);
         }
         finally
         {

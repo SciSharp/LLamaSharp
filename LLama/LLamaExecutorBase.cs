@@ -359,7 +359,7 @@ namespace LLama
                         continue;
 
                     foreach (var token in scopedChunk.GetTextTokensSpan())
-                        tokens.Add(unchecked((int)token));
+                        tokens.Add(token);
                 }
 
                 var totalPositions = (int)ClipModel.CountPositions(chunks);
@@ -400,9 +400,9 @@ namespace LLama
         /// <summary>
         /// Apply bookkeeping after successfully evaluating multimodal chunks.
         /// </summary>
-        protected void FinalizeMtmdEvaluation(long newNPast, int previousConsumed)
+        protected void FinalizeMtmdEvaluation(int newNPast, int previousConsumed)
         {
-            _pastTokensCount = checked((int)newNPast);
+            _pastTokensCount = newNPast;
             DisposeMtmdChunks();
 
             if (!string.IsNullOrEmpty(_pathSession) && _embed_inps.Count > previousConsumed)
@@ -418,7 +418,7 @@ namespace LLama
         /// <summary>
         /// Evaluate the queued MTMD chunks and update executor state.
         /// </summary>
-        protected void EvaluateMtmdChunks(ref long nPast, int previousConsumed, string executorName)
+        protected void EvaluateMtmdChunks(ref int nPast, int previousConsumed, string executorName)
         {
             if (ClipModel is null)
                 throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");

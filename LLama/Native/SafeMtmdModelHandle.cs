@@ -160,7 +160,7 @@ namespace LLama.Native
         /// <param name="logitsLast">Whether to request logits for the last token only.</param>
         /// <returns>Zero on success; otherwise the native helper error code.</returns>
         /// <exception cref="ArgumentNullException">Thrown when required handles are null.</exception>
-        public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle llamaContext, ref long nPast, int seqId, int nBatch, bool logitsLast)
+        public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
         {
             EnsureNotDisposed();
 
@@ -197,7 +197,7 @@ namespace LLama.Native
         /// <param name="logitsLast">Whether to request logits for the last token only.</param>
         /// <returns>Zero on success; otherwise the native helper error code.</returns>
         /// <exception cref="ArgumentNullException">Thrown when required handles are null.</exception>
-        public int EvaluateChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, ref long nPast, int seqId, int nBatch, bool logitsLast)
+        public int EvaluateChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
         {
             EnsureNotDisposed();
 
@@ -234,7 +234,7 @@ namespace LLama.Native
         /// <param name="nBatch">Maximum number of tokens to evaluate in a single batch.</param>
         /// <returns>Zero on success; otherwise the native helper error code.</returns>
         /// <exception cref="ArgumentNullException">Thrown when required handles are null.</exception>
-        public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref long nPast, int seqId, int nBatch)
+        public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref int nPast, int seqId, int nBatch)
         {
             EnsureNotDisposed();
 

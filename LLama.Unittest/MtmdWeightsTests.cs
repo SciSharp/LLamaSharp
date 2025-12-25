@@ -68,7 +68,7 @@ namespace LLama.Unittest
 
         private void AssertChunksEvaluate(SafeMtmdInputChunks chunks)
         {
-            long nPast = 0;
+            int nPast = 0;
             var eval = _mtmdWeights.EvaluateChunks(chunks, _context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)_context.BatchSize), logitsLast: true);
             Assert.Equal(0, eval);
             Assert.True(nPast > 0);
