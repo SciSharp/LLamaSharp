@@ -10,7 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<Version>0.24.0</Version>
+		<Version>0.25.0</Version>
 		<Authors>Tim Miller, Xbotter</Authors>
 		<Company>SciSharp STACK</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -23,7 +23,7 @@
 			The integration of LLamaSharp and Microsoft semantic-kernel.
 		</Description>
 		<PackageReleaseNotes>
-            v0.24.0 released with v0.24.0 of LLamaSharp.
+            v0.25.0 released with v0.25.0 of LLamaSharp.
         </PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageOutputPath>packages</PackageOutputPath>
@@ -34,11 +34,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.48.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.64.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="System.Memory" Version="4.6.2" PrivateAssets="all" />
+		<PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>
