@@ -16,6 +16,7 @@ public sealed class BatchedExecutor
 {
     private int _nextSequenceId;
     private readonly List<IBatch> _batchQueue = [];
+    private string? _mtmdMarker;
     private int _batchQueueHead;
     private int _batchedTokenCount;
     private bool _batchedTokenCountDirty = true;
@@ -79,11 +80,19 @@ public sealed class BatchedExecutor
     /// <param name="model">The model to use</param>
     /// <param name="contextParams">Parameters to create a new context</param>
     public BatchedExecutor(LLamaWeights model, IContextParams contextParams)
+        : this(model, contextParams, null)
+    {
+    }
+
+    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel)
     {
         Model = model;
         Context = model.CreateContext(contextParams);
+        ClipModel = clipModel;
         Epoch = 1;
     }
+
+    public MtmdWeights? ClipModel { get; }
 
     /// <summary>
     /// Start a new <see cref="Conversation"/>
@@ -314,6 +323,23 @@ public sealed class BatchedExecutor
         return (end, Epoch + (uint)(_batchQueue.Count - _batchQueueHead) * 2);
     }
 
+    internal ulong QueueMtmdBatch(Conversation conversation, Conversation.MtmdChunkSequence sequence)
+    {
+        if (ClipModel is null)
+            throw new InvalidOperationException("This batched executor is not configured for multimodal inference.");
+
+        var batch = new MtmdChunkBatch(ClipModel, conversation, sequence);
+        _batchQueue.Add(batch);
+        return Epoch + (uint)_batchQueue.Count * 2;
+    }
+
+    internal string GetMtmdMarker()
+    {
+        if (ClipModel is null)
+            throw new InvalidOperationException("This batched executor is not configured for multimodal inference.");
+        return _mtmdMarker ??= NativeApi.MtmdDefaultMarker() ?? "<media>";
+    }
+
     #region batches
     private interface IBatch
     {
@@ -343,6 +369,45 @@ public sealed class BatchedExecutor
         public Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token)
         {
             return ctx.DecodeAsync(Batch, token);
+        }
+    }
+
+    private class MtmdChunkBatch : IBatch
+    {
+        private readonly MtmdWeights _clipModel;
+        private readonly Conversation _conversation;
+        private readonly Conversation.MtmdChunkSequence _sequence;
+
+        public MtmdChunkBatch(MtmdWeights clipModel, Conversation conversation, Conversation.MtmdChunkSequence sequence)
+        {
+            _clipModel = clipModel;
+            _conversation = conversation;
+            _sequence = sequence;
+        }
+
+        public int ItemCount => Math.Max(1, _sequence.TotalTokens);
+
+        public Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token)
+        {
+            try
+            {
+                var nPast = _conversation.GetMtmdPast();
+                var status = _clipModel.EvaluateChunks(_sequence.Chunks, ctx.NativeHandle, ref nPast,
+                    (int)_conversation.ConversationId, checked((int)ctx.BatchSize), logitsLast: true);
+                if (status != 0)
+                {
+                    _conversation.OnMtmdEvaluationFailed(status);
+                    return Task.FromResult(DecodeResult.DecodeFailed);
+                }
+
+                _conversation.OnMtmdEvaluationCompleted(nPast, _sequence);
+                return Task.FromResult(DecodeResult.Ok);
+            }
+            catch
+            {
+                _conversation.OnMtmdEvaluationFailed(-1);
+                return Task.FromResult(DecodeResult.DecodeFailed);
+            }
         }
     }
     #endregion
