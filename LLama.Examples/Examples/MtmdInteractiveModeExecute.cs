@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
+using LLama;
 using LLama.Common;
 using Spectre.Console;
 using LLama.Native;
@@ -17,9 +19,9 @@ namespace LLama.Examples.Examples
             string multiModalProj = UserSettings.GetMMProjPath();
             string modelPath = UserSettings.GetModelPath();
             string modelImage = UserSettings.GetImagePath();
-            const int maxTokens = 2048;
+            const int maxTokens = 8192;
 
-            var prompt = $"{{{modelImage}}}\nUSER:\nProvide a full description of the image.\nASSISTANT:\n";
+            string? prompt = $"{{{modelImage}}}\nProvide a full description of the image.";
 
             var parameters = new ModelParams(modelPath);
 
@@ -35,6 +37,7 @@ namespace LLama.Examples.Examples
             var mediaMarker = mtmdParameters.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>";
 
             var ex = new InteractiveExecutor(context, clipModel);
+            var chatHistory = new ChatHistory();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to {0} and the context size is {1}.", maxTokens, parameters.ContextSize );
@@ -55,16 +58,18 @@ namespace LLama.Examples.Examples
             do
             {
                 
+                var userPrompt = prompt ?? string.Empty;
+
                 // Evaluate if we have media
                 //
-                var mediaMatches = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Value);
+                var mediaMatches = Regex.Matches(userPrompt, "{([^}]*)}").Select(m => m.Value);
                 var mediaCount = mediaMatches.Count();
                 var hasMedia = mediaCount > 0;
 
                 if (hasMedia)
                 {
-                    var mediaPathsWithCurlyBraces = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Value);
-                    var mediaPaths = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Groups[1].Value).ToList();
+                    var mediaPathsWithCurlyBraces = Regex.Matches(userPrompt, "{([^}]*)}").Select(m => m.Value);
+                    var mediaPaths = Regex.Matches(userPrompt, "{([^}]*)}").Select(m => m.Groups[1].Value).ToList();
 
                     var embeds = new List<SafeMtmdEmbed>();
                     var imageList = new List<byte[]>();
@@ -114,7 +119,7 @@ namespace LLama.Examples.Examples
                     // Replace placeholders with media markers (one marker per image)
                     foreach (var path in mediaPathsWithCurlyBraces)
                     {
-                        prompt = prompt.Replace(path, mediaMarker, StringComparison.Ordinal);
+                        userPrompt = userPrompt.Replace(path, mediaMarker, StringComparison.Ordinal);
                     }
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -141,23 +146,58 @@ namespace LLama.Examples.Examples
                         ex.Embeds.Add(embed);
                 }
 
-                Console.ForegroundColor = Color.White;
-                await foreach (var text in ex.InferAsync(prompt, inferenceParams))
+                var formattedPrompt = BuildChatDelta(model, chatHistory, userPrompt);
+
+                Console.ForegroundColor = ConsoleColor.White;
+                var responseBuilder = new StringBuilder();
+                await foreach (var text in ex.InferAsync(formattedPrompt, inferenceParams))
                 {
                     Console.Write(text);
+                    responseBuilder.Append(text);
                 }
                 Console.Write(" ");
+                chatHistory.AddMessage(AuthorRole.Assistant, responseBuilder.ToString());
+
                 Console.ForegroundColor = ConsoleColor.Green;
                 prompt = Console.ReadLine();
                 Console.WriteLine();
                 
                 // let the user finish with exit
                 //
-                if (prompt != null && prompt.Equals("/exit", StringComparison.OrdinalIgnoreCase))
+                if (prompt == null || prompt.Equals("/exit", StringComparison.OrdinalIgnoreCase))
                     break;
 
             }
             while(true);
+        }
+
+        private static string BuildChatDelta(LLamaWeights model, ChatHistory history, string userContent)
+        {
+            var pastPrompt = FormatChatHistory(model, history, addAssistant: false);
+            history.AddMessage(AuthorRole.User, userContent);
+            var fullPrompt = FormatChatHistory(model, history, addAssistant: true);
+
+            if (!fullPrompt.StartsWith(pastPrompt, StringComparison.Ordinal))
+                return fullPrompt;
+
+            var delta = fullPrompt[pastPrompt.Length..];
+            if (pastPrompt.Length > 0 && pastPrompt.EndsWith('\n') && (delta.Length == 0 || delta[0] != '\n'))
+                delta = "\n" + delta;
+
+            return delta;
+        }
+
+        private static string FormatChatHistory(LLamaWeights model, ChatHistory history, bool addAssistant)
+        {
+            var template = new LLamaTemplate(model.NativeHandle)
+            {
+                AddAssistant = addAssistant,
+            };
+
+            foreach (var message in history.Messages)
+                template.Add(message.AuthorRole.ToString().ToLowerInvariant(), message.Content);
+
+            return LLamaTemplate.Encoding.GetString(template.Apply());
         }
     }
 }

@@ -731,6 +731,10 @@ internal struct LLamaSamplerINative
     public unsafe delegate*<LLamaSamplerNative*, void> Reset;
     public unsafe delegate*<LLamaSamplerNative*, IntPtr> Clone;
     public unsafe delegate*<LLamaSamplerNative*, void> Free;
+    public IntPtr BackendInit;
+    public IntPtr BackendAccept;
+    public IntPtr BackendApply;
+    public IntPtr BackendSetInput;
 }
 
 /// <summary>
@@ -782,6 +786,7 @@ internal class CustomSamplerHandle
         {
             // Allocate space for a `LLamaSamplerINative` struct. So we can pass pointers to it.
             handle._samplerNativeInterfacePtr = (LLamaSamplerINative*)Marshal.AllocHGlobal(sizeof(LLamaSamplerINative));
+            new Span<byte>((void*)handle._samplerNativeInterfacePtr, sizeof(LLamaSamplerINative)).Clear();
             handle._samplerNativeInterfacePtr->Name = (delegate*<byte*>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.NameDelegate>(Name);
             handle._samplerNativeInterfacePtr->Accept = (delegate*<LLamaSamplerNative*, LLamaToken, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.AcceptDelegate>(Accept);
             handle._samplerNativeInterfacePtr->Apply = (delegate*<LLamaSamplerNative*, LLamaTokenDataArrayNative*, void>)Marshal.GetFunctionPointerForDelegate<LLamaSamplerINative.ApplyDelegate>(Apply);

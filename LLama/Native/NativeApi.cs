@@ -144,7 +144,7 @@ namespace LLama.Native
         /// Set abort callback
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
+        public static extern void llama_set_abort_callback(SafeLLamaContextHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
 
         /// <summary>
         /// Get the n_seq_max for this context

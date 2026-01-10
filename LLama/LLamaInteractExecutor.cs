@@ -204,9 +204,10 @@ namespace LLama
             {
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
+                return Task.FromResult((true, (IReadOnlyList<string>)[]));
             }
 
-            return Task.FromResult((true, (IReadOnlyList<string>)[]));
+            return Task.FromResult((false, (IReadOnlyList<string>)[]));
         }
 
         /// <inheritdoc />
