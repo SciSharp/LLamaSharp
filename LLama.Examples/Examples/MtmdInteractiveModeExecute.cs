@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using LLama;
 using LLama.Common;
+using LLama.Exceptions;
 using Spectre.Console;
 using LLama.Native;
 using LLama.Sampling;
@@ -35,13 +36,19 @@ namespace LLama.Examples.Examples
             using var clipModel = await MtmdWeights.LoadFromFileAsync(multiModalProj, model, mtmdParameters );
 
             var mediaMarker = mtmdParameters.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>";
+            var supportsVision = clipModel.SupportsVision;
+            var supportsAudio = clipModel.SupportsAudio;
 
             var ex = new InteractiveExecutor(context, clipModel);
             var chatHistory = new ChatHistory();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to {0} and the context size is {1}.", maxTokens, parameters.ContextSize );
-            Console.WriteLine("To send an image, enter its filename in curly braces, like this {c:/image.jpg}.");
+            if (supportsVision)
+                Console.WriteLine("To send an image, enter its filename in curly braces, like this {c:/image.jpg}.");
+            if (supportsAudio)
+                Console.WriteLine("To send audio, enter its filename in curly braces, like this {c:/audio.wav}.");
+            Console.WriteLine("Note: MTMD does not currently support video inputs.");
 
             var inferenceParams = new InferenceParams
             {
@@ -73,6 +80,7 @@ namespace LLama.Examples.Examples
 
                     var embeds = new List<SafeMtmdEmbed>();
                     var imageList = new List<byte[]>();
+                    var audioList = new List<string>();
                     var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ".png",
@@ -82,23 +90,56 @@ namespace LLama.Examples.Examples
                         ".gif",
                         ".webp"
                     };
+                    var audioExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ".wav",
+                        ".mp3",
+                        ".flac",
+                        ".ogg",
+                        ".m4a",
+                        ".aac",
+                        ".opus"
+                    };
+                    var videoExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ".mp4",
+                        ".mkv",
+                        ".mov",
+                        ".avi",
+                        ".webm"
+                    };
                     
                     try
                     {
                         foreach (var mediaPath in mediaPaths)
                         {
                             var extension = Path.GetExtension(mediaPath);
-                            if (!string.IsNullOrEmpty(extension) && imageExtensions.Contains(extension))
+                            var isImage = !string.IsNullOrEmpty(extension) && imageExtensions.Contains(extension);
+                            var isAudio = !string.IsNullOrEmpty(extension) && audioExtensions.Contains(extension);
+                            var isVideo = !string.IsNullOrEmpty(extension) && videoExtensions.Contains(extension);
+
+                            if (isVideo)
+                                throw new NotSupportedException("Video inputs are not supported by MTMD.");
+                            if (isImage && !supportsVision)
+                                throw new InvalidOperationException("This model does not support vision inputs.");
+                            if (isAudio && !supportsAudio)
+                                throw new InvalidOperationException("This model does not support audio inputs.");
+
+                            if (isImage)
                             {
                                 // Keep the raw image data so the caller can reuse or inspect the images later.
                                 imageList.Add(File.ReadAllBytes(mediaPath));
+                            }
+                            else if (isAudio)
+                            {
+                                audioList.Add(mediaPath);
                             }
 
                             var embed = clipModel.LoadMedia(mediaPath);
                             embeds.Add(embed);
                         }
                     }
-                    catch (IOException exception)
+                    catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or RuntimeError or NotSupportedException or InvalidOperationException)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.Write(
@@ -133,6 +174,11 @@ namespace LLama.Examples.Examples
                     }
 
                     Console.WriteLine();
+                    if (audioList.Count > 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"Loaded audio files: {string.Join(", ", audioList)}");
+                    }
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine($"The images were scaled down for the console only, the model gets full versions.");
                     Console.WriteLine($"Write /exit or press Ctrl+c to return to main menu.");
