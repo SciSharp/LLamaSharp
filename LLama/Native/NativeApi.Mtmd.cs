@@ -19,9 +19,12 @@ public static partial class NativeApi
         [MarshalAs(UnmanagedType.I1)] public bool use_gpu;
         [MarshalAs(UnmanagedType.I1)] public bool print_timings;
         public int n_threads;
-        public int verbosity;
         public IntPtr image_marker;
         public IntPtr media_marker;
+        public LLamaFlashAttentionType flash_attn_type;
+        [MarshalAs(UnmanagedType.I1)] public bool warmup;
+        public int image_min_tokens;
+        public int image_max_tokens;
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_default_marker", CallingConvention = CallingConvention.Cdecl)]

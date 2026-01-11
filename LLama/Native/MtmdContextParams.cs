@@ -25,12 +25,13 @@ public class MtmdContextParams
     public int NThreads { get; set; }
 
     /// <summary>
-    /// Verbosity level forwarded to llama.cpp logging (matches <c>ggml_log_level</c>).
+    /// Verbosity is no longer supported by mtmd_context_params and is ignored.
     /// </summary>
+    [Obsolete("Verbosity is no longer supported by mtmd_context_params and is ignored.")]
     public int Verbosity { get; set; }
 
     /// <summary>
-    /// Marker token inserted into the text stream to reference an image embedding.
+    /// Marker token inserted into the text stream to reference an image embedding (deprecated by mtmd).
     /// </summary>
     public string? ImageMarker { get; set; }
 
@@ -38,6 +39,26 @@ public class MtmdContextParams
     /// Marker token inserted into the text stream to reference a generic media embedding.
     /// </summary>
     public string? MediaMarker { get; set; }
+
+    /// <summary>
+    /// Flash attention policy forwarded to mtmd encoders.
+    /// </summary>
+    public LLamaFlashAttentionType FlashAttentionType { get; set; }
+
+    /// <summary>
+    /// Whether to run a warmup encode pass after initialization.
+    /// </summary>
+    public bool Warmup { get; set; }
+
+    /// <summary>
+    /// Minimum number of image tokens for dynamic resolution (use -1 to read metadata).
+    /// </summary>
+    public int ImageMinTokens { get; set; }
+
+    /// <summary>
+    /// Maximum number of image tokens for dynamic resolution (use -1 to read metadata).
+    /// </summary>
+    public int ImageMaxTokens { get; set; }
 
     /// <summary>
     /// Create a managed copy of the native defaults returned by <see cref="NativeApi.mtmd_context_params_default"/>.
@@ -50,9 +71,12 @@ public class MtmdContextParams
             UseGpu = native.use_gpu,
             PrintTimings = native.print_timings,
             NThreads = native.n_threads,
-            Verbosity = native.verbosity,
             ImageMarker = native.image_marker.PtrToString(),
-            MediaMarker = native.media_marker.PtrToString()
+            MediaMarker = native.media_marker.PtrToString(),
+            FlashAttentionType = native.flash_attn_type,
+            Warmup = native.warmup,
+            ImageMinTokens = native.image_min_tokens,
+            ImageMaxTokens = native.image_max_tokens
         };
     }
 
@@ -78,7 +102,10 @@ public class MtmdContextParams
             native.use_gpu = managed.UseGpu;
             native.print_timings = managed.PrintTimings;
             native.n_threads = managed.NThreads;
-            native.verbosity = managed.Verbosity;
+            native.flash_attn_type = managed.FlashAttentionType;
+            native.warmup = managed.Warmup;
+            native.image_min_tokens = managed.ImageMinTokens;
+            native.image_max_tokens = managed.ImageMaxTokens;
 
             if (_imageMarker is not null)
                 native.image_marker = _imageMarker.Pointer;
