@@ -728,17 +728,17 @@ jobs:
           cp artifacts/mtmd-bin-osx-x64-rosetta2.dylib/libmtmd.dylib           deps/osx-x64-rosetta2/libmtmd.dylib
 
           # Android
-          cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so               deps/android-arm64-v8a/libggml.so
-          cp artifacts/ggml-base-bin-android-arm64-v8a.so/libggml-base.so     deps/android-arm64-v8a/libggml-base.so
-          cp artifacts/ggml-cpu-bin-android-arm64-v8a.so/libggml-cpu.so       deps/android-arm64-v8a/libggml-cpu.so
-          cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
-          cp artifacts/mtmd-bin-android-arm64-v8a.so/libmtmd.so               deps/android-arm64-v8a/libmtmd.so
-                                                                              
-          cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
-          cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
-          cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so
-          cp artifacts/llama-bin-android-x86_64.so/libllama.so                deps/android-x86_64/libllama.so
-          cp artifacts/mtmd-bin-android-x86_64.so/libmtmd.so                  deps/android-x86_64/libmtmd.so
+          # cp artifacts/ggml-bin-android-arm64-v8a.so/libggml.so               deps/android-arm64-v8a/libggml.so
+          # cp artifacts/ggml-base-bin-android-arm64-v8a.so/libggml-base.so     deps/android-arm64-v8a/libggml-base.so
+          # cp artifacts/ggml-cpu-bin-android-arm64-v8a.so/libggml-cpu.so       deps/android-arm64-v8a/libggml-cpu.so
+          # cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
+          # cp artifacts/mtmd-bin-android-arm64-v8a.so/libmtmd.so               deps/android-arm64-v8a/libmtmd.so
+          #                                                                     
+          # cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
+          # cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
+          # cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so
+          # cp artifacts/llama-bin-android-x86_64.so/libllama.so                deps/android-x86_64/libllama.so
+          # cp artifacts/mtmd-bin-android-x86_64.so/libmtmd.so                  deps/android-x86_64/libmtmd.so
 
           # Windows CUDA
           cp artifacts/ggml-bin-win-cublas-cu12.4.0-x64.dll/ggml.dll            deps/cu12.4.0/ggml.dll
