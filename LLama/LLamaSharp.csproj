@@ -57,7 +57,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <BinaryReleaseId>86587da03bd</BinaryReleaseId>
+    <BinaryReleaseId>506bb6e01009058f355</BinaryReleaseId>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -68,8 +68,7 @@
   <!-- When UnzipReleaseBinaries is called, this will run first, as UnzipReleaseBinaries depends on it (check DependsOnTargets of UnzipReleaseBinaries) -->
   <Target Name="DownloadReleaseBinaries">
 	<Message Importance="High" Text="Download '$(BinaryReleaseId)/deps.zip' to 'runtimes'" />
-      <DownloadFile SourceUrl="https://github.com/SignalRT/LLamaSharp/releases/download/b7703/deps.zip" DestinationFolder="runtimes" DestinationFileName="deps.zip" SkipUnchangedFiles="true" Retries="3" />
-      <!-- <DownloadFile SourceUrl="https://github.com/SciSharp/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip" DestinationFolder="runtimes" DestinationFileName="deps.zip" SkipUnchangedFiles="true" Retries="3" /> -->
+      <DownloadFile SourceUrl="https://github.com/SciSharp/LLamaSharpBinaries/releases/download/$(BinaryReleaseId)/deps.zip" DestinationFolder="runtimes" DestinationFileName="deps.zip" SkipUnchangedFiles="true" Retries="3" />
   </Target>
 
   <!-- This automatically runs after CheckReleaseBinaries has completed, but only if SkipDownloadReleaseBinaries is not true -->
