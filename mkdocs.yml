@@ -42,6 +42,7 @@ nav:
         - ChatSession - load & save: Examples/LoadAndSaveSession.md
         - Executor - save/load state: Examples/LoadAndSaveState.md
         - Quantization: Examples/QuantizeModel.md
+        - KaiROS AI - Windows Desktop Application: Examples/KairosAI.md
         - Semantic-kernel - chat: Examples/SemanticKernelChat.md
         - Semantic-kernel - with kernel-memory: Examples/SemanticKernelMemory.md
         - Semantic-kernel - basic: Examples/SemanticKernelPrompt.md
