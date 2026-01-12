@@ -50,7 +50,7 @@ namespace LLama.Native
         private string? GetAvxPath(SystemInfo systemInfo, AvxLevel avxLevel, NativeLogConfig.LLamaLogCallback? logCallback)
         {
             NativeLibraryUtils.GetPlatformPathParts(systemInfo.OSPlatform, out var os, out var fileExtension, out var libPrefix);
-            if (os != "linux-arm64"){
+            if (os != "linux-arm64" && os != "win-arm64"){
                 var avxStr = NativeLibraryConfig.AvxLevelToString(avxLevel);
                 if (!string.IsNullOrEmpty(avxStr))
                     avxStr += "/";
