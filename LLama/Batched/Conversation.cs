@@ -23,7 +23,6 @@ public sealed class Conversation
     /// </summary>
     private bool _forked;
     private readonly List<SafeMtmdEmbed> _mtmdEmbeds = new();
-    private int? _mtmdLogitsIndex;
     private MtmdChunkSequence? _pendingMtmdSequence;
     private readonly List<LLamaToken> _embed_inps = new();
     private readonly List<LLamaToken> _session_tokens = new();
@@ -31,6 +30,7 @@ public sealed class Conversation
 
     /// <summary>
     /// Stores the indices to sample from. Contains <see cref="_batchSampleCount"/> valid items.
+    /// For MTMD helper calls using logits_last, we store -1 to sample the last logits row.
     /// </summary>
     private int[] _batchSampleIndices = new int[4];
     private int _batchSampleCount;
@@ -230,15 +230,6 @@ public sealed class Conversation
     /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
     public Span<float> Sample(int offset = 0)
     {
-        AssertNotDisposed();
-
-        if (_requiredEpoch < Executor.Epoch)
-            throw new CannotSampleRequiresPromptException();
-        if (_requiredEpoch > Executor.Epoch)
-            throw new CannotSampleRequiresInferenceException();
-        if (offset >= _batchSampleCount)
-            throw new ArgumentException("Cannot sample offset more than the previous prompt count", nameof(offset));
-
         var index = GetSampleIndex(offset);
         var span = Executor.Context.NativeHandle.GetLogitsIth(index);
 
@@ -258,8 +249,6 @@ public sealed class Conversation
 
         if (RequiresInference)
             throw new AlreadyPromptedConversationException();
-
-        _mtmdLogitsIndex = null;
     }
 
     public void QueueMedia(string path)
@@ -271,7 +260,6 @@ public sealed class Conversation
 
         var embed = Executor.ClipModel.LoadMedia(path);
         _mtmdEmbeds.Add(embed);
-        _mtmdLogitsIndex = null;
     }
 
     public void QueueMedia(SafeMtmdEmbed embed)
@@ -282,7 +270,6 @@ public sealed class Conversation
             throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
 
         _mtmdEmbeds.Add(embed);
-        _mtmdLogitsIndex = null;
     }
 
     public void Prompt(string promptText, bool addBos = true, bool special = true)
@@ -335,7 +322,6 @@ public sealed class Conversation
     public void Prompt(ReadOnlySpan<LLamaToken> tokens, bool allLogits = false)
     {
         AssertCanBePrompted();
-        _mtmdLogitsIndex = null;
 
         // No point doing anything if there is no actual prompt!
         if (tokens.Length == 0)
@@ -379,7 +365,6 @@ public sealed class Conversation
         // Unset the forked flag. Since this conversation has just been prompted it's no longer
         // sharing anything with any other conversations.
         _forked = false;
-        _mtmdLogitsIndex = null;
     }
 
     private void PromptMultimodal(string text, bool addBos)
@@ -406,7 +391,6 @@ public sealed class Conversation
         SafeMtmdInputChunks? chunks = null;
         try
         {
-            _mtmdLogitsIndex = null;
             var status = Executor.ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
             if (status != 0 || chunks is null)
             {
@@ -457,7 +441,6 @@ public sealed class Conversation
     public void Prompt(ReadOnlySpan<float> embeddings)
     {
         AssertCanBePrompted();
-        _mtmdLogitsIndex = null;
 
         var dim = Executor.Model.EmbeddingSize;
         var count = embeddings.Length / dim;
@@ -517,8 +500,8 @@ public sealed class Conversation
             _batchSampleIndices = new int[4];
 
         _batchSampleCount = 1;
-        _batchSampleIndices[0] = 0;
-        _mtmdLogitsIndex = -1;
+        // MTMD helper uses logits_last; sample the last logits row (idx = -1) per mtmd-cli.
+        _batchSampleIndices[0] = -1;
         _requiredEpoch = Executor.Epoch + 1;
         _forked = false;
 
@@ -541,12 +524,9 @@ public sealed class Conversation
     {
         _pendingMtmdSequence?.Dispose();
         _pendingMtmdSequence = null;
-        _mtmdLogitsIndex = null;
         _requiredEpoch = Executor.Epoch;
         DisposeQueuedMedia();
     }
-
-    internal int? MtmdLogitsIndex => _mtmdLogitsIndex;
 
     private LLamaToken GetFillerToken(string marker)
     {

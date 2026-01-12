@@ -19,9 +19,6 @@ public static class ConversationExtensions
     public static LLamaToken Sample(this Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset = 0)
     {
         var ctx = conversation.Executor.Context.NativeHandle;
-        if (conversation.MtmdLogitsIndex == -1)
-            return sampler.Sample(ctx, -1);
-
         return sampler.Sample(ctx, conversation.GetSampleIndex(offset));
     }
 
@@ -35,9 +32,6 @@ public static class ConversationExtensions
     public static LLamaToken Sample(this Conversation conversation, ISamplingPipeline sampler, int offset = 0)
     {
         var ctx = conversation.Executor.Context.NativeHandle;
-        if (conversation.MtmdLogitsIndex == -1)
-            return sampler.Sample(ctx, -1);
-
         return sampler.Sample(ctx, conversation.GetSampleIndex(offset));
     }
 
