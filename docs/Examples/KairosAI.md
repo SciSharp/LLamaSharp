@@ -15,6 +15,10 @@ KaiROS AI is a WPF desktop application that runs LLMs (Large Language Models) lo
 - 💬 **Chat Interface** - Clean, modern UI with streaming responses
 - 📊 **Performance Stats** - Real-time tokens/sec and memory usage
 - 🎨 **Modern WPF UI** - Clean, responsive interface built with .NET 9
+- 🔌 **Built-in REST API Server** - HTTP API for integration with other applications
+- 🖥️ **System Tray** - Minimize to system tray for background operation
+- 🧠 **Smart Layer Allocation** - Intelligent GPU/CPU layer distribution for optimal performance
+- 📁 **Custom Models** - Add your own GGUF models from local files or URLs
 
 ## Technology Stack
 
@@ -33,6 +37,10 @@ KaiROS AI demonstrates how to:
 - Monitor and display performance metrics
 - Support GPU acceleration with CUDA
 - Provide a privacy-first, offline AI experience
+- Expose REST API endpoints for integration with external tools
+- Run in background with system tray integration
+- Optimize layer allocation between GPU and CPU for best performance
+- Import and manage custom GGUF models from local storage or remote URLs
 
 ## Repository
 
