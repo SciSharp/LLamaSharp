@@ -22,7 +22,6 @@ public sealed class Conversation
     /// Indicates if this conversation has been "forked" and may share logits with another conversation.
     /// </summary>
     private bool _forked;
-    private readonly List<SafeMtmdEmbed> _mtmdEmbeds = new();
     private MtmdChunkSequence? _pendingMtmdSequence;
     private readonly List<LLamaToken> _embed_inps = new();
     private readonly List<LLamaToken> _session_tokens = new();
@@ -132,8 +131,6 @@ public sealed class Conversation
 
         _pendingMtmdSequence?.Dispose();
         _pendingMtmdSequence = null;
-
-        DisposeQueuedMedia();
 
         // Remove this conversation from the KV cache
         Executor.Context.NativeHandle.MemorySequenceRemove(ConversationId, -1, -1);
@@ -251,37 +248,29 @@ public sealed class Conversation
             throw new AlreadyPromptedConversationException();
     }
 
-    public void QueueMedia(string path)
-    {
-        AssertCanBePrompted();
-
-        if (Executor.ClipModel is null)
-            throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
-
-        var embed = Executor.ClipModel.LoadMedia(path);
-        _mtmdEmbeds.Add(embed);
-    }
-
-    public void QueueMedia(SafeMtmdEmbed embed)
-    {
-        AssertCanBePrompted();
-
-        if (Executor.ClipModel is null)
-            throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
-
-        _mtmdEmbeds.Add(embed);
-    }
-
     public void Prompt(string promptText, bool addBos = true, bool special = true)
     {
-        if (Executor.ClipModel != null && _mtmdEmbeds.Count > 0)
-        {
-            PromptMultimodal(promptText, addBos);
-            return;
-        }
-
         var tokens = Executor.Context.Tokenize(promptText, addBos, special);
         Prompt(tokens);
+    }
+
+    /// <summary>
+    /// Prompt this conversation with explicit multimodal embeddings.
+    /// The caller retains ownership of <paramref name="embeds"/>.
+    /// </summary>
+    /// <param name="promptText">Prompt text for the model.</param>
+    /// <param name="embeds">Media embeddings to include in the multimodal prompt.</param>
+    /// <param name="addBos">Whether to add the BOS token.</param>
+    public void Prompt(string promptText, ReadOnlySpan<SafeMtmdEmbed> embeds, bool addBos = true)
+    {
+        AssertCanBePrompted();
+
+        if (Executor.ClipModel is null)
+            throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
+        if (embeds.IsEmpty)
+            throw new ArgumentException("Embeds cannot be empty for multimodal prompts.", nameof(embeds));
+
+        PromptMultimodal(promptText, addBos, embeds);
     }
 
     /// <summary>
@@ -367,36 +356,21 @@ public sealed class Conversation
         _forked = false;
     }
 
-    private void PromptMultimodal(string text, bool addBos)
+    private void PromptMultimodal(string text, bool addBos, ReadOnlySpan<SafeMtmdEmbed> embeds)
     {
         AssertCanBePrompted();
 
         if (Executor.ClipModel is null)
             throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
-        if (_mtmdEmbeds.Count == 0)
-            throw new InvalidOperationException("Queue media before prompting with multimodal input.");
 
-        var marker = Executor.GetMtmdMarker();
-        var prompt = text;
-
-        if (prompt.Contains("<image>"))
-            prompt = prompt.Replace("<image>", marker);
-
-        if (!prompt.Contains(marker))
-        {
-            var suffix = string.Concat(Enumerable.Repeat(marker, _mtmdEmbeds.Count));
-            prompt = string.Concat(prompt, suffix);
-        }
+        var prompt = BuildMtmdPrompt(text, embeds.Length);
 
         SafeMtmdInputChunks? chunks = null;
         try
         {
-            var status = Executor.ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
+            var status = Executor.ClipModel.Tokenize(prompt, addBos, parseSpecial: true, embeds, out chunks);
             if (status != 0 || chunks is null)
-            {
-                Executor.ClipModel.ClearMedia();
                 throw new RuntimeError($"Failed to tokenize multimodal prompt. Status: {status}.");
-            }
 
             var sequence = MtmdChunkSequence.Create(chunks, Executor.ClipModel);
             _pendingMtmdSequence = sequence;
@@ -413,9 +387,25 @@ public sealed class Conversation
         }
         finally
         {
-            DisposeQueuedMedia();
             chunks?.Dispose();
         }
+    }
+
+    private string BuildMtmdPrompt(string text, int embedCount)
+    {
+        var marker = Executor.GetMtmdMarker();
+        var prompt = text;
+
+        if (prompt.Contains("<image>"))
+            prompt = prompt.Replace("<image>", marker);
+
+        if (!prompt.Contains(marker))
+        {
+            var suffix = string.Concat(Enumerable.Repeat(marker, embedCount));
+            prompt = string.Concat(prompt, suffix);
+        }
+
+        return prompt;
     }
 
     /// <summary>
@@ -525,7 +515,6 @@ public sealed class Conversation
         _pendingMtmdSequence?.Dispose();
         _pendingMtmdSequence = null;
         _requiredEpoch = Executor.Epoch;
-        DisposeQueuedMedia();
     }
 
     private LLamaToken GetFillerToken(string marker)
@@ -539,18 +528,6 @@ public sealed class Conversation
             return eos.Value;
 
         return default;
-    }
-
-    private void DisposeQueuedMedia()
-    {
-        if (_mtmdEmbeds.Count == 0)
-            return;
-
-        foreach (var embed in _mtmdEmbeds)
-            embed.Dispose();
-
-        _mtmdEmbeds.Clear();
-        Executor.ClipModel?.ClearMedia();
     }
 
     /// <summary>

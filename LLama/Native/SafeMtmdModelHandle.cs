@@ -150,6 +150,47 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Tokenize a prompt alongside the provided media embeddings.
+        /// The caller retains ownership of <paramref name="embeds"/>.
+        /// </summary>
+        /// <param name="text">Prompt text to tokenize.</param>
+        /// <param name="addSpecial">Whether to append special tokens automatically.</param>
+        /// <param name="parseSpecial">Whether special tokens should be treated as user-provided text.</param>
+        /// <param name="embeds">Media embeddings to include in the multimodal prompt.</param>
+        /// <param name="chunks">Receives the native chunk collection when tokenization succeeds.</param>
+        /// <returns>Zero on success; otherwise the native mtmd tokenize error code.</returns>
+        /// <exception cref="ObjectDisposedException">The model handle has been disposed.</exception>
+        /// <exception cref="RuntimeError">The native tokenizer failed to allocate output chunks.</exception>
+        public int Tokenize(string text, bool addSpecial, bool parseSpecial, ReadOnlySpan<SafeMtmdEmbed> embeds, out SafeMtmdInputChunks? chunks)
+        {
+            EnsureNotDisposed();
+
+            chunks = null;
+            var output = NativeApi.mtmd_input_chunks_init();
+            if (output == IntPtr.Zero)
+                throw new RuntimeError("Failed to allocate mtmd_input_chunks.");
+
+            var bitmapHandles = new IntPtr[embeds.Length];
+            for (var i = 0; i < embeds.Length; i++)
+            {
+                var embed = embeds[i] ?? throw new ArgumentNullException(nameof(embeds), "Embeds cannot contain null.");
+                bitmapHandles[i] = embed.NativePtr;
+            }
+
+            var result = NativeApi.mtmd_tokenize(DangerousGetHandle(), output, text, addSpecial, parseSpecial, bitmapHandles, (UIntPtr)bitmapHandles.Length);
+            if (result == 0)
+            {
+                chunks = new SafeMtmdInputChunks(output);
+            }
+            else
+            {
+                NativeApi.mtmd_input_chunks_free(output);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Evaluate a batch of chunks using the helper (mirrors mtmd-helper eval logic).
         /// </summary>
         /// <param name="chunks">Chunk collection produced by <see cref="Tokenize"/>.</param>

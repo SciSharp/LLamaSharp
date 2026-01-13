@@ -55,6 +55,13 @@ public sealed class MtmdWeights : IDisposable
         => NativeHandle.Tokenize(text, addSpecial, parseSpecial, out chunks);
 
     /// <summary>
+    /// Tokenize text (with optional special tokens) against explicit media embeddings.
+    /// The caller retains ownership of <paramref name="embeds"/>.
+    /// </summary>
+    public int Tokenize(string text, bool addSpecial, bool parseSpecial, ReadOnlySpan<SafeMtmdEmbed> embeds, out SafeMtmdInputChunks? chunks)
+        => NativeHandle.Tokenize(text, addSpecial, parseSpecial, embeds, out chunks);
+
+    /// <summary>
     /// Evaluate a chunk batch using the helper that performs mtmd encode + llama decode.
     /// </summary>
     public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)

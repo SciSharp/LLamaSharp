@@ -19,7 +19,7 @@ public class BatchedExecutorMtmd
     /// <summary>
     /// Number of completion tokens to generate after sending the image prompt.
     /// </summary>
-    public const int TokenCount = 10000;
+    public const int TokenCount = 100;
 
     public static async Task Run()
     {
@@ -60,10 +60,11 @@ public class BatchedExecutorMtmd
         {
             // Each conversation tracks its own KV cache sequence IDs.
             var conversation = executor.Create();
-            // enqueue the image so MtmdHelper sees it
-            conversation.QueueMedia(imagePath); 
-            // schedule multimodal prompt
-            conversation.Prompt(promptText, addBos: true, special: true); 
+            // Load the media embed explicitly so ownership is clear.
+            using var embed = mtmd.LoadMedia( imagePath)
+                ?? throw new RuntimeError($"Failed to load media '{imagePath}'.");
+            // Schedule the multimodal prompt with explicit embeds.
+            conversation.Prompt(promptText, new[] { embed }, addBos: true); 
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Prompt queued with multimodal chunks. Generating response...\n");

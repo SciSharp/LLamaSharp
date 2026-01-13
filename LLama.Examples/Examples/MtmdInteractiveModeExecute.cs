@@ -19,7 +19,7 @@ namespace LLama.Examples.Examples
         {
             string multiModalProj = UserSettings.GetMMProjPath();
             string modelPath = UserSettings.GetModelPath();
-            const int maxTokens = 8192;
+            const int maxTokens = 4096;
 
             string? prompt = await File.ReadAllTextAsync("Assets/chat-with-bob.json");
 
