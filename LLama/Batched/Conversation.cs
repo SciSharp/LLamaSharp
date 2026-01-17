@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using CommunityToolkit.HighPerformance.Buffers;
+using LLama.Exceptions;
 using LLama.Native;
 
 namespace LLama.Batched;
@@ -21,9 +22,14 @@ public sealed class Conversation
     /// Indicates if this conversation has been "forked" and may share logits with another conversation.
     /// </summary>
     private bool _forked;
+    private MtmdChunkSequence? _pendingMtmdSequence;
+    private readonly List<LLamaToken> _embed_inps = new();
+    private readonly List<LLamaToken> _session_tokens = new();
+    private int _consumedTokensCount;
 
     /// <summary>
     /// Stores the indices to sample from. Contains <see cref="_batchSampleCount"/> valid items.
+    /// For MTMD helper calls using logits_last, we store -1 to sample the last logits row.
     /// </summary>
     private int[] _batchSampleIndices = new int[4];
     private int _batchSampleCount;
@@ -65,6 +71,46 @@ public sealed class Conversation
         Executor = batch;
     }
 
+    internal sealed class MtmdChunkSequence : IDisposable
+    {
+        public SafeMtmdInputChunks Chunks { get; }
+        public List<LLamaToken> TextTokens { get; }
+        public int TotalPositions { get; }
+        public int TotalTokens => TextTokens.Count;
+
+        private MtmdChunkSequence(SafeMtmdInputChunks chunks, List<LLamaToken> textTokens, int totalPositions)
+        {
+            Chunks = chunks;
+            TextTokens = textTokens;
+            TotalPositions = totalPositions;
+        }
+
+        public static MtmdChunkSequence Create(SafeMtmdInputChunks chunks, MtmdWeights clipModel)
+        {
+            var textTokens = new List<LLamaToken>();
+
+            foreach (var chunk in chunks.Enumerate())
+            {
+                using (chunk)
+                {
+                    if (chunk.Type != SafeMtmdInputChunk.SafeMtmdInputChunkType.Text)
+                        continue;
+
+                    foreach (var token in chunk.GetTextTokensSpan())
+                        textTokens.Add(token);
+                }
+            }
+
+            var totalPositions = (int)clipModel.CountPositions(chunks);
+            return new MtmdChunkSequence(chunks, textTokens, totalPositions);
+        }
+
+        public void Dispose()
+        {
+            Chunks.Dispose();
+        }
+    }
+
     /// <summary>
     /// Finalizer for Conversation
     /// </summary>
@@ -82,6 +128,9 @@ public sealed class Conversation
         if (IsDisposed)
             return;
         _disposed = true;
+
+        _pendingMtmdSequence?.Dispose();
+        _pendingMtmdSequence = null;
 
         // Remove this conversation from the KV cache
         Executor.Context.NativeHandle.MemorySequenceRemove(ConversationId, -1, -1);
@@ -178,15 +227,6 @@ public sealed class Conversation
     /// <exception cref="CannotSampleRequiresInferenceException">Thrown if Infer() must be called on the executor</exception>
     public Span<float> Sample(int offset = 0)
     {
-        AssertNotDisposed();
-
-        if (_requiredEpoch < Executor.Epoch)
-            throw new CannotSampleRequiresPromptException();
-        if (_requiredEpoch > Executor.Epoch)
-            throw new CannotSampleRequiresInferenceException();
-        if (offset >= _batchSampleCount)
-            throw new ArgumentException("Cannot sample offset more than the previous prompt count", nameof(offset));
-
         var index = GetSampleIndex(offset);
         var span = Executor.Context.NativeHandle.GetLogitsIth(index);
 
@@ -206,6 +246,31 @@ public sealed class Conversation
 
         if (RequiresInference)
             throw new AlreadyPromptedConversationException();
+    }
+
+    public void Prompt(string promptText, bool addBos = true, bool special = true)
+    {
+        var tokens = Executor.Context.Tokenize(promptText, addBos, special);
+        Prompt(tokens);
+    }
+
+    /// <summary>
+    /// Prompt this conversation with explicit multimodal embeddings.
+    /// The caller retains ownership of <paramref name="embeds"/>.
+    /// </summary>
+    /// <param name="promptText">Prompt text for the model.</param>
+    /// <param name="embeds">Media embeddings to include in the multimodal prompt.</param>
+    /// <param name="addBos">Whether to add the BOS token.</param>
+    public void Prompt(string promptText, ReadOnlySpan<SafeMtmdEmbed> embeds, bool addBos = true)
+    {
+        AssertCanBePrompted();
+
+        if (Executor.ClipModel is null)
+            throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
+        if (embeds.IsEmpty)
+            throw new ArgumentException("Embeds cannot be empty for multimodal prompts.", nameof(embeds));
+
+        PromptMultimodal(promptText, addBos, embeds);
     }
 
     /// <summary>
@@ -291,6 +356,58 @@ public sealed class Conversation
         _forked = false;
     }
 
+    private void PromptMultimodal(string text, bool addBos, ReadOnlySpan<SafeMtmdEmbed> embeds)
+    {
+        AssertCanBePrompted();
+
+        if (Executor.ClipModel is null)
+            throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
+
+        var prompt = BuildMtmdPrompt(text, embeds.Length);
+
+        SafeMtmdInputChunks? chunks = null;
+        try
+        {
+            var status = Executor.ClipModel.Tokenize(prompt, addBos, parseSpecial: true, embeds, out chunks);
+            if (status != 0 || chunks is null)
+                throw new RuntimeError($"Failed to tokenize multimodal prompt. Status: {status}.");
+
+            var sequence = MtmdChunkSequence.Create(chunks, Executor.ClipModel);
+            _pendingMtmdSequence = sequence;
+
+            var epoch = Executor.QueueMtmdBatch(this, sequence);
+            chunks = null;
+
+            if (_batchSampleIndices.Length == 0)
+                _batchSampleIndices = new int[4];
+
+            _batchSampleCount = 0;
+            _requiredEpoch = epoch;
+            _forked = false;
+        }
+        finally
+        {
+            chunks?.Dispose();
+        }
+    }
+
+    private string BuildMtmdPrompt(string text, int embedCount)
+    {
+        var marker = Executor.GetMtmdMarker();
+        var prompt = text;
+
+        if (prompt.Contains("<image>"))
+            prompt = prompt.Replace("<image>", marker);
+
+        if (!prompt.Contains(marker))
+        {
+            var suffix = string.Concat(Enumerable.Repeat(marker, embedCount));
+            prompt = string.Concat(prompt, suffix);
+        }
+
+        return prompt;
+    }
+
     /// <summary>
     /// Add a single token to this conversation
     /// </summary>
@@ -305,32 +422,7 @@ public sealed class Conversation
         Span<LLamaToken> span = [ token ];
         Prompt(span);
     }
-
-    /// <summary>
-    /// Prompt this conversation with an image embedding
-    /// </summary>
-    /// <param name="embedding"></param>
-    public void Prompt(SafeLlavaImageEmbedHandle embedding)
-    {
-        AssertCanBePrompted();
-
-        if (embedding.Model.EmbeddingDimensions != Executor.Model.EmbeddingSize)
-            throw new ArgumentException($"Embedding dimension mismatch between image embedding ({embedding.Model.EmbeddingDimensions}) and model ({Executor.Model.EmbeddingSize})");
-
-        for (var i = 0; i < embedding.Model.PatchCount; i++)
-        {
-            // Get a batch with space
-            (var batch, _requiredEpoch) = Executor.GetEmbeddingBatch();
-                
-            batch.Add(
-                (i, embedding),
-                static (Span<float> dest, (int index, SafeLlavaImageEmbedHandle embedding) tup) => tup.embedding.GetEmbedding(dest, tup.index),
-                _end++,
-                ConversationId,
-                i == embedding.Model.PatchCount - 1
-            );
-        }
-    }
+    
 
     /// <summary>
     /// Prompt this conversation with embeddings
@@ -383,6 +475,59 @@ public sealed class Conversation
         // Set the epoch down to zero, this ensures that this conversation
         // cannot be sampled until it is prompted again.
         _requiredEpoch = 0;
+    }
+
+    internal int GetMtmdPast() => _end.Value;
+
+    internal void OnMtmdEvaluationCompleted(int newPast, MtmdChunkSequence sequence)
+    {
+        _pendingMtmdSequence?.Dispose();
+        _pendingMtmdSequence = null;
+
+        _end = newPast;
+
+        if (_batchSampleIndices.Length == 0)
+            _batchSampleIndices = new int[4];
+
+        _batchSampleCount = 1;
+        // MTMD helper uses logits_last; sample the last logits row (idx = -1) per mtmd-cli.
+        _batchSampleIndices[0] = -1;
+        _requiredEpoch = Executor.Epoch + 1;
+        _forked = false;
+
+        if (sequence.TextTokens.Count > 0)
+        {
+            _embed_inps.AddRange(sequence.TextTokens);
+            _session_tokens.AddRange(sequence.TextTokens);
+        }
+
+        var fillerToken = GetFillerToken(Executor.GetMtmdMarker());
+        var fillerCount = Math.Max(0, sequence.TotalPositions - sequence.TotalTokens);
+        for (var i = 0; i < fillerCount; i++)
+            _embed_inps.Add(fillerToken);
+
+        _consumedTokensCount = _embed_inps.Count;
+        sequence.Dispose();
+    }
+
+    internal void OnMtmdEvaluationFailed(int status)
+    {
+        _pendingMtmdSequence?.Dispose();
+        _pendingMtmdSequence = null;
+        _requiredEpoch = Executor.Epoch;
+    }
+
+    private LLamaToken GetFillerToken(string marker)
+    {
+        var markerTokens = Executor.Context.Tokenize(marker, addBos: false, special: true);
+        if (markerTokens.Length > 0)
+            return markerTokens[markerTokens.Length - 1];
+
+        var eos = Executor.Context.Vocab.EOS;
+        if (eos.HasValue)
+            return eos.Value;
+
+        return default;
     }
 
     /// <summary>

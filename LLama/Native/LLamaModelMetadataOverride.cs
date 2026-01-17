@@ -7,16 +7,16 @@ namespace LLama.Native;
 public unsafe struct LLamaModelMetadataOverride
 {
     /// <summary>
-    /// Key to override
-    /// </summary>
-    [FieldOffset(0)]
-    public fixed byte key[128];
-
-    /// <summary>
     /// Type of value
     /// </summary>
-    [FieldOffset(128)]
+    [FieldOffset(0)]
     public LLamaModelKvOverrideType Tag;
+
+    /// <summary>
+    /// Key to override
+    /// </summary>
+    [FieldOffset(4)]
+    public fixed byte key[128];
 
     /// <summary>
     /// Add 4 bytes of padding, to align the next fields to 8 bytes
