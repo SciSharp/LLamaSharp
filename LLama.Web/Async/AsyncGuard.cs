@@ -4,7 +4,7 @@ namespace LLama.Web.Async
 {
 
     /// <summary>
-    /// Creates a async/thread-safe guard helper
+    /// Creates an async/thread-safe guard helper.
     /// </summary>
     /// <seealso cref="AsyncGuard&lt;byte&gt;" />
     public class AsyncGuard : AsyncGuard<byte>
@@ -26,7 +26,7 @@ namespace LLama.Web.Async
         /// <summary>
         /// Guards this instance.
         /// </summary>
-        /// <returns>true if able to enter an guard, false if already guarded</returns>
+        /// <returns>true if able to enter a guard; false if already guarded.</returns>
         public bool Guard()
         {
             return _lockData.TryAdd(_key, true);
@@ -74,7 +74,7 @@ namespace LLama.Web.Async
         /// Guards the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <returns>true if able to enter a guard for this value, false if this value is already guarded</returns>
+        /// <returns>true if able to enter a guard for this value; false if this value is already guarded.</returns>
         public bool Guard(T value)
         {
             return _lockData.TryAdd(value, true);

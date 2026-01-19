@@ -1,0 +1,941 @@
+@page "/"
+@implements IAsyncDisposable
+@inject IModelDownloadService ModelDownloadService
+@inject IModelSessionService ModelSessionService
+@inject IAttachmentService AttachmentService
+@inject IOptions<LLamaOptions> OptionsAccessor
+@inject IJSRuntime JS
+
+<div class="app-grid">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <img src="/image/llama-sharp.png" alt="LLamaSharp" />
+                <h1>LLamaSharp</h1>
+            </div>
+        </div>
+
+        <div class="sidebar-tabs">
+            <button class="@GetTabClass(SidebarTab.Models)" @onclick="() => SetTab(SidebarTab.Models)">Model</button>
+            <button class="@GetTabClass(SidebarTab.Settings)" @onclick="() => SetTab(SidebarTab.Settings)">Settings</button>
+        </div>
+
+        @if (_activeTab == SidebarTab.Models)
+        {
+            <div class="sidebar-section">
+                <div class="section-title">Session</div>
+                <label class="sidebar-meta">Model</label>
+                <select class="select" @bind="_sessionConfig.Model">
+                    @foreach (var model in _models)
+                    {
+                        <option value="@model.Name" disabled="@(!IsModelReady(model.Name))">@model.Name</option>
+                    }
+                </select>
+                <label class="sidebar-meta">Executor</label>
+                <select class="select" @bind="_sessionConfig.ExecutorType">
+                    @foreach (var executor in Enum.GetValues<LLamaExecutorType>())
+                    {
+                        <option value="@executor">@executor</option>
+                    }
+                </select>
+                <label class="sidebar-meta">System Prompt</label>
+                <textarea class="textarea" @bind="_sessionConfig.Prompt"></textarea>
+                <div class="button-row">
+                    <button class="btn-primary" @onclick="LoadSessionAsync" disabled="@(!_canLoad)">Start</button>
+                    <button class="btn-secondary" @onclick="UnloadSessionAsync" disabled="@(!_sessionLoaded)">End</button>
+                </div>
+            <div class="sidebar-meta">
+                <div>Models: @_storageInfo?.ModelsPath</div>
+                <div>Downloads: @_storageInfo?.DownloadsPath</div>
+                <div>Uploads: @_storageInfo?.UploadsPath</div>
+            </div>
+        </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">Capabilities</div>
+                <div class="capability-row">
+                    <span class="@GetCapabilityClass(_modelCapabilities.SupportsText)">Text</span>
+                    <span class="@GetCapabilityClass(_modelCapabilities.SupportsVision)">Image</span>
+                    <span class="@GetCapabilityClass(_modelCapabilities.SupportsAudio)">Audio</span>
+                </div>
+                <div class="sidebar-meta">@_capabilitiesHint</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">Downloads</div>
+                @if (_downloadSnapshots.Count == 0)
+                {
+                    <div class="sidebar-meta">No downloads yet.</div>
+                }
+                else
+                {
+                    @foreach (var snapshot in _downloadSnapshots)
+                    {
+                        var assets = snapshot.Assets;
+                        var totalBytes = assets.Sum(asset => asset.TotalBytes ?? 0);
+                        var receivedBytes = assets.Sum(asset => asset.BytesReceived);
+                        var hasUnknownTotal = assets.Any(asset => asset.TotalBytes == null);
+                        var progressPercent = totalBytes > 0 ? Math.Min(100, (int)Math.Round(receivedBytes * 100.0 / totalBytes)) : 0;
+                        var ready = assets.All(asset => asset.State == ModelDownloadState.Completed);
+                        var statusText = ready ? "Ready" : assets.Any(asset => asset.State == ModelDownloadState.Downloading) ? "Downloading" : "Queued";
+                        <div class="download-card">
+                            <header>
+                                <span>@snapshot.ModelName</span>
+                                <span>@statusText</span>
+                            </header>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width:@progressPercent%"></div>
+                            </div>
+                            <div class="download-meta">
+                                @if (hasUnknownTotal)
+                                {
+                                    <span>Calculating size...</span>
+                                }
+                                else
+                                {
+                                    <span>@FormatBytes(Math.Max(0, totalBytes - receivedBytes)) remaining</span>
+                                }
+                            </div>
+                            @foreach (var asset in assets)
+                            {
+                                var assetPercent = asset.TotalBytes.HasValue && asset.TotalBytes > 0
+                                    ? Math.Min(100, (int)Math.Round(asset.BytesReceived * 100.0 / asset.TotalBytes.Value))
+                                    : 0;
+                                <div class="download-asset">
+                                    <div class="download-asset-title">
+                                        <span>@asset.FileName</span>
+                                        <span>@asset.State</span>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill" style="width:@assetPercent%"></div>
+                                    </div>
+                                    <div class="download-meta">@FormatBytes(asset.BytesReceived) / @FormatBytes(asset.TotalBytes)</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            <div class="sidebar-section">
+                <div class="section-title">Settings</div>
+                <label class="sidebar-meta">Max Tokens</label>
+                <InputNumber class="text-input" TValue="int" @bind-Value="_samplingSettings.MaxTokens" />
+                <label class="sidebar-meta">Temperature</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.Temperature" />
+                <label class="sidebar-meta">Top P</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.TopP" />
+                <label class="sidebar-meta">Top K</label>
+                <InputNumber class="text-input" TValue="int" @bind-Value="_samplingSettings.TopK" />
+                <label class="sidebar-meta">Repeat Penalty</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.RepeatPenalty" />
+                <label class="sidebar-meta">Presence Penalty</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.PresencePenalty" />
+                <label class="sidebar-meta">Frequency Penalty</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.FrequencyPenalty" />
+                <label class="sidebar-meta">Penalty Count</label>
+                <InputNumber class="text-input" TValue="int" @bind-Value="_samplingSettings.PenaltyCount" />
+                <label class="sidebar-meta">Typical P</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.TypicalP" />
+                <label class="sidebar-meta">Min P</label>
+                <InputNumber class="text-input" TValue="float" @bind-Value="_samplingSettings.MinP" />
+                <div class="button-row">
+                    <label class="sidebar-meta">
+                        <InputCheckbox class="me-2" @bind-Value="_samplingSettings.PreventEos" /> Prevent EOS
+                    </label>
+                    <label class="sidebar-meta">
+                        <InputCheckbox class="me-2" @bind-Value="_samplingSettings.PenalizeNewline" /> Penalize Newline
+                    </label>
+                </div>
+            </div>
+        }
+
+    </aside>
+
+    <section class="chat-column">
+        <div class="chat-header">
+            <div class="chat-title">
+                <h2>Chat Playground</h2>
+                <span>Streaming, multimodal, and markdown-ready.</span>
+            </div>
+            <div class="status-pill @(_sessionLoaded ? "live" : "warn")">
+                @_statusText
+            </div>
+        </div>
+
+        <div class="chat-thread" @ref="_threadRef">
+            @foreach (var message in _messages)
+            {
+                <div class="chat-message @message.RoleClass">
+                    <div class="avatar">@message.Avatar</div>
+                    <div class="chat-bubble">
+                        <div class="markdown-body" @ref="message.ContentRef"></div>
+                        @if (message.Attachments.Any(attachment => attachment.Kind == AttachmentKind.Image))
+                        {
+                            <div class="attachment-images">
+                                @foreach (var attachment in message.Attachments.Where(attachment => attachment.Kind == AttachmentKind.Image))
+                                {
+                                    <img
+                                        class="attachment-image"
+                                        src="@($"/api/attachments/{_sessionId}/{attachment.Id}")"
+                                        alt="@attachment.FileName" />
+                                }
+                            </div>
+                        }
+                        @if (message.Attachments.Any(attachment => attachment.Kind == AttachmentKind.Audio))
+                        {
+                            <div class="attachment-audio">
+                                @foreach (var attachment in message.Attachments.Where(attachment => attachment.Kind == AttachmentKind.Audio))
+                                {
+                                    <div class="attachment-audio-item">
+                                        <div class="attachment-audio-name">@attachment.FileName</div>
+                                        <audio controls src="@($"/api/attachments/{_sessionId}/{attachment.Id}")">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (message.Attachments.Any())
+                        {
+                            <div class="attachment-tags">
+                                @foreach (var attachment in message.Attachments)
+                                {
+                                    <span class="attachment-tag">@attachment.FileName</span>
+                                }
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(message.Meta))
+                        {
+                            <div class="message-meta">@message.Meta</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_inputText))
+        {
+            <div class="draft-preview">
+                <div class="chat-message user">
+                    <div class="avatar">U</div>
+                    <div class="chat-bubble draft-bubble">
+                        <div class="draft-text">@_inputText</div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="composer">
+            <div class="composer-row">
+                <div class="composer-actions">
+                    <label class="btn-secondary file-button">
+                        Add files
+                        <InputFile class="file-input" OnChange="OnFilesSelected" multiple accept="@_acceptedUploadTypes" />
+                    </label>
+                    @if (_modelCapabilities.SupportsAudio && _audioRecordingSupported)
+                    {
+                        <button class="btn-secondary" @onclick="ToggleAudioRecordingAsync" disabled="@(!_sessionLoaded || _isSending)">
+                            @(_isRecordingAudio ? "Stop recording" : "Record audio")
+                        </button>
+                    }
+                    <button class="btn-secondary" @onclick="ClearAttachments" disabled="@(!_pendingFiles.Any())">Clear</button>
+                </div>
+                <div class="sidebar-meta">@_composerHint</div>
+            </div>
+            @if (_pendingFiles.Count > 0)
+            {
+                <div class="attachment-tags">
+                    @foreach (var file in _pendingFiles)
+                    {
+                        <span class="attachment-tag">@file.Name</span>
+                    }
+                </div>
+            }
+            @if (_hasRecordedAudio)
+            {
+                <div class="attachment-audio">
+                    <div class="attachment-audio-item">
+                        <div class="attachment-audio-name">@_recordedAudioName</div>
+                        <audio controls src="@_recordedAudioPreviewUrl">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                </div>
+                <div class="composer-row">
+                    <div class="composer-actions">
+                        <button class="btn-secondary" @onclick="AcceptRecordedAudio" disabled="@(!_sessionLoaded || _isSending)">Use recording</button>
+                        <button class="btn-secondary" @onclick="DiscardRecordedAudio">Discard</button>
+                    </div>
+                </div>
+            }
+            <textarea placeholder="Ask anything..." @bind="_inputText" @onkeydown="HandleKeyPress"></textarea>
+            @if (!string.IsNullOrWhiteSpace(_composerError))
+            {
+                <div class="composer-error">@_composerError</div>
+            }
+            <div class="composer-row">
+                <div class="composer-actions">
+                    <button class="btn-secondary" @onclick="CancelAsync" disabled="@(!_isSending)">Stop</button>
+                    <button class="btn-primary" @onclick="SendAsync" disabled="@(!_sessionLoaded || _isSending)">Send</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    private readonly List<ChatMessageView> _messages = new();
+    private readonly HashSet<string> _pendingRenders = new();
+    private readonly List<IBrowserFile> _pendingFiles = new();
+    private readonly List<ModelDownloadSnapshot> _downloadSnapshots = new();
+
+    private ElementReference _threadRef;
+    private bool _initialized;
+    private bool _sessionLoaded;
+    private bool _isSending;
+    private bool _scrollToBottom;
+    private string _inputText = string.Empty;
+    private string _statusText = "Model not loaded";
+    private string _composerHint = "Select a model and start a session.";
+    private string _composerError = string.Empty;
+    private string _acceptedUploadTypes = "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*";
+    private SessionConfig _sessionConfig = new();
+    private InferenceOptions _inferenceOptions = new();
+    private SamplingSettings _samplingSettings = new();
+    private string _sessionId = Guid.NewGuid().ToString("N");
+    private IReadOnlyList<ModelOptions> _models = Array.Empty<ModelOptions>();
+    private StorageInfo _storageInfo;
+    private PeriodicTimer _downloadTimer;
+    private CancellationTokenSource _downloadCts;
+    private SidebarTab _activeTab = SidebarTab.Models;
+    private ModelCapabilities _modelCapabilities = new ModelCapabilities { SupportsText = true };
+    private string _capabilitiesHint = "Load a model session to inspect capabilities.";
+    private bool _audioRecordingSupported;
+    private bool _isRecordingAudio;
+    private bool _hasRecordedAudio;
+    private string _recordedAudioName = string.Empty;
+    private string _recordedAudioPreviewUrl = string.Empty;
+    private MemoryBrowserFile _recordedAudioFile;
+
+    private bool _canLoad => !_sessionLoaded && IsModelReady(_sessionConfig.Model);
+
+    protected override Task OnInitializedAsync()
+    {
+        _models = OptionsAccessor.Value.Models ?? new List<ModelOptions>();
+        _sessionConfig = new SessionConfig
+        {
+            Model = _models.FirstOrDefault()?.Name,
+            ExecutorType = LLamaExecutorType.Interactive,
+            Prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
+            AntiPrompt = "User:,<|im_end|>,<|eot_id|>,<|endoftext|>",
+            OutputFilter = "User:, Assistant:,<|im_end|>,<|eot_id|>,<|endoftext|>"
+        };
+
+        _samplingSettings = SamplingSettings.CreateDefault();
+        _inferenceOptions = BuildInferenceOptions();
+
+        _storageInfo = new StorageInfo
+        {
+            ModelsPath = ModelDownloadService.ModelsRoot,
+            DownloadsPath = ModelDownloadService.DownloadsRoot,
+            UploadsPath = AttachmentService.UploadsRoot
+        };
+
+        _downloadCts = new CancellationTokenSource();
+        _downloadTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(800));
+        _ = PollDownloadsAsync(_downloadCts.Token);
+
+        _acceptedUploadTypes = BuildAcceptedUploadTypes();
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("llamaChat.initialize");
+            _audioRecordingSupported = await JS.InvokeAsync<bool>("llamaChat.isAudioRecordingSupported");
+            _initialized = true;
+            var storedTab = await JS.InvokeAsync<string>("llamaChat.getSidebarTab");
+            if (!string.IsNullOrWhiteSpace(storedTab) && Enum.TryParse<SidebarTab>(storedTab, out var tab))
+            {
+                _activeTab = tab;
+            }
+        }
+
+        if (_initialized && _pendingRenders.Count > 0)
+        {
+            var toRender = _messages.Where(message => _pendingRenders.Contains(message.Id)).ToList();
+            foreach (var message in toRender)
+            {
+                await JS.InvokeVoidAsync("llamaChat.renderMarkdown", message.ContentRef, message.Content);
+                _pendingRenders.Remove(message.Id);
+            }
+        }
+
+        if (_scrollToBottom)
+        {
+            await JS.InvokeVoidAsync("llamaChat.scrollToBottom", _threadRef);
+            _scrollToBottom = false;
+        }
+    }
+
+    private async Task PollDownloadsAsync(CancellationToken cancellationToken)
+    {
+        while (await _downloadTimer.WaitForNextTickAsync(cancellationToken))
+        {
+            _downloadSnapshots.Clear();
+            _downloadSnapshots.AddRange(ModelDownloadService.GetSnapshots());
+            _composerHint = IsModelReady(_sessionConfig.Model)
+                ? "Ready to chat."
+                : "Model is downloading...";
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadSessionAsync()
+    {
+        if (!IsModelReady(_sessionConfig.Model))
+        {
+            AddSystemMessage("Selected model is still downloading.", MessageKind.Error);
+            return;
+        }
+
+        await UnloadSessionAsync();
+
+        try
+        {
+            _inferenceOptions = BuildInferenceOptions();
+            await ModelSessionService.CreateAsync(_sessionId, _sessionConfig, _inferenceOptions);
+            _sessionLoaded = true;
+            _statusText = $"Model loaded: {_sessionConfig.Model}";
+            _composerHint = "Ask about images, PDFs, or Word documents.";
+            await RefreshCapabilitiesAsync();
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Failed to start session: {ex.Message}", MessageKind.Error);
+            _sessionLoaded = false;
+            _statusText = "Model not loaded";
+        }
+    }
+
+    private async Task UnloadSessionAsync()
+    {
+        if (!_sessionLoaded)
+            return;
+
+        await ModelSessionService.CloseAsync(_sessionId);
+        await AttachmentService.CleanupAsync(_sessionId);
+        _sessionLoaded = false;
+        _statusText = "Model not loaded";
+        _modelCapabilities = new ModelCapabilities { SupportsText = true };
+        _capabilitiesHint = "Load a model session to inspect capabilities.";
+    }
+
+    private async Task SendAsync()
+    {
+        if (!_sessionLoaded || _isSending)
+            return;
+
+        if (string.IsNullOrWhiteSpace(_inputText))
+            return;
+
+        if (HasImageAttachments() && !_modelCapabilities.SupportsVision)
+        {
+            _composerError = "This model does not support images. Remove image attachments or choose a multimodal model.";
+            return;
+        }
+
+        if (HasAudioAttachments() && !_modelCapabilities.SupportsAudio)
+        {
+            _composerError = "This model does not support audio. Remove audio attachments or choose an audio-capable model.";
+            return;
+        }
+
+        var prompt = _inputText.Trim();
+        _inputText = string.Empty;
+        _isSending = true;
+        _composerError = string.Empty;
+
+        var attachments = await UploadAttachmentsAsync();
+
+        var userMessage = new ChatMessageView(MessageKind.User, prompt)
+        {
+            Attachments = attachments
+        };
+        AddMessage(userMessage);
+
+        var assistantMessage = new ChatMessageView(MessageKind.Assistant, string.Empty);
+        AddMessage(assistantMessage);
+
+        var request = new PromptRequest
+        {
+            Prompt = prompt,
+            AttachmentIds = attachments.Select(a => a.Id).ToList()
+        };
+
+        try
+        {
+            _inferenceOptions = BuildInferenceOptions();
+            await foreach (var token in ModelSessionService.InferAsync(_sessionId, request, _inferenceOptions))
+            {
+                if (token.TokenType == TokenType.Content)
+                {
+                    assistantMessage.Content += token.Content;
+                    MarkForRender(assistantMessage);
+                }
+                else if (token.TokenType == TokenType.End || token.TokenType == TokenType.Cancel)
+                {
+                    assistantMessage.Meta = token.Content;
+                }
+
+                _scrollToBottom = true;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Failed to invoke prompt: {ex.Message}", MessageKind.Error);
+        }
+        finally
+        {
+            _isSending = false;
+        }
+    }
+
+    private async Task CancelAsync()
+    {
+        if (!_isSending)
+            return;
+
+        await ModelSessionService.CancelAsync(_sessionId);
+        _isSending = false;
+        AddSystemMessage("Generation cancelled.", MessageKind.Info);
+    }
+
+    private async Task<List<AttachmentInfo>> UploadAttachmentsAsync()
+    {
+        if (_pendingFiles.Count == 0)
+            return new List<AttachmentInfo>();
+
+        try
+        {
+            AddSystemMessage("Uploading attachments...", MessageKind.Info);
+            var result = await AttachmentService.SaveAsync(_sessionId, _pendingFiles, CancellationToken.None);
+            _pendingFiles.Clear();
+            return result.Attachments.ToList();
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Attachment upload failed: {ex.Message}", MessageKind.Error);
+            return new List<AttachmentInfo>();
+        }
+    }
+
+    private void OnFilesSelected(InputFileChangeEventArgs args)
+    {
+        _pendingFiles.Clear();
+        var invalidFiles = new List<string>();
+        foreach (var file in args.GetMultipleFiles())
+        {
+            if (IsAllowedUpload(file))
+            {
+                _pendingFiles.Add(file);
+            }
+            else
+            {
+                invalidFiles.Add(file.Name);
+            }
+        }
+
+        if (invalidFiles.Count > 0)
+        {
+            var capabilityNote = BuildCapabilitiesHint();
+            AddSystemMessage($"Unsupported files ignored: {string.Join(", ", invalidFiles)}. {capabilityNote}", MessageKind.Info);
+        }
+        _composerError = string.Empty;
+    }
+
+    private void ClearAttachments()
+    {
+        _pendingFiles.Clear();
+        ClearRecordedAudio();
+        _composerError = string.Empty;
+    }
+
+    private bool IsAllowedUpload(IBrowserFile file)
+    {
+        var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+        var contentType = file.ContentType?.ToLowerInvariant() ?? string.Empty;
+
+        if (extension == ".doc")
+            return false;
+
+        if (extension == ".docx" || contentType.Contains("officedocument.wordprocessingml"))
+            return true;
+
+        if (extension == ".pdf" || contentType.Contains("pdf"))
+            return true;
+
+        if (contentType.StartsWith("image/"))
+            return true;
+
+        if (contentType.StartsWith("audio/") || extension is ".wav" or ".mp3" or ".m4a" or ".ogg" or ".flac" or ".webm")
+            return true;
+
+        return false;
+    }
+
+    private bool HasImageAttachments()
+    {
+        foreach (var file in _pendingFiles)
+        {
+            var contentType = file.ContentType?.ToLowerInvariant() ?? string.Empty;
+            var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+            if (contentType.StartsWith("image/") || extension is ".png" or ".jpg" or ".jpeg" or ".webp" or ".bmp" or ".gif")
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool HasAudioAttachments()
+    {
+        foreach (var file in _pendingFiles)
+        {
+            var contentType = file.ContentType?.ToLowerInvariant() ?? string.Empty;
+            var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+            if (contentType.StartsWith("audio/") || extension is ".wav" or ".mp3" or ".m4a" or ".ogg" or ".flac" or ".webm")
+                return true;
+        }
+
+        return false;
+    }
+
+    private async Task RefreshCapabilitiesAsync()
+    {
+        if (!_sessionLoaded)
+            return;
+
+        _modelCapabilities = await ModelSessionService.GetCapabilitiesAsync(_sessionId);
+        _capabilitiesHint = _modelCapabilities.SupportsVision || _modelCapabilities.SupportsAudio
+            ? "Multimodal inputs enabled for this model."
+            : "Text-only model loaded.";
+        _acceptedUploadTypes = BuildAcceptedUploadTypes();
+    }
+
+    private string BuildAcceptedUploadTypes()
+    {
+        var types = new List<string>
+        {
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        };
+
+        if (_modelCapabilities.SupportsVision)
+            types.Add("image/*");
+
+        types.Add("audio/*");
+
+        return string.Join(",", types);
+    }
+
+    private string BuildCapabilitiesHint()
+    {
+        var parts = new List<string> { "Use PDF or DOCX" };
+
+        if (_modelCapabilities.SupportsVision)
+            parts.Add("images");
+
+        if (_modelCapabilities.SupportsAudio)
+            parts.Add("audio");
+
+        return $"{string.Join(", ", parts)}.";
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !args.ShiftKey)
+        {
+            await SendAsync();
+        }
+    }
+
+    private async Task ToggleAudioRecordingAsync()
+    {
+        if (_isRecordingAudio)
+        {
+            await StopAudioRecordingAsync();
+            return;
+        }
+
+        if (!_modelCapabilities.SupportsAudio || !_audioRecordingSupported)
+            return;
+
+        var result = await JS.InvokeAsync<AudioRecordingStartResult>("llamaChat.startAudioRecording");
+        if (!result.Started)
+        {
+            AddSystemMessage(result.Error ?? "Unable to start audio recording.", MessageKind.Error);
+            return;
+        }
+
+        _isRecordingAudio = true;
+        _composerError = string.Empty;
+    }
+
+    private async Task StopAudioRecordingAsync()
+    {
+        if (!_isRecordingAudio)
+            return;
+
+        var result = await JS.InvokeAsync<AudioRecordingStopResult>("llamaChat.stopAudioRecording");
+        _isRecordingAudio = false;
+
+        if (result == null || string.IsNullOrWhiteSpace(result.Base64))
+        {
+            AddSystemMessage("No audio captured.", MessageKind.Info);
+            return;
+        }
+
+        var bytes = Convert.FromBase64String(result.Base64);
+        var mimeType = string.IsNullOrWhiteSpace(result.MimeType) ? "audio/webm" : result.MimeType;
+        var extension = GetAudioExtension(mimeType);
+        var fileName = $"recording-{DateTimeOffset.Now:yyyyMMdd-HHmmss}{extension}";
+
+        _recordedAudioFile = new MemoryBrowserFile(fileName, mimeType, bytes, DateTimeOffset.Now);
+        _recordedAudioName = fileName;
+        _recordedAudioPreviewUrl = $"data:{mimeType};base64,{result.Base64}";
+        _hasRecordedAudio = true;
+        _composerError = string.Empty;
+    }
+
+    private void AcceptRecordedAudio()
+    {
+        if (_recordedAudioFile == null)
+            return;
+
+        _pendingFiles.Add(_recordedAudioFile);
+        ClearRecordedAudio();
+        _composerError = string.Empty;
+    }
+
+    private void DiscardRecordedAudio()
+    {
+        ClearRecordedAudio();
+    }
+
+    private void ClearRecordedAudio()
+    {
+        _recordedAudioFile = null;
+        _recordedAudioName = string.Empty;
+        _recordedAudioPreviewUrl = string.Empty;
+        _hasRecordedAudio = false;
+    }
+
+    private static string GetAudioExtension(string contentType)
+    {
+        var normalized = contentType.ToLowerInvariant();
+        if (normalized.Contains("wav"))
+            return ".wav";
+        if (normalized.Contains("mpeg") || normalized.Contains("mp3"))
+            return ".mp3";
+        if (normalized.Contains("ogg"))
+            return ".ogg";
+        if (normalized.Contains("mp4") || normalized.Contains("m4a"))
+            return ".m4a";
+        if (normalized.Contains("webm"))
+            return ".webm";
+
+        return ".audio";
+    }
+
+    private bool IsModelReady(string modelName)
+    {
+        if (string.IsNullOrWhiteSpace(modelName))
+            return false;
+
+        return ModelDownloadService.IsModelReady(modelName);
+    }
+
+    private void AddSystemMessage(string message, MessageKind kind)
+    {
+        AddMessage(new ChatMessageView(kind, message));
+    }
+
+    private void AddMessage(ChatMessageView message)
+    {
+        _messages.Add(message);
+        MarkForRender(message);
+        _scrollToBottom = true;
+    }
+
+    private void MarkForRender(ChatMessageView message)
+    {
+        _pendingRenders.Add(message.Id);
+    }
+
+    private static string FormatBytes(long? value)
+    {
+        if (!value.HasValue)
+            return "-";
+
+        var bytes = value.Value;
+        if (bytes <= 0)
+            return "0 B";
+
+        var sizes = new[] { "B", "KB", "MB", "GB", "TB" };
+        var order = (int)Math.Floor(Math.Log(bytes, 1024));
+        var adjusted = bytes / Math.Pow(1024, order);
+        return $"{adjusted:0.0} {sizes[order]}";
+    }
+
+    private InferenceOptions BuildInferenceOptions()
+    {
+        return new InferenceOptions
+        {
+            MaxTokens = _samplingSettings.MaxTokens,
+            DecodeSpecialTokens = true,
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = _samplingSettings.Temperature,
+                TopP = _samplingSettings.TopP,
+                TopK = _samplingSettings.TopK,
+                RepeatPenalty = _samplingSettings.RepeatPenalty,
+                PresencePenalty = _samplingSettings.PresencePenalty,
+                FrequencyPenalty = _samplingSettings.FrequencyPenalty,
+                PenaltyCount = _samplingSettings.PenaltyCount,
+                TypicalP = _samplingSettings.TypicalP,
+                MinP = _samplingSettings.MinP,
+                PreventEOS = _samplingSettings.PreventEos,
+                PenalizeNewline = _samplingSettings.PenalizeNewline
+            }
+        };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _downloadCts?.Cancel();
+        _downloadTimer?.Dispose();
+        await ModelSessionService.CloseAsync(_sessionId);
+        await AttachmentService.CleanupAsync(_sessionId);
+    }
+
+    private sealed class ChatMessageView
+    {
+        public ChatMessageView(MessageKind kind, string content)
+        {
+            Id = Guid.NewGuid().ToString("N");
+            Kind = kind;
+            Content = content;
+            Attachments = new List<AttachmentInfo>();
+        }
+
+        public string Id { get; }
+        public MessageKind Kind { get; }
+        public string Content { get; set; }
+        public string Meta { get; set; }
+        public ElementReference ContentRef { get; set; }
+        public List<AttachmentInfo> Attachments { get; set; }
+
+        public string RoleClass => Kind switch
+        {
+            MessageKind.User => "user",
+            MessageKind.Assistant => "assistant",
+            MessageKind.Info => "info",
+            MessageKind.Error => "error",
+            _ => "assistant"
+        };
+
+        public string Avatar => Kind switch
+        {
+            MessageKind.User => "U",
+            MessageKind.Assistant => "AI",
+            MessageKind.Info => "i",
+            MessageKind.Error => "!",
+            _ => "•"
+        };
+    }
+
+    private sealed class SamplingSettings
+    {
+        public int MaxTokens { get; set; }
+        public float Temperature { get; set; }
+        public float TopP { get; set; }
+        public int TopK { get; set; }
+        public float RepeatPenalty { get; set; }
+        public float PresencePenalty { get; set; }
+        public float FrequencyPenalty { get; set; }
+        public int PenaltyCount { get; set; }
+        public float TypicalP { get; set; }
+        public float MinP { get; set; }
+        public bool PreventEos { get; set; }
+        public bool PenalizeNewline { get; set; }
+
+        public static SamplingSettings CreateDefault()
+        {
+            return new SamplingSettings
+            {
+                MaxTokens = 512,
+                Temperature = 0.7f,
+                TopP = 0.9f,
+                TopK = 40,
+                RepeatPenalty = 1.0f,
+                PresencePenalty = 0.0f,
+                FrequencyPenalty = 0.0f,
+                PenaltyCount = 64,
+                TypicalP = 1.0f,
+                MinP = 0.1f,
+                PreventEos = false,
+                PenalizeNewline = false
+            };
+        }
+    }
+
+    private enum MessageKind
+    {
+        User,
+        Assistant,
+        Info,
+        Error
+    }
+
+    private enum SidebarTab
+    {
+        Models,
+        Settings
+    }
+
+    private sealed class AudioRecordingStartResult
+    {
+        public bool Started { get; set; }
+        public string Error { get; set; }
+        public string MimeType { get; set; }
+    }
+
+    private sealed class AudioRecordingStopResult
+    {
+        public string Base64 { get; set; }
+        public string MimeType { get; set; }
+        public long Size { get; set; }
+    }
+
+    private void SetTab(SidebarTab tab)
+    {
+        _activeTab = tab;
+        _ = JS.InvokeVoidAsync("llamaChat.setSidebarTab", tab.ToString());
+    }
+
+    private string GetTabClass(SidebarTab tab)
+    {
+        return _activeTab == tab ? "tab-button active" : "tab-button";
+    }
+
+    private string GetCapabilityClass(bool enabled)
+    {
+        return enabled ? "capability-pill enabled" : "capability-pill disabled";
+    }
+}

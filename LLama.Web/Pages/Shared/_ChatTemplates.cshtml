@@ -17,7 +17,13 @@
             </div>
             <div class="entry-date">{{date}}</div>
         </div>
-        <div class="content">{{text}}</div>
+        <div class="content markdown-body">{{text}}</div>
+        {{#attachments}}
+        <div class="attachment-line">
+            <i class="bi bi-paperclip"></i>
+            <span>{{fileName}}</span>
+        </div>
+        {{/attachments}}
     </div>
 </script>
 
@@ -34,7 +40,7 @@
             </div>
             <div class="entry-date date"></div>
         </div>
-        <div class="content"><img src="~/image/loading.gif" width="30" /></div>
+        <div class="content markdown-body"><img src="~/image/loading.gif" width="30" /></div>
         <div class="signature"></div>
     </div>
 </script>

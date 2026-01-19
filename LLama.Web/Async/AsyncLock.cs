@@ -1,7 +1,7 @@
 ﻿namespace LLama.Web.Async
 {
     /// <summary>
-    /// Create an Async locking using statement
+    /// Creates an async lock for a using block.
     /// </summary>
     public sealed class AsyncLock
     {
@@ -20,7 +20,7 @@
 
 
         /// <summary>
-        /// Locks the using statement asynchronously.
+        /// Acquires the lock asynchronously.
         /// </summary>
         /// <returns></returns>
         public Task<IDisposable> LockAsync()
@@ -34,7 +34,7 @@
 
 
         /// <summary>
-        /// IDisposable wrapper class to release the lock on dispose
+        /// IDisposable wrapper to release the lock on dispose.
         /// </summary>
         /// <seealso cref="IDisposable" />
         private sealed class Releaser : IDisposable

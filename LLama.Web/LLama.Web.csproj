@@ -17,6 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.22" />
     <PackageReference Include="System.Linq.Async" Version="6.0.3" />
+    <PackageReference Include="PdfPig" Version="0.0.10" />
   </ItemGroup>
 
 </Project>

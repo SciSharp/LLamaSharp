@@ -9,6 +9,17 @@ Models, Prompts and Inference parameters can be added to `appsettings.json`.
 If you would like to add your own local model files then it's best to create an `appSettings.Local.json` file
 and add them there.  The `appSettings.Local.json` file will be ignored by Git.
 
+Local assets downloaded at runtime (models in your AppData `LLama.Web/Models`, uploaded files in your AppData `LLama.Web/Uploads`, and offline web libs in `LLama.Web/wwwroot/lib`) are intentionally git-ignored.
+
+To restore offline web assets (markdown/diagram libraries), install LibMan if needed (`dotnet tool install -g Microsoft.Web.LibraryManager.Cli`), ensure the dotnet tools folder is on your PATH (typically `~/.dotnet/tools`), and run LibMan from the `LLama.Web` folder:
+```sh
+libman restore
+```
+
+Attachments uploaded through the web UI are stored under your AppData `LLama.Web/Uploads/<connectionId>` and are cleaned up when the SignalR connection closes.
+
+Model downloads are staged under your AppData `LLama.Web/Downloads` and finalized in AppData `LLama.Web/Models`.
+
 **Models**
 You can add multiple models to the options for quick selection in the UI, options are based on ModelParams so its fully configurable.
 

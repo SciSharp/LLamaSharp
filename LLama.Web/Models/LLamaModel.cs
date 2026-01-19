@@ -1,4 +1,6 @@
+using LLama;
 using LLama.Abstractions;
+using LLama.Native;
 using LLama.Web.Common;
 using System.Collections.Concurrent;
 
@@ -13,6 +15,7 @@ public class LLamaModel : IDisposable
     private readonly ILogger _llamaLogger;
     private readonly ModelOptions _config;
     private readonly LLamaWeights _weights;
+    private readonly MtmdWeights _mtmdWeights;
     private readonly ConcurrentDictionary<string, LLamaContext> _contexts;
 
     /// <summary>
@@ -21,11 +24,12 @@ public class LLamaModel : IDisposable
     /// <param name="modelParams">The model parameters.</param>
     /// <param name="llamaLogger">A logger class.</param>
     /// <param name="weights">Model weights.</param>
-    private LLamaModel(ModelOptions modelParams, ILogger llamaLogger, LLamaWeights weights)
+    private LLamaModel(ModelOptions modelParams, ILogger llamaLogger, LLamaWeights weights, MtmdWeights mtmdWeights)
     {
         _config = modelParams;
         _llamaLogger = llamaLogger;
         _weights = weights;
+        _mtmdWeights = mtmdWeights;
         _contexts = new ConcurrentDictionary<string, LLamaContext>();
     }
 
@@ -37,7 +41,21 @@ public class LLamaModel : IDisposable
     public static async Task<LLamaModel> CreateAsync(ModelOptions modelParams, ILogger llamaLogger)
     {
         var weights = await LLamaWeights.LoadFromFileAsync(modelParams);
-        return new LLamaModel(modelParams, llamaLogger, weights);
+
+        MtmdWeights mtmdWeights = null;
+        if (!string.IsNullOrWhiteSpace(modelParams.MmprojPath))
+        {
+            if (!File.Exists(modelParams.MmprojPath))
+                throw new FileNotFoundException($"Mmproj file not found: {modelParams.MmprojPath}");
+
+            var mtmdParams = MtmdContextParams.Default();
+            mtmdParams.UseGpu = false;            
+            if (modelParams.Threads.HasValue)
+                mtmdParams.NThreads = modelParams.Threads.Value;
+            mtmdWeights = await MtmdWeights.LoadFromFileAsync(modelParams.MmprojPath, weights, mtmdParams);
+        }
+
+        return new LLamaModel(modelParams, llamaLogger, weights, mtmdWeights);
     }
 
     /// <summary>
@@ -49,6 +67,11 @@ public class LLamaModel : IDisposable
     /// Gets the LLamaWeights
     /// </summary>
     public LLamaWeights LLamaWeights => _weights;
+
+    /// <summary>
+    /// Gets the multimodal weights, if configured.
+    /// </summary>
+    public MtmdWeights MtmdWeights => _mtmdWeights;
 
     /// <summary>
     /// Gets the context count.
@@ -119,5 +142,6 @@ public class LLamaModel : IDisposable
             context?.Dispose();
         }
         _weights.Dispose();
+        _mtmdWeights?.Dispose();
     }
 }
