@@ -9,9 +9,9 @@ namespace LLama.Unittest
         public static readonly string EmbeddingModelPath = "Models/all-MiniLM-L12-v2.Q8_0.gguf";
         public static readonly string RerankingModelPath = "Models/jina-reranker-v1-tiny-en-FP16.gguf";
 
-        public static readonly string LLavaModelPath = "Models/llava-v1.6-mistral-7b.Q3_K_XS.gguf";
-        public static readonly string LLavaMmpPath = "Models/mmproj-model-f16.gguf";
-        public static readonly string LLavaImage = "Models/extreme-ironing-taxi-610x427.jpg";
+        public static readonly string MtmdModelPath = "Models/gemma-3-4b-it-Q4_K_M.gguf";
+        public static readonly string MtmdMmpPath = "Models/gemma-mmproj-model-f16.gguf";
+        public static readonly string MtmdImage = "Models/extreme-ironing-taxi-610x427.jpg";
 
         /// <summary>
         /// Calculate GpuLayer Count to use in UnitTest

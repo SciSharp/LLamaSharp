@@ -32,11 +32,11 @@ namespace LLama
         /// </summary>
         protected int _consumedTokensCount; // n_consume
         /// <summary>
-        /// 
+        /// Number of tokens consumed from the session cache during the current run.
         /// </summary>
         protected int _n_session_consumed;
         /// <summary>
-        /// 
+        /// Number of prompt tokens that match the loaded session cache prefix.
         /// </summary>
         protected int _n_matching_session_tokens;
         /// <summary>
@@ -52,7 +52,7 @@ namespace LLama
         /// </summary>
         protected List<LLamaToken> _embed_inps = new();
         /// <summary>
-        /// 
+        /// Tokens recovered from the session file and reused to warm up the KV cache.
         /// </summary>
         protected List<LLamaToken> _session_tokens = new();
         /// <summary>
@@ -81,21 +81,28 @@ namespace LLama
         }
         
         /// <inheritdoc />
-        public LLavaWeights? ClipModel { get;  }
+        public MtmdWeights? ClipModel { get;  }
 
         /// <inheritdoc />
-        public List<byte[]> Images { get; }
+        public List<SafeMtmdEmbed> Embeds { get; }
+
+        /// <summary>
+        /// Pending multimodal chunks produced by the MTMD tokenizer.
+        /// </summary>
+        protected SafeMtmdInputChunks? MtmdChunks { get; set; }
+
+        private string? _mtmdMarker;
 
         private readonly StreamingTokenDecoder _decoder;
 
         /// <summary>
-        /// 
+        /// Initialize a stateful executor bound to a specific context.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="logger"></param>
+        /// <param name="context">LLama context used for all native interactions.</param>
+        /// <param name="logger">Optional logger for diagnostic output.</param>
         protected StatefulExecutorBase(LLamaContext context, ILogger? logger = null)
         {
-            Images = new List<byte[]>();
+            Embeds = new List<SafeMtmdEmbed>();
             _logger = logger;
             Context = context;
             _pastTokensCount = 0;
@@ -107,22 +114,22 @@ namespace LLama
         }
         
         /// <summary>
-        /// 
+        /// Initialize a multimodal executor with the supplied MTMD weights.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="lLavaWeights"></param>
-        /// <param name="logger"></param>
-        public StatefulExecutorBase(LLamaContext context, LLavaWeights lLavaWeights, ILogger? logger = null) : 
+        /// <param name="context">LLama context used for all native interactions.</param>
+        /// <param name="mtmdWeights">Multimodal weights to associate with this executor.</param>
+        /// <param name="logger">Optional logger for diagnostic output.</param>
+        public StatefulExecutorBase(LLamaContext context, MtmdWeights mtmdWeights, ILogger? logger = null) : 
                         this( context, logger )
         {
-            ClipModel = lLavaWeights;
+            ClipModel = mtmdWeights;
         }
 
         /// <summary>
-        /// This API is currently not verified.
+        /// Attach a session cache file so the executor can reuse previous KV state if compatible.
         /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
+        /// <param name="filename">Path to the llama.cpp session file.</param>
+        /// <returns>The current executor instance for fluent configuration.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="RuntimeError"></exception>
         public StatefulExecutorBase WithSessionFile(string filename)
@@ -179,9 +186,9 @@ namespace LLama
         }
 
         /// <summary>
-        /// This API has not been verified currently.
+        /// Persist the current session cache to disk.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">Destination path for the llama.cpp session file.</param>
         public void SaveSessionFile(string filename)
         {
             var session_token_array = _session_tokens.ToArray();
@@ -209,7 +216,7 @@ namespace LLama
         }
 
         /// <summary>
-        /// Try to reuse the matching prefix from the session file.
+        /// Try to reuse the matching prompt prefix from the loaded session cache before evaluating new tokens.
         /// </summary>
         protected virtual void TryReuseMatchingPrefix()
         {
@@ -243,73 +250,261 @@ namespace LLama
         }
 
         /// <summary>
-        /// Decide whether to continue the loop.
+        /// Dispose and clear any queued multimodal chunk collection.
         /// </summary>
-        /// <param name="args"></param>
+        protected void DisposeMtmdChunks()
+        {
+            MtmdChunks?.Dispose();
+            MtmdChunks = null;
+        }
+
+        /// <summary>
+        /// Dispose and clear any pending multimodal embeddings.
+        /// </summary>
+        protected void DisposeEmbeds()
+        {
+            if (Embeds.Count == 0)
+                return;
+
+            foreach (var embed in Embeds)
+                embed.Dispose();
+
+            Embeds.Clear();
+        }
+
+        /// <summary>
+        /// Retrieve the marker token used to signal media segments to the tokenizer.
+        /// </summary>
+        protected string GetMtmdMarker()
+        {
+            if (_mtmdMarker is not null)
+                return _mtmdMarker;
+
+            _mtmdMarker = NativeApi.MtmdDefaultMarker() ?? "<media>";
+            return _mtmdMarker;
+        }
+
+        /// <summary>
+        /// Ensure the token list fills all positional slots reported by the MTMD helper.
+        /// </summary>
+        protected static List<LLamaToken> BuildTokensWithFiller(List<LLamaToken> tokens, int totalPositions, LLamaToken fillerToken)
+        {
+            if (totalPositions <= tokens.Count)
+                return new List<LLamaToken>(tokens);
+
+            var result = new List<LLamaToken>(totalPositions);
+            result.AddRange(tokens);
+            result.AddRange(Enumerable.Repeat(fillerToken, totalPositions - tokens.Count));
+            return result;
+        }
+
+        /// <summary>
+        /// Resolve the fallback token inserted when the tokenizer emits fewer tokens than positions.
+        /// </summary>
+        protected LLamaToken GetFillerToken(string marker)
+        {
+            var markerTokens = Context.Tokenize(marker, false, true);
+            if (markerTokens.Length > 0)
+                return markerTokens[markerTokens.Length - 1];
+
+            var eos = Context.Vocab.EOS;
+            if (eos.HasValue)
+                return eos.Value;
+
+            return default;
+        }
+
+        /// <summary>
+        /// Prepare multimodal inputs by invoking the MTMD tokenizer and aligning filler tokens.
+        /// </summary>
+        protected Task PreprocessMtmd(string text, InferStateArgs args, bool addBos, bool replaceExisting)
+        {
+            if (ClipModel is null)
+                throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");
+
+            DisposeMtmdChunks();
+
+            var marker = GetMtmdMarker();
+            var prompt = text;
+
+            if (Embeds.Count > 0)
+            {
+                if (prompt.Contains("<image>"))
+                    prompt = prompt.Replace("<image>", marker);
+
+                if (!prompt.Contains(marker))
+                {
+                    var suffix = string.Concat(Enumerable.Repeat(marker, Embeds.Count));
+                    prompt = string.Concat(prompt, suffix);
+                }
+            }
+
+            SafeMtmdInputChunks? chunks = null;
+            try
+            {
+                var status = ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
+                if (status != 0 || chunks is null)
+                {
+                    ClipModel.ClearMedia();
+                    throw new RuntimeError($"Failed to tokenize multimodal prompt. Status: {status}.");
+                }
+
+                MtmdChunks = chunks;
+
+                var tokens = new List<LLamaToken>();
+                foreach (var chunk in chunks.Enumerate())
+                {
+                    using var scopedChunk = chunk;
+                    if (scopedChunk.Type != SafeMtmdInputChunk.SafeMtmdInputChunkType.Text)
+                        continue;
+
+                    foreach (var token in scopedChunk.GetTextTokensSpan())
+                        tokens.Add(token);
+                }
+
+                var totalPositions = (int)ClipModel.CountPositions(chunks);
+                var fillerToken = GetFillerToken(marker);
+
+                if (replaceExisting)
+                {
+                    _embed_inps = BuildTokensWithFiller(tokens, totalPositions, fillerToken);
+                    _consumedTokensCount = 0;
+                }
+                else
+                {
+                    if (_embed_inps.Count == 0)
+                        _embed_inps = new List<LLamaToken>();
+
+                    _embed_inps.AddRange(tokens);
+                    var fillerCount = totalPositions - tokens.Count;
+                    if (fillerCount > 0)
+                        _embed_inps.AddRange(Enumerable.Repeat(fillerToken, fillerCount));
+
+                    args.RemainedTokens -= tokens.Count;
+                }
+            }
+            catch
+            {
+                chunks?.Dispose();
+                MtmdChunks = null;
+                throw;
+            }
+            finally
+            {
+                DisposeEmbeds();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Apply bookkeeping after successfully evaluating multimodal chunks.
+        /// </summary>
+        protected void FinalizeMtmdEvaluation(int newNPast, int previousConsumed)
+        {
+            _pastTokensCount = newNPast;
+            DisposeMtmdChunks();
+
+            if (!string.IsNullOrEmpty(_pathSession) && _embed_inps.Count > previousConsumed)
+            {
+                _session_tokens.AddRange(_embed_inps.Skip(previousConsumed));
+                _n_session_consumed = _session_tokens.Count;
+            }
+
+            _consumedTokensCount = _embed_inps.Count;
+            _embeds.Clear();
+        }
+
+        /// <summary>
+        /// Evaluate the queued MTMD chunks and update executor state.
+        /// </summary>
+        protected void EvaluateMtmdChunks(ref int nPast, int previousConsumed, string executorName)
+        {
+            if (ClipModel is null)
+                throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");
+            if (MtmdChunks is null)
+                throw new InvalidOperationException("No MTMD chunks are queued for evaluation.");
+
+            var evalStatus = ClipModel.EvaluateChunks(MtmdChunks, Context.NativeHandle, ref nPast, seqId: 0,
+                nBatch: checked((int)Context.BatchSize), logitsLast: true);
+            if (evalStatus != 0)
+            {
+                _logger?.LogError("[{Executor}] Failed to evaluate multimodal chunks. Status: {Status}", executorName, evalStatus);
+                DisposeMtmdChunks();
+                throw new RuntimeError($"Failed to evaluate multimodal chunks. Status: {evalStatus}.");
+            }
+
+            FinalizeMtmdEvaluation(nPast, previousConsumed);
+        }
+
+        /// <summary>
+        /// Determine whether the inference loop should continue processing tokens.
+        /// </summary>
+        /// <param name="args">Mutable state associated with the current inference.</param>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <returns><c>true</c> to continue generating; otherwise <c>false</c>.</returns>
         protected abstract Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Preprocess the inputs before the inference.
+        /// Prepare the executor for inference by tokenizing input and updating cached state.
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="args"></param>
+        /// <param name="text">Prompt text to process.</param>
+        /// <param name="args">Mutable state associated with the current inference.</param>
         /// <param name="cancellationToken"></param>
         protected abstract Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Do some post processing after the inference.
+        /// Perform any post-processing on the generated tokens.
         /// </summary>
-        /// <param name="inferenceParams"></param>
-        /// <param name="args"></param>
+        /// <param name="inferenceParams">Parameters controlling sampling.</param>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <param name="args">Mutable state associated with the current inference.</param>
+        /// <returns>A tuple indicating whether generation should stop and any extra outputs to emit.</returns>
         protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// The core inference logic.
+        /// Core inference loop that advances the model by one step.
         /// </summary>
-        /// <param name="inferenceParams"></param>
-        /// <param name="args"></param>
+        /// <param name="inferenceParams">Parameters controlling sampling.</param>
+        /// <param name="args">Mutable state associated with the current inference.</param>
         /// <param name="cancellationToken"></param>
         protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Save the current state to a file.
+        /// Save the executor state to a serialized snapshot file.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">Destination file for the serialized state.</param>
         /// <param name="cancellationToken"></param>
         public abstract Task SaveState(string filename, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Get the current state data.
+        /// Capture the executor state in a serializable object.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>State snapshot suitable for persistence.</returns>
         public abstract ExecutorBaseState GetStateData();
 
         /// <summary>
-        /// Load the state from data.
+        /// Restore executor state from a previously captured snapshot.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">State snapshot created by <see cref="GetStateData"/>.</param>
         /// <param name="cancellationToken"></param>
         public abstract Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Load the state from a file.
+        /// Restore executor state from a serialized snapshot file.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">Path to the snapshot produced by <see cref="SaveState"/>.</param>
         /// <param name="cancellationToken"></param>
         public abstract Task LoadState(string filename, CancellationToken cancellationToken = default);
 
 
         /// <summary>
-        /// Execute the inference.
+        /// Execute an asynchronous inference session.
         /// </summary>
-        /// <param name="text">The prompt. If null, generation will continue where it left off previously.</param>
-        /// <param name="inferenceParams"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <param name="text">Optional prompt; when null generation resumes from prior state.</param>
+        /// <param name="inferenceParams">Sampling parameters to apply; defaults are used when null.</param>
+        /// <param name="cancellationToken">Cancellation token for cooperative cancellation.</param>
+        /// <returns>Stream of decoded text segments as they become available.</returns>
         public virtual async IAsyncEnumerable<string> InferAsync(string? text, IInferenceParams? inferenceParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -390,12 +585,12 @@ namespace LLama
         }   
 
         /// <summary>
-        /// State arguments that are used in single inference
+        /// Mutable state passed between inference callbacks during a single generation pass.
         /// </summary>
         protected class InferStateArgs
         {
             /// <summary>
-            /// 
+            /// Anti-prompts that terminate generation when encountered.
             /// </summary>
             public IList<string>? Antiprompts { get; set; }
             /// <summary>
@@ -403,15 +598,15 @@ namespace LLama
             /// </summary>
             public int RemainedTokens { get; set; }
             /// <summary>
-            /// 
+            /// Indicates whether generated tokens should be returned to the caller.
             /// </summary>
             public bool ReturnValue { get; set; }
             /// <summary>
-            /// 
+            /// Signals that the executor should pause and wait for additional user input.
             /// </summary>
             public bool WaitForInput { get; set; }
             /// <summary>
-            /// 
+            /// Indicates whether the session cache should be persisted after inference completes.
             /// </summary>
             public bool NeedToSaveSession { get; set; }
 
@@ -422,6 +617,9 @@ namespace LLama
         }
 
 #pragma warning disable CS1591, CS8618 // Missing XML and irrelevant nullable warnings
+        /// <summary>
+        /// Serializable snapshot of executor state used for persistence and restart.
+        /// </summary>
         [JsonConverter(typeof(PolymorphicJSONConverter<ExecutorBaseState>))]
         public class ExecutorBaseState
         {
@@ -459,5 +657,33 @@ namespace LLama
             public float? MirostatMu { get; set; }
         }
 #pragma warning restore
+
+        internal ExecutorDiagnostics GetDiagnostics()
+        {
+            return new ExecutorDiagnostics(
+                _embed_inps.Count,
+                _consumedTokensCount,
+                _pastTokensCount,
+                _embeds.Count);
+        }
+    }
+}
+
+namespace LLama
+{
+    internal readonly struct ExecutorDiagnostics
+    {
+        public ExecutorDiagnostics(int embedCount, int consumedCount, int pastCount, int pendingEmbeds)
+        {
+            EmbedCount = embedCount;
+            ConsumedCount = consumedCount;
+            PastCount = pastCount;
+            PendingEmbedCount = pendingEmbeds;
+        }
+
+        public int EmbedCount { get; }
+        public int ConsumedCount { get; }
+        public int PastCount { get; }
+        public int PendingEmbedCount { get; }
     }
 }

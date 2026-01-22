@@ -28,10 +28,10 @@ namespace LLama
         public bool IsMultiModal => false;
 
         /// <inheritdoc />
-        public LLavaWeights? ClipModel => default;
+        public MtmdWeights? ClipModel => default;
 
         /// <inheritdoc />
-        public List<byte[]> Images { get; }
+        public List<SafeMtmdEmbed> Embeds { get; }
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -57,7 +57,7 @@ namespace LLama
         /// <param name="logger"></param>
         public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            Images = [ ];
+            Embeds = [ ];
             _weights = weights;
             _params = @params;
             _logger = logger;
