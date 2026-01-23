@@ -77,7 +77,7 @@ The following examples show how to build APPs with LLamaSharp.
 - [ASP.NET Demo](./LLama.Web/)
 - [LLamaWorker (ASP.NET Web API like OAI and Function Calling Support)](https://github.com/sangyuxiaowu/LLamaWorker)
 - [VirtualPet (Desktop Application)](https://github.com/AcoranGonzalezMoray/VirtualPet-WindowsEdition)
-- [KaiROS AI (Windows WPF Desktop Application)](https://github.com/avikeid2007/Kairos.local)
+- [KaiROS AI (Local AI Assistant for Windows & Android)](https://github.com/avikeid2007/KaiROS-AI)
 
 ![LLamaSharp-Integrations](./Assets/LLamaSharp-Integrations.png)
 
