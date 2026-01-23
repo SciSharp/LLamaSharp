@@ -8,12 +8,12 @@ namespace LLama.Web.Common
         : ILLamaParams
     {
         /// <summary>
-        /// Model friendly name
+        /// Model-friendly name.
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Max context insta=nces allowed per model
+        /// Max context instances allowed per model.
         /// </summary>
         public int MaxInstances { get; set; }
 
@@ -46,6 +46,21 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public string ModelPath { get; set; }
+
+        /// <summary>
+        /// Download URL for the model file (GGUF).
+        /// </summary>
+        public string ModelDownloadUrl { get; set; }
+
+        /// <summary>
+        /// Optional local path to the mmproj (multimodal projection) file.
+        /// </summary>
+        public string MmprojPath { get; set; }
+
+        /// <summary>
+        /// Download URL for the mmproj file, if required.
+        /// </summary>
+        public string MmprojDownloadUrl { get; set; }
 
         /// <inheritdoc />
         public int? Threads { get; set; }

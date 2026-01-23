@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 namespace LLama.Web.Services;
 
 /// <summary>
-/// Service for handling Models,Weights & Contexts
+/// Service for handling models, weights, and contexts.
 /// </summary>
 public class ModelService : IModelService
 {
@@ -15,19 +15,22 @@ public class ModelService : IModelService
     private readonly AsyncLock _contextLock;
     private readonly LLamaOptions _configuration;
     private readonly ILogger<ModelService> _llamaLogger;
+    private readonly IModelDownloadService _modelDownloadService;
     private readonly ConcurrentDictionary<string, LLamaModel> _modelInstances;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ModelService"/> class.
     /// </summary>
-    /// <param name="logger">The logger.</param>
-    /// <param name="options">The options.</param>
-    public ModelService(IOptions<LLamaOptions> configuration, ILogger<ModelService> llamaLogger)
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="llamaLogger">The logger.</param>
+    /// <param name="modelDownloadService">The model download service.</param>
+    public ModelService(IOptions<LLamaOptions> configuration, ILogger<ModelService> llamaLogger, IModelDownloadService modelDownloadService)
     {
         _llamaLogger = llamaLogger;
         _modelLock = new AsyncLock();
         _contextLock = new AsyncLock();
         _configuration = configuration.Value;
+        _modelDownloadService = modelDownloadService;
         _modelInstances = new ConcurrentDictionary<string, LLamaModel>();
     }
 
@@ -46,10 +49,16 @@ public class ModelService : IModelService
             if (_modelInstances.TryGetValue(modelOptions.Name, out var model))
                 return model;
 
-            // If in single mode unload any other models
+            if (!_modelDownloadService.IsModelReady(modelOptions.Name))
+                throw new Exception($"Model '{modelOptions.Name}' is still downloading.");
+
+            // If in single mode, unload any other models.
             if (_configuration.ModelLoadType == ModelLoadType.Single
              || _configuration.ModelLoadType == ModelLoadType.PreloadSingle)
                 await UnloadModels();
+
+            if (modelOptions.UBatchSize < modelOptions.BatchSize)
+                modelOptions.UBatchSize = modelOptions.BatchSize;
 
             model = await LLamaModel.CreateAsync(modelOptions, _llamaLogger);
             _modelInstances.TryAdd(modelOptions.Name, model);
@@ -70,7 +79,7 @@ public class ModelService : IModelService
         {
             await LoadModel(modelConfig);
 
-            //Only preload first model if in SinglePreload mode
+            // Only preload the first model in PreloadSingle mode.
             if (_configuration.ModelLoadType == ModelLoadType.PreloadSingle)
                 break;
         }
@@ -103,7 +112,7 @@ public class ModelService : IModelService
     }
 
     /// <summary>
-    /// Gets a model ny name.
+    /// Gets a model by name.
     /// </summary>
     /// <param name="modelName">Name of the model.</param>
     /// <returns></returns>
@@ -165,7 +174,7 @@ public class ModelService : IModelService
     }
 
     /// <summary>
-    /// Loads, Gets,Creates a Model and a Context
+    /// Loads, gets, or creates a model and a context.
     /// </summary>
     /// <param name="modelName">Name of the model.</param>
     /// <param name="contextName">The contextName.</param>
@@ -176,15 +185,15 @@ public class ModelService : IModelService
         if (_modelInstances.TryGetValue(modelName, out var model))
             return (model, await model.GetContext(contextName) ?? await model.CreateContext(contextName));
 
-        // Get model configuration
+        // Get model configuration.
         var modelConfig = _configuration.Models.FirstOrDefault(x => x.Name == modelName);
         if (modelConfig is null)
             throw new Exception($"Model option '{modelName}' not found");
 
-        // Load Model
+        // Load model.
         model = await LoadModel(modelConfig);
 
-        // Get or Create Context
+        // Get or create context.
         return (model, await model.GetContext(contextName) ?? await model.CreateContext(contextName));
     }
 }

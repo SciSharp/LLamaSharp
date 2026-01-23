@@ -5,6 +5,71 @@
     {
       "library": "jquery@3.7.1",
       "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "katex@0.16.11",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/katex/",
+      "files": [
+        "dist/katex.min.css",
+        "dist/katex.min.js"
+      ]
+    },
+    {
+      "library": "markdown-it@14.1.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it/",
+      "files": [
+        "dist/markdown-it.min.js"
+      ]
+    },
+    {
+      "library": "markdown-it-katex@2.0.3",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-katex/"
+    },
+    {
+      "library": "markdown-it-task-lists@2.1.1",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-task-lists/"
+    },
+    {
+      "library": "markdown-it-footnote@4.0.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-footnote/"
+    },
+    {
+      "library": "markdown-it-deflist@2.1.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-deflist/"
+    },
+    {
+      "library": "markdown-it-sub@2.0.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-sub/"
+    },
+    {
+      "library": "markdown-it-sup@2.0.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-sup/"
+    },
+    {
+      "library": "markdown-it-mark@4.0.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-mark/"
+    },
+    {
+      "library": "markdown-it-emoji@3.0.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/markdown-it-emoji/"
+    },
+    {
+      "library": "mermaid@10.9.1",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/mermaid/",
+      "files": [
+        "dist/mermaid.min.js"
+      ]
     }
   ]
 }
