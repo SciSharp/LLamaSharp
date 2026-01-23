@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="LLama.Examples.WinUI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:LLama.Examples.WinUI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="LLama.Examples.WinUI">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid Padding="20" RowDefinitions="Auto, *, Auto">
+        <StackPanel Grid.Row="0" Spacing="10" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBox x:Name="ModelPathInput" PlaceholderText="GGUF model path..." Width="500" />
+            <Button x:Name="BrowseButton" Content="Browse..." Click="BrowseButton_Click" />
+            <Button x:Name="LoadButton" Content="Load Model" Click="LoadButton_Click" Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+
+        <Border Grid.Row="1" BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1" CornerRadius="4">
+            <ScrollViewer x:Name="ChatScrollViewer">
+                <ItemsControl x:Name="ChatHistoryList" Margin="10">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,5" Padding="10" CornerRadius="8" HorizontalAlignment="{Binding Alignment}" Background="{Binding Background}">
+                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto" Margin="0,20,0,0">
+            <TextBox x:Name="UserInput" PlaceholderText="Type a message..." KeyDown="UserInput_KeyDown" />
+            <Button Grid.Column="1" Content="Send" Click="SendButton_Click" Margin="10,0,0,0" Style="{StaticResource AccentButtonStyle}" />
+        </Grid>
+
+        <ProgressRing x:Name="LoadingRing" Grid.RowSpan="3" IsActive="False" Width="60" Height="60" />
+    </Grid>
+</Window>
