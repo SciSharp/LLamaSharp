@@ -47,6 +47,7 @@ jobs:
       if: ${{ !contains(runner.os, 'windows') }}
       run: |
         dotnet sln LLamaSharp.sln remove Llama.Mobile
+        dotnet sln LLamaSharp.sln remove LLama.Examples.WinUI/LLama.Examples.WinUI.csproj
     - name: Cache Packages
       uses: actions/cache@v4
       with:
