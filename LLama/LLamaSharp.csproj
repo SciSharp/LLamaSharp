@@ -45,13 +45,13 @@
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" />
     <PackageReference Include="System.Linq.Async" Version="6.0.3" />
-    <PackageReference Include="System.Text.Json" Version="9.0.9" />
+    <PackageReference Include="System.Text.Json" Version="10.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.10.1" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
     <PackageReference Include="System.Numerics.Tensors" Version="9.0.9" />
   </ItemGroup>
