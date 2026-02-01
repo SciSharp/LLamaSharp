@@ -52,7 +52,7 @@
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.10.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
     <PackageReference Include="System.Numerics.Tensors" Version="9.0.9" />
   </ItemGroup>
 
