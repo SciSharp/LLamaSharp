@@ -2,10 +2,10 @@ using LLama.Web.Common;
 
 namespace LLama.Web;
 
-public static  class Extensions
+public static class Extensions
 {
     /// <summary>
-    /// Combines the AntiPrompts list and AntiPrompt csv 
+    /// Combines the AntiPrompts list and AntiPrompt CSV.
     /// </summary>
     /// <param name="sessionConfig">The session configuration.</param>
     /// <returns>Combined AntiPrompts with duplicates removed</returns>
@@ -15,7 +15,7 @@ public static  class Extensions
     }
 
     /// <summary>
-    /// Combines the OutputFilters list and OutputFilter csv 
+    /// Combines the OutputFilters list and OutputFilter CSV.
     /// </summary>
     /// <param name="sessionConfig">The session configuration.</param>
     /// <returns>Combined OutputFilters with duplicates removed</returns>
@@ -25,7 +25,7 @@ public static  class Extensions
     }
 
     /// <summary>
-    /// Combines a string list and a csv and removes duplicates
+    /// Combines a string list and a CSV, and removes duplicates.
     /// </summary>
     /// <param name="list">The list.</param>
     /// <param name="csv">The CSV.</param>
