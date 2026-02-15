@@ -18,6 +18,7 @@ concurrency:
 env:
   # Compiler defines common to all platforms
   COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_CURL=OFF -DBUILD_SHARED_LIBS=ON
+  LINUX_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
 
 jobs:
   compile-linux:
@@ -58,7 +59,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
       - uses: actions/upload-artifact@v4
@@ -123,7 +124,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
       - uses: actions/upload-artifact@v4
@@ -264,7 +265,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Upload llama artifacts (Windows)
@@ -371,13 +372,25 @@ jobs:
           method: 'network'
           linux-local-args: '["--toolkit"]'
 
-      - name: Build
-        id: cmake_build
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        id: cmake_build_windows
         run: |
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON
+          cmake --build . --config Release
+          ls -R
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        id: cmake_build_linux
+        run: |
+          echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON
           cmake --build . --config Release
           ls -R
 
