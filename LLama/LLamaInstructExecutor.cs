@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -25,6 +26,7 @@ namespace LLama
         private readonly string _instructionPrefix;
         private LLamaToken[] _inp_pfx;
         private LLamaToken[] _inp_sfx;
+        private readonly string _instructionSuffix;
 
         /// <summary>
         /// 
@@ -42,6 +44,20 @@ namespace LLama
             _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
             _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
             _instructionPrefix = instructionPrefix;
+            _instructionSuffix = instructionSuffix;
+        }
+
+        public InstructExecutor(LLamaContext context,
+                                MtmdWeights clipModel,
+                                string instructionPrefix = "\n\n### Instruction:\n\n",
+                                string instructionSuffix = "\n\n### Response:\n\n",
+                                ILogger? logger = null)
+            : base(context, clipModel, logger)
+        {
+            _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
+            _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
+            _instructionPrefix = instructionPrefix;
+            _instructionSuffix = instructionSuffix;
         }
 
         /// <inheritdoc />
@@ -68,7 +84,8 @@ namespace LLama
         /// <inheritdoc />
         public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
-            if (data is InstructExecutorState state)
+            DisposeMtmdChunks();
+            if(data is InstructExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
                 _embed_inps = state.EmbedInps!.ToList();
@@ -128,7 +145,14 @@ namespace LLama
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
-                _embed_inps = Context.Tokenize(text, true, true).ToList();
+                if (!IsMultiModal)
+                {
+                    _embed_inps = Context.Tokenize(text, true, true).ToList();
+                }
+                else
+                {
+                    return PreprocessMtmd(text, args, addBos: true, replaceExisting: true);
+                }
             }
             else
             {
@@ -141,14 +165,25 @@ namespace LLama
                     {
                         text += "\n";
                     }
-                    _embed_inps.AddRange(_inp_pfx);
+                    if (!IsMultiModal)
+                    {
+                        _embed_inps.AddRange(_inp_pfx);
 
-                    var line_inp = Context.Tokenize(text, false, true);
-                    _embed_inps.AddRange(line_inp);
+                        var line_inp = Context.Tokenize(text, false, true);
+                        _embed_inps.AddRange(line_inp);
 
-                    _embed_inps.AddRange(_inp_sfx);
+                        _embed_inps.AddRange(_inp_sfx);
 
-                    args.RemainedTokens -= line_inp.Length;
+                        args.RemainedTokens -= line_inp.Length;
+                    }
+                    else
+                    {
+                        var builder = new StringBuilder();
+                        builder.Append(_instructionPrefix);
+                        builder.Append(text);
+                        builder.Append(_instructionSuffix);
+                        return PreprocessMtmd(builder.ToString(), args, addBos: false, replaceExisting: false);
+                    }
                 }
             }
 
@@ -217,11 +252,25 @@ namespace LLama
                     _n_session_consumed = _session_tokens.Count;
                 }
             }
+            else if (IsMultiModal && MtmdChunks is not null)
+            {
+                _is_prompt_run = false;
+                var nPast = _pastTokensCount;
+                var previousConsumed = _consumedTokensCount;
+                EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InstructExecutor));
+            }
 
             _embeds.Clear();
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
+                if (inferenceParams.MaxTokens == 0)
+                {
+                    _embeds.Clear();
+                    args.WaitForInput = true;
+                    args.ReturnValue = false;
+                    return;
+                }
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {

@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=ON -DLLAMA_BUILD_SERVER=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_CURL=OFF
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_CURL=OFF -DBUILD_SHARED_LIBS=ON
 
 jobs:
   compile-linux:
@@ -525,7 +525,7 @@ jobs:
       matrix:
         include:
           - build: 'arm64'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL_EMBED_LIBRARY=ON'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_METAL_USE_BF16=ON'
           - build: 'x64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=ON -DGGML_AVX2=ON'
           - build: 'x64-rosetta2'
@@ -609,9 +609,9 @@ jobs:
       matrix:
         include:
           - build: 'x86_64'
-            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64'
+            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64 -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=OFF'
           - build: 'arm64-v8a'
-            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a'
+            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=OFF'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -805,8 +805,10 @@ jobs:
           cp artifacts/ggml-base-bin-android-arm64-v8a.so/libggml-base.so     deps/android-arm64-v8a/libggml-base.so
           cp artifacts/ggml-cpu-bin-android-arm64-v8a.so/libggml-cpu.so       deps/android-arm64-v8a/libggml-cpu.so
           cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
-          cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so      deps/android-arm64-v8a/libllava_shared.so
-                                                                              
+          cp artifacts/llava-bin-android-arm64-v8a.so/libllava_shared.so      deps/android-arm64-v8a/libllava_shared.so    
+          
+          cp artifacts/mtmd-bin-android-arm64-v8a.so/libmtmd.so               deps/android-arm64-v8a/libmtmd.so
+                                                                               
           cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
           cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
           cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so

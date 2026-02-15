@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="System.Linq.Async" Version="6.0.3" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -52,16 +52,16 @@
             <LocalFileName>jina-reranker-v1-tiny-en-FP16.gguf</LocalFileName>
         </DownloadFileItem>
 
-        <DownloadFileItem Include="llava-v1.6-mistral-7b">
-            <SourceUrl>https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/llava-v1.6-mistral-7b.Q3_K_XS.gguf</SourceUrl>
+        <DownloadFileItem Include="gemma-3-4b-it-Q4_K_M">
+            <SourceUrl>https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf</SourceUrl>
             <DestinationFolder>Models</DestinationFolder>
-            <LocalFileName>llava-v1.6-mistral-7b.Q3_K_XS.gguf</LocalFileName>
+            <LocalFileName>gemma-3-4b-it-Q4_K_M.gguf</LocalFileName>
         </DownloadFileItem>
 
-        <DownloadFileItem Include="mmproj-model-f16">
-            <SourceUrl>https://huggingface.co/cjpais/llava-1.6-mistral-7b-gguf/resolve/main/mmproj-model-f16.gguf</SourceUrl>
+        <DownloadFileItem Include="gemma-mmproj-model-f16">
+            <SourceUrl>https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/resolve/main/mmproj-model-f16.gguf</SourceUrl>
             <DestinationFolder>Models</DestinationFolder>
-            <LocalFileName>mmproj-model-f16.gguf</LocalFileName>
+            <LocalFileName>gemma-mmproj-model-f16.gguf</LocalFileName>
         </DownloadFileItem>
 
         <DownloadFileItem Include="all-MiniLM-L12-v2">
@@ -142,10 +142,10 @@
     <None Update="Models\smollm-360m-instruct-add-basics-q8_0.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Models\llava-v1.6-mistral-7b.Q3_K_XS.gguf">
+    <None Update="Models\gemma-3-4b-it-Q4_K_M.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Models\mmproj-model-f16.gguf">
+    <None Update="Models\gemma-mmproj-model-f16.gguf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\extreme-ironing-taxi-610x427.jpg">

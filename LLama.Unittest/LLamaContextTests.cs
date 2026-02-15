@@ -8,10 +8,11 @@ namespace LLama.Unittest
     {
         private readonly LLamaWeights _weights;
         private readonly LLamaContext _context;
+        private readonly ModelParams _params;
 
         public LLamaContextTests()
         {
-            var @params = new ModelParams(Constants.GenerativeModelPath2)
+            _params = new ModelParams(Constants.GenerativeModelPath2)
             {
                 ContextSize = 512,
                 BatchSize = 8,
@@ -19,8 +20,8 @@ namespace LLama.Unittest
                 VocabOnly = false,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
-            _weights = LLamaWeights.LoadFromFile(@params);
-            _context = _weights.CreateContext(@params);
+            _weights = LLamaWeights.LoadFromFile(_params);
+            _context = _weights.CreateContext(_params);
         }
 
         public void Dispose()
@@ -32,7 +33,7 @@ namespace LLama.Unittest
         [Fact]
         public void CheckProperties()
         {
-            Assert.Equal(_context.NativeHandle.MaxSeq * 256, _context.ContextSize);
+            Assert.Equal(_params.ContextSize ?? 0, _context.ContextSize);
             Assert.Equal(960, _context.EmbeddingSize);
             Assert.Equal(49152, _context.Vocab.Count);
         }

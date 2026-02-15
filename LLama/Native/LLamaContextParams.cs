@@ -165,16 +165,6 @@ namespace LLama.Native
         private sbyte _offload_kqv;
 
         /// <summary>
-        /// whether to use flash attention. <b>EXPERIMENTAL</b>
-        /// </summary>
-        public bool flash_attention
-        {
-            readonly get => Convert.ToBoolean(_flash_attention);
-            set => _flash_attention = Convert.ToSByte(value);
-        }
-        private sbyte _flash_attention;
-
-        /// <summary>
         /// whether to measure performance timings
         /// </summary>
         public bool no_perf
@@ -220,6 +210,16 @@ namespace LLama.Native
         private sbyte _kv_unified;
 
         /// <summary>
+        /// backend sampler chain configuration (sampler chains must remain alive)
+        /// </summary>
+        public IntPtr samplers;
+
+        /// <summary>
+        /// number of sampler entries in <see cref="samplers"/>
+        /// </summary>
+        public nuint n_samplers;
+
+        /// <summary>
         /// Get the default LLamaContextParams
         /// </summary>
         /// <returns></returns>
@@ -232,4 +232,3 @@ namespace LLama.Native
         }
     }
 }
-
