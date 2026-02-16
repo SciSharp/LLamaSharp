@@ -529,14 +529,6 @@ jobs:
           path: ./build/bin/libmtmd.dylib
           name: mtmd-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
-      - name: Upload Metal
-        if: ${{ matrix.build == 'arm64' }}
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./build/bin/ggml-metal.metal
-          name: ggml-metal.metal
-          if-no-files-found: error
-  
   compile-android:
     name: Compile (Android)
     strategy:
@@ -711,8 +703,6 @@ jobs:
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
           cp artifacts/mtmd-bin-osx-arm64.dylib/libmtmd.dylib             deps/osx-arm64/libmtmd.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
-            
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64.dylib/libggml-base.dylib   deps/osx-x64/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
@@ -781,5 +771,4 @@ jobs:
           name: |
             llama-*
             mtmd-*
-            *.metal
             ggml-*
