@@ -74,7 +74,7 @@
   <!-- This automatically runs after CheckReleaseBinaries has completed, but only if SkipDownloadReleaseBinaries is not true -->
   <Target Name="UnzipReleaseBinaries" DependsOnTargets="DownloadReleaseBinaries" AfterTargets="CheckReleaseBinaries" Condition="'$(SkipDownloadReleaseBinaries)' != 'true'">
 	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
-	<Unzip SourceFiles="runtimes/deps.zip" DestinationFolder="runtimes/deps/" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Include="*.dll;*.so;*.dylib;*.metal;" />
+	<Unzip SourceFiles="runtimes/deps.zip" DestinationFolder="runtimes/deps/" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Include="*.dll;*.so;*.dylib;" />
   </Target>
     
   <Target Name="CheckReleaseBinaries">

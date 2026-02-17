@@ -42,6 +42,13 @@
         <file src="runtimes/deps/avx512/llama.dll" target="LLamaSharpRuntimes\win-x64\native\avx512\llama.dll" />
         <file src="runtimes/deps/avx512/mtmd.dll" target="LLamaSharpRuntimes\win-x64\native\avx512\mtmd.dll" />
 
+        <!-- Windows ARM64 -->
+        <file src="runtimes/deps/win-arm64/ggml.dll" target="LLamaSharpRuntimes\win-arm64\native\ggml.dll" />
+        <file src="runtimes/deps/win-arm64/ggml-base.dll" target="LLamaSharpRuntimes\win-arm64\native\ggml-base.dll" />
+        <file src="runtimes/deps/win-arm64/ggml-cpu.dll" target="LLamaSharpRuntimes\win-arm64\native\ggml-cpu.dll" />
+        <file src="runtimes/deps/win-arm64/llama.dll" target="LLamaSharpRuntimes\win-arm64\native\llama.dll" />
+        <file src="runtimes/deps/win-arm64/mtmd.dll" target="LLamaSharpRuntimes\win-arm64\native\mtmd.dll" />
+
         <file src="runtimes/deps/noavx/libggml.so" target="LLamaSharpRuntimes\linux-x64\native\noavx\libggml.so" />
         <file src="runtimes/deps/noavx/libggml-base.so" target="LLamaSharpRuntimes\linux-x64\native\noavx\libggml-base.so" />
         <file src="runtimes/deps/noavx/libggml-cpu.so" target="LLamaSharpRuntimes\linux-x64\native\noavx\libggml-cpu.so" />
@@ -115,7 +122,6 @@
         <file src="runtimes/deps/osx-arm64/libggml-cpu.dylib" target="LLamaSharpRuntimes\osx-arm64\native\libggml-cpu.dylib" />
         <file src="runtimes/deps/osx-arm64/libggml-blas.dylib" target="LLamaSharpRuntimes\osx-arm64\native\libggml-blas.dylib" />
         <file src="runtimes/deps/osx-arm64/libggml-metal.dylib" target="LLamaSharpRuntimes\osx-arm64\native\libggml-metal.dylib" />
-        <file src="runtimes/deps/osx-arm64/ggml-metal.metal" target="LLamaSharpRuntimes\osx-arm64\native\ggml-metal.metal" />
         <file src="runtimes/deps/osx-arm64/libllama.dylib" target="LLamaSharpRuntimes\osx-arm64\native\libllama.dylib" />
         <file src="runtimes/deps/osx-arm64/libmtmd.dylib" target="LLamaSharpRuntimes\osx-arm64\native\libmtmd.dylib" />
 
