@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_CURL=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_OPENSSL=OFF -DBUILD_SHARED_LIBS=ON
 
 jobs:
   compile-linux:
@@ -594,14 +594,6 @@ jobs:
           path: ./build/bin/libllava_shared.dylib
           name: llava-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
-      - name: Upload Metal
-        if: ${{ matrix.build == 'arm64' }}
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./build/bin/ggml-metal.metal
-          name: ggml-metal.metal
-          if-no-files-found: error
-  
   compile-android:
     name: Compile (Android)
     strategy:
@@ -783,15 +775,13 @@ jobs:
           cp artifacts/ggml-blas-bin-osx-arm64.dylib/libggml-blas.dylib   deps/osx-arm64/libggml-blas.dylib
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
-          cp artifacts/llava-bin-osx-arm64.dylib/libllava_shared.dylib    deps/osx-arm64/libllava_shared.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
-            
+          cp artifacts/mtmd-bin-osx-arm64.dylib/libmtmd.dylib             deps/osx-arm64/libmtmd.dylib
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64.dylib/libggml-base.dylib   deps/osx-x64/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64.dylib/libggml-blas.dylib   deps/osx-x64/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
-          cp artifacts/llava-bin-osx-x64.dylib/libllava_shared.dylib    deps/osx-x64/libllava_shared.dylib
+          cp artifacts/mtmd-bin-osx-x64.dylib/libmtmd.dylib             deps/osx-x64/libmtmd.dylib
             
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
@@ -867,6 +857,5 @@ jobs:
         with:
           name: |
             llama-*
-            llava-*
-            *.metal
+            mtmd-*
             ggml-*
