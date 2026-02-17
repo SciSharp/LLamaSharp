@@ -112,6 +112,29 @@
       </None>
 
 
+      <!-- Windows ARM64 -->
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/llama.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-arm64/native/llama.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/ggml.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-arm64/native/ggml.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/ggml-base.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-arm64/native/ggml-base.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/ggml-cpu.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-arm64/native/ggml-cpu.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/llava_shared.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-arm64/native/llava_shared.dll</Link>
+      </None>
+
+
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-x64/native/noavx/libllama.so</Link>
@@ -412,6 +435,10 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/vulkan/mtmd.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-x64/native/vulkan/mtmd.dll</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/mtmd.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/win-arm64/native/libmtmd.dll</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libmtmd.so">
