@@ -222,7 +222,7 @@ jobs:
       matrix:
         include:
           - build: 'arm64'
-            defines: '-DCMAKE_GENERATOR_PLATFORM=ARM64 -DGGML_NATIVE=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+            defines: '-T ClangCL -DCMAKE_GENERATOR_PLATFORM=ARM64 -DGGML_NATIVE=OFF'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
