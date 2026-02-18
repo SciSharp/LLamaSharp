@@ -82,7 +82,7 @@ namespace LLama.Native
         private sbyte _use_mmap;
 
         /// <summary>
-        /// use direct io, takes precedence over use_mmap
+        /// use direct io, takes precedence over use_mmap when supported
         /// </summary>
         public bool use_direct_io
         {

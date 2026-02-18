@@ -42,6 +42,9 @@ namespace LLama.Web.Common
         public bool UseMemorymap { get; set; } = true;
 
         /// <inheritdoc />
+        public bool UseDirectIO { get; }
+
+        /// <inheritdoc />
         public bool UseMemoryLock { get; set; } = false;
 
         /// <inheritdoc />
