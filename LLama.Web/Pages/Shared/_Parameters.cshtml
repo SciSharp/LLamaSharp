@@ -1,6 +1,10 @@
 @page
-@using LLama.Common;
-@model LLama.Abstractions.IInferenceParams
+@using LLama.Sampling;
+@model LLama.Web.Common.InferenceOptions
+
+@{
+    var pipeline = Model?.SamplingPipeline as DefaultSamplingPipeline ?? new DefaultSamplingPipeline();
+}
 
 <div class="d-flex flex-row gap-3">
     <div class="d-flex flex-column mb-2">
@@ -20,12 +24,11 @@
     </div>
 </div>
 
-@* todo: update for new sampling system
 <div class="d-flex flex-row gap-3">
     <div class="d-flex flex-column mb-2">
         <small>TopK</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TopK, new { @type = "range", @class = "slider", min = "-1", max = "100", step = "1" })
+            @Html.TextBox("SamplingPipeline.TopK", pipeline.TopK, new { @type = "range", @class = "slider", min = "1", max = "100", step = "1" })
             <label>0</label>
         </div>
     </div>
@@ -33,7 +36,7 @@
     <div class="d-flex flex-column mb-2">
         <small>TopP</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TopP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.TopP", pipeline.TopP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -43,7 +46,7 @@
     <div class="d-flex flex-column mb-2">
         <small>TypicalP</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TypicalP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.TypicalP", pipeline.TypicalP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -51,7 +54,7 @@
     <div class="d-flex flex-column mb-2">
         <small>Temperature</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.Temperature, new { @type = "range", @class = "slider", min = "0.0", max = "1.5", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.Temperature", pipeline.Temperature, new { @type = "range", @class = "slider", min = "0.0", max = "1.5", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -61,15 +64,15 @@
     <div class="d-flex flex-column mb-2">
         <small>RepeatPenalty</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.RepeatPenalty, new { @type = "range", @class = "slider", min = "0.0", max = "2.0", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.RepeatPenalty", pipeline.RepeatPenalty, new { @type = "range", @class = "slider", min = "0.0", max = "2.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
 
     <div class="d-flex flex-column mb-2">
-        <small>RepeatLastTokensCount</small>
+        <small>PenaltyCount</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.RepeatLastTokensCount, new { @type = "range", @class = "slider", min = "0", max = "2048", step = "1" })
+            @Html.TextBox("SamplingPipeline.PenaltyCount", pipeline.PenaltyCount, new { @type = "range", @class = "slider", min = "0", max = "2048", step = "1" })
             <label>0</label>
         </div>
     </div>
@@ -79,7 +82,7 @@
     <div class="d-flex flex-column mb-2">
         <small>FrequencyPenalty</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.FrequencyPenalty, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.FrequencyPenalty", pipeline.FrequencyPenalty, new { @type = "range", @class = "slider", min = "-2.0", max = "2.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -87,7 +90,7 @@
     <div class="d-flex flex-column mb-2">
         <small>PresencePenalty</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.PresencePenalty, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.PresencePenalty", pipeline.PresencePenalty, new { @type = "range", @class = "slider", min = "-2.0", max = "2.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
@@ -95,45 +98,33 @@
 
 <div class="d-flex flex-row gap-3">
     <div class="d-flex flex-column mb-2">
-        <small>TfsZ</small>
+        <small>MinP</small>
         <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.TfsZ, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
+            @Html.TextBox("SamplingPipeline.MinP", pipeline.MinP, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
             <label>0</label>
         </div>
     </div>
     <div class="d-flex flex-column mb-2">
-        <small>-</small>
+        <small>MinKeep</small>
         <div class="d-flex flex-row slider-container">
-            <input class="slider" type="range" value="0" disabled />
-            <label></label>
+            @Html.TextBox("SamplingPipeline.MinKeep", pipeline.MinKeep, new { @type = "range", @class = "slider", min = "1", max = "64", step = "1" })
+            <label>0</label>
         </div>
-    </div>
-</div>
-
-
-<div class="d-flex flex-column mb-2">
-    <div class="form-floating">
-        @Html.DropDownListFor(m => m.Mirostat, Html.GetEnumSelectList<MirostatType>(), new { @class = "form-control form-select" })
-        @Html.LabelFor(m => m.Mirostat)
     </div>
 </div>
 
 <div class="d-flex flex-row gap-3">
     <div class="d-flex flex-column mb-2">
-        <small>MirostatTau</small>
-        <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.MirostatTau, new { @type = "range", @class = "slider", min = "0.0", max = "10.0", step = "0.01" })
-            <label>0</label>
+        <small>PreventEOS</small>
+        <div class="d-flex flex-row slider-container align-items-center">
+            @Html.CheckBox("SamplingPipeline.PreventEOS", pipeline.PreventEOS, new { @class = "form-check-input" })
         </div>
     </div>
 
     <div class="d-flex flex-column mb-2">
-        <small>MirostatEta</small>
-        <div class="d-flex flex-row slider-container">
-            @Html.TextBoxFor(m => m.MirostatEta, new { @type = "range", @class = "slider", min = "0.0", max = "1.0", step = "0.01" })
-            <label>0.0</label>
+        <small>PenalizeNewline</small>
+        <div class="d-flex flex-row slider-container align-items-center">
+            @Html.CheckBox("SamplingPipeline.PenalizeNewline", pipeline.PenalizeNewline, new { @class = "form-check-input" })
         </div>
     </div>
 </div>
-
-*@
