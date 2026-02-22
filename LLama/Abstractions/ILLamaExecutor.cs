@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using LLama.Native;
 
@@ -14,8 +14,8 @@ namespace LLama.Abstractions
         /// </summary>
         public LLamaContext Context { get; }
         
-        // LLava Section
-        //
+        // Multimodal Section
+
         /// <summary>
         /// Identify if it's a multi-modal model and there is a image to process.
         /// </summary>
