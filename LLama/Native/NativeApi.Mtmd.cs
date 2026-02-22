@@ -1,6 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LLama.Native;
 
@@ -25,6 +23,9 @@ public static partial class NativeApi
         [MarshalAs(UnmanagedType.I1)] public bool warmup;
         public int image_min_tokens;
         public int image_max_tokens;
+
+        private IntPtr /* ggml_backend_sched_eval_callback */ cb_eval;
+        private IntPtr cb_eval_user_data;
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_default_marker", CallingConvention = CallingConvention.Cdecl)]

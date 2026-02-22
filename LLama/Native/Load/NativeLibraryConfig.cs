@@ -283,13 +283,13 @@ namespace LLama.Native
     public sealed partial class NativeLibraryConfig
     {
         /// <summary>
-        /// Set configurations for all the native libraries, including LLama and LLava
+        /// Set configurations for all the native libraries, including LLama and Multimodal
         /// </summary>
-        [Obsolete("Please use NativeLibraryConfig.All instead, or set configurations for NativeLibraryConfig.LLama and NativeLibraryConfig.LLavaShared respectively.")]
+        [Obsolete("Please use NativeLibraryConfig.All instead, or set configurations for NativeLibraryConfig.LLama and NativeLibraryConfig.Mtmd respectively.")]
         public static NativeLibraryConfigContainer Instance => All;
 
         /// <summary>
-        /// Set configurations for all the native libraries, including LLama and LLava
+        /// Set configurations for all the native libraries, including LLama and Multimodal
         /// </summary>
         public static NativeLibraryConfigContainer All { get; }
 

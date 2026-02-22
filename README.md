@@ -1,4 +1,4 @@
-﻿![logo](Assets/LLamaSharpLogo.png)
+![logo](Assets/LLamaSharpLogo.png)
 
 [![Discord](https://img.shields.io/discord/1106946823282761851?label=Discord)](https://discord.gg/7wNVU65ZDY)
 [![QQ Group](https://img.shields.io/static/v1?label=QQ&message=加入QQ群&color=brightgreen)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
@@ -11,7 +11,7 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Vulkan?label=LLamaSharp.Backend.Vulkan)](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan)
 
 
-**LLamaSharp is a cross-platform library to run 🦙LLaMA/LLaVA model (and others) on your local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLMs (Large Language Models) in your application with LLamaSharp.**
+**LLamaSharp is a cross-platform library to run 🦙LLaMA model (and others) on your local device. Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. With the higher-level APIs and RAG support, it's convenient to deploy LLMs (Large Language Models) in your application with LLamaSharp.**
 
 **Please star the repo to show your support for this project!🤗**
 
@@ -49,7 +49,7 @@
 <table class="center">
     <tr style="line-height: 0">
     <td width=50% height=30 style="border: none; text-align: center">LLaMA</td>
-    <td width=50% height=30 style="border: none; text-align: center">LLaVA</td>
+    <td width=50% height=30 style="border: none; text-align: center">Multimodal</td>
     </tr>
     <tr>
     <td width=25% style="border: none"><img src="Assets/console_demo.gif" style="width:100%"></td>

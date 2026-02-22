@@ -69,8 +69,8 @@ namespace LLama
         /// </summary>
         protected AntipromptProcessor AntipromptProcessor { get; }
 
-        // LLava Section 
-        //
+        // Multimodal Section
+
         /// <inheritdoc />
         public bool IsMultiModal
         {
