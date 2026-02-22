@@ -129,10 +129,6 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/win-arm64/native/ggml-cpu.dll</Link>
       </None>
-      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/win-arm64/llava_shared.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>runtimes/win-arm64/native/llava_shared.dll</Link>
-      </None>
 
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/noavx/libllama.so">
