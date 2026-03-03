@@ -236,9 +236,9 @@ namespace LLama.Native
                     libPrefix = "lib";
                     return;
                 }
-                if(RuntimeInformation.RuntimeIdentifier.ToLower().StartsWith("alpine"))
+                if(RuntimeInformation.RuntimeIdentifier.ToLower().Contains("musl"))
                 {
-                    // alpine linux distro
+                    // musl-based linux distro (e.g. Alpine)
                     os = "linux-musl-x64";
                     fileExtension = ".so";
                     libPrefix = "lib";
