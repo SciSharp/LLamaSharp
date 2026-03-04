@@ -334,8 +334,7 @@ namespace LLama.Native
             NativeApi.mtmd_context_params @ctx_params);
 
         [DllImport(NativeApi.mtmdLibraryName, EntryPoint = "mtmd_free", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void mtmd_free(IntPtr ctx);
-        
+        private static extern void mtmd_free(IntPtr ctx);
         #endregion   
         
         

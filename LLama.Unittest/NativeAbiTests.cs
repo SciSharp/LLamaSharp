@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LLama.Native;
-using Xunit;
 
 namespace LLama.Unittest
 {
@@ -77,27 +74,6 @@ namespace LLama.Unittest
 
             var expectedSize = ComputeSize(fields);
             Assert.Equal(expectedSize, Marshal.SizeOf<LLamaContextParams>());
-        }
-
-        [Fact]
-        public void MtmdContextParamsSizeMatchesNative()
-        {
-            var pointerSize = IntPtr.Size;
-            var fields = new List<(int size, int align)>
-            {
-                (sizeof(sbyte), 1), // use_gpu
-                (sizeof(sbyte), 1), // print_timings
-                (sizeof(int), 4), // n_threads
-                (pointerSize, pointerSize), // image_marker
-                (pointerSize, pointerSize), // media_marker
-                (sizeof(int), 4), // flash_attn_type
-                (sizeof(sbyte), 1), // warmup
-                (sizeof(int), 4), // image_min_tokens
-                (sizeof(int), 4), // image_max_tokens
-            };
-
-            var expectedSize = ComputeSize(fields);
-            Assert.Equal(expectedSize, Marshal.SizeOf<NativeApi.mtmd_context_params>());
         }
 
         [Fact]

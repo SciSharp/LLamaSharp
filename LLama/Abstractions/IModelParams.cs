@@ -55,6 +55,11 @@ namespace LLama.Abstractions
         bool UseMemorymap { get; }
 
         /// <summary>
+        /// Use direct io, takes precedence over use_mmap when supported
+        /// </summary>
+        bool UseDirectIO { get; }
+
+        /// <summary>
         /// Use mlock to keep model in memory (use_mlock)
         /// </summary>
         bool UseMemoryLock { get; }

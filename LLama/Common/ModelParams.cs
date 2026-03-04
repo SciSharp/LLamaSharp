@@ -35,6 +35,9 @@ namespace LLama.Common
         public bool UseMemorymap { get; set; } = true;
 
         /// <inheritdoc />
+        public bool UseDirectIO { get; set; }
+
+        /// <inheritdoc />
         public bool UseMemoryLock { get; set; }
 
         /// <inheritdoc />

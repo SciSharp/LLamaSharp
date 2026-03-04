@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace LLama.Native;
@@ -23,12 +22,6 @@ public class MtmdContextParams
     /// Number of worker threads to dedicate to preprocessing and tokenization.
     /// </summary>
     public int NThreads { get; set; }
-
-    /// <summary>
-    /// Verbosity is no longer supported by mtmd_context_params and is ignored.
-    /// </summary>
-    [Obsolete("Verbosity is no longer supported by mtmd_context_params and is ignored.")]
-    public int Verbosity { get; set; }
 
     /// <summary>
     /// Marker token inserted into the text stream to reference an image embedding (deprecated by mtmd).

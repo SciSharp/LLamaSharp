@@ -38,6 +38,7 @@ public static class IModelParamsExtensions
 
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;
+        result.use_direct_io = @params.UseDirectIO;
         result.vocab_only = @params.VocabOnly;
         result.check_tensors = @params.CheckTensors;
 

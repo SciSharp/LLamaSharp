@@ -33,6 +33,9 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long llama_max_devices();
 
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern nint llama_max_tensor_buft_overrides();
+
         /// <summary>
         /// Maximum number of parallel sequences
         /// </summary>
@@ -71,6 +74,9 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_rpc();
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_ctx_seq(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Initialize the llama + ggml backend. Call once at the start of the program.
@@ -168,8 +174,11 @@ namespace LLama.Native
 
         /// <summary>
         /// Apply chat template. Inspired by hf apply_chat_template() on python.
+        /// <br />
+        /// NOTE: This function does not use a jinja parser. It only support a pre-defined list of template.
+        /// See more: https://github.com/ggml-org/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
         /// </summary>
-        /// <param name="tmpl">A Jinja template to use for this chat. If this is nullptr, the model’s default chat template will be used instead.</param>
+        /// <param name="tmpl">A Jinja template to use for this chat.</param>
         /// <param name="chat">Pointer to a list of multiple llama_chat_message</param>
         /// <param name="n_msg">Number of llama_chat_message in this chat</param>
         /// <param name="add_ass">Whether to end the prompt with the token(s) that indicate the start of an assistant message.</param>
@@ -312,7 +321,7 @@ namespace LLama.Native
         /// <param name="il_end"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_apply_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
+        public static extern unsafe int llama_set_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
 
         /// <summary>
         /// Build a split GGUF final path for this chunk.
@@ -474,5 +483,38 @@ namespace LLama.Native
         /// <returns>Name of the buffer type</returns>
         [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ggml_backend_buft_name(IntPtr buft);
+
+        /// <summary>
+        /// Fits mparams and cparams to free device memory (assumes system memory is unlimited)
+        ///   - returns true if the parameters could be successfully modified to fit device memory
+        ///   - this function is NOT thread safe because it modifies the global llama logger state
+        ///   - only parameters that have the same value as in llama_default_model_params are modified
+        ///     with the exception of the context size which is modified if and only if equal to 0
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="mparams"></param>
+        /// <param name="cparams"></param>
+        /// <param name="tensor_split">Writable buffer for tensor split, needs at least llama_max_devices elements</param>
+        /// <param name="tensor_buft_overrides">Writable buffer for overrides, needs at least llama_max_tensor_buft_overrides elements</param>
+        /// <param name="margins">Margins of memory to leave per device in bytes</param>
+        /// <param name="n_ctx_min">Minimum context size to set when trying to reduce memory use</param>
+        /// <param name="log_level">Minimum log level to print during fitting, lower levels go to debug log</param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe LLamaParamsFitStatus llama_params_fit(
+            string path,
+            ref LLamaModelParams mparams,
+            ref LLamaContextParams cparams,
+            float* tensor_split,
+            LLamaModelTensorBufferOverride* tensor_buft_overrides,
+            nint* margins,
+            uint n_ctx_min,
+            int /* GGML_LOG_LEVEL */ log_level
+        );
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern long llama_time_us();
+
+        
     }
 }
