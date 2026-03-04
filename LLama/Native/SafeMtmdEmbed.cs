@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace LLama.Native
 {
@@ -37,21 +36,18 @@ namespace LLama.Native
         /// <param name="rgbData">Packed RGB data (3 bytes per pixel).</param>
         /// <returns>Managed wrapper when initialization succeeds; otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">The RGB buffer is null.</exception>
-        public static SafeMtmdEmbed? FromRgbBytes(uint nx, uint ny, byte[] rgbData)
+        public static SafeMtmdEmbed? FromRgbBytes(uint nx, uint ny, ReadOnlySpan<byte> rgbData)
         {
-            if (rgbData == null)
-                throw new ArgumentNullException(nameof(rgbData));
+            if (rgbData.Length != nx * ny * 3)
+                throw new ArgumentException("Pixel data must be exactly 3 bytes per pixel", nameof(rgbData));
 
-            var handle = GCHandle.Alloc(rgbData, GCHandleType.Pinned);
-            try
+            unsafe
             {
-                var native = NativeApi.mtmd_bitmap_init(nx, ny, handle.AddrOfPinnedObject());
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-            }
-            finally
-            {
-                if (handle.IsAllocated)
-                    handle.Free();
+                fixed (byte* rgbDataPtr = rgbData)
+                {
+                    var native = NativeApi.mtmd_bitmap_init(nx, ny, rgbDataPtr);
+                    return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
+                }
             }
         }
 
@@ -61,21 +57,15 @@ namespace LLama.Native
         /// <param name="samples">Array of mono PCM samples in float format.</param>
         /// <returns>Managed wrapper when initialization succeeds; otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">The audio buffer is null.</exception>
-        public static SafeMtmdEmbed? FromAudioSamples(float[] samples)
+        public static SafeMtmdEmbed? FromAudioSamples(ReadOnlySpan<float> samples)
         {
-            if (samples == null)
-                throw new ArgumentNullException(nameof(samples));
-
-            var handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
-            try
+            unsafe
             {
-                var native = NativeApi.mtmd_bitmap_init_from_audio((ulong)samples.Length, handle.AddrOfPinnedObject());
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-            }
-            finally
-            {
-                if (handle.IsAllocated)
-                    handle.Free();
+                fixed (float* samplesPtr = samples)
+                {
+                    var native = NativeApi.mtmd_bitmap_init_from_audio((ulong)samples.Length, samplesPtr);
+                    return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
+                }
             }
         }
 
@@ -90,30 +80,17 @@ namespace LLama.Native
         /// <exception cref="FileNotFoundException">The supplied file does not exist.</exception>
         public static SafeMtmdEmbed? FromMediaFile(SafeMtmdModelHandle mtmdContext, string path)
         {
-            if (mtmdContext == null)
-                throw new ArgumentNullException(nameof(mtmdContext));
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
-
+            // Try to open the file, this will check:
+            // - File exists (automatically throws FileNotFoundException)
+            // - File is readable (explicit check)
+            // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
             var fullPath = Path.GetFullPath(path);
-            if (!File.Exists(fullPath))
-                throw new FileNotFoundException("Media file not found.", fullPath);
+            using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                if (!fs.CanRead)
+                    throw new InvalidOperationException($"Media file '{path}' is not readable");
 
-            bool added = false;
-            var ctxPtr = IntPtr.Zero;
-            try
-            {
-                // Hold a strong reference to the native context while the helper decodes the media file.
-                mtmdContext.DangerousAddRef(ref added);
-                ctxPtr = mtmdContext.DangerousGetHandle();
-                var native = NativeApi.mtmd_helper_bitmap_init_from_file(ctxPtr, fullPath);
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-            }
-            finally
-            {
-                if (added)
-                    mtmdContext.DangerousRelease();
-            }
+            var native = NativeApi.mtmd_helper_bitmap_init_from_file(mtmdContext, fullPath);
+            return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
         }
 
         /// <summary>
@@ -126,86 +103,38 @@ namespace LLama.Native
         /// <exception cref="ArgumentException">The buffer is empty.</exception>
         public static unsafe SafeMtmdEmbed? FromMediaBuffer(SafeMtmdModelHandle mtmdContext, ReadOnlySpan<byte> data)
         {
-            if (mtmdContext == null)
-                throw new ArgumentNullException(nameof(mtmdContext));
             if (data.IsEmpty)
-                throw new ArgumentException("Buffer must not be empty.", nameof(data));
+                throw new ArgumentException("Media buffer must not be empty.", nameof(data));
 
-            bool added = false;
-            var ctxPtr = IntPtr.Zero;
-            try
+            fixed (byte* bufferPtr = data)
             {
-                // Keep the context alive while the native helper processes the buffer.
-                mtmdContext.DangerousAddRef(ref added);
-                ctxPtr = mtmdContext.DangerousGetHandle();
-
-                fixed (byte* bufferPtr = data)
-                {
-                    var native = NativeApi.mtmd_helper_bitmap_init_from_buf(ctxPtr, new IntPtr(bufferPtr), (UIntPtr)data.Length);
-                    return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-                }
-            }
-            finally
-            {
-                if (added)
-                    mtmdContext.DangerousRelease();
+                var native = NativeApi.mtmd_helper_bitmap_init_from_buf(mtmdContext, bufferPtr, (nuint)data.Length);
+                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
             }
         }
 
         /// <summary>
         /// Width of the bitmap in pixels (or number of samples for audio embeddings).
         /// </summary>
-        public uint Nx
-        {
-            get
-            {
-                return WithHandle(ptr => NativeApi.mtmd_bitmap_get_nx(ptr));
-            }
-        }
+        public uint Nx => NativeApi.mtmd_bitmap_get_nx(this);
 
         /// <summary>
         /// Height of the bitmap in pixels. For audio embeddings this is typically <c>1</c>.
         /// </summary>
-        public uint Ny
-        {
-            get
-            {
-                return WithHandle(ptr => NativeApi.mtmd_bitmap_get_ny(ptr));
-            }
-        }
+        public uint Ny => NativeApi.mtmd_bitmap_get_ny(this);
 
         /// <summary>
         /// Indicates whether the embedding stores audio data instead of image pixels.
         /// </summary>
-        public bool IsAudio
-        {
-            get
-            {
-                return WithHandle(ptr => NativeApi.mtmd_bitmap_is_audio(ptr));
-            }
-        }
+        public bool IsAudio => NativeApi.mtmd_bitmap_is_audio(this);
 
         /// <summary>
         /// Optional identifier assigned to this embedding.
         /// </summary>
         public string? Id
         {
-            get
-            {
-                return WithHandle(ptr =>
-                {
-                    var idPtr = NativeApi.mtmd_bitmap_get_id(ptr);
-                    return idPtr.PtrToString();
-                });
-            }
-            set
-            {
-                WithHandle(ptr =>
-                {
-                    NativeApi.mtmd_bitmap_set_id(ptr, value);
-                    return 0;
-                });
-            }
+            get => NativeApi.mtmd_bitmap_get_id(this).PtrToString();
+            set => NativeApi.mtmd_bitmap_set_id(this, value);
         }
 
         /// <summary>
@@ -217,22 +146,11 @@ namespace LLama.Native
         {
             EnsureNotDisposed();
 
-            bool added = false;
-            try
-            {
-                DangerousAddRef(ref added);
-                var ptr = DangerousGetHandle();
-                var dataPtr = (byte*)NativeApi.mtmd_bitmap_get_data(ptr);
-                var length = checked((int)NativeApi.mtmd_bitmap_get_n_bytes(ptr).ToUInt64());
-                return dataPtr == null || length == 0
-                    ? ReadOnlySpan<byte>.Empty
-                    : new ReadOnlySpan<byte>(dataPtr, length);
-            }
-            finally
-            {
-                if (added)
-                    DangerousRelease();
-            }
+            var dataPtr = (byte*)NativeApi.mtmd_bitmap_get_data(this);
+            var length = checked((int)NativeApi.mtmd_bitmap_get_n_bytes(this).ToUInt64());
+            return dataPtr == null || length == 0
+                ? ReadOnlySpan<byte>.Empty
+                : new ReadOnlySpan<byte>(dataPtr, length);
         }
 
         /// <summary>
@@ -253,27 +171,6 @@ namespace LLama.Native
         {
             if (IsClosed || IsInvalid)
                 throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
-        }
-
-        private T WithHandle<T>(Func<IntPtr, T> action)
-        {
-            EnsureNotDisposed();
-
-            bool added = false;
-            try
-            {
-                DangerousAddRef(ref added);
-                var ptr = DangerousGetHandle();
-                if (ptr == IntPtr.Zero)
-                    throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
-
-                return action(ptr);
-            }
-            finally
-            {
-                if (added)
-                    DangerousRelease();
-            }
         }
     }
 }

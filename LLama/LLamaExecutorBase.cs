@@ -362,7 +362,7 @@ namespace LLama
                         tokens.Add(token);
                 }
 
-                var totalPositions = (int)ClipModel.CountPositions(chunks);
+                var totalPositions = (int)chunks.CountPositions();
                 var fillerToken = GetFillerToken(marker);
 
                 if (replaceExisting)

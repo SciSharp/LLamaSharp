@@ -30,7 +30,7 @@ namespace LLama.Unittest
 
             _mediaMarker = _mtmdParams.MediaMarker ?? throw new InvalidOperationException("MTMD media marker unavailable.");
 
-            _mtmdWeights = MtmdWeights.LoadFromFile(Constants.MtmdMmpPath, _llamaWeights, _mtmdParams);
+            _mtmdWeights = Task.Run(async () => await MtmdWeights.LoadFromFileAsync(Constants.MtmdMmpPath, _llamaWeights, _mtmdParams)).Result;
             _context = _llamaWeights.CreateContext(@params);
         }
 
@@ -69,6 +69,16 @@ namespace LLama.Unittest
             var eval = _mtmdWeights.EvaluateChunks(chunks, _context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)_context.BatchSize), logitsLast: true);
             Assert.Equal(0, eval);
             Assert.True(nPast > 0);
+        }
+
+        [Fact, Trait("Category", "NoCI")]
+        public void BasicPropertyChecks()
+        {
+            Assert.False(_mtmdWeights.SupportsAudio);
+            Assert.True(_mtmdWeights.SupportsVision);
+            Assert.False(_mtmdWeights.UsesMRope);
+            Assert.True(_mtmdWeights.UsesNonCausalAttention);
+            Assert.Equal(-1, _mtmdWeights.AudioBitrate);
         }
 
         [Fact,Trait("Category", "NoCI")]
@@ -125,8 +135,8 @@ namespace LLama.Unittest
 
             Assert.True(imageChunks > 0);
             Assert.True(totalTokens > 0);
-            Assert.Equal(totalTokens, _mtmdWeights.CountTokens(chunks));
-            Assert.Equal(totalPositions, _mtmdWeights.CountPositions(chunks));
+            Assert.Equal(totalTokens, chunks.CountTokens());
+            Assert.Equal(totalPositions, chunks.CountPositions());
             Assert.True(_mtmdWeights.SupportsVision);
             Assert.False(_mtmdWeights.SupportsAudio);
 

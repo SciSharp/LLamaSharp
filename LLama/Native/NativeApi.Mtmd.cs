@@ -1,4 +1,5 @@
 using System;
+using static LLama.Native.SafeMtmdInputChunk;
 
 namespace LLama.Native;
 
@@ -42,64 +43,61 @@ public static partial class NativeApi
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_decode_use_non_causal", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool mtmd_decode_use_non_causal(IntPtr ctx);
+    internal static extern bool mtmd_decode_use_non_causal(SafeMtmdModelHandle ctx);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_decode_use_mrope", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool mtmd_decode_use_mrope(IntPtr ctx);
+    internal static extern bool mtmd_decode_use_mrope(SafeMtmdModelHandle ctx);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_support_vision", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool mtmd_support_vision(IntPtr ctx);
+    internal static extern bool mtmd_support_vision(SafeMtmdModelHandle ctx);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_support_audio", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool mtmd_support_audio(IntPtr ctx);
+    internal static extern bool mtmd_support_audio(SafeMtmdModelHandle ctx);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_get_audio_bitrate", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int mtmd_get_audio_bitrate(IntPtr ctx);
+    internal static extern int mtmd_get_audio_bitrate(SafeMtmdModelHandle ctx);
 
     // bitmap ------------------------------------------------------------
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_init", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_bitmap_init(uint nx, uint ny, IntPtr data);
+    internal static extern unsafe IntPtr mtmd_bitmap_init(uint nx, uint ny, byte* data);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_init_from_audio", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_bitmap_init_from_audio(ulong n_samples, IntPtr data);
+    internal static extern unsafe IntPtr mtmd_bitmap_init_from_audio(ulong n_samples, float* data);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_nx", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern uint mtmd_bitmap_get_nx(IntPtr bitmap);
+    internal static extern uint mtmd_bitmap_get_nx(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_ny", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern uint mtmd_bitmap_get_ny(IntPtr bitmap);
+    internal static extern uint mtmd_bitmap_get_ny(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_data", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_bitmap_get_data(IntPtr bitmap);
+    internal static extern IntPtr mtmd_bitmap_get_data(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_n_bytes", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern UIntPtr mtmd_bitmap_get_n_bytes(IntPtr bitmap);
+    internal static extern UIntPtr mtmd_bitmap_get_n_bytes(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_is_audio", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool mtmd_bitmap_is_audio(IntPtr bitmap);
+    internal static extern bool mtmd_bitmap_is_audio(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_free", CallingConvention = CallingConvention.Cdecl)]
     internal static extern void mtmd_bitmap_free(IntPtr bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_id", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_bitmap_get_id(IntPtr bitmap);
+    internal static extern IntPtr mtmd_bitmap_get_id(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_set_id", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe void mtmd_bitmap_set_id_native(IntPtr bitmap, byte* id);
+    private static extern unsafe void mtmd_bitmap_set_id_native(SafeMtmdEmbed bitmap, byte* id);
 
     /// <summary>
     /// Assign an identifier to a bitmap using a UTF-8 encoded string.
     /// </summary>
-    internal static unsafe void mtmd_bitmap_set_id(IntPtr bitmap, string? id)
+    internal static unsafe void mtmd_bitmap_set_id(SafeMtmdEmbed bitmap, string? id)
     {
-        if (bitmap == IntPtr.Zero)
-            throw new ArgumentNullException(nameof(bitmap));
-
         if (id is null)
         {
             mtmd_bitmap_set_id_native(bitmap, null);
@@ -127,25 +125,25 @@ public static partial class NativeApi
     // input_chunk -------------------------------------------------------
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_type", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int mtmd_input_chunk_get_type(IntPtr chunk);
+    internal static extern SafeMtmdInputChunkType mtmd_input_chunk_get_type(SafeMtmdInputChunk chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_tokens_text", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_input_chunk_get_tokens_text(IntPtr chunk, out UIntPtr n_tokens);
+    internal static extern IntPtr mtmd_input_chunk_get_tokens_text(SafeMtmdInputChunk chunk, out UIntPtr n_tokens);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_tokens_image", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr mtmd_input_chunk_get_tokens_image(IntPtr chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_n_tokens", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern UIntPtr mtmd_input_chunk_get_n_tokens(IntPtr chunk);
+    internal static extern UIntPtr mtmd_input_chunk_get_n_tokens(SafeMtmdInputChunk chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_id", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_input_chunk_get_id(IntPtr chunk);
+    internal static extern IntPtr mtmd_input_chunk_get_id(SafeMtmdInputChunk chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int mtmd_input_chunk_get_n_pos(IntPtr chunk);
+    internal static extern int mtmd_input_chunk_get_n_pos(SafeMtmdInputChunk chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_copy", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_input_chunk_copy(IntPtr chunk);
+    internal static extern IntPtr mtmd_input_chunk_copy(SafeMtmdInputChunk chunk);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_input_chunk_free", CallingConvention = CallingConvention.Cdecl)]
     internal static extern void mtmd_input_chunk_free(IntPtr chunk);
@@ -203,19 +201,27 @@ public static partial class NativeApi
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_tokenize", CallingConvention = CallingConvention.Cdecl)]
     private static extern unsafe int mtmd_tokenize_native(
-        IntPtr ctx,
+        SafeMtmdModelHandle ctx,
         IntPtr output,
         mtmd_input_text_native* text,
         IntPtr[] bitmaps,
         UIntPtr n_bitmaps);
 
-    internal static unsafe int mtmd_tokenize(IntPtr ctx, IntPtr output, in mtmd_input_text_native text, IntPtr[] bitmaps, UIntPtr n_bitmaps)
+    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_tokenize", CallingConvention = CallingConvention.Cdecl)]
+    private static extern unsafe int mtmd_tokenize_native(
+        SafeMtmdModelHandle ctx,
+        IntPtr output,
+        mtmd_input_text_native* text,
+        SafeMtmdEmbed[] bitmaps,
+        UIntPtr n_bitmaps);
+
+    internal static unsafe int mtmd_tokenize(SafeMtmdModelHandle ctx, IntPtr output, in mtmd_input_text_native text, IntPtr[] bitmaps, nuint n_bitmaps)
     {
         var temp = text;
         return mtmd_tokenize_native(ctx, output, &temp, bitmaps, n_bitmaps);
     }
 
-    internal static unsafe int mtmd_tokenize(IntPtr ctx, IntPtr output, string text, bool addSpecial, bool parseSpecial, IntPtr[] bitmaps, UIntPtr n_bitmaps)
+    internal static unsafe int mtmd_tokenize(SafeMtmdModelHandle ctx, IntPtr output, string text, bool addSpecial, bool parseSpecial, IntPtr[] bitmaps, nuint n_bitmaps)
     {
         using var scope = new MtmdInputTextScope(text, addSpecial, parseSpecial);
         return mtmd_tokenize_native(ctx, output, &scope.Value, bitmaps, n_bitmaps);
@@ -236,28 +242,28 @@ public static partial class NativeApi
     internal static extern IntPtr mtmd_test_create_input_chunks();
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_file", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe IntPtr mtmd_helper_bitmap_init_from_file_native(IntPtr ctx, byte* fname);
+    private static extern unsafe IntPtr mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname);
 
-    internal static unsafe IntPtr mtmd_helper_bitmap_init_from_file(IntPtr ctx, string fname)
+    internal static unsafe IntPtr mtmd_helper_bitmap_init_from_file(SafeMtmdModelHandle ctx, string fname)
     {
         using var pinned = PinnedUtf8String.Create(fname) ?? throw new ArgumentNullException(nameof(fname));
         return mtmd_helper_bitmap_init_from_file_native(ctx, (byte*)pinned.Pointer);
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_buf", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_helper_bitmap_init_from_buf(IntPtr ctx, IntPtr buf, UIntPtr len);
+    internal static extern unsafe IntPtr mtmd_helper_bitmap_init_from_buf(SafeMtmdModelHandle ctx, byte* buf, nuint len);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_get_n_tokens", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern UIntPtr mtmd_helper_get_n_tokens(IntPtr chunks);
+    internal static extern UIntPtr mtmd_helper_get_n_tokens(SafeMtmdInputChunks chunks);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int mtmd_helper_get_n_pos(IntPtr chunks);
+    internal static extern int mtmd_helper_get_n_pos(SafeMtmdInputChunks chunks);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_eval_chunks", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_eval_chunks(
-        IntPtr ctx,
-        IntPtr lctx,
-        IntPtr chunks,
+        SafeMtmdModelHandle ctx,
+        SafeLLamaContextHandle lctx,
+        SafeMtmdInputChunks chunks,
         int n_past,
         int seq_id,
         int n_batch,
@@ -266,8 +272,8 @@ public static partial class NativeApi
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_eval_chunk_single", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_eval_chunk_single(
-        IntPtr ctx,
-        IntPtr lctx,
+        SafeMtmdModelHandle ctx,
+        SafeLLamaContextHandle lctx,
         IntPtr chunk,
         int n_past,
         int seq_id,
@@ -277,8 +283,8 @@ public static partial class NativeApi
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_decode_image_chunk", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_decode_image_chunk(
-        IntPtr ctx,
-        IntPtr lctx,
+        SafeMtmdModelHandle ctx,
+        SafeLLamaContextHandle lctx,
         IntPtr chunk,
         IntPtr encoded_embd,
         int n_past,
