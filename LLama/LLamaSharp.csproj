@@ -62,7 +62,7 @@
 
   <PropertyGroup>
     <FirstTargetFramework Condition=" '$(TargetFrameworks)' == '' ">$(TargetFramework)</FirstTargetFramework>
-    <FirstTargetFramework Condition=" '$(FirstTargetFrameworks)' == '' ">$(TargetFrameworks.Split(';')[0])</FirstTargetFramework>
+    <FirstTargetFramework Condition=" '$(FirstTargetFramework)' == '' ">$(TargetFrameworks.Split(';')[0])</FirstTargetFramework>
   </PropertyGroup>
 
   <!-- When UnzipReleaseBinaries is called, this will run first, as UnzipReleaseBinaries depends on it (check DependsOnTargets of UnzipReleaseBinaries) -->
@@ -75,6 +75,11 @@
   <Target Name="UnzipReleaseBinaries" DependsOnTargets="DownloadReleaseBinaries" AfterTargets="CheckReleaseBinaries" Condition="'$(SkipDownloadReleaseBinaries)' != 'true'">
 	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
 	<Unzip SourceFiles="runtimes/deps.zip" DestinationFolder="runtimes/deps/" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Include="*.dll;*.so;*.dylib;" />
+	<WriteLinesToFile
+		File="runtimes/release_id.txt"
+		Lines="$(BinaryReleaseId)"
+		Overwrite="true"
+	/>
   </Target>
     
   <Target Name="CheckReleaseBinaries">
@@ -85,11 +90,13 @@
         
     <!-- If the previous binary release id is the same as the current one (which we define at the top of this file), we skip the download -->
     <PropertyGroup>
-		<SkipDownloadReleaseBinaries Condition="'%(PreviousBinaryReleaseId.Identity)' == '$(BinaryReleaseId)'">true</SkipDownloadReleaseBinaries>
+		<SkipDownloadReleaseBinaries Condition="'%(PreviousBinaryReleaseId.Identity)' == '$(BinaryReleaseId)' AND Exists('runtimes/deps/')">true</SkipDownloadReleaseBinaries>
     </PropertyGroup>
   </Target>
 
-  <!-- This always gets called before the build -->
+  <!-- This always gets called before the build. The race condition between inner builds (netstandard2.0, net8.0)
+       is prevented by the release_id.txt sentinel: the outer build downloads/extracts and writes the sentinel,
+       then inner builds read it and skip. -->
   <Target Name="PrepareReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="CheckReleaseBinaries" Properties="TargetFramework=$(FirstTargetFramework)" />
   </Target>
