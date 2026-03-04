@@ -10,31 +10,59 @@ concurrency:
 
 jobs:
   build:
-    name: Test
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container || '' }}
     strategy:
       fail-fast: false
       matrix:
-        build: [linux-release, windows-release, osx-release]
+        build: [linux-x64-cpu, windows-x64-cpu, macos-arm64-metal, linux-arm64-cpu, linux-musl-x64-cpu]
         include:
-          - build: linux-release
-            os: ubuntu-latest
+          - build: linux-x64-cpu
+            os: ubuntu-24.04
             config: release
-          - build: osx-release  
-            os: macos-14 # https://github.blog/changelog/2024-01-30-github-actions-introducing-the-new-m1-macos-runner-available-to-open-source/
-            config: release            
-          - build: windows-release
+            name: Linux x64 CPU
+          - build: macos-arm64-metal
+            os: macos-14
+            config: release
+            name: macOS ARM64 Metal
+          - build: windows-x64-cpu
             os: windows-2022
             config: release
+            name: Windows x64 CPU
+          - build: linux-arm64-cpu
+            os: ubuntu-24.04-arm
+            config: release
+            name: Linux ARM64 CPU
+          - build: linux-musl-x64-cpu
+            os: ubuntu-24.04
+            config: release
+            name: Linux musl x64 CPU
+            container: mcr.microsoft.com/dotnet/sdk:9.0-alpine
     steps:
     - name: Free Disk Space (Ubuntu)
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+      if: ${{ matrix.build == 'linux-x64-cpu' || matrix.build == 'linux-arm64-cpu' }}
       uses: jlumbroso/free-disk-space@v1.3.1
       with:
         dotnet: false
-  
+
+    - name: Install Alpine dependencies
+      if: ${{ matrix.build == 'linux-musl-x64-cpu' }}
+      run: |
+        apk add --no-cache git bash icu-libs libstdc++ libgomp
+        dotnet --list-runtimes
+        dotnet --list-sdks
+    - name: Install .NET 8.0 runtime (Alpine)
+      if: ${{ matrix.build == 'linux-musl-x64-cpu' }}
+      run: |
+        wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+        chmod +x dotnet-install.sh
+        ./dotnet-install.sh --runtime dotnet --channel 8.0 --install-dir /usr/share/dotnet
+        rm dotnet-install.sh
+
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
+      if: ${{ matrix.build != 'linux-musl-x64-cpu' }}
       with:
         dotnet-version: |
           8.0.x
@@ -65,4 +93,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: logs/
-        name: logs-${{ matrix.os }}
+        name: logs-${{ matrix.build }}
