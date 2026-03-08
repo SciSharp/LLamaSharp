@@ -101,7 +101,7 @@ public sealed class Conversation
                 }
             }
 
-            var totalPositions = (int)clipModel.CountPositions(chunks);
+            var totalPositions = (int)chunks.CountPositions();
             return new MtmdChunkSequence(chunks, textTokens, totalPositions);
         }
 

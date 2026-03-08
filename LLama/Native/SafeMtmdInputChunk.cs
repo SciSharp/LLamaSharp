@@ -1,5 +1,4 @@
 using System;
-using LLama.Extensions;
 
 namespace LLama.Native;
 
@@ -8,15 +7,27 @@ namespace LLama.Native;
 /// underlying native pointer (when created via <see cref="Copy"/>) or act as non-owning views
 /// produced by the tokenizer.
 /// </summary>
-public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
+public sealed class SafeMtmdInputChunk
+    : SafeLLamaHandleBase
 {
     /// <summary>
     /// Chunk modality returned by the native tokenizer.
     /// </summary>
     public enum SafeMtmdInputChunkType
     {
+        /// <summary>
+        /// Chunk contains text
+        /// </summary>
         Text = 0,
+
+        /// <summary>
+        /// Chunk contains an image
+        /// </summary>
         Image = 1,
+
+        /// <summary>
+        /// Chunk contains audio
+        /// </summary>
         Audio = 2
     }
 
@@ -42,7 +53,7 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
     /// </summary>
     /// <param name="ptr">Pointer returned by the native tokenizer.</param>
     /// <returns>Managed wrapper, or <c>null</c> when the pointer is null.</returns>
-    public static SafeMtmdInputChunk Wrap(IntPtr ptr)
+    public static SafeMtmdInputChunk? Wrap(IntPtr ptr)
         => ptr == IntPtr.Zero ? null : new SafeMtmdInputChunk(ptr, ownsHandle: false);
 
     /// <summary>
@@ -50,62 +61,31 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
     /// </summary>
     /// <returns>Owning managed wrapper, or <c>null</c> if the native copy failed.</returns>
     /// <exception cref="ObjectDisposedException">Thrown when the current wrapper has been disposed.</exception>
-    public SafeMtmdInputChunk Copy()
+    public SafeMtmdInputChunk? Copy()
     {
-        return WithHandle(ptr =>
-        {
-            var clone = NativeApi.mtmd_input_chunk_copy(ptr);
-            return clone == IntPtr.Zero ? null : new SafeMtmdInputChunk(clone, ownsHandle: true);
-        });
+        var clone = NativeApi.mtmd_input_chunk_copy(this);
+        return clone == IntPtr.Zero ? null : new SafeMtmdInputChunk(clone, ownsHandle: true);
     }
 
     /// <summary>
     /// Chunk modality reported by the native helper.
     /// </summary>
-    public SafeMtmdInputChunkType Type
-    {
-        get
-        {
-            return WithHandle(ptr => (SafeMtmdInputChunkType)NativeApi.mtmd_input_chunk_get_type(ptr));
-        }
-    }
+    public SafeMtmdInputChunkType Type => NativeApi.mtmd_input_chunk_get_type(this);
 
     /// <summary>
     /// Number of tokens contained in this chunk.
     /// </summary>
-    public ulong NTokens
-    {
-        get
-        {
-            return WithHandle(ptr => NativeApi.mtmd_input_chunk_get_n_tokens(ptr).ToUInt64());
-        }
-    }
+    public ulong NTokens => NativeApi.mtmd_input_chunk_get_n_tokens(this).ToUInt64();
 
     /// <summary>
     /// Identifier assigned by the tokenizer (if any).
     /// </summary>
-    public string Id
-    {
-        get
-        {
-            return WithHandle(ptr =>
-            {
-                var idPtr = NativeApi.mtmd_input_chunk_get_id(ptr);
-                return idPtr.PtrToStringWithDefault(string.Empty);
-            });
-        }
-    }
+    public string Id => NativeApi.mtmd_input_chunk_get_id(this).PtrToStringWithDefault(string.Empty);
 
     /// <summary>
     /// Number of positional slots consumed by this chunk.
     /// </summary>
-    public long NPos
-    {
-        get
-        {
-            return WithHandle(ptr => NativeApi.mtmd_input_chunk_get_n_pos(ptr));
-        }
-    }
+    public long NPos => NativeApi.mtmd_input_chunk_get_n_pos(this);
 
     /// <summary>
     /// Zero-copy view over the chunk's token buffer. The span remains valid only while the native chunk is alive.
@@ -116,23 +96,12 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
     {
         EnsureNotDisposed();
 
-        bool added = false;
-        try
-        {
-            DangerousAddRef(ref added);
-            UIntPtr nTokens;
-            var tokensPtr = (int*)NativeApi.mtmd_input_chunk_get_tokens_text(DangerousGetHandle(), out nTokens);
-            if (tokensPtr == null)
-                return ReadOnlySpan<int>.Empty;
+        var tokensPtr = (int*)NativeApi.mtmd_input_chunk_get_tokens_text(this, out var nTokens);
+        if (tokensPtr == null)
+            return ReadOnlySpan<int>.Empty;
 
-            var length = checked((int)nTokens.ToUInt64());
-            return new ReadOnlySpan<int>(tokensPtr, length);
-        }
-        finally
-        {
-            if (added)
-                DangerousRelease();
-        }
+        var length = checked((int)nTokens.ToUInt64());
+        return new ReadOnlySpan<int>(tokensPtr, length);
     }
 
     /// <summary>
@@ -153,26 +122,5 @@ public sealed class SafeMtmdInputChunk : SafeLLamaHandleBase
     {
         if (IsClosed || IsInvalid)
             throw new ObjectDisposedException(nameof(SafeMtmdInputChunk));
-    }
-
-    private T WithHandle<T>(Func<IntPtr, T> action)
-    {
-        EnsureNotDisposed();
-
-        bool added = false;
-        try
-        {
-            DangerousAddRef(ref added);
-            var ptr = DangerousGetHandle();
-            if (ptr == IntPtr.Zero)
-                throw new ObjectDisposedException(nameof(SafeMtmdInputChunk));
-
-            return action(ptr);
-        }
-        finally
-        {
-            if (added)
-                DangerousRelease();
-        }
     }
 }
