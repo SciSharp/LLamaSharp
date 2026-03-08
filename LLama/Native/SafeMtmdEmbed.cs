@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 
 namespace LLama.Native
 {
@@ -28,6 +29,7 @@ namespace LLama.Native
                 throw new InvalidOperationException("Failed to create MTMD bitmap.");
         }
 
+        #region Create Embed
         /// <summary>
         /// Create an embedding from raw RGB bytes.
         /// </summary>
@@ -101,17 +103,21 @@ namespace LLama.Native
         /// <returns>Managed wrapper when decoding succeeds; otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">The context is null.</exception>
         /// <exception cref="ArgumentException">The buffer is empty.</exception>
-        public static unsafe SafeMtmdEmbed? FromMediaBuffer(SafeMtmdModelHandle mtmdContext, ReadOnlySpan<byte> data)
+        public static SafeMtmdEmbed? FromMediaBuffer(SafeMtmdModelHandle mtmdContext, ReadOnlySpan<byte> data)
         {
             if (data.IsEmpty)
                 throw new ArgumentException("Media buffer must not be empty.", nameof(data));
 
-            fixed (byte* bufferPtr = data)
+            unsafe
             {
-                var native = NativeApi.mtmd_helper_bitmap_init_from_buf(mtmdContext, bufferPtr, (nuint)data.Length);
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
+                fixed (byte* bufferPtr = data)
+                {
+                    var native = NativeApi.mtmd_helper_bitmap_init_from_buf(mtmdContext, bufferPtr, (nuint)data.Length);
+                    return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
+                }
             }
         }
+        #endregion
 
         /// <summary>
         /// Width of the bitmap in pixels (or number of samples for audio embeddings).
@@ -129,6 +135,11 @@ namespace LLama.Native
         public bool IsAudio => NativeApi.mtmd_bitmap_is_audio(this);
 
         /// <summary>
+        /// Get the byte count of the raw bitmap/audio data in this embed
+        /// </summary>
+        public ulong ByteCount => NativeApi.mtmd_bitmap_get_n_bytes(this).ToUInt64();
+
+        /// <summary>
         /// Optional identifier assigned to this embedding.
         /// </summary>
         public string? Id
@@ -137,21 +148,102 @@ namespace LLama.Native
             set => NativeApi.mtmd_bitmap_set_id(this, value);
         }
 
+        #region GetData
         /// <summary>
-        /// Zero-copy access to the underlying bitmap bytes. The span remains valid while this wrapper is alive.
+        /// Provides safe zero-copy access to the underlying bitmap bytes.
         /// </summary>
-        /// <returns>Read-only span exposing the native data buffer.</returns>
-        /// <exception cref="ObjectDisposedException">The embedding has been disposed.</exception>
-        public unsafe ReadOnlySpan<byte> GetDataSpan()
+        /// <returns>The data access is guaranteed to remain valid until this object is disposed.</returns>
+        public IEmbedData GetData()
         {
-            EnsureNotDisposed();
+            // Increment the reference count on this embed. When the "lifetime" is disposed the refcount will be decremented.
+            var success = false;
+            DangerousAddRef(ref success);
 
-            var dataPtr = (byte*)NativeApi.mtmd_bitmap_get_data(this);
-            var length = checked((int)NativeApi.mtmd_bitmap_get_n_bytes(this).ToUInt64());
-            return dataPtr == null || length == 0
-                ? ReadOnlySpan<byte>.Empty
-                : new ReadOnlySpan<byte>(dataPtr, length);
+            try
+            {
+                unsafe
+                {
+                    return new EmbedDataLifetime(this, NativeApi.mtmd_bitmap_get_data(this), checked((int)ByteCount));
+                }
+            }
+            catch
+            {
+                DangerousRelease();
+                throw;
+            }
         }
+
+        /// <summary>
+        /// Accessor for the raw data of a <see cref="SafeMtmdEmbed"/>
+        /// </summary>
+        public interface IEmbedData
+            : IDisposable
+        {
+            /// <summary>
+            /// Get the raw data. Access to this span is only guaranteed to be valid until this accessor is disposed.
+            /// </summary>
+            /// <exception cref="ObjectDisposedException">Thrown if this accessor has been disposed</exception>
+            ReadOnlySpan<byte> Data { get; }
+
+            /// <summary>
+            /// Indicates if this accessor is still valid (i.e. not disposed)
+            /// </summary>
+            bool IsValid { get; }
+        }
+
+        private sealed class EmbedDataLifetime
+            : IEmbedData
+        {
+            private int _valid;
+            private readonly SafeMtmdEmbed _embed;
+            private readonly unsafe byte* _dataPtr;
+            private readonly int _dataLength;
+
+            public ReadOnlySpan<byte> Data
+            {
+                get
+                {
+                    unsafe
+                    {
+                        if (!IsValid)
+                            throw new ObjectDisposedException("Cannot access Embed data, accessor has been disposed");
+                        return new ReadOnlySpan<byte>(_dataPtr, _dataLength);
+                    }
+                }
+            }
+
+            public bool IsValid => _valid != 0;
+
+            public unsafe EmbedDataLifetime(SafeMtmdEmbed embed, byte* dataPtr, int dataLength)
+            {
+                _embed = embed;
+
+                _dataPtr = dataPtr;
+                _dataLength = dataLength;
+
+                _valid = 1;
+            }
+
+            ~EmbedDataLifetime()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+            }
+
+            private void Dispose(bool disposing)
+            {
+                if (Interlocked.Exchange(ref _valid, 0) == 1)
+                    _embed.DangerousRelease();
+
+                if (disposing)
+                    GC.SuppressFinalize(this);
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Release the underlying native bitmap.

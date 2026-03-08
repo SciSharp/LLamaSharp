@@ -53,7 +53,10 @@ namespace LLama.Unittest
                 Assert.True(embed.Nx > 0);
                 Assert.True(embed.Ny > 0);
                 Assert.False(embed.IsAudio);
-                Assert.True(embed.GetDataSpan().Length > 0);
+
+                Assert.True(embed.ByteCount > 0);
+                using var mem = embed.GetData();
+                Assert.True(mem.Data.Length > 0);
 
                 var status = _mtmdWeights.Tokenize(_mediaMarker, addSpecial: true, parseSpecial: true, out var chunks);
                 Assert.Equal(0, status);

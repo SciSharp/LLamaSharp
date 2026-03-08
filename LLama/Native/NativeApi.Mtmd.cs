@@ -75,7 +75,7 @@ public static partial class NativeApi
     internal static extern uint mtmd_bitmap_get_ny(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_data", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern IntPtr mtmd_bitmap_get_data(SafeMtmdEmbed bitmap);
+    internal static extern unsafe byte* mtmd_bitmap_get_data(SafeMtmdEmbed bitmap);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_n_bytes", CallingConvention = CallingConvention.Cdecl)]
     internal static extern UIntPtr mtmd_bitmap_get_n_bytes(SafeMtmdEmbed bitmap);
