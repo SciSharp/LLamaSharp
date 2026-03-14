@@ -168,7 +168,7 @@ public static partial class NativeApi
     // tokenize ----------------------------------------------------------
 
     /// <summary>
-    /// Native text structure consumed by <see cref="mtmd_tokenize"/>.
+    /// Native text structure consumed by <see cref="NativeApi.mtmd_tokenize(LLama.Native.SafeMtmdModelHandle,System.IntPtr,in LLama.Native.NativeApi.mtmd_input_text_native,System.IntPtr[],System.UIntPtr)"/>.
     /// </summary>
     internal unsafe struct mtmd_input_text_native
     {
