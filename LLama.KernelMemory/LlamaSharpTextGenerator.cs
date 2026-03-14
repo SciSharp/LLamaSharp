@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using LLama;
 using LLama.Common;
 using LLama.Sampling;
@@ -20,8 +21,6 @@ namespace LLamaSharp.KernelMemory
 
         private readonly InferenceParams? _defaultInferenceParams;
 
-        private readonly ModelParams? @params;
-
         public int MaxTokenTotal { get; }
 
         /// <summary>
@@ -30,12 +29,14 @@ namespace LLamaSharp.KernelMemory
         /// <param name="config">The configuration for LLamaSharp.</param>
         public LlamaSharpTextGenerator(LLamaSharpConfig config)
         {
-            @params = new ModelParams(config.ModelPath)
+            ArgumentNullException.ThrowIfNull(config);
+
+            var @params = new ModelParams(config.ModelPath)
             {
-                ContextSize = config?.ContextSize ?? 2048,
-                GpuLayerCount = config?.GpuLayerCount ?? 20,
-                MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                ContextSize = config.ContextSize ?? 2048,
+                GpuLayerCount = config.GpuLayerCount ?? 20,
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode,
                 BatchSize = 512,
                 UBatchSize = 512,
                 FlashAttention = true,
@@ -43,7 +44,7 @@ namespace LLamaSharp.KernelMemory
             };
             _weights = LLamaWeights.LoadFromFile(@params);
             _executor = new StatelessExecutor(_weights, @params);
-            _defaultInferenceParams = config!.DefaultInferenceParams;
+            _defaultInferenceParams = config.DefaultInferenceParams;
             _ownsWeights = true;
             MaxTokenTotal = (int)@params.ContextSize;
         }
@@ -53,17 +54,21 @@ namespace LLamaSharp.KernelMemory
         /// If executor is not specified, then a StatelessExecutor will be created with `context.Params`. So far only `StatelessExecutor` is expected.
         /// </summary>
         /// <param name="weights">A LLamaWeights object.</param>
+        /// <param name="config"></param>
         /// <param name="executor">An executor. Currently only StatelessExecutor is expected.</param>
         public LlamaSharpTextGenerator(LLamaWeights weights, LLamaSharpConfig config, StatelessExecutor? executor = null)
         {
-            InferenceParams? inferenceParams = config.DefaultInferenceParams;
+            ArgumentNullException.ThrowIfNull(weights);
+            ArgumentNullException.ThrowIfNull(config);
+
+            var inferenceParams = config.DefaultInferenceParams;
             _weights = weights;
-            @params = new ModelParams("")
+            var @params = new ModelParams("")
             {
-                ContextSize = config?.ContextSize ?? 2048,
-                GpuLayerCount = config?.GpuLayerCount ?? 20,
-                MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                ContextSize = config.ContextSize ?? 2048,
+                GpuLayerCount = config.GpuLayerCount ?? 20,
+                MainGpu = config.MainGpu,
+                SplitMode = config.SplitMode,
                 BatchSize = 512,
                 UBatchSize = 512,
                 FlashAttention = true,
@@ -84,11 +89,15 @@ namespace LLamaSharp.KernelMemory
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<GeneratedTextContent> GenerateTextAsync(string prompt, TextGenerationOptions options, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<GeneratedTextContent> GenerateTextAsync(string prompt, TextGenerationOptions options, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            return _executor
-                  .InferAsync(prompt, OptionsToParams(options, _defaultInferenceParams), cancellationToken: cancellationToken)
-                  .Select(a => new GeneratedTextContent(a));
+            await foreach (var item in _executor.InferAsync(prompt, OptionsToParams(options, _defaultInferenceParams), cancellationToken: cancellationToken))
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                yield return new GeneratedTextContent(item);
+            }
         }
 
         private static InferenceParams OptionsToParams(TextGenerationOptions options, InferenceParams? defaultParams)
@@ -129,25 +138,23 @@ namespace LLamaSharp.KernelMemory
         /// Count the tokens in the input text
         /// </summary>
         /// <param name="text">input text</param>
-        /// <param name="parameters">context parameters</param>
         /// <returns></returns>
         public int CountTokens(string text)
         {
-            return _weights!.Tokenize(text, true, special: true, Encoding.UTF8).Length;
+            return _weights.Tokenize(text, true, special: true, Encoding.UTF8).Length;
         }
 
         /// <summary>
         /// Get the list of tokens for the input text
         /// </summary>
         /// <param name="text">Input string to be tokenized</param>
-        /// <param name="parameters">Context parameters</param>
         /// <returns>Read-only list of tokens for the input test</returns>
         /// <remarks>
         /// It throws if text is null and Includes empty stop token because addBos is left true to be consistent with the CountTokens implementation.</remarks>
-        /// <see cref="CountTokens(string, IContextParams)"/>
+        /// <see cref="CountTokens(string)"/>
         public IReadOnlyList<string> GetTokens(string text)
         {
-            var numericTokens = _weights!.Tokenize(text, true, special: true, Encoding.UTF8);
+            var numericTokens = _weights.Tokenize(text, true, special: true, Encoding.UTF8);
             var decoder = new StreamingTokenDecoder(Encoding.UTF8, _weights);
             return numericTokens.Select(x => { decoder.Add(x); return decoder.Read(); }).ToList();
         }
