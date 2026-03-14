@@ -132,33 +132,13 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe nuint llama_state_seq_load_file(SafeLLamaContextHandle ctx, string filepath, LLamaSeqId dest_seq_id, LLamaToken* tokens_out, nuint n_token_capacity, out nuint n_token_count_out);
 
-        /// <summary>
-        /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
-        /// </summary>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
-
-        /// <summary>
-        /// Set whether the context outputs embeddings or not
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="embeddings">If true, embeddings will be returned but logits will not</param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_embeddings(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool embeddings);
+        
 
         /// <summary>
         /// Set abort callback
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void llama_set_abort_callback(SafeLLamaContextHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
-
-        /// <summary>
-        /// Get the n_seq_max for this context
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern uint llama_n_seq_max(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Get all output token embeddings.
@@ -515,6 +495,18 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long llama_time_us();
 
-        
+        /* Directly exposes `ggml_tensor` and `gguf_context` which LLamaSharp does not currently support!
+         
+        typedef void (* llama_model_set_tensor_data_t) (struct ggml_tensor * tensor, void* userdata);
+
+        // Create a new model from GGUF metadata as well as a function to set the tensor data
+        //   - tensors are created as GGML_TYPE_F32 by default,
+        //     override by adding a tensor with the same name but a different name to the context
+        LLAMA_API struct llama_model * llama_model_init_from_user(
+        struct gguf_context * metadata,
+        llama_model_set_tensor_data_t set_tensor_data,    // function to initialize tensor data with
+        void* set_tensor_data_ud, // userdata for function
+        struct llama_model_params   params);
+        */
     }
 }
