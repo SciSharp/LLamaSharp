@@ -52,12 +52,12 @@ jobs:
         apk add --no-cache git bash icu-libs libstdc++ libgomp
         dotnet --list-runtimes
         dotnet --list-sdks
-    - name: Install .NET 8.0 runtime (Alpine)
+    - name: Install .NET 10.0 runtime (Alpine)
       if: ${{ matrix.build == 'linux-musl-x64-cpu' }}
       run: |
         wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
         chmod +x dotnet-install.sh
-        ./dotnet-install.sh --runtime dotnet --channel 8.0 --install-dir /usr/share/dotnet
+        ./dotnet-install.sh --runtime dotnet --channel 10.0 --install-dir /usr/share/dotnet
         rm dotnet-install.sh
 
     - uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
       if: ${{ matrix.build != 'linux-musl-x64-cpu' }}
       with:
         dotnet-version: |
-          8.0.x
+          10.0.x
     - name: Install Mobile Workloads
       if: ${{ contains(runner.os, 'windows') }}
       run: |
