@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
 		<RootNamespace>LLamaSharp.SemanticKernel</RootNamespace>
 		<Nullable>enable</Nullable>
 		<LangVersion>10</LangVersion>
@@ -34,7 +34,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.64.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.73.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
