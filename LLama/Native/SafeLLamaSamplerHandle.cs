@@ -578,6 +578,49 @@ public sealed class SafeLLamaSamplerChainHandle
     }
 
     /// <summary>
+    /// Adaptive-p: select tokens near a configurable target probability over time.
+    /// <br /><br />
+    /// the adaptive-p sampler transforms the token probability distribution to favor tokens
+    /// that fall near a user-configurable probability target.
+    /// <br /><br />
+    /// internally, the sampler maintains an exponential moving average of the *ORIGINAL*
+    /// probabilities of selected tokens at each sampling step. it uses this EMA to compute an
+    /// adapted target probability at each sampling step, thus maintaining the desired target
+    /// probability over time.
+    /// <br /><br />
+    /// adaptive-p selects a token ID rather than just mutating candidates, so it must be last
+    /// in the sampler chain (like mirostat, dist, greedy).
+    /// <br /><br />
+    /// only mild truncation before this sampler is recommended. we suggest applying min-p
+    /// before adaptive-p as the only other active sampler in the chain.
+    /// <br /><br />
+    /// ref: https://github.com/ggml-org/llama.cpp/pull/17927
+    /// </summary>
+    /// <param name="target">select tokens near this probability (valid range 0.0 to 1.0; negative = disabled)</param>
+    /// <param name="decay">EMA decay for adaptation; history ≈ 1/(1-decay) tokens (valid range 0.0 - 0.99)</param>
+    /// <param name="seed">RNG seed</param>
+    public void AddAdaptiveP(float target, float decay, uint seed)
+    {
+        llama_sampler_chain_add(
+            this,
+            llama_sampler_init_adaptive_p(
+                target,
+                decay,
+                seed
+            )
+        );
+
+        // ReSharper disable InconsistentNaming
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern IntPtr llama_sampler_init_adaptive_p(
+            float target,
+            float decay,
+            uint seed
+        );
+        // ReSharper restore InconsistentNaming
+    }
+
+    /// <summary>
     /// Create a sampler that applies a bias directly to the logits
     /// </summary>
     /// <param name="vocabSize"></param>

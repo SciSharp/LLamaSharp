@@ -32,13 +32,13 @@ namespace LLama.Native
         /// <returns>Safe handle for the MTMD model.</returns>
         /// <exception cref="InvalidOperationException">The file exists but is not readable by the current process.</exception>
         /// <exception cref="LoadWeightsFailedException">The native loader failed to initialize the MTMD model.</exception>
-        public static SafeMtmdModelHandle LoadFromFile(string modelPath, LLamaWeights textModel, MtmdContextParams mtmdCtxParams)
+        public static SafeMtmdModelHandle LoadFromFile(string modelPath, LLamaWeights textModel, MtmdContextParams? mtmdCtxParams)
         {
             // Try to open the model file, this will check:
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
             // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
-            using (var fs = new FileStream(modelPath, FileMode.Open))
+            using (var fs = new FileStream(modelPath, FileMode.Open, FileAccess.Read))
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"Mtmd Model file '{modelPath}' is not readable");
 
@@ -133,20 +133,30 @@ namespace LLama.Native
             for (var i = 0; i < _pendingMedia.Count; i++)
                 bitmapHandles[i] = _pendingMedia[i].NativePtr;
 
-            var result = NativeApi.mtmd_tokenize(DangerousGetHandle(), output, text, addSpecial, parseSpecial, bitmapHandles, (UIntPtr)bitmapHandles.Length);
-
-            if (result == 0)
+            try
             {
-                chunks = new SafeMtmdInputChunks(output);
+                var result = NativeApi.mtmd_tokenize(this, output, text, addSpecial, parseSpecial, bitmapHandles, (nuint)bitmapHandles.Length);
+
+                if (result == 0)
+                {
+                    chunks = new SafeMtmdInputChunks(output);
+                }
+                else
+                {
+                    NativeApi.mtmd_input_chunks_free(output);
+                }
+
+                ClearMedia();
+
+                return result;
             }
-            else
+            finally
             {
-                NativeApi.mtmd_input_chunks_free(output);
+                // bitmapHandles contains dangerous references to media embeddings objects, we must ensure that these
+                // remain valid for the complete time that the bitmapHandles array is in use. KeepAlive guarantees the 
+                // array remains valid to this point, and thus all of the safe handles too.
+                GC.KeepAlive(bitmapHandles);
             }
-
-            ClearMedia();
-
-            return result;
         }
 
         /// <summary>
@@ -177,7 +187,7 @@ namespace LLama.Native
                 bitmapHandles[i] = embed.NativePtr;
             }
 
-            var result = NativeApi.mtmd_tokenize(DangerousGetHandle(), output, text, addSpecial, parseSpecial, bitmapHandles, (UIntPtr)bitmapHandles.Length);
+            var result = NativeApi.mtmd_tokenize(this, output, text, addSpecial, parseSpecial, bitmapHandles, (UIntPtr)bitmapHandles.Length);
             if (result == 0)
             {
                 chunks = new SafeMtmdInputChunks(output);
@@ -212,9 +222,9 @@ namespace LLama.Native
 
             var newNPast = nPast;
             var result = NativeApi.mtmd_helper_eval_chunks(
-                DangerousGetHandle(),
-                llamaContext.DangerousGetHandle(),
-                chunks.NativePtr,
+                this,
+                llamaContext,
+                chunks,
                 nPast,
                 seqId,
                 nBatch,
@@ -249,8 +259,8 @@ namespace LLama.Native
 
             var newNPast = nPast;
             var result = NativeApi.mtmd_helper_eval_chunk_single(
-                DangerousGetHandle(),
-                llamaContext.DangerousGetHandle(),
+                this,
+                llamaContext,
                 chunkPtr,
                 nPast,
                 seqId,
@@ -284,8 +294,8 @@ namespace LLama.Native
 
             var newNPast = nPast;
             var result = NativeApi.mtmd_helper_decode_image_chunk(
-                DangerousGetHandle(),
-                llamaContext?.DangerousGetHandle() ?? throw new ArgumentNullException(nameof(llamaContext)),
+                this,
+                llamaContext,
                 chunkPtr,
                 encodedEmbeddings,
                 nPast,
@@ -299,46 +309,13 @@ namespace LLama.Native
             return result;
         }
 
-        /// <summary>
-        /// Get the number of tokens contained in the provided chunk collection.
-        /// </summary>
-        /// <param name="chunks">Chunk collection produced by <see cref="Tokenize"/>.</param>
-        /// <returns>Total token count.</returns>
-        public ulong CountTokens(SafeMtmdInputChunks chunks)
-        {
-            if (chunks == null)
-                throw new ArgumentNullException(nameof(chunks));
-            return NativeApi.mtmd_helper_get_n_tokens(chunks.NativePtr).ToUInt64();
-        }
-
-        /// <summary>
-        /// Get the number of positions contained in the provided chunk collection.
-        /// </summary>
-        /// <param name="chunks">Chunk collection produced by <see cref="Tokenize"/>.</param>
-        /// <returns>Total number of positional slots consumed.</returns>
-        public long CountPositions(SafeMtmdInputChunks chunks)
-        {
-            if (chunks == null)
-                throw new ArgumentNullException(nameof(chunks));
-            return NativeApi.mtmd_helper_get_n_pos(chunks.NativePtr);
-        }
-
         #region native API
-        
-        // mtmd_init_from_file(const char * mmproj_fname, const struct llama_model * text_model, const struct mtmd_context_params ctx_params);
-        // The llama_model layout is opaque; expose it via SafeLlamaModelHandle to match the managed wrapper.
         [DllImport(NativeApi.mtmdLibraryName, EntryPoint = "mtmd_init_from_file", CallingConvention = CallingConvention.Cdecl)]
-        private static extern unsafe SafeMtmdModelHandle mtmd_init_from_file(
-            byte* mmproj_fname,
-            SafeLlamaModelHandle text_model,
-            NativeApi.mtmd_context_params @ctx_params);
+        private static extern unsafe SafeMtmdModelHandle mtmd_init_from_file(byte* path, SafeLlamaModelHandle textModel, NativeApi.mtmd_context_params ctxParams);
 
         [DllImport(NativeApi.mtmdLibraryName, EntryPoint = "mtmd_free", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void mtmd_free(IntPtr ctx);
-        
+        private static extern void mtmd_free(IntPtr ctx);
         #endregion   
-        
-        
         
         /// <summary>
         /// Finalizer to ensure native resources are released if Dispose was not called.
@@ -351,27 +328,27 @@ namespace LLama.Native
         /// <summary>
         /// Indicates whether the model decodes using the non-causal path.
         /// </summary>
-        public bool DecodeUseNonCausal() => NativeApi.mtmd_decode_use_non_causal(handle);
+        public bool DecodeUseNonCausal() => NativeApi.mtmd_decode_use_non_causal(this);
 
         /// <summary>
         /// Indicates whether the model decodes using multi-scale RoPE.
         /// </summary>
-        public bool DecodeUseMRope() => NativeApi.mtmd_decode_use_mrope(handle);
+        public bool DecodeUseMRope() => NativeApi.mtmd_decode_use_mrope(this);
 
         /// <summary>
         /// Indicates whether the model supports vision inputs.
         /// </summary>
-        public bool SupportVision() => NativeApi.mtmd_support_vision(handle);
+        public bool SupportVision() => NativeApi.mtmd_support_vision(this);
 
         /// <summary>
         /// Indicates whether the model supports audio inputs.
         /// </summary>
-        public bool SupportAudio() => NativeApi.mtmd_support_audio(handle);
+        public bool SupportAudio() => NativeApi.mtmd_support_audio(this);
 
         /// <summary>
         /// Gets the audio bitrate advertised by the model.
         /// </summary>
-        public int GetAudioBitrate() => NativeApi.mtmd_get_audio_bitrate(handle);
+        public int GetAudioBitrate() => NativeApi.mtmd_get_audio_bitrate(this);
 
         private void EnsureNotDisposed()
         {

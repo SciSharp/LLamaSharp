@@ -1,7 +1,7 @@
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LLama.Exceptions;
 using LLama.Native;
 
 namespace LLama;
@@ -9,8 +9,13 @@ namespace LLama;
 /// <summary>
 /// Lightweight wrapper around the MTMD native context and its helpers.
 /// </summary>
-public sealed class MtmdWeights : IDisposable
+public sealed class MtmdWeights
+    : IDisposable
 {
+    /// <summary>
+    /// The native handle, which is used in the native APIs
+    /// </summary>
+    /// <remarks>Be careful how you use this!</remarks>
     public SafeMtmdModelHandle NativeHandle { get; }
 
     private MtmdWeights(SafeMtmdModelHandle handle)
@@ -18,19 +23,57 @@ public sealed class MtmdWeights : IDisposable
         NativeHandle = handle ?? throw new ArgumentNullException(nameof(handle));
     }
 
+    /// <summary>
+    /// Load weights into memory
+    /// </summary>
+    /// <param name="mmProject">Path to the mmproj file</param>
+    /// <param name="textModel">The text model</param>
+    /// <param name="mtmdCtxParams">Parameters for MTMD context creation</param>
+    /// <returns></returns>
     public static MtmdWeights LoadFromFile(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams)
     {
-        if (mmProject == null) throw new ArgumentNullException(nameof(mmProject));
-        if (textModel == null) throw new ArgumentNullException(nameof(textModel));
-        if (mtmdCtxParams == null) throw new ArgumentNullException(nameof(mtmdCtxParams));
-
-        var handle = SafeMtmdModelHandle.LoadFromFile(mmProject, textModel, mtmdCtxParams);
-        return new MtmdWeights(handle);
+        return new MtmdWeights(SafeMtmdModelHandle.LoadFromFile(
+            mmProject ?? throw new ArgumentNullException(nameof(mmProject)),
+            textModel ?? throw new ArgumentNullException(nameof(textModel)),
+            mtmdCtxParams ?? throw new ArgumentNullException(nameof(mtmdCtxParams))
+        ));
     }
 
-    public static Task<MtmdWeights> LoadFromFileAsync(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams, CancellationToken token = default)
+    /// <summary>
+    /// Load weights into memory
+    /// </summary>
+    /// <param name="mmProject">Path to the mmproj file</param>
+    /// <param name="textModel">The text model</param>
+    /// <param name="mtmdCtxParams">Parameters for MTMD context creation</param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public static async Task<MtmdWeights> LoadFromFileAsync(string mmProject, LLamaWeights textModel, MtmdContextParams mtmdCtxParams, CancellationToken token = default)
     {
-        return Task.Run(() => LoadFromFile(mmProject, textModel, mtmdCtxParams), token);
+        if (mmProject == null)
+            throw new ArgumentNullException(nameof(mmProject));
+        if (textModel == null)
+            throw new ArgumentNullException(nameof(textModel));
+        if (mtmdCtxParams == null)
+            throw new ArgumentNullException(nameof(mtmdCtxParams));
+
+        var model = await Task.Run(() =>
+        {
+            try
+            {
+                // Load the model
+                return LoadFromFile(mmProject, textModel, mtmdCtxParams);
+            }
+            catch (LoadWeightsFailedException)
+            {
+                // Convert a LoadWeightsFailedException into a cancellation exception if possible.
+                token.ThrowIfCancellationRequested();
+
+                // Ok the weights failed to load for some reason other than cancellation.
+                throw;
+            }
+        }, token);
+
+        return model;
     }
 
     /// <summary>
@@ -73,15 +116,31 @@ public sealed class MtmdWeights : IDisposable
     public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref int nPast, int seqId, int nBatch)
         => NativeHandle.DecodeImageChunk(chunkPtr, llamaContext, encodedEmbeddings, ref nPast, seqId, nBatch);
 
-    public ulong CountTokens(SafeMtmdInputChunks chunks) => NativeHandle.CountTokens(chunks);
-
-    public long CountPositions(SafeMtmdInputChunks chunks) => NativeHandle.CountPositions(chunks);
-
+    /// <summary>
+    /// Indicates whether the model supports vision inputs.
+    /// </summary>
     public bool SupportsVision => NativeHandle.SupportVision();
+
+    /// <summary>
+    /// Indicates whether the model supports audio inputs.
+    /// </summary>
     public bool SupportsAudio => NativeHandle.SupportAudio();
+
+    /// <summary>
+    /// Indicates whether the model decodes using the non-causal path.
+    /// </summary>
     public bool UsesNonCausalAttention => NativeHandle.DecodeUseNonCausal();
+
+    /// <summary>
+    /// Indicates whether the model decodes using multi-scale RoPE.
+    /// </summary>
     public bool UsesMRope => NativeHandle.DecodeUseMRope();
+
+    /// <summary>
+    /// Gets the audio bitrate advertised by the model.
+    /// </summary>
     public int AudioBitrate => NativeHandle.GetAudioBitrate();
 
+    /// <inheritdoc />
     public void Dispose() => NativeHandle.Dispose();
 }

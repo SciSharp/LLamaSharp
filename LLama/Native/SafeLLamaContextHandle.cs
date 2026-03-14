@@ -344,7 +344,7 @@ namespace LLama.Native
         private static extern void llama_synchronize(SafeLLamaContextHandle ctx);
 
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_set_adapter_lora(SafeLLamaContextHandle context, IntPtr adapter, float scale);
+        private static extern unsafe int llama_set_adapters_lora(SafeLLamaContextHandle context, IntPtr* adapters, nuint nAdapters, float* scales);
 
         /// <summary>
         /// Get metadata value as a string by key name
@@ -387,12 +387,6 @@ namespace LLama.Native
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern int llama_adapter_meta_val_by_index(IntPtr adapter, int i, StringBuilder buf,  UIntPtr buf_size);
 
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_rm_adapter_lora(SafeLLamaContextHandle context, IntPtr adapter);
-
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_clear_adapter_lora(SafeLLamaContextHandle context);
-
         /// <summary>
         /// Get the pooling type for this context
         /// </summary>
@@ -434,44 +428,44 @@ namespace LLama.Native
 
         #region LoRA
         /// <summary>
-        /// Add a LoRA adapter to this context
+        /// Set the LoRa adapters on the context
         /// </summary>
-        /// <param name="lora"></param>
-        /// <param name="scale"></param>
+        /// <param name="adapters"></param>
         /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="RuntimeError"></exception>
-        public void AddLoraAdapter(LoraAdapter lora, float scale)
+        public void SetLoraAdapters(params Span<(LoraAdapter Adapter, float Scale)> adapters)
         {
-            if (lora.Model != ModelHandle)
-                throw new ArgumentException("Cannot add LoRA adapter which was loaded for a different model");
-            if (!lora.Loaded)
-                throw new ArgumentException("Cannot add LoRA adapter which has been unloaded");
+            // Check adapters are all valid
+            foreach (var adapter in adapters)
+            {
+                if (adapter.Adapter.Model != ModelHandle)
+                    throw new ArgumentException("Cannot add LoRA adapter which was loaded for a different model");
+                if (!adapter.Adapter.Loaded)
+                    throw new ArgumentException("Cannot add LoRA adapter which has been unloaded");
+            }
 
-            var err = llama_set_adapter_lora(this, lora.Pointer, scale);
-            if (err != 0)
-                throw new RuntimeError("Failed to set lora adapter");
-        }
+            // Copy data into buffers
+            Span<IntPtr> adapterPtrs = stackalloc IntPtr[adapters.Length];
+            Span<float> scales = stackalloc float[adapters.Length];
+            for (var i = 0; i < adapters.Length; i++)
+            {
+                adapterPtrs[i] = adapters[i].Adapter.Pointer;
+                scales[i] = adapters[i].Scale;
+            }
 
-        /// <summary>
-        /// Remove a LoRA adapter from this context
-        /// </summary>
-        /// <param name="lora"></param>
-        /// <returns>Indicates if the lora was in this context and was remove</returns>
-        public bool RemoveLoraAdapter(LoraAdapter lora)
-        {
-            if (lora.Model != ModelHandle)
-                return false;
-
-            var err = llama_rm_adapter_lora(this, lora.Pointer);
-            return err == 0;
-        }
-
-        /// <summary>
-        /// Remove all LoRA adapters from this context
-        /// </summary>
-        public void ClearLoraAdapters()
-        {
-            llama_clear_adapter_lora(this);
+            // Set adapters
+            unsafe
+            {
+                fixed (IntPtr* adapterPtrsPtr = adapterPtrs)
+                fixed (float* scalesPtr = scales)
+                {
+                    llama_set_adapters_lora(
+                        this,
+                        adapterPtrsPtr,
+                        (nuint)adapters.Length,
+                        scalesPtr
+                    );
+                }
+            }
         }
         #endregion
 

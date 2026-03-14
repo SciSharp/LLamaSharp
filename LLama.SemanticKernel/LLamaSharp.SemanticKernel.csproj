@@ -10,7 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<Version>0.25.0</Version>
+		<Version>0.26.0</Version>
 		<Authors>Tim Miller, Xbotter</Authors>
 		<Company>SciSharp STACK</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -23,7 +23,7 @@
 			The integration of LLamaSharp and Microsoft semantic-kernel.
 		</Description>
 		<PackageReleaseNotes>
-            v0.25.0 released with v0.25.0 of LLamaSharp.
+            v0.26.0 released with v0.26.0 of LLamaSharp.
         </PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageOutputPath>packages</PackageOutputPath>

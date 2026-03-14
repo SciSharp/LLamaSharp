@@ -17,7 +17,8 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_CURL=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_OPENSSL=OFF -DBUILD_SHARED_LIBS=ON
+  LINUX_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=ON"
 
 jobs:
   compile-linux:
@@ -58,7 +59,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
       - uses: actions/upload-artifact@v4
@@ -80,7 +81,7 @@ jobs:
         with:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-linux-${{ matrix.build }}-${{ matrix.arch }}.so
-          if-no-files-found: error         
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libmtmd.so
@@ -123,7 +124,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
       - uses: actions/upload-artifact@v4
@@ -145,7 +146,7 @@ jobs:
         with:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-musl-${{ matrix.build }}-x64.so
-          if-no-files-found: error        
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libmtmd.so
@@ -213,7 +214,63 @@ jobs:
           path: .\build\bin\Release\mtmd.dll
           name: mtmd-bin-win-${{ matrix.build }}-x64.dll
           if-no-files-found: error
-          
+
+  compile-windows-arm64:
+    name: Compile (Windows ARM64)
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build: 'arm64'
+            defines: '-T ClangCL -DCMAKE_GENERATOR_PLATFORM=ARM64 -DGGML_NATIVE=OFF'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ggerganov/llama.cpp
+          fetch-depth: 0
+          ref: '${{ github.event.inputs.llama_cpp_commit }}'
+
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          tree /f
+
+      - name: Upload artifacts (llama)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\llama.dll
+          name: llama-bin-win-${{ matrix.build }}-arm64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml.dll
+          name: ggml-bin-win-${{ matrix.build }}-arm64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml-base)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml-base.dll
+          name: ggml-base-bin-win-${{ matrix.build }}-arm64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (ggml-cpu)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\ggml-cpu.dll
+          name: ggml-cpu-bin-win-${{ matrix.build }}-arm64.dll
+          if-no-files-found: error
+      - name: Upload artifacts (mtmd)
+        uses: actions/upload-artifact@v4
+        with:
+          path: .\build\bin\Release\mtmd.dll
+          name: mtmd-bin-win-${{ matrix.build }}-arm64.dll
+          if-no-files-found: error
+
   compile-vulkan:
       name: Compile (vulkan) - ${{ matrix.os }}
       strategy:
@@ -250,7 +307,7 @@ jobs:
                 & "$env:RUNNER_TEMP\VulkanSDK-Installer.exe" --accept-licenses --default-answer --confirm-command install
                 Add-Content $env:GITHUB_ENV "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VERSION}"
                 Add-Content $env:GITHUB_PATH "C:\VulkanSDK\${env:VULKAN_VERSION}\bin"
-          - name: Build
+          - name: Build (Windows)
             id: cmake_build
             if: ${{ matrix.os == 'windows-latest' }}
             run: |
@@ -259,12 +316,12 @@ jobs:
                 cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
-          - name: Build
+          - name: Build (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Upload llama artifacts (Windows)
@@ -294,7 +351,7 @@ jobs:
             with:
                 path: .\build\bin\Release\ggml-vulkan.dll
                 name: ggml-vulkan-bin-win-vulkan-x64.dll
-                if-no-files-found: error             
+                if-no-files-found: error
           - name: Upload mtmd artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
             uses: actions/upload-artifact@v4
@@ -329,7 +386,7 @@ jobs:
             with:
                 path: ./build/bin/libggml-vulkan.so
                 name: ggml-vulkan-bin-linux-vulkan-x64.so
-                if-no-files-found: error             
+                if-no-files-found: error
           - name: Upload mtmd artifacts (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
             uses: actions/upload-artifact@v4
@@ -337,7 +394,7 @@ jobs:
                 path: ./build/bin/libmtmd.so
                 name: mtmd-bin-linux-vulkan-x64.so
                 if-no-files-found: error
-                
+
   compile-cublas:
     name: Compile (cublas)
     strategy:
@@ -371,13 +428,25 @@ jobs:
           method: 'network'
           linux-local-args: '["--toolkit"]'
 
-      - name: Build
-        id: cmake_build
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        id: cmake_build_windows
         run: |
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON
+          cmake --build . --config Release
+          ls -R
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        id: cmake_build_linux
+        run: |
+          echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
+          mkdir build
+          cd build
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON
           cmake --build . --config Release
           ls -R
 
@@ -408,7 +477,7 @@ jobs:
         with:
           path: .\build\bin\Release\ggml-cuda.dll
           name: ggml-cuda-bin-win-cublas-cu${{ matrix.cuda }}-x64.dll
-          if-no-files-found: error        
+          if-no-files-found: error
       - name: Upload mtmd artifacts (Windows)
         if: ${{ matrix.os == 'windows-2022' }}
         uses: actions/upload-artifact@v4
@@ -444,7 +513,7 @@ jobs:
         with:
           path: ./build/bin/libggml-cuda.so
           name: ggml-cuda-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
-          if-no-files-found: error       
+          if-no-files-found: error
       - name: Upload mtmd artifacts (Linux)
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
@@ -452,7 +521,7 @@ jobs:
           path: ./build/bin/libmtmd.so
           name: mtmd-bin-linux-cublas-cu${{ matrix.cuda }}-x64.so
           if-no-files-found: error
- 
+
   compile-macos:
     name: Compile (MacOS)
     strategy:
@@ -467,7 +536,7 @@ jobs:
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
     env:
       MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
-    runs-on: macos-14   
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
         with:
@@ -522,21 +591,13 @@ jobs:
         with:
           path: ./build/bin/libllama.dylib
           name: llama-bin-osx-${{ matrix.build }}.dylib
-          if-no-files-found: error      
+          if-no-files-found: error
       - name: Upload mtmd
         uses: actions/upload-artifact@v4
         with:
           path: ./build/bin/libmtmd.dylib
           name: mtmd-bin-osx-${{ matrix.build }}.dylib
           if-no-files-found: error
-      - name: Upload Metal
-        if: ${{ matrix.build == 'arm64' }}
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./build/bin/ggml-metal.metal
-          name: ggml-metal.metal
-          if-no-files-found: error
-  
   compile-android:
     name: Compile (Android)
     strategy:
@@ -590,7 +651,7 @@ jobs:
         with:
           path: ./build/bin/libggml-cpu.so
           name: ggml-cpu-bin-android-${{ matrix.build }}.so
-          if-no-files-found: error         
+          if-no-files-found: error
       - name: Upload mtmd
         uses: actions/upload-artifact@v4
         with:
@@ -605,12 +666,13 @@ jobs:
       "compile-linux",
       "compile-musl",
       "compile-windows",
+      "compile-windows-arm64",
       "compile-vulkan",
       "compile-cublas",
       "compile-macos",
       "compile-android"
     ]
-    steps:      
+    steps:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
@@ -619,31 +681,31 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{noavx,avx,avx2,avx512,linux-arm64,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu12.4.0,vulkan,android-arm64-v8a,android-x86,android-x86_64}
+          mkdir --parents deps/{noavx,avx,avx2,avx512,linux-arm64,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu12.4.0,vulkan,android-arm64-v8a,android-x86,android-x86_64,win-arm64}
 
           # Linux
           cp artifacts/ggml-bin-linux-noavx-x64.so/libggml.so           deps/noavx/libggml.so
           cp artifacts/ggml-base-bin-linux-noavx-x64.so/libggml-base.so deps/noavx/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-noavx-x64.so/libggml-cpu.so   deps/noavx/libggml-cpu.so
-          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/noavx/libllama.so 
-          cp artifacts/mtmd-bin-linux-noavx-x64.so/libmtmd.so  deps/noavx/libmtmd.so
+          cp artifacts/llama-bin-linux-noavx-x64.so/libllama.so         deps/noavx/libllama.so
+          cp artifacts/mtmd-bin-linux-noavx-x64.so/libmtmd.so           deps/noavx/libmtmd.so
 
           cp artifacts/ggml-bin-linux-avx-x64.so/libggml.so             deps/avx/libggml.so
           cp artifacts/ggml-base-bin-linux-avx-x64.so/libggml-base.so   deps/avx/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-avx-x64.so/libggml-cpu.so     deps/avx/libggml-cpu.so
-          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so 
+          cp artifacts/llama-bin-linux-avx-x64.so/libllama.so           deps/avx/libllama.so
           cp artifacts/mtmd-bin-linux-avx-x64.so/libmtmd.so             deps/avx/libmtmd.so
 
           cp artifacts/ggml-bin-linux-avx2-x64.so/libggml.so            deps/avx2/libggml.so
           cp artifacts/ggml-base-bin-linux-avx2-x64.so/libggml-base.so  deps/avx2/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-avx2-x64.so/libggml-cpu.so    deps/avx2/libggml-cpu.so
-          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so  
+          cp artifacts/llama-bin-linux-avx2-x64.so/libllama.so          deps/avx2/libllama.so
           cp artifacts/mtmd-bin-linux-avx2-x64.so/libmtmd.so            deps/avx2/libmtmd.so
 
           cp artifacts/ggml-bin-linux-avx512-x64.so/libggml.so           deps/avx512/libggml.so
           cp artifacts/ggml-base-bin-linux-avx512-x64.so/libggml-base.so deps/avx512/libggml-base.so
           cp artifacts/ggml-cpu-bin-linux-avx512-x64.so/libggml-cpu.so   deps/avx512/libggml-cpu.so
-          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so         deps/avx512/libllama.so  
+          cp artifacts/llama-bin-linux-avx512-x64.so/libllama.so         deps/avx512/libllama.so
           cp artifacts/mtmd-bin-linux-avx512-x64.so/libmtmd.so           deps/avx512/libmtmd.so
 
           # Arm64
@@ -703,6 +765,13 @@ jobs:
           cp artifacts/llama-bin-win-avx512-x64.dll/llama.dll         deps/avx512/llama.dll
           cp artifacts/mtmd-bin-win-avx512-x64.dll/mtmd.dll           deps/avx512/mtmd.dll
 
+          # Windows ARM64
+          cp artifacts/ggml-bin-win-arm64-arm64.dll/ggml.dll           deps/win-arm64/ggml.dll
+          cp artifacts/ggml-base-bin-win-arm64-arm64.dll/ggml-base.dll deps/win-arm64/ggml-base.dll
+          cp artifacts/ggml-cpu-bin-win-arm64-arm64.dll/ggml-cpu.dll   deps/win-arm64/ggml-cpu.dll
+          cp artifacts/llama-bin-win-arm64-arm64.dll/llama.dll         deps/win-arm64/llama.dll
+          cp artifacts/mtmd-bin-win-arm64-arm64.dll/mtmd.dll           deps/win-arm64/mtmd.dll
+
           # MacOS
           cp artifacts/ggml-bin-osx-arm64.dylib/libggml.dylib             deps/osx-arm64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-arm64.dylib/libggml-base.dylib   deps/osx-arm64/libggml-base.dylib
@@ -711,15 +780,13 @@ jobs:
           cp artifacts/ggml-metal-bin-osx-arm64.dylib/libggml-metal.dylib deps/osx-arm64/libggml-metal.dylib
           cp artifacts/llama-bin-osx-arm64.dylib/libllama.dylib           deps/osx-arm64/libllama.dylib
           cp artifacts/mtmd-bin-osx-arm64.dylib/libmtmd.dylib             deps/osx-arm64/libmtmd.dylib
-          cp artifacts/ggml-metal.metal/ggml-metal.metal                  deps/osx-arm64/ggml-metal.metal
-            
           cp artifacts/ggml-bin-osx-x64.dylib/libggml.dylib             deps/osx-x64/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64.dylib/libggml-base.dylib   deps/osx-x64/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64.dylib/libggml-cpu.dylib     deps/osx-x64/libggml-cpu.dylib
           cp artifacts/ggml-blas-bin-osx-x64.dylib/libggml-blas.dylib   deps/osx-x64/libggml-blas.dylib
           cp artifacts/llama-bin-osx-x64.dylib/libllama.dylib           deps/osx-x64/libllama.dylib
           cp artifacts/mtmd-bin-osx-x64.dylib/libmtmd.dylib             deps/osx-x64/libmtmd.dylib
-            
+
           cp artifacts/ggml-bin-osx-x64-rosetta2.dylib/libggml.dylib           deps/osx-x64-rosetta2/libggml.dylib
           cp artifacts/ggml-base-bin-osx-x64-rosetta2.dylib/libggml-base.dylib deps/osx-x64-rosetta2/libggml-base.dylib
           cp artifacts/ggml-cpu-bin-osx-x64-rosetta2.dylib/libggml-cpu.dylib   deps/osx-x64-rosetta2/libggml-cpu.dylib
@@ -733,7 +800,7 @@ jobs:
           cp artifacts/ggml-cpu-bin-android-arm64-v8a.so/libggml-cpu.so       deps/android-arm64-v8a/libggml-cpu.so
           cp artifacts/llama-bin-android-arm64-v8a.so/libllama.so             deps/android-arm64-v8a/libllama.so
           cp artifacts/mtmd-bin-android-arm64-v8a.so/libmtmd.so               deps/android-arm64-v8a/libmtmd.so
-                                                                               
+
           cp artifacts/ggml-bin-android-x86_64.so/libggml.so                  deps/android-x86_64/libggml.so
           cp artifacts/ggml-base-bin-android-x86_64.so/libggml-base.so        deps/android-x86_64/libggml-base.so
           cp artifacts/ggml-cpu-bin-android-x86_64.so/libggml-cpu.so          deps/android-x86_64/libggml-cpu.so
@@ -760,7 +827,7 @@ jobs:
           cp artifacts/ggml-vulkan-bin-win-vulkan-x64.dll/ggml-vulkan.dll deps/vulkan/ggml-vulkan.dll
           cp artifacts/llama-bin-win-vulkan-x64.dll/llama.dll             deps/vulkan/llama.dll
           cp artifacts/mtmd-bin-win-vulkan-x64.dll/mtmd.dll               deps/vulkan/mtmd.dll
-            
+
           # Linux Vulkan
           cp artifacts/ggml-bin-linux-vulkan-x64.so/libggml.so                deps/vulkan/libggml.so
           cp artifacts/ggml-base-bin-linux-vulkan-x64.so/libggml-base.so      deps/vulkan/libggml-base.so
@@ -781,5 +848,4 @@ jobs:
           name: |
             llama-*
             mtmd-*
-            *.metal
             ggml-*

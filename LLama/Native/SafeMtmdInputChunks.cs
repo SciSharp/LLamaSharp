@@ -53,6 +53,24 @@ public sealed class SafeMtmdInputChunks : SafeLLamaHandleBase
     }
 
     /// <summary>
+    /// Get the number of tokens contained in this chunk collection.
+    /// </summary>
+    /// <returns>Total token count.</returns>
+    public ulong CountTokens()
+    {
+        return NativeApi.mtmd_helper_get_n_tokens(this).ToUInt64();
+    }
+
+    /// <summary>
+    /// Get the number of positions contained in this chunk collection.
+    /// </summary>
+    /// <returns>Total number of positional slots consumed.</returns>
+    public long CountPositions()
+    {
+        return NativeApi.mtmd_helper_get_n_pos(this);
+    }
+
+    /// <summary>
     /// Get a raw pointer to a chunk. The returned <see cref="IntPtr"/> is the <c>mtmd_input_chunk*</c>.
     /// Use <see cref="SafeMtmdInputChunk.Wrap"/> to create a managed wrapper if desired.
     /// </summary>

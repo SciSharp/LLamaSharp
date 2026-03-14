@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace LLama.Native
 {
@@ -29,6 +29,7 @@ namespace LLama.Native
                 throw new InvalidOperationException("Failed to create MTMD bitmap.");
         }
 
+        #region Create Embed
         /// <summary>
         /// Create an embedding from raw RGB bytes.
         /// </summary>
@@ -37,21 +38,18 @@ namespace LLama.Native
         /// <param name="rgbData">Packed RGB data (3 bytes per pixel).</param>
         /// <returns>Managed wrapper when initialization succeeds; otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">The RGB buffer is null.</exception>
-        public static SafeMtmdEmbed? FromRgbBytes(uint nx, uint ny, byte[] rgbData)
+        public static SafeMtmdEmbed? FromRgbBytes(uint nx, uint ny, ReadOnlySpan<byte> rgbData)
         {
-            if (rgbData == null)
-                throw new ArgumentNullException(nameof(rgbData));
+            if (rgbData.Length != nx * ny * 3)
+                throw new ArgumentException("Pixel data must be exactly 3 bytes per pixel", nameof(rgbData));
 
-            var handle = GCHandle.Alloc(rgbData, GCHandleType.Pinned);
-            try
+            unsafe
             {
-                var native = NativeApi.mtmd_bitmap_init(nx, ny, handle.AddrOfPinnedObject());
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-            }
-            finally
-            {
-                if (handle.IsAllocated)
-                    handle.Free();
+                fixed (byte* rgbDataPtr = rgbData)
+                {
+                    var native = NativeApi.mtmd_bitmap_init(nx, ny, rgbDataPtr);
+                    return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
+                }
             }
         }
 
@@ -61,21 +59,15 @@ namespace LLama.Native
         /// <param name="samples">Array of mono PCM samples in float format.</param>
         /// <returns>Managed wrapper when initialization succeeds; otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">The audio buffer is null.</exception>
-        public static SafeMtmdEmbed? FromAudioSamples(float[] samples)
+        public static SafeMtmdEmbed? FromAudioSamples(ReadOnlySpan<float> samples)
         {
-            if (samples == null)
-                throw new ArgumentNullException(nameof(samples));
-
-            var handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
-            try
+            unsafe
             {
-                var native = NativeApi.mtmd_bitmap_init_from_audio((ulong)samples.Length, handle.AddrOfPinnedObject());
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-            }
-            finally
-            {
-                if (handle.IsAllocated)
-                    handle.Free();
+                fixed (float* samplesPtr = samples)
+                {
+                    var native = NativeApi.mtmd_bitmap_init_from_audio((ulong)samples.Length, samplesPtr);
+                    return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
+                }
             }
         }
 
@@ -90,30 +82,17 @@ namespace LLama.Native
         /// <exception cref="FileNotFoundException">The supplied file does not exist.</exception>
         public static SafeMtmdEmbed? FromMediaFile(SafeMtmdModelHandle mtmdContext, string path)
         {
-            if (mtmdContext == null)
-                throw new ArgumentNullException(nameof(mtmdContext));
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
-
+            // Try to open the file, this will check:
+            // - File exists (automatically throws FileNotFoundException)
+            // - File is readable (explicit check)
+            // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
             var fullPath = Path.GetFullPath(path);
-            if (!File.Exists(fullPath))
-                throw new FileNotFoundException("Media file not found.", fullPath);
+            using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                if (!fs.CanRead)
+                    throw new InvalidOperationException($"Media file '{path}' is not readable");
 
-            bool added = false;
-            var ctxPtr = IntPtr.Zero;
-            try
-            {
-                // Hold a strong reference to the native context while the helper decodes the media file.
-                mtmdContext.DangerousAddRef(ref added);
-                ctxPtr = mtmdContext.DangerousGetHandle();
-                var native = NativeApi.mtmd_helper_bitmap_init_from_file(ctxPtr, fullPath);
-                return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
-            }
-            finally
-            {
-                if (added)
-                    mtmdContext.DangerousRelease();
-            }
+            var native = NativeApi.mtmd_helper_bitmap_init_from_file(mtmdContext, fullPath);
+            return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
         }
 
         /// <summary>
@@ -124,116 +103,147 @@ namespace LLama.Native
         /// <returns>Managed wrapper when decoding succeeds; otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">The context is null.</exception>
         /// <exception cref="ArgumentException">The buffer is empty.</exception>
-        public static unsafe SafeMtmdEmbed? FromMediaBuffer(SafeMtmdModelHandle mtmdContext, ReadOnlySpan<byte> data)
+        public static SafeMtmdEmbed? FromMediaBuffer(SafeMtmdModelHandle mtmdContext, ReadOnlySpan<byte> data)
         {
-            if (mtmdContext == null)
-                throw new ArgumentNullException(nameof(mtmdContext));
             if (data.IsEmpty)
-                throw new ArgumentException("Buffer must not be empty.", nameof(data));
+                throw new ArgumentException("Media buffer must not be empty.", nameof(data));
 
-            bool added = false;
-            var ctxPtr = IntPtr.Zero;
-            try
+            unsafe
             {
-                // Keep the context alive while the native helper processes the buffer.
-                mtmdContext.DangerousAddRef(ref added);
-                ctxPtr = mtmdContext.DangerousGetHandle();
-
                 fixed (byte* bufferPtr = data)
                 {
-                    var native = NativeApi.mtmd_helper_bitmap_init_from_buf(ctxPtr, new IntPtr(bufferPtr), (UIntPtr)data.Length);
+                    var native = NativeApi.mtmd_helper_bitmap_init_from_buf(mtmdContext, bufferPtr, (nuint)data.Length);
                     return native == IntPtr.Zero ? null : new SafeMtmdEmbed(native);
                 }
             }
-            finally
-            {
-                if (added)
-                    mtmdContext.DangerousRelease();
-            }
         }
+        #endregion
 
         /// <summary>
         /// Width of the bitmap in pixels (or number of samples for audio embeddings).
         /// </summary>
-        public uint Nx
-        {
-            get
-            {
-                return WithHandle(ptr => NativeApi.mtmd_bitmap_get_nx(ptr));
-            }
-        }
+        public uint Nx => NativeApi.mtmd_bitmap_get_nx(this);
 
         /// <summary>
         /// Height of the bitmap in pixels. For audio embeddings this is typically <c>1</c>.
         /// </summary>
-        public uint Ny
-        {
-            get
-            {
-                return WithHandle(ptr => NativeApi.mtmd_bitmap_get_ny(ptr));
-            }
-        }
+        public uint Ny => NativeApi.mtmd_bitmap_get_ny(this);
 
         /// <summary>
         /// Indicates whether the embedding stores audio data instead of image pixels.
         /// </summary>
-        public bool IsAudio
-        {
-            get
-            {
-                return WithHandle(ptr => NativeApi.mtmd_bitmap_is_audio(ptr));
-            }
-        }
+        public bool IsAudio => NativeApi.mtmd_bitmap_is_audio(this);
+
+        /// <summary>
+        /// Get the byte count of the raw bitmap/audio data in this embed
+        /// </summary>
+        public ulong ByteCount => NativeApi.mtmd_bitmap_get_n_bytes(this).ToUInt64();
 
         /// <summary>
         /// Optional identifier assigned to this embedding.
         /// </summary>
         public string? Id
         {
-            get
+            get => NativeApi.mtmd_bitmap_get_id(this).PtrToString();
+            set => NativeApi.mtmd_bitmap_set_id(this, value);
+        }
+
+        #region GetData
+        /// <summary>
+        /// Provides safe zero-copy access to the underlying bitmap bytes.
+        /// </summary>
+        /// <returns>The data access is guaranteed to remain valid until this object is disposed.</returns>
+        public IEmbedData GetData()
+        {
+            // Increment the reference count on this embed. When the "lifetime" is disposed the refcount will be decremented.
+            var success = false;
+            DangerousAddRef(ref success);
+
+            try
             {
-                return WithHandle(ptr =>
+                unsafe
                 {
-                    var idPtr = NativeApi.mtmd_bitmap_get_id(ptr);
-                    return idPtr.PtrToString();
-                });
+                    return new EmbedDataLifetime(this, NativeApi.mtmd_bitmap_get_data(this), checked((int)ByteCount));
+                }
             }
-            set
+            catch
             {
-                WithHandle(ptr =>
-                {
-                    NativeApi.mtmd_bitmap_set_id(ptr, value);
-                    return 0;
-                });
+                DangerousRelease();
+                throw;
             }
         }
 
         /// <summary>
-        /// Zero-copy access to the underlying bitmap bytes. The span remains valid while this wrapper is alive.
+        /// Accessor for the raw data of a <see cref="SafeMtmdEmbed"/>
         /// </summary>
-        /// <returns>Read-only span exposing the native data buffer.</returns>
-        /// <exception cref="ObjectDisposedException">The embedding has been disposed.</exception>
-        public unsafe ReadOnlySpan<byte> GetDataSpan()
+        public interface IEmbedData
+            : IDisposable
         {
-            EnsureNotDisposed();
+            /// <summary>
+            /// Get the raw data. Access to this span is only guaranteed to be valid until this accessor is disposed.
+            /// </summary>
+            /// <exception cref="ObjectDisposedException">Thrown if this accessor has been disposed</exception>
+            ReadOnlySpan<byte> Data { get; }
 
-            bool added = false;
-            try
+            /// <summary>
+            /// Indicates if this accessor is still valid (i.e. not disposed)
+            /// </summary>
+            bool IsValid { get; }
+        }
+
+        private sealed class EmbedDataLifetime
+            : IEmbedData
+        {
+            private int _valid;
+            private readonly SafeMtmdEmbed _embed;
+            private readonly unsafe byte* _dataPtr;
+            private readonly int _dataLength;
+
+            public ReadOnlySpan<byte> Data
             {
-                DangerousAddRef(ref added);
-                var ptr = DangerousGetHandle();
-                var dataPtr = (byte*)NativeApi.mtmd_bitmap_get_data(ptr);
-                var length = checked((int)NativeApi.mtmd_bitmap_get_n_bytes(ptr).ToUInt64());
-                return dataPtr == null || length == 0
-                    ? ReadOnlySpan<byte>.Empty
-                    : new ReadOnlySpan<byte>(dataPtr, length);
+                get
+                {
+                    unsafe
+                    {
+                        if (!IsValid)
+                            throw new ObjectDisposedException("Cannot access Embed data, accessor has been disposed");
+                        return new ReadOnlySpan<byte>(_dataPtr, _dataLength);
+                    }
+                }
             }
-            finally
+
+            public bool IsValid => _valid != 0;
+
+            public unsafe EmbedDataLifetime(SafeMtmdEmbed embed, byte* dataPtr, int dataLength)
             {
-                if (added)
-                    DangerousRelease();
+                _embed = embed;
+
+                _dataPtr = dataPtr;
+                _dataLength = dataLength;
+
+                _valid = 1;
+            }
+
+            ~EmbedDataLifetime()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+            }
+
+            private void Dispose(bool disposing)
+            {
+                if (Interlocked.Exchange(ref _valid, 0) == 1)
+                    _embed.DangerousRelease();
+
+                if (disposing)
+                    GC.SuppressFinalize(this);
             }
         }
+        #endregion
 
         /// <summary>
         /// Release the underlying native bitmap.
@@ -253,27 +263,6 @@ namespace LLama.Native
         {
             if (IsClosed || IsInvalid)
                 throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
-        }
-
-        private T WithHandle<T>(Func<IntPtr, T> action)
-        {
-            EnsureNotDisposed();
-
-            bool added = false;
-            try
-            {
-                DangerousAddRef(ref added);
-                var ptr = DangerousGetHandle();
-                if (ptr == IntPtr.Zero)
-                    throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
-
-                return action(ptr);
-            }
-            finally
-            {
-                if (added)
-                    DangerousRelease();
-            }
         }
     }
 }

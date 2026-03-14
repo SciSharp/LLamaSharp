@@ -59,7 +59,7 @@ jobs:
     # Deploy the documentation to GitHub Pages
     - uses: actions/setup-python@v5
       with:
-        python-version: 3.x
+        python-version: '3.13'
     - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
     - uses: actions/cache@v4
       with:

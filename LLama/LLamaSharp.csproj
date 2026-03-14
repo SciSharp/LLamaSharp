@@ -7,7 +7,7 @@
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.25.0</Version>
+    <Version>0.26.0</Version>
     <Authors>Rinne, Martin Evans, jlsantiago and all the other contributors in https://github.com/SciSharp/LLamaSharp/graphs/contributors.</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,7 +22,7 @@
       With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.
     </Description>
     <PackageReleaseNotes>
-        Updated llama.cpp version to 11dd5a44eb180e1d69fac24d3852b5222d66fb7f
+        Updated llama.cpp version to 506bb6e01009058f35558474cf987eeb56361782
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
@@ -45,24 +45,24 @@
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" />
     <PackageReference Include="System.Linq.Async" Version="6.0.3" />
-    <PackageReference Include="System.Text.Json" Version="9.0.9" />
+    <PackageReference Include="System.Text.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.10.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
     <PackageReference Include="System.Numerics.Tensors" Version="9.0.9" />
   </ItemGroup>
 
   <PropertyGroup>
-    <BinaryReleaseId>506bb6e01009058f355</BinaryReleaseId>
+    <BinaryReleaseId>ff4affb4c1aa7eb4_v3</BinaryReleaseId>
   </PropertyGroup>
 
   <PropertyGroup>
     <FirstTargetFramework Condition=" '$(TargetFrameworks)' == '' ">$(TargetFramework)</FirstTargetFramework>
-    <FirstTargetFramework Condition=" '$(FirstTargetFrameworks)' == '' ">$(TargetFrameworks.Split(';')[0])</FirstTargetFramework>
+    <FirstTargetFramework Condition=" '$(FirstTargetFramework)' == '' ">$(TargetFrameworks.Split(';')[0])</FirstTargetFramework>
   </PropertyGroup>
 
   <!-- When UnzipReleaseBinaries is called, this will run first, as UnzipReleaseBinaries depends on it (check DependsOnTargets of UnzipReleaseBinaries) -->
@@ -74,7 +74,12 @@
   <!-- This automatically runs after CheckReleaseBinaries has completed, but only if SkipDownloadReleaseBinaries is not true -->
   <Target Name="UnzipReleaseBinaries" DependsOnTargets="DownloadReleaseBinaries" AfterTargets="CheckReleaseBinaries" Condition="'$(SkipDownloadReleaseBinaries)' != 'true'">
 	<Message Importance="High" Text="Unzip '$(BinaryReleaseId)/deps.zip'" />
-	<Unzip SourceFiles="runtimes/deps.zip" DestinationFolder="runtimes/deps/" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Include="*.dll;*.so;*.dylib;*.metal;" />
+	<Unzip SourceFiles="runtimes/deps.zip" DestinationFolder="runtimes/deps/" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Include="*.dll;*.so;*.dylib;" />
+	<WriteLinesToFile
+		File="runtimes/release_id.txt"
+		Lines="$(BinaryReleaseId)"
+		Overwrite="true"
+	/>
   </Target>
     
   <Target Name="CheckReleaseBinaries">
@@ -85,11 +90,13 @@
         
     <!-- If the previous binary release id is the same as the current one (which we define at the top of this file), we skip the download -->
     <PropertyGroup>
-		<SkipDownloadReleaseBinaries Condition="'%(PreviousBinaryReleaseId.Identity)' == '$(BinaryReleaseId)'">true</SkipDownloadReleaseBinaries>
+		<SkipDownloadReleaseBinaries Condition="'%(PreviousBinaryReleaseId.Identity)' == '$(BinaryReleaseId)' AND Exists('runtimes/deps/')">true</SkipDownloadReleaseBinaries>
     </PropertyGroup>
   </Target>
 
-  <!-- This always gets called before the build -->
+  <!-- This always gets called before the build. The race condition between inner builds (netstandard2.0, net8.0)
+       is prevented by the release_id.txt sentinel: the outer build downloads/extracts and writes the sentinel,
+       then inner builds read it and skip. -->
   <Target Name="PrepareReleaseBinaries" BeforeTargets="DispatchToInnerBuilds;BeforeBuild">
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="CheckReleaseBinaries" Properties="TargetFramework=$(FirstTargetFramework)" />
   </Target>

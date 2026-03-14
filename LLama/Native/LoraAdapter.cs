@@ -45,6 +45,7 @@ public class LoraAdapter
 
         // Manually free a LoRA adapter. loaded adapters will be free when the associated model is deleted
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [Obsolete("adapters are now freed together with the associated model")]
         static extern void llama_adapter_lora_free(IntPtr adapter);
     }
 }
