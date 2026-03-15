@@ -165,7 +165,7 @@ public class ModelService : IModelService
     public async Task<bool> RemoveContext(string modelName, string contextName)
     {
         if (!_modelInstances.TryGetValue(modelName, out var model))
-            throw new Exception("Model not found");
+            return false;
 
         using (await _contextLock.LockAsync())
         {

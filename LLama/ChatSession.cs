@@ -143,6 +143,17 @@ public class ChatSession
         return this;
     }
 
+    private StatefulExecutorBase GetStatefulExecutor()
+    {
+        return (StatefulExecutorBase)Executor;
+    }
+
+    private void EnsureSessionPersistenceSupported()
+    {
+        if (GetStatefulExecutor().IsMultiModal)
+            throw new NotSupportedException("Session persistence is not supported for multimodal chat sessions.");
+    }
+
     /// <summary>
     /// Use a custom output transform.
     /// </summary>
@@ -162,6 +173,7 @@ public class ChatSession
     /// <exception cref="ArgumentException"></exception>
     public void SaveSession(string path)
     {
+        EnsureSessionPersistenceSupported();
         GetSessionState().Save(path);
     }
 
@@ -171,7 +183,9 @@ public class ChatSession
     /// <returns>SessionState object representing session state in-memory</returns>
     public SessionState GetSessionState()
     {
-        var executorState = ((StatefulExecutorBase)Executor).GetStateData();
+        EnsureSessionPersistenceSupported();
+
+        var executorState = GetStatefulExecutor().GetStateData();
         return new SessionState(
             executorState.PastTokensCount > 0
             ? Executor.Context.GetState() : null,
@@ -191,6 +205,8 @@ public class ChatSession
     /// <exception cref="ArgumentException"></exception>
     public void LoadSession(SessionState state, bool loadTransforms = true)
     {
+        EnsureSessionPersistenceSupported();
+
         if (Executor is StatefulExecutorBase statefulExecutor)
         {
             if (state.ExecutorState is not null)
@@ -224,12 +240,14 @@ public class ChatSession
     /// <exception cref="ArgumentException"></exception>
     public void LoadSession(string path, bool loadTransforms = true)
     {
+        EnsureSessionPersistenceSupported();
+
         var state = SessionState.Load(path);
         // Handle non-polymorphic serialization of executor state
         if (state.ExecutorState is null)
         {
             var executorPath = Path.Combine(path, EXECUTOR_STATE_FILENAME);
-            ((StatefulExecutorBase)Executor).LoadState(filename: executorPath);
+            GetStatefulExecutor().LoadState(filename: executorPath);
         }
         LoadSession(state, loadTransforms);
     }

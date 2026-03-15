@@ -18,6 +18,7 @@ public class ModelSessionService : IModelSessionService
     private readonly AsyncGuard<string> _sessionGuard;
     private readonly IModelService _modelService;
     private readonly IAttachmentService _attachmentService;
+    private readonly ILogger<ModelSessionService> _logger;
     private readonly ConcurrentDictionary<string, ModelSession> _modelSessions;
 
     /// <summary>
@@ -25,10 +26,11 @@ public class ModelSessionService : IModelSessionService
     /// </summary>
     /// <param name="modelService">The model service.</param>
     /// <param name="attachmentService">The attachment service.</param>
-    public ModelSessionService(IModelService modelService, IAttachmentService attachmentService)
+    public ModelSessionService(IModelService modelService, IAttachmentService attachmentService, ILogger<ModelSessionService> logger)
     {
         _modelService = modelService;
         _attachmentService = attachmentService;
+        _logger = logger;
         _sessionGuard = new AsyncGuard<string>();
         _modelSessions = new ConcurrentDictionary<string, ModelSession>();
     }
@@ -74,7 +76,7 @@ public class ModelSessionService : IModelSessionService
         var (model, context) = await _modelService.GetOrCreateModelAndContext(sessionConfig.Model, sessionId);
 
         // Create session.
-        var modelSession = new ModelSession(model, context, sessionId, sessionConfig, inferenceConfig);
+        var modelSession = new ModelSession(model, context, sessionId, sessionConfig, inferenceConfig, _logger);
         if (!_modelSessions.TryAdd(sessionId, modelSession))
             throw new Exception($"Failed to create model session");
 
@@ -94,7 +96,15 @@ public class ModelSessionService : IModelSessionService
         if (_modelSessions.TryRemove(sessionId, out var modelSession))
         {
             modelSession.CancelInfer();
-            return await _modelService.RemoveContext(modelSession.ModelName, sessionId);
+            try
+            {
+                return await _modelService.RemoveContext(modelSession.ModelName, sessionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to remove context '{ContextName}' from model '{ModelName}' during session close.", sessionId, modelSession.ModelName);
+                return false;
+            }
         }
         return false;
     }
@@ -247,6 +257,7 @@ public class ModelSessionService : IModelSessionService
             return new PreparedPrompt(string.Empty);
 
         var promptBuilder = new StringBuilder(request.Prompt ?? string.Empty);
+        var mediaPrefixBuilder = new StringBuilder();
         var embeds = new List<SafeMtmdEmbed>();
 
         try
@@ -271,14 +282,14 @@ public class ModelSessionService : IModelSessionService
                                 throw new Exception("This model does not support multimodal inputs.");
 
                             embeds.Add(await LoadEmbedAsync(modelSession, attachment, cancellationToken));
-                            AppendMedia(promptBuilder, attachment, "Image", mediaMarker);
+                            AppendMedia(modelSession, promptBuilder, mediaPrefixBuilder, mediaMarker);
                             break;
                         case AttachmentKind.Audio:
                             if (!modelSession.IsMultiModal || !modelSession.SupportsAudio)
                                 throw new Exception("This model does not support audio inputs.");
 
                             embeds.Add(await LoadEmbedAsync(modelSession, attachment, cancellationToken));
-                            AppendMedia(promptBuilder, attachment, "Audio", mediaMarker);
+                            AppendMedia(modelSession, promptBuilder, mediaPrefixBuilder, mediaMarker);
                             break;
                     }
                 }
@@ -286,6 +297,9 @@ public class ModelSessionService : IModelSessionService
 
             if (embeds.Count > 0)
                 modelSession.QueueEmbeds(embeds);
+
+            if (mediaPrefixBuilder.Length > 0)
+                promptBuilder.Insert(0, mediaPrefixBuilder.ToString());
 
             return new PreparedPrompt(promptBuilder.ToString());
         }
@@ -310,11 +324,23 @@ public class ModelSessionService : IModelSessionService
             builder.AppendLine("[PDF text truncated]");
     }
 
-    private static void AppendMedia(StringBuilder builder, AttachmentInfo attachment, string mediaLabel, string mediaMarker)
+    private static void AppendMedia(ModelSession modelSession, StringBuilder builder, StringBuilder mediaPrefixBuilder, string mediaMarker)
     {
-        builder.AppendLine();
-        builder.AppendLine($"[{mediaLabel}: {attachment.FileName}]");
-        builder.AppendLine(mediaMarker);
+        if (ShouldPrefixMediaMarker(modelSession))
+        {
+            mediaPrefixBuilder.Append(mediaMarker);
+            return;
+        }
+
+        if (builder.Length > 0 && !char.IsWhiteSpace(builder[^1]))
+            builder.Append(' ');
+
+        builder.Append(mediaMarker);
+    }
+
+    private static bool ShouldPrefixMediaMarker(ModelSession modelSession)
+    {
+        return modelSession.ModelName.Contains("Qwen2.5-Omni", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetMediaMarker()
@@ -344,12 +370,23 @@ public class ModelSessionService : IModelSessionService
         if (!File.Exists(attachment.FilePath))
             throw new FileNotFoundException("Attachment not found.", attachment.FilePath);
 
-        var data = await File.ReadAllBytesAsync(attachment.FilePath, cancellationToken);
         var clipModel = modelSession.ClipModel;
         if (clipModel is null)
             throw new Exception("Multimodal model is not available for this session.");
 
-        var embed = clipModel.LoadMedia(data);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        SafeMtmdEmbed? embed;
+        if (attachment.Kind == AttachmentKind.Audio)
+        {
+            var data = await File.ReadAllBytesAsync(attachment.FilePath, cancellationToken);
+            embed = clipModel.LoadMediaStandalone(data);
+        }
+        else
+        {
+            embed = clipModel.LoadMediaStandalone(attachment.FilePath);
+        }
+
         if (embed == null)
             throw new Exception("Failed to prepare multimodal embedding.");
 

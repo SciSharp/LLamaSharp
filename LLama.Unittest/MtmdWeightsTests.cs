@@ -5,45 +5,21 @@ namespace LLama.Unittest
 {
     // Test the same things as llama model + image embedings
     //
+    [Collection("MtmdNoCi")]
     public sealed class MtmdWeightTests
-        : IDisposable
     {
-        private readonly LLamaWeights _llamaWeights;
-        private readonly MtmdWeights _mtmdWeights;
-        private readonly LLamaContext _context;
-        private readonly MtmdContextParams _mtmdParams;
+        private readonly MtmdNoCiFixture _fixture;
         private readonly string _mediaMarker;
 
-        public MtmdWeightTests()
+        public MtmdWeightTests(MtmdNoCiFixture fixture)
         {
-            var @params = new ModelParams(Constants.MtmdModelPath)
-            {
-                // Mtmd models requires big context
-                ContextSize = 1024 * 32,
-                GpuLayerCount = Constants.CIGpuLayerCount,
-            };
-            _llamaWeights = LLamaWeights.LoadFromFile(@params);
-
-            _mtmdParams = MtmdContextParams.Default();
-            _mtmdParams.NThreads = Constants.CIGpuLayerCount;
-            _mtmdParams.UseGpu = false; // keep tests portable across environments without GPU
-
-            _mediaMarker = _mtmdParams.MediaMarker ?? throw new InvalidOperationException("MTMD media marker unavailable.");
-
-            _mtmdWeights = Task.Run(async () => await MtmdWeights.LoadFromFileAsync(Constants.MtmdMmpPath, _llamaWeights, _mtmdParams)).Result;
-            _context = _llamaWeights.CreateContext(@params);
-        }
-
-        public void Dispose()
-        {
-            _context.Dispose();
-            _mtmdWeights.Dispose();
-            _llamaWeights.Dispose();
+            _fixture = fixture;
+            _mediaMarker = _fixture.MediaMarker;
         }
 
         private SafeMtmdInputChunks TokenizeWithEmbed(Func<SafeMtmdEmbed> loadEmbed)
         {
-            _mtmdWeights.ClearMedia();
+            _fixture.Mtmd.ClearMedia();
 
             var embed = loadEmbed();
             Assert.NotNull(embed);
@@ -58,7 +34,7 @@ namespace LLama.Unittest
                 using var mem = embed.GetData();
                 Assert.True(mem.Data.Length > 0);
 
-                var status = _mtmdWeights.Tokenize(_mediaMarker, addSpecial: true, parseSpecial: true, out var chunks);
+                var status = _fixture.Mtmd.Tokenize(_mediaMarker, addSpecial: true, parseSpecial: true, out var chunks);
                 Assert.Equal(0, status);
                 Assert.NotNull(chunks);
 
@@ -68,41 +44,50 @@ namespace LLama.Unittest
 
         private void AssertChunksEvaluate(SafeMtmdInputChunks chunks)
         {
+            using var context = _fixture.CreateContext();
             int nPast = 0;
-            var eval = _mtmdWeights.EvaluateChunks(chunks, _context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)_context.BatchSize), logitsLast: true);
+            var eval = _fixture.Mtmd.EvaluateChunks(chunks, context.NativeHandle, ref nPast, seqId: 0, nBatch: checked((int)context.BatchSize), logitsLast: true);
             Assert.Equal(0, eval);
             Assert.True(nPast > 0);
         }
 
-        [Fact, Trait("Category", "NoCI")]
+        [SkippableFact, Trait("Category", "NoCI")]
         public void BasicPropertyChecks()
         {
-            Assert.False(_mtmdWeights.SupportsAudio);
-            Assert.True(_mtmdWeights.SupportsVision);
-            Assert.False(_mtmdWeights.UsesMRope);
-            Assert.True(_mtmdWeights.UsesNonCausalAttention);
-            Assert.Equal(-1, _mtmdWeights.AudioBitrate);
+            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
+
+            Assert.False(_fixture.Mtmd.SupportsAudio);
+            Assert.True(_fixture.Mtmd.SupportsVision);
+            Assert.False(_fixture.Mtmd.UsesMRope);
+            Assert.True(_fixture.Mtmd.UsesNonCausalAttention);
+            Assert.Equal(-1, _fixture.Mtmd.AudioBitrate);
         }
 
-        [Fact,Trait("Category", "NoCI")]
+        [SkippableFact, Trait("Category", "NoCI")]
         public void EmbedImageAsFileName()
         {
-            using var chunks = TokenizeWithEmbed(() => _mtmdWeights.LoadMedia(Constants.MtmdImage));
+            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
+
+            using var chunks = TokenizeWithEmbed(() => _fixture.Mtmd.LoadMedia(Constants.MtmdImage));
             AssertChunksEvaluate(chunks);
         }
 
-        [Fact,Trait("Category", "NoCI")]
+        [SkippableFact, Trait("Category", "NoCI")]
         public void EmbedImageAsBinary()
         {
+            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
+
             var imageBytes = File.ReadAllBytes(Constants.MtmdImage);
-            using var chunks = TokenizeWithEmbed(() => _mtmdWeights.LoadMedia(imageBytes));
+            using var chunks = TokenizeWithEmbed(() => _fixture.Mtmd.LoadMedia(imageBytes));
             AssertChunksEvaluate(chunks);
         }
 
-        [Fact,Trait("Category", "NoCI")]
+        [SkippableFact, Trait("Category", "NoCI")]
         public void TokenizeProvidesChunkMetadata()
         {
-            using var chunks = TokenizeWithEmbed(() => _mtmdWeights.LoadMedia(Constants.MtmdImage));
+            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
+
+            using var chunks = TokenizeWithEmbed(() => _fixture.Mtmd.LoadMedia(Constants.MtmdImage));
 
             Assert.True(chunks.Size > 0);
 
@@ -140,10 +125,10 @@ namespace LLama.Unittest
             Assert.True(totalTokens > 0);
             Assert.Equal(totalTokens, chunks.CountTokens());
             Assert.Equal(totalPositions, chunks.CountPositions());
-            Assert.True(_mtmdWeights.SupportsVision);
-            Assert.False(_mtmdWeights.SupportsAudio);
+            Assert.True(_fixture.Mtmd.SupportsVision);
+            Assert.False(_fixture.Mtmd.SupportsAudio);
 
-            var audioBitrate = _mtmdWeights.AudioBitrate;
+            var audioBitrate = _fixture.Mtmd.AudioBitrate;
             Assert.True(audioBitrate <= 0);
         }
     }

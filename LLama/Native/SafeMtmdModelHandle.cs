@@ -76,8 +76,7 @@ namespace LLama.Native
         {
             EnsureNotDisposed();
 
-            var embed = SafeMtmdEmbed.FromMediaFile(this, path)
-                ?? throw new RuntimeError($"Failed to load media '{path}'.");
+            var embed = CreateMediaEmbedFromFile(path);
             _pendingMedia.Add(embed);
             return embed;
         }
@@ -93,10 +92,39 @@ namespace LLama.Native
         {
             EnsureNotDisposed();
 
-            var embed = SafeMtmdEmbed.FromMediaBuffer(this, buffer)
-                ?? throw new RuntimeError("Failed to load media from buffer.");
+            var embed = CreateMediaEmbedFromBuffer(buffer);
             _pendingMedia.Add(embed);
             return embed;
+        }
+
+        /// <summary>
+        /// Create a standalone media embedding from disk without queueing it for the next tokenize call.
+        /// </summary>
+        /// <param name="path">Path to the media file on disk.</param>
+        /// <returns>Safe handle to the prepared media embedding.</returns>
+        /// <exception cref="ObjectDisposedException">The model handle has been disposed.</exception>
+        /// <exception cref="RuntimeError">The native loader failed to ingest the file contents.</exception>
+        public SafeMtmdEmbed CreateMediaEmbedFromFile(string path)
+        {
+            EnsureNotDisposed();
+
+            return SafeMtmdEmbed.FromMediaFile(this, path)
+                ?? throw new RuntimeError($"Failed to load media '{path}'.");
+        }
+
+        /// <summary>
+        /// Create a standalone media embedding from an in-memory buffer without queueing it for the next tokenize call.
+        /// </summary>
+        /// <param name="buffer">Binary buffer containing the encoded media data.</param>
+        /// <returns>Safe handle to the prepared media embedding.</returns>
+        /// <exception cref="ObjectDisposedException">The model handle has been disposed.</exception>
+        /// <exception cref="RuntimeError">The native loader failed to ingest the buffer contents.</exception>
+        public SafeMtmdEmbed CreateMediaEmbedFromBuffer(ReadOnlySpan<byte> buffer)
+        {
+            EnsureNotDisposed();
+
+            return SafeMtmdEmbed.FromMediaBuffer(this, buffer)
+                ?? throw new RuntimeError("Failed to load media from buffer.");
         }
 
         /// <summary>

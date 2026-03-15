@@ -25,11 +25,6 @@ namespace LLama
         // Indicates whether the executor is currently evaluating the initial prompt or a follow-up turn.
         private bool _is_prompt_run = true;
 
-        // MTMD multimodal state
-        private SafeMtmdInputChunks? _mtmdChunks;  // Pending chunk collection produced by the multimodal tokenizer.
-        private string? _mtmdMarker;  // Cached multimodal marker returned by the native helper.
-
-
         /// <summary>
         /// Create an interactive executor for text-only inference.
         /// </summary>
@@ -54,6 +49,9 @@ namespace LLama
         /// <inheritdoc />
         public override ExecutorBaseState GetStateData()
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal interactive executors.");
+
             InteractiveExecutorState state = new()
             {
                 ConsumedSessionCount = _n_session_consumed,
@@ -74,7 +72,9 @@ namespace LLama
         /// <inheritdoc />
         public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
-            DisposeMtmdChunks();
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal interactive executors.");
+
             if (data is InteractiveExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
@@ -97,6 +97,9 @@ namespace LLama
         /// <inheritdoc />
         public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal interactive executors.");
+
             var state = (InteractiveExecutorState)GetStateData();
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
@@ -107,6 +110,9 @@ namespace LLama
         /// <inheritdoc />
         public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal interactive executors.");
+
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
             var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
@@ -120,7 +126,7 @@ namespace LLama
         /// <returns><c>true</c> to keep generating; otherwise <c>false</c>.</returns>
         protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
-            return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
+            return Task.FromResult((args.RemainedTokens != 0 && !args.WaitForInput) || _is_prompt_run || HasPendingPromptInput());
         }
 
         /// <summary>
@@ -182,7 +188,7 @@ namespace LLama
         /// <returns>Tuple describing whether to stop and any additional outputs to emit.</returns>
         protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
-            if (_embed_inps.Count <= _consumedTokensCount)
+            if (!HasPendingPromptQueue())
             {
                 if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
@@ -193,18 +199,18 @@ namespace LLama
                 {
                     return Task.FromResult((true, (IReadOnlyList<string>)[]));
                 }
-            }
 
-            if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
-            {
-                return Task.FromResult((true, (IReadOnlyList<string>)[]));
-            }
+                if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
+                {
+                    return Task.FromResult((true, (IReadOnlyList<string>)[]));
+                }
 
-            if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
-            {
-                args.RemainedTokens = inferenceParams.MaxTokens;
-                args.WaitForInput = true;
-                return Task.FromResult((true, (IReadOnlyList<string>)[]));
+                if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
+                {
+                    args.RemainedTokens = inferenceParams.MaxTokens;
+                    args.WaitForInput = true;
+                    return Task.FromResult((true, (IReadOnlyList<string>)[]));
+                }
             }
 
             return Task.FromResult((false, (IReadOnlyList<string>)[]));
@@ -218,59 +224,54 @@ namespace LLama
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
-                if (_pastTokensCount + _embeds.Count > Context.ContextSize)
+                // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
+                var tokensToKeep = inferenceParams.TokensKeep;
+                if (tokensToKeep < 0 || tokensToKeep > _embed_inps.Count)
                 {
-                    // number of tokens to keep when resetting context
-                    // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
-                    var tokensToKeep = inferenceParams.TokensKeep;
-                    if (tokensToKeep < 0 || tokensToKeep > _embed_inps.Count)
-                    {
-                        tokensToKeep = _embed_inps.Count;
-                    }
-                    else
-                    {
-                        tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS); // always keep the BOS token
-                    }
-
-                    HandleRunOutOfContext(tokensToKeep);
+                    tokensToKeep = _embed_inps.Count;
+                }
+                else
+                {
+                    tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS); // always keep the BOS token
                 }
 
-                if (MtmdChunks is null)
+                EnsurePendingInputFitsContext(tokensToKeep);
+
+                if (!IsMultiModal)
                 {
                     TryReuseMatchingPrefix();
                 }
 
-                if (IsMultiModal && MtmdChunks is not null)
+                var result = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
+                _pastTokensCount = result.Item3;
+
+                if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
+
+                if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
-                    var nPast = _pastTokensCount;
-                    var previousConsumed = _consumedTokensCount;
-                    EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InteractiveExecutor));
+                    _session_tokens.AddRange(_embeds);
+                    _n_session_consumed = _session_tokens.Count;
+                }
+            }
+            else if (IsMultiModal && HasPendingMtmdMediaSegment())
+            {
+                _is_prompt_run = false;
+                var tokensToKeep = inferenceParams.TokensKeep;
+                if (tokensToKeep < 0 || tokensToKeep > _embed_inps.Count)
+                {
+                    tokensToKeep = _embed_inps.Count;
                 }
                 else
                 {
-                    var result = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
-                    _pastTokensCount = result.Item3;
-
-                    if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
-
-                    if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
-                    {
-                        _session_tokens.AddRange(_embeds);
-                        _n_session_consumed = _session_tokens.Count;
-                    }
+                    tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS);
                 }
-            }
-            else if (IsMultiModal && MtmdChunks is not null)
-            {
-                _is_prompt_run = false;
-                var nPast = _pastTokensCount;
-                var previousConsumed = _consumedTokensCount;
-                EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InteractiveExecutor));
+                EnsurePendingInputFitsContext(tokensToKeep);
+                EvaluateNextMtmdMediaSegment(nameof(InteractiveExecutor));
             }
             
             _embeds.Clear();
 
-            if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
+            if (!HasPendingPromptInput() && !args.WaitForInput)
             {
                 if (inferenceParams.MaxTokens == 0)
                 {
@@ -294,6 +295,14 @@ namespace LLama
 
                 if (id == Context.NativeHandle.ModelHandle.Vocab.EOS)
                 {
+                    if (IsMultiModal)
+                    {
+                        _embeds.Add(id);
+                        args.RemainedTokens--;
+                        args.ReturnValue = false;
+                        return;
+                    }
+
                     id = Context.NativeHandle.ModelHandle.Vocab.Newline!.Value;
                     if (args.Antiprompts is not null && args.Antiprompts.Count > 0)
                     {
@@ -309,14 +318,21 @@ namespace LLama
             }
             else
             {
-                while (_embed_inps.Count > _consumedTokensCount)
+                if (IsMultiModal)
                 {
-                    _embeds.Add(_embed_inps[_consumedTokensCount]);
-                    _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
-                    _consumedTokensCount++;
-                    if (_embeds.Count >= Context.BatchSize)
+                    QueueNextMtmdPromptInput();
+                }
+                else
+                {
+                    while (_embed_inps.Count > _consumedTokensCount)
                     {
-                        break;
+                        _embeds.Add(_embed_inps[_consumedTokensCount]);
+                        _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
+                        _consumedTokensCount++;
+                        if (_embeds.Count >= Context.BatchSize)
+                        {
+                            break;
+                        }
                     }
                 }
             }

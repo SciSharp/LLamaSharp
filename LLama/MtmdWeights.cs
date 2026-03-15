@@ -12,6 +12,8 @@ namespace LLama;
 public sealed class MtmdWeights
     : IDisposable
 {
+    private readonly object _syncRoot = new();
+
     /// <summary>
     /// The native handle, which is used in the native APIs
     /// </summary>
@@ -79,42 +81,87 @@ public sealed class MtmdWeights
     /// <summary>
     /// Load media from disk and keep it pending for the next tokenize call.
     /// </summary>
-    public SafeMtmdEmbed LoadMedia(string path) => NativeHandle.LoadMediaFromFile(path);
+    public SafeMtmdEmbed LoadMedia(string path)
+    {
+        lock (_syncRoot)
+            return NativeHandle.LoadMediaFromFile(path);
+    }
 
     /// <summary>
     /// Load media from an in-memory buffer and keep it pending for the next tokenize call.
     /// </summary>
-    public SafeMtmdEmbed LoadMedia(ReadOnlySpan<byte> data) => NativeHandle.LoadMediaFromBuffer(data);
+    public SafeMtmdEmbed LoadMedia(ReadOnlySpan<byte> data)
+    {
+        lock (_syncRoot)
+            return NativeHandle.LoadMediaFromBuffer(data);
+    }
+
+    /// <summary>
+    /// Load media from disk as a standalone embedding without touching the shared pending-media queue.
+    /// </summary>
+    public SafeMtmdEmbed LoadMediaStandalone(string path)
+    {
+        lock (_syncRoot)
+            return NativeHandle.CreateMediaEmbedFromFile(path);
+    }
+
+    /// <summary>
+    /// Load media from an in-memory buffer as a standalone embedding without touching the shared pending-media queue.
+    /// </summary>
+    public SafeMtmdEmbed LoadMediaStandalone(ReadOnlySpan<byte> data)
+    {
+        lock (_syncRoot)
+            return NativeHandle.CreateMediaEmbedFromBuffer(data);
+    }
 
     /// <summary>
     /// Clear any pending media buffers before or after tokenization.
     /// </summary>
-    public void ClearMedia() => NativeHandle.ClearMedia();
+    public void ClearMedia()
+    {
+        lock (_syncRoot)
+            NativeHandle.ClearMedia();
+    }
 
     /// <summary>
     /// Tokenize text (with optional special tokens) against the pending media buffers.
     /// </summary>
     public int Tokenize(string text, bool addSpecial, bool parseSpecial, out SafeMtmdInputChunks? chunks)
-        => NativeHandle.Tokenize(text, addSpecial, parseSpecial, out chunks);
+    {
+        lock (_syncRoot)
+            return NativeHandle.Tokenize(text, addSpecial, parseSpecial, out chunks);
+    }
 
     /// <summary>
     /// Tokenize text (with optional special tokens) against explicit media embeddings.
     /// The caller retains ownership of <paramref name="embeds"/>.
     /// </summary>
     public int Tokenize(string text, bool addSpecial, bool parseSpecial, ReadOnlySpan<SafeMtmdEmbed> embeds, out SafeMtmdInputChunks? chunks)
-        => NativeHandle.Tokenize(text, addSpecial, parseSpecial, embeds, out chunks);
+    {
+        lock (_syncRoot)
+            return NativeHandle.Tokenize(text, addSpecial, parseSpecial, embeds, out chunks);
+    }
 
     /// <summary>
     /// Evaluate a chunk batch using the helper that performs mtmd encode + llama decode.
     /// </summary>
     public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
-        => NativeHandle.EvaluateChunks(chunks, llamaContext, ref nPast, seqId, nBatch, logitsLast);
+    {
+        lock (_syncRoot)
+            return NativeHandle.EvaluateChunks(chunks, llamaContext, ref nPast, seqId, nBatch, logitsLast);
+    }
 
     public int EvaluateChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
-        => NativeHandle.EvaluateChunk(chunkPtr, llamaContext, ref nPast, seqId, nBatch, logitsLast);
+    {
+        lock (_syncRoot)
+            return NativeHandle.EvaluateChunk(chunkPtr, llamaContext, ref nPast, seqId, nBatch, logitsLast);
+    }
 
     public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref int nPast, int seqId, int nBatch)
-        => NativeHandle.DecodeImageChunk(chunkPtr, llamaContext, encodedEmbeddings, ref nPast, seqId, nBatch);
+    {
+        lock (_syncRoot)
+            return NativeHandle.DecodeImageChunk(chunkPtr, llamaContext, encodedEmbeddings, ref nPast, seqId, nBatch);
+    }
 
     /// <summary>
     /// Indicates whether the model supports vision inputs.

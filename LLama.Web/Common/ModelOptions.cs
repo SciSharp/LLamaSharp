@@ -141,7 +141,7 @@ namespace LLama.Web.Common
         public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
-        public LLamaPoolingType PoolingType { get; set; }
+        public LLamaPoolingType PoolingType { get; set; } = LLamaPoolingType.Unspecified;
 
         /// <inheritdoc />
         public LLamaAttentionType AttentionType { get; set; } = LLamaAttentionType.Unspecified;

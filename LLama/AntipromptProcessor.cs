@@ -68,7 +68,7 @@ namespace LLama
                 _buffer = _buffer.Substring(_buffer.Length - trimLength);
 
             foreach (var antiprompt in _antiprompts)
-                if (_buffer.EndsWith(antiprompt, StringComparison.CurrentCulture))
+                if (_buffer.EndsWith(antiprompt, StringComparison.Ordinal))
                     return true;
 
             return false;

@@ -241,16 +241,20 @@
                             @(_isRecordingAudio ? "Stop recording" : "Record audio")
                         </button>
                     }
-                    <button class="btn-secondary" @onclick="ClearAttachments" disabled="@(!_pendingFiles.Any())">Clear</button>
+                    <button class="btn-secondary" @onclick="ClearAttachments" disabled="@(!_pendingFiles.Any() && !_hasRecordedAudio && !_recordedAudioAccepted)">Clear</button>
                 </div>
                 <div class="sidebar-meta">@_composerHint</div>
             </div>
-            @if (_pendingFiles.Count > 0)
+            @if (_pendingFiles.Count > 0 || _recordedAudioAccepted)
             {
                 <div class="attachment-tags">
                     @foreach (var file in _pendingFiles)
                     {
                         <span class="attachment-tag">@file.Name</span>
+                    }
+                    @if (_recordedAudioAccepted)
+                    {
+                        <span class="attachment-tag">@_recordedAudioName</span>
                     }
                 </div>
             }
@@ -271,7 +275,8 @@
                     </div>
                 </div>
             }
-            <textarea placeholder="Ask anything..." @bind="_inputText" @onkeydown="HandleKeyPress"></textarea>
+            <textarea placeholder="Ask anything..." @bind="_inputText" @onkeydown="HandleKeyPress" @ref="_composerInputRef"></textarea>
+            <div class="sidebar-meta">Enter to send. Shift+Enter adds a new line.</div>
             @if (!string.IsNullOrWhiteSpace(_composerError))
             {
                 <div class="composer-error">@_composerError</div>
@@ -279,7 +284,7 @@
             <div class="composer-row">
                 <div class="composer-actions">
                     <button class="btn-secondary" @onclick="CancelAsync" disabled="@(!_isSending)">Stop</button>
-                    <button class="btn-primary" @onclick="SendAsync" disabled="@(!_sessionLoaded || _isSending)">Send</button>
+                    <button class="btn-primary" @onclick="SendAsync" disabled="@(!_canSend)" @ref="_sendButtonRef">Send</button>
                 </div>
             </div>
         </div>
@@ -293,6 +298,8 @@
     private readonly List<ModelDownloadSnapshot> _downloadSnapshots = new();
 
     private ElementReference _threadRef;
+    private ElementReference _composerInputRef;
+    private ElementReference _sendButtonRef;
     private bool _initialized;
     private bool _sessionLoaded;
     private bool _isSending;
@@ -318,9 +325,10 @@
     private bool _hasRecordedAudio;
     private string _recordedAudioName = string.Empty;
     private string _recordedAudioPreviewUrl = string.Empty;
-    private MemoryBrowserFile _recordedAudioFile;
+    private bool _recordedAudioAccepted;
 
     private bool _canLoad => !_sessionLoaded && IsModelReady(_sessionConfig.Model);
+    private bool _canSend => _sessionLoaded && !_isSending && (!string.IsNullOrWhiteSpace(_inputText) || _pendingFiles.Count > 0 || _recordedAudioAccepted);
 
     protected override Task OnInitializedAsync()
     {
@@ -329,9 +337,9 @@
         {
             Model = _models.FirstOrDefault()?.Name,
             ExecutorType = LLamaExecutorType.Interactive,
-            Prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.",
-            AntiPrompt = "User:,<|im_end|>,<|eot_id|>,<|endoftext|>",
-            OutputFilter = "User:, Assistant:,<|im_end|>,<|eot_id|>,<|endoftext|>"
+            Prompt = string.Empty,
+            AntiPrompt = string.Empty,
+            OutputFilter = string.Empty
         };
 
         _samplingSettings = SamplingSettings.CreateDefault();
@@ -364,6 +372,11 @@
             {
                 _activeTab = tab;
             }
+        }
+
+        if (_initialized)
+        {
+            await JS.InvokeVoidAsync("llamaChat.bindComposerShortcuts", _composerInputRef, _sendButtonRef);
         }
 
         if (_initialized && _pendingRenders.Count > 0)
@@ -428,7 +441,15 @@
         if (!_sessionLoaded)
             return;
 
-        await ModelSessionService.CloseAsync(_sessionId);
+        try
+        {
+            await ModelSessionService.CloseAsync(_sessionId);
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Session cleanup warning: {ex.Message}", MessageKind.Info);
+        }
+
         await AttachmentService.CleanupAsync(_sessionId);
         _sessionLoaded = false;
         _statusText = "Model not loaded";
@@ -441,7 +462,7 @@
         if (!_sessionLoaded || _isSending)
             return;
 
-        if (string.IsNullOrWhiteSpace(_inputText))
+        if (string.IsNullOrWhiteSpace(_inputText) && _pendingFiles.Count == 0 && !_recordedAudioAccepted)
             return;
 
         if (HasImageAttachments() && !_modelCapabilities.SupportsVision)
@@ -450,7 +471,7 @@
             return;
         }
 
-        if (HasAudioAttachments() && !_modelCapabilities.SupportsAudio)
+        if ((HasAudioAttachments() || _recordedAudioAccepted) && !_modelCapabilities.SupportsAudio)
         {
             _composerError = "This model does not support audio. Remove audio attachments or choose an audio-capable model.";
             return;
@@ -462,6 +483,12 @@
         _composerError = string.Empty;
 
         var attachments = await UploadAttachmentsAsync();
+        if (string.IsNullOrWhiteSpace(prompt) && attachments.Count == 0)
+        {
+            _composerError = "Add text or attach a file before sending.";
+            _isSending = false;
+            return;
+        }
 
         var userMessage = new ChatMessageView(MessageKind.User, prompt)
         {
@@ -480,7 +507,7 @@
 
         try
         {
-            _inferenceOptions = BuildInferenceOptions();
+            _inferenceOptions = BuildInferenceOptions(HasAudioAttachments(attachments));
             await foreach (var token in ModelSessionService.InferAsync(_sessionId, request, _inferenceOptions))
             {
                 if (token.TokenType == TokenType.Content)
@@ -519,15 +546,31 @@
 
     private async Task<List<AttachmentInfo>> UploadAttachmentsAsync()
     {
-        if (_pendingFiles.Count == 0)
+        if (_pendingFiles.Count == 0 && !_recordedAudioAccepted)
             return new List<AttachmentInfo>();
 
         try
         {
             AddSystemMessage("Uploading attachments...", MessageKind.Info);
-            var result = await AttachmentService.SaveAsync(_sessionId, _pendingFiles, CancellationToken.None);
-            _pendingFiles.Clear();
-            return result.Attachments.ToList();
+            var attachments = new List<AttachmentInfo>();
+
+            if (_pendingFiles.Count > 0)
+            {
+                var result = await AttachmentService.SaveAsync(_sessionId, _pendingFiles, CancellationToken.None);
+                attachments.AddRange(result.Attachments);
+                _pendingFiles.Clear();
+            }
+
+            if (_recordedAudioAccepted)
+            {
+                var recordedResult = await JS.InvokeAsync<AttachmentUploadResult>("llamaChat.uploadRecordedAudio", _sessionId, _recordedAudioName);
+                if (recordedResult?.Attachments != null)
+                    attachments.AddRange(recordedResult.Attachments);
+
+                ClearRecordedAudio();
+            }
+
+            return attachments;
         }
         catch (Exception ex)
         {
@@ -560,10 +603,10 @@
         _composerError = string.Empty;
     }
 
-    private void ClearAttachments()
+    private async Task ClearAttachments()
     {
         _pendingFiles.Clear();
-        ClearRecordedAudio();
+        await DiscardRecordedAudio();
         _composerError = string.Empty;
     }
 
@@ -659,7 +702,7 @@
 
     private async Task HandleKeyPress(KeyboardEventArgs args)
     {
-        if (args.Key == "Enter" && !args.ShiftKey)
+        if (args.Key == "Enter" && !args.ShiftKey && !args.CtrlKey && !args.AltKey && !args.MetaKey)
         {
             await SendAsync();
         }
@@ -695,45 +738,44 @@
         var result = await JS.InvokeAsync<AudioRecordingStopResult>("llamaChat.stopAudioRecording");
         _isRecordingAudio = false;
 
-        if (result == null || string.IsNullOrWhiteSpace(result.Base64))
+        if (result == null || string.IsNullOrWhiteSpace(result.PreviewUrl))
         {
             AddSystemMessage("No audio captured.", MessageKind.Info);
             return;
         }
 
-        var bytes = Convert.FromBase64String(result.Base64);
-        var mimeType = string.IsNullOrWhiteSpace(result.MimeType) ? "audio/webm" : result.MimeType;
+        var mimeType = string.IsNullOrWhiteSpace(result.MimeType) ? "audio/wav" : result.MimeType;
         var extension = GetAudioExtension(mimeType);
         var fileName = $"recording-{DateTimeOffset.Now:yyyyMMdd-HHmmss}{extension}";
 
-        _recordedAudioFile = new MemoryBrowserFile(fileName, mimeType, bytes, DateTimeOffset.Now);
         _recordedAudioName = fileName;
-        _recordedAudioPreviewUrl = $"data:{mimeType};base64,{result.Base64}";
+        _recordedAudioPreviewUrl = result.PreviewUrl;
         _hasRecordedAudio = true;
+        _recordedAudioAccepted = false;
         _composerError = string.Empty;
     }
 
     private void AcceptRecordedAudio()
     {
-        if (_recordedAudioFile == null)
+        if (!_hasRecordedAudio)
             return;
 
-        _pendingFiles.Add(_recordedAudioFile);
-        ClearRecordedAudio();
+        _recordedAudioAccepted = true;
         _composerError = string.Empty;
     }
 
-    private void DiscardRecordedAudio()
+    private async Task DiscardRecordedAudio()
     {
+        await JS.InvokeVoidAsync("llamaChat.discardRecordedAudio");
         ClearRecordedAudio();
     }
 
     private void ClearRecordedAudio()
     {
-        _recordedAudioFile = null;
         _recordedAudioName = string.Empty;
         _recordedAudioPreviewUrl = string.Empty;
         _hasRecordedAudio = false;
+        _recordedAudioAccepted = false;
     }
 
     private static string GetAudioExtension(string contentType)
@@ -793,12 +835,12 @@
         return $"{adjusted:0.0} {sizes[order]}";
     }
 
-    private InferenceOptions BuildInferenceOptions()
+    private InferenceOptions BuildInferenceOptions(bool simplifyForAudio = false)
     {
         return new InferenceOptions
         {
             MaxTokens = _samplingSettings.MaxTokens,
-            DecodeSpecialTokens = true,
+            DecodeSpecialTokens = false,
             SamplingPipeline = new DefaultSamplingPipeline
             {
                 Temperature = _samplingSettings.Temperature,
@@ -814,6 +856,17 @@
                 PenalizeNewline = _samplingSettings.PenalizeNewline
             }
         };
+    }
+
+    private static bool HasAudioAttachments(IEnumerable<AttachmentInfo> attachments)
+    {
+        foreach (var attachment in attachments)
+        {
+            if (attachment.Kind == AttachmentKind.Audio)
+                return true;
+        }
+
+        return false;
     }
 
     public async ValueTask DisposeAsync()
@@ -879,8 +932,8 @@
         {
             return new SamplingSettings
             {
-                MaxTokens = 512,
-                Temperature = 0.7f,
+                MaxTokens = 1024,
+                Temperature = 0.1f,
                 TopP = 0.9f,
                 TopK = 40,
                 RepeatPenalty = 1.0f,
@@ -918,7 +971,7 @@
 
     private sealed class AudioRecordingStopResult
     {
-        public string Base64 { get; set; }
+        public string PreviewUrl { get; set; }
         public string MimeType { get; set; }
         public long Size { get; set; }
     }
