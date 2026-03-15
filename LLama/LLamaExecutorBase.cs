@@ -86,12 +86,8 @@ namespace LLama
         /// <inheritdoc />
         public List<SafeMtmdEmbed> Embeds { get; }
 
-        /// <summary>
-        /// Pending multimodal chunks produced by the MTMD tokenizer.
-        /// </summary>
-        protected SafeMtmdInputChunks? MtmdChunks { get; set; }
-
         private string? _mtmdMarker;
+        private readonly Queue<MtmdPromptSegment> _mtmdPromptSegments = new();
 
         private readonly StreamingTokenDecoder _decoder;
 
@@ -134,6 +130,9 @@ namespace LLama
         /// <exception cref="RuntimeError"></exception>
         public StatefulExecutorBase WithSessionFile(string filename)
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("Session files are not supported for multimodal executors.");
+
             _pathSession = filename;
             if (string.IsNullOrEmpty(filename))
             {
@@ -191,6 +190,9 @@ namespace LLama
         /// <param name="filename">Destination path for the llama.cpp session file.</param>
         public void SaveSessionFile(string filename)
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("Session files are not supported for multimodal executors.");
+
             var session_token_array = _session_tokens.ToArray();
             NativeApi.llama_state_save_file(Context.NativeHandle, filename, session_token_array, (ulong)session_token_array.Length);
         }
@@ -201,6 +203,9 @@ namespace LLama
         /// <param name="tokensToKeep"></param>
         protected virtual void HandleRunOutOfContext(int tokensToKeep)
         {
+            if (IsMultiModal)
+                throw new RuntimeError("Context shifting is not supported for multimodal executors. Reduce the prompt or increase the context size.");
+
             // if we run out of context:
             // - take the tokensToKeep first tokens from the original prompt (via n_past)
             // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
@@ -216,10 +221,39 @@ namespace LLama
         }
 
         /// <summary>
+        /// Get the number of context positions required by the pending input.
+        /// </summary>
+        protected int GetPendingInputPositionCount()
+        {
+            if (IsMultiModal)
+            {
+                var pending = _embeds.Count;
+                foreach (var segment in _mtmdPromptSegments)
+                    pending += segment.RemainingPositionCount;
+
+                return pending;
+            }
+
+            return _embeds.Count;
+        }
+
+        /// <summary>
+        /// Shift the context window when the pending input would overflow the available KV cache.
+        /// </summary>
+        protected void EnsurePendingInputFitsContext(int tokensToKeep)
+        {
+            if (_pastTokensCount + GetPendingInputPositionCount() > Context.ContextSize)
+                HandleRunOutOfContext(tokensToKeep);
+        }
+
+        /// <summary>
         /// Try to reuse the matching prompt prefix from the loaded session cache before evaluating new tokens.
         /// </summary>
         protected virtual void TryReuseMatchingPrefix()
         {
+            if (IsMultiModal)
+                return;
+
             if (_n_session_consumed < _session_tokens.Count)
             {
                 int i = 0;
@@ -250,12 +284,12 @@ namespace LLama
         }
 
         /// <summary>
-        /// Dispose and clear any queued multimodal chunk collection.
+        /// Dispose and clear any queued multimodal prompt segments.
         /// </summary>
-        protected void DisposeMtmdChunks()
+        protected void DisposeMtmdPromptSegments()
         {
-            MtmdChunks?.Dispose();
-            MtmdChunks = null;
+            while (_mtmdPromptSegments.Count > 0)
+                _mtmdPromptSegments.Dequeue().Dispose();
         }
 
         /// <summary>
@@ -285,20 +319,6 @@ namespace LLama
         }
 
         /// <summary>
-        /// Ensure the token list fills all positional slots reported by the MTMD helper.
-        /// </summary>
-        protected static List<LLamaToken> BuildTokensWithFiller(List<LLamaToken> tokens, int totalPositions, LLamaToken fillerToken)
-        {
-            if (totalPositions <= tokens.Count)
-                return new List<LLamaToken>(tokens);
-
-            var result = new List<LLamaToken>(totalPositions);
-            result.AddRange(tokens);
-            result.AddRange(Enumerable.Repeat(fillerToken, totalPositions - tokens.Count));
-            return result;
-        }
-
-        /// <summary>
         /// Resolve the fallback token inserted when the tokenizer emits fewer tokens than positions.
         /// </summary>
         protected LLamaToken GetFillerToken(string marker)
@@ -322,8 +342,6 @@ namespace LLama
             if (ClipModel is null)
                 throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");
 
-            DisposeMtmdChunks();
-
             var marker = GetMtmdMarker();
             var prompt = text;
 
@@ -342,51 +360,22 @@ namespace LLama
             SafeMtmdInputChunks? chunks = null;
             try
             {
-                var status = ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
+                var embeds = Embeds.ToArray();
+                var status = Embeds.Count > 0
+                    ? ClipModel.Tokenize(prompt, addBos, parseSpecial: true, embeds, out chunks)
+                    : ClipModel.Tokenize(prompt, addBos, parseSpecial: true, out chunks);
                 if (status != 0 || chunks is null)
                 {
                     ClipModel.ClearMedia();
                     throw new RuntimeError($"Failed to tokenize multimodal prompt. Status: {status}.");
                 }
 
-                MtmdChunks = chunks;
-
-                var tokens = new List<LLamaToken>();
-                foreach (var chunk in chunks.Enumerate())
-                {
-                    using var scopedChunk = chunk;
-                    if (scopedChunk.Type != SafeMtmdInputChunk.SafeMtmdInputChunkType.Text)
-                        continue;
-
-                    foreach (var token in scopedChunk.GetTextTokensSpan())
-                        tokens.Add(token);
-                }
-
-                var totalPositions = (int)chunks.CountPositions();
-                var fillerToken = GetFillerToken(marker);
-
-                if (replaceExisting)
-                {
-                    _embed_inps = BuildTokensWithFiller(tokens, totalPositions, fillerToken);
-                    _consumedTokensCount = 0;
-                }
-                else
-                {
-                    if (_embed_inps.Count == 0)
-                        _embed_inps = new List<LLamaToken>();
-
-                    _embed_inps.AddRange(tokens);
-                    var fillerCount = totalPositions - tokens.Count;
-                    if (fillerCount > 0)
-                        _embed_inps.AddRange(Enumerable.Repeat(fillerToken, fillerCount));
-
-                    args.RemainedTokens -= tokens.Count;
-                }
+                var promptTextTokenCount = LoadMtmdPromptSegments(chunks, GetFillerToken(marker), replaceExisting);
+                args.RemainedTokens -= promptTextTokenCount;
             }
             catch
             {
                 chunks?.Dispose();
-                MtmdChunks = null;
                 throw;
             }
             finally
@@ -398,43 +387,144 @@ namespace LLama
         }
 
         /// <summary>
-        /// Apply bookkeeping after successfully evaluating multimodal chunks.
+        /// Build ordered MTMD prompt segments and logical placeholder tokens from the tokenized chunks.
         /// </summary>
-        protected void FinalizeMtmdEvaluation(int newNPast, int previousConsumed)
+        protected int LoadMtmdPromptSegments(SafeMtmdInputChunks chunks, LLamaToken fillerToken, bool replaceExisting)
         {
-            _pastTokensCount = newNPast;
-            DisposeMtmdChunks();
+            var promptTokens = new List<LLamaToken>();
+            var promptSegments = new List<MtmdPromptSegment>();
+            var promptTextTokenCount = 0;
 
-            if (!string.IsNullOrEmpty(_pathSession) && _embed_inps.Count > previousConsumed)
+            try
             {
-                _session_tokens.AddRange(_embed_inps.Skip(previousConsumed));
-                _n_session_consumed = _session_tokens.Count;
-            }
+                foreach (var chunk in chunks.Enumerate())
+                {
+                    using var scopedChunk = chunk;
+                    if (scopedChunk.Type == SafeMtmdInputChunk.SafeMtmdInputChunkType.Text)
+                    {
+                        var textTokens = scopedChunk.GetTextTokensSpan().ToArray().Select(static token => (LLamaToken)token).ToArray();
+                        promptTokens.AddRange(textTokens);
+                        promptTextTokenCount += textTokens.Length;
+                        promptSegments.Add(MtmdPromptSegment.CreateText(textTokens));
+                    }
+                    else
+                    {
+                        var copy = scopedChunk.Copy() ?? throw new RuntimeError("Failed to copy multimodal prompt chunk.");
+                        promptTokens.AddRange(Enumerable.Repeat(fillerToken, checked((int)scopedChunk.NTokens)));
+                        promptSegments.Add(MtmdPromptSegment.CreateMedia(copy));
+                    }
+                }
 
-            _consumedTokensCount = _embed_inps.Count;
-            _embeds.Clear();
+                if (replaceExisting)
+                {
+                    DisposeMtmdPromptSegments();
+                    _embed_inps = promptTokens;
+                    _consumedTokensCount = 0;
+                }
+                else
+                {
+                    if (_embed_inps.Count == 0)
+                        _embed_inps = new List<LLamaToken>();
+
+                    _embed_inps.AddRange(promptTokens);
+                }
+
+                foreach (var segment in promptSegments)
+                    _mtmdPromptSegments.Enqueue(segment);
+
+                return promptTextTokenCount;
+            }
+            catch
+            {
+                foreach (var segment in promptSegments)
+                    segment.Dispose();
+
+                throw;
+            }
         }
 
         /// <summary>
-        /// Evaluate the queued MTMD chunks and update executor state.
+        /// Queue the next multimodal text segment into <see cref="_embeds"/> if available.
         /// </summary>
-        protected void EvaluateMtmdChunks(ref int nPast, int previousConsumed, string executorName)
+        protected void QueueNextMtmdPromptInput()
+        {
+            while (_mtmdPromptSegments.Count > 0 && _embeds.Count < Context.BatchSize)
+            {
+                var segment = _mtmdPromptSegments.Peek();
+                if (segment.Kind != MtmdPromptSegmentKind.Text)
+                    break;
+
+                var count = Math.Min(segment.RemainingTextTokenCount, checked((int)Context.BatchSize) - _embeds.Count);
+                var span = segment.TextTokens.AsSpan(segment.TextOffset, count);
+                foreach (var token in span)
+                {
+                    _embeds.Add(token);
+                    _last_n_tokens.Enqueue(token);
+                    _consumedTokensCount++;
+                }
+
+                segment.AdvanceText(count);
+                if (segment.RemainingTextTokenCount == 0)
+                    _mtmdPromptSegments.Dequeue().Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Evaluate the current multimodal media segment and advance the prompt cursor.
+        /// </summary>
+        protected void EvaluateNextMtmdMediaSegment(string executorName)
         {
             if (ClipModel is null)
                 throw new InvalidOperationException("Multimodal execution requires a loaded mtmd clip model.");
-            if (MtmdChunks is null)
-                throw new InvalidOperationException("No MTMD chunks are queued for evaluation.");
+            if (_mtmdPromptSegments.Count == 0)
+                throw new InvalidOperationException("No MTMD prompt segments are queued for evaluation.");
 
-            var evalStatus = ClipModel.EvaluateChunks(MtmdChunks, Context.NativeHandle, ref nPast, seqId: 0,
+            var segment = _mtmdPromptSegments.Peek();
+            if (segment.Kind != MtmdPromptSegmentKind.Media || segment.Chunk is null)
+                throw new InvalidOperationException("Current MTMD prompt segment is not a media chunk.");
+
+            var nPast = _pastTokensCount;
+            var evalStatus = ClipModel.EvaluateChunk(segment.Chunk.NativePtr, Context.NativeHandle, ref nPast, seqId: 0,
                 nBatch: checked((int)Context.BatchSize), logitsLast: true);
             if (evalStatus != 0)
             {
                 _logger?.LogError("[{Executor}] Failed to evaluate multimodal chunks. Status: {Status}", executorName, evalStatus);
-                DisposeMtmdChunks();
                 throw new RuntimeError($"Failed to evaluate multimodal chunks. Status: {evalStatus}.");
             }
 
-            FinalizeMtmdEvaluation(nPast, previousConsumed);
+            _pastTokensCount = nPast;
+            _consumedTokensCount += segment.TokenCount;
+            _mtmdPromptSegments.Dequeue().Dispose();
+        }
+
+        /// <summary>
+        /// Determine whether any prompt input is still pending evaluation.
+        /// </summary>
+        protected bool HasPendingPromptInput()
+        {
+            if (IsMultiModal)
+                return _embeds.Count > 0 || _mtmdPromptSegments.Count > 0;
+
+            return _embed_inps.Count > _consumedTokensCount;
+        }
+
+        /// <summary>
+        /// Determine whether any prompt content still remains to be queued/evaluated, excluding sampled output tokens.
+        /// </summary>
+        protected bool HasPendingPromptQueue()
+        {
+            if (IsMultiModal)
+                return _mtmdPromptSegments.Count > 0;
+
+            return _embed_inps.Count > _consumedTokensCount;
+        }
+
+        /// <summary>
+        /// Determine whether the next queued multimodal prompt segment is a media chunk.
+        /// </summary>
+        protected bool HasPendingMtmdMediaSegment()
+        {
+            return _mtmdPromptSegments.Count > 0 && _mtmdPromptSegments.Peek().Kind == MtmdPromptSegmentKind.Media;
         }
 
         /// <summary>
@@ -509,6 +599,7 @@ namespace LLama
         {
             cancellationToken.ThrowIfCancellationRequested();
             inferenceParams ??= new InferenceParams();
+            _decoder.DecodeSpecialTokens = inferenceParams.DecodeSpecialTokens;
 
             var args = new InferStateArgs
             {
@@ -578,10 +669,8 @@ namespace LLama
             };
 
             await PreprocessInputs(prompt, args, cancellationToken);
-            // First run adds the prompt to the _embeds
-            await InferInternal(inferenceParams, args, cancellationToken);
-            // Second run puts it through decode
-            await InferInternal(inferenceParams, args, cancellationToken);
+            while (HasPendingPromptInput())
+                await InferInternal(inferenceParams, args, cancellationToken);
         }   
 
         /// <summary>
@@ -665,6 +754,55 @@ namespace LLama
                 _consumedTokensCount,
                 _pastTokensCount,
                 _embeds.Count);
+        }
+
+        private enum MtmdPromptSegmentKind
+        {
+            Text,
+            Media,
+        }
+
+        private sealed class MtmdPromptSegment : IDisposable
+        {
+            private MtmdPromptSegment(MtmdPromptSegmentKind kind, LLamaToken[]? textTokens, SafeMtmdInputChunk? chunk)
+            {
+                Kind = kind;
+                TextTokens = textTokens ?? [];
+                Chunk = chunk;
+            }
+
+            public MtmdPromptSegmentKind Kind { get; }
+
+            public LLamaToken[] TextTokens { get; }
+
+            public SafeMtmdInputChunk? Chunk { get; }
+
+            public int TextOffset { get; private set; }
+
+            public int RemainingTextTokenCount => TextTokens.Length - TextOffset;
+
+            public int RemainingPositionCount => Kind == MtmdPromptSegmentKind.Text ? RemainingTextTokenCount : checked((int)(Chunk?.NPos ?? 0));
+
+            public int TokenCount => Kind == MtmdPromptSegmentKind.Text ? TextTokens.Length : checked((int)(Chunk?.NTokens ?? 0));
+
+            public static MtmdPromptSegment CreateText(LLamaToken[] tokens)
+                => new(MtmdPromptSegmentKind.Text, tokens, null);
+
+            public static MtmdPromptSegment CreateMedia(SafeMtmdInputChunk chunk)
+                => new(MtmdPromptSegmentKind.Media, null, chunk);
+
+            public void AdvanceText(int count)
+            {
+                if (Kind != MtmdPromptSegmentKind.Text)
+                    throw new InvalidOperationException("Cannot advance text offset for a media segment.");
+
+                TextOffset = Math.Min(TextTokens.Length, TextOffset + count);
+            }
+
+            public void Dispose()
+            {
+                Chunk?.Dispose();
+            }
         }
     }
 }
