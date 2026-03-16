@@ -29,7 +29,8 @@ NativeLibraryConfig
 // Configure native library to use. This must be done before any other llama.cpp methods are called!
 NativeLibraryConfig
    .All
-   .WithCuda();
+   .WithCuda()
+   .WithVulkan();
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();
