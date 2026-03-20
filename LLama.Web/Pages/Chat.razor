@@ -25,7 +25,7 @@
             <div class="sidebar-section">
                 <div class="section-title">Session</div>
                 <label class="sidebar-meta">Model</label>
-                <select class="select" @bind="_sessionConfig.Model">
+                <select class="select" value="@_sessionConfig.Model" @onchange="OnModelChangedAsync">
                     @foreach (var model in _models)
                     {
                         <option value="@model.Name" disabled="@(!IsModelReady(model.Name))">@model.Name</option>
@@ -275,7 +275,7 @@
                     </div>
                 </div>
             }
-            <textarea placeholder="Ask anything..." @bind="_inputText" @onkeydown="HandleKeyPress" @ref="_composerInputRef"></textarea>
+            <textarea placeholder="Ask anything..." @bind="_inputText" @bind:event="oninput" @ref="_composerInputRef"></textarea>
             <div class="sidebar-meta">Enter to send. Shift+Enter adds a new line.</div>
             @if (!string.IsNullOrWhiteSpace(_composerError))
             {
@@ -434,6 +434,26 @@
             _sessionLoaded = false;
             _statusText = "Model not loaded";
         }
+    }
+
+    private async Task OnModelChangedAsync(ChangeEventArgs args)
+    {
+        var selectedModel = args.Value?.ToString() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(selectedModel) || string.Equals(selectedModel, _sessionConfig.Model, StringComparison.Ordinal))
+            return;
+
+        var hadLoadedSession = _sessionLoaded;
+        _sessionConfig.Model = selectedModel;
+
+        if (!hadLoadedSession)
+            return;
+
+        if (_isSending)
+            await CancelAsync();
+
+        _statusText = $"Switching model to {selectedModel}...";
+
+        await LoadSessionAsync();
     }
 
     private async Task UnloadSessionAsync()
@@ -698,14 +718,6 @@
             parts.Add("audio");
 
         return $"{string.Join(", ", parts)}.";
-    }
-
-    private async Task HandleKeyPress(KeyboardEventArgs args)
-    {
-        if (args.Key == "Enter" && !args.ShiftKey && !args.CtrlKey && !args.AltKey && !args.MetaKey)
-        {
-            await SendAsync();
-        }
     }
 
     private async Task ToggleAudioRecordingAsync()
