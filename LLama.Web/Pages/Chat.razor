@@ -750,6 +750,12 @@
         var result = await JS.InvokeAsync<AudioRecordingStopResult>("llamaChat.stopAudioRecording");
         _isRecordingAudio = false;
 
+        if (!string.IsNullOrWhiteSpace(result?.Error))
+        {
+            AddSystemMessage(result.Error, MessageKind.Error);
+            return;
+        }
+
         if (result == null || string.IsNullOrWhiteSpace(result.PreviewUrl))
         {
             AddSystemMessage("No audio captured.", MessageKind.Info);
@@ -986,6 +992,7 @@
         public string PreviewUrl { get; set; }
         public string MimeType { get; set; }
         public long Size { get; set; }
+        public string Error { get; set; }
     }
 
     private void SetTab(SidebarTab tab)

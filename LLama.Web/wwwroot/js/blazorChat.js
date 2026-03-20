@@ -278,6 +278,40 @@ window.llamaChat = (() => {
         return merged;
     };
 
+    const normalizeMonoSamples = (samples) => {
+        if (!samples || samples.length === 0) {
+            return samples;
+        }
+
+        let peak = 0;
+        for (let i = 0; i < samples.length; i++) {
+            const amplitude = Math.abs(samples[i]);
+            if (amplitude > peak) {
+                peak = amplitude;
+            }
+        }
+
+        // Treat near-silence as silence instead of amplifying background noise.
+        if (peak < 0.01) {
+            return samples;
+        }
+
+        const targetPeak = 0.85;
+        const maxGain = 8.0;
+        const gain = Math.min(maxGain, targetPeak / peak);
+        if (gain <= 1.05) {
+            return samples;
+        }
+
+        const normalized = new Float32Array(samples.length);
+        for (let i = 0; i < samples.length; i++) {
+            const value = samples[i] * gain;
+            normalized[i] = Math.max(-1, Math.min(1, value));
+        }
+
+        return normalized;
+    };
+
     const mixInputToMono = (inputBuffer) => {
         const channelCount = inputBuffer.numberOfChannels;
         const sampleCount = inputBuffer.length;
@@ -302,7 +336,7 @@ window.llamaChat = (() => {
     const convertBlobToWav = async (blob) => {
         const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextCtor) {
-            return blob;
+            return null;
         }
 
         const audioContext = new AudioContextCtor();
@@ -313,7 +347,7 @@ window.llamaChat = (() => {
             return new Blob([wavBuffer], { type: "audio/wav" });
         } catch (err) {
             console.warn("Failed to normalize recorded audio to WAV.", err);
-            return blob;
+            return null;
         } finally {
             if (typeof audioContext.close === "function") {
                 await audioContext.close();
@@ -397,9 +431,11 @@ window.llamaChat = (() => {
                 audioStream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         channelCount: { ideal: 1 },
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
+                        sampleRate: { ideal: 16000 },
+                        sampleSize: { ideal: 16 },
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
                     }
                 });
                 const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
@@ -454,7 +490,8 @@ window.llamaChat = (() => {
                         return { previewUrl: "", mimeType: "", size: 0 };
                     }
 
-                    const wavBuffer = encodeMonoWav(audioSampleRate || 16000, mergedSamples);
+                    const normalizedSamples = normalizeMonoSamples(mergedSamples);
+                    const wavBuffer = encodeMonoWav(audioSampleRate || 16000, normalizedSamples);
                     const wavBlob = new Blob([wavBuffer], { type: "audio/wav" });
 
                     clearRecordedAudio();
@@ -482,9 +519,21 @@ window.llamaChat = (() => {
                     const blobType = audioRecorder.mimeType || "audio/webm";
                     const rawBlob = new Blob(audioChunks, { type: blobType });
                     const uploadBlob = await convertBlobToWav(rawBlob);
-                    const previewBlob = canPlayAudioType(rawBlob.type) ? rawBlob : uploadBlob;
+                    if (!uploadBlob || uploadBlob.size === 0 || uploadBlob.type !== "audio/wav") {
+                        clearRecordedAudio();
+                        cleanupAudioStream();
+                        audioRecorder = null;
+                        audioChunks = [];
+                        resolve({
+                            previewUrl: "",
+                            mimeType: "",
+                            size: 0,
+                            error: "Unable to convert the recording to WAV for upload."
+                        });
+                        return;
+                    }
 
-                    if (!previewBlob || previewBlob.size === 0) {
+                    if (uploadBlob.size === 0) {
                         clearRecordedAudio();
                         cleanupAudioStream();
                         audioRecorder = null;
@@ -494,13 +543,13 @@ window.llamaChat = (() => {
                     }
 
                     clearRecordedAudio();
-                    recordedAudioBlob = rawBlob;
+                    recordedAudioBlob = uploadBlob;
                     recordedAudioUploadBlob = uploadBlob;
-                    recordedAudioPreviewUrl = URL.createObjectURL(previewBlob);
+                    recordedAudioPreviewUrl = URL.createObjectURL(uploadBlob);
                     cleanupAudioStream();
                     audioRecorder = null;
                     audioChunks = [];
-                    resolve({ previewUrl: recordedAudioPreviewUrl, mimeType: previewBlob.type, size: previewBlob.size });
+                    resolve({ previewUrl: recordedAudioPreviewUrl, mimeType: uploadBlob.type, size: uploadBlob.size });
                 };
 
                 try {

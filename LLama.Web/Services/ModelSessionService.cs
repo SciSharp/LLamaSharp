@@ -267,8 +267,24 @@ public class ModelSessionService : IModelSessionService
                 var mediaMarker = GetMediaMarker();
                 var attachments = _attachmentService.GetAttachments(sessionId, request.AttachmentIds);
 
+                _logger.LogInformation(
+                    "Preparing prompt for session {SessionId} with {RequestedCount} attachment id(s); resolved {ResolvedCount}: [{ResolvedAttachments}]",
+                    sessionId,
+                    request.AttachmentIds.Count,
+                    attachments.Count,
+                    string.Join(", ", attachments.Select(a => $"{a.Id}:{a.Kind}:{a.ContentType}:{a.SizeBytes}:{a.FileName}")));
+
                 foreach (var attachment in attachments)
                 {
+                    _logger.LogInformation(
+                        "Processing attachment {AttachmentId} for session {SessionId}: kind={Kind}, contentType={ContentType}, size={SizeBytes}, file={FileName}",
+                        attachment.Id,
+                        sessionId,
+                        attachment.Kind,
+                        attachment.ContentType,
+                        attachment.SizeBytes,
+                        attachment.FileName);
+
                     switch (attachment.Kind)
                     {
                         case AttachmentKind.Pdf:
@@ -281,14 +297,14 @@ public class ModelSessionService : IModelSessionService
                             if (!modelSession.IsMultiModal)
                                 throw new Exception("This model does not support multimodal inputs.");
 
-                            embeds.Add(await LoadEmbedAsync(modelSession, attachment, cancellationToken));
+                            embeds.Add(await LoadEmbedAsync(sessionId, modelSession, attachment, cancellationToken));
                             AppendMedia(modelSession, promptBuilder, mediaPrefixBuilder, mediaMarker);
                             break;
                         case AttachmentKind.Audio:
                             if (!modelSession.IsMultiModal || !modelSession.SupportsAudio)
                                 throw new Exception("This model does not support audio inputs.");
 
-                            embeds.Add(await LoadEmbedAsync(modelSession, attachment, cancellationToken));
+                            embeds.Add(await LoadEmbedAsync(sessionId, modelSession, attachment, cancellationToken));
                             AppendMedia(modelSession, promptBuilder, mediaPrefixBuilder, mediaMarker);
                             break;
                     }
@@ -365,7 +381,7 @@ public class ModelSessionService : IModelSessionService
             builder.AppendLine("[Word text truncated]");
     }
 
-    private static async Task<SafeMtmdEmbed> LoadEmbedAsync(ModelSession modelSession, AttachmentInfo attachment, CancellationToken cancellationToken)
+    private async Task<SafeMtmdEmbed> LoadEmbedAsync(string sessionId, ModelSession modelSession, AttachmentInfo attachment, CancellationToken cancellationToken)
     {
         if (!File.Exists(attachment.FilePath))
             throw new FileNotFoundException("Attachment not found.", attachment.FilePath);
@@ -376,21 +392,71 @@ public class ModelSessionService : IModelSessionService
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        SafeMtmdEmbed? embed;
-        if (attachment.Kind == AttachmentKind.Audio)
+        try
         {
-            var data = await File.ReadAllBytesAsync(attachment.FilePath, cancellationToken);
-            embed = clipModel.LoadMediaStandalone(data);
+            SafeMtmdEmbed? embed;
+            if (attachment.Kind == AttachmentKind.Audio)
+            {
+                var data = await File.ReadAllBytesAsync(attachment.FilePath, cancellationToken);
+                _logger.LogInformation(
+                    "Loading audio attachment {AttachmentId} for session {SessionId} into MTMD from buffer: file={FileName}, contentType={ContentType}, bytes={ByteCount}, model={ModelName}",
+                    attachment.Id,
+                    sessionId,
+                    attachment.FileName,
+                    attachment.ContentType,
+                    data.Length,
+                    modelSession.ModelName);
+                embed = clipModel.LoadMediaStandalone(data);
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "Loading media attachment {AttachmentId} for session {SessionId} into MTMD from file: file={FileName}, contentType={ContentType}, path={FilePath}, model={ModelName}",
+                    attachment.Id,
+                    sessionId,
+                    attachment.FileName,
+                    attachment.ContentType,
+                    attachment.FilePath,
+                    modelSession.ModelName);
+                embed = clipModel.LoadMediaStandalone(attachment.FilePath);
+            }
+
+            if (embed == null)
+            {
+                _logger.LogWarning(
+                    "MTMD returned null embed for attachment {AttachmentId} in session {SessionId}: kind={Kind}, contentType={ContentType}, file={FileName}",
+                    attachment.Id,
+                    sessionId,
+                    attachment.Kind,
+                    attachment.ContentType,
+                    attachment.FileName);
+                throw new Exception("Failed to prepare multimodal embedding.");
+            }
+
+            _logger.LogInformation(
+                "MTMD embed prepared for attachment {AttachmentId} in session {SessionId}: isAudio={IsAudio}, nx={Nx}, ny={Ny}, byteCount={ByteCount}",
+                attachment.Id,
+                sessionId,
+                embed.IsAudio,
+                embed.Nx,
+                embed.Ny,
+                embed.ByteCount);
+
+            return embed;
         }
-        else
+        catch (Exception ex)
         {
-            embed = clipModel.LoadMediaStandalone(attachment.FilePath);
+            _logger.LogWarning(
+                ex,
+                "Failed to load MTMD embed for attachment {AttachmentId} in session {SessionId}: kind={Kind}, contentType={ContentType}, file={FileName}, path={FilePath}",
+                attachment.Id,
+                sessionId,
+                attachment.Kind,
+                attachment.ContentType,
+                attachment.FileName,
+                attachment.FilePath);
+            throw;
         }
-
-        if (embed == null)
-            throw new Exception("Failed to prepare multimodal embedding.");
-
-        return embed;
     }
 
     private sealed record PreparedPrompt(string Prompt);

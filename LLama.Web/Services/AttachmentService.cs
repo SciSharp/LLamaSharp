@@ -14,12 +14,14 @@ public class AttachmentService : IAttachmentService
     private const int MaxExtractedCharacters = 12000;
     private const long MaxUploadSize = 512L * 1024 * 1024;
     private readonly IWebHostEnvironment _environment;
+    private readonly ILogger<AttachmentService> _logger;
     private readonly string _uploadsRoot;
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, AttachmentInfo>> _attachments = new();
 
-    public AttachmentService(IWebHostEnvironment environment)
+    public AttachmentService(IWebHostEnvironment environment, ILogger<AttachmentService> logger)
     {
         _environment = environment;
+        _logger = logger;
         var appDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         _uploadsRoot = Path.Combine(appDataRoot, "LLama.Web", "Uploads");
         Directory.CreateDirectory(_uploadsRoot);
@@ -68,6 +70,16 @@ public class AttachmentService : IAttachmentService
                 ExtractPdfText(info);
             if (info.Kind == AttachmentKind.Word)
                 ExtractWordText(info);
+
+            _logger.LogInformation(
+                "Saved form attachment {AttachmentId} for session {SessionId}: name={FileName}, contentType={ContentType}, size={SizeBytes}, kind={Kind}, path={FilePath}",
+                info.Id,
+                connectionId,
+                info.FileName,
+                info.ContentType,
+                info.SizeBytes,
+                info.Kind,
+                info.FilePath);
 
             storage[id] = info;
             result.Attachments.Add(info);
@@ -118,6 +130,16 @@ public class AttachmentService : IAttachmentService
                 ExtractPdfText(info);
             if (info.Kind == AttachmentKind.Word)
                 ExtractWordText(info);
+
+            _logger.LogInformation(
+                "Saved browser attachment {AttachmentId} for session {SessionId}: name={FileName}, contentType={ContentType}, size={SizeBytes}, kind={Kind}, path={FilePath}",
+                info.Id,
+                connectionId,
+                info.FileName,
+                info.ContentType,
+                info.SizeBytes,
+                info.Kind,
+                info.FilePath);
 
             storage[id] = info;
             result.Attachments.Add(info);
