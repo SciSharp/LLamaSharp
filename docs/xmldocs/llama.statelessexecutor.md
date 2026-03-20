@@ -32,22 +32,22 @@ public bool IsMultiModal { get; }
 ### **ClipModel**
 
 ```csharp
-public LLavaWeights ClipModel { get; }
+public MtmdWeights ClipModel { get; }
 ```
 
 #### Property Value
 
-[LLavaWeights](./llama.llavaweights.md)<br>
+[MtmdWeights](./llama.mtmdweights.md)<br>
 
-### **Images**
+### **Embeds**
 
 ```csharp
-public List<Byte[]> Images { get; }
+public List<SafeMtmdEmbed> Embeds { get; }
 ```
 
 #### Property Value
 
-[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;SafeMtmdEmbed&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ### **Context**
 

@@ -62,6 +62,7 @@ namespace LLama
                 LastTokens = _last_n_tokens.ToArray(),
                 MatchingSessionTokensCount = _n_matching_session_tokens,
                 PastTokensCount = _pastTokensCount,
+                KvTokenCount = _kvTokenCount,
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens.ToArray(),
                 LastTokensCapacity = _last_n_tokens.Capacity,
@@ -85,6 +86,7 @@ namespace LLama
                 _last_n_tokens = new FixedSizeQueue<LLamaToken>(state.LastTokensCapacity, state.LastTokens!);
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
+                _kvTokenCount = state.KvTokenCount == 0 ? state.PastTokensCount : state.KvTokenCount;
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens!.ToList();
             }
@@ -235,23 +237,7 @@ namespace LLama
                     tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS); // always keep the BOS token
                 }
 
-                EnsurePendingInputFitsContext(tokensToKeep);
-
-                if (!IsMultiModal)
-                {
-                    TryReuseMatchingPrefix();
-                }
-
-                var result = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
-                _pastTokensCount = result.Item3;
-
-                if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
-
-                if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
-                {
-                    _session_tokens.AddRange(_embeds);
-                    _n_session_consumed = _session_tokens.Count;
-                }
+                await DecodeQueuedEmbedsAsync(batch, tokensToKeep, cancellationToken);
             }
             else if (IsMultiModal && HasPendingMtmdMediaSegment())
             {
@@ -265,11 +251,10 @@ namespace LLama
                 {
                     tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS);
                 }
-                EnsurePendingInputFitsContext(tokensToKeep);
-                EvaluateNextMtmdMediaSegment(nameof(InteractiveExecutor));
+                EvaluatePendingMtmdMediaSegment(nameof(InteractiveExecutor), tokensToKeep);
             }
-            
-            _embeds.Clear();
+
+            ClearCurrentEmbeds();
 
             if (!HasPendingPromptInput() && !args.WaitForInput)
             {

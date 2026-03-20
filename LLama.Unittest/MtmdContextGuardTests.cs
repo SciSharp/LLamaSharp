@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using LLama.Common;
 using LLama.Exceptions;
@@ -12,83 +10,53 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace LLama.Unittest;
 
-public sealed class MtmdContextGuardTests : IDisposable
+[Collection("MtmdNoCi")]
+[Trait("Category", "NoCI")]
+public sealed class MtmdContextGuardTests
 {
-    private const string EnableEnvVar = "LLAMASHARP_RUN_MTMD_TESTS";
-    private const string SkipReason = "MTMD tests are opt-in. Set LLAMASHARP_RUN_MTMD_TESTS=1 to run them.";
+    private readonly MtmdNoCiFixture _fixture;
 
-    private readonly bool _isEnabled;
-    private readonly LLamaWeights? _weights;
-    private readonly ModelParams? _modelParams;
-
-    public MtmdContextGuardTests()
+    public MtmdContextGuardTests(MtmdNoCiFixture fixture)
     {
-        _isEnabled = string.Equals(Environment.GetEnvironmentVariable(EnableEnvVar), "1", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(Environment.GetEnvironmentVariable(EnableEnvVar), "true", StringComparison.OrdinalIgnoreCase);
-
-        if (!_isEnabled)
-            return;
-
-        NativeLogConfig.llama_log_set(static (_, _) => { });
-
-        _modelParams = new ModelParams(Constants.GenerativeModelPath2)
-        {
-            ContextSize = 128,
-            BatchSize = 8,
-            UBatchSize = 8,
-            VocabOnly = false,
-            GpuLayerCount = Constants.CIGpuLayerCount,
-        };
-        _weights = LLamaWeights.LoadFromFile(_modelParams);
+        _fixture = fixture;
     }
 
-    public void Dispose()
-    {
-        if (!_isEnabled)
-            return;
-
-        _weights.Dispose();
-        NativeLogConfig.llama_log_set((NativeLogConfig.LLamaLogCallback?)null);
-    }
-
-    [SkippableFact]
+    [Fact]
     public void InteractiveExecutor_LoadMtmdPromptSegments_PreservesOrderedPromptAndMediaBoundary()
     {
-        Skip.IfNot(_isEnabled, SkipReason);
+        using var context = _fixture.CreateContext();
+        using var chunks = _fixture.TokenizePromptWithMedia($"Before {_fixture.MediaMarker}");
+        var executor = new TrackingInteractiveExecutor(context, _fixture.Mtmd);
+        var fillerToken = _fixture.GetFillerToken(context);
 
-        using var context = _weights!.CreateContext(_modelParams!, NullLogger.Instance);
-        using var chunks = new SafeMtmdInputChunks(NativeApi.mtmd_test_create_input_chunks());
-        var executor = new TrackingInteractiveExecutor(context);
-        var fillerToken = (LLamaToken)99;
-
-        var (imageTokenCount, imagePositionCount) = GetSyntheticImageChunkMetadata(chunks);
+        var (imageTokenCount, imagePositionCount) = GetImageChunkMetadata(chunks);
         executor.LoadPendingMtmd(chunks, fillerToken);
 
-        Assert.Equal(
-            new[] { (LLamaToken)1, 2, 3, 4, 5 }.Concat(Enumerable.Repeat(fillerToken, imageTokenCount)),
-            executor.EmbedInputs);
-        Assert.Equal(5 + imagePositionCount, executor.PendingPositions);
+        Assert.Contains(fillerToken, executor.EmbedInputs);
+        Assert.Equal((int)chunks.CountPositions(), executor.PendingPositions);
+        Assert.Equal((int)chunks.CountTokens(), executor.PendingKvTokens);
 
         executor.QueuePromptText();
 
-        Assert.Equal(new[] { (LLamaToken)1, 2, 3, 4, 5 }, executor.PendingEmbeds);
+        Assert.NotEmpty(executor.PendingEmbeds);
+        var queuedTextCount = executor.PendingEmbeds.Count;
         Assert.True(executor.PendingMediaSegment);
 
         executor.ClearPendingEmbeds();
 
-        Assert.Equal(imagePositionCount, executor.PendingPositions);
+        Assert.Equal((int)chunks.CountPositions() - queuedTextCount, executor.PendingPositions);
+        Assert.Equal((int)chunks.CountTokens() - queuedTextCount, executor.PendingKvTokens);
     }
 
-    [SkippableFact]
+    [Fact]
     public void InteractiveExecutor_MtmdOverflowThrowsWithoutContextShift()
     {
-        Skip.IfNot(_isEnabled, SkipReason);
+        using var context = _fixture.CreateContext();
+        using var chunks = _fixture.TokenizePromptWithMedia($"{_fixture.MediaMarker} describe");
+        var executor = new TrackingInteractiveExecutor(context, _fixture.Mtmd);
+        var fillerToken = _fixture.GetFillerToken(context);
 
-        using var context = _weights!.CreateContext(_modelParams!, NullLogger.Instance);
-        using var chunks = new SafeMtmdInputChunks(NativeApi.mtmd_test_create_input_chunks());
-        var executor = new TrackingInteractiveExecutor(context);
-
-        executor.LoadPendingMtmd(chunks, fillerToken: 99, pastTokensCount: (int)context.ContextSize - 1, pendingEmbeds: [(LLamaToken)1]);
+        executor.LoadPendingMtmd(chunks, fillerToken, pastTokensCount: (int)context.ContextSize - 1, pendingEmbeds: [(LLamaToken)1]);
 
         Assert.True(executor.PendingPositions > 1);
 
@@ -97,16 +65,36 @@ public sealed class MtmdContextGuardTests : IDisposable
         Assert.Contains("Context shifting is not supported", ex.Message);
     }
 
-    [SkippableFact]
+    [Fact]
+    public void InteractiveExecutor_MtmdGuardUsesKvOccupancyInsteadOfPositions()
+    {
+        using var context = _fixture.CreateContext();
+        using var chunks = _fixture.TokenizePromptWithMedia($"Before {_fixture.MediaMarker}");
+        var executor = new TrackingInteractiveExecutor(context, _fixture.Mtmd);
+
+        executor.LoadPendingMtmd(chunks, _fixture.GetFillerToken(context));
+
+        var positionCompatiblePast = (int)context.ContextSize - executor.PendingPositions;
+        var kvOverflowPast = (int)context.ContextSize - executor.PendingKvTokens + 1;
+
+        Assert.True(positionCompatiblePast + executor.PendingPositions <= context.ContextSize);
+        Assert.True(kvOverflowPast + executor.PendingKvTokens > context.ContextSize);
+
+        executor.SetOccupiedCounts(positionCompatiblePast, kvOverflowPast);
+
+        var ex = Assert.Throws<RuntimeError>(() => executor.CheckContextGuard(new InferenceParams()));
+        Assert.Contains("Context shifting is not supported", ex.Message);
+    }
+
+    [Fact]
     public void InstructExecutor_MtmdOverflowThrowsWithoutContextShift()
     {
-        Skip.IfNot(_isEnabled, SkipReason);
+        using var context = _fixture.CreateContext();
+        using var chunks = _fixture.TokenizePromptWithMedia($"{_fixture.MediaMarker} describe");
+        var executor = new TrackingInstructExecutor(context, _fixture.Mtmd);
+        var fillerToken = _fixture.GetFillerToken(context);
 
-        using var context = _weights!.CreateContext(_modelParams!, NullLogger.Instance);
-        using var chunks = new SafeMtmdInputChunks(NativeApi.mtmd_test_create_input_chunks());
-        var executor = new TrackingInstructExecutor(context);
-
-        executor.LoadPendingMtmd(chunks, fillerToken: 99, pastTokensCount: (int)context.ContextSize - 1, pendingEmbeds: [(LLamaToken)1]);
+        executor.LoadPendingMtmd(chunks, fillerToken, pastTokensCount: (int)context.ContextSize - 1, pendingEmbeds: [(LLamaToken)1]);
 
         Assert.True(executor.PendingPositions > 1);
 
@@ -115,13 +103,11 @@ public sealed class MtmdContextGuardTests : IDisposable
         Assert.Contains("Context shifting is not supported", ex.Message);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task InteractiveExecutor_MultimodalSessionAndStateApisAreRejected()
     {
-        Skip.IfNot(_isEnabled, SkipReason);
-
-        using var context = _weights!.CreateContext(_modelParams!, NullLogger.Instance);
-        var executor = new TrackingInteractiveExecutor(context);
+        using var context = _fixture.CreateContext();
+        var executor = new TrackingInteractiveExecutor(context, _fixture.Mtmd);
         var statePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
 
         Assert.Throws<NotSupportedException>(() => executor.WithSessionFile(statePath));
@@ -131,13 +117,11 @@ public sealed class MtmdContextGuardTests : IDisposable
         await Assert.ThrowsAsync<NotSupportedException>(() => executor.LoadState(statePath));
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task InstructExecutor_MultimodalSessionAndStateApisAreRejected()
     {
-        Skip.IfNot(_isEnabled, SkipReason);
-
-        using var context = _weights!.CreateContext(_modelParams!, NullLogger.Instance);
-        var executor = new TrackingInstructExecutor(context);
+        using var context = _fixture.CreateContext();
+        var executor = new TrackingInstructExecutor(context, _fixture.Mtmd);
         var statePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
 
         Assert.Throws<NotSupportedException>(() => executor.WithSessionFile(statePath));
@@ -147,13 +131,11 @@ public sealed class MtmdContextGuardTests : IDisposable
         await Assert.ThrowsAsync<NotSupportedException>(() => executor.LoadState(statePath));
     }
 
-    [SkippableFact]
+    [Fact]
     public void ChatSession_MultimodalSessionPersistenceApisAreRejected()
     {
-        Skip.IfNot(_isEnabled, SkipReason);
-
-        using var context = _weights!.CreateContext(_modelParams!, NullLogger.Instance);
-        var executor = new TrackingInteractiveExecutor(context);
+        using var context = _fixture.CreateContext();
+        var executor = new TrackingInteractiveExecutor(context, _fixture.Mtmd);
         var chatSession = new ChatSession(executor);
         var sessionPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         var state = new SessionState(
@@ -170,7 +152,7 @@ public sealed class MtmdContextGuardTests : IDisposable
         Assert.Throws<NotSupportedException>(() => chatSession.LoadSession(sessionPath));
     }
 
-    private static (int ImageTokenCount, int ImagePositionCount) GetSyntheticImageChunkMetadata(SafeMtmdInputChunks chunks)
+    private static (int ImageTokenCount, int ImagePositionCount) GetImageChunkMetadata(SafeMtmdInputChunks chunks)
     {
         foreach (var chunk in chunks.Enumerate())
         {
@@ -182,30 +164,16 @@ public sealed class MtmdContextGuardTests : IDisposable
         throw new InvalidOperationException("Synthetic MTMD test chunks do not contain an image segment.");
     }
 
-    private static MtmdWeights CreateFakeMtmdWeights()
-        => (MtmdWeights)RuntimeHelpers.GetUninitializedObject(typeof(MtmdWeights));
-
-    private static class TrackingMultimodalExecutorBase
-    {
-        private static readonly FieldInfo ClipModelField = typeof(StatefulExecutorBase)
-            .GetField("<ClipModel>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new InvalidOperationException("Unable to find ClipModel backing field.");
-
-        public static void MarkAsMultimodal(StatefulExecutorBase executor)
-        {
-            ClipModelField.SetValue(executor, CreateFakeMtmdWeights());
-        }
-    }
-
     private sealed class TrackingInteractiveExecutor : InteractiveExecutor
     {
-        public TrackingInteractiveExecutor(LLamaContext context)
-            : base(context, NullLogger.Instance)
+        public TrackingInteractiveExecutor(LLamaContext context, MtmdWeights clipModel)
+            : base(context, clipModel, NullLogger.Instance)
         {
-            TrackingMultimodalExecutorBase.MarkAsMultimodal(this);
         }
 
         public int PendingPositions => GetPendingInputPositionCount();
+
+        public int PendingKvTokens => GetPendingInputKvTokenCount();
 
         public IReadOnlyList<LLamaToken> EmbedInputs => _embed_inps;
 
@@ -217,7 +185,14 @@ public sealed class MtmdContextGuardTests : IDisposable
         {
             LoadMtmdPromptSegments(chunks, fillerToken, replaceExisting: true);
             _pastTokensCount = pastTokensCount;
+            _kvTokenCount = pastTokensCount;
             _embeds = pendingEmbeds?.ToList() ?? [];
+        }
+
+        public void SetOccupiedCounts(int pastTokensCount, int kvTokenCount)
+        {
+            _pastTokensCount = pastTokensCount;
+            _kvTokenCount = kvTokenCount;
         }
 
         public void QueuePromptText()
@@ -244,19 +219,27 @@ public sealed class MtmdContextGuardTests : IDisposable
 
     private sealed class TrackingInstructExecutor : InstructExecutor
     {
-        public TrackingInstructExecutor(LLamaContext context)
-            : base(context, logger: NullLogger.Instance)
+        public TrackingInstructExecutor(LLamaContext context, MtmdWeights clipModel)
+            : base(context, clipModel, logger: NullLogger.Instance)
         {
-            TrackingMultimodalExecutorBase.MarkAsMultimodal(this);
         }
 
         public int PendingPositions => GetPendingInputPositionCount();
+
+        public int PendingKvTokens => GetPendingInputKvTokenCount();
 
         public void LoadPendingMtmd(SafeMtmdInputChunks chunks, LLamaToken fillerToken, int pastTokensCount = 0, IReadOnlyList<LLamaToken>? pendingEmbeds = null)
         {
             LoadMtmdPromptSegments(chunks, fillerToken, replaceExisting: true);
             _pastTokensCount = pastTokensCount;
+            _kvTokenCount = pastTokensCount;
             _embeds = pendingEmbeds?.ToList() ?? [];
+        }
+
+        public void SetOccupiedCounts(int pastTokensCount, int kvTokenCount)
+        {
+            _pastTokensCount = pastTokensCount;
+            _kvTokenCount = kvTokenCount;
         }
 
         public void CheckContextGuard()

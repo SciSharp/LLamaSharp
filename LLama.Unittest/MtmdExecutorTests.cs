@@ -20,11 +20,9 @@ public class MtmdExecutorTests
         _fixture = fixture;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task InteractiveExecutor_EvaluateChunks_DoesNotRetokenize()
     {
-        Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
         using var context = _fixture.CreateContext();
         var executor = new InteractiveExecutor(context, _fixture.Mtmd, NullLogger.Instance);
         var marker = _fixture.MediaMarker;
@@ -42,11 +40,9 @@ public class MtmdExecutorTests
         Assert.Equal(0, diagnostics.PendingEmbedCount);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task InstructExecutor_MtmdPromptAdvancesPastTokensOnce()
     {
-        Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
         using var context = _fixture.CreateContext();
         var executor = new InstructExecutor(context, _fixture.Mtmd, logger: NullLogger.Instance);
         executor.Embeds.Add(_fixture.Mtmd.LoadMedia(Constants.MtmdImage));
@@ -62,17 +58,15 @@ public class MtmdExecutorTests
         Assert.Equal(0, diagnostics.PendingEmbedCount);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task InteractiveExecutor_PreprocessMtmd_PreservesInterleavedPromptOrder()
     {
-        Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
         using var context = _fixture.CreateContext();
         var executor = new InspectableInteractiveExecutor(context, _fixture.Mtmd);
         var marker = _fixture.MediaMarker;
         var prompt = $"Before {marker} after.";
-        using var expectedChunks = TokenizePromptWithMedia(prompt);
-        var fillerToken = GetFillerToken(context, marker);
+        using var expectedChunks = _fixture.TokenizePromptWithMedia(prompt);
+        var fillerToken = _fixture.GetFillerToken(context);
         var expectedPromptTokens = BuildLogicalPromptTokens(expectedChunks, fillerToken);
         var expectedLeadingTextTokens = GetLeadingTextTokens(expectedChunks);
 
@@ -86,26 +80,6 @@ public class MtmdExecutorTests
 
         Assert.Equal(expectedLeadingTextTokens, executor.PendingEmbeds);
         Assert.True(executor.PendingMediaSegment);
-    }
-
-    private SafeMtmdInputChunks TokenizePromptWithMedia(string prompt)
-    {
-        _fixture.Mtmd.ClearMedia();
-        using var embed = _fixture.Mtmd.LoadMedia(Constants.MtmdImage);
-
-        var status = _fixture.Mtmd.Tokenize(prompt, addSpecial: true, parseSpecial: true, out var chunks);
-        Assert.Equal(0, status);
-        Assert.NotNull(chunks);
-
-        return chunks!;
-    }
-
-    private static LLamaToken GetFillerToken(LLamaContext context, string marker)
-    {
-        var markerTokens = context.Tokenize(marker, false, true);
-        return markerTokens.Length > 0
-            ? markerTokens[^1]
-            : context.Vocab.EOS ?? default;
     }
 
     private static IReadOnlyList<LLamaToken> BuildLogicalPromptTokens(SafeMtmdInputChunks chunks, LLamaToken fillerToken)

@@ -78,6 +78,7 @@ namespace LLama
                 InputSuffixTokens = _inp_sfx,
                 MatchingSessionTokensCount = _n_matching_session_tokens,
                 PastTokensCount = _pastTokensCount,
+                KvTokenCount = _kvTokenCount,
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens.ToArray(),
                 LastTokensCapacity = _last_n_tokens.Capacity,
@@ -102,6 +103,7 @@ namespace LLama
                 _inp_sfx = state.InputSuffixTokens!;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
+                _kvTokenCount = state.KvTokenCount == 0 ? state.PastTokensCount : state.KvTokenCount;
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens!.ToList();
             }
@@ -242,33 +244,15 @@ namespace LLama
                 // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
                 // Instruct always uses input token size.
                 var tokensToKeep = _embed_inps.Count;
-                EnsurePendingInputFitsContext(tokensToKeep);
-
-                if (!IsMultiModal)
-                    TryReuseMatchingPrefix();
-
-                var (result, _, pastTokensCount) = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
-                _pastTokensCount = pastTokensCount;
-
-                if (result != DecodeResult.Ok)
-                {
-                    throw new LLamaDecodeError(result);
-                }
-
-                if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
-                {
-                    _session_tokens.AddRange(_embeds);
-                    _n_session_consumed = _session_tokens.Count;
-                }
+                await DecodeQueuedEmbedsAsync(batch, tokensToKeep, cancellationToken);
             }
             else if (IsMultiModal && HasPendingMtmdMediaSegment())
             {
                 _is_prompt_run = false;
-                EnsurePendingInputFitsContext(_embed_inps.Count);
-                EvaluateNextMtmdMediaSegment(nameof(InstructExecutor));
+                EvaluatePendingMtmdMediaSegment(nameof(InstructExecutor), _embed_inps.Count);
             }
 
-            _embeds.Clear();
+            ClearCurrentEmbeds();
 
             if (!HasPendingPromptInput() && !args.WaitForInput)
             {

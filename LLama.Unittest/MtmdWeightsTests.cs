@@ -51,11 +51,9 @@ namespace LLama.Unittest
             Assert.True(nPast > 0);
         }
 
-        [SkippableFact, Trait("Category", "NoCI")]
+        [Fact, Trait("Category", "NoCI")]
         public void BasicPropertyChecks()
         {
-            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
             Assert.False(_fixture.Mtmd.SupportsAudio);
             Assert.True(_fixture.Mtmd.SupportsVision);
             Assert.False(_fixture.Mtmd.UsesMRope);
@@ -63,30 +61,24 @@ namespace LLama.Unittest
             Assert.Equal(-1, _fixture.Mtmd.AudioBitrate);
         }
 
-        [SkippableFact, Trait("Category", "NoCI")]
+        [Fact, Trait("Category", "NoCI")]
         public void EmbedImageAsFileName()
         {
-            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
             using var chunks = TokenizeWithEmbed(() => _fixture.Mtmd.LoadMedia(Constants.MtmdImage));
             AssertChunksEvaluate(chunks);
         }
 
-        [SkippableFact, Trait("Category", "NoCI")]
+        [Fact, Trait("Category", "NoCI")]
         public void EmbedImageAsBinary()
         {
-            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
             var imageBytes = File.ReadAllBytes(Constants.MtmdImage);
             using var chunks = TokenizeWithEmbed(() => _fixture.Mtmd.LoadMedia(imageBytes));
             AssertChunksEvaluate(chunks);
         }
 
-        [SkippableFact, Trait("Category", "NoCI")]
+        [Fact, Trait("Category", "NoCI")]
         public void TokenizeProvidesChunkMetadata()
         {
-            Skip.IfNot(_fixture.IsEnabled, MtmdNoCiFixture.SkipReason);
-
             using var chunks = TokenizeWithEmbed(() => _fixture.Mtmd.LoadMedia(Constants.MtmdImage));
 
             Assert.True(chunks.Size > 0);

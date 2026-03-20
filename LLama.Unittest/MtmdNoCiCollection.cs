@@ -13,17 +13,8 @@ public sealed class MtmdNoCiCollection : ICollectionFixture<MtmdNoCiFixture>
 
 public sealed class MtmdNoCiFixture : IDisposable
 {
-    public const string EnableEnvVar = "LLAMASHARP_RUN_NOCI_MTMD";
-    public const string SkipReason = "MTMD NoCI tests are opt-in. Set LLAMASHARP_RUN_NOCI_MTMD=1 to run them.";
-
     public MtmdNoCiFixture()
     {
-        IsEnabled = string.Equals(Environment.GetEnvironmentVariable(EnableEnvVar), "1", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(Environment.GetEnvironmentVariable(EnableEnvVar), "true", StringComparison.OrdinalIgnoreCase);
-
-        if (!IsEnabled)
-            return;
-
         NativeLogConfig.llama_log_set(static (_, _) => { });
 
         ModelParams = new ModelParams(Constants.MtmdModelPath)
@@ -42,8 +33,6 @@ public sealed class MtmdNoCiFixture : IDisposable
         MediaMarker = MtmdParams.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>";
     }
 
-    public bool IsEnabled { get; }
-
     public ModelParams ModelParams { get; } = null!;
 
     public LLamaWeights Weights { get; } = null!;
@@ -55,15 +44,31 @@ public sealed class MtmdNoCiFixture : IDisposable
     public string MediaMarker { get; } = string.Empty;
 
     public LLamaContext CreateContext()
-        => IsEnabled
-            ? Weights.CreateContext(ModelParams, NullLogger.Instance)
-            : throw new InvalidOperationException(SkipReason);
+        => Weights.CreateContext(ModelParams, NullLogger.Instance);
+
+    public SafeMtmdInputChunks TokenizePromptWithMedia(string prompt)
+        => TokenizePromptWithMedia(prompt, Constants.MtmdImage);
+
+    public SafeMtmdInputChunks TokenizePromptWithMedia(string prompt, string mediaPath)
+    {
+        using var embed = Mtmd.LoadMediaStandalone(mediaPath);
+        var embeds = new[] { embed };
+        var status = Mtmd.Tokenize(prompt, addSpecial: true, parseSpecial: true, embeds, out var chunks);
+        Assert.Equal(0, status);
+        Assert.NotNull(chunks);
+        return chunks!;
+    }
+
+    public LLamaToken GetFillerToken(LLamaContext context)
+    {
+        var markerTokens = context.Tokenize(MediaMarker, false, true);
+        return markerTokens.Length > 0
+            ? markerTokens[^1]
+            : context.Vocab.EOS ?? default;
+    }
 
     public void Dispose()
     {
-        if (!IsEnabled)
-            return;
-
         Mtmd.Dispose();
         Weights.Dispose();
         NativeLogConfig.llama_log_set((NativeLogConfig.LLamaLogCallback?)null);

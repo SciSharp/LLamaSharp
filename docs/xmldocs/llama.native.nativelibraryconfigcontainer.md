@@ -35,7 +35,7 @@ Load a specified native library as backend for LLamaSharp.
  When this method is called, all the other configurations will be ignored.
 
 ```csharp
-public NativeLibraryConfigContainer WithLibrary(string llamaPath, string llavaPath)
+public NativeLibraryConfigContainer WithLibrary(string llamaPath, string mtmdPath)
 ```
 
 #### Parameters
@@ -43,8 +43,8 @@ public NativeLibraryConfigContainer WithLibrary(string llamaPath, string llavaPa
 `llamaPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 The full path to the llama library to load.
 
-`llavaPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-The full path to the llava library to load.
+`mtmdPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+The full path to the mtmd library to load.
 
 #### Returns
 
@@ -99,7 +99,7 @@ Thrown if `LibraryHasLoaded` is true.
 
 ### **WithAvx(AvxLevel)**
 
-Configure the prefferred avx support level of the backend.
+Configure the preferred AVX support level of the backend.
 
 ```csharp
 public NativeLibraryConfigContainer WithAvx(AvxLevel level)
@@ -263,14 +263,16 @@ Try to load the native library with the current configurations,
  You can still modify the configuration after this calling but only before any call from [NativeApi](./llama.native.nativeapi.md).
 
 ```csharp
-public bool DryRun(INativeLibrary& loadedLLamaNativeLibrary, INativeLibrary& loadedLLavaNativeLibrary)
+public bool DryRun(INativeLibrary& loadedLLamaNativeLibrary, INativeLibrary& loadedMtmdNativeLibrary)
 ```
 
 #### Parameters
 
 `loadedLLamaNativeLibrary` [INativeLibrary&](./llama.abstractions.inativelibrary&.md)<br>
+The loaded llama native library descriptor, or null when loading failed.
 
-`loadedLLavaNativeLibrary` [INativeLibrary&](./llama.abstractions.inativelibrary&.md)<br>
+`loadedMtmdNativeLibrary` [INativeLibrary&](./llama.abstractions.inativelibrary&.md)<br>
+The loaded mtmd native library descriptor, or null when loading failed.
 
 #### Returns
 

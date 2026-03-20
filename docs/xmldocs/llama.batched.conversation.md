@@ -195,6 +195,40 @@ Thrown if this conversation was not prompted before the previous call to infer
 [CannotSampleRequiresInferenceException](./llama.batched.cannotsamplerequiresinferenceexception.md)<br>
 Thrown if Infer() must be called on the executor
 
+### **Prompt(String, Boolean, Boolean)**
+
+```csharp
+public void Prompt(string promptText, bool addBos, bool special)
+```
+
+#### Parameters
+
+`promptText` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`addBos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Prompt(String, ReadOnlySpan&lt;SafeMtmdEmbed&gt;, Boolean)**
+
+Prompt this conversation with explicit multimodal embeddings.
+ The caller retains ownership of `embeds`.
+
+```csharp
+public void Prompt(string promptText, ReadOnlySpan<SafeMtmdEmbed> embeds, bool addBos)
+```
+
+#### Parameters
+
+`promptText` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Prompt text for the model.
+
+`embeds` [ReadOnlySpan&lt;SafeMtmdEmbed&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+Media embeddings to include in the multimodal prompt.
+
+`addBos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Whether to add the BOS token.
+
 ### **Prompt(List&lt;LLamaToken&gt;, Boolean)**
 
 Add tokens to this conversation
@@ -254,18 +288,6 @@ public void Prompt(LLamaToken token)
 [ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 [AlreadyPromptedConversationException](./llama.batched.alreadypromptedconversationexception.md)<br>
-
-### **Prompt(SafeLlavaImageEmbedHandle)**
-
-Prompt this conversation with an image embedding
-
-```csharp
-public void Prompt(SafeLlavaImageEmbedHandle embedding)
-```
-
-#### Parameters
-
-`embedding` [SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
 
 ### **Prompt(ReadOnlySpan&lt;Single&gt;)**
 

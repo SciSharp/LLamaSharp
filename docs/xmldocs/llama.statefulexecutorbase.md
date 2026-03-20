@@ -28,10 +28,20 @@ protected ILogger _logger;
 
 ### **_pastTokensCount**
 
-The tokens that were already processed by the model.
+The positional cursor that has already been processed by the model.
 
 ```csharp
 protected int _pastTokensCount;
+```
+
+### **_kvTokenCount**
+
+Number of KV slots currently occupied by the active sequence.
+ For MTMD prompts this can diverge from  because media chunks may
+ consume a different number of decoded tokens than logical positions.
+
+```csharp
+protected int _kvTokenCount;
 ```
 
 ### **_consumedTokensCount**
@@ -44,7 +54,7 @@ protected int _consumedTokensCount;
 
 ### **_n_session_consumed**
 
-
+Number of tokens consumed from the session cache during the current run.
 
 ```csharp
 protected int _n_session_consumed;
@@ -52,7 +62,7 @@ protected int _n_session_consumed;
 
 ### **_n_matching_session_tokens**
 
-
+Number of prompt tokens that match the loaded session cache prefix.
 
 ```csharp
 protected int _n_matching_session_tokens;
@@ -84,7 +94,7 @@ protected List<LLamaToken> _embed_inps;
 
 ### **_session_tokens**
 
-
+Tokens recovered from the session file and reused to warm up the KV cache.
 
 ```csharp
 protected List<LLamaToken> _session_tokens;
@@ -112,6 +122,18 @@ public LLamaContext Context { get; }
 
 [LLamaContext](./llama.llamacontext.md)<br>
 
+### **AntipromptProcessor**
+
+Tracks anti-prompts across streamed output.
+
+```csharp
+protected AntipromptProcessor AntipromptProcessor { get; }
+```
+
+#### Property Value
+
+[AntipromptProcessor](./llama.antipromptprocessor.md)<br>
+
 ### **IsMultiModal**
 
 ```csharp
@@ -125,28 +147,28 @@ public bool IsMultiModal { get; }
 ### **ClipModel**
 
 ```csharp
-public LLavaWeights ClipModel { get; }
+public MtmdWeights ClipModel { get; }
 ```
 
 #### Property Value
 
-[LLavaWeights](./llama.llavaweights.md)<br>
+[MtmdWeights](./llama.mtmdweights.md)<br>
 
-### **Images**
+### **Embeds**
 
 ```csharp
-public List<Byte[]> Images { get; }
+public List<SafeMtmdEmbed> Embeds { get; }
 ```
 
 #### Property Value
 
-[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;SafeMtmdEmbed&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ## Constructors
 
 ### **StatefulExecutorBase(LLamaContext, ILogger)**
 
-
+Initialize a stateful executor bound to a specific context.
 
 ```csharp
 protected StatefulExecutorBase(LLamaContext context, ILogger logger)
@@ -155,30 +177,35 @@ protected StatefulExecutorBase(LLamaContext context, ILogger logger)
 #### Parameters
 
 `context` [LLamaContext](./llama.llamacontext.md)<br>
+LLama context used for all native interactions.
 
 `logger` ILogger<br>
+Optional logger for diagnostic output.
 
-### **StatefulExecutorBase(LLamaContext, LLavaWeights, ILogger)**
+### **StatefulExecutorBase(LLamaContext, MtmdWeights, ILogger)**
 
-
+Initialize a multimodal executor with the supplied MTMD weights.
 
 ```csharp
-public StatefulExecutorBase(LLamaContext context, LLavaWeights lLavaWeights, ILogger logger)
+public StatefulExecutorBase(LLamaContext context, MtmdWeights mtmdWeights, ILogger logger)
 ```
 
 #### Parameters
 
 `context` [LLamaContext](./llama.llamacontext.md)<br>
+LLama context used for all native interactions.
 
-`lLavaWeights` [LLavaWeights](./llama.llavaweights.md)<br>
+`mtmdWeights` [MtmdWeights](./llama.mtmdweights.md)<br>
+Multimodal weights to associate with this executor.
 
 `logger` ILogger<br>
+Optional logger for diagnostic output.
 
 ## Methods
 
 ### **WithSessionFile(String)**
 
-This API is currently not verified.
+Attach a session cache file so the executor can reuse previous KV state if compatible.
 
 ```csharp
 public StatefulExecutorBase WithSessionFile(string filename)
@@ -187,10 +214,12 @@ public StatefulExecutorBase WithSessionFile(string filename)
 #### Parameters
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Path to the llama.cpp session file.
 
 #### Returns
 
 [StatefulExecutorBase](./llama.statefulexecutorbase.md)<br>
+The current executor instance for fluent configuration.
 
 #### Exceptions
 
@@ -200,7 +229,7 @@ public StatefulExecutorBase WithSessionFile(string filename)
 
 ### **SaveSessionFile(String)**
 
-This API has not been verified currently.
+Persist the current session cache to disk.
 
 ```csharp
 public void SaveSessionFile(string filename)
@@ -209,6 +238,7 @@ public void SaveSessionFile(string filename)
 #### Parameters
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Destination path for the llama.cpp session file.
 
 ### **HandleRunOutOfContext(Int32)**
 
@@ -222,36 +252,147 @@ protected void HandleRunOutOfContext(int tokensToKeep)
 
 `tokensToKeep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
+### **GetPendingInputPositionCount()**
+
+Get the number of context positions required by the pending input.
+
+```csharp
+protected int GetPendingInputPositionCount()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **GetPendingInputKvTokenCount()**
+
+Get the number of KV slots required by the pending input.
+ For multimodal prompts this counts decoded tokens rather than logical positions.
+
+```csharp
+protected int GetPendingInputKvTokenCount()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **GetOccupiedKvTokenCount()**
+
+Get the number of KV slots that are already occupied by the active sequence.
+
+```csharp
+protected int GetOccupiedKvTokenCount()
+```
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **EnsurePendingInputFitsContext(Int32)**
+
+Shift the context window when the pending input would overflow the available KV cache.
+
+```csharp
+protected void EnsurePendingInputFitsContext(int tokensToKeep)
+```
+
+#### Parameters
+
+`tokensToKeep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **DecodeQueuedEmbedsAsync(LLamaBatch, Int32, CancellationToken)**
+
+Decode the currently queued token batch and update the shared executor bookkeeping.
+
+```csharp
+protected Task DecodeQueuedEmbedsAsync(LLamaBatch batch, int tokensToKeep, CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+`batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
+
+`tokensToKeep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
+#### Returns
+
+[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+
+### **EvaluatePendingMtmdMediaSegment(String, Int32)**
+
+Evaluate the next queued MTMD media segment after validating context availability.
+
+```csharp
+protected void EvaluatePendingMtmdMediaSegment(string executorName, int tokensToKeep)
+```
+
+#### Parameters
+
+`executorName` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`tokensToKeep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
 ### **TryReuseMatchingPrefix()**
 
-Try to reuse the matching prefix from the session file.
+Try to reuse the matching prompt prefix from the loaded session cache before evaluating new tokens.
 
 ```csharp
 protected void TryReuseMatchingPrefix()
 ```
 
-### **GetLoopCondition(InferStateArgs)**
+### **DisposeMtmdPromptSegments()**
 
-Decide whether to continue the loop.
+Dispose and clear any queued multimodal prompt segments.
 
 ```csharp
-protected abstract Task<bool> GetLoopCondition(InferStateArgs args)
+protected void DisposeMtmdPromptSegments()
+```
+
+### **DisposeEmbeds()**
+
+Dispose and clear any pending multimodal embeddings.
+
+```csharp
+protected void DisposeEmbeds()
+```
+
+### **GetMtmdMarker()**
+
+Retrieve the marker token used to signal media segments to the tokenizer.
+
+```csharp
+protected string GetMtmdMarker()
+```
+
+#### Returns
+
+[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **GetFillerToken(String)**
+
+Resolve the fallback token inserted when the tokenizer emits fewer tokens than positions.
+
+```csharp
+protected LLamaToken GetFillerToken(string marker)
 ```
 
 #### Parameters
 
-`args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+`marker` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
-[Task&lt;Boolean&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
-### **PreprocessInputs(String, InferStateArgs)**
+### **PreprocessMtmd(String, InferStateArgs, Boolean, Boolean)**
 
-Preprocess the inputs before the inference.
+Prepare multimodal inputs by invoking the MTMD tokenizer and aligning filler tokens.
 
 ```csharp
-protected abstract Task PreprocessInputs(string text, InferStateArgs args)
+protected Task PreprocessMtmd(string text, InferStateArgs args, bool addBos, bool replaceExisting)
 ```
 
 #### Parameters
@@ -260,57 +401,221 @@ protected abstract Task PreprocessInputs(string text, InferStateArgs args)
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
+`addBos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`replaceExisting` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **PostProcess(IInferenceParams, InferStateArgs)**
+### **LoadMtmdPromptSegments(SafeMtmdInputChunks, LLamaToken, Boolean)**
 
-Do some post processing after the inference.
+Build ordered MTMD prompt segments and logical placeholder tokens from the tokenized chunks.
 
 ```csharp
-protected abstract Task<ValueTuple<bool, IReadOnlyList<string>>> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+protected int LoadMtmdPromptSegments(SafeMtmdInputChunks chunks, LLamaToken fillerToken, bool replaceExisting)
+```
+
+#### Parameters
+
+`chunks` [SafeMtmdInputChunks](./llama.native.safemtmdinputchunks.md)<br>
+
+`fillerToken` [LLamaToken](./llama.native.llamatoken.md)<br>
+
+`replaceExisting` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+#### Returns
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **QueueNextMtmdPromptInput()**
+
+Queue the next multimodal text segment into  if available.
+
+```csharp
+protected void QueueNextMtmdPromptInput()
+```
+
+### **ClearQueuedMtmdPromptText()**
+
+Clear the marker that tracks prompt text currently staged in  for MTMD execution.
+
+```csharp
+protected void ClearQueuedMtmdPromptText()
+```
+
+### **ClearCurrentEmbeds()**
+
+Clear the currently staged decode buffer and any MTMD prompt-text marker associated with it.
+
+```csharp
+protected void ClearCurrentEmbeds()
+```
+
+### **EvaluateNextMtmdMediaSegment(String)**
+
+Evaluate the current multimodal media segment and advance the prompt cursor.
+
+```csharp
+protected void EvaluateNextMtmdMediaSegment(string executorName)
+```
+
+#### Parameters
+
+`executorName` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **OnTextDecodeCompleted(Int32, Int32)**
+
+Update counters after a successful text decode.
+
+```csharp
+protected void OnTextDecodeCompleted(int previousPastCount, int newPastCount)
+```
+
+#### Parameters
+
+`previousPastCount` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`newPastCount` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **HasPendingPromptInput()**
+
+Determine whether any prompt input is still pending evaluation.
+
+```csharp
+protected bool HasPendingPromptInput()
+```
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **HasPendingPromptQueue()**
+
+Determine whether any prompt content still remains to be queued/evaluated, excluding sampled output tokens.
+
+```csharp
+protected bool HasPendingPromptQueue()
+```
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **HasPendingMtmdMediaSegment()**
+
+Determine whether the next queued multimodal prompt segment is a media chunk.
+
+```csharp
+protected bool HasPendingMtmdMediaSegment()
+```
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **GetLoopCondition(InferStateArgs, CancellationToken)**
+
+Determine whether the inference loop should continue processing tokens.
+
+```csharp
+protected abstract Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+`args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
+#### Returns
+
+[Task&lt;Boolean&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+`true` to continue generating; otherwise `false`.
+
+### **PreprocessInputs(String, InferStateArgs, CancellationToken)**
+
+Prepare the executor for inference by tokenizing input and updating cached state.
+
+```csharp
+protected abstract Task PreprocessInputs(string text, InferStateArgs args, CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Prompt text to process.
+
+`args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
+#### Returns
+
+[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+
+### **PostProcess(IInferenceParams, InferStateArgs, CancellationToken)**
+
+Perform any post-processing on the generated tokens.
+
+```csharp
+protected abstract Task<ValueTuple<bool, IReadOnlyList<string>>> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+Parameters controlling sampling.
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
 [Task&lt;ValueTuple&lt;Boolean, IReadOnlyList&lt;String&gt;&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+A tuple indicating whether generation should stop and any extra outputs to emit.
 
-### **InferInternal(IInferenceParams, InferStateArgs)**
+### **InferInternal(IInferenceParams, InferStateArgs, CancellationToken)**
 
-The core inference logic.
+Core inference loop that advances the model by one step.
 
 ```csharp
-protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+Parameters controlling sampling.
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **SaveState(String)**
+### **SaveState(String, CancellationToken)**
 
-Save the current state to a file.
+Save the executor state to a serialized snapshot file.
 
 ```csharp
-public abstract Task SaveState(string filename)
+public abstract Task SaveState(string filename, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Destination file for the serialized state.
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
@@ -318,7 +623,7 @@ public abstract Task SaveState(string filename)
 
 ### **GetStateData()**
 
-Get the current state data.
+Capture the executor state in a serializable object.
 
 ```csharp
 public abstract ExecutorBaseState GetStateData()
@@ -327,34 +632,41 @@ public abstract ExecutorBaseState GetStateData()
 #### Returns
 
 [ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)<br>
+State snapshot suitable for persistence.
 
-### **LoadState(ExecutorBaseState)**
+### **LoadState(ExecutorBaseState, CancellationToken)**
 
-Load the state from data.
+Restore executor state from a previously captured snapshot.
 
 ```csharp
-public abstract Task LoadState(ExecutorBaseState data)
+public abstract Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `data` [ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)<br>
+State snapshot created by [StatefulExecutorBase.GetStateData()](./llama.statefulexecutorbase.md#getstatedata).
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **LoadState(String)**
+### **LoadState(String, CancellationToken)**
 
-Load the state from a file.
+Restore executor state from a serialized snapshot file.
 
 ```csharp
-public abstract Task LoadState(string filename)
+public abstract Task LoadState(string filename, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Path to the snapshot produced by [StatefulExecutorBase.SaveState(String, CancellationToken)](./llama.statefulexecutorbase.md#savestatestring-cancellationtoken).
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
@@ -362,7 +674,7 @@ public abstract Task LoadState(string filename)
 
 ### **InferAsync(String, IInferenceParams, CancellationToken)**
 
-Execute the inference.
+Execute an asynchronous inference session.
 
 ```csharp
 public IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferenceParams, CancellationToken cancellationToken)
@@ -371,29 +683,34 @@ public IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferen
 #### Parameters
 
 `text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-The prompt. If null, generation will continue where it left off previously.
+Optional prompt; when null generation resumes from prior state.
 
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+Sampling parameters to apply; defaults are used when null.
 
 `cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+Cancellation token for cooperative cancellation.
 
 #### Returns
 
 [IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+Stream of decoded text segments as they become available.
 
-### **PrefillPromptAsync(String)**
+### **PrefillPromptAsync(String, CancellationToken)**
 
 Asynchronously runs a prompt through the model to compute KV cache without generating any new tokens.
  It could reduce the latency of the first time response if the first input from the user is not immediate.
 
 ```csharp
-public Task PrefillPromptAsync(string prompt)
+public Task PrefillPromptAsync(string prompt, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 Prompt to process
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 

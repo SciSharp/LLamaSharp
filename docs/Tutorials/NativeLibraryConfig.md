@@ -24,11 +24,11 @@ All you need to do is adding the following code to the very beginning of your co
 NativeLibraryConfig.All.WithLibrary("<Your native library path>");
 ```
 
-If you want to configure the loading for LLama library or llava library respectively, please call the following APIs.
+If you want to configure the loading for the LLama library or the MTMD library respectively, please call the following APIs.
 
 ```cs
 NativeLibraryConfig.LLama.WithLibrary("<Your llama native library path>");
-NativeLibraryConfig.LLava.WithLibrary("<Your llava native library path>");
+NativeLibraryConfig.Mtmd.WithLibrary("<Your mtmd native library path>");
 ```
 
 ### Automatically select one from multiple native library files

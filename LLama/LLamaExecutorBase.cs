@@ -24,9 +24,15 @@ namespace LLama
         /// </summary>
         protected ILogger? _logger;
         /// <summary>
-        /// The tokens that were already processed by the model.
+        /// The positional cursor that has already been processed by the model.
         /// </summary>
         protected int _pastTokensCount; // n_past
+        /// <summary>
+        /// Number of KV slots currently occupied by the active sequence.
+        /// For MTMD prompts this can diverge from <see cref="_pastTokensCount"/> because media chunks may
+        /// consume a different number of decoded tokens than logical positions.
+        /// </summary>
+        protected int _kvTokenCount;
         /// <summary>
         /// The tokens that were consumed by the model during the current inference.
         /// </summary>
@@ -88,6 +94,7 @@ namespace LLama
 
         private string? _mtmdMarker;
         private readonly Queue<MtmdPromptSegment> _mtmdPromptSegments = new();
+        private bool _hasQueuedMtmdPromptText;
 
         private readonly StreamingTokenDecoder _decoder;
 
@@ -102,6 +109,7 @@ namespace LLama
             _logger = logger;
             Context = context;
             _pastTokensCount = 0;
+            _kvTokenCount = 0;
             _consumedTokensCount = 0;
             _n_session_consumed = 0;
             _last_n_tokens = new FixedSizeQueue<LLamaToken>((int)Context.ContextSize);
@@ -216,6 +224,7 @@ namespace LLama
             Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
 
             _pastTokensCount -= n_discard;
+            _kvTokenCount = _pastTokensCount;
             // stop saving session if we run out of context
             _pathSession = string.Empty;
         }
@@ -238,12 +247,72 @@ namespace LLama
         }
 
         /// <summary>
+        /// Get the number of KV slots required by the pending input.
+        /// For multimodal prompts this counts decoded tokens rather than logical positions.
+        /// </summary>
+        protected int GetPendingInputKvTokenCount()
+        {
+            if (IsMultiModal)
+            {
+                var pending = _embeds.Count;
+                foreach (var segment in _mtmdPromptSegments)
+                    pending += segment.RemainingKvTokenCount;
+
+                return pending;
+            }
+
+            return _embeds.Count;
+        }
+
+        /// <summary>
+        /// Get the number of KV slots that are already occupied by the active sequence.
+        /// </summary>
+        protected int GetOccupiedKvTokenCount()
+        {
+            return _kvTokenCount;
+        }
+
+        /// <summary>
         /// Shift the context window when the pending input would overflow the available KV cache.
         /// </summary>
         protected void EnsurePendingInputFitsContext(int tokensToKeep)
         {
-            if (_pastTokensCount + GetPendingInputPositionCount() > Context.ContextSize)
+            if (GetOccupiedKvTokenCount() + GetPendingInputKvTokenCount() > Context.ContextSize)
                 HandleRunOutOfContext(tokensToKeep);
+        }
+
+        /// <summary>
+        /// Decode the currently queued token batch and update the shared executor bookkeeping.
+        /// </summary>
+        protected async Task DecodeQueuedEmbedsAsync(LLamaBatch batch, int tokensToKeep, CancellationToken cancellationToken = default)
+        {
+            EnsurePendingInputFitsContext(tokensToKeep);
+
+            if (!IsMultiModal)
+                TryReuseMatchingPrefix();
+
+            var previousPastCount = _pastTokensCount;
+            var (result, _, pastTokensCount) = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount, cancellationToken);
+
+            if (result != DecodeResult.Ok)
+                throw new LLamaDecodeError(result);
+
+            OnTextDecodeCompleted(previousPastCount, pastTokensCount);
+
+            if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
+            {
+                _session_tokens.AddRange(_embeds);
+                _n_session_consumed = _session_tokens.Count;
+            }
+        }
+
+        /// <summary>
+        /// Evaluate the next queued MTMD media segment after validating context availability.
+        /// </summary>
+        protected void EvaluatePendingMtmdMediaSegment(string executorName, int tokensToKeep)
+        {
+            EnsurePendingInputFitsContext(tokensToKeep);
+            EvaluateNextMtmdMediaSegment(executorName);
         }
 
         /// <summary>
@@ -267,6 +336,7 @@ namespace LLama
                     }
 
                     _pastTokensCount++;
+                    _kvTokenCount++;
                     _n_session_consumed++;
 
                     if (_n_session_consumed >= _session_tokens.Count)
@@ -290,6 +360,8 @@ namespace LLama
         {
             while (_mtmdPromptSegments.Count > 0)
                 _mtmdPromptSegments.Dequeue().Dispose();
+
+            _hasQueuedMtmdPromptText = false;
         }
 
         /// <summary>
@@ -448,6 +520,7 @@ namespace LLama
         /// </summary>
         protected void QueueNextMtmdPromptInput()
         {
+            var queuedPromptText = false;
             while (_mtmdPromptSegments.Count > 0 && _embeds.Count < Context.BatchSize)
             {
                 var segment = _mtmdPromptSegments.Peek();
@@ -461,12 +534,32 @@ namespace LLama
                     _embeds.Add(token);
                     _last_n_tokens.Enqueue(token);
                     _consumedTokensCount++;
+                    queuedPromptText = true;
                 }
 
                 segment.AdvanceText(count);
                 if (segment.RemainingTextTokenCount == 0)
                     _mtmdPromptSegments.Dequeue().Dispose();
             }
+
+            _hasQueuedMtmdPromptText = queuedPromptText;
+        }
+
+        /// <summary>
+        /// Clear the marker that tracks prompt text currently staged in <see cref="_embeds"/> for MTMD execution.
+        /// </summary>
+        protected void ClearQueuedMtmdPromptText()
+        {
+            _hasQueuedMtmdPromptText = false;
+        }
+
+        /// <summary>
+        /// Clear the currently staged decode buffer and any MTMD prompt-text marker associated with it.
+        /// </summary>
+        protected void ClearCurrentEmbeds()
+        {
+            ClearQueuedMtmdPromptText();
+            _embeds.Clear();
         }
 
         /// <summary>
@@ -493,8 +586,18 @@ namespace LLama
             }
 
             _pastTokensCount = nPast;
+            _kvTokenCount += segment.TokenCount;
             _consumedTokensCount += segment.TokenCount;
             _mtmdPromptSegments.Dequeue().Dispose();
+        }
+
+        /// <summary>
+        /// Update counters after a successful text decode.
+        /// </summary>
+        protected void OnTextDecodeCompleted(int previousPastCount, int newPastCount)
+        {
+            _pastTokensCount = newPastCount;
+            _kvTokenCount += Math.Max(0, newPastCount - previousPastCount);
         }
 
         /// <summary>
@@ -514,7 +617,7 @@ namespace LLama
         protected bool HasPendingPromptQueue()
         {
             if (IsMultiModal)
-                return _mtmdPromptSegments.Count > 0;
+                return _hasQueuedMtmdPromptText || _mtmdPromptSegments.Count > 0;
 
             return _embed_inps.Count > _consumedTokensCount;
         }
@@ -724,6 +827,9 @@ namespace LLama
             [JsonPropertyName("n_matching_session_tokens")]
             public int MatchingSessionTokensCount { get; set; }
 
+            [JsonPropertyName("n_kv")]
+            public int KvTokenCount { get; set; }
+
             [JsonPropertyName("path_session")]
             public string? SessionFilePath { get; set; }
 
@@ -784,6 +890,8 @@ namespace LLama
             public int RemainingPositionCount => Kind == MtmdPromptSegmentKind.Text ? RemainingTextTokenCount : checked((int)(Chunk?.NPos ?? 0));
 
             public int TokenCount => Kind == MtmdPromptSegmentKind.Text ? TextTokens.Length : checked((int)(Chunk?.NTokens ?? 0));
+
+            public int RemainingKvTokenCount => Kind == MtmdPromptSegmentKind.Text ? RemainingTextTokenCount : TokenCount;
 
             public static MtmdPromptSegment CreateText(LLamaToken[] tokens)
                 => new(MtmdPromptSegmentKind.Text, tokens, null);
