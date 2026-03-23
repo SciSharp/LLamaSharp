@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Exceptions;
@@ -13,6 +14,7 @@ public sealed class MtmdWeights
     : IDisposable
 {
     private readonly object _syncRoot = new();
+    private readonly List<SafeMtmdEmbed> _pendingMedia = new();
 
     /// <summary>
     /// The native handle, which is used in the native APIs
@@ -84,7 +86,11 @@ public sealed class MtmdWeights
     public SafeMtmdEmbed LoadMedia(string path)
     {
         lock (_syncRoot)
-            return NativeHandle.LoadMediaFromFile(path);
+        {
+            var embed = NativeHandle.CreateMediaEmbedFromFile(path);
+            _pendingMedia.Add(embed);
+            return embed;
+        }
     }
 
     /// <summary>
@@ -93,7 +99,11 @@ public sealed class MtmdWeights
     public SafeMtmdEmbed LoadMedia(ReadOnlySpan<byte> data)
     {
         lock (_syncRoot)
-            return NativeHandle.LoadMediaFromBuffer(data);
+        {
+            var embed = NativeHandle.CreateMediaEmbedFromBuffer(data);
+            _pendingMedia.Add(embed);
+            return embed;
+        }
     }
 
     /// <summary>
@@ -120,7 +130,12 @@ public sealed class MtmdWeights
     public void ClearMedia()
     {
         lock (_syncRoot)
-            NativeHandle.ClearMedia();
+        {
+            foreach (var media in _pendingMedia)
+                media.Dispose();
+
+            _pendingMedia.Clear();
+        }
     }
 
     /// <summary>
@@ -129,7 +144,20 @@ public sealed class MtmdWeights
     public int Tokenize(string text, bool addSpecial, bool parseSpecial, out SafeMtmdInputChunks? chunks)
     {
         lock (_syncRoot)
-            return NativeHandle.Tokenize(text, addSpecial, parseSpecial, out chunks);
+        {
+            if (_pendingMedia.Count == 0)
+                return NativeHandle.Tokenize(text, addSpecial, parseSpecial, out chunks);
+
+            var embeds = _pendingMedia.ToArray();
+            try
+            {
+                return NativeHandle.Tokenize(text, addSpecial, parseSpecial, embeds, out chunks);
+            }
+            finally
+            {
+                ClearMediaInternal();
+            }
+        }
     }
 
     /// <summary>
@@ -189,5 +217,20 @@ public sealed class MtmdWeights
     public int AudioBitrate => NativeHandle.GetAudioBitrate();
 
     /// <inheritdoc />
-    public void Dispose() => NativeHandle.Dispose();
+    public void Dispose()
+    {
+        lock (_syncRoot)
+        {
+            ClearMediaInternal();
+            NativeHandle.Dispose();
+        }
+    }
+
+    private void ClearMediaInternal()
+    {
+        foreach (var media in _pendingMedia)
+            media.Dispose();
+
+        _pendingMedia.Clear();
+    }
 }
