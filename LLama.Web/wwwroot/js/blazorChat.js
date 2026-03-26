@@ -49,9 +49,6 @@ window.llamaChat = (() => {
             breaks: true
         });
 
-        if (window.markdownitKatex) {
-            markdown.use(window.markdownitKatex);
-        }
         if (window.markdownitTaskLists) {
             markdown.use(window.markdownitTaskLists);
         }

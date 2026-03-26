@@ -12,7 +12,8 @@ namespace LLama.Web.Services;
 public class AttachmentService : IAttachmentService
 {
     private const int MaxExtractedCharacters = 12000;
-    private const long MaxUploadSize = 512L * 1024 * 1024;
+    public const long MaxUploadSizeBytes = 512L * 1024 * 1024;
+    private static readonly StringComparison PathComparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<AttachmentService> _logger;
     private readonly string _uploadsRoot;
@@ -31,14 +32,13 @@ public class AttachmentService : IAttachmentService
 
     public async Task<AttachmentUploadResult> SaveAsync(string connectionId, IEnumerable<IFormFile> files, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(connectionId))
-            throw new ArgumentException("Connection id is required.", nameof(connectionId));
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
 
         ValidateUploads(files);
 
         var result = new AttachmentUploadResult();
-        var storage = _attachments.GetOrAdd(connectionId, _ => new ConcurrentDictionary<string, AttachmentInfo>());
-        var root = Path.Combine(_uploadsRoot, connectionId);
+        var storage = _attachments.GetOrAdd(normalizedConnectionId, _ => new ConcurrentDictionary<string, AttachmentInfo>());
+        var root = GetConnectionRoot(normalizedConnectionId);
         Directory.CreateDirectory(root);
 
         foreach (var file in files)
@@ -58,7 +58,7 @@ public class AttachmentService : IAttachmentService
             var info = new AttachmentInfo
             {
                 Id = id,
-                ConnectionId = connectionId,
+                ConnectionId = normalizedConnectionId,
                 FileName = safeName,
                 FilePath = filePath,
                 ContentType = file.ContentType,
@@ -74,7 +74,7 @@ public class AttachmentService : IAttachmentService
             _logger.LogInformation(
                 "Saved form attachment {AttachmentId} for session {SessionId}: name={FileName}, contentType={ContentType}, size={SizeBytes}, kind={Kind}, path={FilePath}",
                 info.Id,
-                connectionId,
+                normalizedConnectionId,
                 info.FileName,
                 info.ContentType,
                 info.SizeBytes,
@@ -90,14 +90,13 @@ public class AttachmentService : IAttachmentService
 
     public async Task<AttachmentUploadResult> SaveAsync(string connectionId, IEnumerable<IBrowserFile> files, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(connectionId))
-            throw new ArgumentException("Connection id is required.", nameof(connectionId));
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
 
         ValidateUploads(files);
 
         var result = new AttachmentUploadResult();
-        var storage = _attachments.GetOrAdd(connectionId, _ => new ConcurrentDictionary<string, AttachmentInfo>());
-        var root = Path.Combine(_uploadsRoot, connectionId);
+        var storage = _attachments.GetOrAdd(normalizedConnectionId, _ => new ConcurrentDictionary<string, AttachmentInfo>());
+        var root = GetConnectionRoot(normalizedConnectionId);
         Directory.CreateDirectory(root);
 
         foreach (var file in files)
@@ -109,7 +108,7 @@ public class AttachmentService : IAttachmentService
             var safeName = Path.GetFileName(file.Name);
             var filePath = Path.Combine(root, $"{id}-{safeName}");
 
-            await using (var input = file.OpenReadStream(maxAllowedSize: MaxUploadSize, cancellationToken))
+            await using (var input = file.OpenReadStream(maxAllowedSize: MaxUploadSizeBytes, cancellationToken))
             await using (var output = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
             {
                 await input.CopyToAsync(output, cancellationToken);
@@ -118,7 +117,7 @@ public class AttachmentService : IAttachmentService
             var info = new AttachmentInfo
             {
                 Id = id,
-                ConnectionId = connectionId,
+                ConnectionId = normalizedConnectionId,
                 FileName = safeName,
                 FilePath = filePath,
                 ContentType = file.ContentType,
@@ -134,7 +133,7 @@ public class AttachmentService : IAttachmentService
             _logger.LogInformation(
                 "Saved browser attachment {AttachmentId} for session {SessionId}: name={FileName}, contentType={ContentType}, size={SizeBytes}, kind={Kind}, path={FilePath}",
                 info.Id,
-                connectionId,
+                normalizedConnectionId,
                 info.FileName,
                 info.ContentType,
                 info.SizeBytes,
@@ -150,10 +149,12 @@ public class AttachmentService : IAttachmentService
 
     public IReadOnlyList<AttachmentInfo> GetAttachments(string connectionId, IEnumerable<string> ids)
     {
-        if (string.IsNullOrWhiteSpace(connectionId) || ids is null)
+        if (ids is null)
             return Array.Empty<AttachmentInfo>();
 
-        if (!_attachments.TryGetValue(connectionId, out var storage))
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        if (!_attachments.TryGetValue(normalizedConnectionId, out var storage))
             return Array.Empty<AttachmentInfo>();
 
         var list = new List<AttachmentInfo>();
@@ -171,7 +172,9 @@ public class AttachmentService : IAttachmentService
         if (string.IsNullOrWhiteSpace(connectionId) || string.IsNullOrWhiteSpace(id))
             return null;
 
-        if (!_attachments.TryGetValue(connectionId, out var storage))
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        if (!_attachments.TryGetValue(normalizedConnectionId, out var storage))
             return null;
 
         return storage.TryGetValue(id, out var info) ? info : null;
@@ -182,9 +185,11 @@ public class AttachmentService : IAttachmentService
         if (string.IsNullOrWhiteSpace(connectionId))
             return Task.CompletedTask;
 
-        if (_attachments.TryRemove(connectionId, out _))
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        if (_attachments.TryRemove(normalizedConnectionId, out _))
         {
-            var root = Path.Combine(_uploadsRoot, connectionId);
+            var root = GetConnectionRoot(normalizedConnectionId);
             if (Directory.Exists(root))
                 Directory.Delete(root, recursive: true);
         }
@@ -262,30 +267,83 @@ public class AttachmentService : IAttachmentService
 
     private static void ValidateUploads(IEnumerable<IFormFile> files)
     {
-        var invalid = files
-            .Where(file => file != null)
-            .Where(file => !IsAllowedUpload(file.ContentType?.ToLowerInvariant() ?? string.Empty, Path.GetExtension(file.FileName).ToLowerInvariant()))
-            .Select(file => file.FileName)
-            .ToList();
+        var invalid = new List<string>();
+        var tooLarge = new List<string>();
+
+        foreach (var file in files.Where(file => file != null))
+        {
+            if (!IsAllowedUpload(file.ContentType?.ToLowerInvariant() ?? string.Empty, Path.GetExtension(file.FileName).ToLowerInvariant()))
+                invalid.Add(file.FileName);
+
+            if (file.Length > MaxUploadSizeBytes)
+                tooLarge.Add(file.FileName);
+        }
+
+        if (tooLarge.Count > 0)
+            throw new InvalidOperationException($"Files exceed the {FormatMaxUploadSize()} limit: {string.Join(", ", tooLarge)}.");
 
         if (invalid.Count == 0)
             return;
 
-        throw new InvalidOperationException($"Unsupported files: {string.Join(", ", invalid)}. Use PDF, DOCX, or images.");
+        throw new InvalidOperationException($"Unsupported files: {string.Join(", ", invalid)}. Use PDF, DOCX, images, or audio.");
     }
 
     private static void ValidateUploads(IEnumerable<IBrowserFile> files)
     {
-        var invalid = files
-            .Where(file => file != null)
-            .Where(file => !IsAllowedUpload(file.ContentType?.ToLowerInvariant() ?? string.Empty, Path.GetExtension(file.Name).ToLowerInvariant()))
-            .Select(file => file.Name)
-            .ToList();
+        var invalid = new List<string>();
+        var tooLarge = new List<string>();
+
+        foreach (var file in files.Where(file => file != null))
+        {
+            if (!IsAllowedUpload(file.ContentType?.ToLowerInvariant() ?? string.Empty, Path.GetExtension(file.Name).ToLowerInvariant()))
+                invalid.Add(file.Name);
+
+            if (file.Size > MaxUploadSizeBytes)
+                tooLarge.Add(file.Name);
+        }
+
+        if (tooLarge.Count > 0)
+            throw new InvalidOperationException($"Files exceed the {FormatMaxUploadSize()} limit: {string.Join(", ", tooLarge)}.");
 
         if (invalid.Count == 0)
             return;
 
-        throw new InvalidOperationException($"Unsupported files: {string.Join(", ", invalid)}. Use PDF, DOCX, or images.");
+        throw new InvalidOperationException($"Unsupported files: {string.Join(", ", invalid)}. Use PDF, DOCX, images, or audio.");
+    }
+
+    private string GetConnectionRoot(string connectionId)
+    {
+        var fullUploadsRoot = Path.GetFullPath(_uploadsRoot);
+        var fullConnectionRoot = Path.GetFullPath(Path.Combine(fullUploadsRoot, connectionId));
+        var uploadsRootWithSeparator = fullUploadsRoot.EndsWith(Path.DirectorySeparatorChar)
+            ? fullUploadsRoot
+            : fullUploadsRoot + Path.DirectorySeparatorChar;
+
+        if (!fullConnectionRoot.StartsWith(uploadsRootWithSeparator, PathComparison))
+            throw new InvalidOperationException("Invalid connection id.");
+
+        return fullConnectionRoot;
+    }
+
+    private static string NormalizeConnectionId(string connectionId)
+    {
+        if (string.IsNullOrWhiteSpace(connectionId))
+            throw new InvalidOperationException("Connection id is required.");
+
+        foreach (var character in connectionId)
+        {
+            if (char.IsAsciiLetterOrDigit(character) || character is '-' or '_')
+                continue;
+
+            throw new InvalidOperationException("Invalid connection id.");
+        }
+
+        return connectionId;
+    }
+
+    private static string FormatMaxUploadSize()
+    {
+        return $"{MaxUploadSizeBytes / (1024 * 1024)} MB";
     }
 
     private static void ExtractPdfText(AttachmentInfo info)

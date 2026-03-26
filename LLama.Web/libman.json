@@ -7,26 +7,12 @@
       "destination": "wwwroot/lib/jquery/"
     },
     {
-      "library": "katex@0.16.11",
-      "provider": "unpkg",
-      "destination": "wwwroot/lib/katex/",
-      "files": [
-        "dist/katex.min.css",
-        "dist/katex.min.js"
-      ]
-    },
-    {
       "library": "markdown-it@14.1.0",
       "provider": "unpkg",
       "destination": "wwwroot/lib/markdown-it/",
       "files": [
         "dist/markdown-it.min.js"
       ]
-    },
-    {
-      "library": "markdown-it-katex@2.0.3",
-      "provider": "unpkg",
-      "destination": "wwwroot/lib/markdown-it-katex/"
     },
     {
       "library": "markdown-it-task-lists@2.1.1",

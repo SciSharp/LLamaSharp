@@ -292,8 +292,6 @@ const createConnectionSessionChat = () => {
             typographer: true
         });
 
-        if (window.markdownitKatex)
-            md.use(window.markdownitKatex);
         if (window.markdownitTaskLists)
             md.use(window.markdownitTaskLists, { enabled: true, label: true });
         if (window.markdownitFootnote)

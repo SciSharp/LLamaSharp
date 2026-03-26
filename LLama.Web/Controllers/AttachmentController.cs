@@ -9,14 +9,16 @@ namespace LLama.Web.Controllers;
 public class AttachmentController : ControllerBase
 {
     private readonly IAttachmentService _attachmentService;
+    private readonly IModelSessionService _modelSessionService;
 
-    public AttachmentController(IAttachmentService attachmentService)
+    public AttachmentController(IAttachmentService attachmentService, IModelSessionService modelSessionService)
     {
         _attachmentService = attachmentService;
+        _modelSessionService = modelSessionService;
     }
 
     [HttpPost]
-    [RequestSizeLimit(256_000_000)]
+    [RequestSizeLimit(AttachmentService.MaxUploadSizeBytes)]
     public async Task<ActionResult<AttachmentUploadResult>> Upload([FromForm] string connectionId, [FromForm] List<IFormFile> files, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(connectionId))
@@ -24,6 +26,9 @@ public class AttachmentController : ControllerBase
 
         if (files is null || files.Count == 0)
             return BadRequest("No files provided.");
+
+        if (await _modelSessionService.GetAsync(connectionId) is null)
+            return BadRequest("Unknown or inactive connectionId.");
 
         try
         {
@@ -37,22 +42,32 @@ public class AttachmentController : ControllerBase
     }
 
     [HttpGet("{connectionId}/{id}")]
-    public ActionResult Download(string connectionId, string id)
+    public async Task<ActionResult> Download(string connectionId, string id)
     {
         if (string.IsNullOrWhiteSpace(connectionId) || string.IsNullOrWhiteSpace(id))
             return BadRequest("Missing connectionId or attachment id.");
 
-        var attachment = _attachmentService.GetAttachment(connectionId, id);
-        if (attachment == null || string.IsNullOrWhiteSpace(attachment.FilePath))
-            return NotFound();
+        try
+        {
+            if (await _modelSessionService.GetAsync(connectionId) is null)
+                return NotFound();
 
-        if (!System.IO.File.Exists(attachment.FilePath))
-            return NotFound();
+            var attachment = _attachmentService.GetAttachment(connectionId, id);
+            if (attachment == null || string.IsNullOrWhiteSpace(attachment.FilePath))
+                return NotFound();
 
-        var contentType = string.IsNullOrWhiteSpace(attachment.ContentType)
-            ? "application/octet-stream"
-            : attachment.ContentType;
+            if (!System.IO.File.Exists(attachment.FilePath))
+                return NotFound();
 
-        return PhysicalFile(attachment.FilePath, contentType, attachment.FileName);
+            var contentType = string.IsNullOrWhiteSpace(attachment.ContentType)
+                ? "application/octet-stream"
+                : attachment.ContentType;
+
+            return PhysicalFile(attachment.FilePath, contentType, attachment.FileName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
