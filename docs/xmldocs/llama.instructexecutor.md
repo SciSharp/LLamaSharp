@@ -28,10 +28,20 @@ protected ILogger _logger;
 
 ### **_pastTokensCount**
 
-The tokens that were already processed by the model.
+The positional cursor that has already been processed by the model.
 
 ```csharp
 protected int _pastTokensCount;
+```
+
+### **_kvTokenCount**
+
+Number of KV slots currently occupied by the active sequence.
+ For MTMD prompts this can diverge from  because media chunks may
+ consume a different number of decoded tokens than logical positions.
+
+```csharp
+protected int _kvTokenCount;
 ```
 
 ### **_consumedTokensCount**
@@ -44,7 +54,7 @@ protected int _consumedTokensCount;
 
 ### **_n_session_consumed**
 
-
+Number of tokens consumed from the session cache during the current run.
 
 ```csharp
 protected int _n_session_consumed;
@@ -52,7 +62,7 @@ protected int _n_session_consumed;
 
 ### **_n_matching_session_tokens**
 
-
+Number of prompt tokens that match the loaded session cache prefix.
 
 ```csharp
 protected int _n_matching_session_tokens;
@@ -84,7 +94,7 @@ protected List<LLamaToken> _embed_inps;
 
 ### **_session_tokens**
 
-
+Tokens recovered from the session file and reused to warm up the KV cache.
 
 ```csharp
 protected List<LLamaToken> _session_tokens;
@@ -112,6 +122,18 @@ public LLamaContext Context { get; }
 
 [LLamaContext](./llama.llamacontext.md)<br>
 
+### **AntipromptProcessor**
+
+Tracks anti-prompts across streamed output.
+
+```csharp
+protected AntipromptProcessor AntipromptProcessor { get; }
+```
+
+#### Property Value
+
+[AntipromptProcessor](./llama.antipromptprocessor.md)<br>
+
 ### **IsMultiModal**
 
 ```csharp
@@ -125,22 +147,22 @@ public bool IsMultiModal { get; }
 ### **ClipModel**
 
 ```csharp
-public LLavaWeights ClipModel { get; }
+public MtmdWeights ClipModel { get; }
 ```
 
 #### Property Value
 
-[LLavaWeights](./llama.llavaweights.md)<br>
+[MtmdWeights](./llama.mtmdweights.md)<br>
 
-### **Images**
+### **Embeds**
 
 ```csharp
-public List<Byte[]> Images { get; }
+public List<SafeMtmdEmbed> Embeds { get; }
 ```
 
 #### Property Value
 
-[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;SafeMtmdEmbed&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ## Constructors
 
@@ -162,6 +184,24 @@ public InstructExecutor(LLamaContext context, string instructionPrefix, string i
 
 `logger` ILogger<br>
 
+### **InstructExecutor(LLamaContext, MtmdWeights, String, String, ILogger)**
+
+```csharp
+public InstructExecutor(LLamaContext context, MtmdWeights clipModel, string instructionPrefix, string instructionSuffix, ILogger logger)
+```
+
+#### Parameters
+
+`context` [LLamaContext](./llama.llamacontext.md)<br>
+
+`clipModel` [MtmdWeights](./llama.mtmdweights.md)<br>
+
+`instructionPrefix` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`instructionSuffix` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`logger` ILogger<br>
+
 ## Methods
 
 ### **GetStateData()**
@@ -174,66 +214,74 @@ public ExecutorBaseState GetStateData()
 
 [ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)<br>
 
-### **LoadState(ExecutorBaseState)**
+### **LoadState(ExecutorBaseState, CancellationToken)**
 
 ```csharp
-public Task LoadState(ExecutorBaseState data)
+public Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `data` [ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)<br>
 
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **SaveState(String)**
+### **SaveState(String, CancellationToken)**
 
 ```csharp
-public Task SaveState(string filename)
+public Task SaveState(string filename, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **LoadState(String)**
+### **LoadState(String, CancellationToken)**
 
 ```csharp
-public Task LoadState(string filename)
+public Task LoadState(string filename, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **GetLoopCondition(InferStateArgs)**
+### **GetLoopCondition(InferStateArgs, CancellationToken)**
 
 ```csharp
-protected Task<bool> GetLoopCondition(InferStateArgs args)
+protected Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
 #### Returns
 
 [Task&lt;Boolean&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
-### **PreprocessInputs(String, InferStateArgs)**
+### **PreprocessInputs(String, InferStateArgs, CancellationToken)**
 
 ```csharp
-protected Task PreprocessInputs(string text, InferStateArgs args)
+protected Task PreprocessInputs(string text, InferStateArgs args, CancellationToken cancellationToken)
 ```
 
 #### Parameters
@@ -242,14 +290,16 @@ protected Task PreprocessInputs(string text, InferStateArgs args)
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
 
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
 #### Returns
 
 [Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **PostProcess(IInferenceParams, InferStateArgs)**
+### **PostProcess(IInferenceParams, InferStateArgs, CancellationToken)**
 
 ```csharp
-protected Task<ValueTuple<bool, IReadOnlyList<string>>> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+protected Task<ValueTuple<bool, IReadOnlyList<string>>> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
 ```
 
 #### Parameters
@@ -257,15 +307,17 @@ protected Task<ValueTuple<bool, IReadOnlyList<string>>> PostProcess(IInferencePa
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
 [Task&lt;ValueTuple&lt;Boolean, IReadOnlyList&lt;String&gt;&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
-### **InferInternal(IInferenceParams, InferStateArgs)**
+### **InferInternal(IInferenceParams, InferStateArgs, CancellationToken)**
 
 ```csharp
-protected Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+protected Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
 ```
 
 #### Parameters
@@ -273,6 +325,8 @@ protected Task InferInternal(IInferenceParams inferenceParams, InferStateArgs ar
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+
+`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 

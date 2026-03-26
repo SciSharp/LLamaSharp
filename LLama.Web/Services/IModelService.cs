@@ -4,7 +4,7 @@ using LLama.Web.Models;
 namespace LLama.Web.Services;
 
 /// <summary>
-/// Service for managing language Models
+/// Service for managing language models.
 /// </summary>
 public interface IModelService
 {
@@ -37,7 +37,7 @@ public interface IModelService
     Task UnloadModels();
 
     /// <summary>
-    /// Gets a context with the specified identifier
+    /// Gets a context with the specified identifier.
     /// </summary>
     /// <param name="modelName">Name of the model.</param>
     /// <param name="contextName">The context identifier.</param>
@@ -58,11 +58,11 @@ public interface IModelService
     Task<LLamaContext> CreateContext(string modelName, string contextName);
 
     /// <summary>
-    /// Gets the or create model and context.
-    /// This will load a model from disk if not already loaded, and also create the context
+    /// Gets or creates a model and context.
+    /// This loads a model from disk if it is not already loaded and creates the context.
     /// </summary>
     /// <param name="modelName">Name of the model.</param>
     /// <param name="contextName">The context identifier.</param>
-    /// <returns>Both loaded Model and Context</returns>
+    /// <returns>The loaded model and context.</returns>
     Task<(LLamaModel, LLamaContext)> GetOrCreateModelAndContext(string modelName, string contextName);
 }

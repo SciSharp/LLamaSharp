@@ -1,0 +1,439 @@
+using System.Collections.Concurrent;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+using LLama.Web.Models;
+using Microsoft.AspNetCore.Components.Forms;
+using UglyToad.PdfPig;
+
+namespace LLama.Web.Services;
+
+public class AttachmentService : IAttachmentService
+{
+    private const int MaxExtractedCharacters = 12000;
+    public const long MaxUploadSizeBytes = 512L * 1024 * 1024;
+    private static readonly StringComparison PathComparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+    private readonly IWebHostEnvironment _environment;
+    private readonly ILogger<AttachmentService> _logger;
+    private readonly string _uploadsRoot;
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, AttachmentInfo>> _attachments = new();
+
+    public AttachmentService(IWebHostEnvironment environment, ILogger<AttachmentService> logger)
+    {
+        _environment = environment;
+        _logger = logger;
+        var appDataRoot = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        _uploadsRoot = Path.Combine(appDataRoot, "LLama.Web", "Uploads");
+        Directory.CreateDirectory(_uploadsRoot);
+    }
+
+    public string UploadsRoot => _uploadsRoot;
+
+    public async Task<AttachmentUploadResult> SaveAsync(string connectionId, IEnumerable<IFormFile> files, CancellationToken cancellationToken)
+    {
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        ValidateUploads(files);
+
+        var result = new AttachmentUploadResult();
+        var storage = _attachments.GetOrAdd(normalizedConnectionId, _ => new ConcurrentDictionary<string, AttachmentInfo>());
+        var root = GetConnectionRoot(normalizedConnectionId);
+        Directory.CreateDirectory(root);
+
+        foreach (var file in files)
+        {
+            if (file == null || file.Length == 0)
+                continue;
+
+            var id = Guid.NewGuid().ToString("N");
+            var safeName = Path.GetFileName(file.FileName);
+            var filePath = Path.Combine(root, $"{id}-{safeName}");
+
+            await using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            var info = new AttachmentInfo
+            {
+                Id = id,
+                ConnectionId = normalizedConnectionId,
+                FileName = safeName,
+                FilePath = filePath,
+                ContentType = file.ContentType,
+                SizeBytes = file.Length,
+                Kind = GetKind(file)
+            };
+
+            if (info.Kind == AttachmentKind.Pdf)
+                ExtractPdfText(info);
+            if (info.Kind == AttachmentKind.Word)
+                ExtractWordText(info);
+
+            _logger.LogInformation(
+                "Saved form attachment {AttachmentId} for session {SessionId}: name={FileName}, contentType={ContentType}, size={SizeBytes}, kind={Kind}, path={FilePath}",
+                info.Id,
+                normalizedConnectionId,
+                info.FileName,
+                info.ContentType,
+                info.SizeBytes,
+                info.Kind,
+                info.FilePath);
+
+            storage[id] = info;
+            result.Attachments.Add(info);
+        }
+
+        return result;
+    }
+
+    public async Task<AttachmentUploadResult> SaveAsync(string connectionId, IEnumerable<IBrowserFile> files, CancellationToken cancellationToken)
+    {
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        ValidateUploads(files);
+
+        var result = new AttachmentUploadResult();
+        var storage = _attachments.GetOrAdd(normalizedConnectionId, _ => new ConcurrentDictionary<string, AttachmentInfo>());
+        var root = GetConnectionRoot(normalizedConnectionId);
+        Directory.CreateDirectory(root);
+
+        foreach (var file in files)
+        {
+            if (file == null || file.Size == 0)
+                continue;
+
+            var id = Guid.NewGuid().ToString("N");
+            var safeName = Path.GetFileName(file.Name);
+            var filePath = Path.Combine(root, $"{id}-{safeName}");
+
+            await using (var input = file.OpenReadStream(maxAllowedSize: MaxUploadSizeBytes, cancellationToken))
+            await using (var output = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
+            {
+                await input.CopyToAsync(output, cancellationToken);
+            }
+
+            var info = new AttachmentInfo
+            {
+                Id = id,
+                ConnectionId = normalizedConnectionId,
+                FileName = safeName,
+                FilePath = filePath,
+                ContentType = file.ContentType,
+                SizeBytes = file.Size,
+                Kind = GetKind(file)
+            };
+
+            if (info.Kind == AttachmentKind.Pdf)
+                ExtractPdfText(info);
+            if (info.Kind == AttachmentKind.Word)
+                ExtractWordText(info);
+
+            _logger.LogInformation(
+                "Saved browser attachment {AttachmentId} for session {SessionId}: name={FileName}, contentType={ContentType}, size={SizeBytes}, kind={Kind}, path={FilePath}",
+                info.Id,
+                normalizedConnectionId,
+                info.FileName,
+                info.ContentType,
+                info.SizeBytes,
+                info.Kind,
+                info.FilePath);
+
+            storage[id] = info;
+            result.Attachments.Add(info);
+        }
+
+        return result;
+    }
+
+    public IReadOnlyList<AttachmentInfo> GetAttachments(string connectionId, IEnumerable<string> ids)
+    {
+        if (ids is null)
+            return Array.Empty<AttachmentInfo>();
+
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        if (!_attachments.TryGetValue(normalizedConnectionId, out var storage))
+            return Array.Empty<AttachmentInfo>();
+
+        var list = new List<AttachmentInfo>();
+        foreach (var id in ids)
+        {
+            if (storage.TryGetValue(id, out var info))
+                list.Add(info);
+        }
+
+        return list;
+    }
+
+    public AttachmentInfo GetAttachment(string connectionId, string id)
+    {
+        if (string.IsNullOrWhiteSpace(connectionId) || string.IsNullOrWhiteSpace(id))
+            return null;
+
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        if (!_attachments.TryGetValue(normalizedConnectionId, out var storage))
+            return null;
+
+        return storage.TryGetValue(id, out var info) ? info : null;
+    }
+
+    public Task CleanupAsync(string connectionId)
+    {
+        if (string.IsNullOrWhiteSpace(connectionId))
+            return Task.CompletedTask;
+
+        var normalizedConnectionId = NormalizeConnectionId(connectionId);
+
+        if (_attachments.TryRemove(normalizedConnectionId, out _))
+        {
+            var root = GetConnectionRoot(normalizedConnectionId);
+            if (Directory.Exists(root))
+                Directory.Delete(root, recursive: true);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static AttachmentKind GetKind(IFormFile file)
+    {
+        var contentType = file.ContentType?.ToLowerInvariant() ?? string.Empty;
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (contentType.Contains("pdf") || extension == ".pdf")
+            return AttachmentKind.Pdf;
+        if (IsWordDocument(contentType, extension))
+            return AttachmentKind.Word;
+        if (contentType.StartsWith("image/"))
+            return AttachmentKind.Image;
+        if (contentType.StartsWith("audio/") || extension is ".wav" or ".mp3" or ".m4a" or ".ogg" or ".flac" or ".webm")
+            return AttachmentKind.Audio;
+
+        return AttachmentKind.Unknown;
+    }
+
+    private static AttachmentKind GetKind(IBrowserFile file)
+    {
+        var contentType = file.ContentType?.ToLowerInvariant() ?? string.Empty;
+        var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+
+        if (contentType.Contains("pdf") || extension == ".pdf")
+            return AttachmentKind.Pdf;
+        if (IsWordDocument(contentType, extension))
+            return AttachmentKind.Word;
+        if (contentType.StartsWith("image/"))
+            return AttachmentKind.Image;
+        if (contentType.StartsWith("audio/") || extension is ".wav" or ".mp3" or ".m4a" or ".ogg" or ".flac" or ".webm")
+            return AttachmentKind.Audio;
+
+        return AttachmentKind.Unknown;
+    }
+
+    private static bool IsWordDocument(string contentType, string extension)
+    {
+        if (extension == ".docx")
+            return true;
+
+        if (string.IsNullOrWhiteSpace(contentType))
+            return false;
+
+        return contentType.Contains("word") || contentType.Contains("officedocument.wordprocessingml");
+    }
+
+    private static bool IsAllowedUpload(string contentType, string extension)
+    {
+        if (extension == ".doc")
+            return false;
+
+        if (extension == ".docx" || contentType.Contains("officedocument.wordprocessingml") || contentType.Contains("word"))
+            return true;
+
+        if (extension == ".pdf" || contentType.Contains("pdf"))
+            return true;
+
+        if (contentType.StartsWith("image/"))
+            return true;
+
+        if (contentType.StartsWith("audio/"))
+            return true;
+
+        if (extension is ".wav" or ".mp3" or ".m4a" or ".ogg" or ".flac" or ".webm")
+            return true;
+
+        return false;
+    }
+
+    private static void ValidateUploads(IEnumerable<IFormFile> files)
+    {
+        var invalid = new List<string>();
+        var tooLarge = new List<string>();
+
+        foreach (var file in files.Where(file => file != null))
+        {
+            if (!IsAllowedUpload(file.ContentType?.ToLowerInvariant() ?? string.Empty, Path.GetExtension(file.FileName).ToLowerInvariant()))
+                invalid.Add(file.FileName);
+
+            if (file.Length > MaxUploadSizeBytes)
+                tooLarge.Add(file.FileName);
+        }
+
+        if (tooLarge.Count > 0)
+            throw new InvalidOperationException($"Files exceed the {FormatMaxUploadSize()} limit: {string.Join(", ", tooLarge)}.");
+
+        if (invalid.Count == 0)
+            return;
+
+        throw new InvalidOperationException($"Unsupported files: {string.Join(", ", invalid)}. Use PDF, DOCX, images, or audio.");
+    }
+
+    private static void ValidateUploads(IEnumerable<IBrowserFile> files)
+    {
+        var invalid = new List<string>();
+        var tooLarge = new List<string>();
+
+        foreach (var file in files.Where(file => file != null))
+        {
+            if (!IsAllowedUpload(file.ContentType?.ToLowerInvariant() ?? string.Empty, Path.GetExtension(file.Name).ToLowerInvariant()))
+                invalid.Add(file.Name);
+
+            if (file.Size > MaxUploadSizeBytes)
+                tooLarge.Add(file.Name);
+        }
+
+        if (tooLarge.Count > 0)
+            throw new InvalidOperationException($"Files exceed the {FormatMaxUploadSize()} limit: {string.Join(", ", tooLarge)}.");
+
+        if (invalid.Count == 0)
+            return;
+
+        throw new InvalidOperationException($"Unsupported files: {string.Join(", ", invalid)}. Use PDF, DOCX, images, or audio.");
+    }
+
+    private string GetConnectionRoot(string connectionId)
+    {
+        var fullUploadsRoot = Path.GetFullPath(_uploadsRoot);
+        var fullConnectionRoot = Path.GetFullPath(Path.Combine(fullUploadsRoot, connectionId));
+        var uploadsRootWithSeparator = fullUploadsRoot.EndsWith(Path.DirectorySeparatorChar)
+            ? fullUploadsRoot
+            : fullUploadsRoot + Path.DirectorySeparatorChar;
+
+        if (!fullConnectionRoot.StartsWith(uploadsRootWithSeparator, PathComparison))
+            throw new InvalidOperationException("Invalid connection id.");
+
+        return fullConnectionRoot;
+    }
+
+    private static string NormalizeConnectionId(string connectionId)
+    {
+        if (string.IsNullOrWhiteSpace(connectionId))
+            throw new InvalidOperationException("Connection id is required.");
+
+        foreach (var character in connectionId)
+        {
+            if (char.IsAsciiLetterOrDigit(character) || character is '-' or '_')
+                continue;
+
+            throw new InvalidOperationException("Invalid connection id.");
+        }
+
+        return connectionId;
+    }
+
+    private static string FormatMaxUploadSize()
+    {
+        return $"{MaxUploadSizeBytes / (1024 * 1024)} MB";
+    }
+
+    private static void ExtractPdfText(AttachmentInfo info)
+    {
+        if (!File.Exists(info.FilePath))
+            return;
+
+        var builder = new StringBuilder();
+        try
+        {
+            using var document = PdfDocument.Open(info.FilePath);
+            foreach (var page in document.GetPages())
+            {
+                if (builder.Length >= MaxExtractedCharacters)
+                    break;
+
+                builder.AppendLine(page.Text);
+            }
+
+            var text = builder.ToString();
+            if (text.Length > MaxExtractedCharacters)
+            {
+                info.ExtractedText = text.Substring(0, MaxExtractedCharacters);
+                info.ExtractedTextTruncated = true;
+            }
+            else
+            {
+                info.ExtractedText = text;
+                info.ExtractedTextTruncated = false;
+            }
+        }
+        catch
+        {
+            info.ExtractedText = string.Empty;
+            info.ExtractedTextTruncated = false;
+        }
+    }
+
+    private static void ExtractWordText(AttachmentInfo info)
+    {
+        if (!File.Exists(info.FilePath))
+            return;
+
+        var extension = Path.GetExtension(info.FilePath).ToLowerInvariant();
+        if (extension != ".docx")
+        {
+            info.ExtractedText = string.Empty;
+            info.ExtractedTextTruncated = false;
+            return;
+        }
+
+        try
+        {
+            using var archive = ZipFile.OpenRead(info.FilePath);
+            var entry = archive.GetEntry("word/document.xml");
+            if (entry == null)
+                return;
+
+            using var stream = entry.Open();
+            var document = XDocument.Load(stream);
+            var textNodes = document.Descendants()
+                .Where(node => node.Name.LocalName == "t")
+                .Select(node => node.Value);
+
+            var builder = new StringBuilder();
+            foreach (var text in textNodes)
+            {
+                if (builder.Length >= MaxExtractedCharacters)
+                    break;
+
+                builder.Append(text);
+                builder.AppendLine();
+            }
+
+            var resultText = builder.ToString();
+            if (resultText.Length > MaxExtractedCharacters)
+            {
+                info.ExtractedText = resultText.Substring(0, MaxExtractedCharacters);
+                info.ExtractedTextTruncated = true;
+            }
+            else
+            {
+                info.ExtractedText = resultText;
+                info.ExtractedTextTruncated = false;
+            }
+        }
+        catch
+        {
+            info.ExtractedText = string.Empty;
+            info.ExtractedTextTruncated = false;
+        }
+    }
+}

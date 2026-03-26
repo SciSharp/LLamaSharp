@@ -24,7 +24,7 @@
 
 [LLamaWeights](./llama.llamaweights.md)
 
-[LLavaWeights](./llama.llavaweights.md)
+[MtmdWeights](./llama.mtmdweights.md)
 
 [SessionState](./llama.sessionstate.md)
 
@@ -152,8 +152,6 @@
 
 [LLamaFtype](./llama.native.llamaftype.md)
 
-[LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)
-
 [LLamaLogitBias](./llama.native.llamalogitbias.md)
 
 [LLamaLogLevel](./llama.native.llamaloglevel.md)
@@ -196,9 +194,9 @@
 
 [LLamaVocabType](./llama.native.llamavocabtype.md)
 
-[LLavaImageEmbed](./llama.native.llavaimageembed.md)
-
 [LoraAdapter](./llama.native.loraadapter.md)
+
+[MtmdContextParams](./llama.native.mtmdcontextparams.md)
 
 [NativeApi](./llama.native.nativeapi.md)
 
@@ -232,9 +230,13 @@
 
 [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)
 
-[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)
+[SafeMtmdEmbed](./llama.native.safemtmdembed.md)
 
-[SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)
+[SafeMtmdInputChunk](./llama.native.safemtmdinputchunk.md)
+
+[SafeMtmdInputChunks](./llama.native.safemtmdinputchunks.md)
+
+[SafeMtmdModelHandle](./llama.native.safemtmdmodelhandle.md)
 
 [SystemInfo](./llama.native.systeminfo.md)
 

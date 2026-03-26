@@ -45,24 +45,24 @@ public abstract bool IsMultiModal { get; }
 Multi-Modal Projections / Clip Model weights
 
 ```csharp
-public abstract LLavaWeights ClipModel { get; }
+public abstract MtmdWeights ClipModel { get; }
 ```
 
 #### Property Value
 
-[LLavaWeights](./llama.llavaweights.md)<br>
+[MtmdWeights](./llama.mtmdweights.md)<br>
 
-### **Images**
+### **Embeds**
 
-List of images: List of images in byte array format.
+List of media: List of media for Multi-Modal models.
 
 ```csharp
-public abstract List<Byte[]> Images { get; }
+public abstract List<SafeMtmdEmbed> Embeds { get; }
 ```
 
 #### Property Value
 
-[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;SafeMtmdEmbed&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ## Methods
 

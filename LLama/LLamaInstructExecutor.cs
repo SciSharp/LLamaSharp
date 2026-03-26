@@ -63,6 +63,9 @@ namespace LLama
         /// <inheritdoc />
         public override ExecutorBaseState GetStateData()
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal instruct executors.");
+
             InstructExecutorState state = new()
             {
                 ConsumedSessionCount = _n_session_consumed,
@@ -75,6 +78,7 @@ namespace LLama
                 InputSuffixTokens = _inp_sfx,
                 MatchingSessionTokensCount = _n_matching_session_tokens,
                 PastTokensCount = _pastTokensCount,
+                KvTokenCount = _kvTokenCount,
                 SessionFilePath = _pathSession,
                 SessionTokens = _session_tokens.ToArray(),
                 LastTokensCapacity = _last_n_tokens.Capacity,
@@ -84,7 +88,9 @@ namespace LLama
         /// <inheritdoc />
         public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
-            DisposeMtmdChunks();
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal instruct executors.");
+
             if(data is InstructExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
@@ -97,6 +103,7 @@ namespace LLama
                 _inp_sfx = state.InputSuffixTokens!;
                 _n_matching_session_tokens = state.MatchingSessionTokensCount;
                 _pastTokensCount = state.PastTokensCount;
+                _kvTokenCount = state.KvTokenCount == 0 ? state.PastTokensCount : state.KvTokenCount;
                 _pathSession = state.SessionFilePath;
                 _session_tokens = state.SessionTokens!.ToList();
             }
@@ -111,6 +118,9 @@ namespace LLama
         /// <inheritdoc />
         public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal instruct executors.");
+
             var state = (InstructExecutorState)GetStateData();
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
@@ -121,6 +131,9 @@ namespace LLama
         /// <inheritdoc />
         public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
         {
+            if (IsMultiModal)
+                throw new NotSupportedException("State persistence is not supported for multimodal instruct executors.");
+
             using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 var state = await JsonSerializer.DeserializeAsync<InstructExecutorState>(fs);
@@ -131,7 +144,7 @@ namespace LLama
         /// <inheritdoc />
         protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
-            return Task.FromResult(args.RemainedTokens != 0 || _is_prompt_run);
+            return Task.FromResult(args.RemainedTokens != 0 || _is_prompt_run || HasPendingPromptInput());
         }
 
         /// <inheritdoc />
@@ -193,7 +206,7 @@ namespace LLama
         /// <inheritdoc />
         protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
-            if (_embed_inps.Count <= _consumedTokensCount)
+            if (!HasPendingPromptQueue())
             {
                 if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
@@ -205,17 +218,17 @@ namespace LLama
                 {
                     return Task.FromResult<(bool, IReadOnlyList<string>)>((true, ["\n> "]));
                 }
-            }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
-            {
-                args.WaitForInput = true;
-            }
+                if (_embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
+                {
+                    args.WaitForInput = true;
+                }
 
-            if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
-            {
-                args.RemainedTokens = inferenceParams.MaxTokens;
-                args.WaitForInput = true;
+                if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
+                {
+                    args.RemainedTokens = inferenceParams.MaxTokens;
+                    args.WaitForInput = true;
+                }
             }
             return Task.FromResult<(bool, IReadOnlyList<string>)>((false, []));
         }
@@ -228,41 +241,20 @@ namespace LLama
             if (_embeds.Count > 0)
             {
                 _is_prompt_run = false;
-                if (_pastTokensCount + _embeds.Count > Context.ContextSize)
-                {
-                    // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
-                    // Instruct always uses input token size.
-                    var tokensToKeep = _embed_inps.Count;
-                    HandleRunOutOfContext(tokensToKeep);
-                }
-
-                TryReuseMatchingPrefix();
-
-                var (result, _, pastTokensCount) = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
-                _pastTokensCount = pastTokensCount;
-
-                if (result != DecodeResult.Ok)
-                {
-                    throw new LLamaDecodeError(result);
-                }
-
-                if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
-                {
-                    _session_tokens.AddRange(_embeds);
-                    _n_session_consumed = _session_tokens.Count;
-                }
+                // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
+                // Instruct always uses input token size.
+                var tokensToKeep = _embed_inps.Count;
+                await DecodeQueuedEmbedsAsync(batch, tokensToKeep, cancellationToken);
             }
-            else if (IsMultiModal && MtmdChunks is not null)
+            else if (IsMultiModal && HasPendingMtmdMediaSegment())
             {
                 _is_prompt_run = false;
-                var nPast = _pastTokensCount;
-                var previousConsumed = _consumedTokensCount;
-                EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InstructExecutor));
+                EvaluatePendingMtmdMediaSegment(nameof(InstructExecutor), _embed_inps.Count);
             }
 
-            _embeds.Clear();
+            ClearCurrentEmbeds();
 
-            if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
+            if (!HasPendingPromptInput() && !args.WaitForInput)
             {
                 if (inferenceParams.MaxTokens == 0)
                 {
@@ -289,14 +281,21 @@ namespace LLama
             }
             else
             {
-                while (_embed_inps.Count > _consumedTokensCount)
+                if (IsMultiModal)
                 {
-                    _embeds.Add(_embed_inps[_consumedTokensCount]);
-                    _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
-                    _consumedTokensCount++;
-                    if (_embeds.Count >= Context.BatchSize)
+                    QueueNextMtmdPromptInput();
+                }
+                else
+                {
+                    while (_embed_inps.Count > _consumedTokensCount)
                     {
-                        break;
+                        _embeds.Add(_embed_inps[_consumedTokensCount]);
+                        _last_n_tokens.Enqueue(_embed_inps[_consumedTokensCount]);
+                        _consumedTokensCount++;
+                        if (_embeds.Count >= Context.BatchSize)
+                        {
+                            break;
+                        }
                     }
                 }
             }

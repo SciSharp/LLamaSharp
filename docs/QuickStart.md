@@ -90,22 +90,23 @@ while (userInput != "exit")
 ```
 
 
-## Examples of chatting with LLaVA
+## Example of chatting with MTMD
 
-This example shows chatting with LLaVA to ask it to describe the picture.
+This example shows chatting with an MTMD-enabled model to ask it to describe the picture.
 ![llava_demo](./media/llava_demo.gif)
 
 ```cs
 using System.Text.RegularExpressions;
 using LLama;
 using LLama.Common;
+using LLama.Native;
 
 string multiModalProj = @"<Your multi-modal proj file path>";
-string modelPath = @"<Your LLaVA model file path>";
+string modelPath = @"<Your text model file path>";
 string modelImage = @"<Your image path>";
 const int maxTokens = 1024; // The max tokens that could be generated.
 
-var prompt = $"{{{modelImage}}}\nUSER:\nProvide a full description of the image.\nASSISTANT:\n";
+var prompt = $"{{{{{modelImage}}}}}\nUSER:\nProvide a full description of the image.\nASSISTANT:\n";
 
 var parameters = new ModelParams(modelPath)
 {
@@ -115,64 +116,44 @@ var parameters = new ModelParams(modelPath)
 using var model = LLamaWeights.LoadFromFile(parameters);
 using var context = model.CreateContext(parameters);
 
-// Llava Init
-using var clipModel = LLavaWeights.LoadFromFile(multiModalProj);
+var mtmdParameters = MtmdContextParams.Default();
+using var clipModel = MtmdWeights.LoadFromFile(multiModalProj, model, mtmdParameters);
+var mediaMarker = mtmdParameters.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>";
 
 var ex = new InteractiveExecutor(context, clipModel);
 
 Console.ForegroundColor = ConsoleColor.Yellow;
 Console.WriteLine("The executor has been enabled. In this example, the prompt is printed, the maximum tokens is set to {0} and the context size is {1}.", maxTokens, parameters.ContextSize);
-Console.WriteLine("To send an image, enter its filename in curly braces, like this {c:/image.jpg}.");
+Console.WriteLine("To send an image, enter its filename in double curly braces, like this {{c:/image.jpg}}.");
 
 var inferenceParams = new InferenceParams() { Temperature = 0.1f, AntiPrompts = new List<string> { "\nUSER:" }, MaxTokens = maxTokens };
 
 do
 {
+    var mediaPathsWithBraces = Regex.Matches(prompt, @"\{\{(.*?)\}\}").Select(m => m.Value).ToList();
+    var mediaPaths = Regex.Matches(prompt, @"\{\{(.*?)\}\}").Select(m => m.Groups[1].Value).ToList();
 
-    // Evaluate if we have images
-    //
-    var imageMatches = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Value);
-    var imageCount = imageMatches.Count();
-    var hasImages = imageCount > 0;
-    byte[][] imageBytes = null;
-
-    if (hasImages)
+    var embeds = new List<SafeMtmdEmbed>();
+    try
     {
-        var imagePathsWithCurlyBraces = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Value);
-        var imagePaths = Regex.Matches(prompt, "{([^}]*)}").Select(m => m.Groups[1].Value);
-
-        try
-        {
-            imageBytes = imagePaths.Select(File.ReadAllBytes).ToArray();
-        }
-        catch (IOException exception)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(
-                $"Could not load your {(imageCount == 1 ? "image" : "images")}:");
-            Console.Write($"{exception.Message}");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Please try again.");
-            break;
-        }
-
-
-        int index = 0;
-        foreach (var path in imagePathsWithCurlyBraces)
-        {
-            // First image replace to tag <image, the rest of the images delete the tag
-            if (index++ == 0)
-                prompt = prompt.Replace(path, "<image>");
-            else
-                prompt = prompt.Replace(path, "");
-        }
-        Console.WriteLine();
-
-
-        // Initialize Images in executor
-        //
-        ex.ImagePaths = imagePaths.ToList();
+        foreach (var mediaPath in mediaPaths)
+            embeds.Add(clipModel.LoadMediaStandalone(mediaPath));
     }
+    catch (IOException exception)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"Could not load your media: {exception.Message}");
+        foreach (var embed in embeds)
+            embed.Dispose();
+        break;
+    }
+
+    foreach (var path in mediaPathsWithBraces)
+        prompt = prompt.Replace(path, mediaMarker, StringComparison.Ordinal);
+
+    ex.Embeds.Clear();
+    foreach (var embed in embeds)
+        ex.Embeds.Add(embed);
 
     Console.ForegroundColor = ConsoleColor.White;
     await foreach (var text in ex.InferAsync(prompt, inferenceParams))

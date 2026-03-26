@@ -78,6 +78,16 @@ public bool IsDisposed { get; private set; }
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
+### **ClipModel**
+
+```csharp
+public MtmdWeights ClipModel { get; }
+```
+
+#### Property Value
+
+[MtmdWeights](./llama.mtmdweights.md)<br>
+
 ## Constructors
 
 ### **BatchedExecutor(LLamaWeights, IContextParams)**
@@ -95,6 +105,20 @@ The model to use
 
 `contextParams` [IContextParams](./llama.abstractions.icontextparams.md)<br>
 Parameters to create a new context
+
+### **BatchedExecutor(LLamaWeights, IContextParams, MtmdWeights)**
+
+```csharp
+public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights clipModel)
+```
+
+#### Parameters
+
+`model` [LLamaWeights](./llama.llamaweights.md)<br>
+
+`contextParams` [IContextParams](./llama.abstractions.icontextparams.md)<br>
+
+`clipModel` [MtmdWeights](./llama.mtmdweights.md)<br>
 
 ## Methods
 

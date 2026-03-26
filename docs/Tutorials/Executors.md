@@ -16,21 +16,21 @@ public interface ILLamaExecutor
     /// </summary>
     public LLamaContext Context { get; }
 
-    // LLava Section
+    // Multimodal Section
     //
     /// <summary>
-    /// Identify if it's a multi-modal model and there is a image to process.
+    /// Identify if it's a multimodal executor.
     /// </summary>
     public bool IsMultiModal { get; }
     /// <summary>
     /// Multi-Modal Projections / Clip Model weights
     /// </summary>
-    public LLavaWeights? ClipModel { get;  }        
+    public MtmdWeights? ClipModel { get; }
 
     /// <summary>
-    /// List of images: List of images in byte array format.
+    /// Media embeddings queued for the next multimodal prompt.
     /// </summary>
-    public List<byte[]> Images { get; }
+    public List<SafeMtmdEmbed> Embeds { get; }
 
 
     /// <summary>
@@ -329,21 +329,23 @@ public record InferenceParams
 
 ## Save and load executor state
 
-An executor also has its state, which can be saved and loaded. That means a lot when you want to support restore a previous session for the user in your application.
+Text executors also have state, which can be saved and loaded. That matters when you want to restore a previous session for the user in your application.
+
+Multimodal executors do not support executor-state persistence or session files. `GetStateData`, `SaveState`, `LoadState`, `WithSessionFile`, and `SaveSessionFile` will throw `NotSupportedException` when `ClipModel` is attached.
 
 The following code shows how to use save and load executor state.
 
 ```cs
-InteractiveExecutor executor = new InteractiveExecutor(model);
+InteractiveExecutor executor = new InteractiveExecutor(context);
 // do some things...
-executor.SaveState("executor.st");
+await executor.SaveState("executor.st");
 var stateData = executor.GetStateData();
 
-InteractiveExecutor executor2 = new InteractiveExecutor(model);
-executor2.LoadState(stateData);
+InteractiveExecutor executor2 = new InteractiveExecutor(context);
+await executor2.LoadState(stateData);
 // do some things...
 
-InteractiveExecutor executor3 = new InteractiveExecutor(model);
-executor3.LoadState("executor.st");
+InteractiveExecutor executor3 = new InteractiveExecutor(context);
+await executor3.LoadState("executor.st");
 // do some things...
 ```

@@ -355,3 +355,5 @@ site/
 /Llama.Mobile/Resources/Raw
 /nuget_pack.bat
 /temp
+LLama.Web/wwwroot/lib/
+LLama.Web/Models/

@@ -593,9 +593,14 @@ namespace LLama.Native
         /// 
         /// You can still modify the configuration after this calling but only before any call from <see cref="NativeApi"/>.
         /// </summary>
+        /// <param name="loadedLLamaNativeLibrary">The loaded llama native library descriptor, or null when loading failed.</param>
+        /// <param name="loadedMtmdNativeLibrary">The loaded mtmd native library descriptor, or null when loading failed.</param>
         /// <returns>Whether the running is successful.</returns>
         public bool DryRun(out INativeLibrary? loadedLLamaNativeLibrary, out INativeLibrary? loadedMtmdNativeLibrary)
         {
+            loadedLLamaNativeLibrary = null;
+            loadedMtmdNativeLibrary = null;
+
             bool success = true;
             foreach(var config in _configs)
             {
@@ -613,7 +618,6 @@ namespace LLama.Native
                     throw new Exception("Unknown native library config during the dry run.");
                 }
             }
-            loadedLLamaNativeLibrary = loadedMtmdNativeLibrary = null;
             return success;
         }
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using LLama.Exceptions;
 
@@ -12,9 +11,6 @@ namespace LLama.Native
     /// </summary>
     public sealed class SafeMtmdModelHandle : SafeLLamaHandleBase
     {
-        // Pending media embeddings queued for the next call to Tokenize.
-        private readonly List<SafeMtmdEmbed> _pendingMedia = new();
-
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
@@ -66,51 +62,37 @@ namespace LLama.Native
         }
 
         /// <summary>
-        /// Load media from disk and queue it for the next tokenize call.
+        /// Create a media embedding from disk.
         /// </summary>
-        /// <param name="path">Absolute or relative path to the media asset.</param>
-        /// <returns>Safe handle to the media embedding.</returns>
+        /// <param name="path">Path to the media file on disk.</param>
+        /// <returns>Safe handle to the prepared media embedding.</returns>
         /// <exception cref="ObjectDisposedException">The model handle has been disposed.</exception>
-        /// <exception cref="RuntimeError">The native loader failed to ingest the file.</exception>
-        public SafeMtmdEmbed LoadMediaFromFile(string path)
+        /// <exception cref="RuntimeError">The native loader failed to ingest the file contents.</exception>
+        public SafeMtmdEmbed CreateMediaEmbedFromFile(string path)
         {
             EnsureNotDisposed();
 
-            var embed = SafeMtmdEmbed.FromMediaFile(this, path)
+            return SafeMtmdEmbed.FromMediaFile(this, path)
                 ?? throw new RuntimeError($"Failed to load media '{path}'.");
-            _pendingMedia.Add(embed);
-            return embed;
         }
 
         /// <summary>
-        /// Load media from an in-memory buffer and queue it for the next tokenize call.
+        /// Create a media embedding from an in-memory buffer.
         /// </summary>
         /// <param name="buffer">Binary buffer containing the encoded media data.</param>
-        /// <returns>Safe handle to the media embedding.</returns>
+        /// <returns>Safe handle to the prepared media embedding.</returns>
         /// <exception cref="ObjectDisposedException">The model handle has been disposed.</exception>
         /// <exception cref="RuntimeError">The native loader failed to ingest the buffer contents.</exception>
-        public SafeMtmdEmbed LoadMediaFromBuffer(ReadOnlySpan<byte> buffer)
+        public SafeMtmdEmbed CreateMediaEmbedFromBuffer(ReadOnlySpan<byte> buffer)
         {
             EnsureNotDisposed();
 
-            var embed = SafeMtmdEmbed.FromMediaBuffer(this, buffer)
+            return SafeMtmdEmbed.FromMediaBuffer(this, buffer)
                 ?? throw new RuntimeError("Failed to load media from buffer.");
-            _pendingMedia.Add(embed);
-            return embed;
         }
 
         /// <summary>
-        /// Disposes and clears any media buffers currently queued for tokenization.
-        /// </summary>
-        public void ClearMedia()
-        {
-            foreach (var media in _pendingMedia)
-                media.Dispose();
-            _pendingMedia.Clear();
-        }
-
-        /// <summary>
-        /// Tokenize a prompt alongside the pending media buffers. Pending media is cleared on success.
+        /// Tokenize a prompt without any media embeddings.
         /// </summary>
         /// <param name="text">Prompt text to tokenize.</param>
         /// <param name="addSpecial">Whether to append special tokens automatically.</param>
@@ -120,43 +102,7 @@ namespace LLama.Native
         /// <exception cref="ObjectDisposedException">The model handle has been disposed.</exception>
         public int Tokenize(string text, bool addSpecial, bool parseSpecial, out SafeMtmdInputChunks? chunks)
         {
-            EnsureNotDisposed();
-
-            chunks = null;
-            // Allocate the chunk container before invoking the native tokenizer.
-            var output = NativeApi.mtmd_input_chunks_init();
-            if (output == IntPtr.Zero)
-                throw new RuntimeError("Failed to allocate mtmd_input_chunks.");
-
-            // Collect native pointers to the queued media embeddings.
-            var bitmapHandles = new IntPtr[_pendingMedia.Count];
-            for (var i = 0; i < _pendingMedia.Count; i++)
-                bitmapHandles[i] = _pendingMedia[i].NativePtr;
-
-            try
-            {
-                var result = NativeApi.mtmd_tokenize(this, output, text, addSpecial, parseSpecial, bitmapHandles, (nuint)bitmapHandles.Length);
-
-                if (result == 0)
-                {
-                    chunks = new SafeMtmdInputChunks(output);
-                }
-                else
-                {
-                    NativeApi.mtmd_input_chunks_free(output);
-                }
-
-                ClearMedia();
-
-                return result;
-            }
-            finally
-            {
-                // bitmapHandles contains dangerous references to media embeddings objects, we must ensure that these
-                // remain valid for the complete time that the bitmapHandles array is in use. KeepAlive guarantees the 
-                // array remains valid to this point, and thus all of the safe handles too.
-                GC.KeepAlive(bitmapHandles);
-            }
+            return Tokenize(text, addSpecial, parseSpecial, ReadOnlySpan<SafeMtmdEmbed>.Empty, out chunks);
         }
 
         /// <summary>
@@ -203,7 +149,7 @@ namespace LLama.Native
         /// <summary>
         /// Evaluate a batch of chunks using the helper (mirrors mtmd-helper eval logic).
         /// </summary>
-        /// <param name="chunks">Chunk collection produced by <see cref="Tokenize"/>.</param>
+        /// <param name="chunks">Chunk collection produced by <see cref="Tokenize(string, bool, bool, out SafeMtmdInputChunks?)"/>.</param>
         /// <param name="llamaContext">Context handle that receives the evaluated tokens.</param>
         /// <param name="nPast">Number of past tokens; updated when evaluation succeeds.</param>
         /// <param name="seqId">Sequence identifier used for KV cache management.</param>
