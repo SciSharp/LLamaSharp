@@ -478,7 +478,7 @@ namespace LLama.Native
             // - File exists (automatically throws FileNotFoundException)
             // - File is readable (explicit check)
             // This provides better error messages that llama.cpp, which would throw an access violation exception in both cases.
-            using (var fs = new FileStream(path, FileMode.Open))
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
                 if (!fs.CanRead)
                     throw new InvalidOperationException($"LoRA file '{path}' is not readable");
 
