@@ -68,19 +68,13 @@ The differences between modes may lead to much different behaviours under the sa
 This error means the model's architecture is not supported by the version of 
 llama.cpp that the current LLamaSharp backend is built against.
 
-The most common cause is using a model that was released after your installed 
-version of LLamaSharp. Newer model families (e.g. Gemma, Qwen) 
-require a backend built against a newer llama.cpp commit.
+The most common cause is using a model that was released after your installed version of LLamaSharp. Newer model families require a backend built against a newer llama.cpp commit.
 
 **Solutions, in order of preference:**
 
-1. **Update LLamaSharp** to the latest version and reinstall the matching backend 
-   package. Check the version table at the bottom of the README to confirm which 
-   model families are verified for each release.
+1. **Update LLamaSharp** to the latest version and reinstall the matching backend package. Check the version table at the bottom of the README to confirm which model families are verified for each release.
 
-2. **Check the model's publishing date** on Hugging Face. If it predates your 
-   LLamaSharp version, the architecture may not yet be supported - open an issue 
-   on the repository to request support.
+2. **Check the model's publishing date** on Hugging Face. If it was published after your LLamaSharp version, the architecture may not yet be supported - open an issue on the repository to request support.
 
 3. **Compile the compatible llama.cpp build yourself**, then point LLamaSharp to it with NativeLibraryConfig.All.WithLibrary()
 
