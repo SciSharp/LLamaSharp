@@ -22,10 +22,42 @@ public class LoraAdapter
     /// </summary>
     internal IntPtr Pointer { get; }
 
+    /// <summary>
+    /// Indicates if this adapter has been unloaded
+    /// </summary>
+    internal bool Loaded { get; private set; }
+
     internal LoraAdapter(SafeLlamaModelHandle model, string path, IntPtr nativePtr)
     {
         Model = model;
         Path = path;
         Pointer = nativePtr;
+        Loaded = true;
+    }
+
+    /// <summary>
+    /// Unload this adapter
+    /// </summary>
+    public void Unload()
+    {
+        // Early exit if already unloaded
+        if (!Loaded)
+            return;
+        
+        // If the model has been unloaded this handle will have been auto unloaded
+        if (Model.IsClosed)
+        {
+            Loaded = false;
+            return;
+        }
+
+        // Unload
+        Loaded = false;
+        llama_adapter_lora_free(Pointer);
+
+        // Manually free a LoRA adapter. loaded adapters which have not been
+        // freed will be automatically freed when the associated model is deleted
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        static extern void llama_adapter_lora_free(IntPtr adapter);
     }
 }

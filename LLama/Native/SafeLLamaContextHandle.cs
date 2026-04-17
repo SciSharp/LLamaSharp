@@ -489,8 +489,12 @@ namespace LLama.Native
         {
             // Check adapters are all valid and attached to this model
             foreach (var adapter in adapters)
+            {
                 if (adapter.Adapter.Model != ModelHandle)
                     throw new ArgumentException("Cannot add LoRA adapter which was loaded for a different model");
+                if (!adapter.Adapter.Loaded)
+                    throw new ArgumentException("Cannot add LoRA adapter which has been unloaded");
+            }
 
             // Copy data into buffers
             Span<IntPtr> adapterPtrs = stackalloc IntPtr[adapters.Length];
