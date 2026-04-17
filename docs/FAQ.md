@@ -62,3 +62,20 @@ In this inequality, `len(response)` refers to the expected tokens for LLM to gen
 ## Choose models weight depending on your task
 
 The differences between modes may lead to much different behaviours under the same task. For example, if you're building a chat bot with non-English, a fine-tuned model specially for the language you want to use will have huge effect on the performance.
+
+## Why am I getting "error loading model architecture: unknown model architecture: 'X'"?
+
+This error means the model's architecture is not supported by the version of 
+llama.cpp that the current LLamaSharp backend is built against.
+
+The most common cause is using a model that was released after your installed version of LLamaSharp. Newer model families require a backend built against a newer llama.cpp commit.
+
+**Solutions, in order of preference:**
+
+1. **Update LLamaSharp** to the latest version and reinstall the matching backend package. Check the version table at the bottom of the README to confirm which model families are verified for each release.
+
+2. **Check the model's publishing date** on Hugging Face. If it was published after your LLamaSharp version, the architecture may not yet be supported - open an issue on the repository to request support.
+
+3. **Compile the compatible llama.cpp build yourself**, then point LLamaSharp to it with NativeLibraryConfig.All.WithLibrary()
+
+> **Caution:** Using a self-compiled library that does not match the LLamaSharp version's expected commit is unsupported and may cause crashes or unexpected behaviour. Only do this as a last resort.
