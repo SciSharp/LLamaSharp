@@ -37,7 +37,7 @@ namespace LLama.Native
         /// <summary>
         /// Get the number of maximum sequences allowed
         /// </summary>
-        public uint MaxSeq => NativeApi.llama_n_seq_max(this);
+        public uint MaxSeq => llama_n_seq_max(this);
 
         /// <summary>
         /// Get or set the number of threads used for generation of a single token.
@@ -355,6 +355,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of the value string (on success) -1 otherwise </returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        // ReSharper disable once InconsistentNaming
         private static extern int llama_adapter_meta_val_str(IntPtr adapter, string key, StringBuilder buf, UIntPtr buf_size);
         
         /// <summary>
@@ -374,6 +375,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of string i.e meta key (on success) -1 otherwise</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        // ReSharper disable once InconsistentNaming
         private static extern int llama_adapter_meta_key_by_index(IntPtr adapter, int i, StringBuilder buf, UIntPtr buf_size);
         
         /// <summary>
@@ -385,6 +387,7 @@ namespace LLama.Native
         /// <param name="buf_size"></param>
         /// <returns>The length of value string (on success) -1 otherwise</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        // ReSharper disable once InconsistentNaming
         private static extern int llama_adapter_meta_val_by_index(IntPtr adapter, int i, StringBuilder buf,  UIntPtr buf_size);
 
         /// <summary>
@@ -424,6 +427,56 @@ namespace LLama.Native
         /// <param name="warmup"></param>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_set_warmup(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool warmup);
+
+        /// <summary>
+        /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
+        /// </summary>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
+
+        /// <summary>
+        /// Set whether the context outputs embeddings or not
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="embeddings">If true, embeddings will be returned but logits will not</param>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void llama_set_embeddings(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool embeddings);
+
+        /// <summary>
+        /// Get the n_seq_max for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_seq_max(SafeLLamaContextHandle ctx);
+        #endregion
+
+        #region Setters
+        /// <summary>
+        /// Set whether the model is in warmup mode or not
+        /// If true, all model tensors are activated during <see cref="Decode(LLamaBatch)"/> to load and cache their weights.
+        /// </summary>
+        public void SetWarmup(bool value)
+        {
+            llama_set_warmup(this, value);
+        }
+
+        /// <summary>
+        /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
+        /// </summary>
+        public void SetCausalAttention(bool value)
+        {
+            llama_set_causal_attn(this, value);
+        }
+
+        /// <summary>
+        /// Set whether the context outputs embeddings or not
+        /// </summary>
+        /// <param name="value">If true, embeddings will be returned but logits will not</param>
+        public void SetEmbeddings(bool value)
+        {
+            llama_set_embeddings(this, value);
+        }
         #endregion
 
         #region LoRA
@@ -434,7 +487,7 @@ namespace LLama.Native
         /// <exception cref="ArgumentException"></exception>
         public void SetLoraAdapters(params Span<(LoraAdapter Adapter, float Scale)> adapters)
         {
-            // Check adapters are all valid
+            // Check adapters are all valid and attached to this model
             foreach (var adapter in adapters)
             {
                 if (adapter.Adapter.Model != ModelHandle)

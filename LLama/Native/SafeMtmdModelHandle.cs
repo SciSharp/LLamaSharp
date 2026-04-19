@@ -348,7 +348,7 @@ namespace LLama.Native
         /// <summary>
         /// Gets the audio bitrate advertised by the model.
         /// </summary>
-        public int GetAudioBitrate() => NativeApi.mtmd_get_audio_bitrate(this);
+        public int GetAudioSampleRate() => NativeApi.mtmd_get_audio_sample_rate(this);
 
         private void EnsureNotDisposed()
         {

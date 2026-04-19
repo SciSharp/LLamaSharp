@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Exceptions;
 using LLama.Native;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LLama;
 
@@ -79,7 +76,7 @@ public sealed partial class LLamaEmbedder
             Context.Dispose();
 
         Context = _weights.CreateContext(_params, _logger);
-        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+        Context.NativeHandle.SetEmbeddings(true);
 
         // Add all of the tokens to the batch
         var tokens = Context.Tokenize(input, special: true);

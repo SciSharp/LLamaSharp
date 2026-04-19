@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using LLama.Abstractions;
 using LLama.Exceptions;
 using LLama.Native;
@@ -44,7 +40,7 @@ public sealed partial class LLamaReranker
         if (@params.PoolingType != LLamaPoolingType.Rank)
             throw new NotSupportedException("Computing rank score, PoolingType must be equal to LLamaPoolingType.Rank");
         Context = weights.CreateContext(@params, logger);
-        NativeApi.llama_set_embeddings(Context.NativeHandle, true);
+        Context.NativeHandle.SetEmbeddings(true);
     }
 
     /// <inheritdoc />
