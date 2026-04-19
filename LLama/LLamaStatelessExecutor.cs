@@ -106,6 +106,9 @@ namespace LLama
             // Tokenize the prompt
             var tokens = Context.Tokenize(prompt, special: true).ToList();
 
+            // We must track the history of all tokens in this session in case we need to re-prefill the context
+            var all_tokens = new List<LLamaToken>(tokens);
+
             // Evaluate the prompt, in chunks smaller than the max batch size
             var n_past = 0;
             var (r, _, past) = await Context.DecodeAsync(tokens, LLamaSeqId.Zero, _batch, n_past);
@@ -138,17 +141,23 @@ namespace LLama
                 tokens.Add(id);
 
                 // when run out of context
-                // based on this logic: https://github.com/ggerganov/llama.cpp/blob/master/examples/main/main.cpp#L497
                 if (n_past + tokens.Count >= Context.ContextSize)
                 {
+                    if (inferenceParams.OverflowStrategy == ContextOverflowStrategy.ThrowException)
+                    {
+                        throw new ContextOverflowException(
+                            "The context window is full and the current strategy is set to ThrowException. " +
+                            "To automatically truncate and manage context, set InferenceParams.OverflowStrategy to ContextOverflowStrategy.TruncateAndReprefill."
+                        );
+                    }
+
                     var canAddBos = Context.Vocab.ShouldAddBOS;
                     var tokensKeep = inferenceParams.TokensKeep;
 
                     // number of tokens to keep when resetting context
-                    // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
-                    if (tokensKeep < 0 || tokensKeep > tokens.Count)
+                    if (tokensKeep < 0 || tokensKeep > all_tokens.Count)
                     {
-                        tokensKeep = tokens.Count;
+                        tokensKeep = all_tokens.Count;
                     }
                     else
                     {
@@ -156,13 +165,41 @@ namespace LLama
                     }
 
                     var n_left = n_past - tokensKeep;
-                    var n_discard = n_left / 2;
 
-                    Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensKeep, tokensKeep + n_discard);
-                    Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensKeep + n_discard, n_past, -n_discard);
+                    // Safely calculate discard amount using our configured percentage
+                    var percentage = Math.Max(0.01f, Math.Min(0.99f, inferenceParams.ContextTruncationPercentage));
+                    var n_discard = (int)(n_left * percentage);
+                    if (n_discard < 1) n_discard = 1;
 
-                    n_past -= n_discard;
+                    try
+                    {
+                        // First, attempt the fast native memory shift (works for standard models like Llama 2/3)
+                        Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensKeep, tokensKeep + n_discard);
+                        Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensKeep + n_discard, n_past, -n_discard);
+                        n_past -= n_discard;
+                        all_tokens.RemoveRange(tokensKeep, n_discard);
+                    }
+                    catch (Exception ex) when (ex.Message.Contains("MemoryCanShift"))
+                    {
+                        // Fallback: The model does not support native shifting (e.g., 2D RoPE models).
+                        // We must clear the cache and perform a full context re-prefill.
+                        _logger?.LogInformation("Model does not support native memory shifting. Falling back to context re-prefill.");
+
+                        all_tokens.RemoveRange(tokensKeep, n_discard);
+
+                        _batch.Clear();
+                        Context.NativeHandle.MemoryClear();
+
+                        var (rReprefill, _, pastReprefill) = await Context.DecodeAsync(all_tokens, LLamaSeqId.Zero, _batch, 0);
+                        if (rReprefill != DecodeResult.Ok)
+                            throw new LLamaDecodeError(rReprefill);
+
+                        n_past = pastReprefill;
+                    }
                 }
+
+                // Add the new token to our historical tracker
+                all_tokens.Add(id);
 
                 // Evaluate with this new token
                 _batch.Clear();

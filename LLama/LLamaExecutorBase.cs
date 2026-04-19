@@ -198,21 +198,50 @@ namespace LLama
         /// <summary>
         /// After running out of the context, take some tokens from the original prompt and recompute the logits in batches.
         /// </summary>
-        /// <param name="tokensToKeep"></param>
-        protected virtual void HandleRunOutOfContext(int tokensToKeep)
+        /// <param name="tokensToKeep">The number of tokens from the initial prompt to preserve (e.g., system prompt).</param>
+        /// <param name="inferenceParams">The parameters controlling the inference and overflow strategy.</param>
+        /// <exception cref="ContextOverflowException">Thrown when the overflow strategy is set to ThrowException or truncation bounds are invalid.</exception>
+        /// <exception cref="LLamaDecodeError">Thrown if the native context decoding fails during the re-prefill phase.</exception>
+        protected virtual async Task HandleRunOutOfContext(int tokensToKeep, IInferenceParams inferenceParams)
         {
-            // if we run out of context:
-            // - take the tokensToKeep first tokens from the original prompt (via n_past)
-            // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
+            // 1. Fast Fail if not configured to auto-truncate
+            if (inferenceParams.OverflowStrategy == ContextOverflowStrategy.ThrowException)
+            {
+                throw new ContextOverflowException(
+                    "The context window is full and the current model architecture does not support native memory shifting. " +
+                    "To automatically truncate and re-prefill the context, set InferenceParams.OverflowStrategy to ContextOverflowStrategy.TruncateAndReprefill."
+                );
+            }
+
+            // 2. Calculate tokens safely
             var n_left = _pastTokensCount - tokensToKeep;
-            var n_discard = n_left / 2;
+            if (n_left <= 0)
+            {
+                throw new ContextOverflowException("Cannot truncate context: tokensToKeep exceeds or equals the current context size.");
+            }
 
-            Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
-            Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
+            // Clamp the percentage between 1% and 99% to prevent math errors or total wipeouts
+            var percentage = Math.Max(0.01f, Math.Min(0.99f, inferenceParams.ContextTruncationPercentage));
+            var n_discard = (int)(n_left * percentage);
 
-            _pastTokensCount -= n_discard;
-            // stop saving session if we run out of context
-            _pathSession = string.Empty;
+            // Sanity check: always discard at least 1 token if we are truncating
+            if (n_discard < 1) n_discard = 1;
+
+            // 3. Remove the oldest non-kept tokens. 
+            // If tokensToKeep is 10, we keep indexes 0-9, and start removing from index 10.
+            int startIndex = Math.Max(0, tokensToKeep);
+            _session_tokens.RemoveRange(startIndex, n_discard);
+
+            // 4. Clear the native KV Cache and perform a complete re-prefill
+            LLamaBatch batch = new();
+            Context.NativeHandle.MemoryClear();
+
+            (var result, _, _pastTokensCount) = await Context.DecodeAsync(_session_tokens, LLamaSeqId.Zero, batch, 0);
+
+            if (result != DecodeResult.Ok)
+            {
+                throw new LLamaDecodeError(result);
+            }
         }
 
         /// <summary>
