@@ -16,6 +16,10 @@
 
 [LLamaQuantizer](./llama.llamaquantizer.md)
 
+[LLamaReranker](./llama.llamareranker.md)
+
+[LLamaTemplate](./llama.llamatemplate.md)
+
 [LLamaTransforms](./llama.llamatransforms.md)
 
 [LLamaWeights](./llama.llamaweights.md)
@@ -32,8 +36,6 @@
 
 ## LLama.Abstractions
 
-[AdapterCollection](./llama.abstractions.adaptercollection.md)
-
 [IContextParams](./llama.abstractions.icontextparams.md)
 
 [IHistoryTransform](./llama.abstractions.ihistorytransform.md)
@@ -46,15 +48,21 @@
 
 [IModelParams](./llama.abstractions.imodelparams.md)
 
+[INativeLibrary](./llama.abstractions.inativelibrary.md)
+
+[INativeLibrarySelectingPolicy](./llama.abstractions.inativelibraryselectingpolicy.md)
+
 [ITextStreamTransform](./llama.abstractions.itextstreamtransform.md)
 
 [ITextTransform](./llama.abstractions.itexttransform.md)
 
-[LoraAdapter](./llama.abstractions.loraadapter.md)
+[LLamaExecutorExtensions](./llama.abstractions.llamaexecutorextensions.md)
 
 [MetadataOverride](./llama.abstractions.metadataoverride.md)
 
 [MetadataOverrideConverter](./llama.abstractions.metadataoverrideconverter.md)
+
+[TensorBufferOverride](./llama.abstractions.tensorbufferoverride.md)
 
 [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)
 
@@ -66,13 +74,13 @@
 
 [BatchedExecutor](./llama.batched.batchedexecutor.md)
 
-[CannotForkWhileRequiresInferenceException](./llama.batched.cannotforkwhilerequiresinferenceexception.md)
-
 [CannotModifyWhileRequiresInferenceException](./llama.batched.cannotmodifywhilerequiresinferenceexception.md)
 
 [CannotSampleRequiresInferenceException](./llama.batched.cannotsamplerequiresinferenceexception.md)
 
 [CannotSampleRequiresPromptException](./llama.batched.cannotsamplerequirespromptexception.md)
+
+[CannotSaveWhileRequiresInferenceException](./llama.batched.cannotsavewhilerequiresinferenceexception.md)
 
 [Conversation](./llama.batched.conversation.md)
 
@@ -96,31 +104,17 @@
 
 ## LLama.Exceptions
 
-[GrammarExpectedName](./llama.exceptions.grammarexpectedname.md)
-
-[GrammarExpectedNext](./llama.exceptions.grammarexpectednext.md)
-
-[GrammarExpectedPrevious](./llama.exceptions.grammarexpectedprevious.md)
-
-[GrammarFormatException](./llama.exceptions.grammarformatexception.md)
-
-[GrammarUnexpectedCharAltElement](./llama.exceptions.grammarunexpectedcharaltelement.md)
-
-[GrammarUnexpectedCharRngElement](./llama.exceptions.grammarunexpectedcharrngelement.md)
-
-[GrammarUnexpectedEndElement](./llama.exceptions.grammarunexpectedendelement.md)
-
-[GrammarUnexpectedEndOfInput](./llama.exceptions.grammarunexpectedendofinput.md)
-
-[GrammarUnexpectedHexCharsCount](./llama.exceptions.grammarunexpectedhexcharscount.md)
-
-[GrammarUnknownEscapeCharacter](./llama.exceptions.grammarunknownescapecharacter.md)
+[GetLogitsInvalidIndexException](./llama.exceptions.getlogitsinvalidindexexception.md)
 
 [LLamaDecodeError](./llama.exceptions.llamadecodeerror.md)
 
 [LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)
 
+[MissingTemplateException](./llama.exceptions.missingtemplateexception.md)
+
 [RuntimeError](./llama.exceptions.runtimeerror.md)
+
+[TemplateNotFoundException](./llama.exceptions.templatenotfoundexception.md)
 
 ## LLama.Extensions
 
@@ -128,25 +122,29 @@
 
 [IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)
 
-## LLama.Grammars
-
-[Grammar](./llama.grammars.grammar.md)
-
-[GrammarRule](./llama.grammars.grammarrule.md)
+[SpanNormalizationExtensions](./llama.extensions.spannormalizationextensions.md)
 
 ## LLama.Native
 
+[AvxLevel](./llama.native.avxlevel.md)
+
 [DecodeResult](./llama.native.decoderesult.md)
+
+[DefaultNativeLibrarySelectingPolicy](./llama.native.defaultnativelibraryselectingpolicy.md)
+
+[EncodeResult](./llama.native.encoderesult.md)
 
 [GGMLType](./llama.native.ggmltype.md)
 
 [GPUSplitMode](./llama.native.gpusplitmode.md)
 
+[ICustomSampler](./llama.native.icustomsampler.md)
+
+[LLamaAttentionType](./llama.native.llamaattentiontype.md)
+
 [LLamaBatch](./llama.native.llamabatch.md)
 
-[LLamaBeamsState](./llama.native.llamabeamsstate.md)
-
-[LLamaBeamView](./llama.native.llamabeamview.md)
+[LLamaBatchEmbeddings](./llama.native.llamabatchembeddings.md)
 
 [LLamaChatMessage](./llama.native.llamachatmessage.md)
 
@@ -154,15 +152,9 @@
 
 [LLamaFtype](./llama.native.llamaftype.md)
 
-[LLamaGrammarElement](./llama.native.llamagrammarelement.md)
-
-[LLamaGrammarElementType](./llama.native.llamagrammarelementtype.md)
-
-[LLamaKvCacheView](./llama.native.llamakvcacheview.md)
-
-[LLamaKvCacheViewCell](./llama.native.llamakvcacheviewcell.md)
-
 [LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)
+
+[LLamaLogitBias](./llama.native.llamalogitbias.md)
 
 [LLamaLogLevel](./llama.native.llamaloglevel.md)
 
@@ -174,7 +166,11 @@
 
 [LLamaModelQuantizeParams](./llama.native.llamamodelquantizeparams.md)
 
+[LLamaModelTensorBufferOverride](./llama.native.llamamodeltensorbufferoverride.md)
+
 [LLamaNativeBatch](./llama.native.llamanativebatch.md)
+
+[LLamaPerfContextTimings](./llama.native.llamaperfcontexttimings.md)
 
 [LLamaPoolingType](./llama.native.llamapoolingtype.md)
 
@@ -182,9 +178,15 @@
 
 [LLamaRopeType](./llama.native.llamaropetype.md)
 
+[LLamaSamplerChainParams](./llama.native.llamasamplerchainparams.md)
+
+[LLamaSamplingTimings](./llama.native.llamasamplingtimings.md)
+
 [LLamaSeqId](./llama.native.llamaseqid.md)
 
 [LLamaToken](./llama.native.llamatoken.md)
+
+[LLamaTokenAttr](./llama.native.llamatokenattr.md)
 
 [LLamaTokenData](./llama.native.llamatokendata.md)
 
@@ -192,29 +194,51 @@
 
 [LLamaTokenDataArrayNative](./llama.native.llamatokendataarraynative.md)
 
-[LLamaTokenType](./llama.native.llamatokentype.md)
-
 [LLamaVocabType](./llama.native.llamavocabtype.md)
 
 [LLavaImageEmbed](./llama.native.llavaimageembed.md)
+
+[LoraAdapter](./llama.native.loraadapter.md)
 
 [NativeApi](./llama.native.nativeapi.md)
 
 [NativeLibraryConfig](./llama.native.nativelibraryconfig.md)
 
+[NativeLibraryConfigContainer](./llama.native.nativelibraryconfigcontainer.md)
+
+[NativeLibraryFromPath](./llama.native.nativelibraryfrompath.md)
+
+[NativeLibraryMetadata](./llama.native.nativelibrarymetadata.md)
+
+[NativeLibraryName](./llama.native.nativelibraryname.md)
+
+[NativeLibraryWithAvx](./llama.native.nativelibrarywithavx.md)
+
+[NativeLibraryWithCuda](./llama.native.nativelibrarywithcuda.md)
+
+[NativeLibraryWithMacOrFallback](./llama.native.nativelibrarywithmacorfallback.md)
+
+[NativeLibraryWithVulkan](./llama.native.nativelibrarywithvulkan.md)
+
+[NativeLogConfig](./llama.native.nativelogconfig.md)
+
 [RopeScalingType](./llama.native.ropescalingtype.md)
 
 [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)
-
-[SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)
 
 [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md)
 
 [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)
 
+[SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)
+
 [SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)
 
 [SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)
+
+[SystemInfo](./llama.native.systeminfo.md)
+
+[UnknownNativeLibrary](./llama.native.unknownnativelibrary.md)
 
 ## LLama.Sampling
 
@@ -222,12 +246,14 @@
 
 [DefaultSamplingPipeline](./llama.sampling.defaultsamplingpipeline.md)
 
+[Grammar](./llama.sampling.grammar.md)
+
 [GreedySamplingPipeline](./llama.sampling.greedysamplingpipeline.md)
 
 [ISamplingPipeline](./llama.sampling.isamplingpipeline.md)
 
 [ISamplingPipelineExtensions](./llama.sampling.isamplingpipelineextensions.md)
 
-[Mirostate2SamplingPipeline](./llama.sampling.mirostate2samplingpipeline.md)
+## LLama.Transformers
 
-[MirostateSamplingPipeline](./llama.sampling.mirostatesamplingpipeline.md)
+[PromptTemplateTransformer](./llama.transformers.prompttemplatetransformer.md)

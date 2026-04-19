@@ -29,7 +29,7 @@ Generally, there are two possible cases for this problem:
 
 Please set anti-prompt or max-length when executing the inference.
 
-Anti-prompt can also be called as "Stop-keyword", which decides when to stop the response generation. Under interactive mode, the maximum tokens count is always not set, which makes the LLM generates responses infinitively. Therefore, setting anti-prompt correctly helps a lot to avoid the strange behaviours. For example, the prompt file `chat-with-bob.txt` has the following content:
+Anti-prompt can also be called as "Stop-keyword", which decides when to stop the response generation. Under interactive mode, the maximum tokens count is always not set, which makes the LLM generate responses infinitively. Therefore, setting anti-prompt correctly helps a lot to avoid the strange behaviours. For example, the prompt file `chat-with-bob.txt` has the following content:
 
 ```
 Transcript of a dialog, where the User interacts with an Assistant named Bob. Bob is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.
@@ -43,7 +43,7 @@ User:
 
 Therefore, the anti-prompt should be set as "User:". If the last line of the prompt is removed, LLM will automatically generate a question (user) and a response (bob) for one time when running the chat session. Therefore, the antiprompt is suggested to be appended to the prompt when starting a chat session.
 
-What if an extra line is appended? The string "User:" in the prompt will be followed with a char "\n". Thus when running the model, the automatic generation of a pair of question and response may appear because the anti-prompt is "User:" but the last token is "User:\n". As for whether it will appear, it's an undefined behaviour, which depends on the implementation inside the `LLamaExecutor`. Anyway, since it may leads to unexpected behaviors, it's recommended to trim your prompt or carefully keep consistent with your anti-prompt.
+What if an extra line is appended? The string "User:" in the prompt will be followed with a char "\n". Thus when running the model, the automatic generation of a pair of question and response may appear because the anti-prompt is "User:" but the last token is "User:\n". As for whether it will appear, it's an undefined behaviour, which depends on the implementation inside the `LLamaExecutor`. Anyway, since it may lead to unexpected behaviors, it's recommended to trim your prompt or carefully keep consistent with your anti-prompt.
  
 ## How to run LLM with non-English languages
 
@@ -59,6 +59,23 @@ $$ len(prompt) + len(response) < len(context) $$
 
 In this inequality, `len(response)` refers to the expected tokens for LLM to generate.
 
-## Choose models weight depending on you task
+## Choose models weight depending on your task
 
 The differences between modes may lead to much different behaviours under the same task. For example, if you're building a chat bot with non-English, a fine-tuned model specially for the language you want to use will have huge effect on the performance.
+
+## Why am I getting "error loading model architecture: unknown model architecture: 'X'"?
+
+This error means the model's architecture is not supported by the version of 
+llama.cpp that the current LLamaSharp backend is built against.
+
+The most common cause is using a model that was released after your installed version of LLamaSharp. Newer model families require a backend built against a newer llama.cpp commit.
+
+**Solutions, in order of preference:**
+
+1. **Update LLamaSharp** to the latest version and reinstall the matching backend package. Check the version table at the bottom of the README to confirm which model families are verified for each release.
+
+2. **Check the model's publishing date** on Hugging Face. If it was published after your LLamaSharp version, the architecture may not yet be supported - open an issue on the repository to request support.
+
+3. **Compile the compatible llama.cpp build yourself**, then point LLamaSharp to it with NativeLibraryConfig.All.WithLibrary()
+
+> **Caution:** Using a self-compiled library that does not match the LLamaSharp version's expected commit is unsupported and may cause crashes or unexpected behaviour. Only do this as a last resort.

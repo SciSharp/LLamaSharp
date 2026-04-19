@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaModelQuantizeParams
 
 Namespace: LLama.Native
@@ -32,12 +36,44 @@ quantize to this llama_ftype
 public LLamaFtype ftype;
 ```
 
+### **output_tensor_type**
+
+output tensor type
+
+```csharp
+public GGMLType output_tensor_type;
+```
+
+### **token_embedding_type**
+
+token embeddings tensor type
+
+```csharp
+public GGMLType token_embedding_type;
+```
+
 ### **imatrix**
 
 pointer to importance matrix data
 
 ```csharp
 public IntPtr imatrix;
+```
+
+### **kv_overrides**
+
+pointer to vector containing overrides
+
+```csharp
+public IntPtr kv_overrides;
+```
+
+### **tensor_types**
+
+pointer to vector containing tensor types
+
+```csharp
+public IntPtr tensor_types;
 ```
 
 ## Properties
@@ -80,7 +116,7 @@ public bool only_copy { get; set; }
 
 ### **pure**
 
-disable k-quant mixtures and quantize all tensors to the same type
+quantize all tensors to the default type
 
 ```csharp
 public bool pure { get; set; }
@@ -89,3 +125,33 @@ public bool pure { get; set; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **keep_split**
+
+quantize to the same number of shards
+
+```csharp
+public bool keep_split { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+## Methods
+
+### **Default()**
+
+Create a LLamaModelQuantizeParams with default values
+
+```csharp
+LLamaModelQuantizeParams Default()
+```
+
+#### Returns
+
+[LLamaModelQuantizeParams](./llama.native.llamamodelquantizeparams.md)<br>
+
+---
+
+[`< Back`](./)

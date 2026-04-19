@@ -352,3 +352,6 @@ site/
 /LLama/runtimes/deps
 /LLama/runtimes/deps.zip
 /LLama/runtimes/release_id.txt
+/Llama.Mobile/Resources/Raw
+/nuget_pack.bat
+/temp

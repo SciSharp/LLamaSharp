@@ -8,7 +8,7 @@ namespace LLama.Sampling;
 /// <summary>
 /// An implementation of ISamplePipeline which mimics the default llama.cpp sampling
 /// </summary>
-public sealed class DefaultSamplingPipeline
+public class DefaultSamplingPipeline
     : BaseSamplingPipeline
 {
     /// <summary>
@@ -246,7 +246,8 @@ public sealed class DefaultSamplingPipeline
                 }
                     
                 // Extended optimization : Apply the grammar to the TopK tokens and check if the selected token is valid
-                if (GrammarOptimization == GrammarOptimizationMode.Extended)
+                // Only run if TopK > 0
+                if (GrammarOptimization == GrammarOptimizationMode.Extended && TopK > 0)
                 {
                     // Calculate a safe TopK value
                     var safeTopK = Math.Min(TopK, nativeAll.Data.Length);

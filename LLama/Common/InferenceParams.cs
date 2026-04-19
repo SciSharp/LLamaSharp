@@ -18,7 +18,7 @@ namespace LLama.Common
         public int TokensKeep { get; set; } = 0;
 
         /// <summary>
-        /// how many new tokens to predict (n_predict), set to -1 to inifinitely generate response
+        /// how many new tokens to predict (n_predict), set to -1 to infinitely generate response
         /// until it complete.
         /// </summary>
         public int MaxTokens { get; set; } = -1;
@@ -30,6 +30,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public ISamplingPipeline SamplingPipeline { get; set; } = new DefaultSamplingPipeline();
+
+        /// <inheritdoc />
+        public bool DecodeSpecialTokens { get; set; }
     }
 
     /// <summary>

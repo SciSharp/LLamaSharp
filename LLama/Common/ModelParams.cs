@@ -1,3 +1,4 @@
+using System;
 using LLama.Abstractions;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -32,6 +33,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
+
+        /// <inheritdoc />
+        public bool UseDirectIO { get; set; }
 
         /// <inheritdoc />
         public bool UseMemoryLock { get; set; }
@@ -95,12 +99,12 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
+        
+        /// <inheritdoc />
+        public bool? FlashAttention { get; set; }
 
         /// <inheritdoc />
-
-        public bool FlashAttention { get; set; }
-
-        /// <inheritdoc />
+        [Obsolete]
         public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
@@ -111,6 +115,15 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
+
+        /// <inheritdoc />
+        public bool? OpOffload { get; set; }
+
+        /// <inheritdoc />
+        public bool? SwaFull { get; set; }
+
+        /// <inheritdoc />
+        public bool? KVUnified { get; set; }
 
         /// <summary>
         /// `Encoding` cannot be directly JSON serialized, instead store the name as a string which can

@@ -1,14 +1,16 @@
-using LLama.Common;
-using LLama.Native;
-using LLama.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using LLama.Abstractions;
+using LLama.Common;
+using LLama;
 using LLama.Exceptions;
+using LLama.Native;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
@@ -20,33 +22,34 @@ namespace LLama
     /// </summary>
     public class InteractiveExecutor : StatefulExecutorBase
     {
+        // Indicates whether the executor is currently evaluating the initial prompt or a follow-up turn.
         private bool _is_prompt_run = true;
-        
-        // LLava
-        private int _EmbedImagePosition = -1;
-        private List<SafeLlavaImageEmbedHandle> _imageEmbedHandles = new List<SafeLlavaImageEmbedHandle>();
-        private bool _imageInPrompt = false;
+
+        // MTMD multimodal state
+        private SafeMtmdInputChunks? _mtmdChunks;  // Pending chunk collection produced by the multimodal tokenizer.
+        private string? _mtmdMarker;  // Cached multimodal marker returned by the native helper.
+
 
         /// <summary>
-        /// 
+        /// Create an interactive executor for text-only inference.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="logger"></param>
+        /// <param name="context">LLama context to operate against.</param>
+        /// <param name="logger">Optional logger for diagnostic output.</param>
         public InteractiveExecutor(LLamaContext context, ILogger? logger = null)
             : base(context, logger)
         {
         }
-        
+
         /// <summary>
-        /// 
+        /// Create an interactive multimodal executor that can process text alongside media inputs.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="clipModel"></param>
-        /// <param name="logger"></param>
-        public InteractiveExecutor(LLamaContext context, LLavaWeights clipModel, ILogger? logger = null)
+        /// <param name="context">LLama context to operate against.</param>
+        /// <param name="clipModel">Multimodal weights (MTMD) to attach to the executor.</param>
+        /// <param name="logger">Optional logger for diagnostic output.</param>
+        public InteractiveExecutor(LLamaContext context, MtmdWeights clipModel, ILogger? logger = null)
             : base(context, clipModel, logger)
         {
-        }        
+        }
 
         /// <inheritdoc />
         public override ExecutorBaseState GetStateData()
@@ -67,9 +70,11 @@ namespace LLama
             };
             return state;
         }
+
         /// <inheritdoc />
-        public override Task LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
+            DisposeMtmdChunks();
             if (data is InteractiveExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
@@ -88,48 +93,58 @@ namespace LLama
 
             return Task.CompletedTask;
         }
+
         /// <inheritdoc />
-        public override async Task SaveState(string filename)
+        public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
             var state = (InteractiveExecutorState)GetStateData();
-            using(var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
+            using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                await JsonSerializer.SerializeAsync(fs, state);
-            }
-        }
-        /// <inheritdoc />
-        public override async Task LoadState(string filename)
-        {
-            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
-                await LoadState(state!);
+                await JsonSerializer.SerializeAsync(fs, state, cancellationToken: cancellationToken);
             }
         }
 
+        /// <inheritdoc />
+        public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
+        {
+            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+
+            var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
+            await LoadState(state!, cancellationToken);
+        }
+
         /// <summary>
-        /// Define whether to continue the loop to generate responses.
+        /// Decide whether generation should continue for the current iteration.
         /// </summary>
-        /// <returns></returns>
-        protected override Task<bool> GetLoopCondition(InferStateArgs args)
+        /// <param name="args">Mutable inference state.</param>
+        /// <returns><c>true</c> to keep generating; otherwise <c>false</c>.</returns>
+        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
             return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
         }
 
-        /// <inheritdoc />
-        protected override Task PreprocessInputs(string? text, InferStateArgs args)
+        /// <summary>
+        /// Preprocess the incoming prompt or continuation text before inference.
+        /// </summary>
+        /// <param name="text">Prompt text or continuation provided by the caller.</param>
+        /// <param name="args">Mutable inference state.</param>
+        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_is_prompt_run)
             {
                 // When running the first input (prompt) in interactive mode, we should specially process it.
-                if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
+                if (text == null)
+                {
+                    throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
+                }
+
                 if (!IsMultiModal)
                 {
                     _embed_inps = Context.Tokenize(text, true, true).ToList();
                 }
                 else
                 {
-                    PreprocessLlava(text, args, true);
+                    return PreprocessMtmd(text, args, addBos: true, replaceExisting: true);
                 }
             }
             else
@@ -150,7 +165,7 @@ namespace LLama
                     }
                     else
                     {
-                        PreprocessLlava(text, args, false);
+                        return PreprocessMtmd(text, args, addBos: false, replaceExisting: false);
                     }
                 }
             }
@@ -158,78 +173,45 @@ namespace LLama
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc />
-        private Task PreprocessLlava(string text, InferStateArgs args, bool addBos = true )
-        {   
-            // If the prompt contains the tag <image> extract this.
-            _imageInPrompt = text.Contains("<image>");
-            if (_imageInPrompt && IsMultiModal)
-            {
-                foreach (var image in Images)
-                {
-                    _imageEmbedHandles.Add(SafeLlavaImageEmbedHandle.CreateFromMemory(ClipModel!.NativeHandle, Context, image));
-                }
-
-                int imageIndex = text.IndexOf("<image>");
-                // Tokenize segment 1 (before <image> tag)
-                string preImagePrompt = text.Substring(0, imageIndex);
-                var segment1 = Context.Tokenize(preImagePrompt, addBos, true);
-                // Remember the position to add the image embeddings
-                _EmbedImagePosition = segment1.Length;
-                string postImagePrompt = text.Substring(imageIndex + 7);
-                var segment2 = Context.Tokenize(postImagePrompt, false, true);
-                _embed_inps.AddRange(segment1);
-                _embed_inps.AddRange(segment2);
-            }
-            else
-            {
-                if (addBos)
-                {
-                    _embed_inps = Context.Tokenize(text, true, true).ToList();
-                }
-                else
-                {
-                    var line_inp = Context.Tokenize(text, false, true);
-                    _embed_inps.AddRange(line_inp);
-                    args.RemainedTokens -= line_inp.Length;                    
-                }
-            }
-            return Task.CompletedTask;
-        }
-
         /// <summary>
-        /// Return whether to break the generation.
+        /// Decide whether generation should stop based on antiprompts, token limits, or end-of-generation markers.
         /// </summary>
-        /// <param name="inferenceParams"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        /// <param name="inferenceParams">Sampling parameters controlling generation.</param>
+        /// <param name="args">Mutable inference state.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Tuple describing whether to stop and any additional outputs to emit.</returns>
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
+                {
                     args.WaitForInput = true;
+                }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
-                    return (true, Array.Empty<string>());
+                {
+                    return Task.FromResult((true, (IReadOnlyList<string>)[]));
+                }
             }
 
             if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
             {
-                return (true, Array.Empty<string>());
+                return Task.FromResult((true, (IReadOnlyList<string>)[]));
             }
 
             if (args.RemainedTokens <= 0 && inferenceParams.MaxTokens != -1)
             {
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
+                return Task.FromResult((true, (IReadOnlyList<string>)[]));
             }
 
-            return (false, Array.Empty<string>());
+            return Task.FromResult((false, (IReadOnlyList<string>)[]));
         }
 
         /// <inheritdoc />
-        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             var batch = new LLamaBatch();
 
@@ -253,51 +235,50 @@ namespace LLama
                     HandleRunOutOfContext(tokensToKeep);
                 }
 
-                TryReuseMatchingPrefix();
-
-                // Changes to support Multi-Modal LLMs.
-                //
-                (DecodeResult, int, int) header, end, result;
-                if (IsMultiModal &&  _EmbedImagePosition > 0)
+                if (MtmdChunks is null)
                 {
-                    // Tokens previous to the images
-                    header = await Context.DecodeAsync(_embeds.GetRange(0, _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
-                    _pastTokensCount = header.Item3;
+                    TryReuseMatchingPrefix();
+                }
 
-                    if (header.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(header.Item1);
-                   
-                    // Images
-                    foreach( var image in _imageEmbedHandles )
-                        ClipModel!.EvalImageEmbed(Context, image, ref _pastTokensCount);
-                        
-                    // Post-image Tokens
-                    end = await Context.DecodeAsync(_embeds.GetRange(_EmbedImagePosition, _embeds.Count - _EmbedImagePosition), LLamaSeqId.Zero, batch, _pastTokensCount);
-                    _pastTokensCount = end.Item3;
-
-                    _EmbedImagePosition = -1;
-                    _imageEmbedHandles.Clear();
-                    Images.Clear();
+                if (IsMultiModal && MtmdChunks is not null)
+                {
+                    var nPast = _pastTokensCount;
+                    var previousConsumed = _consumedTokensCount;
+                    EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InteractiveExecutor));
                 }
                 else
                 {
-                    result = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
+                    var result = await Context.DecodeAsync(_embeds, LLamaSeqId.Zero, batch, _pastTokensCount);
                     _pastTokensCount = result.Item3;
 
                     if (result.Item1 != DecodeResult.Ok) throw new LLamaDecodeError(result.Item1);
-                }
-                
 
-                if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
-                {
-                    _session_tokens.AddRange(_embeds);
-                    _n_session_consumed = _session_tokens.Count;
+                    if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
+                    {
+                        _session_tokens.AddRange(_embeds);
+                        _n_session_consumed = _session_tokens.Count;
+                    }
                 }
             }
-
+            else if (IsMultiModal && MtmdChunks is not null)
+            {
+                _is_prompt_run = false;
+                var nPast = _pastTokensCount;
+                var previousConsumed = _consumedTokensCount;
+                EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InteractiveExecutor));
+            }
+            
             _embeds.Clear();
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
+                if (inferenceParams.MaxTokens == 0)
+                {
+                    _embeds.Clear();
+                    args.WaitForInput = true;
+                    args.ReturnValue = false;
+                    return;
+                }
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {
@@ -344,10 +325,10 @@ namespace LLama
         }
 
         /// <summary>
-        /// The descriptor of the state of the interactive executor.
+        /// Serializable state specific to the interactive executor.
         /// </summary>
         public class InteractiveExecutorState
-            : ExecutorBaseState
+            : StatefulExecutorBase.ExecutorBaseState
         {
             /// <summary>
             /// Whether the executor is running for the first time (running the prompt).

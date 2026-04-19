@@ -25,12 +25,13 @@ namespace LLama.Unittest
 
         private readonly LLamaWeights _weights;
         private readonly LLamaContext _context;
+        private readonly ModelParams _params;
 
         public LLamaContextWithCustomLoggerTests()
         {
-            var @params = new ModelParams(Constants.GenerativeModelPath2)
+            _params = new ModelParams(Constants.GenerativeModelPath2)
             {
-                ContextSize = 128,
+                ContextSize = 512,
                 GpuLayerCount = Constants.CIGpuLayerCount,
             };
 
@@ -42,8 +43,8 @@ namespace LLama.Unittest
             // but at least that setting one doesn't crash the weights load.
             NativeLogConfig.llama_log_set(new CustomLogger());
 
-            _weights = LLamaWeights.LoadFromFile(@params);
-            _context = _weights.CreateContext(@params);
+            _weights = LLamaWeights.LoadFromFile(_params);
+            _context = _weights.CreateContext(_params);
         }
 
         public void Dispose()
@@ -55,7 +56,7 @@ namespace LLama.Unittest
         [Fact]
         public void CheckProperties()
         {
-            Assert.Equal(128u, _context.ContextSize);
+            Assert.Equal(_params.ContextSize ?? 0, _context.ContextSize);
             Assert.Equal(960, _context.EmbeddingSize);
             Assert.Equal(49152, _context.Vocab.Count);
         }

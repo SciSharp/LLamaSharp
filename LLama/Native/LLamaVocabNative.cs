@@ -94,6 +94,14 @@ internal struct LLamaVocabNative
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe LLamaToken llama_vocab_pad(LLamaVocabNative* vocab);
 
+    /// <summary>
+    /// mask
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <returns></returns>
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe LLamaToken llama_vocab_mask(LLamaVocabNative* vocab);
+
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe LLamaToken llama_vocab_fim_pre(LLamaVocabNative* vocab);
 
@@ -119,4 +127,8 @@ internal struct LLamaVocabNative
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.U1)]
     public static extern unsafe bool llama_vocab_get_add_eos(LLamaVocabNative* vocab);
+
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    public static extern unsafe bool llama_vocab_get_add_sep(LLamaVocabNative* vocab);
 }

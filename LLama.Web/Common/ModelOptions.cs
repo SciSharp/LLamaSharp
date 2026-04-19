@@ -42,6 +42,9 @@ namespace LLama.Web.Common
         public bool UseMemorymap { get; set; } = true;
 
         /// <inheritdoc />
+        public bool UseDirectIO { get; }
+
+        /// <inheritdoc />
         public bool UseMemoryLock { get; set; } = false;
 
         /// <inheritdoc />
@@ -102,13 +105,22 @@ namespace LLama.Web.Common
         public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
-        public bool FlashAttention { get; set; }
+        public bool? FlashAttention { get; set; }
 
         /// <inheritdoc />
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
         /// <inheritdoc />
         public bool VocabOnly { get; set; }
+
+        /// <inheritdoc />
+        public bool? OpOffload { get; set; }
+
+        /// <inheritdoc />
+        public bool? SwaFull { get; set; }
+
+        /// <inheritdoc />
+        public bool? KVUnified { get; set; }
 
         /// <inheritdoc />
         public float? DefragThreshold { get; set; }

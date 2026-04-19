@@ -97,8 +97,8 @@ public class BatchedExecutorSimple
 
                 // A generic error, this is fatal and the batch can no longer be used. This should never occur and generally indicates
                 // a bug in LLamaSharp, llama.cpp or a hardware error.
-                if (decodeResult == DecodeResult.Error)
-                    throw new Exception("Unknown error occurred while inferring.");
+                if (decodeResult != DecodeResult.Ok)
+                    throw new Exception($"Error occurred while inferring: {decodeResult}");
                 
                 // After inference all of the conversations must be sampled before running inference again.
                 foreach (var conversationData in conversations)

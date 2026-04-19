@@ -119,7 +119,7 @@ namespace LLama.Benchmark.LLamaExecutorBenchmark
         {
             if(ExecutorType != ExecutorType.Stateless) // stateless executor always dispose its `Context` property
             {
-                Executor.Context.NativeHandle.KvCacheClear();
+                Executor.Context.NativeHandle.MemoryClear();
             }
         }
 

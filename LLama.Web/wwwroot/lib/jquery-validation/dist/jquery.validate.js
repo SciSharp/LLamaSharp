@@ -757,7 +757,7 @@ $.extend( $.validator, {
 				normalizer = this.settings.normalizer;
 			}
 
-			// If normalizer is defined, then call it to retreive the changed value instead
+			// If normalizer is defined, then call it to retrieve the changed value instead
 			// of using the real one.
 			// Note that `this` in the normalizer is `element`.
 			if ( normalizer ) {
@@ -1182,7 +1182,7 @@ $.extend( $.validator, {
 
 	normalizeAttributeRule: function( rules, type, method, value ) {
 
-		// Convert the value to a number for number inputs, and for text for backwards compability
+		// Convert the value to a number for number inputs, and for text for backwards compatibility
 		// allows type="date" and others to be compared as strings
 		if ( /min|max|step/.test( method ) && ( type === null || /number|range|text/.test( type ) ) ) {
 			value = Number( value );

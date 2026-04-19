@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ILLamaExecutor
 
 Namespace: LLama.Abstractions
@@ -7,6 +11,8 @@ A high level interface for LLama models.
 ```csharp
 public interface ILLamaExecutor
 ```
+
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Properties
 
@@ -36,7 +42,7 @@ public abstract bool IsMultiModal { get; }
 
 ### **ClipModel**
 
-Muti-Modal Projections / Clip Model weights
+Multi-Modal Projections / Clip Model weights
 
 ```csharp
 public abstract LLavaWeights ClipModel { get; }
@@ -46,17 +52,17 @@ public abstract LLavaWeights ClipModel { get; }
 
 [LLavaWeights](./llama.llavaweights.md)<br>
 
-### **ImagePaths**
+### **Images**
 
-List of images: Image filename and path (jpeg images).
+List of images: List of images in byte array format.
 
 ```csharp
-public abstract List<string> ImagePaths { get; set; }
+public abstract List<Byte[]> Images { get; }
 ```
 
 #### Property Value
 
-[List&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ## Methods
 
@@ -82,3 +88,7 @@ A cancellation token.
 #### Returns
 
 [IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+
+---
+
+[`< Back`](./)

@@ -1,4 +1,4 @@
-﻿namespace LLama.Native;
+namespace LLama.Native;
 
 /// <summary>
 /// Return codes from llama_decode
@@ -6,9 +6,9 @@
 public enum DecodeResult
 {
     /// <summary>
-    /// An unspecified error
+    /// Input batch was invalid
     /// </summary>
-    Error = -1,
+    InvalidInputBatch = -1,
 
     /// <summary>
     /// Ok.

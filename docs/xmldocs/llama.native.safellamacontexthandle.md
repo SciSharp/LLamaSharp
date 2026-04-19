@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # SafeLLamaContextHandle
 
 Namespace: LLama.Native
@@ -9,21 +13,18 @@ public sealed class SafeLLamaContextHandle : SafeLLamaHandleBase, System.IDispos
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
-## Properties
+## Fields
 
-### **VocabCount**
-
-Total number of tokens in vocabulary of this model
+### **handle**
 
 ```csharp
-public int VocabCount { get; }
+protected IntPtr handle;
 ```
 
-#### Property Value
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+## Properties
 
 ### **ContextSize**
 
@@ -61,6 +62,54 @@ public uint BatchSize { get; }
 
 [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
+### **UBatchSize**
+
+Get the physical maximum batch size for this context
+
+```csharp
+public uint UBatchSize { get; }
+```
+
+#### Property Value
+
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **GenerationThreads**
+
+Get or set the number of threads used for generation of a single token.
+
+```csharp
+public int GenerationThreads { get; set; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **BatchThreads**
+
+Get or set the number of threads used for prompt and batch processing (multiple token).
+
+```csharp
+public int BatchThreads { get; set; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **PoolingType**
+
+Get the pooling type for this context
+
+```csharp
+public LLamaPoolingType PoolingType { get; }
+```
+
+#### Property Value
+
+[LLamaPoolingType](./llama.native.llamapoolingtype.md)<br>
+
 ### **ModelHandle**
 
 Get the model which this context is using
@@ -72,6 +121,30 @@ public SafeLlamaModelHandle ModelHandle { get; }
 #### Property Value
 
 [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+
+### **Vocab**
+
+Get the vocabulary for the model this context is using
+
+```csharp
+public Vocabulary Vocab { get; }
+```
+
+#### Property Value
+
+[Vocabulary](./llama.native.safellamamodelhandle.vocabulary.md)<br>
+
+### **KvCacheCanShift**
+
+Check if the context supports KV cache shifting
+
+```csharp
+public bool KvCacheCanShift { get; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsInvalid**
 
@@ -135,17 +208,70 @@ public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaCon
 
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
 
-### **GetLogits()**
+### **AddLoraAdapter(LoraAdapter, Single)**
 
-Token logits obtained from the last call to llama_decode
- The logits for the last token are stored in the last row
+Add a LoRA adapter to this context
+
+```csharp
+public void AddLoraAdapter(LoraAdapter lora, float scale)
+```
+
+#### Parameters
+
+`lora` [LoraAdapter](./llama.native.loraadapter.md)<br>
+
+`scale` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+#### Exceptions
+
+[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+[RuntimeError](./llama.exceptions.runtimeerror.md)<br>
+
+### **RemoveLoraAdapter(LoraAdapter)**
+
+Remove a LoRA adapter from this context
+
+```csharp
+public bool RemoveLoraAdapter(LoraAdapter lora)
+```
+
+#### Parameters
+
+`lora` [LoraAdapter](./llama.native.loraadapter.md)<br>
+
+#### Returns
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Indicates if the lora was in this context and was remove
+
+### **ClearLoraAdapters()**
+
+Remove all LoRA adapters from this context
+
+```csharp
+public void ClearLoraAdapters()
+```
+
+### **GetLogits(Int32)**
+
+Token logits obtained from the last call to llama_decode.
+ The logits for the last token are stored in the last row.
+ Only tokens with `logits = true` requested are present.<br>
  Can be mutated in order to change the probabilities of the next token.<br>
  Rows: n_tokens<br>
  Cols: n_vocab
 
 ```csharp
-public Span<float> GetLogits()
+public Span<float> GetLogits(int numTokens)
 ```
+
+#### Parameters
+
+`numTokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The amount of tokens whose logits should be retrieved, in [numTokens X n_vocab] format.<br>
+ Tokens' order is based on their order in the LlamaBatch (so, first tokens are first, etc).<br>
+ This is helpful when requesting logits for many tokens in a sequence, or want to decode multiple sequences in one go.
 
 #### Returns
 
@@ -166,6 +292,42 @@ public Span<float> GetLogitsIth(int i)
 #### Returns
 
 [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+
+### **GetEmbeddingsIth(LLamaPos)**
+
+Get the embeddings for the ith sequence.
+ Equivalent to: llama_get_embeddings(ctx) + ctx-&gt;output_ids[i]*n_embd
+
+```csharp
+public Span<float> GetEmbeddingsIth(LLamaPos pos)
+```
+
+#### Parameters
+
+`pos` [LLamaPos](./llama.native.llamapos.md)<br>
+
+#### Returns
+
+[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+A pointer to the first float in an embedding, length = ctx.EmbeddingSize
+
+### **GetEmbeddingsSeq(LLamaSeqId)**
+
+Get the embeddings for the a specific sequence.
+ Equivalent to: llama_get_embeddings(ctx) + ctx-&gt;output_ids[i]*n_embd
+
+```csharp
+public Span<float> GetEmbeddingsSeq(LLamaSeqId seq)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+#### Returns
+
+[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+A pointer to the first float in an embedding, length = ctx.EmbeddingSize
 
 ### **Tokenize(String, Boolean, Boolean, Encoding)**
 
@@ -218,6 +380,33 @@ A span to attempt to write into. If this is too small nothing will be written
 [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 The size of this token. **nothing will be written** if this is larger than `dest`
 
+### **Synchronize()**
+
+Wait until all computations are finished. This is automatically done when using any of the functions to obtain computation results
+ and is not necessary to call it explicitly in most cases.
+
+```csharp
+public void Synchronize()
+```
+
+### **Encode(LLamaBatch)**
+
+Processes a batch of tokens with the encoder part of the encoder-decoder model. Stores the encoder output
+ internally for later use by the decoder cross-attention layers.
+
+```csharp
+public DecodeResult Encode(LLamaBatch batch)
+```
+
+#### Parameters
+
+`batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
+
+#### Returns
+
+[DecodeResult](./llama.native.decoderesult.md)<br>
+0 = success <br>&lt; 0 = error (the KV cache state is restored to the state before this call)
+
 ### **Decode(LLamaBatch)**
 
 
@@ -236,49 +425,62 @@ public DecodeResult Decode(LLamaBatch batch)
 Positive return values does not mean a fatal error, but rather a warning:<br>
  - 0: success<br>
  - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br>
- - &lt; 0: error<br>
+ - &lt; 0: error (the KV cache state is restored to the state before this call)<br>
 
-### **Decode(List&lt;LLamaToken&gt;, LLamaSeqId, LLamaBatch, Int32&)**
+### **Decode(LLamaBatchEmbeddings)**
 
-Decode a set of tokens in batch-size chunks.
+
 
 ```csharp
-internal ValueTuple<DecodeResult, int> Decode(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, Int32& n_past)
+public DecodeResult Decode(LLamaBatchEmbeddings batch)
 ```
 
 #### Parameters
 
-`tokens` [List&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
-
-`id` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
-
-`batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
-
-`n_past` [Int32&](https://docs.microsoft.com/en-us/dotnet/api/system.int32&)<br>
+`batch` [LLamaBatchEmbeddings](./llama.native.llamabatchembeddings.md)<br>
 
 #### Returns
 
-[ValueTuple&lt;DecodeResult, Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.valuetuple-2)<br>
-A tuple, containing the decode result and the number of tokens that have not been decoded yet.
+[DecodeResult](./llama.native.decoderesult.md)<br>
+Positive return values does not mean a fatal error, but rather a warning:<br>
+ - 0: success<br>
+ - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br>
+ - &lt; 0: error<br>
 
 ### **GetStateSize()**
 
 Get the size of the state, when saved as bytes
 
 ```csharp
-public ulong GetStateSize()
+public UIntPtr GetStateSize()
 ```
 
 #### Returns
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 
-### **GetState(Byte*, UInt64)**
+### **GetStateSize(LLamaSeqId)**
+
+Get the size of the KV cache for a single sequence ID, when saved as bytes
+
+```csharp
+public UIntPtr GetStateSize(LLamaSeqId sequence)
+```
+
+#### Parameters
+
+`sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+#### Returns
+
+[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+
+### **GetState(Byte*, UIntPtr)**
 
 Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
 
 ```csharp
-public ulong GetState(Byte* dest, ulong size)
+public UIntPtr GetState(Byte* dest, UIntPtr size)
 ```
 
 #### Parameters
@@ -286,12 +488,12 @@ public ulong GetState(Byte* dest, ulong size)
 `dest` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 Destination to write to
 
-`size` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes available to write to in dest (check required size with `GetStateSize()`)
 
 #### Returns
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 The number of bytes written to dest
 
 #### Exceptions
@@ -299,38 +501,36 @@ The number of bytes written to dest
 [ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
 Thrown if dest is too small
 
-### **GetState(IntPtr, UInt64)**
+### **GetState(Byte*, UIntPtr, LLamaSeqId)**
 
-Get the raw state of this context, encoded as bytes. Data is written into the `dest` pointer.
+Get the raw state of a single sequence from this context, encoded as bytes. Data is written into the `dest` pointer.
 
 ```csharp
-public ulong GetState(IntPtr dest, ulong size)
+public UIntPtr GetState(Byte* dest, UIntPtr size, LLamaSeqId sequence)
 ```
 
 #### Parameters
 
-`dest` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+`dest` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 Destination to write to
 
-`size` [UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes available to write to in dest (check required size with `GetStateSize()`)
+
+`sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+The sequence to get state data for
 
 #### Returns
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 The number of bytes written to dest
 
-#### Exceptions
-
-[ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
-Thrown if dest is too small
-
-### **SetState(Byte*)**
+### **SetState(Byte*, UIntPtr)**
 
 Set the raw state of this context
 
 ```csharp
-public ulong SetState(Byte* src)
+public UIntPtr SetState(Byte* src, UIntPtr size)
 ```
 
 #### Parameters
@@ -338,56 +538,75 @@ public ulong SetState(Byte* src)
 `src` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 The pointer to read the state from
 
+`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+Number of bytes that can be safely read from the pointer
+
 #### Returns
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes read from the src pointer
 
-### **SetState(IntPtr)**
+### **SetState(Byte*, UIntPtr, LLamaSeqId)**
 
-Set the raw state of this context
+Set the raw state of a single sequence
 
 ```csharp
-public ulong SetState(IntPtr src)
+public UIntPtr SetState(Byte* src, UIntPtr size, LLamaSeqId sequence)
 ```
 
 #### Parameters
 
-`src` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+`src` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 The pointer to read the state from
 
+`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+Number of bytes that can be safely read from the pointer
+
+`sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+Sequence ID to set
+
 #### Returns
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes read from the src pointer
 
-### **SetSeed(UInt32)**
+### **GetTimings()**
 
-Set the RNG seed
-
-```csharp
-public void SetSeed(uint seed)
-```
-
-#### Parameters
-
-`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
-
-### **SetThreads(UInt32, UInt32)**
-
-Set the number of threads used for decoding
+Get performance information
 
 ```csharp
-public void SetThreads(uint threads, uint threadsBatch)
+public LLamaPerfContextTimings GetTimings()
 ```
 
-#### Parameters
+#### Returns
 
-`threads` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
-n_threads is the number of threads used for generation (single token)
+[LLamaPerfContextTimings](./llama.native.llamaperfcontexttimings.md)<br>
 
-`threadsBatch` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
-n_threads_batch is the number of threads used for prompt and batch processing (multiple tokens)
+### **ResetTimings()**
+
+Reset all performance information for this context
+
+```csharp
+public void ResetTimings()
+```
+
+### **KvCacheUpdate()**
+
+Apply KV cache updates (such as K-shifts, defragmentation, etc.)
+
+```csharp
+public void KvCacheUpdate()
+```
+
+### **KvCacheDefrag()**
+
+Defragment the KV cache. This will be applied:
+ - lazily on next llama_decode()
+ - explicitly with llama_kv_self_update()
+
+```csharp
+public void KvCacheDefrag()
+```
 
 ### **KvCacheGetDebugView(Int32)**
 
@@ -432,7 +651,7 @@ public int KvCacheCountTokens()
 
 ### **KvCacheClear()**
 
-Clear the KV cache
+Clear the KV cache - both cell info is erased and KV data is zeroed
 
 ```csharp
 public void KvCacheClear()
@@ -526,3 +745,23 @@ public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int 
 `p1` [LLamaPos](./llama.native.llamapos.md)<br>
 
 `divisor` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **KvCacheMaxPosition(LLamaSeqId)**
+
+Returns the largest position present in the KV cache for the specified sequence
+
+```csharp
+public LLamaPos KvCacheMaxPosition(LLamaSeqId seq)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+#### Returns
+
+[LLamaPos](./llama.native.llamapos.md)<br>
+
+---
+
+[`< Back`](./)

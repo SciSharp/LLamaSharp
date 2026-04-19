@@ -9,7 +9,7 @@ namespace LLama.Native
     internal static class NativeLibraryUtils
     {
         /// <summary>
-        /// Try to load libllama/llava_shared, using CPU feature detection to try and load a more specialised DLL if possible
+        /// Try to load libllama/mtmd, using CPU feature detection to try and load a more specialised DLL if possible
         /// </summary>
         /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
         internal static IntPtr TryLoadLibrary(NativeLibraryConfig config, out INativeLibrary? loadedLibrary)
@@ -219,7 +219,9 @@ namespace LLama.Native
         {
             if (platform == OSPlatform.Windows)
             {
-                os = "win-x64";
+                os = System.Runtime.Intrinsics.Arm.ArmBase.Arm64.IsSupported
+                    ? "win-arm64"
+                    : "win-x64";
                 fileExtension = ".dll";
                 libPrefix = "";
                 return;
@@ -234,9 +236,9 @@ namespace LLama.Native
                     libPrefix = "lib";
                     return;
                 }
-                if(RuntimeInformation.RuntimeIdentifier.ToLower().StartsWith("alpine"))
+                if(RuntimeInformation.RuntimeIdentifier.ToLower().Contains("musl"))
                 {
-                    // alpine linux distro
+                    // musl-based linux distro (e.g. Alpine)
                     os = "linux-musl-x64";
                     fileExtension = ".so";
                     libPrefix = "lib";

@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaContextParams
 
 Namespace: LLama.Native
@@ -10,15 +14,12 @@ public struct LLamaContextParams
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaContextParams](./llama.native.llamacontextparams.md)
 
+**Remarks:**
+
+changing the default values of parameters marked as [EXPERIMENTAL] may cause crashes or incorrect results in certain configurations
+ https://github.com/ggerganov/llama.cpp/pull/7544
+
 ## Fields
-
-### **seed**
-
-RNG seed, -1 for random
-
-```csharp
-public uint seed;
-```
 
 ### **n_ctx**
 
@@ -30,10 +31,26 @@ public uint n_ctx;
 
 ### **n_batch**
 
-prompt processing batch size
+logical maximum batch size that can be submitted to llama_decode
 
 ```csharp
 public uint n_batch;
+```
+
+### **n_ubatch**
+
+physical maximum batch size
+
+```csharp
+public uint n_ubatch;
+```
+
+### **n_seq_max**
+
+max number of sequences (i.e. distinct states for recurrent models)
+
+```csharp
+public uint n_seq_max;
 ```
 
 ### **n_threads**
@@ -41,7 +58,7 @@ public uint n_batch;
 number of threads to use for generation
 
 ```csharp
-public uint n_threads;
+public int n_threads;
 ```
 
 ### **n_threads_batch**
@@ -49,7 +66,7 @@ public uint n_threads;
 number of threads to use for batch processing
 
 ```csharp
-public uint n_threads_batch;
+public int n_threads_batch;
 ```
 
 ### **rope_scaling_type**
@@ -58,6 +75,22 @@ RoPE scaling type, from `enum llama_rope_scaling_type`
 
 ```csharp
 public RopeScalingType rope_scaling_type;
+```
+
+### **llama_pooling_type**
+
+whether to pool (sum) embedding results by sequence id
+
+```csharp
+public LLamaPoolingType llama_pooling_type;
+```
+
+### **attention_type**
+
+Attention type to use for embeddings
+
+```csharp
+public LLamaAttentionType attention_type;
 ```
 
 ### **rope_freq_base**
@@ -142,7 +175,7 @@ public IntPtr cb_eval_user_data;
 
 ### **type_k**
 
-data type for K cache
+data type for K cache. EXPERIMENTAL
 
 ```csharp
 public GGMLType type_k;
@@ -150,20 +183,36 @@ public GGMLType type_k;
 
 ### **type_v**
 
-data type for V cache
+data type for V cache. EXPERIMENTAL
 
 ```csharp
 public GGMLType type_v;
 ```
 
-## Properties
+### **abort_callback**
 
-### **embedding**
-
-embedding mode only
+ggml_abort_callback
 
 ```csharp
-public bool embedding { get; set; }
+public IntPtr abort_callback;
+```
+
+### **abort_callback_user_data**
+
+User data passed into abort_callback
+
+```csharp
+public IntPtr abort_callback_user_data;
+```
+
+## Properties
+
+### **embeddings**
+
+if true, extract embeddings (together with logits)
+
+```csharp
+public bool embeddings { get; set; }
 ```
 
 #### Property Value
@@ -182,14 +231,44 @@ public bool offload_kqv { get; set; }
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **do_pooling**
+### **flash_attention**
 
-Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+whether to use flash attention. EXPERIMENTAL
 
 ```csharp
-public bool do_pooling { get; set; }
+public bool flash_attention { get; set; }
 ```
 
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **no_perf**
+
+whether to measure performance timings
+
+```csharp
+public bool no_perf { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+## Methods
+
+### **Default()**
+
+Get the default LLamaContextParams
+
+```csharp
+LLamaContextParams Default()
+```
+
+#### Returns
+
+[LLamaContextParams](./llama.native.llamacontextparams.md)<br>
+
+---
+
+[`< Back`](./)

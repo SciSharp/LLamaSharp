@@ -35,4 +35,9 @@ public enum LLamaVocabType
     /// RWKV tokenizer based on greedy tokenization
     /// </summary>
     RWKV = 5,
+
+    /// <summary>
+    /// PLaMo-2 tokenizer based on Aho-Corasick with dynamic programming
+    /// </summary>
+    PLAMO2 = 6
 }

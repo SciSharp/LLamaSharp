@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLavaWeights
 
 Namespace: LLama
@@ -9,7 +13,8 @@ public sealed class LLavaWeights : System.IDisposable
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLavaWeights](./llama.llavaweights.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -48,6 +53,25 @@ path to the "mmproj" model file
 
 [LLavaWeights](./llama.llavaweights.md)<br>
 
+### **LoadFromFileAsync(String, CancellationToken)**
+
+Load weights into memory
+
+```csharp
+public static Task<LLavaWeights> LoadFromFileAsync(string mmProject, CancellationToken token)
+```
+
+#### Parameters
+
+`mmProject` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+path to the "mmproj" model file
+
+`token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+
+#### Returns
+
+[Task&lt;LLavaWeights&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+
 ### **CreateImageEmbeddings(LLamaContext, Byte[])**
 
 Create the Image Embeddings from the bytes of an image.
@@ -62,11 +86,36 @@ public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, By
 
 `image` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
 Image bytes. Supported formats:
- JPGPNGBMPTGA
+
+- 
+- 
+- 
+-
 
 #### Returns
 
 [SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+
+### **CreateImageEmbeddings(Byte[], Int32)**
+
+Create the Image Embeddings.
+
+```csharp
+public SafeLlavaImageEmbedHandle CreateImageEmbeddings(Byte[] image, int threads)
+```
+
+#### Parameters
+
+`image` [Byte[]](https://docs.microsoft.com/en-us/dotnet/api/system.byte)<br>
+Image in binary format (it supports jpeg format only)
+
+`threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of threads to use
+
+#### Returns
+
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+return the SafeHandle of these embeddings
 
 ### **CreateImageEmbeddings(LLamaContext, String)**
 
@@ -82,7 +131,39 @@ public SafeLlavaImageEmbedHandle CreateImageEmbeddings(LLamaContext ctxLlama, st
 
 `image` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 Path to the image file. Supported formats:
- JPGPNGBMPTGA
+
+- 
+- 
+- 
+-
+
+#### Returns
+
+[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
+
+#### Exceptions
+
+[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+
+### **CreateImageEmbeddings(String, Int32)**
+
+Create the Image Embeddings from the bytes of an image.
+
+```csharp
+public SafeLlavaImageEmbedHandle CreateImageEmbeddings(string image, int threads)
+```
+
+#### Parameters
+
+`image` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+Path to the image file. Supported formats:
+
+- 
+- 
+- 
+-
+
+`threads` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
@@ -117,3 +198,7 @@ public bool EvalImageEmbed(LLamaContext ctxLlama, SafeLlavaImageEmbedHandle imag
 ```csharp
 public void Dispose()
 ```
+
+---
+
+[`< Back`](./)

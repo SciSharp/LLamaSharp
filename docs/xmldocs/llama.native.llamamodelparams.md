@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaModelParams
 
 Namespace: LLama.Native
@@ -11,6 +15,14 @@ public struct LLamaModelParams
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelParams](./llama.native.llamamodelparams.md)
 
 ## Fields
+
+### **tensor_buft_overrides**
+
+NULL-terminated list of buffer types to use for tensors that match a pattern
+
+```csharp
+public LLamaModelTensorBufferOverride* tensor_buft_overrides;
+```
 
 ### **n_gpu_layers**
 
@@ -30,7 +42,7 @@ public GPUSplitMode split_mode;
 
 ### **main_gpu**
 
-the GPU that is used for scratch and small tensors
+the GPU that is used for the entire model when split_mode is LLAMA_SPLIT_MODE_NONE
 
 ```csharp
 public int main_gpu;
@@ -106,3 +118,33 @@ public bool use_mlock { get; set; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **check_tensors**
+
+validate model tensor data
+
+```csharp
+public bool check_tensors { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+## Methods
+
+### **Default()**
+
+Create a LLamaModelParams with default values
+
+```csharp
+LLamaModelParams Default()
+```
+
+#### Returns
+
+[LLamaModelParams](./llama.native.llamamodelparams.md)<br>
+
+---
+
+[`< Back`](./)

@@ -14,7 +14,7 @@ namespace LLama.Abstractions
 		public int TokensKeep { get; set; }
 
 		/// <summary>
-		/// how many new tokens to predict (n_predict), set to -1 to inifinitely generate response
+		/// how many new tokens to predict (n_predict), set to -1 to infinitely generate response
 		/// until it complete.
 		/// </summary>
 		public int MaxTokens { get; set; }
@@ -28,5 +28,13 @@ namespace LLama.Abstractions
 		/// Set a custom sampling pipeline to use.
 		/// </summary>
 		ISamplingPipeline SamplingPipeline { get; set; }
+
+		/// <summary>
+		/// If true, special characters will be converted to text. If false they will be invisible.
+		/// </summary>
+		/// <remark>
+		/// Controls the behavior of decoders like <see cref="StreamingTokenDecoder" />
+		/// </remark>
+		public bool DecodeSpecialTokens { get; set; }
 	}
 }

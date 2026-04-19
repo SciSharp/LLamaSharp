@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LoadWeightsFailedException
 
 Namespace: LLama.Exceptions
@@ -9,7 +13,8 @@ public class LoadWeightsFailedException : RuntimeError, System.Runtime.Serializa
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [Exception](https://docs.microsoft.com/en-us/dotnet/api/system.exception) → [RuntimeError](./llama.exceptions.runtimeerror.md) → [LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)<br>
-Implements [ISerializable](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable)
+Implements [ISerializable](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -116,3 +121,21 @@ public LoadWeightsFailedException(string modelPath)
 #### Parameters
 
 `modelPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+## Events
+
+### **SerializeObjectState**
+
+#### Caution
+
+BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information.
+
+---
+
+```csharp
+protected event EventHandler<SafeSerializationEventArgs> SerializeObjectState;
+```
+
+---
+
+[`< Back`](./)

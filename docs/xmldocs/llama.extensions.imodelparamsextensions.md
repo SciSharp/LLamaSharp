@@ -1,14 +1,19 @@
+[`< Back`](./)
+
+---
+
 # IModelParamsExtensions
 
 Namespace: LLama.Extensions
 
-Extention methods to the IModelParams interface
+Extension methods to the IModelParams interface
 
 ```csharp
 public static class IModelParamsExtensions
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [ExtensionAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
 
 ## Methods
 
@@ -35,3 +40,7 @@ public static IDisposable ToLlamaModelParams(IModelParams params, LLamaModelPara
 [FileNotFoundException](https://docs.microsoft.com/en-us/dotnet/api/system.io.filenotfoundexception)<br>
 
 [ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+
+---
+
+[`< Back`](./)

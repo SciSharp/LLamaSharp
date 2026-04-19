@@ -20,7 +20,6 @@ public sealed class LLamaRerankerTests: IDisposable
             ContextSize = 0,
             PoolingType = LLamaPoolingType.Rank,
             GpuLayerCount = Constants.CIGpuLayerCount,
-
         };
         using var weights = LLamaWeights.LoadFromFile(@params);
         _reranker = new LLamaReranker(weights, @params);

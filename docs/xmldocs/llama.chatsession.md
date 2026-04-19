@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ChatSession
 
 Namespace: LLama
@@ -8,7 +12,8 @@ The main chat session class.
 public class ChatSession
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ChatSession](./llama.chatsession.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ChatSession](./llama.chatsession.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Fields
 
@@ -149,12 +154,12 @@ public ChatSession(ILLamaExecutor executor, ChatHistory history)
 
 ## Methods
 
-### **InitializeSessionFromHistoryAsync(ILLamaExecutor, ChatHistory)**
+### **InitializeSessionFromHistoryAsync(ILLamaExecutor, ChatHistory, IHistoryTransform)**
 
 Create a new chat session and preprocess history.
 
 ```csharp
-public static Task<ChatSession> InitializeSessionFromHistoryAsync(ILLamaExecutor executor, ChatHistory history)
+public static Task<ChatSession> InitializeSessionFromHistoryAsync(ILLamaExecutor executor, ChatHistory history, IHistoryTransform transform)
 ```
 
 #### Parameters
@@ -165,9 +170,13 @@ The executor for this session
 `history` [ChatHistory](./llama.common.chathistory.md)<br>
 History for this session
 
+`transform` [IHistoryTransform](./llama.abstractions.ihistorytransform.md)<br>
+History Transform for this session
+
 #### Returns
 
 [Task&lt;ChatSession&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+A new chat session.
 
 ### **WithHistoryTransform(IHistoryTransform)**
 
@@ -556,3 +565,7 @@ public IAsyncEnumerable<string> RegenerateAssistantMessageAsync(InferenceParams 
 #### Exceptions
 
 [InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+
+---
+
+[`< Back`](./)

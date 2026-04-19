@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # AntipromptProcessor
 
 Namespace: LLama
@@ -8,7 +12,8 @@ AntipromptProcessor keeps track of past tokens looking for any set Anti-Prompts
 public sealed class AntipromptProcessor
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [AntipromptProcessor](./llama.antipromptprocessor.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [AntipromptProcessor](./llama.antipromptprocessor.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Constructors
 
@@ -67,3 +72,7 @@ public bool Add(string text)
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 true if the text buffer ends with any antiprompt
+
+---
+
+[`< Back`](./)

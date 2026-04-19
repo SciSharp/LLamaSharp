@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,9 +76,10 @@ public class ChatSession
     /// <param name="executor">The executor for this session</param>
     /// <param name="history">History for this session</param>
     /// <param name="transform">History Transform for this session</param>
+    /// <param name="cancellationToken">A token that cancels the operation</param>
     /// <returns>A new chat session.</returns>
     public static async Task<ChatSession> InitializeSessionFromHistoryAsync(
-        ILLamaExecutor executor, ChatHistory history, IHistoryTransform? transform = null)
+        ILLamaExecutor executor, ChatHistory history, IHistoryTransform? transform = null, CancellationToken cancellationToken = default)
     {
         if (executor is not StatefulExecutorBase statefulExecutor)
         {
@@ -89,7 +91,7 @@ public class ChatSession
             session = session.WithHistoryTransform(transform);
         }
 
-        await statefulExecutor.PrefillPromptAsync(session.HistoryTransform.HistoryToText(history));
+        await statefulExecutor.PrefillPromptAsync(session.HistoryTransform.HistoryToText(history), cancellationToken);
         return session;
     }
 
@@ -171,7 +173,7 @@ public class ChatSession
     {
         var executorState = ((StatefulExecutorBase)Executor).GetStateData();
         return new SessionState(
-            executorState.PastTokensCount > 0 
+            executorState.PastTokensCount > 0
             ? Executor.Context.GetState() : null,
             executorState,
             History,
@@ -198,7 +200,7 @@ public class ChatSession
         }
         if (state.ContextState is null)
         {
-            Executor.Context.NativeHandle.KvCacheClear();
+            Executor.Context.NativeHandle.MemoryClear();
         }
         else
         {
@@ -227,7 +229,7 @@ public class ChatSession
         if (state.ExecutorState is null)
         {
             var executorPath = Path.Combine(path, EXECUTOR_STATE_FILENAME);
-            ((StatefulExecutorBase) Executor).LoadState(filename: executorPath); 
+            ((StatefulExecutorBase)Executor).LoadState(filename: executorPath);
         }
         LoadSession(state, loadTransforms);
     }
@@ -310,13 +312,15 @@ public class ChatSession
     /// Compute KV cache for the message and add it to the chat history.
     /// </summary>
     /// <param name="message"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<ChatSession> AddAndProcessMessage(ChatHistory.Message message)
+    public async Task<ChatSession> AddAndProcessMessage(ChatHistory.Message message, CancellationToken cancellationToken = default)
     {
         if (Executor is not StatefulExecutorBase statefulExecutor)
         {
             throw new InvalidOperationException("Executor must be a StatefulExecutorBase to support pre-processing of system messages.");
         }
+
         AddMessage(message);
         var content = message.Content;
         if (message.AuthorRole != AuthorRole.Assistant)
@@ -327,27 +331,27 @@ public class ChatSession
             }
         }
 
-        await statefulExecutor.PrefillPromptAsync(content);
+        await statefulExecutor.PrefillPromptAsync(content, cancellationToken);
         return this;
     }
 
     /// <summary>
     /// Compute KV cache for the system message and add it to the chat history.
     /// </summary>
-    public Task<ChatSession> AddAndProcessSystemMessage(string content)
-        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.System, content));
+    public Task<ChatSession> AddAndProcessSystemMessage(string content, CancellationToken cancellationToken = default)
+        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.System, content), cancellationToken);
 
     /// <summary>
     /// Compute KV cache for the user message and add it to the chat history.
     /// </summary>
-    public Task<ChatSession> AddAndProcessUserMessage(string content)
-        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.User, content));
+    public Task<ChatSession> AddAndProcessUserMessage(string content, CancellationToken cancellationToken = default)
+        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.User, content), cancellationToken);
 
     /// <summary>
     /// Compute KV cache for the assistant message and add it to the chat history.
     /// </summary>
-    public Task<ChatSession> AddAndProcessAssistantMessage(string content)
-        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.Assistant, content));
+    public Task<ChatSession> AddAndProcessAssistantMessage(string content, CancellationToken cancellationToken = default)
+        => AddAndProcessMessage(new ChatHistory.Message(AuthorRole.Assistant, content), cancellationToken);
 
     /// <summary>
     /// Replace a user message with a new message and remove all messages after the new message.
@@ -441,21 +445,21 @@ public class ChatSession
             prompt = HistoryTransform.HistoryToText(singleMessageHistory);
         }
 
-        string assistantMessage = string.Empty;
+        StringBuilder assistantMessage = new();
 
-        await foreach (
-            string textToken
-            in ChatAsyncInternal(
-                prompt,
-                inferenceParams,
-                cancellationToken))
+        try
         {
-            assistantMessage += textToken;
-            yield return textToken;
+            await foreach (var textToken in ChatAsyncInternal(prompt, inferenceParams, cancellationToken))
+            {
+                assistantMessage.Append(textToken);
+                yield return textToken;
+            }
         }
-
-        // Add the assistant message to the history
-        AddAssistantMessage(assistantMessage);
+        finally
+        {
+            // Add the assistant message to the history
+            AddAssistantMessage(assistantMessage.ToString());
+        }
     }
 
     /// <summary>
@@ -624,7 +628,7 @@ public record SessionState
     /// <summary>
     /// The input transform pipeline used in this session.
     /// </summary>
-    public ITextTransform[] InputTransformPipeline { get; set; } = [ ];
+    public ITextTransform[] InputTransformPipeline { get; set; } = [];
 
     /// <summary>
     /// The output transform used in this session.
@@ -635,11 +639,11 @@ public record SessionState
     /// The history transform used in this session.
     /// </summary>
     public IHistoryTransform HistoryTransform { get; set; } = new LLamaTransforms.DefaultHistoryTransform();
-    
+
     /// <summary>
-    /// The the chat history messages for this session.
+    /// The chat history messages for this session.
     /// </summary>
-    public ChatHistory.Message[] History { get; set; } = [ ];
+    public ChatHistory.Message[] History { get; set; } = [];
 
     /// <summary>
     /// Create a new session state.
@@ -651,7 +655,7 @@ public record SessionState
     /// <param name="outputTransform"></param>
     /// <param name="historyTransform"></param>
     public SessionState(
-        State? contextState, ExecutorBaseState executorState, 
+        State? contextState, ExecutorBaseState executorState,
         ChatHistory history, List<ITextTransform> inputTransformPipeline,
         ITextStreamTransform outputTransform, IHistoryTransform historyTransform)
     {
@@ -738,10 +742,10 @@ public record SessionState
         ITextTransform[] inputTransforms;
         try
         {
-            inputTransforms = File.Exists(inputTransformFilepath) ? 
+            inputTransforms = File.Exists(inputTransformFilepath) ?
                 (JsonSerializer.Deserialize<ITextTransform[]>(File.ReadAllText(inputTransformFilepath))
                 ?? throw new ArgumentException("Input transform file is invalid", nameof(path)))
-                : [ ];
+                : [];
         }
         catch (JsonException)
         {
@@ -749,11 +753,11 @@ public record SessionState
         }
 
         string outputTransformFilepath = Path.Combine(path, ChatSession.OUTPUT_TRANSFORM_FILENAME);
-        
+
         ITextStreamTransform outputTransform;
         try
         {
-            outputTransform = File.Exists(outputTransformFilepath) ? 
+            outputTransform = File.Exists(outputTransformFilepath) ?
             (JsonSerializer.Deserialize<ITextStreamTransform>(File.ReadAllText(outputTransformFilepath))
                        ?? throw new ArgumentException("Output transform file is invalid", nameof(path)))
             : new LLamaTransforms.EmptyTextOutputStreamTransform();
@@ -767,7 +771,7 @@ public record SessionState
         IHistoryTransform historyTransform;
         try
         {
-            historyTransform = File.Exists(historyTransformFilepath) ? 
+            historyTransform = File.Exists(historyTransformFilepath) ?
                 (JsonSerializer.Deserialize<IHistoryTransform>(File.ReadAllText(historyTransformFilepath))
                            ?? throw new ArgumentException("History transform file is invalid", nameof(path)))
                 : new LLamaTransforms.DefaultHistoryTransform();

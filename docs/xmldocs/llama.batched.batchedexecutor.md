@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # BatchedExecutor
 
 Namespace: LLama.Batched
@@ -9,7 +13,8 @@ public sealed class BatchedExecutor : System.IDisposable
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [BatchedExecutor](./llama.batched.batchedexecutor.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -49,6 +54,18 @@ public int BatchedTokenCount { get; }
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
+### **BatchQueueCount**
+
+Number of batches in the queue, waiting for [BatchedExecutor.Infer(CancellationToken)](./llama.batched.batchedexecutor.md#infercancellationtoken) to be called
+
+```csharp
+public int BatchQueueCount { get; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
 ### **IsDisposed**
 
 Check if this executor has been disposed.
@@ -81,28 +98,6 @@ Parameters to create a new context
 
 ## Methods
 
-### **Prompt(String)**
-
-#### Caution
-
-Use BatchedExecutor.Create instead
-
----
-
-Start a new [Conversation](./llama.batched.conversation.md) with the given prompt
-
-```csharp
-public Conversation Prompt(string prompt)
-```
-
-#### Parameters
-
-`prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-#### Returns
-
-[Conversation](./llama.batched.conversation.md)<br>
-
 ### **Create()**
 
 Start a new [Conversation](./llama.batched.conversation.md)
@@ -114,6 +109,47 @@ public Conversation Create()
 #### Returns
 
 [Conversation](./llama.batched.conversation.md)<br>
+
+### **Load(String)**
+
+Load a conversation that was previously saved to a file. Once loaded the conversation will
+ need to be prompted.
+
+```csharp
+public Conversation Load(string filepath)
+```
+
+#### Parameters
+
+`filepath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[Conversation](./llama.batched.conversation.md)<br>
+
+#### Exceptions
+
+[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+
+### **Load(State)**
+
+Load a conversation that was previously saved into memory. Once loaded the conversation will need to be prompted.
+
+```csharp
+public Conversation Load(State state)
+```
+
+#### Parameters
+
+`state` [State](./llama.batched.conversation.state.md)<br>
+
+#### Returns
+
+[Conversation](./llama.batched.conversation.md)<br>
+
+#### Exceptions
+
+[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 ### **Infer(CancellationToken)**
 
@@ -140,12 +176,6 @@ public Task<DecodeResult> Infer(CancellationToken cancellation)
 public void Dispose()
 ```
 
-### **GetNextSequenceId()**
+---
 
-```csharp
-internal LLamaSeqId GetNextSequenceId()
-```
-
-#### Returns
-
-[LLamaSeqId](./llama.native.llamaseqid.md)<br>
+[`< Back`](./)

@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaChatMessage
 
 Namespace: LLama.Native
@@ -18,12 +22,20 @@ llama_chat_message
 
 ### **role**
 
+Pointer to the null terminated bytes that make up the role string
+
 ```csharp
 public Byte* role;
 ```
 
 ### **content**
 
+Pointer to the null terminated bytes that make up the content string
+
 ```csharp
 public Byte* content;
 ```
+
+---
+
+[`< Back`](./)

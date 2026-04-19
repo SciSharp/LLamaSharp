@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # MirostatType
 
 Namespace: LLama.Common
@@ -10,7 +14,7 @@ public enum MirostatType
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [Enum](https://docs.microsoft.com/en-us/dotnet/api/system.enum) → [MirostatType](./llama.common.mirostattype.md)<br>
-Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable), [IFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.iformattable), [IConvertible](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible)
+Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable), [ISpanFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.ispanformattable), [IFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.iformattable), [IConvertible](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible)
 
 ## Fields
 
@@ -19,3 +23,7 @@ Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icom
 | Disable | 0 | Disable Mirostat sampling |
 | Mirostat | 1 | Original mirostat algorithm |
 | Mirostat2 | 2 | Mirostat 2.0 algorithm |
+
+---
+
+[`< Back`](./)

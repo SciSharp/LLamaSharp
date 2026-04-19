@@ -1,0 +1,46 @@
+name: Update API references
+on:
+  pull_request_review:
+    types: [submitted]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update_api_references:
+    if: github.event.pull_request.base.ref == 'master' && github.event.review.state == 'approved'
+    name: Update API References
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+    - name: install_tool_and_generate_api_docs
+      run: |
+        dotnet tool install -g XMLDoc2Markdown
+        dotnet build ./LLama/LLamaSharp.csproj
+        cd LLama/bin/Debug/net8.0
+        rm -rf ../../../../docs/xmldocs
+        dotnet xmldoc2md LLamaSharp.dll -o ../../../../docs/xmldocs --back-button
+    
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "AsakusaRinne@gmail.com"
+        git add docs/xmldocs
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+          exit 0
+        fi
+        echo "Current git status:"
+        git status
+        echo "Modified files:"
+        git diff --cached --name-only
+        git commit -m "chore(docs): update API references in the github action."
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+

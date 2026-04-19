@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # MetadataOverrideConverter
 
 Namespace: LLama.Abstractions
@@ -8,7 +12,8 @@ A JSON converter for [MetadataOverride](./llama.abstractions.metadataoverride.md
 public class MetadataOverrideConverter : System.Text.Json.Serialization.JsonConverter`1[[LLama.Abstractions.MetadataOverride, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → JsonConverter → JsonConverter&lt;MetadataOverride&gt; → [MetadataOverrideConverter](./llama.abstractions.metadataoverrideconverter.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → JsonConverter → JsonConverter&lt;MetadataOverride&gt; → [MetadataOverrideConverter](./llama.abstractions.metadataoverrideconverter.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -21,6 +26,16 @@ public bool HandleNull { get; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Type**
+
+```csharp
+public Type Type { get; }
+```
+
+#### Property Value
+
+[Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
 
 ## Constructors
 
@@ -63,3 +78,7 @@ public void Write(Utf8JsonWriter writer, MetadataOverride value, JsonSerializerO
 `value` [MetadataOverride](./llama.abstractions.metadataoverride.md)<br>
 
 `options` JsonSerializerOptions<br>
+
+---
+
+[`< Back`](./)

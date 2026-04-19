@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaModelMetadataOverride
 
 Namespace: LLama.Native
@@ -51,3 +55,15 @@ Value, **must** only be used if Tag == LLAMA_KV_OVERRIDE_BOOL
 ```csharp
 public long BoolValue;
 ```
+
+### **StringValue**
+
+Value, **must** only be used if Tag == String
+
+```csharp
+public <StringValue>e__FixedBuffer StringValue;
+```
+
+---
+
+[`< Back`](./)

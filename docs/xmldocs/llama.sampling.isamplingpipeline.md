@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ISamplingPipeline
 
 Namespace: LLama.Sampling
@@ -8,16 +12,17 @@ Convert a span of logits into a single sampled token. This interface can be impl
 public interface ISamplingPipeline : System.IDisposable
 ```
 
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Methods
 
-### **Sample(SafeLLamaContextHandle, Span&lt;Single&gt;, ReadOnlySpan&lt;LLamaToken&gt;)**
+### **Sample(SafeLLamaContextHandle, Int32)**
 
-Sample a single token from the given logits
+Sample a single token from the given context at the given position
 
 ```csharp
-LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
 ```
 
 #### Parameters
@@ -25,29 +30,26 @@ LLamaToken Sample(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<L
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 The context being sampled from
 
-`logits` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
-The logits produced by the model
-
-`lastTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
-A span of tokens recently returned by the model
+`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Position to sample logits from
 
 #### Returns
 
 [LLamaToken](./llama.native.llamatoken.md)<br>
 
-### **Accept(SafeLLamaContextHandle, LLamaToken)**
+### **Apply(SafeLLamaContextHandle, LLamaTokenDataArray)**
 
-Update the pipeline, with knowledge that a particular token was just accepted
+Apply this pipeline to a set of token data
 
 ```csharp
-void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
+void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArray data)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`token` [LLamaToken](./llama.native.llamatoken.md)<br>
+`data` [LLamaTokenDataArray](./llama.native.llamatokendataarray.md)<br>
 
 ### **Reset()**
 
@@ -57,14 +59,18 @@ Reset all internal state of the sampling pipeline
 void Reset()
 ```
 
-### **Clone()**
+### **Accept(LLamaToken)**
 
-Create a copy of this sampling pipeline
+Update the pipeline, with knowledge that a particular token was just accepted
 
 ```csharp
-ISamplingPipeline Clone()
+void Accept(LLamaToken token)
 ```
 
-#### Returns
+#### Parameters
 
-[ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
+
+---
+
+[`< Back`](./)

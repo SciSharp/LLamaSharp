@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # SafeLLamaHandleBase
 
 Namespace: LLama.Native
@@ -10,6 +14,14 @@ public abstract class SafeLLamaHandleBase : System.Runtime.InteropServices.SafeH
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md)<br>
 Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+
+## Fields
+
+### **handle**
+
+```csharp
+protected IntPtr handle;
+```
 
 ## Properties
 
@@ -44,3 +56,7 @@ public string ToString()
 #### Returns
 
 [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+---
+
+[`< Back`](./)

@@ -107,3 +107,17 @@ There're mainly two ways to add an example:
 ## Add documents
 
 LLamaSharp uses [mkdocs](https://github.com/mkdocs/mkdocs) to build the documentation, please follow the tutorial of mkdocs to add or modify documents in LLamaSharp.
+
+For API references, LLamaSharp takes use of [xmldoc2md](https://github.com/charlesdevandiere/xmldoc2md) to generate the documentation of markdown format. If you want to update the files in `docs/xmldocs`, please run the following commands.
+
+```
+dotnet tool install -g XMLDoc2Markdown
+cd LLama/bin/Debug/net8 # change the path to your bin path.
+dotnet xmldoc2md LLamaSharp.dll -o ../../../../docs/xmldocs --back-button
+```
+
+Specifically, if the xmldoc2md cannot be found by dotnet cli, please replace the `dotnet xmldoc2md` with the executable file, like below.
+
+```
+C:\Users\liu_y\.dotnet\tools\xmldoc2md.exe LLamaSharp.dll  -o ../../../../docs/xmldocs --back-button
+```

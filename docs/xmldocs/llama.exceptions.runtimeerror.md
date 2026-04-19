@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # RuntimeError
 
 Namespace: LLama.Exceptions
@@ -106,3 +110,21 @@ public RuntimeError(string message)
 #### Parameters
 
 `message` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+## Events
+
+### **SerializeObjectState**
+
+#### Caution
+
+BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information.
+
+---
+
+```csharp
+protected event EventHandler<SafeSerializationEventArgs> SerializeObjectState;
+```
+
+---
+
+[`< Back`](./)

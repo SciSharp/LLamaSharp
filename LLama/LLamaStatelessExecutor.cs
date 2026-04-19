@@ -28,10 +28,10 @@ namespace LLama
         public bool IsMultiModal => false;
 
         /// <inheritdoc />
-        public LLavaWeights? ClipModel => default;
+        public MtmdWeights? ClipModel => default;
 
         /// <inheritdoc />
-        public List<byte[]> Images { get; }
+        public List<SafeMtmdEmbed> Embeds { get; }
 
         /// <summary>
         /// The context used by the executor when running the inference.
@@ -57,7 +57,7 @@ namespace LLama
         /// <param name="logger"></param>
         public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
         {
-            Images = [ ];
+            Embeds = [ ];
             _weights = weights;
             _params = @params;
             _logger = logger;
@@ -88,7 +88,10 @@ namespace LLama
                 throw new ArgumentOutOfRangeException(nameof(inferenceParams), $"TokensKeep ({inferenceParams.TokensKeep}) cannot be larger than ContextSize ({Context.ContextSize})");
 
             // Create decoders for the token stream
-            var decoder = new StreamingTokenDecoder(Context);
+            var decoder = new StreamingTokenDecoder(Context)
+            {
+                DecodeSpecialTokens = inferenceParams.DecodeSpecialTokens,
+            };
             var antiprocessor = new AntipromptProcessor(inferenceParams.AntiPrompts);
 
             if (ApplyTemplate)
@@ -155,8 +158,8 @@ namespace LLama
                     var n_left = n_past - tokensKeep;
                     var n_discard = n_left / 2;
 
-                    NativeApi.llama_kv_self_seq_rm(Context.NativeHandle, LLamaSeqId.Zero, tokensKeep , tokensKeep + n_discard);
-                    NativeApi.llama_kv_self_seq_add(Context.NativeHandle, LLamaSeqId.Zero, tokensKeep + n_discard, n_past, -n_discard);
+                    Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensKeep, tokensKeep + n_discard);
+                    Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensKeep + n_discard, n_past, -n_discard);
 
                     n_past -= n_discard;
                 }

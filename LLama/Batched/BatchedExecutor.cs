@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
@@ -16,7 +15,13 @@ public sealed class BatchedExecutor
     : IDisposable
 {
     private int _nextSequenceId;
-    private readonly List<IBatch> _batchQueue = [ ];
+    private readonly List<IBatch> _batchQueue = [];
+    private string? _mtmdMarker;
+    private int _batchQueueHead;
+    private int _batchedTokenCount;
+    private bool _batchedTokenCountDirty = true;
+    // Skip compacting the queue until this many processed batches accumulate at the front.
+    private const int CleanupThreshold = 16;
     
     /// <summary>
     /// Set to 1 using interlocked exchange while inference is running
@@ -42,12 +47,27 @@ public sealed class BatchedExecutor
     /// <summary>
     /// Get the number of tokens in the batch, waiting for <see cref="Infer"/> to be called
     /// </summary>
-    public int BatchedTokenCount => _batchQueue.Sum(a => a.ItemCount);
+    public int BatchedTokenCount
+    {
+        get
+        {
+            if (_batchedTokenCountDirty)
+            {
+                var total = 0;
+                for (var i = _batchQueueHead; i < _batchQueue.Count; i++)
+                    total += _batchQueue[i].ItemCount;
+                _batchedTokenCount = total;
+                _batchedTokenCountDirty = false;
+            }
+
+            return _batchedTokenCount;
+        }
+    }
 
     /// <summary>
     /// Number of batches in the queue, waiting for <see cref="Infer"/> to be called
     /// </summary>
-    public int BatchQueueCount => _batchQueue.Count;
+    public int BatchQueueCount => _batchQueue.Count - _batchQueueHead;
 
     /// <summary>
     /// Check if this executor has been disposed.
@@ -60,11 +80,19 @@ public sealed class BatchedExecutor
     /// <param name="model">The model to use</param>
     /// <param name="contextParams">Parameters to create a new context</param>
     public BatchedExecutor(LLamaWeights model, IContextParams contextParams)
+        : this(model, contextParams, null)
+    {
+    }
+
+    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel)
     {
         Model = model;
         Context = model.CreateContext(contextParams);
+        ClipModel = clipModel;
         Epoch = 1;
     }
+
+    public MtmdWeights? ClipModel { get; }
 
     /// <summary>
     /// Start a new <see cref="Conversation"/>
@@ -147,12 +175,13 @@ public sealed class BatchedExecutor
             // again after the issue has been fixed (e.g. some KV cache space has been freed) to retry this operation.
             if (status != DecodeResult.Ok)
             {
-                _batchQueue.Insert(0, next);
+                RequeueFront(next);
                 return status;
             }
             
             // Everything was ok, advance the epoch
             Epoch++;
+            CleanupQueue();
             
             return status;
         }
@@ -166,12 +195,44 @@ public sealed class BatchedExecutor
         
         IBatch? GetNextBatch()
         {
-            if (_batchQueue.Count == 0)
+            if (_batchQueueHead >= _batchQueue.Count)
+            {
+                _batchQueue.Clear();
+                _batchQueueHead = 0;
                 return null;
-            
-            var nextBatch = _batchQueue[0];
-            _batchQueue.RemoveAt(0);
+            }
+
+            var nextBatch = _batchQueue[_batchQueueHead];
+            _batchQueueHead++;
+            _batchedTokenCountDirty = true;
             return nextBatch;
+        }
+
+        void RequeueFront(IBatch batch)
+        {
+            Debug.Assert(_batchQueueHead > 0, "Cannot requeue batch when queue head is at zero.");
+            _batchQueue[--_batchQueueHead] = batch;
+            _batchedTokenCountDirty = true;
+        }
+
+        // Remove batches that have already been consumed so the head index does not grow without bound.
+        void CleanupQueue()
+        {
+            if (_batchQueueHead == 0)
+                return;
+
+            if (_batchQueueHead >= _batchQueue.Count)
+            {
+                _batchQueue.Clear();
+                _batchQueueHead = 0;
+                return;
+            }
+
+            if (_batchQueueHead > CleanupThreshold && _batchQueueHead > _batchQueue.Count / 2)
+            {
+                _batchQueue.RemoveRange(0, _batchQueueHead);
+                _batchQueueHead = 0;
+            }
         }
     }
 
@@ -202,7 +263,7 @@ public sealed class BatchedExecutor
             throw new ArgumentOutOfRangeException(nameof(minCapacity), $"Request batch capacity must be less than or equal to BatchSize ({Context.BatchSize})");
 
         // Find a batch with space for at least minCapacity tokens
-        for (var i = 0; i < _batchQueue.Count; i++)
+        for (var i = _batchQueueHead; i < _batchQueue.Count; i++)
         {
             var item = _batchQueue[i];
             if (item is not TokenBatch { Batch: var batch })
@@ -213,13 +274,17 @@ public sealed class BatchedExecutor
                 continue;
 
             if (batch.TokenCount < Context.BatchSize)
-                return (batch, Epoch + (uint)(i + 1) * 2);
+            {
+                _batchedTokenCountDirty = true;
+                return (batch, Epoch + (uint)(i - _batchQueueHead + 1) * 2);
+            }
         }
         
         // Add a new batch to the end of the queue
         var end = new LLamaBatch();
         _batchQueue.Add(new TokenBatch(end));
-        return (end, Epoch + (uint)_batchQueue.Count * 2);
+        _batchedTokenCountDirty = true;
+        return (end, Epoch + (uint)(_batchQueue.Count - _batchQueueHead) * 2);
     }
     
     /// <summary>
@@ -234,7 +299,7 @@ public sealed class BatchedExecutor
             throw new ArgumentOutOfRangeException(nameof(minCapacity), $"Request batch capacity must be less than or equal to BatchSize ({Context.BatchSize})");
         
         // Find a batch with space for at least minCapacity embeddings
-        for (var i = 0; i < _batchQueue.Count; i++)
+        for (var i = _batchQueueHead; i < _batchQueue.Count; i++)
         {
             var item = _batchQueue[i];
             if (item is not EmbeddingBatch { Batch: var batch })
@@ -245,13 +310,34 @@ public sealed class BatchedExecutor
                 continue;
             
             if (batch.EmbeddingsCount < Context.BatchSize)
-                return (batch, Epoch + (uint)(i + 1) * 2);
+            {
+                _batchedTokenCountDirty = true;
+                return (batch, Epoch + (uint)(i - _batchQueueHead + 1) * 2);
+            }
         }
         
         // Add a new batch to the end of the queue
         var end = new LLamaBatchEmbeddings(Context.EmbeddingSize);
         _batchQueue.Add(new EmbeddingBatch(end));
-        return (end, Epoch + (uint)_batchQueue.Count * 2);
+        _batchedTokenCountDirty = true;
+        return (end, Epoch + (uint)(_batchQueue.Count - _batchQueueHead) * 2);
+    }
+
+    internal ulong QueueMtmdBatch(Conversation conversation, Conversation.MtmdChunkSequence sequence)
+    {
+        if (ClipModel is null)
+            throw new InvalidOperationException("This batched executor is not configured for multimodal inference.");
+
+        var batch = new MtmdChunkBatch(ClipModel, conversation, sequence);
+        _batchQueue.Add(batch);
+        return Epoch + (uint)_batchQueue.Count * 2;
+    }
+
+    internal string GetMtmdMarker()
+    {
+        if (ClipModel is null)
+            throw new InvalidOperationException("This batched executor is not configured for multimodal inference.");
+        return _mtmdMarker ??= NativeApi.MtmdDefaultMarker() ?? "<media>";
     }
 
     #region batches
@@ -283,6 +369,45 @@ public sealed class BatchedExecutor
         public Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token)
         {
             return ctx.DecodeAsync(Batch, token);
+        }
+    }
+
+    private class MtmdChunkBatch : IBatch
+    {
+        private readonly MtmdWeights _clipModel;
+        private readonly Conversation _conversation;
+        private readonly Conversation.MtmdChunkSequence _sequence;
+
+        public MtmdChunkBatch(MtmdWeights clipModel, Conversation conversation, Conversation.MtmdChunkSequence sequence)
+        {
+            _clipModel = clipModel;
+            _conversation = conversation;
+            _sequence = sequence;
+        }
+
+        public int ItemCount => Math.Max(1, _sequence.TotalTokens);
+
+        public Task<DecodeResult> DecodeAsync(LLamaContext ctx, CancellationToken token)
+        {
+            try
+            {
+                var nPast = _conversation.GetMtmdPast();
+                var status = _clipModel.EvaluateChunks(_sequence.Chunks, ctx.NativeHandle, ref nPast,
+                    (int)_conversation.ConversationId, checked((int)ctx.BatchSize), logitsLast: true);
+                if (status != 0)
+                {
+                    _conversation.OnMtmdEvaluationFailed(status);
+                    return Task.FromResult(DecodeResult.DecodeFailed);
+                }
+
+                _conversation.OnMtmdEvaluationCompleted(nPast, _sequence);
+                return Task.FromResult(DecodeResult.Ok);
+            }
+            catch
+            {
+                _conversation.OnMtmdEvaluationFailed(-1);
+                return Task.FromResult(DecodeResult.DecodeFailed);
+            }
         }
     }
     #endregion

@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # IContextParams
 
 Namespace: LLama.Abstractions
@@ -7,6 +11,8 @@ The parameters for initializing a LLama context from a model.
 ```csharp
 public interface IContextParams
 ```
+
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Properties
 
@@ -24,7 +30,7 @@ public abstract Nullable<uint> ContextSize { get; }
 
 ### **BatchSize**
 
-batch size for prompt processing (must be &gt;=32 to use BLAS) (n_batch)
+maximum batch size that can be submitted at once (must be &gt;=32 to use BLAS) (n_batch)
 
 ```csharp
 public abstract uint BatchSize { get; }
@@ -34,25 +40,36 @@ public abstract uint BatchSize { get; }
 
 [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
-### **Seed**
+### **UBatchSize**
 
-Seed for the random number generator (seed)
+Physical batch size
 
 ```csharp
-public abstract uint Seed { get; }
+public abstract uint UBatchSize { get; }
 ```
 
 #### Property Value
 
 [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
-### **EmbeddingMode**
+### **SeqMax**
 
-Whether to use embedding mode. (embedding) Note that if this is set to true, 
- The LLamaModel won't produce text response anymore.
+max number of sequences (i.e. distinct states for recurrent models)
 
 ```csharp
-public abstract bool EmbeddingMode { get; }
+public abstract uint SeqMax { get; }
+```
+
+#### Property Value
+
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **Embeddings**
+
+If true, extract embeddings (together with logits).
+
+```csharp
+public abstract bool Embeddings { get; }
 ```
 
 #### Property Value
@@ -100,24 +117,24 @@ public abstract Encoding Encoding { get; }
 Number of threads (null = autodetect) (n_threads)
 
 ```csharp
-public abstract Nullable<uint> Threads { get; }
+public abstract Nullable<int> Threads { get; }
 ```
 
 #### Property Value
 
-[Nullable&lt;UInt32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Nullable&lt;Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
 ### **BatchThreads**
 
 Number of threads to use for batch processing (null = autodetect) (n_threads)
 
 ```csharp
-public abstract Nullable<uint> BatchThreads { get; }
+public abstract Nullable<int> BatchThreads { get; }
 ```
 
 #### Property Value
 
-[Nullable&lt;UInt32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Nullable&lt;Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
 ### **YarnExtrapolationFactor**
 
@@ -227,26 +244,55 @@ public abstract bool NoKqvOffload { get; }
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **DefragThreshold**
+### **FlashAttention**
 
-defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
-
-```csharp
-public abstract float DefragThreshold { get; }
-```
-
-#### Property Value
-
-[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
-
-### **DoPooling**
-
-Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+Whether to use flash attention
 
 ```csharp
-public abstract bool DoPooling { get; }
+public abstract bool FlashAttention { get; }
 ```
 
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **DefragThreshold**
+
+defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+ defragment the KV cache if holes/size &gt; defrag_threshold, Set to  or &lt; 0 to disable (default)
+
+```csharp
+public abstract Nullable<float> DefragThreshold { get; }
+```
+
+#### Property Value
+
+[Nullable&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+
+### **PoolingType**
+
+How to pool (sum) embedding results by sequence id (ignored if no pooling layer)
+
+```csharp
+public abstract LLamaPoolingType PoolingType { get; }
+```
+
+#### Property Value
+
+[LLamaPoolingType](./llama.native.llamapoolingtype.md)<br>
+
+### **AttentionType**
+
+Attention type to use for embeddings
+
+```csharp
+public abstract LLamaAttentionType AttentionType { get; }
+```
+
+#### Property Value
+
+[LLamaAttentionType](./llama.native.llamaattentiontype.md)<br>
+
+---
+
+[`< Back`](./)

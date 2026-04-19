@@ -38,6 +38,7 @@ public static class IModelParamsExtensions
 
         result.use_mlock = @params.UseMemoryLock;
         result.use_mmap = @params.UseMemorymap;
+        result.use_direct_io = @params.UseDirectIO;
         result.vocab_only = @params.VocabOnly;
         result.check_tensors = @params.CheckTensors;
 
@@ -115,7 +116,7 @@ public static class IModelParamsExtensions
             var dev = NativeApi.ggml_backend_dev_get(i);
             var buft = NativeApi.ggml_backend_dev_buffer_type(dev);
 
-            var name = Marshal.PtrToStringAnsi(NativeApi.ggml_backend_buft_name(buft));
+            var name = NativeApi.ggml_backend_buft_name(buft).PtrToString();
             if (string.IsNullOrEmpty(name))
                 continue;
 

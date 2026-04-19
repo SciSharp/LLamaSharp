@@ -82,6 +82,16 @@ namespace LLama.Native
         private sbyte _use_mmap;
 
         /// <summary>
+        /// use direct io, takes precedence over use_mmap when supported
+        /// </summary>
+        public bool use_direct_io
+        {
+            readonly get => Convert.ToBoolean(_use_direct_io);
+            set => _use_direct_io = Convert.ToSByte(value);
+        }
+        private sbyte _use_direct_io;
+
+        /// <summary>
         /// force system to keep model in RAM
         /// </summary>
         public bool use_mlock
@@ -100,7 +110,36 @@ namespace LLama.Native
             set => _check_tensors = Convert.ToSByte(value);
         }
         private sbyte _check_tensors;
+        
+        /// <summary>
+        /// use extra buffer types (used for weight repacking) 
+        /// </summary>
+        public bool use_extra_bufts
+        {
+            readonly get => Convert.ToBoolean(_use_extra_bufts);
+            set => _use_extra_bufts = Convert.ToSByte(value);
+        }
+        private sbyte _use_extra_bufts;
 
+        /// <summary>
+        /// bypass host buffer allowing extra buffers to be used
+        /// </summary>
+        public bool no_host
+        {
+            readonly get => Convert.ToBoolean(_no_host);
+            set => _no_host = Convert.ToSByte(value);
+        }
+        private sbyte _no_host;
+
+        /// <summary>
+        /// only load metadata and simulate memory allocations
+        /// </summary>
+        public bool no_alloc
+        {
+            readonly get => Convert.ToBoolean(_no_alloc);
+            set => _no_alloc = Convert.ToSByte(value);
+        }
+        private sbyte _no_alloc;
         /// <summary>
         /// Create a LLamaModelParams with default values
         /// </summary>

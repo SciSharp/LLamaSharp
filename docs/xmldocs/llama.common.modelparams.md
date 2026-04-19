@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # ModelParams
 
 Namespace: LLama.Common
@@ -9,9 +13,20 @@ public class ModelParams : LLama.Abstractions.ILLamaParams, LLama.Abstractions.I
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ModelParams](./llama.common.modelparams.md)<br>
-Implements [ILLamaParams](./llama.abstractions.illamaparams.md), [IModelParams](./llama.abstractions.imodelparams.md), [IContextParams](./llama.abstractions.icontextparams.md), [IEquatable&lt;ModelParams&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
+Implements [ILLamaParams](./llama.abstractions.illamaparams.md), [IModelParams](./llama.abstractions.imodelparams.md), [IContextParams](./llama.abstractions.icontextparams.md), [IEquatable&lt;ModelParams&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
+
+### **EqualityContract**
+
+```csharp
+protected Type EqualityContract { get; }
+```
+
+#### Property Value
+
+[Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
 
 ### **ContextSize**
 
@@ -36,12 +51,22 @@ public int MainGpu { get; set; }
 ### **SplitMode**
 
 ```csharp
-public GPUSplitMode SplitMode { get; set; }
+public Nullable<GPUSplitMode> SplitMode { get; set; }
 ```
 
 #### Property Value
 
-[GPUSplitMode](./llama.native.gpusplitmode.md)<br>
+[Nullable&lt;GPUSplitMode&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+
+### **TensorBufferOverrides**
+
+```csharp
+public List<TensorBufferOverride> TensorBufferOverrides { get; set; }
+```
+
+#### Property Value
+
+[List&lt;TensorBufferOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ### **GpuLayerCount**
 
@@ -53,10 +78,10 @@ public int GpuLayerCount { get; set; }
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **Seed**
+### **SeqMax**
 
 ```csharp
-public uint Seed { get; set; }
+public uint SeqMax { get; set; }
 ```
 
 #### Property Value
@@ -93,45 +118,25 @@ public string ModelPath { get; set; }
 
 [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-### **LoraAdapters**
-
-```csharp
-public AdapterCollection LoraAdapters { get; set; }
-```
-
-#### Property Value
-
-[AdapterCollection](./llama.abstractions.adaptercollection.md)<br>
-
-### **LoraBase**
-
-```csharp
-public string LoraBase { get; set; }
-```
-
-#### Property Value
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
 ### **Threads**
 
 ```csharp
-public Nullable<uint> Threads { get; set; }
+public Nullable<int> Threads { get; set; }
 ```
 
 #### Property Value
 
-[Nullable&lt;UInt32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Nullable&lt;Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
 ### **BatchThreads**
 
 ```csharp
-public Nullable<uint> BatchThreads { get; set; }
+public Nullable<int> BatchThreads { get; set; }
 ```
 
 #### Property Value
 
-[Nullable&lt;UInt32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Nullable&lt;Int32&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
 ### **BatchSize**
 
@@ -143,10 +148,20 @@ public uint BatchSize { get; set; }
 
 [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
-### **EmbeddingMode**
+### **UBatchSize**
 
 ```csharp
-public bool EmbeddingMode { get; set; }
+public uint UBatchSize { get; set; }
+```
+
+#### Property Value
+
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **Embeddings**
+
+```csharp
+public bool Embeddings { get; set; }
 ```
 
 #### Property Value
@@ -162,6 +177,16 @@ public TensorSplitsCollection TensorSplits { get; set; }
 #### Property Value
 
 [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)<br>
+
+### **CheckTensors**
+
+```csharp
+public bool CheckTensors { get; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **MetadataOverrides**
 
@@ -283,25 +308,45 @@ public bool NoKqvOffload { get; set; }
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **DefragThreshold**
+### **FlashAttention**
 
 ```csharp
-public float DefragThreshold { get; set; }
-```
-
-#### Property Value
-
-[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
-
-### **DoPooling**
-
-```csharp
-public bool DoPooling { get; set; }
+public bool FlashAttention { get; set; }
 ```
 
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **DefragThreshold**
+
+```csharp
+public Nullable<float> DefragThreshold { get; set; }
+```
+
+#### Property Value
+
+[Nullable&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+
+### **PoolingType**
+
+```csharp
+public LLamaPoolingType PoolingType { get; set; }
+```
+
+#### Property Value
+
+[LLamaPoolingType](./llama.native.llamapoolingtype.md)<br>
+
+### **AttentionType**
+
+```csharp
+public LLamaAttentionType AttentionType { get; set; }
+```
+
+#### Property Value
+
+[LLamaAttentionType](./llama.native.llamaattentiontype.md)<br>
 
 ### **VocabOnly**
 
@@ -337,6 +382,16 @@ public ModelParams(string modelPath)
 
 `modelPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
 The model path.
+
+### **ModelParams(ModelParams)**
+
+```csharp
+protected ModelParams(ModelParams original)
+```
+
+#### Parameters
+
+`original` [ModelParams](./llama.common.modelparams.md)<br>
 
 ## Methods
 
@@ -411,3 +466,7 @@ public ModelParams <Clone>$()
 #### Returns
 
 [ModelParams](./llama.common.modelparams.md)<br>
+
+---
+
+[`< Back`](./)

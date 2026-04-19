@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -32,6 +33,16 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long llama_max_devices();
 
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern nint llama_max_tensor_buft_overrides();
+
+        /// <summary>
+        /// Maximum number of parallel sequences
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern long llama_max_parallel_sequences();
+
         /// <summary>
         /// Check if memory mapping is supported
         /// </summary>
@@ -63,6 +74,9 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool llama_supports_rpc();
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_ctx_seq(SafeLLamaContextHandle ctx);
 
         /// <summary>
         /// Initialize the llama + ggml backend. Call once at the start of the program.
@@ -125,7 +139,7 @@ namespace LLama.Native
         public static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
 
         /// <summary>
-        /// Set whether the model is in embeddings mode or not. 
+        /// Set whether the context outputs embeddings or not
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="embeddings">If true, embeddings will be returned but logits will not</param>
@@ -136,7 +150,7 @@ namespace LLama.Native
         /// Set abort callback
         /// </summary>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void llama_set_abort_callback(SafeLlamaModelHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
+        public static extern void llama_set_abort_callback(SafeLLamaContextHandle ctx, IntPtr /* ggml_abort_callback */ abortCallback, IntPtr abortCallbackData);
 
         /// <summary>
         /// Get the n_seq_max for this context
@@ -160,8 +174,11 @@ namespace LLama.Native
 
         /// <summary>
         /// Apply chat template. Inspired by hf apply_chat_template() on python.
+        /// <br />
+        /// NOTE: This function does not use a jinja parser. It only support a pre-defined list of template.
+        /// See more: https://github.com/ggml-org/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
         /// </summary>
-        /// <param name="tmpl">A Jinja template to use for this chat. If this is nullptr, the model’s default chat template will be used instead.</param>
+        /// <param name="tmpl">A Jinja template to use for this chat.</param>
         /// <param name="chat">Pointer to a list of multiple llama_chat_message</param>
         /// <param name="n_msg">Number of llama_chat_message in this chat</param>
         /// <param name="add_ass">Whether to end the prompt with the token(s) that indicate the start of an assistant message.</param>
@@ -237,7 +254,7 @@ namespace LLama.Native
         /// <param name="add_special">add_special Allow to add BOS and EOS tokens if model is configured to do so.</param>
         /// <param name="parse_special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext. Does not insert a leading space.</param>
         /// <returns>Returns the number of tokens on success, no more than n_max_tokens.
-        /// Returns a negative number on failure - the number of tokens that would have been returned
+        /// Returns a negative number on failure - the number of tokens that would have been returned. Returns INT32_MIN on overflow (e.g., tokenization result size exceeds int32_t limit)
         /// </returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe int llama_tokenize(LLamaVocabNative* model, byte* text, int text_len, LLamaToken* tokens, int n_max_tokens, [MarshalAs(UnmanagedType.U1)] bool add_special, [MarshalAs(UnmanagedType.U1)] bool parse_special);
@@ -266,111 +283,6 @@ namespace LLama.Native
             NativeLogConfig.llama_log_set(logCallback);
         }
         
-        /// <summary>
-        /// Returns the number of tokens in the KV cache (slow, use only for debug)
-        /// If a KV cell has multiple sequences assigned to it, it will be counted multiple times
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int llama_kv_self_n_tokens(SafeLLamaContextHandle ctx);
-        
-        /// <summary>
-        /// Returns the number of used KV cells (i.e. have at least one sequence assigned to them)
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int llama_kv_self_used_cells(SafeLLamaContextHandle ctx);
-
-        /// <summary>
-        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
-        /// </summary>
-        /// <param name="ctx"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_clear(SafeLLamaContextHandle ctx);
-
-        [Obsolete("Use `llama_kv_self_clear` instead")]
-        /// <summary>
-        /// Clear the KV cache. Both cell info is erased and KV data is zeroed
-        /// </summary>
-        /// <param name="ctx"></param>        
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_cache_clear(SafeLLamaContextHandle ctx);
-        
-        /// <summary>
-        /// Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <returns>Returns false if a partial sequence cannot be removed. Removing a whole sequence never fails</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool llama_kv_self_seq_rm(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1);
-
-        /// <summary>
-        /// Copy all tokens that belong to the specified sequence to another sequence
-        /// Note that this does not allocate extra KV cache memory - it simply assigns the tokens to the new sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="src"></param>
-        /// <param name="dest"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_cp(SafeLLamaContextHandle ctx, LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1);
-
-        /// <summary>
-        /// Removes all tokens that do not belong to the specified sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_keep(SafeLLamaContextHandle ctx, LLamaSeqId seq);
-
-        /// <summary>
-        /// Adds relative position "delta" to all tokens that belong to the specified sequence and have positions in [p0, p1)
-        /// If the KV cache is RoPEd, the KV data is updated accordingly:
-        ///  - lazily on next llama_decode()
-        ///  - explicitly with llama_kv_self_update()
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="delta"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_add(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta);
-
-        /// <summary>
-        /// Integer division of the positions by factor of `d > 1`
-        /// If the KV cache is RoPEd, the KV data is updated accordingly:
-        ///   - lazily on next llama_decode()
-        ///   - explicitly with llama_kv_self_update()
-        /// <br />
-        /// p0 &lt; 0 : [0,  p1]
-        /// <br />
-        /// p1 &lt; 0 : [p0, inf)
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="d"></param>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void llama_kv_self_seq_div(SafeLLamaContextHandle ctx, LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int d);
-
-        /// <summary>
-        /// Returns the largest position present in the KV cache for the specified sequence
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="seq"></param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern LLamaPos llama_kv_self_seq_pos_max(SafeLLamaContextHandle ctx, LLamaSeqId seq);
-
         /// <summary>
         /// Allocates a batch of tokens on the heap
         /// Each token can be assigned up to n_seq_max sequence ids
@@ -409,7 +321,7 @@ namespace LLama.Native
         /// <param name="il_end"></param>
         /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int llama_apply_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
+        public static extern unsafe int llama_set_adapter_cvec(SafeLLamaContextHandle ctx, float* data, nuint len, int n_embd, int il_start, int il_end);
 
         /// <summary>
         /// Build a split GGUF final path for this chunk.
@@ -421,21 +333,114 @@ namespace LLama.Native
         /// <param name="split_no"></param>
         /// <param name="split_count"></param>
         /// <returns>Returns the split_path length.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_split_path(string split_path, nuint maxlen, string path_prefix, int split_no, int split_count);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_split_path")]
+        private static extern unsafe int llama_split_path_native(byte* split_path, nuint maxlen, byte* path_prefix, int split_no, int split_count);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "llama_split_prefix")]
+        private static extern unsafe int llama_split_prefix_native(byte* split_prefix, nuint maxlen, byte* split_path, int split_no, int split_count);
+
+        private static byte[] EncodeNullTerminatedUtf8(string value, string paramName)
+        {
+            if (value is null)
+                throw new ArgumentNullException(paramName);
+
+            var bytes = Encoding.UTF8.GetBytes(value);
+            var buffer = new byte[bytes.Length + 1];
+            Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
+            return buffer;
+        }
 
         /// <summary>
-        /// Extract the path prefix from the split_path if and only if the split_no and split_count match.
-        /// llama_split_prefix(split_prefix, 64, "/models/ggml-model-q4_0-00002-of-00004.gguf", 2, 4) => split_prefix = "/models/ggml-model-q4_0"
+        /// Build the fully-qualified path for a specific split file in a GGUF shard set.
         /// </summary>
-        /// <param name="split_prefix"></param>
-        /// <param name="maxlen"></param>
-        /// <param name="split_path"></param>
-        /// <param name="split_no"></param>
-        /// <param name="split_count"></param>
-        /// <returns>Returns the split_prefix length.</returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int llama_split_prefix(string split_prefix, nuint maxlen, string split_path, int split_no, int split_count);
+        /// <param name="splitPathBuffer">Writable buffer that receives the UTF-8 encoded path.</param>
+        /// <param name="pathPrefix">Base path (e.g. "/models/ggml-model-q4_0").</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <returns>Number of bytes written to <paramref name="splitPathBuffer"/>.</returns>
+        public static int llama_split_path(Span<byte> splitPathBuffer, string pathPrefix, int splitNo, int splitCount)
+        {
+            if (splitPathBuffer.Length == 0)
+                throw new ArgumentException("Buffer must not be empty.", nameof(splitPathBuffer));
+
+            var pathPrefixBytes = EncodeNullTerminatedUtf8(pathPrefix, nameof(pathPrefix));
+
+            unsafe
+            {
+                fixed (byte* splitPtr = splitPathBuffer)
+                fixed (byte* prefixPtr = pathPrefixBytes)
+                {
+                    return llama_split_path_native(splitPtr, (nuint)splitPathBuffer.Length, prefixPtr, splitNo, splitCount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Build the fully-qualified path for a specific split file in a GGUF shard set.
+        /// </summary>
+        /// <param name="pathPrefix">Base path (e.g. "/models/ggml-model-q4_0").</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <param name="maxLength">Maximum number of bytes to allocate for the resulting UTF-8 string.</param>
+        /// <returns>UTF-8 decoded split path.</returns>
+        public static string llama_split_path(string pathPrefix, int splitNo, int splitCount, int maxLength = 1024)
+        {
+            if (maxLength <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxLength));
+
+            var buffer = new byte[maxLength];
+            var written = llama_split_path((Span<byte>)buffer, pathPrefix, splitNo, splitCount);
+            if (written <= 0)
+                throw new InvalidOperationException("Failed to build split path using llama_split_path.");
+
+            return Encoding.UTF8.GetString(buffer, 0, written);
+        }
+
+        /// <summary>
+        /// Extract the shard prefix from a GGUF split path when the split metadata matches.
+        /// </summary>
+        /// <param name="splitPrefixBuffer">Writable buffer that receives the UTF-8 encoded prefix.</param>
+        /// <param name="splitPath">Full path to a shard file.</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <returns>Number of bytes written to <paramref name="splitPrefixBuffer"/>.</returns>
+        public static int llama_split_prefix(Span<byte> splitPrefixBuffer, string splitPath, int splitNo, int splitCount)
+        {
+            if (splitPrefixBuffer.Length == 0)
+                throw new ArgumentException("Buffer must not be empty.", nameof(splitPrefixBuffer));
+
+            var splitPathBytes = EncodeNullTerminatedUtf8(splitPath, nameof(splitPath));
+
+            unsafe
+            {
+                fixed (byte* prefixPtr = splitPrefixBuffer)
+                fixed (byte* pathPtr = splitPathBytes)
+                {
+                    return llama_split_prefix_native(prefixPtr, (nuint)splitPrefixBuffer.Length, pathPtr, splitNo, splitCount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Extract the shard prefix from a GGUF split path when the split metadata matches.
+        /// </summary>
+        /// <param name="splitPath">Full path to a shard file.</param>
+        /// <param name="splitNo">Zero-based split index.</param>
+        /// <param name="splitCount">Total number of splits.</param>
+        /// <param name="maxLength">Maximum number of bytes to allocate for the resulting UTF-8 string.</param>
+        /// <returns>UTF-8 decoded split prefix.</returns>
+        public static string llama_split_prefix(string splitPath, int splitNo, int splitCount, int maxLength = 1024)
+        {
+            if (maxLength <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxLength));
+
+            var buffer = new byte[maxLength];
+            var written = llama_split_prefix((Span<byte>)buffer, splitPath, splitNo, splitCount);
+            if (written <= 0)
+                throw new InvalidOperationException("Failed to extract split prefix using llama_split_prefix.");
+
+            return Encoding.UTF8.GetString(buffer, 0, written);
+        }
 
         //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         //todo: public static void llama_attach_threadpool(SafeLLamaContextHandle ctx, ggml_threadpool_t threadpool, ggml_threadpool_t threadpool_batch);
@@ -478,5 +483,38 @@ namespace LLama.Native
         /// <returns>Name of the buffer type</returns>
         [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ggml_backend_buft_name(IntPtr buft);
+
+        /// <summary>
+        /// Fits mparams and cparams to free device memory (assumes system memory is unlimited)
+        ///   - returns true if the parameters could be successfully modified to fit device memory
+        ///   - this function is NOT thread safe because it modifies the global llama logger state
+        ///   - only parameters that have the same value as in llama_default_model_params are modified
+        ///     with the exception of the context size which is modified if and only if equal to 0
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="mparams"></param>
+        /// <param name="cparams"></param>
+        /// <param name="tensor_split">Writable buffer for tensor split, needs at least llama_max_devices elements</param>
+        /// <param name="tensor_buft_overrides">Writable buffer for overrides, needs at least llama_max_tensor_buft_overrides elements</param>
+        /// <param name="margins">Margins of memory to leave per device in bytes</param>
+        /// <param name="n_ctx_min">Minimum context size to set when trying to reduce memory use</param>
+        /// <param name="log_level">Minimum log level to print during fitting, lower levels go to debug log</param>
+        /// <returns></returns>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe LLamaParamsFitStatus llama_params_fit(
+            string path,
+            ref LLamaModelParams mparams,
+            ref LLamaContextParams cparams,
+            float* tensor_split,
+            LLamaModelTensorBufferOverride* tensor_buft_overrides,
+            nint* margins,
+            uint n_ctx_min,
+            int /* GGML_LOG_LEVEL */ log_level
+        );
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern long llama_time_us();
+
+        
     }
 }

@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # TensorSplitsCollectionConverter
 
 Namespace: LLama.Abstractions
@@ -8,7 +12,8 @@ A JSON converter for [TensorSplitsCollection](./llama.abstractions.tensorsplitsc
 public class TensorSplitsCollectionConverter : System.Text.Json.Serialization.JsonConverter`1[[LLama.Abstractions.TensorSplitsCollection, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → JsonConverter → JsonConverter&lt;TensorSplitsCollection&gt; → [TensorSplitsCollectionConverter](./llama.abstractions.tensorsplitscollectionconverter.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → JsonConverter → JsonConverter&lt;TensorSplitsCollection&gt; → [TensorSplitsCollectionConverter](./llama.abstractions.tensorsplitscollectionconverter.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -21,6 +26,16 @@ public bool HandleNull { get; }
 #### Property Value
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Type**
+
+```csharp
+public Type Type { get; }
+```
+
+#### Property Value
+
+[Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
 
 ## Constructors
 
@@ -63,3 +78,7 @@ public void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSeria
 `value` [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)<br>
 
 `options` JsonSerializerOptions<br>
+
+---
+
+[`< Back`](./)

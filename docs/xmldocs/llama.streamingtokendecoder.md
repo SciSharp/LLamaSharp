@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # StreamingTokenDecoder
 
 Namespace: LLama
@@ -8,7 +12,8 @@ Decodes a stream of tokens into a stream of characters
 public sealed class StreamingTokenDecoder
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [StreamingTokenDecoder](./llama.streamingtokendecoder.md)
+Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [StreamingTokenDecoder](./llama.streamingtokendecoder.md)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -23,6 +28,18 @@ public int AvailableCharacters { get; }
 #### Property Value
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **DecodeSpecialTokens**
+
+If true, special characters will be converted to text. If false they will be invisible.
+
+```csharp
+public bool DecodeSpecialTokens { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Constructors
 
@@ -173,20 +190,6 @@ Set the decoder back to its initial state
 public void Reset()
 ```
 
-### **&lt;Add&gt;g__TokenToBytes|9_0(Byte[]&, LLamaToken, SafeLlamaModelHandle)**
+---
 
-```csharp
-internal static Span<byte> <Add>g__TokenToBytes|9_0(Byte[]& bytes, LLamaToken token, SafeLlamaModelHandle model)
-```
-
-#### Parameters
-
-`bytes` [Byte[]&](https://docs.microsoft.com/en-us/dotnet/api/system.byte&)<br>
-
-`token` [LLamaToken](./llama.native.llamatoken.md)<br>
-
-`model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-
-#### Returns
-
-[Span&lt;Byte&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[`< Back`](./)

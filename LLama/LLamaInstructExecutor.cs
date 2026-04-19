@@ -1,14 +1,16 @@
-using LLama.Abstractions;
-using LLama.Common;
-using LLama.Native;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using LLama.Abstractions;
+using LLama.Common;
 using LLama.Exceptions;
+using LLama.Native;
 using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +26,7 @@ namespace LLama
         private readonly string _instructionPrefix;
         private LLamaToken[] _inp_pfx;
         private LLamaToken[] _inp_sfx;
+        private readonly string _instructionSuffix;
 
         /// <summary>
         /// 
@@ -41,6 +44,20 @@ namespace LLama
             _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
             _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
             _instructionPrefix = instructionPrefix;
+            _instructionSuffix = instructionSuffix;
+        }
+
+        public InstructExecutor(LLamaContext context,
+                                MtmdWeights clipModel,
+                                string instructionPrefix = "\n\n### Instruction:\n\n",
+                                string instructionSuffix = "\n\n### Response:\n\n",
+                                ILogger? logger = null)
+            : base(context, clipModel, logger)
+        {
+            _inp_pfx = Context.Tokenize(instructionPrefix, true, true);
+            _inp_sfx = Context.Tokenize(instructionSuffix, false, true);
+            _instructionPrefix = instructionPrefix;
+            _instructionSuffix = instructionSuffix;
         }
 
         /// <inheritdoc />
@@ -65,8 +82,9 @@ namespace LLama
             return state;
         }
         /// <inheritdoc />
-        public override Task LoadState(ExecutorBaseState data)
+        public override Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = default)
         {
+            DisposeMtmdChunks();
             if(data is InstructExecutorState state)
             {
                 _n_session_consumed = state.ConsumedSessionCount;
@@ -91,42 +109,50 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        public override async Task SaveState(string filename)
+        public override async Task SaveState(string filename, CancellationToken cancellationToken = default)
         {
             var state = (InstructExecutorState)GetStateData();
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                await JsonSerializer.SerializeAsync(fs, state);
-            }
-        }
-        /// <inheritdoc />
-        public override async Task LoadState(string filename)
-        {
-            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                var state = await JsonSerializer.DeserializeAsync<InstructExecutorState>(fs);
-                await LoadState(state!);
+                await JsonSerializer.SerializeAsync(fs, state, cancellationToken: cancellationToken);
             }
         }
 
         /// <inheritdoc />
-        protected override Task<bool> GetLoopCondition(InferStateArgs args)
+        public override async Task LoadState(string filename, CancellationToken cancellationToken = default)
+        {
+            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                var state = await JsonSerializer.DeserializeAsync<InstructExecutorState>(fs);
+                await LoadState(state!, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
         {
             return Task.FromResult(args.RemainedTokens != 0 || _is_prompt_run);
         }
 
         /// <inheritdoc />
-        protected override Task PreprocessInputs(string? text, InferStateArgs args)
+        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
         {
-            args.Antiprompts ??= [ ];
+            args.Antiprompts ??= [];
             if (!args.Antiprompts.Contains(_instructionPrefix))
                 args.Antiprompts.Add(_instructionPrefix);
 
             if (_is_prompt_run)
             {
-                // When running the first input (prompt) in inteactive mode, we should specially process it.
+                // When running the first input (prompt) in interactive mode, we should specially process it.
                 if (text == null) throw new ArgumentException("Prompt cannot be null to trigger continuation if a prompt has not been provided previously.");
-                _embed_inps = Context.Tokenize(text, true, true).ToList();
+                if (!IsMultiModal)
+                {
+                    _embed_inps = Context.Tokenize(text, true, true).ToList();
+                }
+                else
+                {
+                    return PreprocessMtmd(text, args, addBos: true, replaceExisting: true);
+                }
             }
             else
             {
@@ -139,14 +165,25 @@ namespace LLama
                     {
                         text += "\n";
                     }
-                    _embed_inps.AddRange(_inp_pfx);
+                    if (!IsMultiModal)
+                    {
+                        _embed_inps.AddRange(_inp_pfx);
 
-                    var line_inp = Context.Tokenize(text, false, true);
-                    _embed_inps.AddRange(line_inp);
+                        var line_inp = Context.Tokenize(text, false, true);
+                        _embed_inps.AddRange(line_inp);
 
-                    _embed_inps.AddRange(_inp_sfx);
+                        _embed_inps.AddRange(_inp_sfx);
 
-                    args.RemainedTokens -= line_inp.Length;
+                        args.RemainedTokens -= line_inp.Length;
+                    }
+                    else
+                    {
+                        var builder = new StringBuilder();
+                        builder.Append(_instructionPrefix);
+                        builder.Append(text);
+                        builder.Append(_instructionSuffix);
+                        return PreprocessMtmd(builder.ToString(), args, addBos: false, replaceExisting: false);
+                    }
                 }
             }
 
@@ -154,19 +191,19 @@ namespace LLama
         }
 
         /// <inheritdoc />
-        protected override async Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             if (_embed_inps.Count <= _consumedTokensCount)
             {
-                if (_last_n_tokens.TokensEndsWithAnyString(args.Antiprompts, Context.NativeHandle.ModelHandle, Context.Encoding))
+                if (!string.IsNullOrEmpty(args.LastOutput) && AntipromptProcessor.Add(args.LastOutput))
                 {
                     args.WaitForInput = true;
-                    return (true, Array.Empty<string>());
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, []));
                 }
 
                 if (_pastTokensCount > 0 && args.WaitForInput)
                 {
-                    return (true, new[] { "\n> " });
+                    return Task.FromResult<(bool, IReadOnlyList<string>)>((true, ["\n> "]));
                 }
             }
 
@@ -180,11 +217,11 @@ namespace LLama
                 args.RemainedTokens = inferenceParams.MaxTokens;
                 args.WaitForInput = true;
             }
-            return (false, Array.Empty<string>());
+            return Task.FromResult<(bool, IReadOnlyList<string>)>((false, []));
         }
 
         /// <inheritdoc />
-        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+        protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
         {
             var batch = new LLamaBatch();
 
@@ -205,7 +242,9 @@ namespace LLama
                 _pastTokensCount = pastTokensCount;
 
                 if (result != DecodeResult.Ok)
+                {
                     throw new LLamaDecodeError(result);
+                }
 
                 if (_embeds.Count > 0 && !string.IsNullOrEmpty(_pathSession))
                 {
@@ -213,11 +252,25 @@ namespace LLama
                     _n_session_consumed = _session_tokens.Count;
                 }
             }
+            else if (IsMultiModal && MtmdChunks is not null)
+            {
+                _is_prompt_run = false;
+                var nPast = _pastTokensCount;
+                var previousConsumed = _consumedTokensCount;
+                EvaluateMtmdChunks(ref nPast, previousConsumed, nameof(InstructExecutor));
+            }
 
             _embeds.Clear();
 
             if (_embed_inps.Count <= _consumedTokensCount && !args.WaitForInput)
             {
+                if (inferenceParams.MaxTokens == 0)
+                {
+                    _embeds.Clear();
+                    args.WaitForInput = true;
+                    args.ReturnValue = false;
+                    return;
+                }
                 // optionally save the session on first sample (for faster prompt loading next time)
                 if (!string.IsNullOrEmpty(_pathSession) && args.NeedToSaveSession)
                 {
@@ -250,6 +303,7 @@ namespace LLama
 
             return;
         }
+
         /// <summary>
         /// The descriptor of the state of the instruct executor.
         /// </summary>

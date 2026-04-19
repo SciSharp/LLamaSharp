@@ -17,7 +17,7 @@ If you are new to LLM, here're some tips for you to help you to get start with `
 
 ## Integrations
 
-There are integarions for the following libraries, which help to expand the application of LLamaSharp. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
+There are integrations for the following libraries, which help to expand the application of LLamaSharp. Integrations for semantic-kernel and kernel-memory are developed in LLamaSharp repository, while others are developed in their own repositories.
 
 - [semantic-kernel](https://github.com/microsoft/semantic-kernel): an SDK that integrates LLM like OpenAI, Azure OpenAI, and Hugging Face.
 - [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
@@ -32,7 +32,7 @@ There are integarions for the following libraries, which help to expand the appl
 Community effort is always one of the most important things in open-source projects. Any contribution in any way is welcomed here. For example, the following things mean a lot for LLamaSharp:
 
 1. Open an issue when you find something wrong.
-2. Open an PR if you've fixed something. Even if just correcting a typo, it also makes great sense.
+2. Open a PR if you've fixed something. Even if just correcting a typo, it also makes great sense.
 3. Help to optimize the documentation. 
 4. Write an example or blog about how to integrate LLamaSharp with your APPs.
 5. Ask for a missing feature and discuss with us.

@@ -63,7 +63,7 @@ public static class LLamaExecutorExtensions
         public async Task<ChatResponse> GetResponseAsync(
             IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
         {
-            var result = _executor.InferAsync(CreatePrompt(messages), CreateInferenceParams(options), cancellationToken);
+            var result = _executor.InferAsync(CreatePrompt(messages, options), CreateInferenceParams(options), cancellationToken);
 
             StringBuilder text = new();
             await foreach (var token in _outputTransform.TransformAsync(result))
@@ -86,7 +86,7 @@ public static class LLamaExecutorExtensions
         public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
             IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var result = _executor.InferAsync(CreatePrompt(messages), CreateInferenceParams(options), cancellationToken);
+            var result = _executor.InferAsync(CreatePrompt(messages, options), CreateInferenceParams(options), cancellationToken);
 
             string messageId = Guid.NewGuid().ToString("N");
             await foreach (var token in _outputTransform.TransformAsync(result))
@@ -100,7 +100,7 @@ public static class LLamaExecutorExtensions
         }
 
         /// <summary>Format the chat messages into a string prompt.</summary>
-        private string CreatePrompt(IEnumerable<ChatMessage> messages)
+        private string CreatePrompt(IEnumerable<ChatMessage> messages, ChatOptions? options = null)
         {
             if (messages is null)
             {
@@ -119,6 +119,11 @@ public static class LLamaExecutorExtensions
                         message.Role == ChatRole.Assistant ? AuthorRole.Assistant :
                         AuthorRole.User,
                         string.Concat(message.Contents.OfType<TextContent>()));
+                }
+
+                if (options?.Instructions is { } instructions)
+                {
+                    history.AddMessage(AuthorRole.System, instructions);
                 }
             }
             else

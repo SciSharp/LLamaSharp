@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # LLamaSeqId
 
 Namespace: LLama.Native
@@ -78,3 +82,7 @@ bool Equals(LLamaSeqId other)
 #### Returns
 
 [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+---
+
+[`< Back`](./)

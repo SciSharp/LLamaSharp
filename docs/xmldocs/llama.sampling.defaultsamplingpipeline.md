@@ -1,3 +1,7 @@
+[`< Back`](./)
+
+---
+
 # DefaultSamplingPipeline
 
 Namespace: LLama.Sampling
@@ -5,11 +9,12 @@ Namespace: LLama.Sampling
 An implementation of ISamplePipeline which mimics the default llama.cpp sampling
 
 ```csharp
-public sealed class DefaultSamplingPipeline : BaseSamplingPipeline, ISamplingPipeline, System.IDisposable
+public class DefaultSamplingPipeline : BaseSamplingPipeline, ISamplingPipeline, System.IDisposable
 ```
 
 Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md) → [DefaultSamplingPipeline](./llama.sampling.defaultsamplingpipeline.md)<br>
-Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)
+Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -18,12 +23,12 @@ Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposa
 Bias values to add to certain logits
 
 ```csharp
-public Dictionary<int, float> LogitBias { get; }
+public IReadOnlyDictionary<LLamaToken, float> LogitBias { get; set; }
 ```
 
 #### Property Value
 
-[Dictionary&lt;Int32, Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2)<br>
+[IReadOnlyDictionary&lt;LLamaToken, Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlydictionary-2)<br>
 
 ### **RepeatPenalty**
 
@@ -37,33 +42,69 @@ public float RepeatPenalty { get; set; }
 
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-### **AlphaFrequency**
+### **FrequencyPenalty**
 
 Frequency penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br>
  Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text
  so far, decreasing the model's likelihood to repeat the same line verbatim.
 
 ```csharp
-public float AlphaFrequency { get; set; }
+public float FrequencyPenalty { get; set; }
 ```
 
 #### Property Value
 
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-### **AlphaPresence**
+### **PresencePenalty**
 
 Presence penalty as described by OpenAI: https://platform.openai.com/docs/api-reference/chat/create<br>
  Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the
  text so far, increasing the model's likelihood to talk about new topics.
 
 ```csharp
-public float AlphaPresence { get; set; }
+public float PresencePenalty { get; set; }
 ```
 
 #### Property Value
 
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+
+### **PenaltyCount**
+
+How many tokens should be considered for penalties
+
+```csharp
+public int PenaltyCount { get; set; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **PenalizeNewline**
+
+Whether the newline token should be protected from being modified by penalty
+
+```csharp
+public bool PenalizeNewline { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **PreventEOS**
+
+Whether the EOS token should be suppressed. Setting this to 'true' prevents EOS from being sampled
+
+```csharp
+public bool PreventEOS { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **Temperature**
 
@@ -88,18 +129,6 @@ public int TopK { get; set; }
 #### Property Value
 
 [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **TailFreeZ**
-
-Z value for tail free sampling
-
-```csharp
-public float TailFreeZ { get; set; }
-```
-
-#### Property Value
-
-[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **TypicalP**
 
@@ -137,29 +166,53 @@ public float MinP { get; set; }
 
 [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-### **PenalizeNewline**
-
-Whether the newline value should be protected from being modified by logit bias and repeat penalty
-
-```csharp
-public bool PenalizeNewline { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
 ### **Grammar**
 
-Grammar to constrain valid tokens
+Grammar to apply to constrain possible tokens
 
 ```csharp
-public SafeLLamaGrammarHandle Grammar { get; set; }
+public Grammar Grammar { get; set; }
 ```
 
 #### Property Value
 
-[SafeLLamaGrammarHandle](./llama.native.safellamagrammarhandle.md)<br>
+[Grammar](./llama.sampling.grammar.md)<br>
+
+### **MinKeep**
+
+The minimum number of tokens to keep for samplers which remove tokens
+
+```csharp
+public int MinKeep { get; set; }
+```
+
+#### Property Value
+
+[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **Seed**
+
+Seed to use for random sampling
+
+```csharp
+public uint Seed { get; set; }
+```
+
+#### Property Value
+
+[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **GrammarOptimization**
+
+Selected grammar optimization mode
+
+```csharp
+public GrammarOptimizationMode GrammarOptimization { get; set; }
+```
+
+#### Property Value
+
+[GrammarOptimizationMode](./llama.sampling.defaultsamplingpipeline.grammaroptimizationmode.md)<br>
 
 ## Constructors
 
@@ -171,56 +224,58 @@ public DefaultSamplingPipeline()
 
 ## Methods
 
-### **ProcessLogits(SafeLLamaContextHandle, Span&lt;Single&gt;, ReadOnlySpan&lt;LLamaToken&gt;)**
+### **Dispose()**
 
 ```csharp
-protected void ProcessLogits(SafeLLamaContextHandle ctx, Span<float> logits, ReadOnlySpan<LLamaToken> lastTokens)
+public void Dispose()
+```
+
+### **Reset()**
+
+```csharp
+public void Reset()
+```
+
+### **Accept(LLamaToken)**
+
+```csharp
+public void Accept(LLamaToken token)
+```
+
+#### Parameters
+
+`token` [LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **CreateChain(SafeLLamaContextHandle)**
+
+```csharp
+protected SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
+```
+
+#### Parameters
+
+`context` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+
+#### Returns
+
+[SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
+
+### **Sample(SafeLLamaContextHandle, Int32)**
+
+```csharp
+public LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`logits` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
-
-`lastTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
-
-### **ProcessTokenDataArray(SafeLLamaContextHandle, LLamaTokenDataArray, ReadOnlySpan&lt;LLamaToken&gt;)**
-
-```csharp
-protected LLamaToken ProcessTokenDataArray(SafeLLamaContextHandle ctx, LLamaTokenDataArray candidates, ReadOnlySpan<LLamaToken> lastTokens)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`candidates` [LLamaTokenDataArray](./llama.native.llamatokendataarray.md)<br>
-
-`lastTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
 [LLamaToken](./llama.native.llamatoken.md)<br>
 
-### **Accept(SafeLLamaContextHandle, LLamaToken)**
+---
 
-```csharp
-public void Accept(SafeLLamaContextHandle ctx, LLamaToken token)
-```
-
-#### Parameters
-
-`ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`token` [LLamaToken](./llama.native.llamatoken.md)<br>
-
-### **Clone()**
-
-```csharp
-public ISamplingPipeline Clone()
-```
-
-#### Returns
-
-[ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>
+[`< Back`](./)
