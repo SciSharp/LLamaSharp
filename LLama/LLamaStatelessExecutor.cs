@@ -145,10 +145,7 @@ namespace LLama
                 {
                     if (inferenceParams.OverflowStrategy == ContextOverflowStrategy.ThrowException)
                     {
-                        throw new ContextOverflowException(
-                            "The context window is full and the current strategy is set to ThrowException. " +
-                            "To automatically truncate and manage context, set InferenceParams.OverflowStrategy to ContextOverflowStrategy.TruncateAndReprefill."
-                        );
+                        throw new ContextOverflowException();
                     }
 
                     var canAddBos = Context.Vocab.ShouldAddBOS;
@@ -171,15 +168,15 @@ namespace LLama
                     var n_discard = (int)(n_left * percentage);
                     if (n_discard < 1) n_discard = 1;
 
-                    try
+                    if (Context.NativeHandle.MemoryCanShift)
                     {
-                        // First, attempt the fast native memory shift (works for standard models like Llama 2/3)
+                        // Fast path: Attempt the fast native memory shift (works for standard models like Llama 2/3)
                         Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensKeep, tokensKeep + n_discard);
                         Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensKeep + n_discard, n_past, -n_discard);
                         n_past -= n_discard;
                         all_tokens.RemoveRange(tokensKeep, n_discard);
                     }
-                    catch (Exception ex) when (ex.Message.Contains("MemoryCanShift"))
+                    else
                     {
                         // Fallback: The model does not support native shifting (e.g., 2D RoPE models).
                         // We must clear the cache and perform a full context re-prefill.
