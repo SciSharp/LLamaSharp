@@ -163,10 +163,17 @@ namespace LLama
 
                     var n_left = n_past - tokensKeep;
 
+                    if (n_left <= 0)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(inferenceParams), "Cannot truncate context: TokensKeep exceeds or equals the current context size.");
+                    }
+
                     // Safely calculate discard amount using our configured percentage
                     var percentage = Math.Max(0.01f, Math.Min(0.99f, inferenceParams.ContextTruncationPercentage));
                     var n_discard = (int)(n_left * percentage);
-                    if (n_discard < 1) n_discard = 1;
+
+                    // Clamp between 1 and n_left
+                    n_discard = Math.Max(1, Math.Min(n_discard, n_left));
 
                     if (Context.NativeHandle.MemoryCanShift)
                     {

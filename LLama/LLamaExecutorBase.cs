@@ -200,10 +200,9 @@ namespace LLama
         /// </summary>
         /// <param name="tokensToKeep">The number of tokens from the initial prompt to preserve (e.g., system prompt).</param>
         /// <param name="inferenceParams">The parameters controlling the inference and overflow strategy.</param>
-        /// <exception cref="ContextOverflowException">Thrown when the overflow strategy is set to ThrowException.</exception>
+        /// <exception cref="ContextOverflowException">Thrown when the overflow strategy is set to ThrowException, or if the model does not support native shifting.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when tokensToKeep is invalid.</exception>
-        /// <exception cref="LLamaDecodeError">Thrown if the native context decoding fails during the re-prefill phase.</exception>
-        protected virtual async Task HandleRunOutOfContext(int tokensToKeep, IInferenceParams inferenceParams)
+        protected virtual Task HandleRunOutOfContext(int tokensToKeep, IInferenceParams inferenceParams)
         {
             // 1. Fast Fail if not configured to auto-truncate
             if (inferenceParams.OverflowStrategy == ContextOverflowStrategy.ThrowException)
@@ -211,7 +210,17 @@ namespace LLama
                 throw new ContextOverflowException();
             }
 
-            // 2. Calculate tokens safely
+            // 2. Guard: Stateful executors currently require native shifting to truncate.
+            // TODO (Future Improvement): To support truncation on models where MemoryCanShift == false,
+            // StatefulExecutorBase needs an unconditional `List<LLamaToken> _history_tokens` to track 
+            // all ingested/generated tokens so we can clear the KV cache and perform a full re-prefill.
+            if (!Context.NativeHandle.MemoryCanShift)
+            {
+                _logger?.LogError("Model does not support native memory shifting. Stateful truncation requires MemoryCanShift = true.");
+                throw new ContextOverflowException("Model does not support native memory shifting. Context overflowed.");
+            }
+
+            // 3. Calculate tokens safely
             var n_left = _pastTokensCount - tokensToKeep;
             if (n_left <= 0)
             {
@@ -225,32 +234,12 @@ namespace LLama
             // Sanity check: always discard at least 1 token, but never more than we have available.
             n_discard = Math.Max(1, Math.Min(n_discard, n_left));
 
-            // 3. Remove the oldest non-kept tokens. 
-            int startIndex = Math.Max(0, tokensToKeep);
-            _session_tokens.RemoveRange(startIndex, n_discard);
+            // 4. Fast path: attempt the fast native memory shift
+            Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
+            Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
+            _pastTokensCount -= n_discard;
 
-            if (Context.NativeHandle.MemoryCanShift)
-            {
-                // Fast path: attempt the fast native memory shift
-                Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
-                Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
-                _pastTokensCount -= n_discard;
-            }
-            else
-            {
-                // 4. Fallback: Clear the native KV Cache and perform a complete re-prefill
-                _logger?.LogInformation("Model does not support native memory shifting. Falling back to context re-prefill.");
-
-                LLamaBatch batch = new();
-                Context.NativeHandle.MemoryClear();
-
-                (var result, _, _pastTokensCount) = await Context.DecodeAsync(_session_tokens, LLamaSeqId.Zero, batch, 0);
-
-                if (result != DecodeResult.Ok)
-                {
-                    throw new LLamaDecodeError(result);
-                }
-            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
