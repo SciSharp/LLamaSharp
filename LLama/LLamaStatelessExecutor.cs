@@ -106,6 +106,9 @@ namespace LLama
             // Tokenize the prompt
             var tokens = Context.Tokenize(prompt, special: true).ToList();
 
+            // Capture the initial prompt length
+            var initialPromptLength = tokens.Count;
+
             // We must track the history of all tokens in this session in case we need to re-prefill the context
             var all_tokens = new List<LLamaToken>(tokens);
 
@@ -152,9 +155,9 @@ namespace LLama
                     var tokensKeep = inferenceParams.TokensKeep;
 
                     // number of tokens to keep when resetting context
-                    if (tokensKeep < 0 || tokensKeep > all_tokens.Count)
+                    if (tokensKeep < 0 || tokensKeep > initialPromptLength)
                     {
-                        tokensKeep = all_tokens.Count;
+                        tokensKeep = initialPromptLength;
                     }
                     else
                     {

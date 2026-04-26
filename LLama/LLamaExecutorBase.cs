@@ -239,6 +239,13 @@ namespace LLama
             Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
             _pastTokensCount -= n_discard;
 
+            // Stop saving the session if we run out of context. 
+            // Note: A more advanced (but riskier and more complex) solution would be to physically trim 
+            // the _session_tokens list and adjust _n_session_consumed to perfectly match the newly 
+            // shifted native memory. This would allow session saving to continue safely, but requires 
+            // precise index tracking to avoid off-by-one errors. For now, we abort saving to prevent corruption.
+            _pathSession = string.Empty;
+
             return Task.CompletedTask;
         }
 
