@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using LLama.Common;
 using LLama.Sampling;
+using System.Collections.Generic;
 
 namespace LLama.Abstractions
 {  
@@ -36,5 +37,19 @@ namespace LLama.Abstractions
 		/// Controls the behavior of decoders like <see cref="StreamingTokenDecoder" />
 		/// </remark>
 		public bool DecodeSpecialTokens { get; set; }
-	}
+
+        /// <summary>
+        /// Defines the strategy the executor should use when the context window is full 
+        /// and the model architecture (e.g., models with 2D RoPE embeddings) does not 
+        /// support native memory shifting.
+        /// </summary>
+        ContextOverflowStrategy OverflowStrategy { get; set; }
+
+        /// <summary>
+        /// The percentage of past tokens to discard when <see cref="OverflowStrategy"/> 
+        /// is set to <see cref="ContextOverflowStrategy.TruncateAndReprefill"/>. 
+        /// For example, 0.1f represents dropping the oldest 10% of the conversational context.
+        /// </summary>
+        float ContextTruncationPercentage { get; set; }
+    }
 }

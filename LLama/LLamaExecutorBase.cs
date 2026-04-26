@@ -198,21 +198,55 @@ namespace LLama
         /// <summary>
         /// After running out of the context, take some tokens from the original prompt and recompute the logits in batches.
         /// </summary>
-        /// <param name="tokensToKeep"></param>
-        protected virtual void HandleRunOutOfContext(int tokensToKeep)
+        /// <param name="tokensToKeep">The number of tokens from the initial prompt to preserve (e.g., system prompt).</param>
+        /// <param name="inferenceParams">The parameters controlling the inference and overflow strategy.</param>
+        /// <exception cref="ContextOverflowException">Thrown when the overflow strategy is set to ThrowException, or if the model does not support native shifting.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when tokensToKeep is invalid.</exception>
+        protected virtual Task HandleRunOutOfContext(int tokensToKeep, IInferenceParams inferenceParams)
         {
-            // if we run out of context:
-            // - take the tokensToKeep first tokens from the original prompt (via n_past)
-            // - take half of the last (n_ctx - tokensToKeep) tokens and recompute the logits in batches
-            var n_left = _pastTokensCount - tokensToKeep;
-            var n_discard = n_left / 2;
+            // 1. Fast Fail if not configured to auto-truncate
+            if (inferenceParams.OverflowStrategy == ContextOverflowStrategy.ThrowException)
+            {
+                throw new ContextOverflowException();
+            }
 
+            // 2. Guard: Stateful executors currently require native shifting to truncate.
+            // TODO (Future Improvement): To support truncation on models where MemoryCanShift == false,
+            // StatefulExecutorBase needs an unconditional `List<LLamaToken> _history_tokens` to track 
+            // all ingested/generated tokens so we can clear the KV cache and perform a full re-prefill.
+            if (!Context.NativeHandle.MemoryCanShift)
+            {
+                _logger?.LogError("Model does not support native memory shifting. Stateful truncation requires MemoryCanShift = true.");
+                throw new ContextOverflowException("Model does not support native memory shifting. Context overflowed.");
+            }
+
+            // 3. Calculate tokens safely
+            var n_left = _pastTokensCount - tokensToKeep;
+            if (n_left <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(tokensToKeep), "Cannot truncate context: tokensToKeep exceeds or equals the current context size.");
+            }
+
+            // Clamp the percentage between 1% and 99% to prevent math errors or total wipeouts
+            var percentage = Math.Max(0.01f, Math.Min(0.99f, inferenceParams.ContextTruncationPercentage));
+            var n_discard = (int)(n_left * percentage);
+
+            // Sanity check: always discard at least 1 token, but never more than we have available.
+            n_discard = Math.Max(1, Math.Min(n_discard, n_left));
+
+            // 4. Fast path: attempt the fast native memory shift
             Context.NativeHandle.MemorySequenceRemove(LLamaSeqId.Zero, tokensToKeep, tokensToKeep + n_discard);
             Context.NativeHandle.MemorySequenceAdd(LLamaSeqId.Zero, tokensToKeep + n_discard, _pastTokensCount, -n_discard);
-
             _pastTokensCount -= n_discard;
-            // stop saving session if we run out of context
+
+            // Stop saving the session if we run out of context. 
+            // Note: A more advanced (but riskier and more complex) solution would be to physically trim 
+            // the _session_tokens list and adjust _n_session_consumed to perfectly match the newly 
+            // shifted native memory. This would allow session saving to continue safely, but requires 
+            // precise index tracking to avoid off-by-one errors. For now, we abort saving to prevent corruption.
             _pathSession = string.Empty;
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
