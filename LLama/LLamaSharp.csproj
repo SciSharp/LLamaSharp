@@ -44,14 +44,14 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="System.Memory" Version="4.6.3" PrivateAssets="all" />
-    <PackageReference Include="System.Text.Json" Version="10.0.5" />
+    <PackageReference Include="System.Text.Json" Version="10.0.7" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.2" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.7" />
     <PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.4.1" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.5.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
     <PackageReference Include="System.Linq.Async" Version="7.0.0" />
     <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.2" />
