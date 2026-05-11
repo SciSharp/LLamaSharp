@@ -206,7 +206,17 @@ namespace LLama.Native
         /// except 1d tensors 
         /// </summary>
         LLAMA_FTYPE_MOSTLY_MXFP4_MOE = 38,
-        
+
+        /// <summary>
+        /// Except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_NVFP4 = 39,
+
+        /// <summary>
+        /// Except 1d tensors
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_Q1_0 = 40,
+
         /// <summary>
         /// File type was not specified
         /// </summary>

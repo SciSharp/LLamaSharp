@@ -80,24 +80,34 @@ namespace LLama.Native
         private sbyte _keep_split;
 
         /// <summary>
+        /// calculate and show the final quantization size without performing quantization
+        /// </summary>
+        public bool dry_run
+        {
+            get => Convert.ToBoolean(_dry_run);
+            set => _dry_run = Convert.ToSByte(value);
+        }
+        private sbyte _dry_run;
+
+        /// <summary>
         /// pointer to importance matrix data
         /// </summary>
-        public IntPtr imatrix;
+        public IntPtr imatrix; // LLamaModelImatrixData *
 
         /// <summary>
         /// pointer to vector containing overrides
         /// </summary>
-        public IntPtr kv_overrides;
+        public IntPtr kv_overrides; // llama_model_kv_override *
 
         /// <summary>
         /// pointer to vector containing tensor types
         /// </summary>
-        public IntPtr tensor_types;
+        public IntPtr tensor_types; // llama_model_tensor_override *
 
         /// <summary>
         /// Pointer to vector containing layer indices to prune
         /// </summary>
-        public IntPtr prune_layers;
+        public IntPtr prune_layers; // int32 *
 
         /// <summary>
         /// Create a LLamaModelQuantizeParams with default values

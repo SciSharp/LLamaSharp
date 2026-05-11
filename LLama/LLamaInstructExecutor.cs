@@ -233,7 +233,7 @@ namespace LLama
                     // Ported from https://github.com/ggerganov/llama.cpp/blob/60325fa56f61c228464c9f065db3aa6a61f2156e/examples/main/main.cpp#L334
                     // Instruct always uses input token size.
                     var tokensToKeep = _embed_inps.Count;
-                    HandleRunOutOfContext(tokensToKeep);
+                    await HandleRunOutOfContext(tokensToKeep, inferenceParams);
                 }
 
                 TryReuseMatchingPrefix();

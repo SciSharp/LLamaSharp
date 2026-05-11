@@ -20,4 +20,10 @@ public enum GPUSplitMode
     /// split layers and KV across GPUs, use tensor parallelism if supported
     /// </summary>
     Row = 2,
+    
+    // Undocumented in llama.h
+    /// <summary>
+    /// 
+    /// </summary>
+    Tensor = 3,
 }

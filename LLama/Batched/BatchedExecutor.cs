@@ -43,7 +43,12 @@ public sealed class BatchedExecutor
     /// The <see cref="LLamaWeights"/> this executor is using
     /// </summary>
     public LLamaWeights Model { get; }
-    
+
+    /// <summary>
+    /// The optional <see cref="MtmdWeights"/> this executor is using
+    /// </summary>
+    public MtmdWeights? ClipModel { get; }
+
     /// <summary>
     /// Get the number of tokens in the batch, waiting for <see cref="Infer"/> to be called
     /// </summary>
@@ -79,20 +84,14 @@ public sealed class BatchedExecutor
     /// </summary>
     /// <param name="model">The model to use</param>
     /// <param name="contextParams">Parameters to create a new context</param>
-    public BatchedExecutor(LLamaWeights model, IContextParams contextParams)
-        : this(model, contextParams, null)
-    {
-    }
-
-    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel)
+    /// <param name="clipModel">Clip model to use for multimodal capabilities</param>
+    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel = null)
     {
         Model = model;
         Context = model.CreateContext(contextParams);
         ClipModel = clipModel;
         Epoch = 1;
     }
-
-    public MtmdWeights? ClipModel { get; }
 
     /// <summary>
     /// Start a new <see cref="Conversation"/>

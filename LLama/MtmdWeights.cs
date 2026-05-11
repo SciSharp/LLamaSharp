@@ -137,9 +137,9 @@ public sealed class MtmdWeights
     public bool UsesMRope => NativeHandle.DecodeUseMRope();
 
     /// <summary>
-    /// Gets the audio bitrate advertised by the model.
+    /// Gets the audio sample rate advertised by the model.
     /// </summary>
-    public int AudioBitrate => NativeHandle.GetAudioBitrate();
+    public int SampleRate => NativeHandle.GetAudioSampleRate();
 
     /// <inheritdoc />
     public void Dispose() => NativeHandle.Dispose();

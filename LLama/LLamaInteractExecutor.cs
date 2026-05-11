@@ -232,7 +232,7 @@ namespace LLama
                         tokensToKeep += Convert.ToInt32(Context.Vocab.ShouldAddBOS); // always keep the BOS token
                     }
 
-                    HandleRunOutOfContext(tokensToKeep);
+                    await HandleRunOutOfContext(tokensToKeep, inferenceParams);
                 }
 
                 if (MtmdChunks is null)

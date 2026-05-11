@@ -41,24 +41,50 @@ public static partial class NativeApi
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_context_params_default", CallingConvention = CallingConvention.Cdecl)]
     internal static extern mtmd_context_params mtmd_context_params_default();
 
+    /// <summary>
+    /// whether we need to set non-causal mask before llama_decode
+    /// if chunk is nullptr, we assume the default case where chunk is an image chunk
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_decode_use_non_causal", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static extern bool mtmd_decode_use_non_causal(SafeMtmdModelHandle ctx);
 
+    /// <summary>
+    /// whether the current model use M-RoPE for llama_decode
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_decode_use_mrope", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static extern bool mtmd_decode_use_mrope(SafeMtmdModelHandle ctx);
 
+    /// <summary>
+    /// whether the current model supports vision input
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_support_vision", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static extern bool mtmd_support_vision(SafeMtmdModelHandle ctx);
 
+    /// <summary>
+    /// whether the current model supports audio input
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_support_audio", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static extern bool mtmd_support_audio(SafeMtmdModelHandle ctx);
 
-    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_get_audio_bitrate", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int mtmd_get_audio_bitrate(SafeMtmdModelHandle ctx);
+    /// <summary>
+    /// get audio sample rate in Hz, for example 16000 for Whisper
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
+    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_get_audio_sample_rate", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern int mtmd_get_audio_sample_rate(SafeMtmdModelHandle ctx);
 
     // bitmap ------------------------------------------------------------
 
@@ -153,9 +179,11 @@ public static partial class NativeApi
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_n_tokens", CallingConvention = CallingConvention.Cdecl)]
     internal static extern UIntPtr mtmd_image_tokens_get_n_tokens(IntPtr image_tokens);
 
+    [Obsolete("use mtmd_image_tokens_get_decoder_pos() instead")]
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_nx", CallingConvention = CallingConvention.Cdecl)]
     internal static extern UIntPtr mtmd_image_tokens_get_nx(IntPtr image_tokens);
 
+    [Obsolete("use mtmd_image_tokens_get_decoder_pos() instead")]
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_ny", CallingConvention = CallingConvention.Cdecl)]
     internal static extern UIntPtr mtmd_image_tokens_get_ny(IntPtr image_tokens);
 
@@ -165,10 +193,32 @@ public static partial class NativeApi
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_image_tokens_get_n_pos(IntPtr image_tokens);
 
+    [StructLayout(LayoutKind.Explicit)]
+    internal struct mtmd_decoder_pos
+    {
+        [FieldOffset(0)]
+        uint t;
+
+        [FieldOffset(4)]
+        uint x;
+
+        [FieldOffset(8)]
+        uint y;
+    };
+
+    /// <summary>
+    /// get position for decoder attention, to be used by M-RoPE models
+    /// </summary>
+    /// <param name="image_tokens"></param>
+    /// <param name="i">i is the index of the embedding token, ranging from 0 to mtmd_image_tokens_get_n_tokens() - 1</param>
+    /// <returns>return relative position (for example, embedding 0 will have position (0, 0, 0); remember to adjust it to the current absolute position)</returns>
+    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_decoder_pos", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern mtmd_decoder_pos mtmd_image_tokens_get_decoder_pos(IntPtr image_tokens, nuint i);
+
     // tokenize ----------------------------------------------------------
 
     /// <summary>
-    /// Native text structure consumed by <see cref="mtmd_tokenize"/>.
+    /// Native text structure consumed by <see cref="NativeApi.mtmd_tokenize(LLama.Native.SafeMtmdModelHandle,System.IntPtr,in LLama.Native.NativeApi.mtmd_input_text_native,System.IntPtr[],System.UIntPtr)"/>.
     /// </summary>
     internal unsafe struct mtmd_input_text_native
     {
@@ -258,6 +308,11 @@ public static partial class NativeApi
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_get_n_pos", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_get_n_pos(SafeMtmdInputChunks chunks);
+
+    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_image_get_decoder_pos", CallingConvention = CallingConvention.Cdecl)]
+    // helper to get the list of relative positions corresponding to the embedding tokens, to be used by M-RoPE
+    // out_pos must have length == mtmd_helper_get_n_tokens(image)
+    internal static extern void mtmd_helper_image_get_decoder_pos(IntPtr /* mtmd_image_tokens* */ image, IntPtr /* mtmd_decoder_pos* */ out_pos);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_eval_chunks", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_eval_chunks(

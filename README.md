@@ -4,7 +4,6 @@
 [![QQ Group](https://img.shields.io/static/v1?label=QQ&message=加入QQ群&color=brightgreen)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp?label=LLamaSharp)](https://www.nuget.org/packages/LLamaSharp)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cpu?label=LLamaSharp.Backend.Cpu)](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu)
-[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda11?label=LLamaSharp.Backend.Cuda11)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda12?label=LLamaSharp.Backend.Cuda12)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.semantic-kernel?label=LLamaSharp.semantic-kernel)](https://www.nuget.org/packages/LLamaSharp.semantic-kernel)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.kernel-memory?label=LLamaSharp.kernel-memory)](https://www.nuget.org/packages/LLamaSharp.kernel-memory)
@@ -269,6 +268,7 @@ If you want to compile llama.cpp yourself you **must** use the exact commit ID l
 | v0.24.0 | [Qwen3](https://huggingface.co/collections/unsloth/qwen3-680edabfb790c8c34a242f95) | [`ceda28ef`](https://github.com/ggerganov/llama.cpp/tree/ceda28ef8e310a8dee60bf275077a3eedae8e36c) |
 | v0.25.0 | | [`11dd5a44eb180e1d69fac24d3852b5222d66fb7f`](https://github.com/ggerganov/llama.cpp/tree/11dd5a44eb180e1d69fac24d3852b5222d66fb7f)
 | v0.26.0 | | [`506bb6e01009058f35558474cf987eeb56361782`](https://github.com/ggerganov/llama.cpp/tree/506bb6e01009058f35558474cf987eeb56361782)
+| v0.27.0 | Qwen3.5 & Gemma4 | [`3f7c29d318e317b63f54c558bc69803963d7d88c`](https://github.com/ggerganov/llama.cpp/tree/3f7c29d318e317b63f54c558bc69803963d7d88c)
 
 ## License
 

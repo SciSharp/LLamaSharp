@@ -81,7 +81,7 @@ namespace LLama.Unittest
             Assert.True(_mtmdWeights.SupportsVision);
             Assert.False(_mtmdWeights.UsesMRope);
             Assert.True(_mtmdWeights.UsesNonCausalAttention);
-            Assert.Equal(-1, _mtmdWeights.AudioBitrate);
+            Assert.Equal(-1, _mtmdWeights.SampleRate);
         }
 
         [Fact,Trait("Category", "NoCI")]
@@ -143,8 +143,8 @@ namespace LLama.Unittest
             Assert.True(_mtmdWeights.SupportsVision);
             Assert.False(_mtmdWeights.SupportsAudio);
 
-            var audioBitrate = _mtmdWeights.AudioBitrate;
-            Assert.True(audioBitrate <= 0);
+            var audioSampleRate = _mtmdWeights.SampleRate;
+            Assert.True(audioSampleRate <= 0);
         }
     }
 }

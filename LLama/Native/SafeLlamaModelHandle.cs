@@ -175,7 +175,7 @@ namespace LLama.Native
         private static extern unsafe byte* llama_model_chat_template(SafeLlamaModelHandle model, string? name);
 
         /// <summary>
-        /// Load the model from a file
+        /// Load a model from a file
         /// If the file is split into multiple parts, the file name must follow this pattern: {name}-%05d-of-%05d.gguf
         /// If the split file name does not follow this pattern, use llama_model_load_from_splits
         /// </summary>
@@ -186,7 +186,7 @@ namespace LLama.Native
         private static extern SafeLlamaModelHandle llama_model_load_from_file(string path, LLamaModelParams @params);
 
         /// <summary>
-        /// Load the model from multiple splits (support custom naming scheme)
+        /// Load a model from multiple splits (support custom naming scheme)
         /// The paths must be in the correct order
         /// </summary>
         /// <returns></returns>
@@ -460,7 +460,7 @@ namespace LLama.Native
         /// <param name="i"></param>
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern string? llama_model_cls_label(SafeLlamaModelHandle model, uint i);
+        private static extern IntPtr /* char* */ llama_model_cls_label(SafeLlamaModelHandle model, uint i);
         #endregion
 
         #region LoRA
