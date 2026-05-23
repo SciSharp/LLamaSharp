@@ -33,7 +33,7 @@ jobs:
       options: --gpus=all --ipc=host --runtime=nvidia
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     
     - name: Install libraries
       run: |
@@ -93,7 +93,7 @@ jobs:
         set http_proxy=127.0.0.1:7891
         set https_proxy=127.0.0.1:7891
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Clear package cache
       run: dotnet clean LLamaSharp.sln && dotnet nuget locals all --clear

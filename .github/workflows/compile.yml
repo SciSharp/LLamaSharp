@@ -49,7 +49,7 @@ jobs:
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
@@ -114,7 +114,7 @@ jobs:
             git \
             linux-headers \
             g++
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
@@ -169,7 +169,7 @@ jobs:
             defines: '-DGGML_AVX512=ON -DGGML_AVX512_VBMI=ON -DGGML_AVX512_VNNI=ON'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
@@ -225,7 +225,7 @@ jobs:
             defines: '-T ClangCL -DCMAKE_GENERATOR_PLATFORM=ARM64 -DGGML_NATIVE=OFF'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
@@ -286,7 +286,7 @@ jobs:
       steps:
           - name: Clone
             id: checkout
-            uses: actions/checkout@v4
+            uses: actions/checkout@v6
             with:
                 repository: ggerganov/llama.cpp
                 fetch-depth: 0
@@ -406,7 +406,7 @@ jobs:
     steps:
       - name: Clone
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
@@ -538,7 +538,7 @@ jobs:
       MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
@@ -610,7 +610,7 @@ jobs:
             defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=OFF'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ggerganov/llama.cpp
           fetch-depth: 0
