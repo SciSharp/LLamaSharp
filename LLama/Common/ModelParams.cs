@@ -17,6 +17,9 @@ namespace LLama.Common
         public uint? ContextSize { get; set; }
 
         /// <inheritdoc />
+        public LLamaContextType ContextType { get; set; } = LLamaContextType.Default;
+
+        /// <inheritdoc />
         public int MainGpu { get; set; } = 0;
 
         /// <inheritdoc />
@@ -30,6 +33,9 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public uint SeqMax { get; set; } = 1;
+
+        /// <inheritdoc />
+        public uint RecurrentRollbackSnapshots { get; } = 0;
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
