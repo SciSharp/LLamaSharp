@@ -35,7 +35,7 @@ namespace LLama.Common
         public uint SeqMax { get; set; } = 1;
 
         /// <inheritdoc />
-        public uint RecurrentRollbackSnapshots { get; } = 0;
+        public uint RecurrentRollbackSnapshots { get; set; } = 0;
 
         /// <inheritdoc />
         public bool UseMemorymap { get; set; } = true;
