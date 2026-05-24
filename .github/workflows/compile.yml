@@ -435,7 +435,7 @@ jobs:
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON
+          cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
@@ -446,7 +446,7 @@ jobs:
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
           cmake --build . --config Release -j $(nproc)
           ls -R
 
