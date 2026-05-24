@@ -41,6 +41,11 @@ namespace LLama.Native
         public uint n_seq_max;
 
         /// <summary>
+        /// number of recurrent-state snapshots per seq for rollback (0 = no rollback) [EXPERIMENTAL]
+        /// </summary>
+        public uint n_rs_seq;
+
+        /// <summary>
         /// number of threads to use for generation
         /// </summary>
         public int n_threads;
@@ -50,6 +55,11 @@ namespace LLama.Native
         /// </summary>
         public int n_threads_batch;
 
+        /// <summary>
+        /// Set the type of context (e.g. MTP)
+        /// </summary>
+        public LLamaContextType context_type;
+        
         /// <summary>
         /// RoPE scaling type, from `enum llama_rope_scaling_type` 
         /// </summary>
