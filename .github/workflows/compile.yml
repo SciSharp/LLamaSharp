@@ -19,9 +19,6 @@ env:
   # Compiler defines common to all platforms
   COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_OPENSSL=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_UI=OFF -DLLAMA_BUILD_APP=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
   LINUX_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=ON"
-  # Suppress upstream compiler warnings (MSVC uses /w, GCC/Clang use -w)
-  SUPPRESS_WARNINGS_MSVC: "-DCMAKE_C_FLAGS=/w -DCMAKE_CXX_FLAGS=/w"
-  SUPPRESS_WARNINGS_GNU: "-DCMAKE_C_FLAGS=-w -DCMAKE_CXX_FLAGS=-w"
 
 jobs:
   compile-linux:
@@ -62,7 +59,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ env.SUPPRESS_WARNINGS_GNU }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j $(nproc)
           ls -R
       - uses: actions/upload-artifact@v4
@@ -127,7 +124,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ env.SUPPRESS_WARNINGS_GNU }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j $(nproc)
           ls -R
       - uses: actions/upload-artifact@v4
@@ -183,7 +180,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.SUPPRESS_WARNINGS_MSVC }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           tree /f
 
@@ -239,7 +236,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.SUPPRESS_WARNINGS_MSVC }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           tree /f
 
@@ -316,7 +313,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} ${{ env.SUPPRESS_WARNINGS_MSVC }} -DGGML_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
                 ls -R
           - name: Build (Linux)
@@ -324,7 +321,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ env.SUPPRESS_WARNINGS_GNU }} -DGGML_VULKAN=ON
+                cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_VULKAN=ON
                 cmake --build . --config Release -j $(nproc)
                 ls -R
           - name: Upload llama artifacts (Windows)
@@ -438,7 +435,7 @@ jobs:
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.SUPPRESS_WARNINGS_MSVC }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
+          cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
           cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
           ls -R
 
@@ -449,7 +446,7 @@ jobs:
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ env.SUPPRESS_WARNINGS_GNU }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
           cmake --build . --config Release -j $(nproc)
           ls -R
 
@@ -555,7 +552,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.MACOS_RPATH_DEFINE }} ${{ env.SUPPRESS_WARNINGS_GNU }} ${{ matrix.defines }}
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.MACOS_RPATH_DEFINE }} ${{ matrix.defines }}
           cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
           ls -R
       - name: Upload ggml
@@ -630,7 +627,7 @@ jobs:
         run: |
           # export-lora not supported on 32 bit machines hence breaks x86 build
           sed -i '/add_subdirectory(export-lora)/d' examples/CMakeLists.txt # remove export-lora from examples
-          cmake ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ env.SUPPRESS_WARNINGS_GNU }} ${{ matrix.defines }} -B build
+          cmake ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ matrix.defines }} -B build
           cmake --build build --config Release -j $(nproc)
       - name: Upload Llama
         uses: actions/upload-artifact@v4
