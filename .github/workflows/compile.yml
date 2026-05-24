@@ -553,7 +553,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ env.MACOS_RPATH_DEFINE }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu)
           ls -R
       - name: Upload ggml
         uses: actions/upload-artifact@v4
