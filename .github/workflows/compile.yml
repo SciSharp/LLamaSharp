@@ -17,7 +17,7 @@ concurrency:
 
 env:
   # Compiler defines common to all platforms
-  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_OPENSSL=OFF -DBUILD_SHARED_LIBS=ON
+  COMMON_DEFINE: -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_OPENSSL=OFF -DBUILD_SHARED_LIBS=ON -DLLAMA_BUILD_UI=OFF -DLLAMA_BUILD_APP=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=OFF
   LINUX_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='$ORIGIN' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=ON"
 
 jobs:
@@ -60,7 +60,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(nproc) --target ggml ggml-base ggml-cpu llama mtmd
           ls -R
       - uses: actions/upload-artifact@v4
         with:
@@ -125,7 +125,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(nproc) --target ggml ggml-base ggml-cpu llama mtmd
           ls -R
       - uses: actions/upload-artifact@v4
         with:
@@ -181,7 +181,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} --target ggml ggml-base ggml-cpu llama mtmd
           tree /f
 
       - name: Upload artifacts (llama)
@@ -237,7 +237,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} --target ggml ggml-base ggml-cpu llama mtmd
           tree /f
 
       - name: Upload artifacts (llama)
@@ -314,7 +314,7 @@ jobs:
                 mkdir build
                 cd build
                 cmake .. ${{ env.COMMON_DEFINE }} -DGGML_VULKAN=ON
-                cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+                cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} --target ggml ggml-base ggml-vulkan llama mtmd
                 ls -R
           - name: Build (Linux)
             if: ${{ matrix.os == 'ubuntu-22.04' }}
@@ -322,7 +322,7 @@ jobs:
                 mkdir build
                 cd build
                 cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_VULKAN=ON
-                cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+                cmake --build . --config Release -j $(nproc) --target ggml ggml-base ggml-vulkan llama mtmd
                 ls -R
           - name: Upload llama artifacts (Windows)
             if: ${{ matrix.os == 'windows-latest' }}
@@ -435,8 +435,8 @@ jobs:
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON
-          cmake --build . --config Release
+          cmake .. ${{ env.COMMON_DEFINE }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
+          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS} --target ggml ggml-base ggml-cuda llama mtmd
           ls -R
 
       - name: Build (Linux)
@@ -446,8 +446,8 @@ jobs:
           echo "CMAKE_CXX_FLAGS is $CMAKE_CXX_FLAGS"
           mkdir build
           cd build
-          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON
-          cmake --build . --config Release
+          cmake .. ${{ env.COMMON_DEFINE }} ${{ env.LINUX_RPATH_DEFINE }} -DGGML_CUDA=ON -DCMAKE_CUDA_FLAGS=-w
+          cmake --build . --config Release -j $(nproc) --target ggml ggml-base ggml-cuda llama mtmd
           ls -R
 
       - name: Upload artifacts (Windows)
@@ -530,10 +530,13 @@ jobs:
         include:
           - build: 'arm64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=arm64 -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_METAL_USE_BF16=ON'
+            targets: '--target ggml ggml-base ggml-cpu ggml-blas ggml-metal llama mtmd'
           - build: 'x64'
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=ON -DGGML_AVX2=ON'
+            targets: '--target ggml ggml-base ggml-cpu ggml-blas llama mtmd'
           - build: 'x64-rosetta2'
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
+            targets: '--target ggml ggml-base ggml-cpu ggml-blas llama mtmd'
     env:
       MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
     runs-on: macos-14
@@ -553,7 +556,7 @@ jobs:
           mkdir build
           cd build
           cmake .. ${{ env.COMMON_DEFINE }} ${{ env.MACOS_RPATH_DEFINE }} ${{ matrix.defines }}
-          cmake --build . --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build . --config Release -j $(sysctl -n hw.logicalcpu) ${{ matrix.targets }}
           ls -R
       - name: Upload ggml
         uses: actions/upload-artifact@v4
@@ -605,9 +608,9 @@ jobs:
       matrix:
         include:
           - build: 'x86_64'
-            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64 -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=OFF'
+            defines: '-DANDROID_ABI=x86_64 -DCMAKE_C_FLAGS=-march=x86-64 -DCMAKE_CXX_FLAGS=-march=x86-64 -DGGML_OPENMP=OFF'
           - build: 'arm64-v8a'
-            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a -DGGML_OPENMP=OFF -DLLAMA_BUILD_SERVER=OFF'
+            defines: '-DANDROID_ABI=arm64-v8a -DCMAKE_C_FLAGS=-march=armv8.7a -DCMAKE_C_FLAGS=-march=armv8.7a -DGGML_OPENMP=OFF'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -628,7 +631,7 @@ jobs:
           # export-lora not supported on 32 bit machines hence breaks x86 build
           sed -i '/add_subdirectory(export-lora)/d' examples/CMakeLists.txt # remove export-lora from examples
           cmake ${{ env.COMMON_DEFINE }} ${{ env.CMAKE_FLAGS }} ${{ matrix.defines }} -B build
-          cmake --build build --config Release -j ${env:NUMBER_OF_PROCESSORS}
+          cmake --build build --config Release -j $(nproc) --target ggml ggml-base ggml-cpu llama mtmd
       - name: Upload Llama
         uses: actions/upload-artifact@v4
         with:
