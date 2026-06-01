@@ -7,7 +7,7 @@
     <Platforms>AnyCPU;x64;Arm64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <Version>0.27.0</Version>
+    <Version>0.28.0</Version>
     <Authors>Rinne, Martin Evans, jlsantiago and all the other contributors in https://github.com/SciSharp/LLamaSharp/graphs/contributors.</Authors>
     <Company>SciSharp STACK</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,7 +22,7 @@
       With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.
     </Description>
     <PackageReleaseNotes>
-        Updated llama.cpp version to 3f7c29d318e317b63f54c558bc69803963d7d88c
+        Updated llama.cpp version to c0c7e147e7efa6c5858754b47259ba4880f8a906
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>packages</PackageOutputPath>
