@@ -52,7 +52,7 @@
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.9" />
     <PackageReference Include="Microsoft.Bcl.Memory" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.6.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
     <PackageReference Include="System.Linq.Async" Version="7.0.0" />
     <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.2" />
     <PackageReference Include="System.Numerics.Tensors" Version="10.0.5" />
