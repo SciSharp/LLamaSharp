@@ -28,7 +28,7 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_F16C=OFF -DGGML_BMI2=OFF'
             os: ubuntu-22.04
             arch: x64
           - build: 'avx2'
@@ -95,7 +95,7 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_F16C=OFF -DGGML_BMI2=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
@@ -160,7 +160,7 @@ jobs:
       matrix:
         include:
           - build: 'noavx'
-            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF'
+            defines: '-DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_F16C=OFF -DGGML_BMI2=OFF'
           - build: 'avx2'
             defines: ''
           - build: 'avx'
@@ -535,7 +535,7 @@ jobs:
             defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=ON -DGGML_AVX2=ON'
             targets: '--target ggml ggml-base ggml-cpu ggml-blas llama mtmd'
           - build: 'x64-rosetta2'
-            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF'
+            defines: '-DCMAKE_OSX_ARCHITECTURES=x86_64 -DGGML_METAL=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_F16C=OFF -DGGML_BMI2=OFF'
             targets: '--target ggml ggml-base ggml-cpu ggml-blas llama mtmd'
     env:
       MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
