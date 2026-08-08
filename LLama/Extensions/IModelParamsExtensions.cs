@@ -22,10 +22,14 @@ public static class IModelParamsExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IDisposable ToLlamaModelParams(this IModelParams @params, out LLamaModelParams result)
     {
-        if (@params.UseMemoryLock && !NativeApi.llama_supports_mlock())
-            throw new NotSupportedException("'UseMemoryLock' is not supported (llama_supports_mlock() == false)");
-        if (@params.UseMemorymap && !NativeApi.llama_supports_mmap())
-            throw new NotSupportedException("'UseMemorymap' is not supported (llama_supports_mmap() == false)");
+        var supportsMmap = NativeApi.llama_supports_mmap();
+        var supportMlock = NativeApi.llama_supports_mlock();
+        if (@params.LoadMode == LLamaLoadMode.MemoryLock && !supportMlock)
+            throw new NotSupportedException("'LLamaLoadMode.MemoryLock' is not supported (llama_supports_mlock() == false)");
+        if (@params.LoadMode == LLamaLoadMode.MemoryMap && !supportsMmap)
+            throw new NotSupportedException("'LLamaLoadMode.MemoryLock' is not supported (llama_supports_mmap() == false)");
+        if (@params.LoadMode == LLamaLoadMode.MemoryMapAndLock && (!supportsMmap || !supportMlock))
+            throw new NotSupportedException($"'LLamaLoadMode.MemoryLock' is not supported (llama_supports_mmap() == {supportsMmap}, llama_supports_mlock() == {supportMlock}");
 
         var disposer = new GroupDisposable();
 
@@ -36,11 +40,10 @@ public static class IModelParamsExtensions
         if (@params.SplitMode.HasValue)
             result.split_mode = @params.SplitMode.Value;
 
-        result.use_mlock = @params.UseMemoryLock;
-        result.use_mmap = @params.UseMemorymap;
-        result.use_direct_io = @params.UseDirectIO;
+        result.load_mode = @params.LoadMode;
         result.vocab_only = @params.VocabOnly;
         result.check_tensors = @params.CheckTensors;
+        result.load_mtp = @params.LoadMTP;
 
         unsafe
         {

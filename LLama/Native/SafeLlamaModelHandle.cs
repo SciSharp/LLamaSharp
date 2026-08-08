@@ -51,6 +51,11 @@ namespace LLama.Native
         public int LayerCount => llama_model_n_layer(this);
 
         /// <summary>
+        /// Get the number of MTP layers in this model
+        /// </summary>
+        public int LayerCountMtp => llama_model_n_layer_nextn(this);
+
+        /// <summary>
         /// Get the number of heads in this model
         /// </summary>
         public int HeadCount => llama_model_n_head(this);
@@ -105,6 +110,11 @@ namespace LLama.Native
                 }
             }
         }
+
+        /// <summary>
+        /// Get the file quantisation type of this model
+        /// </summary>
+        public LLamaFtype FileType => llama_model_ftype(this);
 
         /// <summary>
         /// Get the number of metadata key/value pairs
@@ -339,6 +349,14 @@ namespace LLama.Native
         private static extern int llama_model_n_layer(SafeLlamaModelHandle model);
 
         /// <summary>
+        /// Get the number of MTP layers in this model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int llama_model_n_layer_nextn(SafeLlamaModelHandle model);
+
+        /// <summary>
         /// Get the number of heads in this model
         /// </summary>
         /// <param name="model"></param>
@@ -371,6 +389,14 @@ namespace LLama.Native
         /// <returns>The length of the string on success (even if the buffer is too small)., or -1 on failure</returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern unsafe int llama_model_desc(SafeLlamaModelHandle model, byte* buf, nint bufSize);
+
+        /// <summary>
+        /// Get the model file type (quantization), e.g. LLAMA_FTYPE_MOSTLY_Q8_0
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>The size of the model</returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern LLamaFtype llama_model_ftype(SafeLlamaModelHandle model);
 
         /// <summary>
         /// Get the size of the model in bytes

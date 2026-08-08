@@ -38,15 +38,6 @@ namespace LLama.Common
         public uint RecurrentRollbackSnapshots { get; set; } = 0;
 
         /// <inheritdoc />
-        public bool UseMemorymap { get; set; } = true;
-
-        /// <inheritdoc />
-        public bool UseDirectIO { get; set; }
-
-        /// <inheritdoc />
-        public bool UseMemoryLock { get; set; }
-
-        /// <inheritdoc />
         public string ModelPath { get; set; }
 
         /// <inheritdoc />
@@ -72,6 +63,12 @@ namespace LLama.Common
 
         /// <inheritdoc />
         public List<MetadataOverride> MetadataOverrides { get; set; } = new();
+
+        /// <inheritdoc />
+        public LLamaLoadMode LoadMode { get; set; }
+
+        /// <inheritdoc />
+        public bool LoadMTP { get; set; }
 
         /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }
