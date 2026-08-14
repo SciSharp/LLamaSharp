@@ -230,7 +230,7 @@ Join [QQ group](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKx
 
 ## Star history
 
-[![Star History Chart](https://api.star-history.com/svg?repos=SciSharp/LLamaSharp)](https://star-history.com/#SciSharp/LLamaSharp&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=SciSharp/LLamaSharp)](https://star-history.dera.page/#SciSharp/LLamaSharp&Date)
 
 ## Contributor wall of fame
 
