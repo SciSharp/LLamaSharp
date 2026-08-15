@@ -247,29 +247,6 @@ public class ChatSession
             throw new ArgumentException("Cannot add a system message after another message", nameof(message));
         }
 
-        // If current message is a user message, only allow the history to be empty,
-        // or the previous message to be a system message or assistant message.
-        if (message.AuthorRole == AuthorRole.User)
-        {
-            ChatHistory.Message? lastMessage = History.Messages.LastOrDefault();
-            if (lastMessage is not null && lastMessage.AuthorRole == AuthorRole.User)
-            {
-                throw new ArgumentException("Cannot add a user message after another user message", nameof(message));
-            }
-        }
-
-        // If the current message is an assistant message,
-        // the previous message must be a user message.
-        if (message.AuthorRole == AuthorRole.Assistant)
-        {
-            ChatHistory.Message? lastMessage = History.Messages.LastOrDefault();
-            if (lastMessage is null
-                || lastMessage.AuthorRole != AuthorRole.User)
-            {
-                throw new ArgumentException("Assistant message must be preceded with a user message", nameof(message));
-            }
-        }
-
         History.AddMessage(message.AuthorRole, message.Content);
         return this;
     }
