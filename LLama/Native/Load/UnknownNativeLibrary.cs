@@ -5,8 +5,9 @@ using System.Collections.Generic;
 namespace LLama.Native
 {
     /// <summary>
-    /// When you are using .NET standard2.0, dynamic native library loading is not supported.
-    /// This class will be returned in <see cref="NativeLibraryConfig.DryRun(out INativeLibrary)"/>.
+    /// When you are using .NET standard2.0 and no explicit library path was set with
+    /// <see cref="NativeLibraryConfig.WithLibrary"/>, automatic native library loading is not supported.
+    /// This class will be returned in <see cref="NativeLibraryConfig.DryRun(out INativeLibrary)"/> in that case.
     /// </summary>
     public class UnknownNativeLibrary: INativeLibrary
     {
