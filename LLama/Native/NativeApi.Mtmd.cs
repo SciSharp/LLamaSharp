@@ -8,10 +8,11 @@ namespace LLama.Native;
 /// </summary>
 public static partial class NativeApi
 {
-    
+
     /// <summary>
     /// Native context parameters returned by <see cref="mtmd_context_params_default"/>.
     /// </summary>
+    /// <remarks>mtmd_context_params</remarks>
     [StructLayout(LayoutKind.Sequential)]
     internal struct mtmd_context_params
     {
@@ -27,6 +28,19 @@ public static partial class NativeApi
 
         private IntPtr /* ggml_backend_sched_eval_callback */ cb_eval;
         private IntPtr cb_eval_user_data;
+
+        /// <summary>
+        /// maximum number of output tokens in a batch
+        /// (note: this is not a hard-limit, the first image will always be added even if it exceeds this limit)
+        /// (default: 1024)
+        /// </summary>
+        public int batch_max_tokens;
+
+        // Called with a progress value between 0.0 and 1.0. Pass NULL to disable.
+        // If the provided progress_callback returns true, model loading continues.
+        // If it returns false, model loading is immediately aborted.
+        private IntPtr progress_callback;
+        private IntPtr progress_callback_user_data;
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_default_marker", CallingConvention = CallingConvention.Cdecl)]
@@ -37,6 +51,14 @@ public static partial class NativeApi
     /// </summary>
     public static string? MtmdDefaultMarker()
         => mtmd_default_marker().PtrToString();
+
+    /// <summary>
+    /// get the current marker string
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <returns></returns>
+    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_context_params_default", CallingConvention = CallingConvention.Cdecl)]
+    public static extern string mtmd_get_marker(SafeMtmdModelHandle ctx);
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_context_params_default", CallingConvention = CallingConvention.Cdecl)]
     internal static extern mtmd_context_params mtmd_context_params_default();
@@ -227,6 +249,7 @@ public static partial class NativeApi
     internal unsafe struct mtmd_input_text_native
     {
         public byte* text;
+        public nuint text_len;
         [MarshalAs(UnmanagedType.I1)] public bool add_special;
         [MarshalAs(UnmanagedType.I1)] public bool parse_special;
     }
@@ -245,6 +268,7 @@ public static partial class NativeApi
             Value = new mtmd_input_text_native
             {
                 text = (byte*)_text.Pointer,
+                text_len = _text.Length,
                 add_special = addSpecial,
                 parse_special = parseSpecial
             };
@@ -281,9 +305,14 @@ public static partial class NativeApi
         return mtmd_tokenize_native(ctx, output, &scope.Value, bitmaps, n_bitmaps);
     }
 
-    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_encode", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int mtmd_encode(IntPtr ctx, IntPtr image_tokens);
-
+    /// <summary>
+    /// text chunk will be ignored silently, only media chunk will be encoded
+    /// returns 0 on success
+    /// returns 1 on generic error
+    /// </summary>
+    /// <param name="ctx"></param>
+    /// <param name="chunk"></param>
+    /// <returns></returns>
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_encode_chunk", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_encode_chunk(IntPtr ctx, IntPtr chunk);
 
@@ -292,20 +321,31 @@ public static partial class NativeApi
 
     // helper ------------------------------------------------------------
 
+    internal struct mtmd_helper_bitmap_wrapper
+    {
+        public IntPtr /* mtmd_bitmap* */ bitmap;
+        public IntPtr /* mtmd_helper_video* */ video_ctx;
+    };
+
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_test_create_input_chunks", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr mtmd_test_create_input_chunks();
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_file", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe IntPtr mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname);
+    private static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname, bool placeholder);
 
     internal static unsafe IntPtr mtmd_helper_bitmap_init_from_file(SafeMtmdModelHandle ctx, string fname)
     {
         using var pinned = PinnedUtf8String.Create(fname) ?? throw new ArgumentNullException(nameof(fname));
-        return mtmd_helper_bitmap_init_from_file_native(ctx, (byte*)pinned.Pointer);
+        return mtmd_helper_bitmap_init_from_file_native(ctx, (byte*)pinned.Pointer, false).bitmap;
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_buf", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern unsafe IntPtr mtmd_helper_bitmap_init_from_buf(SafeMtmdModelHandle ctx, byte* buf, nuint len);
+    internal static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_buf_native(SafeMtmdModelHandle ctx, byte* buf, nuint len, bool placeholder);
+
+    internal static unsafe IntPtr mtmd_helper_bitmap_init_from_buf(SafeMtmdModelHandle ctx, byte* buf, nuint len)
+    {
+        return mtmd_helper_bitmap_init_from_buf_native(ctx, buf, len, false).bitmap;
+    }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_get_n_tokens", CallingConvention = CallingConvention.Cdecl)]
     internal static extern UIntPtr mtmd_helper_get_n_tokens(SafeMtmdInputChunks chunks);
@@ -353,7 +393,10 @@ public static partial class NativeApi
         int n_past,
         int seq_id,
         int n_batch,
-        ref int new_n_past);
+        ref int new_n_past,
+        IntPtr /* mtmd_helper_post_decode_callback */ callback,
+        IntPtr user_data
+    );
     
     /*
      * // EXPERIMENTAL API to get mmproj's capabilities without initializing the full context
@@ -363,5 +406,77 @@ public static partial class NativeApi
            bool inp_audio;
        };
        MTMD_API struct mtmd_caps mtmd_get_cap_from_file(const char * mmproj_fname);
+     */
+    
+    /*
+     * // batch encoding API
+       // chunks are not owned by the batch, they will not be freed by mtmd_batch_free()
+       // batch is valid for a given context, cannot be shared across contexts
+       MTMD_API mtmd_batch * mtmd_batch_init(mtmd_context * ctx);
+       MTMD_API void         mtmd_batch_free(mtmd_batch * batch);
+       
+       // only media chunks are allowed, text chunks will be rejected
+       // returns 0 on success
+       // returns 1 on generic error
+       // returns 2 if the batch is too large (chunk won't be added)
+       // returns 3 if it cannot be batched with the existing chunks in the batch
+       MTMD_API int32_t mtmd_batch_add_chunk(mtmd_batch * batch, const mtmd_input_chunk * chunk);
+       
+       // returns 0 on success
+       // returns 1 on generic error
+       MTMD_API int32_t mtmd_batch_encode(mtmd_batch * batch);
+       MTMD_API float * mtmd_batch_get_output_embd(mtmd_batch * batch, const mtmd_input_chunk * chunk);
+     */
+    
+    /*
+     * //
+       // video input helpers (requires ffmpeg/ffprobe installed on the system)
+       // the notion of video only exists at the helper level, it is not visible to the core mtmd library
+       //
+       // NOTE: this implementation is model-agnostic, it can be used with any vision-capable model
+       //       however, it may not be accurate for some specific models
+       //       (this is expected for now, to keep the implementation simple)
+       //
+       
+       struct mtmd_helper_video_info {
+           uint32_t width;
+           uint32_t height;
+           float    fps;      // effective fps (fps_target if set, else original video fps)
+           int32_t  n_frames; // estimated total frames at effective fps (-1 if unknown)
+       };
+       
+       struct mtmd_helper_video_init_params {
+           float fps_target;            // desired output fps; <= 0 means use the video's native fps, defaulted to 4.0f
+           const char * ffmpeg_bin_dir; // directory containing ffmpeg/ffprobe binaries; NULL means search PATH
+           int64_t timestamp_interval_ms; // interval for adding timestamp as text chunk (example: "[10m50.5s]"); <= 0 means no timestamp, defaulted to 5000ms
+           // TODO @ngxson : allow "placeholder" bitmap output for counting tokens
+       };
+       
+       MTMD_API struct mtmd_helper_video_init_params mtmd_helper_video_init_params_default(void);
+       
+       // returns NULL on failure (ffprobe not found, file unreadable, etc.)
+       MTMD_API mtmd_helper_video * mtmd_helper_video_init(
+                           struct mtmd_context * mctx,
+                           const char * path,
+                           struct mtmd_helper_video_init_params params);
+       
+       // Same as mtmd_helper_video_init(), but reads from an in-memory buffer.
+       // The buffer is copied internally; the caller does not need to keep it alive.
+       // Note: pipe input is not seekable, so seeking will use output-side seeking
+       // (ffmpeg decodes and discards frames up to the target position).
+       MTMD_API mtmd_helper_video * mtmd_helper_video_init_from_buf(
+                           struct mtmd_context * mctx,
+                           const unsigned char * buf, size_t len,
+                           struct mtmd_helper_video_init_params params);
+       MTMD_API void mtmd_helper_video_free(mtmd_helper_video * ctx);
+       MTMD_API struct mtmd_helper_video_info mtmd_helper_video_get_info(const mtmd_helper_video * ctx);
+       
+       // Read the next item from the video stream; exactly one of out_bitmap or out_text is set per call.
+       // *out_bitmap - heap-allocated; caller must free with mtmd_bitmap_free()
+       // *out_text   - heap-allocated (always via strdup/malloc); caller must free with free()
+       // returns 0 on success, -1 on EOF, -2 on error
+       MTMD_API int32_t mtmd_helper_video_read_next(mtmd_helper_video * ctx,
+                   mtmd_bitmap ** out_bitmap,
+                   char ** out_text);
      */
 }
