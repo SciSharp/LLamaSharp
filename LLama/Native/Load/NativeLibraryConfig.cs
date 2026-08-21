@@ -596,11 +596,15 @@ namespace LLama.Native
         /// <returns>Whether the running is successful.</returns>
         public bool DryRun(out INativeLibrary? loadedLLamaNativeLibrary, out INativeLibrary? loadedMtmdNativeLibrary)
         {
-            bool success = true;
+            loadedLLamaNativeLibrary = null;
+            loadedMtmdNativeLibrary = null;
+            
+            var success = true;
             foreach(var config in _configs)
             {
                 success &= config.DryRun(out var loadedLibrary);
-                if(config.NativeLibraryName == NativeLibraryName.LLama)
+                
+                if (config.NativeLibraryName == NativeLibraryName.LLama)
                 {
                     loadedLLamaNativeLibrary = loadedLibrary;
                 }
@@ -613,7 +617,7 @@ namespace LLama.Native
                     throw new Exception("Unknown native library config during the dry run.");
                 }
             }
-            loadedLLamaNativeLibrary = loadedMtmdNativeLibrary = null;
+
             return success;
         }
     }
