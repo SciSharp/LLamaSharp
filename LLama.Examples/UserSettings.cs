@@ -5,6 +5,7 @@ namespace LLama.Examples;
 internal static class UserSettings
 {
     private static readonly string SettingsModelPath = Path.Join(AppContext.BaseDirectory, "DefaultModel.env");
+    private static readonly string SettingsEmbedModelPath = Path.Join(AppContext.BaseDirectory, "DefaultEmbedModel.env");
     private static readonly string SettingsMMprojPath = Path.Join(AppContext.BaseDirectory, "DefaultMMProj.env");
     private static readonly string SettingsImagePath = Path.Join(AppContext.BaseDirectory, "DefaultImage.env");
     private static readonly string WhisperModelPath = Path.Join(AppContext.BaseDirectory, "DefaultWhisper.env");
@@ -19,6 +20,11 @@ internal static class UserSettings
             return null;
 
         return path;
+    }
+
+    public static string GetEmbedModelPath(bool alwaysPrompt = false)
+    {
+        return PromptPath("embedmodel.gguf", SettingsEmbedModelPath, alwaysPrompt);
     }
 
     public static string GetModelPath(bool alwaysPrompt = false)
