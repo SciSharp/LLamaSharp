@@ -44,15 +44,6 @@ namespace LLama.Web.Common
         public bool Embeddings { get; set; }
 
         /// <inheritdoc />
-        public bool UseMemorymap { get; set; } = true;
-
-        /// <inheritdoc />
-        public bool UseDirectIO { get; }
-
-        /// <inheritdoc />
-        public bool UseMemoryLock { get; set; } = false;
-
-        /// <inheritdoc />
         public string ModelPath { get; set; }
 
         /// <inheritdoc />
@@ -75,6 +66,12 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public List<MetadataOverride> MetadataOverrides { get; } = new();
+
+        /// <inheritdoc />
+        public LLamaLoadMode LoadMode { get; set; }
+
+        /// <inheritdoc />
+        public bool LoadMTP { get; set; }
 
         /// <inheritdoc />
         public float? RopeFrequencyBase { get; set; }

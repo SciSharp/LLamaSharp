@@ -54,6 +54,13 @@ public class MtmdContextParams
     public int ImageMaxTokens { get; set; }
 
     /// <summary>
+    /// maximum number of output tokens in a batch
+    /// (note: this is not a hard-limit, the first image will always be added even if it exceeds this limit)
+    /// (default: 1024)
+    /// </summary>
+    public int BatchMaxTokens;
+
+    /// <summary>
     /// Create a managed copy of the native defaults returned by <see cref="NativeApi.mtmd_context_params_default"/>.
     /// </summary>
     public static MtmdContextParams Default()
@@ -69,7 +76,8 @@ public class MtmdContextParams
             FlashAttentionType = native.flash_attn_type,
             Warmup = native.warmup,
             ImageMinTokens = native.image_min_tokens,
-            ImageMaxTokens = native.image_max_tokens
+            ImageMaxTokens = native.image_max_tokens,
+            BatchMaxTokens = native.batch_max_tokens,
         };
     }
 
@@ -142,6 +150,16 @@ internal sealed class PinnedUtf8String : IDisposable
                 return IntPtr.Zero;
 
             return _handle.AddrOfPinnedObject();
+        }
+    }
+
+    public nuint Length
+    {
+        get
+        {
+            if (_buffer is null || !_handle.IsAllocated)
+                return 0;
+            return (nuint)_buffer.Length;
         }
     }
 

@@ -425,15 +425,6 @@ namespace LLama.Native
         private static extern IntPtr llama_get_memory(SafeLLamaContextHandle ctx);
 
         /// <summary>
-        /// Set whether the model is in warmup mode or not
-        /// If true, all model tensors are activated during llama_decode() to load and cache their weights.
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <param name="warmup"></param>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void llama_set_warmup(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool warmup);
-
-        /// <summary>
         /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
         /// </summary>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -465,15 +456,6 @@ namespace LLama.Native
         #endregion
 
         #region Setters
-        /// <summary>
-        /// Set whether the model is in warmup mode or not
-        /// If true, all model tensors are activated during <see cref="Decode(LLamaBatch)"/> to load and cache their weights.
-        /// </summary>
-        public void SetWarmup(bool value)
-        {
-            llama_set_warmup(this, value);
-        }
-
         /// <summary>
         /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
         /// </summary>
