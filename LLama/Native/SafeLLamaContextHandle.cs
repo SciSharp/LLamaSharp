@@ -40,6 +40,11 @@ namespace LLama.Native
         public uint MaxSeq => llama_n_seq_max(this);
 
         /// <summary>
+        /// Get the number of recurrent-state snapshots per seq for rollback
+        /// </summary>
+        public uint RecurrentRollbackSnapshots => llama_n_rs_seq(this);
+
+        /// <summary>
         /// Get or set the number of threads used for generation of a single token.
         /// </summary>
         public int GenerationThreads
@@ -449,6 +454,14 @@ namespace LLama.Native
         /// <returns></returns>
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern uint llama_n_seq_max(SafeLLamaContextHandle ctx);
+
+        /// <summary>
+        /// Get the n_rs_seq for this context
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint llama_n_rs_seq(SafeLLamaContextHandle ctx);
         #endregion
 
         #region Setters
@@ -614,6 +627,7 @@ namespace LLama.Native
         /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
         /// <returns></returns>
         /// <exception cref="RuntimeError"></exception>
+        // ReSharper disable once InconsistentNaming
         public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding encoding)
         {
             return ThrowIfDisposed().Tokenize(text, add_bos, special, encoding);
@@ -711,9 +725,11 @@ namespace LLama.Native
             var batchSize = checked((int)BatchSize);
 
             // Evaluate the prompt, in chunks smaller than the max batch size
+            // ReSharper disable once InconsistentNaming
             var n_left = tokens.Count;
             for (var i = 0; i < tokens.Count; i += batchSize)
             {
+                // ReSharper disable once InconsistentNaming
                 var n_eval = tokens.Count - i;
                 if (n_eval > batchSize)
                     n_eval = batchSize;

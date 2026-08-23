@@ -204,16 +204,20 @@ public static partial class NativeApi
 
         [FieldOffset(8)]
         uint y;
+
+        [FieldOffset(12)]
+        uint z;
     };
 
     /// <summary>
     /// get position for decoder attention, to be used by M-RoPE models
     /// </summary>
     /// <param name="image_tokens"></param>
+    /// <param name="pos_0">pos_0 is the absolute position of the first token</param>
     /// <param name="i">i is the index of the embedding token, ranging from 0 to mtmd_image_tokens_get_n_tokens() - 1</param>
     /// <returns>return relative position (for example, embedding 0 will have position (0, 0, 0); remember to adjust it to the current absolute position)</returns>
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_image_tokens_get_decoder_pos", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern mtmd_decoder_pos mtmd_image_tokens_get_decoder_pos(IntPtr image_tokens, nuint i);
+    internal static extern mtmd_decoder_pos mtmd_image_tokens_get_decoder_pos(IntPtr image_tokens, LLamaPos pos_0, nuint i);
 
     // tokenize ----------------------------------------------------------
 
@@ -312,7 +316,11 @@ public static partial class NativeApi
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_image_get_decoder_pos", CallingConvention = CallingConvention.Cdecl)]
     // helper to get the list of relative positions corresponding to the embedding tokens, to be used by M-RoPE
     // out_pos must have length == mtmd_helper_get_n_tokens(image)
-    internal static extern void mtmd_helper_image_get_decoder_pos(IntPtr /* mtmd_image_tokens* */ image, IntPtr /* mtmd_decoder_pos* */ out_pos);
+    internal static extern void mtmd_helper_image_get_decoder_pos(
+        IntPtr /* mtmd_image_tokens* */ image,
+        LLamaPos pos_0,
+        IntPtr /* mtmd_decoder_pos* */ out_pos
+    );
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_eval_chunks", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int mtmd_helper_eval_chunks(
@@ -346,4 +354,14 @@ public static partial class NativeApi
         int seq_id,
         int n_batch,
         ref int new_n_past);
+    
+    /*
+     * // EXPERIMENTAL API to get mmproj's capabilities without initializing the full context
+       // This is only intended to be used by llama-server, breaking changes is expected
+       struct mtmd_caps {
+           bool inp_vision;
+           bool inp_audio;
+       };
+       MTMD_API struct mtmd_caps mtmd_get_cap_from_file(const char * mmproj_fname);
+     */
 }

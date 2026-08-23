@@ -60,7 +60,7 @@ jobs:
         ./dotnet-install.sh --runtime dotnet --channel 8.0 --install-dir /usr/share/dotnet
         rm dotnet-install.sh
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: actions/setup-dotnet@v4
       if: ${{ matrix.build != 'linux-musl-x64-cpu' }}
       with:

@@ -14,7 +14,54 @@ namespace LLama.Batched;
 public sealed class BatchedExecutor
     : IDisposable
 {
-    private int _nextSequenceId;
+    /// <summary>
+    /// Tracks the sequence IDs currently in use by active conversations.
+    /// This pool ensures that IDs are reused and never exceed the native backend's SeqMax allocation.
+    /// </summary>
+    private readonly HashSet<int> _activeSequenceIds = new();
+
+    /// <summary>
+    /// Allocates the lowest available Sequence ID for a new conversation.
+    /// </summary>
+    /// <returns>A unique sequence ID bounded by the maximum number of concurrent active conversations.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if no sequence IDs can be allocated.</exception>
+    internal LLamaSeqId GetNextSequenceId()
+    {
+        // LOCK REQUIRED: Prevent race conditions if multiple conversations are created simultaneously
+        lock (_activeSequenceIds)
+        {
+            // Linearly search for the lowest available ID.
+            // Because IDs are recycled when conversations are disposed, this will naturally 
+            // stay bounded below the host's maximum concurrency limit (SeqMax).
+            for (int i = 0; i < int.MaxValue; i++)
+            {
+                if (!_activeSequenceIds.Contains(i))
+                {
+                    _activeSequenceIds.Add(i);
+                    return (LLamaSeqId)i;
+                }
+            }
+        }
+
+        // Fallback safety (practically unreachable unless int.MaxValue concurrent users are active)
+        throw new InvalidOperationException("Failed to allocate a Sequence ID.");
+    }
+
+    /// <summary>
+    /// Returns a Sequence ID to the pool so it can be reused by future conversations.
+    /// This should be called exactly once when a Conversation is being disposed.
+    /// </summary>
+    /// <param name="id">The sequence ID to release.</param>
+    internal void ReleaseSequenceId(LLamaSeqId id)
+    {
+        // LOCK REQUIRED: Prevent race conditions against GetNextSequenceId
+        lock (_activeSequenceIds)
+        {
+            // Remove the ID from the active set, making it available for the next GetNextSequenceId() call
+            _activeSequenceIds.Remove((int)id);
+        }
+    }
+
     private readonly List<IBatch> _batchQueue = [];
     private string? _mtmdMarker;
     private int _batchQueueHead;
@@ -243,11 +290,6 @@ public sealed class BatchedExecutor
         IsDisposed = true;
 
         Context.Dispose();
-    }
-
-    internal LLamaSeqId GetNextSequenceId()
-    {
-        return checked((LLamaSeqId)_nextSequenceId++);
     }
     
     /// <summary>

@@ -464,34 +464,6 @@ namespace LLama.Native
         [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ggml_backend_buft_name(IntPtr buft);
 
-        /// <summary>
-        /// Fits mparams and cparams to free device memory (assumes system memory is unlimited)
-        ///   - returns true if the parameters could be successfully modified to fit device memory
-        ///   - this function is NOT thread safe because it modifies the global llama logger state
-        ///   - only parameters that have the same value as in llama_default_model_params are modified
-        ///     with the exception of the context size which is modified if and only if equal to 0
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="mparams"></param>
-        /// <param name="cparams"></param>
-        /// <param name="tensor_split">Writable buffer for tensor split, needs at least llama_max_devices elements</param>
-        /// <param name="tensor_buft_overrides">Writable buffer for overrides, needs at least llama_max_tensor_buft_overrides elements</param>
-        /// <param name="margins">Margins of memory to leave per device in bytes</param>
-        /// <param name="n_ctx_min">Minimum context size to set when trying to reduce memory use</param>
-        /// <param name="log_level">Minimum log level to print during fitting, lower levels go to debug log</param>
-        /// <returns></returns>
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe LLamaParamsFitStatus llama_params_fit(
-            string path,
-            ref LLamaModelParams mparams,
-            ref LLamaContextParams cparams,
-            float* tensor_split,
-            LLamaModelTensorBufferOverride* tensor_buft_overrides,
-            nint* margins,
-            uint n_ctx_min,
-            int /* GGML_LOG_LEVEL */ log_level
-        );
-
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long llama_time_us();
 

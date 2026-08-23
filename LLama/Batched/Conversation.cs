@@ -135,6 +135,9 @@ public sealed class Conversation
         // Remove this conversation from the KV cache
         Executor.Context.NativeHandle.MemorySequenceRemove(ConversationId, -1, -1);
 
+        // Release the ID back to the pool to be reused!
+        Executor.ReleaseSequenceId(ConversationId);
+
         // Prevent finalizer from running
         GC.SuppressFinalize(this);
     }

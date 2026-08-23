@@ -14,6 +14,11 @@ public interface IContextParams
     uint? ContextSize { get; }
 
     /// <summary>
+    /// The type of context
+    /// </summary>
+    LLamaContextType ContextType { get; }
+
+    /// <summary>
     /// maximum batch size that can be submitted at once (must be >=32 to use BLAS) (n_batch)
     /// </summary>
     uint BatchSize { get; }
@@ -27,6 +32,11 @@ public interface IContextParams
     /// max number of sequences (i.e. distinct states for recurrent models)
     /// </summary>
     uint SeqMax { get; }
+
+    /// <summary>
+    /// The number of recurrent-state snapshots per seq for rollback
+    /// </summary>
+    uint RecurrentRollbackSnapshots { get; }
 
     /// <summary>
     /// If true, extract embeddings (together with logits).

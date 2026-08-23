@@ -1,5 +1,6 @@
-using System.Runtime.InteropServices;
 using LLama.Native;
+using System.Net.Mime;
+using System.Runtime.InteropServices;
 
 namespace LLama.Unittest
 {
@@ -42,8 +43,10 @@ namespace LLama.Unittest
                 (sizeof(uint), 4), // n_batch
                 (sizeof(uint), 4), // n_ubatch
                 (sizeof(uint), 4), // n_seq_max
+                (sizeof(uint), 4), // n_rs_seq
                 (sizeof(int), 4),  // n_threads
                 (sizeof(int), 4),  // n_threads_batch
+                (sizeof(LLamaContextType), 4), // ctx_type
                 (sizeof(int), 4),  // rope_scaling_type
                 (sizeof(int), 4),  // pooling_type
                 (sizeof(int), 4),  // attention_type
@@ -80,9 +83,14 @@ namespace LLama.Unittest
         public void ModelParamsBoolBlockMatchesNative()
         {
             var pointerSize = IntPtr.Size;
-            var kvOffset = Marshal.OffsetOf<LLamaModelParams>("kv_overrides").ToInt32();
+            
+            // Get the field immediately before the first boolean field
+            var kvOffset = Marshal.OffsetOf<LLamaModelParams>(nameof(LLamaModelParams.kv_overrides)).ToInt32();
+            
+            // Get the first boolean field
             var vocabOffset = Marshal.OffsetOf<LLamaModelParams>("_vocab_only").ToInt32();
 
+            // Check first boolean field is one ptr-size after the other
             Assert.Equal(kvOffset + pointerSize, vocabOffset);
             Assert.Equal(vocabOffset + 1, Marshal.OffsetOf<LLamaModelParams>("_use_mmap").ToInt32());
             Assert.Equal(vocabOffset + 2, Marshal.OffsetOf<LLamaModelParams>("_use_direct_io").ToInt32());

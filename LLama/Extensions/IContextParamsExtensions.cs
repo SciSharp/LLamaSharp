@@ -23,9 +23,11 @@ namespace LLama.Extensions
             result = LLamaContextParams.Default();
 
             result.n_ctx = @params.ContextSize ?? 0;
+            result.context_type = @params.ContextType;
             result.n_batch = @params.BatchSize;
             result.n_ubatch = @params.UBatchSize;
             result.n_seq_max = @params.SeqMax;
+            result.n_rs_seq = @params.RecurrentRollbackSnapshots;
             result.embeddings = @params.Embeddings;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
