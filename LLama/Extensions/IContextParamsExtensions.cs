@@ -28,6 +28,7 @@ namespace LLama.Extensions
             result.n_ubatch = @params.UBatchSize;
             result.n_seq_max = @params.SeqMax;
             result.n_rs_seq = @params.RecurrentRollbackSnapshots;
+            result.n_outputs_max = 0; // 0 = n_batch
             result.embeddings = @params.Embeddings;
             result.rope_freq_base = @params.RopeFrequencyBase ?? 0;
             result.rope_freq_scale = @params.RopeFrequencyScale ?? 0;
@@ -70,6 +71,8 @@ namespace LLama.Extensions
                 result.op_offload = @params.OpOffload.Value;
             if (@params.KVUnified.HasValue)
                 result.kv_unified = @params.KVUnified.Value;
+
+            result.ctx_other = IntPtr.Zero;
         }
 
         private static int Threads(int? value)

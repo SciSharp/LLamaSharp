@@ -50,21 +50,6 @@ namespace LLama.Abstractions
         int GpuLayerCount { get; }
 
         /// <summary>
-        /// Use mmap for faster loads (use_mmap)
-        /// </summary>
-        bool UseMemorymap { get; }
-
-        /// <summary>
-        /// Use direct io, takes precedence over use_mmap when supported
-        /// </summary>
-        bool UseDirectIO { get; }
-
-        /// <summary>
-        /// Use mlock to keep model in memory (use_mlock)
-        /// </summary>
-        bool UseMemoryLock { get; }
-
-        /// <summary>
         /// Model path (model)
         /// </summary>
         string ModelPath { get; }
@@ -88,6 +73,16 @@ namespace LLama.Abstractions
         /// Override specific metadata items in the model
         /// </summary>
         List<MetadataOverride> MetadataOverrides { get; }
+
+        /// <summary>
+        /// How the load this model
+        /// </summary>
+        LLamaLoadMode LoadMode { get; }
+
+        /// <summary>
+        /// Whether to load MTP layers
+        /// </summary>
+        bool LoadMTP { get; }
     }
 
     /// <summary>

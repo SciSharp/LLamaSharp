@@ -46,6 +46,11 @@ namespace LLama.Native
         public uint n_rs_seq;
 
         /// <summary>
+        /// max outputs in a ubatch (0 = n_batch)
+        /// </summary>
+        public uint n_outputs_max;
+        
+        /// <summary>
         /// number of threads to use for generation
         /// </summary>
         public int n_threads;
@@ -229,6 +234,12 @@ namespace LLama.Native
         /// </summary>
         public nuint n_samplers;
 
+        /// <summary>
+        /// a source/target/parent context.
+        /// can be utilized in various ways, for example by sharing results or llama_memory between 2 contexts
+        /// </summary>
+        public IntPtr ctx_other;
+        
         /// <summary>
         /// Get the default LLamaContextParams
         /// </summary>

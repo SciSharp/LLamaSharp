@@ -131,4 +131,13 @@ internal struct LLamaVocabNative
     [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.U1)]
     public static extern unsafe bool llama_vocab_get_add_sep(LLamaVocabNative* vocab);
+
+    /// <summary>
+    /// model-specific suppress tokens (gguf key: tokenizer.ggml.suppress_tokens)
+    /// </summary>
+    /// <param name="vocab"></param>
+    /// <param name="n_suppress_tokens"></param>
+    /// <returns></returns>
+    [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe LLamaToken* llama_vocab_get_suppress_tokens(LLamaVocabNative* vocab, int* n_suppress_tokens);
 }

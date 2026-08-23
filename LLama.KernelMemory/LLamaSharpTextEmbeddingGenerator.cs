@@ -37,11 +37,10 @@ namespace LLamaSharp.KernelMemory
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                SplitMode = config?.SplitMode ?? GPUSplitMode.Layer,
                 BatchSize = 512,
                 UBatchSize = 512,
                 FlashAttention = true,
-                UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
 
@@ -65,11 +64,10 @@ namespace LLamaSharp.KernelMemory
                 ContextSize = config?.ContextSize ?? 2048,
                 GpuLayerCount = config?.GpuLayerCount ?? 20,
                 MainGpu = config?.MainGpu ?? 0,
-                SplitMode = config?.SplitMode ?? LLama.Native.GPUSplitMode.Layer,
+                SplitMode = config?.SplitMode ?? GPUSplitMode.Layer,
                 BatchSize = 512,
                 UBatchSize = 512,
                 FlashAttention = true,
-                UseMemorymap = true,
                 PoolingType = LLamaPoolingType.Mean,
             };
             _weights = weights;

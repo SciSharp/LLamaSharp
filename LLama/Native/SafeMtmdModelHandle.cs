@@ -301,7 +301,10 @@ namespace LLama.Native
                 nPast,
                 seqId,
                 nBatch,
-                ref newNPast);
+                ref newNPast,
+                IntPtr.Zero,
+                IntPtr.Zero
+            );
 
             if (result == 0)
                 nPast = newNPast;
