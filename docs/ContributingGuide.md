@@ -89,10 +89,8 @@ During the BUG fix process, please don't hesitate to discuss together when you a
 
 All kinds of integration are welcomed here! Currently the following integrations have been added but still need improvement:
 
-1. semantic-kernel
-2. kernel-memory
-3. BotSharp (maintained in SciSharp/BotSharp repo)
-4. Langchain (maintained in tryAGI/LangChain repo)
+1. BotSharp (maintained in SciSharp/BotSharp repo)
+2. Langchain (maintained in tryAGI/LangChain repo)
 
 If you find another library that is good to be integrated, please open an issue to let us know!
 

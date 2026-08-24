@@ -19,9 +19,6 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
    - [`LLamaSharp.Backend.OpenCL`](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL): OpenCL for Windows & Linux.
 
-3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
-4. (optional) To enable RAG support, install the [LLamaSharp.kernel-memory](https://www.nuget.org/packages/LLamaSharp.kernel-memory) package (this package only supports `net6.0` or higher yet), which is based on [Microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration.
-
 ## Model preparation
 
 There are two popular formats of model file of LLM now, which are PyTorch format (.pth) and Huggingface format (.bin). LLamaSharp uses `GGUF` format file, which could be converted from these two formats. To get `GGUF` file, there are two options:

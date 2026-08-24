@@ -5,8 +5,6 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp?label=LLamaSharp)](https://www.nuget.org/packages/LLamaSharp)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cpu?label=LLamaSharp.Backend.Cpu)](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda12?label=LLamaSharp.Backend.Cuda12)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)
-[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.semantic-kernel?label=LLamaSharp.semantic-kernel)](https://www.nuget.org/packages/LLamaSharp.semantic-kernel)
-[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.kernel-memory?label=LLamaSharp.kernel-memory)](https://www.nuget.org/packages/LLamaSharp.kernel-memory)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Vulkan?label=LLamaSharp.Backend.Vulkan)](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan)
 
 
@@ -59,10 +57,8 @@
 
 ## 🔗Integrations & Examples
 
-There are integrations for the following libraries, making it easier to develop your APP. Integrations for semantic-kernel and kernel-memory are developed in the LLamaSharp repository, while others are developed in their own repositories.
+There are integrations for the following libraries, making it easier to develop your APP. These integrations are developed in their own repositories.
 
-- [semantic-kernel](https://github.com/microsoft/semantic-kernel): an SDK that integrates LLMs like OpenAI, Azure OpenAI, and Hugging Face.
-- [kernel-memory](https://github.com/microsoft/kernel-memory): a multi-modal AI Service specialized in the efficient indexing of datasets through custom continuous data hybrid pipelines, with support for RAG ([Retrieval Augmented Generation](https://en.wikipedia.org/wiki/Prompt_engineering#Retrieval-augmented_generation)), synthetic memory, prompt engineering, and custom semantic memory processing.
 - [BotSharp](https://github.com/SciSharp/BotSharp): an open source machine learning framework for AI Bot platform builder.
 - [Langchain](https://github.com/tryAGI/LangChain): a framework for developing applications powered by language models.
 - [MaIN.NET](https://github.com/wisedev-code/MaIN.NET): simplistic approach to orchestrating agents/chats from different (llm) providers
@@ -101,9 +97,6 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA 11 for Windows & Linux.
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
    - [`LLamaSharp.Backend.Vulkan`](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan): Vulkan for Windows & Linux.
-
-3. (optional) For [Microsoft semantic-kernel](https://github.com/microsoft/semantic-kernel) integration, install the [LLamaSharp.semantic-kernel](https://www.nuget.org/packages/LLamaSharp.semantic-kernel) package.
-4. (optional) To enable RAG support, install the [LLamaSharp.kernel-memory](https://www.nuget.org/packages/LLamaSharp.kernel-memory) package (this package only supports `net6.0` or higher yet), which is based on [Microsoft kernel-memory](https://github.com/microsoft/kernel-memory) integration.
 
 ### Model preparation
 
