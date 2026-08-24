@@ -1,0 +1,22 @@
+name: release-trigger
+
+on:
+  pull_request:
+    branches: 
+      - master
+    types: [ closed ]
+
+jobs:
+  release-trigger:
+    # Both labels mean the same thing here: the version to publish is read from
+    # LLama/LLamaSharp.csproj, so they only document the intent of the release.
+    if: >-
+      github.event.pull_request.merged == true &&
+      (contains(github.event.pull_request.labels.*.name, 'minor-release') ||
+      contains(github.event.pull_request.labels.*.name, 'patch-release'))
+    runs-on: ubuntu-22.04
+    
+    steps:
+    # This job does no work. It exists so that "release" has a successful workflow run
+    # to fire from, which is what gates the release on the PR labels above.
+    - run: echo "Release triggered by PR #${{ github.event.pull_request.number }}"
