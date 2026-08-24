@@ -43,7 +43,7 @@ jobs:
         git fetch origin;
         
         chmod +x ./.github/prepare_release.sh
-        ./.github/prepare_release.sh true false
+        ./.github/prepare_release.sh
 
     - name: Upload packages artifacts
       uses: actions/upload-artifact@v4
