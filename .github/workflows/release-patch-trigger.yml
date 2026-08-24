@@ -8,7 +8,7 @@ on:
 
 jobs:
   release-patch-trigger:
-    if: contains(github.event.pull_request.labels.*.name, 'patch-release') && !contains(github.event.pull_request.labels.*.name, 'minor-release')
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'patch-release') && !contains(github.event.pull_request.labels.*.name, 'minor-release')
     runs-on: ubuntu-22.04
     
     steps:
