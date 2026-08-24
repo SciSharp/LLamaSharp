@@ -13,16 +13,24 @@ fi
 echo "Releasing version: $version";
 
 # Refuse to rebuild a version that is already on nuget.org, so a re-run of the
-# workflow fails loudly instead of silently doing nothing.
-published=$(curl -sf https://api.nuget.org/v3-flatcontainer/llamasharp/index.json || true)
-if [ -n "$published" ]; then
-  if echo "$published" | grep -Fq "\"$version\""; then
-    echo "LLamaSharp $version is already published on nuget.org."
-    echo "Bump <Version> in LLama/LLamaSharp.csproj before releasing again."
-    exit 1
-  fi
-else
-  echo "Warning: could not reach nuget.org to check for an existing $version, continuing anyway.";
+# workflow fails loudly instead of silently doing nothing. This job ends in a push
+# to nuget.org, so if the API cannot be reached there is no point carrying on.
+nuget_index="https://api.nuget.org/v3-flatcontainer/llamasharp/index.json"
+if ! published=$(curl -sf --connect-timeout 10 --max-time 60 --retry 3 --retry-delay 5 "$nuget_index"); then
+  echo "Could not query nuget.org for the published versions of LLamaSharp."
+  echo "Refusing to release without that check, since the release publishes to nuget.org anyway."
+  exit 1
+fi
+
+if ! echo "$published" | grep -Fq '"versions"'; then
+  echo "Unexpected response from $nuget_index, expected a JSON document listing versions."
+  exit 1
+fi
+
+if echo "$published" | grep -Fq "\"$version\""; then
+  echo "LLamaSharp $version is already published on nuget.org."
+  echo "Bump <Version> in LLama/LLamaSharp.csproj before releasing again."
+  exit 1
 fi
 
 mkdir ./temp;
