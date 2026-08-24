@@ -23,6 +23,7 @@ public class ExampleRunner
         { "LLama Model: Get embeddings", GetEmbeddings.Run },
         { "LLama Model: Quantize", QuantizeModel.Run },
         { "Grammar: Constrain response to json format", GrammarJsonResponse.Run },
+        { "Microsoft Agent Framework Example", MicrosoftAgentFrameworkExample.Run },
         { "Batched Executor: Simple", BatchedExecutorSimple.Run },
         { "Batched Executor: Save/Load", BatchedExecutorSaveAndLoad.Run },
         { "Batched Executor: Fork", BatchedExecutorFork.Run },
