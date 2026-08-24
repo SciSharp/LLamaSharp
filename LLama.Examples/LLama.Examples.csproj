@@ -15,9 +15,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.5" />
-    <PackageReference Include="Microsoft.KernelMemory.Core" Version="0.98.250508.3" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.74.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.44.0-alpha" />
     <PackageReference Include="NAudio" Version="2.3.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="Spectre.Console" Version="0.54.0" />
@@ -33,9 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LLama.Experimental\LLama.Experimental.csproj" />
-    <ProjectReference Include="..\LLama.KernelMemory\LLamaSharp.KernelMemory.csproj" />
-    <ProjectReference Include="..\LLama.SemanticKernel\LLamaSharp.SemanticKernel.csproj" />
     <ProjectReference Include="..\LLama\LLamaSharp.csproj" />
   </ItemGroup>
 

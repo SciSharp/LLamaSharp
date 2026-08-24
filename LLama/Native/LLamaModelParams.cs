@@ -30,6 +30,11 @@ namespace LLama.Native
         public GPUSplitMode split_mode;
 
         /// <summary>
+        /// How to load the model
+        /// </summary>
+        public LLamaLoadMode load_mode;
+        
+        /// <summary>
         /// the GPU that is used for the entire model when split_mode is LLAMA_SPLIT_MODE_NONE
         /// </summary>
         public int main_gpu;
@@ -72,36 +77,6 @@ namespace LLama.Native
         private sbyte _vocab_only;
 
         /// <summary>
-        /// use mmap if possible
-        /// </summary>
-        public bool use_mmap
-        {
-            readonly get => Convert.ToBoolean(_use_mmap);
-            set => _use_mmap = Convert.ToSByte(value);
-        }
-        private sbyte _use_mmap;
-
-        /// <summary>
-        /// use direct io, takes precedence over use_mmap when supported
-        /// </summary>
-        public bool use_direct_io
-        {
-            readonly get => Convert.ToBoolean(_use_direct_io);
-            set => _use_direct_io = Convert.ToSByte(value);
-        }
-        private sbyte _use_direct_io;
-
-        /// <summary>
-        /// force system to keep model in RAM
-        /// </summary>
-        public bool use_mlock
-        {
-            readonly get => Convert.ToBoolean(_use_mlock);
-            set => _use_mlock = Convert.ToSByte(value);
-        }
-        private sbyte _use_mlock;
-
-        /// <summary>
         /// validate model tensor data
         /// </summary>
         public bool check_tensors
@@ -140,6 +115,17 @@ namespace LLama.Native
             set => _no_alloc = Convert.ToSByte(value);
         }
         private sbyte _no_alloc;
+
+        /// <summary>
+        /// whether to load MTP layers
+        /// </summary>
+        public bool load_mtp
+        {
+            readonly get => Convert.ToBoolean(_load_mtp);
+            set => _load_mtp = Convert.ToSByte(value);
+        }
+        private sbyte _load_mtp;
+
         /// <summary>
         /// Create a LLamaModelParams with default values
         /// </summary>
