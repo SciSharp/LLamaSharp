@@ -23,7 +23,7 @@ public class ExampleRunner
         { "LLama Model: Get embeddings", GetEmbeddings.Run },
         { "LLama Model: Quantize", QuantizeModel.Run },
         { "Grammar: Constrain response to json format", GrammarJsonResponse.Run },
-        { "Microsoft Agent Framework Example", MicrosoftAgentFrameworkExample.Run},
+        { "Microsoft Agent Framework Example", MicrosoftAgentFrameworkExample.Run },
         { "Kernel Memory: Document Q&A", KernelMemory.Run },
         { "Kernel Memory: Save and Load", KernelMemorySaveAndLoad.Run },
 		{ "Semantic Kernel: HomeAutomation", SemanticKernelHomeAutomation.Run },

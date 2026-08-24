@@ -84,7 +84,6 @@ namespace LLama.Examples.Examples
 
             var chatParams = new ModelParams(chatModelPath) { ContextSize = 4096, GpuLayerCount = -1 };
             using var chatWeights = LLamaWeights.LoadFromFile(chatParams);
-            using var chatContext = chatWeights.CreateContext(chatParams);
             var chatExecutor = new StatelessExecutor(chatWeights, chatParams);
 
             var embedParams = new ModelParams(embedModelPath) { Embeddings = true, GpuLayerCount = -1 };
