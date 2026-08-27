@@ -68,6 +68,12 @@
             <DestinationFolder>Models</DestinationFolder>
             <LocalFileName>all-MiniLM-L12-v2.Q8_0.gguf</LocalFileName>
         </DownloadFileItem>
+
+        <DownloadFileItem Include="Qwen3.5-4B-MTP-Q4_K_M">
+            <SourceUrl>https://huggingface.co/localweights/Qwen3.5-4B-MTP-Q4_K_M-GGUF/resolve/main/Qwen3.5-4B-MTP-Q4_K_M.gguf</SourceUrl>
+            <DestinationFolder>Models</DestinationFolder>
+            <LocalFileName>Qwen3.5-4B-MTP-Q4_K_M.gguf</LocalFileName>
+        </DownloadFileItem>
     </ItemGroup>
 
     <!-- Ensure the destination folder exists -->
@@ -148,5 +154,19 @@
     <None Update="Models\extreme-ironing-taxi-610x427.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\Qwen3.5-4B-MTP-Q4_K_M.gguf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
+
+    <!-- Automatically overwrite Nuget DLLs with custom local builds -->
+    <Target Name="CopyCustomNativeLibs" AfterTargets="Build;PostBuildEvent">
+        <ItemGroup>
+            <CustomNativeLibs Include="D:\_MTP\LLamaSharp\llama.cpp\_vs\bin\Release\*.dll" />
+        </ItemGroup>
+        <Message Text="[Custom Script] Overwriting old LLamaSharp native libraries with custom builds..." Importance="high" />
+        <!-- Overwrite CPU and CUDA folders to guarantee LLamaSharp finds them -->
+        <Copy SourceFiles="@(CustomNativeLibs)" DestinationFolder="$(OutDir)runtimes\win-x64\native\avx2" SkipUnchangedFiles="false" />
+        <Copy SourceFiles="@(CustomNativeLibs)" DestinationFolder="$(OutDir)runtimes\win-x64\native\cuda12" SkipUnchangedFiles="false" />
+    </Target>
 </Project>

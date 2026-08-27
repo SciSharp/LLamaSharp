@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
+using LLama.Exceptions;
 using LLama.Native;
 
 namespace LLama.Batched;
@@ -19,6 +20,18 @@ public sealed class BatchedExecutor
     /// This pool ensures that IDs are reused and never exceed the native backend's SeqMax allocation.
     /// </summary>
     private readonly HashSet<int> _activeSequenceIds = new();
+
+    #region speculative
+    private readonly Dictionary<LLamaSeqId, Conversation> _activeConversations = new();
+
+    internal void RegisterConversation(Conversation conv)
+    {
+        lock (_activeSequenceIds)
+        {
+            _activeConversations[conv.ConversationId] = conv;
+        }
+    }
+    #endregion
 
     /// <summary>
     /// Allocates the lowest available Sequence ID for a new conversation.
@@ -59,6 +72,9 @@ public sealed class BatchedExecutor
         {
             // Remove the ID from the active set, making it available for the next GetNextSequenceId() call
             _activeSequenceIds.Remove((int)id);
+
+            // speculative
+            _activeConversations.Remove(id);
         }
     }
 
@@ -126,18 +142,59 @@ public sealed class BatchedExecutor
     /// </summary>
     public bool IsDisposed { get; private set; }
 
+    // speculative
     /// <summary>
-    /// Create a new batched executor
+    /// The secondary context used to generate proposed tokens during speculative decoding.
+    /// <para>In Dual-Model speculation, this context executes the smaller draft model. In Multi-Token Prediction (MTP) mode, it executes the MTP projection heads using the primary target model's weights.</para>
     /// </summary>
-    /// <param name="model">The model to use</param>
-    /// <param name="contextParams">Parameters to create a new context</param>
-    /// <param name="clipModel">Clip model to use for multimodal capabilities</param>
-    public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel = null)
+    public LLamaContext? DraftContext { get; }
+    /// <summary>
+    /// The internal native wrapper that orchestrates the speculative verification loop, handling draft proposals, target evaluations, and sequence rollbacks.
+    /// </summary>
+    private readonly LLama.Speculative.SpeculativeDecoder? _specDecoder;
+
+
+    /// <summary>
+    /// Creates a new batched executor capable of processing multiple concurrent conversation streams, with optional multimodal (CLIP) and speculative decoding acceleration.
+    /// <para><b>Dual-Model Speculation:</b> If using two different models, the target and draft models must share the exact same tokenizer architecture and vocabulary size. A mismatch will cause immediate cache desynchronization crashes.</para>
+    /// <para><b>Performance Note:</b> Speculative decoding requires both models (or the full MTP model) to fit entirely within GPU VRAM. Speedups are primarily seen on larger, memory-bandwidth-bound target models (e.g., 8B+).</para>
+    /// </summary>
+    /// <param name="model">The weights of the primary target model.</param>
+    /// <param name="contextParams">The context parameters used to initialize the primary target context.</param>
+    /// <param name="clipModel">The optional CLIP model weights to enable multimodal (image-to-text) capabilities.</param>
+    /// <param name="draftModel">The weights of the draft model. <br/><b>Important:</b> In MTP mode, the executor will internally re-use the target <paramref name="model"/> weights for the draft context, therefore this may be <c>null</c>.</param>
+    /// <param name="draftParams">The context parameters for the draft model. In MTP mode, ensure the <c>ContextType</c> property is explicitly set to <c>LLamaContextType.Mtp</c>.</param>
+    /// <param name="draftTokens">The budget of draft tokens to propose per burst. Keep this modest (e.g., 2-4 for Dual-Model) or match the exact number of projection heads for MTP models. Set to 0 to disable speculation.</param>
+    /// <param name="useMtp">Set to <c>true</c> to enable Multi-Token Prediction (Self-Speculation) for supported architectures (e.g., DeepSeek-R1, Qwen3.5-MTP). Requires <c>LoadMtp = true</c> in the target model parameters.</param>
+    public BatchedExecutor(
+        LLamaWeights model,
+        IContextParams contextParams,
+        MtmdWeights? clipModel = null,
+        LLamaWeights? draftModel = null,
+        IContextParams? draftParams = null,
+        int draftTokens = 0,
+        bool useMtp = false)
     {
         Model = model;
         Context = model.CreateContext(contextParams);
         ClipModel = clipModel;
         Epoch = 1;
+
+        if (draftTokens > 0)
+        {
+            if (useMtp)
+            {
+                // MTP uses the target context directly. No second context needed!
+                _specDecoder = new LLama.Speculative.SpeculativeDecoder(Context.NativeHandle, Context.NativeHandle, draftTokens, useMtp);
+            }
+            else
+            {
+                // Standard draft models require their own distinct context
+                LLamaWeights activeDraftWeights = draftModel ?? model;
+                DraftContext = activeDraftWeights.CreateContext(draftParams ?? contextParams);
+                _specDecoder = new LLama.Speculative.SpeculativeDecoder(Context.NativeHandle, DraftContext.NativeHandle, draftTokens, useMtp);
+            }
+        }
     }
 
     /// <summary>
@@ -149,7 +206,10 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
-        return new Conversation(this, GetNextSequenceId());
+        // speculative
+        var conv = new Conversation(this, GetNextSequenceId());
+        RegisterConversation(conv);
+        return conv;
     }
 
     /// <summary>
@@ -214,8 +274,45 @@ public sealed class BatchedExecutor
             if ((Epoch & 1) == 1)
                 Epoch++;
 
-            // Run the actual inference. This is the slow bit!
-            var status = await next.DecodeAsync(Context, cancellation);
+            DecodeResult status;
+
+            // speculative
+            // Only use speculative decoding if the batch is exactly 1 token (Generation Phase)
+            if (_specDecoder != null && next is TokenBatch tb && tb.Batch.TokenCount == 1)
+            {
+                try
+                {
+                    var results = _specDecoder.Decode(tb.Batch);
+                    status = DecodeResult.Ok;
+
+                    foreach (var result in results)
+                    {
+                        if (result.count > 0)
+                        {
+                            lock (_activeSequenceIds)
+                            {
+                                if (_activeConversations.TryGetValue((LLamaSeqId)result.seq_id, out var conv))
+                                    conv.EnqueueSpeculativeTokens(result.tokens, result.count);
+                            }
+                        }
+                    }
+                }
+                catch (LLamaDecodeError)
+                {
+                    status = DecodeResult.DecodeFailed;
+                }
+            }
+            else
+            {
+                // STANDARD EXECUTION (Prefill Phase / Prompts)
+                status = await next.DecodeAsync(Context, cancellation);
+
+                // If this is a prompt, we MUST manually sync the draft model's KV cache so it doesn't fall behind!
+                if (status == DecodeResult.Ok && DraftContext != null && _specDecoder != null && next is TokenBatch tbPrompt)
+                {
+                    await DraftContext.DecodeAsync(tbPrompt.Batch, cancellation);
+                }
+            }
 
             // If there was an error then early exit without incrementing the epoch. This allows infer to be called
             // again after the issue has been fixed (e.g. some KV cache space has been freed) to retry this operation.
@@ -288,6 +385,10 @@ public sealed class BatchedExecutor
         if (IsDisposed)
             return;
         IsDisposed = true;
+
+        // speculative
+        _specDecoder?.Dispose();
+        DraftContext?.Dispose();
 
         Context.Dispose();
     }

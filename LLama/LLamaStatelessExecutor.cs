@@ -24,6 +24,29 @@ namespace LLama
         private readonly ILogger? _logger;
         private readonly LLamaBatch _batch;
 
+        #region speculative
+        private readonly LLamaWeights? _draftWeights;
+        private readonly IContextParams? _draftParams;
+        private readonly int _draftTokens;
+        private readonly bool _useMtp;
+        /// <summary>
+        /// The total number of draft tokens proposed by the draft model (or MTP heads) during the lifetime of this executor.
+        /// </summary>
+        public int TotalDraftTokensProposed { get; private set; }
+        /// <summary>
+        /// The total number of proposed draft tokens that were successfully verified and accepted by the target model. 
+        /// <para>Note: This metric strictly counts accepted drafts and excludes the standard base token sampled during the verification phase.</para>
+        /// </summary>
+        public int TotalDraftTokensAccepted { get; private set; }
+        /// <summary>
+        /// The ratio of accepted draft tokens to proposed draft tokens (ranging from 0.0 to 1.0). 
+        /// <para>A higher acceptance rate (e.g., > 0.4) generally indicates a more accurate draft model and a higher potential for generation speedups, depending on hardware memory bandwidth bottlenecks.</para>
+        /// </summary>
+        public double AcceptanceRate => TotalDraftTokensProposed == 0
+            ? 0.0
+            : (double)TotalDraftTokensAccepted / TotalDraftTokensProposed;
+        #endregion
+
         /// <inheritdoc />
         public bool IsMultiModal => false;
 
@@ -42,24 +65,40 @@ namespace LLama
         /// If true, applies the default template to the prompt as defined in the rules for <a href="https://github.com/ggerganov/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template">llama_chat_apply_template</a> template.  
         /// </summary>
         public bool ApplyTemplate { get; init; }
-        
+
         /// <summary>
         /// The system message to use with the prompt. Only used when <see cref="ApplyTemplate" /> is true.
         /// </summary>
         public string? SystemMessage { get; init; }
 
-        
         /// <summary>
-        /// Create a new stateless executor which will use the given model
+        /// Creates a new stateless executor for inference. Supports Standard, Dual-Model Speculative, and MTP (Multi-Token Prediction) modes.
+        /// <para><b>Dual-Model Speculation:</b> If using two different models, the target and draft models must share the exact same tokenizer architecture and vocabulary size (e.g., Llama 3.1 8B + 1B). A mismatch will cause cache desynchronization crashes.</para>
+        /// <para><b>Performance Note:</b> For speculative decoding to yield a speedup, both models (or the full MTP model) must fit entirely within GPU VRAM, and the target model should be large enough (e.g., 8B+) to be memory-bandwidth bound.</para>
         /// </summary>
-        /// <param name="weights"></param>
-        /// <param name="params"></param>
-        /// <param name="logger"></param>
-        public StatelessExecutor(LLamaWeights weights, IContextParams @params, ILogger? logger = null)
+        /// <param name="weights">The weights of the primary target model.</param>
+        /// <param name="params">The context parameters for the primary target model.</param>
+        /// <param name="draftWeights">The weights of the draft model. <br/><b>Important:</b> In MTP mode, this parameter is ignored and the executor internally re-uses the target weights for the draft context. Therefore, it may be <c>null</c> for MTP.</param>
+        /// <param name="draftParams">The context parameters for the draft model. In MTP mode, ensure the <c>ContextType</c> property is explicitly set to <c>LLamaContextType.Mtp</c>.</param>
+        /// <param name="draftTokens">The budget of draft tokens to propose per burst. Keep this modest (e.g., 2-4 for Dual-Model) or match the exact number of projection heads for MTP models to prevent wasted compute.</param>
+        /// <param name="useMtp">Set to <c>true</c> to enable Multi-Token Prediction (Self-Speculation) for supported models (e.g., DeepSeek-R1, Qwen3.5-MTP). Requires <c>LoadMtp = true</c> in the target model parameters.</param>
+        /// <param name="logger">An optional logger instance.</param>
+        public StatelessExecutor(
+            LLamaWeights weights,
+            IContextParams @params,
+            LLamaWeights? draftWeights = null,
+            IContextParams? draftParams = null,
+            int draftTokens = 0,
+            bool useMtp = false,
+            ILogger? logger = null)
         {
-            Embeds = [ ];
+            Embeds = [];
             _weights = weights;
             _params = @params;
+            _draftWeights = draftWeights;
+            _draftParams = draftParams ?? @params;
+            _draftTokens = draftTokens;
+            _useMtp = useMtp;
             _logger = logger;
             _batch = new LLamaBatch();
 
@@ -78,6 +117,24 @@ namespace LLama
             // Create an inference context which will be disposed when this method exits
             using var context = _weights.CreateContext(_params, _logger);
             Context = context;
+
+            #region speculative
+            if (_draftTokens > 0 && _useMtp && _draftParams != null)
+            {
+                // Inject the target context's memory pointer into the draft context!
+                // This allows the native MTP projection head to read the target's hidden states.
+                _draftParams.CtxOther = Context.NativeHandle.DangerousGetHandle();
+            }
+
+            LLamaWeights activeDraftWeights = _useMtp ? _weights : (_draftWeights ?? _weights);
+            using var draftContext = (_draftTokens > 0)
+                ? activeDraftWeights.CreateContext(_draftParams!, _logger)
+                : null;
+
+            using var specDecoder = (draftContext != null)
+                ? new LLama.Speculative.SpeculativeDecoder(Context.NativeHandle, draftContext.NativeHandle, _draftTokens, _useMtp)
+                : null;
+            #endregion
 
             // Reset the sampling pipeline (if there is one)
             inferenceParams?.SamplingPipeline.Reset();
@@ -120,9 +177,124 @@ namespace LLama
             if (r != DecodeResult.Ok)
                 throw new LLamaDecodeError(r);
 
+            // Sync the Draft Model's KV cache with the prompt so it aligns with the Target Model
+            if (draftContext != null && !_useMtp)
+            {
+                var draftBatch = new LLamaBatch();
+                await draftContext.DecodeAsync(tokens, LLamaSeqId.Zero, draftBatch, 0);
+            }
+
             // Begin loop, evaluating one token at a time
             var maxTokens = inferenceParams.MaxTokens < 0 ? int.MaxValue : inferenceParams.MaxTokens;
-            for(var i = 0; i < maxTokens && !cancellationToken.IsCancellationRequested; i++)
+
+            #region speculative
+            int generatedCount = 0;
+            if (specDecoder != null)
+            {
+                // Kickstart the sequence by manually sampling the first token from the prompt's logits
+                var id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, _batch.TokenCount - 1);
+                decoder.Add(id);
+                var decodedStr = decoder.Read();
+                yield return decodedStr;
+                generatedCount++;
+                all_tokens.Add(id);
+
+                _batch.Clear();
+                _batch.Add(id, n_past++, LLamaSeqId.Zero, true);
+
+                TotalDraftTokensProposed = 0;
+                TotalDraftTokensAccepted = 0;
+
+                while (generatedCount < maxTokens && !cancellationToken.IsCancellationRequested)
+                {
+                    // Boundary check
+                    if (n_past >= Context.ContextSize)
+                    {
+                        if (inferenceParams.OverflowStrategy == ContextOverflowStrategy.ThrowException) throw new ContextOverflowException();
+                        _logger?.LogWarning("Context size reached during speculative decoding. Stopping generation.");
+                        break;
+                    }
+
+                    var results = specDecoder.Decode(_batch);
+                    _batch.Clear();
+
+                    int rawAcceptedCount = (results.Length > 0) ? results[0].count : 0;
+
+                    // The native engine returns (Drafts Accepted + 1 Target Token). 
+                    // We subtract 1 to get the true drafts, and clamp it between 0 and our draft budget.
+                    int trueDraftsAccepted = 0;
+                    if (rawAcceptedCount > 0)
+                    {
+                        trueDraftsAccepted = Math.Min(_draftTokens, Math.Max(0, rawAcceptedCount - 1));
+                    }
+
+                    // Track metrics
+                    TotalDraftTokensProposed += _draftTokens;
+                    TotalDraftTokensAccepted += trueDraftsAccepted;
+
+                    // Keep using rawAcceptedCount for the loop generation logic below!
+                    int acceptedCount = rawAcceptedCount;
+
+                    if (acceptedCount > 0)
+                    {
+                        var acceptedTokens = results[0].tokens.Take(acceptedCount).ToArray();
+                        bool shouldStop = false;
+
+                        foreach (var rawToken in acceptedTokens)
+                        {
+                            var token = (LLamaToken)rawToken;
+                            if (token.IsEndOfGeneration(_weights.Vocab))
+                            {
+                                shouldStop = true;
+                                break;
+                            }
+
+                            decoder.Add(token);
+                            var decoded = decoder.Read();
+                            yield return decoded;
+                            generatedCount++;
+
+                            // Keep our context-shifting tracker accurate!
+                            all_tokens.Add(token);
+
+                            if (antiprocessor.Add(decoded))
+                            {
+                                shouldStop = true;
+                                break;
+                            }
+                        }
+
+                        if (shouldStop || generatedCount >= maxTokens) break;
+
+                        // Advance C# tracking by the exact number of accepted drafts
+                        n_past += acceptedCount;
+
+                        // Feed the LAST accepted token back at its native position to match the C++ API logic
+                        _batch.Add((LLamaToken)acceptedTokens[^1], n_past - 1, LLamaSeqId.Zero, true);
+                    }
+                    else
+                    {
+                        // 0 Drafts accepted. Sample the next token manually using the updated native logits (-1)
+                        var nextId = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, -1);
+
+                        if (nextId.IsEndOfGeneration(_weights.Vocab)) break;
+
+                        decoder.Add(nextId);
+                        var dec = decoder.Read();
+                        yield return dec;
+                        generatedCount++;
+                        all_tokens.Add(nextId);
+
+                        if (antiprocessor.Add(dec)) break;
+
+                        _batch.Add(nextId, n_past++, LLamaSeqId.Zero, true);
+                    }
+                }
+                yield break;
+            }
+            #endregion
+
+            for (var i = 0; i < maxTokens && !cancellationToken.IsCancellationRequested; i++)
             {
                 // Sample with the pipeline
                 var id = inferenceParams.SamplingPipeline.Sample(Context.NativeHandle, _batch.TokenCount - 1);
