@@ -34,7 +34,8 @@ NativeLibraryConfig
    // enable this for forcing specific version of llama.cpp; disable for standard use
    //.WithLibrary(
    //     @"D:\_MTP\LLamaSharp\llama.cpp\_vs\bin\Release\llama.dll", 
-   //     @"D:\_MTP\LLamaSharp\llama.cpp\_vs\bin\Release\mtmd.dll"); 
+   //     @"D:\_MTP\LLamaSharp\llama.cpp\_vs\bin\Release\mtmd.dll")
+   ; 
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();
