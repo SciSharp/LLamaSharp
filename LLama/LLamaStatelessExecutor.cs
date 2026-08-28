@@ -126,7 +126,9 @@ namespace LLama
                 _draftParams.CtxOther = Context.NativeHandle.DangerousGetHandle();
             }
 
-            LLamaWeights activeDraftWeights = _useMtp ? _weights : (_draftWeights ?? _weights);
+            // Allow separate draft models to be used alongside MTP routing for models like Gemma 4
+            LLamaWeights activeDraftWeights = _draftWeights ?? _weights;
+
             using var draftContext = (_draftTokens > 0)
                 ? activeDraftWeights.CreateContext(_draftParams!, _logger)
                 : null;

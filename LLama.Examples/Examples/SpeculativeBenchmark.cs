@@ -96,8 +96,12 @@ namespace LLama.Examples.Examples
             LLamaWeights? draftWeights = null;
 
             // CRITICAL CONTEXT SETUP
-            // Explicitly construct draftParams so the correct ContextType is passed to the executor.
-            var draftParams = new ModelParams(useMtp ? targetModelPath : draftModelPath)
+
+            // Check if the user provided a distinct draft file (prevents accidental double-loading)
+            bool isSeparateDraft = !string.Equals(targetModelPath, draftModelPath, StringComparison.OrdinalIgnoreCase);
+
+            // Always use draftModelPath here so Gemma 4 loads the correct assistant GGUF
+            var draftParams = new ModelParams(draftModelPath)
             {
                 ContextSize = 4096,
                 BatchSize = 512,
@@ -114,12 +118,14 @@ namespace LLama.Examples.Examples
                 KVUnified = false,
                 SwaFull = true
             };
+            // Important: In MTP mode, the executor will internally re-use the target weights for the draft context
 
-            if (!useMtp)
+            // Only load separate draft weights if the paths are actually different.
+            // This supports Dual-Model AND split-MTP (Gemma 4), while keeping bundled-MTP (Qwen) safe.
+            if (isSeparateDraft)
             {
                 draftWeights = LLamaWeights.LoadFromFile(draftParams);
             }
-            // Important: In MTP mode, the executor will internally re-use the target weights for the draft context
 
             try
             {
@@ -172,21 +178,19 @@ namespace LLama.Examples.Examples
             var targetModelPath = UserSettings.GetModelPath();
 
             // 2. Ask for Parameters dynamically
-            var useMtp = Spectre.Console.AnsiConsole.Confirm("Does this model support MTP (e.g. Qwen3.5 / DeepSeek-R1)?");
+            var useMtp = Spectre.Console.AnsiConsole.Confirm("Does this model support MTP (e.g. Qwen3.5 / DeepSeek-R1 / Gemma-4)?");
 
-            // It will default to 3 if MTP is true, or 16 if MTP is false
-            var draftTokens = Spectre.Console.AnsiConsole.Ask<int>("Enter draft tokens budget per burst:", useMtp ? 3 : 16);
+            // It will default to 4 if MTP is true (good for Gemma), or 16 if MTP is false
+            var draftTokens = Spectre.Console.AnsiConsole.Ask<int>("Enter draft tokens budget per burst:", useMtp ? 4 : 16);
             var maxTokens = Spectre.Console.AnsiConsole.Ask<int>("Enter max tokens to generate for the benchmark:", 128);
 
-            // 3. Handle Draft Model path
+            // 3. Handle Draft Model path (Remove the !useMtp restriction)
             string draftModelPath = targetModelPath; // Default to self-speculation
-            if (!useMtp)
+
+            if (Spectre.Console.AnsiConsole.Confirm("Do you want to use a separate draft model? (Yes for Gemma 4 / Dual-Model, No for Qwen/DeepSeek)"))
             {
-                if (Spectre.Console.AnsiConsole.Confirm("Do you want to use a separate draft model? (No = Self-Speculation)"))
-                {
-                    Console.WriteLine("Select Draft Model:");
-                    draftModelPath = UserSettings.GetModelPath();
-                }
+                Console.WriteLine("Select Draft Model:");
+                draftModelPath = UserSettings.GetModelPath();
             }
 
             // 4. Run the benchmark with the explicitly chosen parameters
