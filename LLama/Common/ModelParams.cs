@@ -129,6 +129,7 @@ namespace LLama.Common
         public bool? KVUnified { get; set; }
 
         /// <inheritdoc />
+        [JsonIgnore]
         public IntPtr CtxOther { get; set; } = IntPtr.Zero;
 
         /// <summary>

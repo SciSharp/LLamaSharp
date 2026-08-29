@@ -56,7 +56,7 @@ namespace LLama.Unittest
         /// Verifies that standard Dual-Model speculative decoding (Draft-Simple) successfully generates tokens 
         /// through the StatelessExecutor's IAsyncEnumerable streaming pipeline without cache desynchronization.
         /// </summary>
-        [Fact]
+        [Fact(Skip = "skip until llama.cpp binary is updated")]
         public async Task StatelessExecutor_DualModelSpeculation_ProducesOutput()
         {
             var inferenceParams = new InferenceParams { MaxTokens = 10 };
@@ -85,7 +85,7 @@ namespace LLama.Unittest
         /// Verifies the BatchedExecutor's custom multiplexing logic. 
         /// <para>Specifically tests that a native speculative burst is correctly captured in the Conversation's internal queue during the Decode phase, and that C# safely dequeues these tokens bypassing the standard native sampler.</para>
         /// </summary>
-        [Fact]
+        [Fact(Skip = "skip until llama.cpp binary is updated")]
         public async Task BatchedExecutor_DualModelQueue_DequeuesCorrectly()
         {
             using var executor = new BatchedExecutor(
@@ -138,7 +138,7 @@ namespace LLama.Unittest
         /// Verifies that Multi-Token Prediction (MTP) self-speculation correctly initializes and routes 
         /// the target model's hidden states through its own projection heads, requiring no external draft weights.
         /// </summary>
-        [Fact]
+        [Fact(Skip = "skip until llama.cpp binary is updated")]
         public async Task StatelessExecutor_Mtp_ProducesOutput()
         {
             var mtpParams = new ModelParams(Constants.MtpModelPath)
