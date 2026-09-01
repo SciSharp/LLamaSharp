@@ -27,6 +27,12 @@ public sealed class Conversation
     private readonly List<LLamaToken> _session_tokens = new();
     private int _consumedTokensCount;
 
+    // speculative
+    private int _speculativeTokensToIgnore = 0;
+    private readonly Queue<LLamaToken> _speculativeTokens = new();
+
+    public bool HasSpeculativeTokens => _speculativeTokens.Count > 0;
+
     /// <summary>
     /// Stores the indices to sample from. Contains <see cref="_batchSampleCount"/> valid items.
     /// For MTMD helper calls using logits_last, we store -1 to sample the last logits row.
@@ -180,6 +186,9 @@ public sealed class Conversation
         // conversation doesn't share logits with this one.
         _forked = true;
 
+        // speculative
+        Executor.RegisterConversation(c);
+
         // Assign tokens to the new sequence
         Executor.Context.NativeHandle.MemorySequenceCopy(ConversationId, c.ConversationId, 0, _end);
 
@@ -319,6 +328,13 @@ public sealed class Conversation
         if (tokens.Length == 0)
             return;
 
+        // speculative skip logic
+        int skipCount = Math.Min(tokens.Length, _speculativeTokensToIgnore);
+        _speculativeTokensToIgnore -= skipCount;
+        var effectiveTokens = tokens.Slice(skipCount);
+        if (effectiveTokens.Length == 0)
+            return;
+
         // Add the prompt to the batch
         if (allLogits)
         {
@@ -365,6 +381,12 @@ public sealed class Conversation
 
         if (Executor.ClipModel is null)
             throw new InvalidOperationException("This conversation is not configured for multimodal prompts.");
+
+        // speculative
+        // If a multimodal prompt interrupts an active speculative burst, we must wipe the queued tokens 
+        // and reset the ignore counter to prevent context corruption in the native engine.
+        _speculativeTokens.Clear();
+        _speculativeTokensToIgnore = 0;
 
         var prompt = BuildMtmdPrompt(text, embeds.Length);
 
@@ -435,6 +457,10 @@ public sealed class Conversation
     {
         AssertCanBePrompted();
 
+        // speculative - clear unconsumed tokens if the user interrupts with raw embeddings
+        _speculativeTokens.Clear();
+        _speculativeTokensToIgnore = 0;
+
         var dim = Executor.Model.EmbeddingSize;
         var count = embeddings.Length / dim;
         if (count * dim != embeddings.Length)
@@ -471,6 +497,10 @@ public sealed class Conversation
 
         if (RequiresInference)
             throw new CannotModifyWhileRequiresInferenceException();
+
+        // speculative
+        _speculativeTokens.Clear();
+        _speculativeTokensToIgnore = 0;
 
         // do whatever the modification is
         _end = modifier.Invoke(_end, new KvAccessor(this));
@@ -775,6 +805,30 @@ public sealed class Conversation
         internal State()
         {
         }
+    }
+    #endregion
+
+    #region speculative
+    internal void EnqueueSpeculativeTokens(int[] tokens, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            _speculativeTokens.Enqueue((LLamaToken)tokens[i]);
+        }
+
+        if (count > 1)
+        {
+            _speculativeTokensToIgnore += (count - 1);
+            _end = _end.Value + (count - 1);
+        }
+    }
+
+    public LLamaToken DequeueSpeculativeToken()
+    {
+        AssertNotDisposed();
+        if (_speculativeTokens.Count == 0)
+            throw new InvalidOperationException("No speculative tokens available.");
+        return _speculativeTokens.Dequeue();
     }
     #endregion
 }

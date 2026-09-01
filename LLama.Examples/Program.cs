@@ -30,7 +30,7 @@ NativeLibraryConfig
 NativeLibraryConfig
    .All
    .WithCuda()
-   .WithVulkan();
+   .WithVulkan(); 
 
 // Calling this method forces loading to occur now.
 NativeApi.llama_empty_call();
