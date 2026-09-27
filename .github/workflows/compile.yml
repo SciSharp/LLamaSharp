@@ -405,7 +405,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, windows-2022]
-        cuda: ['12.4.0']
+        cuda: ['12.4.0', '13.0.0']
+        include:
+          - cuda: '12.4.0'
+            win-sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+          - cuda: '13.0.0'
+            win-sub-packages: '["nvcc", "crt", "nvvm", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Clone
@@ -416,15 +421,15 @@ jobs:
           fetch-depth: 0
           ref: '${{ github.event.inputs.llama_cpp_commit }}'
 
-      - uses: Jimver/cuda-toolkit@v0.2.15
+      - uses: Jimver/cuda-toolkit@v0.2.36
         if: runner.os == 'Windows'
         id: cuda-toolkit-windows
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
-          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+          sub-packages: ${{ matrix.win-sub-packages }}
 
-      - uses: Jimver/cuda-toolkit@v0.2.15
+      - uses: Jimver/cuda-toolkit@v0.2.36
         if: runner.os == 'Linux'
         id: cuda-toolkit-linux
         with:
@@ -688,7 +693,7 @@ jobs:
       - name: Rearrange Files
         run: |
           # Make all directories at once
-          mkdir --parents deps/{noavx,avx,avx2,avx512,linux-arm64,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu12.4.0,vulkan,android-arm64-v8a,android-x86,android-x86_64,win-arm64}
+          mkdir --parents deps/{noavx,avx,avx2,avx512,linux-arm64,musl-noavx,musl-avx,musl-avx2,musl-avx512,osx-arm64,osx-x64,osx-x64-rosetta2,cu12.4.0,cu13.0.0,vulkan,android-arm64-v8a,android-x86,android-x86_64,win-arm64}
 
           # Linux
           cp artifacts/ggml-bin-linux-noavx-x64.so/libggml.so           deps/noavx/libggml.so
@@ -821,12 +826,24 @@ jobs:
           cp artifacts/llama-bin-win-cublas-cu12.4.0-x64.dll/llama.dll          deps/cu12.4.0/llama.dll
           cp artifacts/mtmd-bin-win-cublas-cu12.4.0-x64.dll/mtmd.dll            deps/cu12.4.0/mtmd.dll
 
+          cp artifacts/ggml-bin-win-cublas-cu13.0.0-x64.dll/ggml.dll            deps/cu13.0.0/ggml.dll
+          cp artifacts/ggml-base-bin-win-cublas-cu13.0.0-x64.dll/ggml-base.dll  deps/cu13.0.0/ggml-base.dll
+          cp artifacts/ggml-cuda-bin-win-cublas-cu13.0.0-x64.dll/ggml-cuda.dll  deps/cu13.0.0/ggml-cuda.dll
+          cp artifacts/llama-bin-win-cublas-cu13.0.0-x64.dll/llama.dll          deps/cu13.0.0/llama.dll
+          cp artifacts/mtmd-bin-win-cublas-cu13.0.0-x64.dll/mtmd.dll            deps/cu13.0.0/mtmd.dll
+
           # Linux CUDA
           cp artifacts/ggml-bin-linux-cublas-cu12.4.0-x64.so/libggml.so              deps/cu12.4.0/libggml.so
           cp artifacts/ggml-base-bin-linux-cublas-cu12.4.0-x64.so/libggml-base.so    deps/cu12.4.0/libggml-base.so
           cp artifacts/ggml-cuda-bin-linux-cublas-cu12.4.0-x64.so/libggml-cuda.so    deps/cu12.4.0/libggml-cuda.so
           cp artifacts/llama-bin-linux-cublas-cu12.4.0-x64.so/libllama.so            deps/cu12.4.0/libllama.so
           cp artifacts/mtmd-bin-linux-cublas-cu12.4.0-x64.so/libmtmd.so              deps/cu12.4.0/libmtmd.so
+
+          cp artifacts/ggml-bin-linux-cublas-cu13.0.0-x64.so/libggml.so              deps/cu13.0.0/libggml.so
+          cp artifacts/ggml-base-bin-linux-cublas-cu13.0.0-x64.so/libggml-base.so    deps/cu13.0.0/libggml-base.so
+          cp artifacts/ggml-cuda-bin-linux-cublas-cu13.0.0-x64.so/libggml-cuda.so    deps/cu13.0.0/libggml-cuda.so
+          cp artifacts/llama-bin-linux-cublas-cu13.0.0-x64.so/libllama.so            deps/cu13.0.0/libllama.so
+          cp artifacts/mtmd-bin-linux-cublas-cu13.0.0-x64.so/libmtmd.so              deps/cu13.0.0/libmtmd.so
 
           # Windows Vulkan
           cp artifacts/ggml-bin-win-vulkan-x64.dll/ggml.dll               deps/vulkan/ggml.dll
