@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <BinaryReleaseId>815a2a5915f22c</BinaryReleaseId>
+    <BinaryReleaseId>815a2a5915f22c_withcuda13</BinaryReleaseId>
   </PropertyGroup>
 
   <PropertyGroup>
