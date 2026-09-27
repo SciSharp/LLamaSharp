@@ -111,11 +111,7 @@ For API references, LLamaSharp takes use of [xmldoc2md](https://github.com/charl
 ```
 dotnet tool install -g XMLDoc2Markdown
 cd LLama/bin/Debug/net8 # change the path to your bin path.
-dotnet xmldoc2md LLamaSharp.dll -o ../../../../docs/xmldocs --back-button
+xmldoc2md LLamaSharp.dll -o ../../../../docs/xmldocs --back-button
 ```
 
-Specifically, if the xmldoc2md cannot be found by dotnet cli, please replace the `dotnet xmldoc2md` with the executable file, like below.
-
-```
-C:\Users\liu_y\.dotnet\tools\xmldoc2md.exe LLamaSharp.dll  -o ../../../../docs/xmldocs --back-button
-```
+XMLDoc2Markdown 6 runs on .NET 10, so the .NET 10 runtime needs to be installed as well.
