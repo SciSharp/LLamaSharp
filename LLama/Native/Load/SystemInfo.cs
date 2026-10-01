@@ -44,6 +44,15 @@ namespace LLama.Native
         #region Vulkan version
         private static string? GetVulkanVersion()
         {
+            // Prefer asking the Vulkan loader directly. `vulkaninfo` is a separate tool which is not present on every
+            // machine that has a working Vulkan driver (e.g. Windows machines with only an Intel GPU), and spawning it
+            // can be slow or time out (see #930). Without it the Vulkan backend is skipped and only the CPU is offered.
+            string? loaderVersion = GetVulkanVersionFromLoader();
+            if (loaderVersion != null)
+            {
+                return loaderVersion;
+            }
+
             // Get Vulkan Summary
             string? vulkanSummary = GetVulkanSummary();
             // If we have a Vulkan summary
@@ -116,6 +125,57 @@ namespace LLama.Native
             }
             // Return null if no match is found
             return null;
+        }
+
+        /// <summary>
+        /// Query the Vulkan loader in-process with <c>vkEnumerateInstanceVersion</c> (available since Vulkan 1.1).
+        /// </summary>
+        /// <returns>The loader version as "major.minor.patch", or null if the loader is missing, predates Vulkan 1.1 or the call fails.</returns>
+        private static string? GetVulkanVersionFromLoader()
+        {
+            try
+            {
+                int result;
+                uint apiVersion;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    result = VulkanLoaderWindows.vkEnumerateInstanceVersion(out apiVersion);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    result = VulkanLoaderLinux.vkEnumerateInstanceVersion(out apiVersion);
+                }
+                else
+                {
+                    return null;
+                }
+
+                // VK_SUCCESS == 0
+                if (result != 0)
+                {
+                    return null;
+                }
+
+                // VK_API_VERSION_MAJOR / MINOR / PATCH (the variant bits above bit 29 are ignored)
+                return $"{(apiVersion >> 22) & 0x7F}.{(apiVersion >> 12) & 0x3FF}.{apiVersion & 0xFFF}";
+            }
+            catch
+            {
+                // DllNotFoundException, EntryPointNotFoundException, etc. Fall back to `vulkaninfo`.
+                return null;
+            }
+        }
+
+        private static class VulkanLoaderWindows
+        {
+            [DllImport("vulkan-1", CallingConvention = CallingConvention.Winapi)]
+            public static extern int vkEnumerateInstanceVersion(out uint pApiVersion);
+        }
+
+        private static class VulkanLoaderLinux
+        {
+            [DllImport("libvulkan.so.1", CallingConvention = CallingConvention.Cdecl)]
+            public static extern int vkEnumerateInstanceVersion(out uint pApiVersion);
         }
         #endregion
 
