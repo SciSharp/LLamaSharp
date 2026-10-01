@@ -12,11 +12,12 @@ jobs:
     if: github.repository == 'SciSharp/LLamaSharp'
     name: Update API References
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
     - uses: actions/checkout@v6
-      with:
-        token: ${{ secrets.REPO_TOKEN || github.token }}
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
@@ -35,6 +36,9 @@ jobs:
         sed -i '/e__fixedbuffer\.md)/d' ../../../../docs/xmldocs/index.md
     
     - name: Commit and push changes
+      env:
+        GH_TOKEN: ${{ github.token }}
+        DOCS_BRANCH: update-api-references
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "AsakusaRinne@gmail.com"
@@ -48,5 +52,17 @@ jobs:
         echo "Modified files:"
         git diff --cached --name-only
         git commit -m "chore(docs): update API references in the github action."
-        git push
-
+        if git push origin "HEAD:$GITHUB_REF_NAME"; then
+          exit 0
+        fi
+        # The branch refused the push, for example because it only takes pull requests:
+        # push the docs to their own branch and open a pull request from it.
+        git push --force origin "HEAD:refs/heads/$DOCS_BRANCH"
+        if [ -n "$(gh pr list --head "$DOCS_BRANCH" --state open --json number --jq '.[].number')" ]; then
+          echo "The open pull request from $DOCS_BRANCH now has these docs."
+        elif ! gh pr create --base "$GITHUB_REF_NAME" --head "$DOCS_BRANCH" \
+            --title "chore(docs): update API references" \
+            --body "API references regenerated from $GITHUB_SHA by the Update API references workflow."; then
+          # GitHub Actions may not be allowed to create pull requests in this repository.
+          echo "::notice::The docs are on $DOCS_BRANCH. Open a pull request from it: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$GITHUB_REF_NAME...$DOCS_BRANCH"
+        fi
