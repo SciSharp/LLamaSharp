@@ -56,6 +56,12 @@ public static class IModelParamsExtensions
             result.tensor_buft_overrides = ConvertOverrides(@params.TensorBufferOverrides, disposer);
         }
 
+        // Add device list
+        unsafe
+        {
+            result.devices = ConvertDevices(@params.Devices, disposer);
+        }
+
         // Add metadata overrides
         if (@params.MetadataOverrides.Count == 0)
         {
@@ -127,6 +133,45 @@ public static class IModelParamsExtensions
         }
 
         return result;
+    }
+
+    private static unsafe IntPtr* ConvertDevices(List<string> deviceNames, GroupDisposable disposer)
+    {
+        // Early out if no devices were requested (llama.cpp will choose its own)
+        if (deviceNames.Count == 0)
+            return null;
+
+        // Map device name -> ggml_backend_dev_t
+        var devicesByName = new Dictionary<string, IntPtr>();
+        var deviceCount = NativeApi.ggml_backend_dev_count();
+        for (nuint i = 0; i < deviceCount; i++)
+        {
+            var device = NativeApi.ggml_backend_dev_get(i);
+            if (device == IntPtr.Zero)
+                continue;
+
+            var name = NativeApi.ggml_backend_dev_name(device).PtrToString();
+            if (!string.IsNullOrEmpty(name))
+                devicesByName[name!] = device;
+        }
+
+        // Resolve the requested names in order. One extra slot for the null terminator.
+        var devicesCount = 0;
+        var devicesArray = new IntPtr[deviceNames.Count + 1];
+        foreach (var name in deviceNames)
+        {
+            if (!string.IsNullOrEmpty(name) && devicesByName.TryGetValue(name, out var device))
+                devicesArray[devicesCount++] = device;
+        }
+
+        // Early out if none of the names matched
+        if (devicesCount == 0)
+            return null;
+
+        // Pin the array so it can be passed to native code
+        var pin = devicesArray.AsMemory().Pin();
+        disposer.Add(pin);
+        return (IntPtr*)pin.Pointer;
     }
 
     private static unsafe LLamaModelTensorBufferOverride* ConvertOverrides(List<TensorBufferOverride> overrides, GroupDisposable disposer)

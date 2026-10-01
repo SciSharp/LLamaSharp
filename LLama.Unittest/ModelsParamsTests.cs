@@ -20,6 +20,7 @@ namespace LLama.Unittest
                 ContextSize = 42,
                 GpuLayerCount = 111,
                 TensorSplits = { [0] = 3 },
+                Devices = { "Vulkan1", "CPU" },
                 MetadataOverrides =
                 {
                     new MetadataOverride("hello", true),
@@ -45,6 +46,11 @@ namespace LLama.Unittest
             Assert.True(expected.TensorBufferOverrides.SequenceEqual(actual.TensorBufferOverrides));
             actual.TensorBufferOverrides = null!;
             expected.TensorBufferOverrides = null!;
+
+            // Same deal
+            Assert.True(expected.Devices.SequenceEqual(actual.Devices));
+            actual.Devices = null!;
+            expected.Devices = null!;
 
             // Check encoding is the same
             var b1 = expected.Encoding.GetBytes("Hello");
