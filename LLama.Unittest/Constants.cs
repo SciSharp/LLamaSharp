@@ -13,6 +13,8 @@ namespace LLama.Unittest
         public static readonly string MtmdMmpPath = "Models/gemma-mmproj-model-f16.gguf";
         public static readonly string MtmdImage = "Models/extreme-ironing-taxi-610x427.jpg";
 
+        public static readonly string MtpModelPath = "Models/Qwen3.5-2B.Q4_0.gguf";
+
         /// <summary>
         /// Calculate GpuLayer Count to use in UnitTest
         /// </summary>

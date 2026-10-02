@@ -17,6 +17,7 @@ public static partial class NativeApi
     internal struct mtmd_context_params
     {
         [MarshalAs(UnmanagedType.I1)] public bool use_gpu;
+        public IntPtr device;
         [MarshalAs(UnmanagedType.I1)] public bool print_timings;
         public int n_threads;
         public IntPtr image_marker;

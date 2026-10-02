@@ -72,7 +72,7 @@ namespace LLama.Extensions
             if (@params.KVUnified.HasValue)
                 result.kv_unified = @params.KVUnified.Value;
 
-            result.ctx_other = IntPtr.Zero;
+            result.ctx_other = @params.CtxOther;
         }
 
         private static int Threads(int? value)

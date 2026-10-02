@@ -1,5 +1,6 @@
-using System.Text;
 using LLama.Native;
+using System;
+using System.Text;
 
 namespace LLama.Abstractions;
 
@@ -17,6 +18,12 @@ public interface IContextParams
     /// The type of context
     /// </summary>
     LLamaContextType ContextType { get; }
+
+    /// <summary>
+    /// A source/target/parent context.
+    /// Utilized by MTP (Multi-Token Prediction) to link the draft context to the target context's hidden states.
+    /// </summary>
+    IntPtr CtxOther { get; set; }
 
     /// <summary>
     /// maximum batch size that can be submitted at once (must be >=32 to use BLAS) (n_batch)

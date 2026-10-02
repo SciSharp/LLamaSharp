@@ -68,6 +68,12 @@
             <DestinationFolder>Models</DestinationFolder>
             <LocalFileName>all-MiniLM-L12-v2.Q8_0.gguf</LocalFileName>
         </DownloadFileItem>
+
+        <DownloadFileItem Include="Qwen3.5-2B.Q4_0">
+            <SourceUrl>https://huggingface.co/prithivMLmods/Qwen3.5-2B-MTP-GGUF/resolve/main/Qwen3.5-2B.Q4_0.gguf</SourceUrl>
+            <DestinationFolder>Models</DestinationFolder>
+            <LocalFileName>Qwen3.5-2B.Q4_0.gguf</LocalFileName>
+        </DownloadFileItem>
     </ItemGroup>
 
     <!-- Ensure the destination folder exists -->
@@ -147,6 +153,9 @@
     </None>
     <None Update="Models\extreme-ironing-taxi-610x427.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Qwen3.5-2B.Q4_0.gguf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>

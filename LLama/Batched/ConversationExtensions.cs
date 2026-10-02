@@ -18,6 +18,10 @@ public static class ConversationExtensions
     /// <returns></returns>
     public static LLamaToken Sample(this Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset = 0)
     {
+        // speculative
+        if (conversation.HasSpeculativeTokens)
+            return conversation.DequeueSpeculativeToken();
+
         var ctx = conversation.Executor.Context.NativeHandle;
         return sampler.Sample(ctx, conversation.GetSampleIndex(offset));
     }
@@ -31,6 +35,10 @@ public static class ConversationExtensions
     /// <returns></returns>
     public static LLamaToken Sample(this Conversation conversation, ISamplingPipeline sampler, int offset = 0)
     {
+        // speculative
+        if (conversation.HasSpeculativeTokens)
+            return conversation.DequeueSpeculativeToken();
+
         var ctx = conversation.Executor.Context.NativeHandle;
         return sampler.Sample(ctx, conversation.GetSampleIndex(offset));
     }

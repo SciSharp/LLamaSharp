@@ -49,7 +49,12 @@ namespace LLama.Native
         /// max outputs in a ubatch (0 = n_batch)
         /// </summary>
         public uint n_outputs_max;
-        
+
+        /// <summary>
+        /// max outputs per sequence (0 = n_outputs_max)
+        /// </summary>
+        public uint n_outputs_max_per_seq;
+
         /// <summary>
         /// number of threads to use for generation
         /// </summary>
