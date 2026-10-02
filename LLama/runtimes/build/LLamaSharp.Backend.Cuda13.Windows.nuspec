@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+    <metadata>
+        <id>LLamaSharp.Backend.Cuda13.Windows</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Cuda13.Windows</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Cuda13.Windows contains the Windows binaries for LLamaSharp with Cuda13 support.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Cpu" version="$version$" />
+        </dependencies>
+    </metadata>
+
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda13.Windows.props" />
+
+        <file src="runtimes/deps/cu13.0.0/ggml.dll" target="LLamaSharpRuntimes\win-x64\native\cuda13\ggml.dll" />
+        <file src="runtimes/deps/cu13.0.0/ggml-base.dll" target="LLamaSharpRuntimes\win-x64\native\cuda13\ggml-base.dll" />
+        <file src="runtimes/deps/cu13.0.0/ggml-cuda.dll" target="LLamaSharpRuntimes\win-x64\native\cuda13\ggml-cuda.dll" />
+        
+        <file src="runtimes/deps/cu13.0.0/llama.dll" target="LLamaSharpRuntimes\win-x64\native\cuda13\llama.dll" />
+        <file src="runtimes/deps/cu13.0.0/mtmd.dll" target="LLamaSharpRuntimes\win-x64\native\cuda13\mtmd.dll" />
+        
+        <file src="icon512.png" target="icon512.png" />
+    </files>
+</package>

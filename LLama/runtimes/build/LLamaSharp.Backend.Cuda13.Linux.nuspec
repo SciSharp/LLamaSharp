@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+    <metadata>
+        <id>LLamaSharp.Backend.Cuda13.Linux</id>
+        <version>$version$</version>
+        <title>LLamaSharp.Backend.Cuda13.Linux</title>
+        <authors>llama.cpp Authors</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <icon>icon512.png</icon>
+        <projectUrl>https://github.com/SciSharp/LLamaSharp</projectUrl>
+        <description>LLamaSharp.Backend.Cuda13.Linux contains the Linux binaries for LLamaSharp with Cuda13 support.</description>
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright 2023 The llama.cpp Authors. All rights reserved.</copyright>
+        <tags>LLamaSharp LLama LLM GPT AI ChatBot SciSharp</tags>
+
+        <dependencies>
+            <dependency id="LLamaSharp.Backend.Cpu" version="$version$" />
+        </dependencies>
+    </metadata>
+
+    <files>
+        <file src="LLamaSharpBackend.props" target="build/netstandard2.0/LLamaSharp.Backend.Cuda13.Linux.props" />
+
+        <file src="runtimes/deps/cu13.0.0/libggml.so" target="LLamaSharpRuntimes/linux-x64/native/cuda13/libggml.so" />
+        <file src="runtimes/deps/cu13.0.0/libggml-base.so" target="LLamaSharpRuntimes/linux-x64/native/cuda13/libggml-base.so" />
+        <file src="runtimes/deps/cu13.0.0/libggml-cuda.so" target="LLamaSharpRuntimes/linux-x64/native/cuda13/libggml-cuda.so" />
+
+        <file src="runtimes/deps/cu13.0.0/libllama.so" target="LLamaSharpRuntimes/linux-x64/native/cuda13/libllama.so" />
+        <file src="runtimes/deps/cu13.0.0/libmtmd.so" target="LLamaSharpRuntimes/linux-x64/native/cuda13/libmtmd.so" />
+        
+        <file src="icon512.png" target="icon512.png" />
+    </files>
+</package>

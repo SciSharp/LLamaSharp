@@ -17,6 +17,7 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cpu`](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu): Pure CPU for Windows & Linux & MAC. Metal (GPU) support for MAC.
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA11 for Windows & Linux.
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
+   - [`LLamaSharp.Backend.Cuda13`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda13): CUDA 13 for Windows & Linux.
    - [`LLamaSharp.Backend.OpenCL`](https://www.nuget.org/packages/LLamaSharp.Backend.OpenCL): OpenCL for Windows & Linux.
 
 ## Model preparation
