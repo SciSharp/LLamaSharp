@@ -29,6 +29,9 @@ namespace LLama.Common
         public List<TensorBufferOverride> TensorBufferOverrides { get; set; } = new();
 
         /// <inheritdoc />
+        public List<string> Devices { get; set; } = new();
+
+        /// <inheritdoc />
         public int GpuLayerCount { get; set; } = 20;
 
         /// <inheritdoc />
