@@ -153,6 +153,27 @@ namespace LLama.Native
             }
             loadedLibrary = null;
 #else
+            // netstandard2.0 doesn't have access to System.Runtime.InteropServices.NativeLibrary, so we can't
+            // do the full backend auto-detection that the NET6_0_OR_GREATER path above does. However, if the
+            // caller gave us an explicit path via NativeLibraryConfig.WithLibrary, we can still load exactly
+            // that file ourselves using a small platform-specific P/Invoke shim.
+            if (!string.IsNullOrEmpty(config.LibraryPath))
+            {
+                Log($"Loading library: '{config.NativeLibraryName.GetLibraryName()}' from explicit path '{config.LibraryPath}'", LLamaLogLevel.Debug, config.LogCallback);
+
+                // Set the flag to ensure this config can no longer be modified
+                config.LibraryHasLoaded = true;
+
+                if (PlatformNativeLibrary.TryLoad(config.LibraryPath!, out var handle))
+                {
+                    Log($"Successfully loaded '{config.LibraryPath}'", LLamaLogLevel.Info, config.LogCallback);
+                    loadedLibrary = new NativeLibraryFromPath(config.LibraryPath!);
+                    return handle;
+                }
+
+                Log($"Failed loading '{config.LibraryPath}'", LLamaLogLevel.Info, config.LogCallback);
+            }
+
             loadedLibrary = new UnknownNativeLibrary();
 #endif
 
