@@ -1,6 +1,8 @@
 using LLama.Common;
 using System.Text.Json;
 using LLama.Abstractions;
+using LLama.Exceptions;
+using LLama.Extensions;
 
 namespace LLama.Unittest
 {
@@ -20,6 +22,7 @@ namespace LLama.Unittest
                 ContextSize = 42,
                 GpuLayerCount = 111,
                 TensorSplits = { [0] = 3 },
+                Devices = { "Vulkan1", "CPU" },
                 MetadataOverrides =
                 {
                     new MetadataOverride("hello", true),
@@ -46,12 +49,48 @@ namespace LLama.Unittest
             actual.TensorBufferOverrides = null!;
             expected.TensorBufferOverrides = null!;
 
+            // Same deal
+            Assert.True(expected.Devices.SequenceEqual(actual.Devices));
+            actual.Devices = null!;
+            expected.Devices = null!;
+
             // Check encoding is the same
             var b1 = expected.Encoding.GetBytes("Hello");
             var b2 = actual.Encoding.GetBytes("Hello");
             Assert.True(b1.SequenceEqual(b2));
 
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void UnknownDeviceThrows()
+        {
+            var @params = new ModelParams("abc/123")
+            {
+                Devices = { "NoSuchDevice" },
+            };
+
+            var ex = Assert.Throws<UnknownDeviceException>(() => @params.ToLlamaModelParams(out _));
+
+            Assert.Equal("NoSuchDevice", ex.RequestedDevice);
+            Assert.Contains("CPU", ex.AvailableDevices);
+            Assert.Contains("NoSuchDevice", ex.Message);
+            Assert.Contains("CPU", ex.Message);
+        }
+
+        [Fact]
+        public unsafe void DeviceNameMatchIsCaseInsensitive()
+        {
+            var @params = new ModelParams("abc/123")
+            {
+                Devices = { "cpu" },
+            };
+
+            using var disposer = @params.ToLlamaModelParams(out var result);
+
+            Assert.True(result.devices != null);
+            Assert.NotEqual(IntPtr.Zero, result.devices[0]);
+            Assert.Equal(IntPtr.Zero, result.devices[1]);
         }
     }
 }

@@ -9,10 +9,10 @@ namespace LLama.Native
     public unsafe struct LLamaModelParams
     {
         /// <summary>
-        /// NULL-terminated list of devices to use for offloading (if NULL, all available devices are used)
-        /// todo: add support for llama_model_params.devices
+        /// NULL-terminated list of devices to use for offloading (if NULL, all available devices are used).
+        /// Each element is a <c>ggml_backend_dev_t</c> as returned by <see cref="NativeApi.ggml_backend_dev_get"/>.
         /// </summary>
-        private IntPtr devices;
+        public IntPtr* devices;
 
         /// <summary>
         /// NULL-terminated list of buffer types to use for tensors that match a pattern

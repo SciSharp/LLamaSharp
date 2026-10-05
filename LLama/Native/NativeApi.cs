@@ -449,6 +449,14 @@ namespace LLama.Native
         public static extern IntPtr ggml_backend_dev_get(nuint i);
 
         /// <summary>
+        /// Get the name of a backend device (e.g. "CPU", "Vulkan0", "CUDA1")
+        /// </summary>
+        /// <param name="dev">Backend device pointer</param>
+        /// <returns>Pointer to a null terminated UTF-8 string, owned by the device</returns>
+        [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ggml_backend_dev_name(IntPtr dev);
+
+        /// <summary>
         /// Get the buffer type for a backend device
         /// </summary>
         /// <param name="dev">Backend device pointer</param>

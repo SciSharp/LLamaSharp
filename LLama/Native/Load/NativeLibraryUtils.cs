@@ -9,6 +9,18 @@ namespace LLama.Native
     internal static class NativeLibraryUtils
     {
         /// <summary>
+        /// Handle of the ggml library loaded as a dependency by <see cref="TryLoadLibrary"/>, or IntPtr.Zero if it has not been loaded.
+        /// Used by the DllImport resolver so that P/Invokes into ggml reuse this library instead of relying on the system search path.
+        /// </summary>
+        internal static IntPtr LoadedGgmlHandle;
+
+        /// <summary>
+        /// Handle of the ggml-base library loaded as a dependency by <see cref="TryLoadLibrary"/>, or IntPtr.Zero if it has not been loaded.
+        /// Used by the DllImport resolver so that P/Invokes into ggml-base reuse this library instead of relying on the system search path.
+        /// </summary>
+        internal static IntPtr LoadedGgmlBaseHandle;
+
+        /// <summary>
         /// Try to load libllama/mtmd, using CPU feature detection to try and load a more specialised DLL if possible
         /// </summary>
         /// <returns>The library handle to unload later, or IntPtr.Zero if no library was loaded</returns>
@@ -64,7 +76,8 @@ namespace LLama.Native
                     var dependencyPaths = new List<string>();
                     
                     // We should always load ggml-base from the current runtime directory
-                    dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-base{ext}"));
+                    var ggmlBasePath = Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml-base{ext}");
+                    dependencyPaths.Add(ggmlBasePath);
 
                     // If the library has metadata, we can check if we need to load additional dependencies
                     if (library.Metadata != null)
@@ -114,13 +127,20 @@ namespace LLama.Native
                     }
                     
                     // And finally, we can add ggml
-                    dependencyPaths.Add(Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml{ext}"));
+                    var ggmlPath = Path.Combine(currentRuntimeDirectory, $"{libPrefix}ggml{ext}");
+                    dependencyPaths.Add(ggmlPath);
                     
                     // Now, we will loop through our dependencyPaths and try to load them one by one
                     foreach (var dependencyPath in dependencyPaths)
                     {
                         // Try to load the dependency
                         var dependencyResult = TryLoad(dependencyPath, description.SearchDirectories, config.LogCallback);
+
+                        // Keep the ggml/ggml-base handles so the DllImport resolver can hand them out for P/Invokes into those libraries
+                        if (dependencyPath == ggmlBasePath)
+                            LoadedGgmlBaseHandle = dependencyResult;
+                        else if (dependencyPath == ggmlPath)
+                            LoadedGgmlHandle = dependencyResult;
                         
                         // If we successfully loaded the library, log it
                         if (dependencyResult != IntPtr.Zero)

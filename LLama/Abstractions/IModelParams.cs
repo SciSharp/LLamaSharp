@@ -45,6 +45,17 @@ namespace LLama.Abstractions
         List<TensorBufferOverride> TensorBufferOverrides { get; }
 
         /// <summary>
+        /// Names of the backend devices the model may use, in priority order, e.g. "Vulkan1" or "CUDA0" (see <see cref="NativeApi.ggml_backend_dev_name"/>).
+        /// Equivalent to --device on the llama.cpp command line or <c>devices</c> in <c>llama_model_params</c>.
+        /// </summary>
+        /// <remarks>
+        /// When empty, llama.cpp picks the devices itself: all discrete GPUs, or the first integrated GPU when there is no discrete GPU.
+        /// Setting this list explicitly bypasses that selection, which is the only way to run on an integrated GPU in a machine that also has a discrete GPU.
+        /// <see cref="MainGpu"/> is an index into this list when it is non-empty. Names are matched case insensitively; a name that does not match any available device throws <see cref="Exceptions.UnknownDeviceException"/> when the model is loaded.
+        /// </remarks>
+        List<string> Devices { get; }
+
+        /// <summary>
         /// Number of layers to run in VRAM / GPU memory (n_gpu_layers)
         /// </summary>
         int GpuLayerCount { get; }
