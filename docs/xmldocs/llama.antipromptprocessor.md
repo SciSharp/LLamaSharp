@@ -12,8 +12,8 @@ AntipromptProcessor keeps track of past tokens looking for any set Anti-Prompts
 public sealed class AntipromptProcessor
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [AntipromptProcessor](./llama.antipromptprocessor.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [AntipromptProcessor](./llama.antipromptprocessor.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Constructors
 
@@ -22,12 +22,12 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 Initializes a new instance of the [AntipromptProcessor](./llama.antipromptprocessor.md) class.
 
 ```csharp
-public AntipromptProcessor(IEnumerable<string> antiprompts)
+public AntipromptProcessor(IEnumerable<string>? antiprompts = null)
 ```
 
 #### Parameters
 
-`antiprompts` [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
+`antiprompts` [IEnumerable&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)?<br>
 The antiprompts.
 
 ## Methods
@@ -42,7 +42,7 @@ public void AddAntiprompt(string antiprompt)
 
 #### Parameters
 
-`antiprompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`antiprompt` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **SetAntiprompts(IEnumerable&lt;String&gt;)**
 
@@ -54,7 +54,7 @@ public void SetAntiprompts(IEnumerable<string> antiprompts)
 
 #### Parameters
 
-`antiprompts` [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
+`antiprompts` [IEnumerable&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
 ### **Add(String)**
 
@@ -66,11 +66,11 @@ public bool Add(string text)
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 true if the text buffer ends with any antiprompt
 
 ---

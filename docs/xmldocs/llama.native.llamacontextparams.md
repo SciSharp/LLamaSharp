@@ -12,7 +12,7 @@ A C# representation of the llama.cpp `llama_context_params` struct
 public struct LLamaContextParams
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaContextParams](./llama.native.llamacontextparams.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaContextParams](./llama.native.llamacontextparams.md)
 
 **Remarks:**
 
@@ -53,6 +53,22 @@ max number of sequences (i.e. distinct states for recurrent models)
 public uint n_seq_max;
 ```
 
+### **n_rs_seq**
+
+number of recurrent-state snapshots per seq for rollback (0 = no rollback) [EXPERIMENTAL]
+
+```csharp
+public uint n_rs_seq;
+```
+
+### **n_outputs_max**
+
+max outputs in a ubatch (0 = n_batch)
+
+```csharp
+public uint n_outputs_max;
+```
+
 ### **n_threads**
 
 number of threads to use for generation
@@ -67,6 +83,14 @@ number of threads to use for batch processing
 
 ```csharp
 public int n_threads_batch;
+```
+
+### **context_type**
+
+Set the type of context (e.g. MTP)
+
+```csharp
+public LLamaContextType context_type;
 ```
 
 ### **rope_scaling_type**
@@ -91,6 +115,14 @@ Attention type to use for embeddings
 
 ```csharp
 public LLamaAttentionType attention_type;
+```
+
+### **llama_flash_attn_type**
+
+when to enable Flash Attention
+
+```csharp
+public LLamaFlashAttentionType llama_flash_attn_type;
 ```
 
 ### **rope_freq_base**
@@ -151,7 +183,7 @@ public uint yarn_orig_ctx;
 
 ### **defrag_threshold**
 
-defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
 
 ```csharp
 public float defrag_threshold;
@@ -205,6 +237,31 @@ User data passed into abort_callback
 public IntPtr abort_callback_user_data;
 ```
 
+### **samplers**
+
+backend sampler chain configuration (sampler chains must remain alive)
+
+```csharp
+public IntPtr samplers;
+```
+
+### **n_samplers**
+
+number of sampler entries in [LLamaContextParams.samplers](./llama.native.llamacontextparams.md#samplers)
+
+```csharp
+public UIntPtr n_samplers;
+```
+
+### **ctx_other**
+
+a source/target/parent context.
+ can be utilized in various ways, for example by sharing results or llama_memory between 2 contexts
+
+```csharp
+public IntPtr ctx_other;
+```
+
 ## Properties
 
 ### **embeddings**
@@ -217,7 +274,7 @@ public bool embeddings { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **offload_kqv**
 
@@ -229,19 +286,7 @@ public bool offload_kqv { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **flash_attention**
-
-whether to use flash attention. EXPERIMENTAL
-
-```csharp
-public bool flash_attention { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **no_perf**
 
@@ -253,7 +298,48 @@ public bool no_perf { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **op_offload**
+
+offload host tensor operations to device
+
+```csharp
+public bool op_offload { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **swa_full**
+
+use full-size SWA cache (https://github.com/ggml-org/llama.cpp/pull/13194#issuecomment-2868343055)
+ NOTE: setting to false when n_seq_max &gt; 1 can cause bad performance in some cases
+ ref: https://github.com/ggml-org/llama.cpp/pull/13845#issuecomment-2924800573
+
+```csharp
+public bool swa_full { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **kv_unified**
+
+use a unified buffer across the input sequences when computing the attention.
+ try to disable when n_seq_max &gt; 1 for improved performance when the sequences do not share a large prefix
+ <br>
+ ref: https://github.com/ggml-org/llama.cpp/pull/14363
+
+```csharp
+public bool kv_unified { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
@@ -262,7 +348,7 @@ public bool no_perf { get; set; }
 Get the default LLamaContextParams
 
 ```csharp
-LLamaContextParams Default()
+public static LLamaContextParams Default()
 ```
 
 #### Returns

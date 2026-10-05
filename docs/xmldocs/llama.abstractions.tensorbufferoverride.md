@@ -12,8 +12,8 @@ Represents a mapping between a tensor name pattern and a specific buffer type
 public class TensorBufferOverride
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [TensorBufferOverride](./llama.abstractions.tensorbufferoverride.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [TensorBufferOverride](./llama.abstractions.tensorbufferoverride.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -27,7 +27,7 @@ public string Pattern { get; set; }
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **BufferType**
 
@@ -39,7 +39,7 @@ public string BufferType { get; set; }
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ## Constructors
 
@@ -53,10 +53,10 @@ public TensorBufferOverride(string pattern, string bufferType)
 
 #### Parameters
 
-`pattern` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`pattern` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Pattern to match tensor names
 
-`bufferType` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`bufferType` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Buffer type to use for matching tensors
 
 ---

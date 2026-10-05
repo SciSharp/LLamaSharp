@@ -12,7 +12,7 @@ Namespace: LLama.Native
 public struct LLamaChatMessage
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaChatMessage](./llama.native.llamachatmessage.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaChatMessage](./llama.native.llamachatmessage.md)
 
 **Remarks:**
 

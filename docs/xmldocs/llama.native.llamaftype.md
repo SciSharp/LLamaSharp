@@ -12,8 +12,8 @@ Supported model file types
 public enum LLamaFtype
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [Enum](https://docs.microsoft.com/en-us/dotnet/api/system.enum) → [LLamaFtype](./llama.native.llamaftype.md)<br>
-Implements [IComparable](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable), [ISpanFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.ispanformattable), [IFormattable](https://docs.microsoft.com/en-us/dotnet/api/system.iformattable), [IConvertible](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [Enum](https://learn.microsoft.com/en-us/dotnet/api/system.enum) → [LLamaFtype](./llama.native.llamaftype.md)<br>
+Implements [IComparable](https://learn.microsoft.com/en-us/dotnet/api/system.icomparable), [ISpanFormattable](https://learn.microsoft.com/en-us/dotnet/api/system.ispanformattable), [IFormattable](https://learn.microsoft.com/en-us/dotnet/api/system.iformattable), [IConvertible](https://learn.microsoft.com/en-us/dotnet/api/system.iconvertible)
 
 **Remarks:**
 
@@ -55,6 +55,10 @@ C# representation of llama_ftype
 | MOSTLY_BF16 | 32 | except 1d tensors |
 | LLAMA_FTYPE_MOSTLY_TQ1_0 | 36 | except 1d tensors |
 | LLAMA_FTYPE_MOSTLY_TQ2_0 | 37 | except 1d tensors |
+| LLAMA_FTYPE_MOSTLY_MXFP4_MOE | 38 | except 1d tensors |
+| LLAMA_FTYPE_MOSTLY_NVFP4 | 39 | Except 1d tensors |
+| LLAMA_FTYPE_MOSTLY_Q1_0 | 40 | Except 1d tensors |
+| LLAMA_FTYPE_MOSTLY_Q2_0 | 41 | Except 1d tensors |
 | GUESSED | 1024 | File type was not specified |
 
 ---

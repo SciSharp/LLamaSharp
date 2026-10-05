@@ -12,7 +12,7 @@ A single token along with probability of this token being selected
 public struct LLamaTokenData
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaTokenData](./llama.native.llamatokendata.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaTokenData](./llama.native.llamatokendata.md)
 
 ## Fields
 
@@ -47,16 +47,16 @@ public float Probability;
 Create a new LLamaTokenData
 
 ```csharp
-LLamaTokenData(LLamaToken id, float logit, float probability)
+public LLamaTokenData(LLamaToken id, float logit, float probability)
 ```
 
 #### Parameters
 
 `id` [LLamaToken](./llama.native.llamatoken.md)<br>
 
-`logit` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`logit` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`probability` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`probability` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ---
 

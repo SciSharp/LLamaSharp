@@ -6,13 +6,15 @@
 
 Namespace: LLama.Sampling
 
+Convert a span of logits into a single sampled token. This interface can be implemented to completely customise the sampling process.
+
 ```csharp
 public abstract class BaseSamplingPipeline : ISamplingPipeline, System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md)<br>
-Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md)<br>
+Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Constructors
 
@@ -45,20 +47,24 @@ protected abstract SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandl
 ### **Dispose()**
 
 ```csharp
-public void Dispose()
+public virtual void Dispose()
 ```
 
 ### **Sample(SafeLLamaContextHandle, Int32)**
 
+Sample a single token from the given context at the given position
+
 ```csharp
-public LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
+public virtual LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+The context being sampled from
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Position to sample logits from
 
 #### Returns
 
@@ -66,8 +72,10 @@ public LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
 
 ### **Apply(SafeLLamaContextHandle, LLamaTokenDataArray)**
 
+Apply this pipeline to a set of token data
+
 ```csharp
-public void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArray data)
+public virtual void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArray data)
 ```
 
 #### Parameters
@@ -76,30 +84,34 @@ public void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArray data)
 
 `data` [LLamaTokenDataArray](./llama.native.llamatokendataarray.md)<br>
 
-### **Apply(SafeLLamaContextHandle, LLamaTokenDataArrayNative&)**
+### **Apply(SafeLLamaContextHandle, ref LLamaTokenDataArrayNative)**
 
 Apply this sampling chain to a LLamaTokenDataArrayNative
 
 ```csharp
-public void Apply(SafeLLamaContextHandle ctx, LLamaTokenDataArrayNative& data)
+public virtual void Apply(SafeLLamaContextHandle ctx, ref LLamaTokenDataArrayNative data)
 ```
 
 #### Parameters
 
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`data` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
+`ref` `data` [LLamaTokenDataArrayNative](./llama.native.llamatokendataarraynative.md)<br>
 
 ### **Reset()**
 
+Reset all internal state of the sampling pipeline
+
 ```csharp
-public void Reset()
+public virtual void Reset()
 ```
 
 ### **Accept(LLamaToken)**
 
+Update the pipeline, with knowledge that a particular token was just accepted
+
 ```csharp
-public void Accept(LLamaToken token)
+public virtual void Accept(LLamaToken token)
 ```
 
 #### Parameters

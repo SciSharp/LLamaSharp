@@ -6,7 +6,7 @@
 
 Namespace: LLama.Native
 
-Input data for llama_decode
+Input data for llama_encode/llama_decode
  A llama_batch object can contain input about one or many sequences
  The provided arrays (i.e. token, embd, pos, etc.) must have size of n_tokens
 
@@ -14,7 +14,7 @@ Input data for llama_decode
 public struct LLamaNativeBatch
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaNativeBatch](./llama.native.llamanativebatch.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaNativeBatch](./llama.native.llamanativebatch.md)
 
 ## Fields
 
@@ -45,7 +45,7 @@ public Single* embd;
 ### **pos**
 
 the positions of the respective token in the sequence
- (if set to NULL, the token position will be tracked automatically by llama_decode)
+ (if set to NULL, the token position will be tracked automatically by llama_encode/llama_decode)
 
 ```csharp
 public LLamaPos* pos;
@@ -70,8 +70,11 @@ public LLamaSeqId** seq_id;
 
 ### **logits**
 
-if zero, the logits for the respective token will not be output
- (if set to NULL, only the logits for last token will be returned)
+if zero, the logits for the respective token will not be output.
+ If set to NULL:
+
+- 
+-
 
 ```csharp
 public Byte* logits;

@@ -13,7 +13,7 @@ Represents a mapping between a tensor name pattern and a backend buffer type<br>
 public struct LLamaModelTensorBufferOverride
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelTensorBufferOverride](./llama.native.llamamodeltensorbufferoverride.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelTensorBufferOverride](./llama.native.llamamodeltensorbufferoverride.md)
 
 ## Fields
 

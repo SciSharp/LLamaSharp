@@ -12,9 +12,9 @@ A reference to a set of llama model weights
 public sealed class SafeLlamaModelHandle : SafeLLamaHandleBase, System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Fields
 
@@ -48,7 +48,7 @@ public int ContextSize { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **RopeFrequency**
 
@@ -60,7 +60,7 @@ public float RopeFrequency { get; }
 
 #### Property Value
 
-[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **EmbeddingSize**
 
@@ -72,7 +72,7 @@ public int EmbeddingSize { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **SizeInBytes**
 
@@ -84,7 +84,7 @@ public ulong SizeInBytes { get; }
 
 #### Property Value
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UInt64](https://learn.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
 ### **ParameterCount**
 
@@ -96,7 +96,7 @@ public ulong ParameterCount { get; }
 
 #### Property Value
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UInt64](https://learn.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
 ### **LayerCount**
 
@@ -108,7 +108,19 @@ public int LayerCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **LayerCountMtp**
+
+Get the number of MTP layers in this model
+
+```csharp
+public int LayerCountMtp { get; }
+```
+
+#### Property Value
+
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **HeadCount**
 
@@ -120,7 +132,7 @@ public int HeadCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **KVHeadCount**
 
@@ -132,7 +144,19 @@ public int KVHeadCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **SWACount**
+
+Get the number of SWA in this model
+
+```csharp
+public int SWACount { get; }
+```
+
+#### Property Value
+
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **HasEncoder**
 
@@ -144,7 +168,7 @@ public bool HasEncoder { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **HasDecoder**
 
@@ -156,7 +180,7 @@ public bool HasDecoder { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsRecurrent**
 
@@ -168,7 +192,19 @@ public bool IsRecurrent { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **IsDiffusion**
+
+Returns true if the model is diffusion based (like LLaDA , Dream etc )
+
+```csharp
+public bool IsDiffusion { get; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **Description**
 
@@ -180,7 +216,19 @@ public string Description { get; }
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **FileType**
+
+Get the file quantisation type of this model
+
+```csharp
+public LLamaFtype FileType { get; }
+```
+
+#### Property Value
+
+[LLamaFtype](./llama.native.llamaftype.md)<br>
 
 ### **MetadataCount**
 
@@ -192,7 +240,7 @@ public int MetadataCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **Vocab**
 
@@ -209,12 +257,12 @@ public Vocabulary Vocab { get; }
 ### **IsInvalid**
 
 ```csharp
-public bool IsInvalid { get; }
+public override bool IsInvalid { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsClosed**
 
@@ -224,7 +272,7 @@ public bool IsClosed { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Constructors
 
@@ -239,12 +287,12 @@ public SafeLlamaModelHandle()
 ### **ReleaseHandle()**
 
 ```csharp
-protected bool ReleaseHandle()
+protected override bool ReleaseHandle()
 ```
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **LoadFromFile(String, LLamaModelParams)**
 
@@ -256,7 +304,7 @@ public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelPara
 
 #### Parameters
 
-`modelPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`modelPath` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 `lparams` [LLamaModelParams](./llama.native.llamamodelparams.md)<br>
 
@@ -268,6 +316,18 @@ public static SafeLlamaModelHandle LoadFromFile(string modelPath, LLamaModelPara
 
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
 
+### **SaveToFile(String)**
+
+Save this model to a file
+
+```csharp
+public void SaveToFile(string modelPath)
+```
+
+#### Parameters
+
+`modelPath` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
 ### **LoadLoraFromFile(String)**
 
 Load a LoRA adapter from file. The adapter will be associated with this model but will not be applied
@@ -278,7 +338,7 @@ public LoraAdapter LoadLoraFromFile(string path)
 
 #### Parameters
 
-`path` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`path` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
@@ -286,14 +346,14 @@ public LoraAdapter LoadLoraFromFile(string path)
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 
 ### **TokenToSpan(LLamaToken, Span&lt;Byte&gt;, Int32, Boolean)**
 
 Convert a single llama token into bytes
 
 ```csharp
-public uint TokenToSpan(LLamaToken token, Span<byte> dest, int lstrip, bool special)
+public uint TokenToSpan(LLamaToken token, Span<byte> dest, int lstrip = 0, bool special = false)
 ```
 
 #### Parameters
@@ -301,18 +361,18 @@ public uint TokenToSpan(LLamaToken token, Span<byte> dest, int lstrip, bool spec
 `token` [LLamaToken](./llama.native.llamatoken.md)<br>
 Token to decode
 
-`dest` [Span&lt;Byte&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`dest` [Span&lt;Byte&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 A span to attempt to write into. If this is too small nothing will be written
 
-`lstrip` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`lstrip` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 User can skip up to 'lstrip' leading spaces before copying (useful when encoding/decoding multiple tokens with 'add_space_prefix')
 
-`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 If true, special characters will be converted to text. If false they will be invisible.
 
 #### Returns
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 The size of this token. **nothing will be written** if this is larger than `dest`
 
 ### **Tokenize(String, Boolean, Boolean, Encoding)**
@@ -325,14 +385,14 @@ public LLamaToken[] Tokenize(string text, bool addBos, bool special, Encoding en
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`addBos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`addBos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.
 
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`encoding` [Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 
 #### Returns
 
@@ -359,17 +419,17 @@ public SafeLLamaContextHandle CreateContext(LLamaContextParams params)
 Get the metadata value for the given key
 
 ```csharp
-public Nullable<Memory<byte>> MetadataValueByKey(string key)
+public Memory<byte>? MetadataValueByKey(string key)
 ```
 
 #### Parameters
 
-`key` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`key` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 The key to fetch
 
 #### Returns
 
-[Nullable&lt;Memory&lt;Byte&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Memory&lt;Byte&gt;?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 The value, null if there is no such key
 
 ### **MetadataKeyByIndex(Int32)**
@@ -377,17 +437,17 @@ The value, null if there is no such key
 Get the metadata key for the given index
 
 ```csharp
-public Nullable<Memory<byte>> MetadataKeyByIndex(int index)
+public Memory<byte>? MetadataKeyByIndex(int index)
 ```
 
 #### Parameters
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index to get
 
 #### Returns
 
-[Nullable&lt;Memory&lt;Byte&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Memory&lt;Byte&gt;?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 The key, null if there is no such key or if the buffer was too small
 
 ### **MetadataValueByIndex(Int32)**
@@ -395,17 +455,17 @@ The key, null if there is no such key or if the buffer was too small
 Get the metadata value for the given index
 
 ```csharp
-public Nullable<Memory<byte>> MetadataValueByIndex(int index)
+public Memory<byte>? MetadataValueByIndex(int index)
 ```
 
 #### Parameters
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index to get
 
 #### Returns
 
-[Nullable&lt;Memory&lt;Byte&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[Memory&lt;Byte&gt;?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 The value, null if there is no such value or if the buffer was too small
 
 ### **GetTemplate(String, Boolean)**
@@ -414,20 +474,20 @@ Get the default chat template. Returns nullptr if not available
  If name is NULL, returns the default chat template
 
 ```csharp
-public string GetTemplate(string name, bool strict)
+public string? GetTemplate(string? name = null, bool strict = true)
 ```
 
 #### Parameters
 
-`name` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`name` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
 The name of the template, in case there are many or differently named. Set to 'null' for the default behaviour of finding an appropriate match.
 
-`strict` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`strict` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Setting this to true will cause the call to throw if no valid templates are found.
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
 
 ---
 

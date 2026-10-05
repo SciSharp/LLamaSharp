@@ -12,7 +12,7 @@ Contains an array of LLamaTokenData, potentially sorted.
 public struct LLamaTokenDataArray
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaTokenDataArray](./llama.native.llamatokendataarray.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaTokenDataArray](./llama.native.llamatokendataarray.md)
 
 ## Fields
 
@@ -39,14 +39,14 @@ public bool Sorted;
 Create a new LLamaTokenDataArray
 
 ```csharp
-LLamaTokenDataArray(Memory<LLamaTokenData> tokens, bool isSorted)
+public LLamaTokenDataArray(Memory<LLamaTokenData> tokens, bool isSorted = false)
 ```
 
 #### Parameters
 
-`tokens` [Memory&lt;LLamaTokenData&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.memory-1)<br>
+`tokens` [Memory&lt;LLamaTokenData&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.memory-1)<br>
 
-`isSorted` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`isSorted` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
@@ -55,12 +55,12 @@ LLamaTokenDataArray(Memory<LLamaTokenData> tokens, bool isSorted)
 Create a new LLamaTokenDataArray, copying the data from the given logits
 
 ```csharp
-LLamaTokenDataArray Create(ReadOnlySpan<float> logits)
+public static LLamaTokenDataArray Create(ReadOnlySpan<float> logits)
 ```
 
 #### Parameters
 
-`logits` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`logits` [ReadOnlySpan&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
 #### Returns
 
@@ -71,14 +71,14 @@ LLamaTokenDataArray Create(ReadOnlySpan<float> logits)
 Create a new LLamaTokenDataArray, copying the data from the given logits into temporary memory.
 
 ```csharp
-LLamaTokenDataArray Create(ReadOnlySpan<float> logits, Memory<LLamaTokenData> buffer)
+public static LLamaTokenDataArray Create(ReadOnlySpan<float> logits, Memory<LLamaTokenData> buffer)
 ```
 
 #### Parameters
 
-`logits` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`logits` [ReadOnlySpan&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
-`buffer` [Memory&lt;LLamaTokenData&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.memory-1)<br>
+`buffer` [Memory&lt;LLamaTokenData&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.memory-1)<br>
 Temporary memory which will be used to work on these logits. Must be at least as large as logits array
 
 #### Returns
@@ -89,17 +89,17 @@ Temporary memory which will be used to work on these logits. Must be at least as
 
 The memory must not be modified while this [LLamaTokenDataArray](./llama.native.llamatokendataarray.md) is in use.
 
-### **OverwriteLogits(ReadOnlySpan&lt;ValueTuple&lt;LLamaToken, Single&gt;&gt;)**
+### **OverwriteLogits(ReadOnlySpan&lt;(LLamaToken, Single)&gt;)**
 
 Overwrite the logit values for all given tokens
 
 ```csharp
-void OverwriteLogits(ReadOnlySpan<ValueTuple<LLamaToken, float>> values)
+public void OverwriteLogits(ReadOnlySpan<(LLamaToken token, float logit)> values)
 ```
 
 #### Parameters
 
-`values` [ReadOnlySpan&lt;ValueTuple&lt;LLamaToken, Single&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`values` [ReadOnlySpan&lt;(LLamaToken, Single)&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 tuples of token and logit value to overwrite
 
 ### **Softmax()**
@@ -107,7 +107,7 @@ tuples of token and logit value to overwrite
 Sorts candidate tokens by their logits in descending order and calculate probabilities based on logits.
 
 ```csharp
-void Softmax()
+public void Softmax()
 ```
 
 ---

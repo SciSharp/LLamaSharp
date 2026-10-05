@@ -12,9 +12,18 @@ A C# representation of the llama.cpp `llama_model_params` struct
 public struct LLamaModelParams
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelParams](./llama.native.llamamodelparams.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelParams](./llama.native.llamamodelparams.md)
 
 ## Fields
+
+### **devices**
+
+NULL-terminated list of devices to use for offloading (if NULL, all available devices are used).
+ Each element is a `ggml_backend_dev_t` as returned by [NativeApi.ggml_backend_dev_get(UIntPtr)](./llama.native.nativeapi.md#ggml_backend_dev_getuintptr).
+
+```csharp
+public IntPtr* devices;
+```
 
 ### **tensor_buft_overrides**
 
@@ -40,6 +49,14 @@ how to split the model across multiple GPUs
 public GPUSplitMode split_mode;
 ```
 
+### **load_mode**
+
+How to load the model
+
+```csharp
+public LLamaLoadMode load_mode;
+```
+
 ### **main_gpu**
 
 the GPU that is used for the entire model when split_mode is LLAMA_SPLIT_MODE_NONE
@@ -62,7 +79,7 @@ called with a progress value between 0 and 1, pass NULL to disable. If the provi
  returns true, model loading continues. If it returns false, model loading is immediately aborted.
 
 ```csharp
-public LlamaProgressCallback progress_callback;
+public LlamaProgressCallback? progress_callback;
 ```
 
 ### **progress_callback_user_data**
@@ -93,31 +110,7 @@ public bool vocab_only { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **use_mmap**
-
-use mmap if possible
-
-```csharp
-public bool use_mmap { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **use_mlock**
-
-force system to keep model in RAM
-
-```csharp
-public bool use_mlock { get; set; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **check_tensors**
 
@@ -129,7 +122,55 @@ public bool check_tensors { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **use_extra_bufts**
+
+use extra buffer types (used for weight repacking)
+
+```csharp
+public bool use_extra_bufts { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **no_host**
+
+bypass host buffer allowing extra buffers to be used
+
+```csharp
+public bool no_host { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **no_alloc**
+
+only load metadata and simulate memory allocations
+
+```csharp
+public bool no_alloc { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **load_mtp**
+
+whether to load MTP layers
+
+```csharp
+public bool load_mtp { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
@@ -138,7 +179,7 @@ public bool check_tensors { get; set; }
 Create a LLamaModelParams with default values
 
 ```csharp
-LLamaModelParams Default()
+public static LLamaModelParams Default()
 ```
 
 #### Returns

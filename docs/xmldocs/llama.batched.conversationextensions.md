@@ -12,8 +12,8 @@ Extension method for [Conversation](./llama.batched.conversation.md)
 public static class ConversationExtensions
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ConversationExtensions](./llama.batched.conversationextensions.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [ExtensionAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ConversationExtensions](./llama.batched.conversationextensions.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [ExtensionAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
 
 ## Methods
 
@@ -22,7 +22,7 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 Sample a token from this conversation using the given sampler chain
 
 ```csharp
-public static LLamaToken Sample(Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset)
+public static LLamaToken Sample(Conversation conversation, SafeLLamaSamplerChainHandle sampler, int offset = 0)
 ```
 
 #### Parameters
@@ -32,7 +32,7 @@ public static LLamaToken Sample(Conversation conversation, SafeLLamaSamplerChain
 
 `sampler` [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
 
-`offset` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`offset` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 Offset from the end of the conversation to the logits to sample, see [Conversation.GetSampleIndex(Int32)](./llama.batched.conversation.md#getsampleindexint32) for more details
 
 #### Returns
@@ -44,7 +44,7 @@ Offset from the end of the conversation to the logits to sample, see [Conversati
 Sample a token from this conversation using the given sampling pipeline
 
 ```csharp
-public static LLamaToken Sample(Conversation conversation, ISamplingPipeline sampler, int offset)
+public static LLamaToken Sample(Conversation conversation, ISamplingPipeline sampler, int offset = 0)
 ```
 
 #### Parameters
@@ -54,7 +54,7 @@ public static LLamaToken Sample(Conversation conversation, ISamplingPipeline sam
 
 `sampler` [ISamplingPipeline](./llama.sampling.isamplingpipeline.md)<br>
 
-`offset` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`offset` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 Offset from the end of the conversation to the logits to sample, see [Conversation.GetSampleIndex(Int32)](./llama.batched.conversation.md#getsampleindexint32) for more details
 
 #### Returns
@@ -74,12 +74,12 @@ public static void Rewind(Conversation conversation, int tokens)
 `conversation` [Conversation](./llama.batched.conversation.md)<br>
 The conversation to rewind
 
-`tokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`tokens` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The number of tokens to rewind
 
 #### Exceptions
 
-[ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
+[ArgumentOutOfRangeException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
 Thrown if `tokens` parameter is larger than TokenCount
 
 ### **ShiftLeft(Conversation, Int32, Int32)**
@@ -97,10 +97,10 @@ public static void ShiftLeft(Conversation conversation, int count, int keep)
 `conversation` [Conversation](./llama.batched.conversation.md)<br>
 The conversation to rewind
 
-`count` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`count` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 How much to shift tokens over by
 
-`keep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`keep` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The number of tokens at the start which should not be shifted
 
 ---

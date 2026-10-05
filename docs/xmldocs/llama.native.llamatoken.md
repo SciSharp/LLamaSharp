@@ -9,12 +9,12 @@ Namespace: LLama.Native
 A single token
 
 ```csharp
-public struct LLamaToken
+public readonly record struct LLamaToken
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaToken](./llama.native.llamatoken.md)<br>
-Implements [IEquatable&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [IsReadOnlyAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.isreadonlyattribute), [DebuggerDisplayAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.debuggerdisplayattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaToken](./llama.native.llamatoken.md)<br>
+Implements [IEquatable&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.iequatable-1)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [IsReadOnlyAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.isreadonlyattribute), [DebuggerDisplayAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.debuggerdisplayattribute)
 
 ## Fields
 
@@ -33,7 +33,7 @@ public static LLamaToken InvalidToken;
 Get attributes for this token
 
 ```csharp
-LLamaTokenAttr GetAttributes(SafeLlamaModelHandle model)
+public LLamaTokenAttr GetAttributes(SafeLlamaModelHandle model)
 ```
 
 #### Parameters
@@ -49,7 +49,7 @@ LLamaTokenAttr GetAttributes(SafeLlamaModelHandle model)
 Get attributes for this token
 
 ```csharp
-LLamaTokenAttr GetAttributes(Vocabulary vocab)
+public LLamaTokenAttr GetAttributes(Vocabulary vocab)
 ```
 
 #### Parameters
@@ -65,7 +65,7 @@ LLamaTokenAttr GetAttributes(Vocabulary vocab)
 Get score for this token
 
 ```csharp
-float GetScore(Vocabulary vocab)
+public float GetScore(Vocabulary vocab)
 ```
 
 #### Parameters
@@ -74,14 +74,14 @@ float GetScore(Vocabulary vocab)
 
 #### Returns
 
-[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **IsControl(SafeLlamaModelHandle)**
 
 Check if this is a control token
 
 ```csharp
-bool IsControl(SafeLlamaModelHandle model)
+public bool IsControl(SafeLlamaModelHandle model)
 ```
 
 #### Parameters
@@ -90,14 +90,14 @@ bool IsControl(SafeLlamaModelHandle model)
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsControl(Vocabulary)**
 
 Check if this is a control token
 
 ```csharp
-bool IsControl(Vocabulary vocab)
+public bool IsControl(Vocabulary vocab)
 ```
 
 #### Parameters
@@ -106,14 +106,14 @@ bool IsControl(Vocabulary vocab)
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsEndOfGeneration(SafeLlamaModelHandle)**
 
 Check if this token should end generation
 
 ```csharp
-bool IsEndOfGeneration(SafeLlamaModelHandle model)
+public bool IsEndOfGeneration(SafeLlamaModelHandle model)
 ```
 
 #### Parameters
@@ -122,14 +122,14 @@ bool IsEndOfGeneration(SafeLlamaModelHandle model)
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsEndOfGeneration(Vocabulary)**
 
 Check if this token should end generation
 
 ```csharp
-bool IsEndOfGeneration(Vocabulary vocab)
+public bool IsEndOfGeneration(Vocabulary vocab)
 ```
 
 #### Parameters
@@ -138,55 +138,41 @@ bool IsEndOfGeneration(Vocabulary vocab)
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **ToString()**
+## Operators
 
-```csharp
-string ToString()
-```
+### **explicit operator int(LLamaToken)**
 
-#### Returns
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **GetHashCode()**
+Convert a LLamaToken into an integer (extract the raw value)
 
 ```csharp
-int GetHashCode()
-```
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **Equals(Object)**
-
-```csharp
-bool Equals(object obj)
+public static explicit operator int(LLamaToken pos)
 ```
 
 #### Parameters
 
-`obj` [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object)<br>
+`pos` [LLamaToken](./llama.native.llamatoken.md)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **Equals(LLamaToken)**
+### **implicit operator LLamaToken(Int32)**
+
+Convert an integer into a LLamaToken
 
 ```csharp
-bool Equals(LLamaToken other)
+public static implicit operator LLamaToken(int value)
 ```
 
 #### Parameters
 
-`other` [LLamaToken](./llama.native.llamatoken.md)<br>
+`value` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[LLamaToken](./llama.native.llamatoken.md)<br>
 
 ---
 

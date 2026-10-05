@@ -12,9 +12,9 @@ A batched executor that can infer multiple separate "conversations" simultaneous
 public sealed class BatchedExecutor : System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [BatchedExecutor](./llama.batched.batchedexecutor.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [BatchedExecutor](./llama.batched.batchedexecutor.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -42,6 +42,18 @@ public LLamaWeights Model { get; }
 
 [LLamaWeights](./llama.llamaweights.md)<br>
 
+### **ClipModel**
+
+The optional [MtmdWeights](./llama.mtmdweights.md) this executor is using
+
+```csharp
+public MtmdWeights? ClipModel { get; }
+```
+
+#### Property Value
+
+[MtmdWeights](./llama.mtmdweights.md)<br>
+
 ### **BatchedTokenCount**
 
 Get the number of tokens in the batch, waiting for [BatchedExecutor.Infer(CancellationToken)](./llama.batched.batchedexecutor.md#infercancellationtoken) to be called
@@ -52,7 +64,7 @@ public int BatchedTokenCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **BatchQueueCount**
 
@@ -64,7 +76,7 @@ public int BatchQueueCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **IsDisposed**
 
@@ -76,16 +88,16 @@ public bool IsDisposed { get; private set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Constructors
 
-### **BatchedExecutor(LLamaWeights, IContextParams)**
+### **BatchedExecutor(LLamaWeights, IContextParams, MtmdWeights)**
 
 Create a new batched executor
 
 ```csharp
-public BatchedExecutor(LLamaWeights model, IContextParams contextParams)
+public BatchedExecutor(LLamaWeights model, IContextParams contextParams, MtmdWeights? clipModel = null)
 ```
 
 #### Parameters
@@ -95,6 +107,9 @@ The model to use
 
 `contextParams` [IContextParams](./llama.abstractions.icontextparams.md)<br>
 Parameters to create a new context
+
+`clipModel` [MtmdWeights](./llama.mtmdweights.md)?<br>
+Clip model to use for multimodal capabilities
 
 ## Methods
 
@@ -121,7 +136,7 @@ public Conversation Load(string filepath)
 
 #### Parameters
 
-`filepath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filepath` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
@@ -129,7 +144,7 @@ public Conversation Load(string filepath)
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 ### **Load(State)**
 
@@ -149,7 +164,7 @@ public Conversation Load(State state)
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 ### **Infer(CancellationToken)**
 
@@ -159,16 +174,16 @@ Run inference for all conversations in the batch which have pending tokens.
  threads and running inference again.
 
 ```csharp
-public Task<DecodeResult> Infer(CancellationToken cancellation)
+public async Task<DecodeResult> Infer(CancellationToken cancellation = null)
 ```
 
 #### Parameters
 
-`cancellation` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`cancellation` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;DecodeResult&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;DecodeResult&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
 ### **Dispose()**
 

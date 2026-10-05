@@ -12,9 +12,9 @@ A chain of sampler stages that can be used to select tokens from logits.
 public sealed class SafeLLamaSamplerChainHandle : SafeLLamaHandleBase, System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 **Remarks:**
 
@@ -40,17 +40,17 @@ public int Count { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **IsInvalid**
 
 ```csharp
-public bool IsInvalid { get; }
+public override bool IsInvalid { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsClosed**
 
@@ -60,7 +60,7 @@ public bool IsClosed { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Constructors
 
@@ -75,24 +75,24 @@ public SafeLLamaSamplerChainHandle()
 ### **ReleaseHandle()**
 
 ```csharp
-protected bool ReleaseHandle()
+protected override bool ReleaseHandle()
 ```
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-### **Apply(LLamaTokenDataArrayNative&)**
+### **Apply(ref LLamaTokenDataArrayNative)**
 
 Apply this sampler to a set of candidates
 
 ```csharp
-public void Apply(LLamaTokenDataArrayNative& candidates)
+public void Apply(ref LLamaTokenDataArrayNative candidates)
 ```
 
 #### Parameters
 
-`candidates` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
+`ref` `candidates` [LLamaTokenDataArrayNative](./llama.native.llamatokendataarraynative.md)<br>
 
 ### **Sample(SafeLLamaContextHandle, Int32)**
 
@@ -116,7 +116,7 @@ public LLamaToken Sample(SafeLLamaContextHandle context, int index)
 
 `context` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
@@ -152,11 +152,11 @@ public string GetName(int index)
 
 #### Parameters
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **GetSeed(Int32)**
 
@@ -168,11 +168,11 @@ public uint GetSeed(int index)
 
 #### Parameters
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **Create(LLamaSamplerChainParams)**
 
@@ -203,7 +203,7 @@ public void AddClone(SafeLLamaSamplerChainHandle src, int index)
 `src` [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)<br>
 The chain to clone a stage from
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index of the stage to clone
 
 ### **Remove(Int32)**
@@ -216,18 +216,18 @@ public void Remove(int index)
 
 #### Parameters
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Exceptions
 
-[ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
+[ArgumentOutOfRangeException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
 
 ### **AddCustom&lt;TSampler&gt;(TSampler)**
 
 Add a custom sampler stage
 
 ```csharp
-public void AddCustom<TSampler>(TSampler sampler)
+public void AddCustom<TSampler>(TSampler sampler) where TSampler : class, ICustomSampler
 ```
 
 #### Type Parameters
@@ -256,7 +256,7 @@ public void AddDistributionSampler(uint seed)
 
 #### Parameters
 
-`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+`seed` [UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **AddMirostat1Sampler(Int32, UInt32, Single, Single, Int32)**
 
@@ -268,17 +268,17 @@ public void AddMirostat1Sampler(int vocabCount, uint seed, float tau, float eta,
 
 #### Parameters
 
-`vocabCount` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`vocabCount` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+`seed` [UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
-`tau` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`tau` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.
 
-`eta` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`eta` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.
 
-`m` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`m` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The number of tokens considered in the estimation of `s_hat`. This is an arbitrary value that is used to calculate `s_hat`, which in turn helps to calculate the value of `k`. In the paper, they use `m = 100`, but you can experiment with different values to see how it affects the performance of the algorithm.
 
 ### **AddMirostat2Sampler(UInt32, Single, Single)**
@@ -291,12 +291,12 @@ public void AddMirostat2Sampler(uint seed, float tau, float eta)
 
 #### Parameters
 
-`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+`seed` [UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
-`tau` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`tau` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The target cross-entropy (or surprise) value you want to achieve for the generated text. A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text.
 
-`eta` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`eta` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The learning rate used to update `mu` based on the error between the target and observed surprisal of the sampled word. A larger learning rate will cause `mu` to be updated more quickly, while a smaller learning rate will result in slower updates.
 
 ### **AddTopK(Int32)**
@@ -309,7 +309,7 @@ public void AddTopK(int k)
 
 #### Parameters
 
-`k` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`k` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 **Remarks:**
 
@@ -325,7 +325,7 @@ public void AddTopNSigma(float n)
 
 #### Parameters
 
-`n` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`n` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **AddTopP(Single, IntPtr)**
 
@@ -337,9 +337,9 @@ public void AddTopP(float p, IntPtr minKeep)
 
 #### Parameters
 
-`p` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`p` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`minKeep` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+`minKeep` [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
 
 ### **AddMinP(Single, IntPtr)**
 
@@ -351,9 +351,9 @@ public void AddMinP(float p, IntPtr minKeep)
 
 #### Parameters
 
-`p` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`p` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`minKeep` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+`minKeep` [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
 
 ### **AddTypical(Single, IntPtr)**
 
@@ -365,9 +365,9 @@ public void AddTypical(float p, IntPtr minKeep)
 
 #### Parameters
 
-`p` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`p` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`minKeep` [IntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+`minKeep` [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
 
 ### **AddTemperature(Single)**
 
@@ -380,7 +380,7 @@ public void AddTemperature(float t)
 
 #### Parameters
 
-`t` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`t` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **AddDynamicTemperature(Single, Single, Single)**
 
@@ -392,11 +392,11 @@ public void AddDynamicTemperature(float t, float delta, float exponent)
 
 #### Parameters
 
-`t` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`t` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`delta` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`delta` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`exponent` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`exponent` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ### **AddXTC(Single, Single, Int32, UInt32)**
 
@@ -408,13 +408,13 @@ public void AddXTC(float p, float t, int minKeep, uint seed)
 
 #### Parameters
 
-`p` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`p` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`t` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`t` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`minKeep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`minKeep` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-`seed` [UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+`seed` [UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **AddFillInMiddleInfill(SafeLlamaModelHandle)**
 
@@ -455,9 +455,9 @@ public void AddGrammar(SafeLlamaModelHandle model, string grammar, string root)
 `model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 The model that this grammar will be used with
 
-`grammar` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`grammar` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`root` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`root` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Root rule of the grammar
 
 ### **AddGrammar(Vocabulary, String, String)**
@@ -473,9 +473,9 @@ public void AddGrammar(Vocabulary vocab, string grammar, string root)
 `vocab` [Vocabulary](./llama.native.safellamamodelhandle.vocabulary.md)<br>
 The vocabulary that this grammar will be used with
 
-`grammar` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`grammar` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`root` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`root` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Root rule of the grammar
 
 ### **AddLazyGrammar(SafeLlamaModelHandle, String, String, ReadOnlySpan&lt;String&gt;, ReadOnlySpan&lt;LLamaToken&gt;)**
@@ -490,16 +490,16 @@ public void AddLazyGrammar(SafeLlamaModelHandle model, string grammar, string ro
 
 `model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 
-`grammar` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`grammar` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Grammar in GBNF form
 
-`root` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`root` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Root rule of the grammar
 
-`patterns` [ReadOnlySpan&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`patterns` [ReadOnlySpan&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 A list of patterns that will trigger the grammar sampler. Pattern will be matched from the start of the generation output, and grammar sampler will be fed content starting from its first match group.
 
-`triggerTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`triggerTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 A list of tokens that will trigger the grammar sampler. Grammar sampler will be fed content starting from the trigger token included..
 
 ### **AddPenalties(Int32, Single, Single, Single)**
@@ -514,16 +514,16 @@ public void AddPenalties(int penaltyCount, float repeat, float freq, float prese
 
 #### Parameters
 
-`penaltyCount` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`penaltyCount` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 How many tokens of history to consider when calculating penalties
 
-`repeat` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`repeat` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 Repetition penalty
 
-`freq` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`freq` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 Frequency penalty
 
-`presence` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`presence` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 Presence penalty
 
 ### **AddDry(SafeLlamaModelHandle, ReadOnlySpan&lt;String&gt;, Single, Single, Int32, Int32)**
@@ -532,7 +532,7 @@ DRY sampler, designed by p-e-w, as described in: https://github.com/oobabooga/te
  Porting Koboldcpp implementation authored by pi6am: https://github.com/LostRuins/koboldcpp/pull/982
 
 ```csharp
-public void AddDry(SafeLlamaModelHandle model, ReadOnlySpan<string> sequenceBreakers, float multiplier, float base, int allowedLength, int penaltyLastN)
+public void AddDry(SafeLlamaModelHandle model, ReadOnlySpan<string> sequenceBreakers, float multiplier = 0.8f, float base = 1.75f, int allowedLength = 2, int penaltyLastN = 0)
 ```
 
 #### Parameters
@@ -540,19 +540,54 @@ public void AddDry(SafeLlamaModelHandle model, ReadOnlySpan<string> sequenceBrea
 `model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 The model this sampler will be used with
 
-`sequenceBreakers` [ReadOnlySpan&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`sequenceBreakers` [ReadOnlySpan&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
-`multiplier` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`multiplier` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 penalty multiplier, 0.0 = disabled
 
-`base` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`base` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 exponential base
 
-`allowedLength` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`allowedLength` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 repeated sequences longer than this are penalized
 
-`penaltyLastN` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`penaltyLastN` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 how many tokens to scan for repetitions (0 = entire context)
+
+### **AddAdaptiveP(Single, Single, UInt32)**
+
+Adaptive-p: select tokens near a configurable target probability over time.
+ <br><br>
+ the adaptive-p sampler transforms the token probability distribution to favor tokens
+ that fall near a user-configurable probability target.
+ <br><br>
+ internally, the sampler maintains an exponential moving average of the *ORIGINAL*
+ probabilities of selected tokens at each sampling step. it uses this EMA to compute an
+ adapted target probability at each sampling step, thus maintaining the desired target
+ probability over time.
+ <br><br>
+ adaptive-p selects a token ID rather than just mutating candidates, so it must be last
+ in the sampler chain (like mirostat, dist, greedy).
+ <br><br>
+ only mild truncation before this sampler is recommended. we suggest applying min-p
+ before adaptive-p as the only other active sampler in the chain.
+ <br><br>
+ ref: https://github.com/ggml-org/llama.cpp/pull/17927
+
+```csharp
+public void AddAdaptiveP(float target, float decay, uint seed)
+```
+
+#### Parameters
+
+`target` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
+select tokens near this probability (valid range 0.0 to 1.0; negative = disabled)
+
+`decay` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
+EMA decay for adaptation; history ≈ 1/(1-decay) tokens (valid range 0.0 - 0.99)
+
+`seed` [UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+RNG seed
 
 ### **AddLogitBias(Int32, Span&lt;LLamaLogitBias&gt;)**
 
@@ -564,9 +599,9 @@ public void AddLogitBias(int vocabSize, Span<LLamaLogitBias> biases)
 
 #### Parameters
 
-`vocabSize` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`vocabSize` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-`biases` [Span&lt;LLamaLogitBias&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`biases` [Span&lt;LLamaLogitBias&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 ---
 

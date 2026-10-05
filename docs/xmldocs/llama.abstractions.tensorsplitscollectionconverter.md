@@ -12,30 +12,30 @@ A JSON converter for [TensorSplitsCollection](./llama.abstractions.tensorsplitsc
 public class TensorSplitsCollectionConverter : System.Text.Json.Serialization.JsonConverter`1[[LLama.Abstractions.TensorSplitsCollection, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → JsonConverter → JsonConverter&lt;TensorSplitsCollection&gt; → [TensorSplitsCollectionConverter](./llama.abstractions.tensorsplitscollectionconverter.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [JsonConverter](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonconverter) → [JsonConverter&lt;TensorSplitsCollection&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonconverter-1) → [TensorSplitsCollectionConverter](./llama.abstractions.tensorsplitscollectionconverter.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
 ### **HandleNull**
 
 ```csharp
-public bool HandleNull { get; }
+public virtual bool HandleNull { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **Type**
 
 ```csharp
-public Type Type { get; }
+public sealed override Type Type { get; }
 ```
 
 #### Property Value
 
-[Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
+[Type](https://learn.microsoft.com/en-us/dotnet/api/system.type)<br>
 
 ## Constructors
 
@@ -47,19 +47,19 @@ public TensorSplitsCollectionConverter()
 
 ## Methods
 
-### **Read(Utf8JsonReader&, Type, JsonSerializerOptions)**
+### **Read(ref Utf8JsonReader, Type, JsonSerializerOptions)**
 
 ```csharp
-public TensorSplitsCollection Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
+public override TensorSplitsCollection Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 ```
 
 #### Parameters
 
-`reader` Utf8JsonReader&<br>
+`ref` `reader` [Utf8JsonReader](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.utf8jsonreader)<br>
 
-`typeToConvert` [Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
+`typeToConvert` [Type](https://learn.microsoft.com/en-us/dotnet/api/system.type)<br>
 
-`options` JsonSerializerOptions<br>
+`options` [JsonSerializerOptions](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonserializeroptions)<br>
 
 #### Returns
 
@@ -68,16 +68,16 @@ public TensorSplitsCollection Read(Utf8JsonReader& reader, Type typeToConvert, J
 ### **Write(Utf8JsonWriter, TensorSplitsCollection, JsonSerializerOptions)**
 
 ```csharp
-public void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
+public override void Write(Utf8JsonWriter writer, TensorSplitsCollection value, JsonSerializerOptions options)
 ```
 
 #### Parameters
 
-`writer` Utf8JsonWriter<br>
+`writer` [Utf8JsonWriter](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.utf8jsonwriter)<br>
 
 `value` [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)<br>
 
-`options` JsonSerializerOptions<br>
+`options` [JsonSerializerOptions](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonserializeroptions)<br>
 
 ---
 

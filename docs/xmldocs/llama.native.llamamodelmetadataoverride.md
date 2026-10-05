@@ -12,17 +12,9 @@ Override a key/value pair in the llama model metadata (llama_model_kv_override)
 public struct LLamaModelMetadataOverride
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelMetadataOverride](./llama.native.llamamodelmetadataoverride.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaModelMetadataOverride](./llama.native.llamamodelmetadataoverride.md)
 
 ## Fields
-
-### **key**
-
-Key to override
-
-```csharp
-public <key>e__FixedBuffer key;
-```
 
 ### **Tag**
 
@@ -30,6 +22,14 @@ Type of value
 
 ```csharp
 public LLamaModelKvOverrideType Tag;
+```
+
+### **key**
+
+Key to override
+
+```csharp
+public <key>e__FixedBuffer key;
 ```
 
 ### **IntValue**

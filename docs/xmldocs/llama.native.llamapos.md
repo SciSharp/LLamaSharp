@@ -9,11 +9,11 @@ Namespace: LLama.Native
 Indicates position in a sequence
 
 ```csharp
-public struct LLamaPos
+public record struct LLamaPos
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaPos](./llama.native.llamapos.md)<br>
-Implements [IEquatable&lt;LLamaPos&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaPos](./llama.native.llamapos.md)<br>
+Implements [IEquatable&lt;LLamaPos&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.iequatable-1)
 
 ## Fields
 
@@ -25,55 +25,71 @@ The raw value
 public int Value;
 ```
 
-## Methods
+## Operators
 
-### **ToString()**
+### **explicit operator int(LLamaPos)**
 
-```csharp
-string ToString()
-```
-
-#### Returns
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **GetHashCode()**
+Convert a LLamaPos into an integer (extract the raw value)
 
 ```csharp
-int GetHashCode()
-```
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **Equals(Object)**
-
-```csharp
-bool Equals(object obj)
+public static explicit operator int(LLamaPos pos)
 ```
 
 #### Parameters
 
-`obj` [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object)<br>
+`pos` [LLamaPos](./llama.native.llamapos.md)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **Equals(LLamaPos)**
+### **implicit operator LLamaPos(Int32)**
+
+Convert an integer into a LLamaPos
 
 ```csharp
-bool Equals(LLamaPos other)
+public static implicit operator LLamaPos(int value)
 ```
 
 #### Parameters
 
-`other` [LLamaPos](./llama.native.llamapos.md)<br>
+`value` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[LLamaPos](./llama.native.llamapos.md)<br>
+
+### **operator ++(LLamaPos)**
+
+Increment this position
+
+```csharp
+public static LLamaPos operator ++(LLamaPos pos)
+```
+
+#### Parameters
+
+`pos` [LLamaPos](./llama.native.llamapos.md)<br>
+
+#### Returns
+
+[LLamaPos](./llama.native.llamapos.md)<br>
+
+### **operator --(LLamaPos)**
+
+Increment this position
+
+```csharp
+public static LLamaPos operator --(LLamaPos pos)
+```
+
+#### Parameters
+
+`pos` [LLamaPos](./llama.native.llamapos.md)<br>
+
+#### Returns
+
+[LLamaPos](./llama.native.llamapos.md)<br>
 
 ---
 

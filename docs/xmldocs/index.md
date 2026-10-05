@@ -6,13 +6,23 @@
 
 [ChatSession](./llama.chatsession.md)
 
+[DefaultHistoryTransform](./llama.llamatransforms.defaulthistorytransform.md)
+
+[EmptyTextOutputStreamTransform](./llama.llamatransforms.emptytextoutputstreamtransform.md)
+
+[ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)
+
 [InstructExecutor](./llama.instructexecutor.md)
+
+[InstructExecutorState](./llama.instructexecutor.instructexecutorstate.md)
 
 [InteractiveExecutor](./llama.interactiveexecutor.md)
 
-[LLamaContext](./llama.llamacontext.md)
+[InteractiveExecutorState](./llama.interactiveexecutor.interactiveexecutorstate.md)
 
-[LLamaEmbedder](./llama.llamaembedder.md)
+[KeywordTextOutputStreamTransform](./llama.llamatransforms.keywordtextoutputstreamtransform.md)
+
+[LLamaContext](./llama.llamacontext.md)
 
 [LLamaQuantizer](./llama.llamaquantizer.md)
 
@@ -24,15 +34,23 @@
 
 [LLamaWeights](./llama.llamaweights.md)
 
-[LLavaWeights](./llama.llavaweights.md)
+[MtmdWeights](./llama.mtmdweights.md)
+
+[NaiveTextInputTransform](./llama.llamatransforms.naivetextinputtransform.md)
+
+[SequenceState](./llama.llamacontext.sequencestate.md)
 
 [SessionState](./llama.sessionstate.md)
+
+[State](./llama.llamacontext.state.md)
 
 [StatefulExecutorBase](./llama.statefulexecutorbase.md)
 
 [StatelessExecutor](./llama.statelessexecutor.md)
 
 [StreamingTokenDecoder](./llama.streamingtokendecoder.md)
+
+[TextMessage](./llama.llamatemplate.textmessage.md)
 
 ## LLama.Abstractions
 
@@ -88,21 +106,31 @@
 
 [ExperimentalBatchedExecutorException](./llama.batched.experimentalbatchedexecutorexception.md)
 
+[KvAccessor](./llama.batched.conversation.kvaccessor.md)
+
+[State](./llama.batched.conversation.state.md)
+
 ## LLama.Common
 
 [AuthorRole](./llama.common.authorrole.md)
 
 [ChatHistory](./llama.common.chathistory.md)
 
+[ContextOverflowStrategy](./llama.common.contextoverflowstrategy.md)
+
 [FixedSizeQueue&lt;T&gt;](./llama.common.fixedsizequeue-1.md)
 
 [InferenceParams](./llama.common.inferenceparams.md)
+
+[Message](./llama.common.chathistory.message.md)
 
 [MirostatType](./llama.common.mirostattype.md)
 
 [ModelParams](./llama.common.modelparams.md)
 
 ## LLama.Exceptions
+
+[ContextOverflowException](./llama.exceptions.contextoverflowexception.md)
 
 [GetLogitsInvalidIndexException](./llama.exceptions.getlogitsinvalidindexexception.md)
 
@@ -116,21 +144,29 @@
 
 [TemplateNotFoundException](./llama.exceptions.templatenotfoundexception.md)
 
+[UnknownDeviceException](./llama.exceptions.unknowndeviceexception.md)
+
 ## LLama.Extensions
 
 [IContextParamsExtensions](./llama.extensions.icontextparamsextensions.md)
 
 [IModelParamsExtensions](./llama.extensions.imodelparamsextensions.md)
 
+[IntPtrExtensions](./llama.extensions.intptrextensions.md)
+
 [SpanNormalizationExtensions](./llama.extensions.spannormalizationextensions.md)
 
 ## LLama.Native
+
+
 
 [AvxLevel](./llama.native.avxlevel.md)
 
 [DecodeResult](./llama.native.decoderesult.md)
 
 [DefaultNativeLibrarySelectingPolicy](./llama.native.defaultnativelibraryselectingpolicy.md)
+
+[Description](./llama.native.nativelibraryconfig.description.md)
 
 [EncodeResult](./llama.native.encoderesult.md)
 
@@ -139,6 +175,8 @@
 [GPUSplitMode](./llama.native.gpusplitmode.md)
 
 [ICustomSampler](./llama.native.icustomsampler.md)
+
+[IEmbedData](./llama.native.safemtmdembed.iembeddata.md)
 
 [LLamaAttentionType](./llama.native.llamaattentiontype.md)
 
@@ -150,9 +188,13 @@
 
 [LLamaContextParams](./llama.native.llamacontextparams.md)
 
+[LLamaContextType](./llama.native.llamacontexttype.md)
+
+[LLamaFlashAttentionType](./llama.native.llamaflashattentiontype.md)
+
 [LLamaFtype](./llama.native.llamaftype.md)
 
-[LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)
+[LLamaLoadMode](./llama.native.llamaloadmode.md)
 
 [LLamaLogitBias](./llama.native.llamalogitbias.md)
 
@@ -196,9 +238,9 @@
 
 [LLamaVocabType](./llama.native.llamavocabtype.md)
 
-[LLavaImageEmbed](./llama.native.llavaimageembed.md)
-
 [LoraAdapter](./llama.native.loraadapter.md)
+
+[MtmdContextParams](./llama.native.mtmdcontextparams.md)
 
 [NativeApi](./llama.native.nativeapi.md)
 
@@ -232,13 +274,21 @@
 
 [SafeLLamaSamplerChainHandle](./llama.native.safellamasamplerchainhandle.md)
 
-[SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)
+[SafeMtmdEmbed](./llama.native.safemtmdembed.md)
 
-[SafeLlavaModelHandle](./llama.native.safellavamodelhandle.md)
+[SafeMtmdInputChunk](./llama.native.safemtmdinputchunk.md)
+
+[SafeMtmdInputChunks](./llama.native.safemtmdinputchunks.md)
+
+[SafeMtmdInputChunkType](./llama.native.safemtmdinputchunk.safemtmdinputchunktype.md)
+
+[SafeMtmdModelHandle](./llama.native.safemtmdmodelhandle.md)
 
 [SystemInfo](./llama.native.systeminfo.md)
 
 [UnknownNativeLibrary](./llama.native.unknownnativelibrary.md)
+
+[Vocabulary](./llama.native.safellamamodelhandle.vocabulary.md)
 
 ## LLama.Sampling
 
@@ -247,6 +297,8 @@
 [DefaultSamplingPipeline](./llama.sampling.defaultsamplingpipeline.md)
 
 [Grammar](./llama.sampling.grammar.md)
+
+[GrammarOptimizationMode](./llama.sampling.defaultsamplingpipeline.grammaroptimizationmode.md)
 
 [GreedySamplingPipeline](./llama.sampling.greedysamplingpipeline.md)
 

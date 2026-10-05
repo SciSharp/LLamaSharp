@@ -12,9 +12,9 @@ A single conversation thread that can be prompted (adding tokens from the user) 
 public sealed class Conversation : System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [Conversation](./llama.batched.conversation.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [Conversation](./llama.batched.conversation.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -52,7 +52,7 @@ public int TokenCount { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **IsDisposed**
 
@@ -64,7 +64,7 @@ public bool IsDisposed { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **RequiresInference**
 
@@ -76,7 +76,7 @@ public bool RequiresInference { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **RequiresSampling**
 
@@ -88,7 +88,7 @@ public bool RequiresSampling { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
@@ -97,7 +97,7 @@ public bool RequiresSampling { get; }
 Finalizer for Conversation
 
 ```csharp
-protected void Finalize()
+protected override void Finalize()
 ```
 
 ### **Dispose()**
@@ -110,7 +110,7 @@ public void Dispose()
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 ### **Fork()**
 
@@ -126,7 +126,7 @@ public Conversation Fork()
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 **Remarks:**
 
@@ -138,12 +138,12 @@ Get the index in the context which each token can be sampled from, the return va
  ([SafeLLamaContextHandle.GetLogitsIth(Int32)](./llama.native.safellamacontexthandle.md#getlogitsithint32)) or to sample a token ([SafeLLamaSamplerChainHandle.Sample(SafeLLamaContextHandle, Int32)](./llama.native.safellamasamplerchainhandle.md#samplesafellamacontexthandle-int32).
 
 ```csharp
-public int GetSampleIndex(int offset)
+public int GetSampleIndex(int offset = 0)
 ```
 
 #### Parameters
 
-`offset` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`offset` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 How far from the end of the previous prompt should logits be sampled. Any value other than 0 requires
  allLogits to have been set during prompting.<br>
  For example if 5 tokens were supplied in the last prompt call:
@@ -156,11 +156,11 @@ How far from the end of the previous prompt should logits be sampled. Any value 
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 [CannotSampleRequiresPromptException](./llama.batched.cannotsamplerequirespromptexception.md)<br>
 Thrown if this conversation was not prompted before the previous call to infer
@@ -173,21 +173,21 @@ Thrown if Infer() must be called on the executor
 Get the logits from this conversation, ready for sampling
 
 ```csharp
-public Span<float> Sample(int offset)
+public Span<float> Sample(int offset = 0)
 ```
 
 #### Parameters
 
-`offset` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`offset` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 How far from the end of the previous prompt should logits be sampled. Any value other than 0 requires allLogits to have been set during prompting
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 [CannotSampleRequiresPromptException](./llama.batched.cannotsamplerequirespromptexception.md)<br>
 Thrown if this conversation was not prompted before the previous call to infer
@@ -195,24 +195,58 @@ Thrown if this conversation was not prompted before the previous call to infer
 [CannotSampleRequiresInferenceException](./llama.batched.cannotsamplerequiresinferenceexception.md)<br>
 Thrown if Infer() must be called on the executor
 
+### **Prompt(String, Boolean, Boolean)**
+
+```csharp
+public void Prompt(string promptText, bool addBos = true, bool special = true)
+```
+
+#### Parameters
+
+`promptText` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`addBos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+### **Prompt(String, ReadOnlySpan&lt;SafeMtmdEmbed&gt;, Boolean)**
+
+Prompt this conversation with explicit multimodal embeddings.
+ The caller retains ownership of `embeds`.
+
+```csharp
+public void Prompt(string promptText, ReadOnlySpan<SafeMtmdEmbed> embeds, bool addBos = true)
+```
+
+#### Parameters
+
+`promptText` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+Prompt text for the model.
+
+`embeds` [ReadOnlySpan&lt;SafeMtmdEmbed&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+Media embeddings to include in the multimodal prompt.
+
+`addBos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Whether to add the BOS token.
+
 ### **Prompt(List&lt;LLamaToken&gt;, Boolean)**
 
 Add tokens to this conversation
 
 ```csharp
-public void Prompt(List<LLamaToken> tokens, bool allLogits)
+public void Prompt(List<LLamaToken> tokens, bool allLogits = false)
 ```
 
 #### Parameters
 
-`tokens` [List&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+`tokens` [List&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
-`allLogits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`allLogits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 If true, generate logits for all tokens. If false, only generate logits for the last token.
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 [AlreadyPromptedConversationException](./llama.batched.alreadypromptedconversationexception.md)<br>
 
@@ -221,19 +255,19 @@ If true, generate logits for all tokens. If false, only generate logits for the 
 Add tokens to this conversation
 
 ```csharp
-public void Prompt(ReadOnlySpan<LLamaToken> tokens, bool allLogits)
+public void Prompt(ReadOnlySpan<LLamaToken> tokens, bool allLogits = false)
 ```
 
 #### Parameters
 
-`tokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`tokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
-`allLogits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`allLogits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 If true, generate logits for all tokens. If false, only generate logits for the last token.
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 [AlreadyPromptedConversationException](./llama.batched.alreadypromptedconversationexception.md)<br>
 
@@ -251,21 +285,9 @@ public void Prompt(LLamaToken token)
 
 #### Exceptions
 
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+[ObjectDisposedException](https://learn.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
 
 [AlreadyPromptedConversationException](./llama.batched.alreadypromptedconversationexception.md)<br>
-
-### **Prompt(SafeLlavaImageEmbedHandle)**
-
-Prompt this conversation with an image embedding
-
-```csharp
-public void Prompt(SafeLlavaImageEmbedHandle embedding)
-```
-
-#### Parameters
-
-`embedding` [SafeLlavaImageEmbedHandle](./llama.native.safellavaimageembedhandle.md)<br>
 
 ### **Prompt(ReadOnlySpan&lt;Single&gt;)**
 
@@ -277,7 +299,7 @@ public void Prompt(ReadOnlySpan<float> embeddings)
 
 #### Parameters
 
-`embeddings` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`embeddings` [ReadOnlySpan&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 The raw values of the embeddings. This span must divide equally by the embedding size of this model.
 
 ### **Modify(ModifyKvCache)**
@@ -307,7 +329,7 @@ public void Save(string filepath)
 
 #### Parameters
 
-`filepath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filepath` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Exceptions
 

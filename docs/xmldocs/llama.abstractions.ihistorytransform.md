@@ -12,7 +12,7 @@ Transform history to plain text and vice versa.
 public interface IHistoryTransform
 ```
 
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), JsonConverterAttribute
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [JsonConverterAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonconverterattribute)
 
 ## Methods
 
@@ -31,7 +31,7 @@ The ChatHistory instance
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **TextToHistory(AuthorRole, String)**
 
@@ -46,7 +46,7 @@ ChatHistory TextToHistory(AuthorRole role, string text)
 `role` [AuthorRole](./llama.common.authorrole.md)<br>
 The role for the author.
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 The chat history as plain text.
 
 #### Returns

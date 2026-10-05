@@ -12,7 +12,7 @@ A class that contains all the transforms provided internally by LLama.
 public class LLamaTransforms
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaTransforms](./llama.llamatransforms.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [LLamaTransforms](./llama.llamatransforms.md)
 
 ## Constructors
 

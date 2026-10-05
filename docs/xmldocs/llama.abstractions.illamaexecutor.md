@@ -12,7 +12,7 @@ A high level interface for LLama models.
 public interface ILLamaExecutor
 ```
 
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Properties
 
@@ -21,7 +21,7 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 The loaded context for this executor.
 
 ```csharp
-public abstract LLamaContext Context { get; }
+LLamaContext Context { get; }
 ```
 
 #### Property Value
@@ -33,36 +33,36 @@ public abstract LLamaContext Context { get; }
 Identify if it's a multi-modal model and there is a image to process.
 
 ```csharp
-public abstract bool IsMultiModal { get; }
+bool IsMultiModal { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **ClipModel**
 
 Multi-Modal Projections / Clip Model weights
 
 ```csharp
-public abstract LLavaWeights ClipModel { get; }
+MtmdWeights? ClipModel { get; }
 ```
 
 #### Property Value
 
-[LLavaWeights](./llama.llavaweights.md)<br>
+[MtmdWeights](./llama.mtmdweights.md)<br>
 
-### **Images**
+### **Embeds**
 
-List of images: List of images in byte array format.
+List of media: List of media for Multi-Modal models.
 
 ```csharp
-public abstract List<Byte[]> Images { get; }
+List<SafeMtmdEmbed> Embeds { get; }
 ```
 
 #### Property Value
 
-[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;SafeMtmdEmbed&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ## Methods
 
@@ -71,23 +71,23 @@ public abstract List<Byte[]> Images { get; }
 Asynchronously infers a response from the model.
 
 ```csharp
-IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferenceParams, CancellationToken token)
+IAsyncEnumerable<string> InferAsync(string text, IInferenceParams? inferenceParams = null, CancellationToken token = null)
 ```
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Your prompt
 
-`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)?<br>
 Any additional parameters
 
-`token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`token` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 A cancellation token.
 
 #### Returns
 
-[IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+[IAsyncEnumerable&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
 
 ---
 

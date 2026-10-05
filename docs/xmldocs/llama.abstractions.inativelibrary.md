@@ -12,7 +12,7 @@ Descriptor of a native library.
 public interface INativeLibrary
 ```
 
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Properties
 
@@ -21,7 +21,7 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 Metadata of this library.
 
 ```csharp
-public abstract NativeLibraryMetadata Metadata { get; }
+NativeLibraryMetadata? Metadata { get; }
 ```
 
 #### Property Value
@@ -36,7 +36,7 @@ Prepare the native library file and returns the local path of it.
  If it's a relative path, LLamaSharp will search the path in the search directies you set.
 
 ```csharp
-IEnumerable<string> Prepare(SystemInfo systemInfo, LLamaLogCallback logCallback)
+IEnumerable<string> Prepare(SystemInfo systemInfo, LLamaLogCallback? logCallback = null)
 ```
 
 #### Parameters
@@ -44,12 +44,12 @@ IEnumerable<string> Prepare(SystemInfo systemInfo, LLamaLogCallback logCallback)
 `systemInfo` [SystemInfo](./llama.native.systeminfo.md)<br>
 The system information of the current machine.
 
-`logCallback` [LLamaLogCallback](./llama.native.nativelogconfig.llamalogcallback.md)<br>
+`logCallback` [LLamaLogCallback](./llama.native.nativelogconfig.llamalogcallback.md)?<br>
 The log callback.
 
 #### Returns
 
-[IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
+[IEnumerable&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 The relative paths of the library. You could return multiple paths to try them one by one. If no file is available, please return an empty array.
 
 ---

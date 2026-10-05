@@ -12,8 +12,8 @@ A batch allows submitting multiple tokens to multiple sequences simultaneously
 public class LLamaBatch
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaBatch](./llama.native.llamabatch.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [LLamaBatch](./llama.native.llamabatch.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -27,7 +27,7 @@ public int TokenCount { get; private set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **SequenceCapacity**
 
@@ -39,7 +39,7 @@ public int SequenceCapacity { get; private set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ## Constructors
 
@@ -69,14 +69,14 @@ The token to add
 `pos` [LLamaPos](./llama.native.llamapos.md)<br>
 The position to add it att
 
-`sequences` [ReadOnlySpan&lt;LLamaSeqId&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`sequences` [ReadOnlySpan&lt;LLamaSeqId&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 The set of sequences to add this token to
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 **Remarks:**
@@ -99,14 +99,14 @@ The token to add
 `pos` [LLamaPos](./llama.native.llamapos.md)<br>
 The position to add it att
 
-`sequences` [List&lt;LLamaSeqId&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+`sequences` [List&lt;LLamaSeqId&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 The set of sequences to add this token to
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 **Remarks:**
@@ -132,11 +132,11 @@ The position to add it att
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 The sequence to add this token to
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 **Remarks:**
@@ -153,7 +153,7 @@ public int AddRange(ReadOnlySpan<LLamaToken> tokens, LLamaPos start, LLamaSeqId 
 
 #### Parameters
 
-`tokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`tokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 The tokens to add
 
 `start` [LLamaPos](./llama.native.llamapos.md)<br>
@@ -162,12 +162,12 @@ The starting position to add tokens at
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 The sequence to add this token to
 
-`logitsLast` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logitsLast` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether the final token should generate logits
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the final token was added at. Use this for GetLogitsIth
 
 ### **Clear()**
