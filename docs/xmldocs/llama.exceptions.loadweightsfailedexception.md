@@ -12,9 +12,9 @@ Loading model weights failed
 public class LoadWeightsFailedException : RuntimeError, System.Runtime.Serialization.ISerializable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [Exception](https://docs.microsoft.com/en-us/dotnet/api/system.exception) → [RuntimeError](./llama.exceptions.runtimeerror.md) → [LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)<br>
-Implements [ISerializable](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [Exception](https://learn.microsoft.com/en-us/dotnet/api/system.exception) → [RuntimeError](./llama.exceptions.runtimeerror.md) → [LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)<br>
+Implements [ISerializable](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -28,67 +28,67 @@ public string ModelPath { get; }
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **TargetSite**
 
 ```csharp
-public MethodBase TargetSite { get; }
+public MethodBase? TargetSite { get; }
 ```
 
 #### Property Value
 
-[MethodBase](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.methodbase)<br>
+[MethodBase](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.methodbase)<br>
 
 ### **Message**
 
 ```csharp
-public string Message { get; }
+public virtual string Message { get; }
 ```
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **Data**
 
 ```csharp
-public IDictionary Data { get; }
+public virtual IDictionary Data { get; }
 ```
 
 #### Property Value
 
-[IDictionary](https://docs.microsoft.com/en-us/dotnet/api/system.collections.idictionary)<br>
+[IDictionary](https://learn.microsoft.com/en-us/dotnet/api/system.collections.idictionary)<br>
 
 ### **InnerException**
 
 ```csharp
-public Exception InnerException { get; }
+public Exception? InnerException { get; }
 ```
 
 #### Property Value
 
-[Exception](https://docs.microsoft.com/en-us/dotnet/api/system.exception)<br>
+[Exception](https://learn.microsoft.com/en-us/dotnet/api/system.exception)<br>
 
 ### **HelpLink**
 
 ```csharp
-public string HelpLink { get; set; }
+public virtual string? HelpLink { get; set; }
 ```
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **Source**
 
 ```csharp
-public string Source { get; set; }
+public virtual string? Source { get; set; }
 ```
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **HResult**
 
@@ -98,21 +98,23 @@ public int HResult { get; set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **StackTrace**
 
 ```csharp
-public string StackTrace { get; }
+public virtual string? StackTrace { get; }
 ```
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ## Constructors
 
 ### **LoadWeightsFailedException(String)**
+
+Create a new RuntimeError
 
 ```csharp
 public LoadWeightsFailedException(string modelPath)
@@ -120,7 +122,7 @@ public LoadWeightsFailedException(string modelPath)
 
 #### Parameters
 
-`modelPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`modelPath` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ## Events
 
@@ -133,7 +135,7 @@ BinaryFormatter serialization is obsolete and should not be used. See https://ak
 ---
 
 ```csharp
-protected event EventHandler<SafeSerializationEventArgs> SerializeObjectState;
+protected event EventHandler<SafeSerializationEventArgs>? SerializeObjectState;
 ```
 
 ---

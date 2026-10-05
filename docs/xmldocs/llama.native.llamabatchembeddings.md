@@ -12,8 +12,8 @@ An embeddings batch allows submitting embeddings to multiple sequences simultane
 public class LLamaBatchEmbeddings
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaBatchEmbeddings](./llama.native.llamabatchembeddings.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [LLamaBatchEmbeddings](./llama.native.llamabatchembeddings.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -27,7 +27,7 @@ public int EmbeddingDimensions { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **EmbeddingsCount**
 
@@ -39,7 +39,7 @@ public int EmbeddingsCount { get; private set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **SequenceCapacity**
 
@@ -51,7 +51,7 @@ public int SequenceCapacity { get; private set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ## Constructors
 
@@ -65,7 +65,7 @@ public LLamaBatchEmbeddings(int embeddingDimensions)
 
 #### Parameters
 
-`embeddingDimensions` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`embeddingDimensions` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ## Methods
 
@@ -79,20 +79,20 @@ public int Add(ReadOnlySpan<float> embedding, LLamaPos pos, ReadOnlySpan<LLamaSe
 
 #### Parameters
 
-`embedding` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`embedding` [ReadOnlySpan&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 The embedding to add
 
 `pos` [LLamaPos](./llama.native.llamapos.md)<br>
 The position to add it att
 
-`sequences` [ReadOnlySpan&lt;LLamaSeqId&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`sequences` [ReadOnlySpan&lt;LLamaSeqId&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 The set of sequences to add this token to
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 **Remarks:**
@@ -109,17 +109,17 @@ public int Add(ReadOnlySpan<float> embedding, LLamaPos pos, LLamaSeqId sequence,
 
 #### Parameters
 
-`embedding` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`embedding` [ReadOnlySpan&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
 `pos` [LLamaPos](./llama.native.llamapos.md)<br>
 
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 ### **Add&lt;TParam&gt;(TParam, WriteEmbeddingsDelegate&lt;TParam&gt;, LLamaPos, ReadOnlySpan&lt;LLamaSeqId&gt;, Boolean)**
@@ -146,15 +146,15 @@ Delegate called once to write data into a span
 `pos` [LLamaPos](./llama.native.llamapos.md)<br>
 Position to write this embedding to
 
-`sequences` [ReadOnlySpan&lt;LLamaSeqId&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`sequences` [ReadOnlySpan&lt;LLamaSeqId&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 All sequences to assign this embedding to
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether logits should be generated for this embedding
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 **Remarks:**
@@ -188,12 +188,12 @@ Position to write this embedding to
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 Sequence to assign this embedding to
 
-`logits` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`logits` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether logits should be generated for this embedding
 
 #### Returns
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The index that the token was added at. Use this for GetLogitsIth
 
 **Remarks:**

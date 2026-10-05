@@ -12,8 +12,8 @@ The chat history class
 public class ChatHistory
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ChatHistory](./llama.common.chathistory.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ChatHistory](./llama.common.chathistory.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -27,7 +27,7 @@ public List<Message> Messages { get; set; }
 
 #### Property Value
 
-[List&lt;Message&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;Message&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ## Constructors
 
@@ -66,7 +66,7 @@ public void AddMessage(AuthorRole authorRole, string content)
 `authorRole` [AuthorRole](./llama.common.authorrole.md)<br>
 Role of the message author
 
-`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`content` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Message content
 
 ### **ToJson()**
@@ -79,23 +79,23 @@ public string ToJson()
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **FromJson(String)**
 
 Deserialize a chat history from JSON
 
 ```csharp
-public static ChatHistory FromJson(string json)
+public static ChatHistory? FromJson(string json)
 ```
 
 #### Parameters
 
-`json` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`json` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
-[ChatHistory](./llama.common.chathistory.md)<br>
+[ChatHistory](./llama.common.chathistory.md)?<br>
 
 ---
 

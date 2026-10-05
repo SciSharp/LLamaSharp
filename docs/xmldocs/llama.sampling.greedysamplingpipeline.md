@@ -12,9 +12,9 @@ A sampling pipeline which always selects the most likely token
 public class GreedySamplingPipeline : BaseSamplingPipeline, ISamplingPipeline, System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md) → [GreedySamplingPipeline](./llama.sampling.greedysamplingpipeline.md)<br>
-Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [BaseSamplingPipeline](./llama.sampling.basesamplingpipeline.md) → [GreedySamplingPipeline](./llama.sampling.greedysamplingpipeline.md)<br>
+Implements [ISamplingPipeline](./llama.sampling.isamplingpipeline.md), [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -23,7 +23,7 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 Grammar to apply to constrain possible tokens
 
 ```csharp
-public Grammar Grammar { get; set; }
+public Grammar? Grammar { get; init; }
 ```
 
 #### Property Value
@@ -42,8 +42,10 @@ public GreedySamplingPipeline()
 
 ### **CreateChain(SafeLLamaContextHandle)**
 
+Create a sampling chain. This will be called once, the base class will automatically dispose the chain.
+
 ```csharp
-protected SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
+protected override SafeLLamaSamplerChainHandle CreateChain(SafeLLamaContextHandle context)
 ```
 
 #### Parameters

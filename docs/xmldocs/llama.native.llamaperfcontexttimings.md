@@ -12,7 +12,7 @@ LLama performance information
 public struct LLamaPerfContextTimings
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaPerfContextTimings](./llama.native.llamaperfcontexttimings.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaPerfContextTimings](./llama.native.llamaperfcontexttimings.md)
 
 **Remarks:**
 
@@ -30,7 +30,7 @@ public TimeSpan ResetTimestamp { get; }
 
 #### Property Value
 
-[TimeSpan](https://docs.microsoft.com/en-us/dotnet/api/system.timespan)<br>
+[TimeSpan](https://learn.microsoft.com/en-us/dotnet/api/system.timespan)<br>
 
 ### **Loading**
 
@@ -42,7 +42,7 @@ public TimeSpan Loading { get; }
 
 #### Property Value
 
-[TimeSpan](https://docs.microsoft.com/en-us/dotnet/api/system.timespan)<br>
+[TimeSpan](https://learn.microsoft.com/en-us/dotnet/api/system.timespan)<br>
 
 ### **PromptEval**
 
@@ -54,7 +54,7 @@ public TimeSpan PromptEval { get; }
 
 #### Property Value
 
-[TimeSpan](https://docs.microsoft.com/en-us/dotnet/api/system.timespan)<br>
+[TimeSpan](https://learn.microsoft.com/en-us/dotnet/api/system.timespan)<br>
 
 ### **Eval**
 
@@ -66,7 +66,7 @@ public TimeSpan Eval { get; }
 
 #### Property Value
 
-[TimeSpan](https://docs.microsoft.com/en-us/dotnet/api/system.timespan)<br>
+[TimeSpan](https://learn.microsoft.com/en-us/dotnet/api/system.timespan)<br>
 
 ### **PrompTokensEvaluated**
 
@@ -78,7 +78,7 @@ public int PrompTokensEvaluated { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **TokensEvaluated**
 
@@ -90,7 +90,7 @@ public int TokensEvaluated { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ---
 

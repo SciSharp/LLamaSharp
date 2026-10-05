@@ -12,8 +12,8 @@ Extensions to span which apply in-place normalization
 public static class SpanNormalizationExtensions
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [SpanNormalizationExtensions](./llama.extensions.spannormalizationextensions.md)<br>
-Attributes [ExtensionAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [SpanNormalizationExtensions](./llama.extensions.spannormalizationextensions.md)<br>
+Attributes [ExtensionAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.extensionattribute)
 
 ## Methods
 
@@ -27,11 +27,11 @@ public static Single[] MaxAbsoluteNormalization(Single[] vector)
 
 #### Parameters
 
-`vector` [Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`vector` [Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 #### Returns
 
-[Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The same array
 
 ### **MaxAbsoluteNormalization(Span&lt;Single&gt;)**
@@ -44,11 +44,11 @@ public static Span<float> MaxAbsoluteNormalization(Span<float> vector)
 
 #### Parameters
 
-`vector` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`vector` [Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 The same span
 
 ### **TaxicabNormalization(Single[])**
@@ -61,11 +61,11 @@ public static Single[] TaxicabNormalization(Single[] vector)
 
 #### Parameters
 
-`vector` [Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`vector` [Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 #### Returns
 
-[Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The same array
 
 **Remarks:**
@@ -82,11 +82,11 @@ public static Span<float> TaxicabNormalization(Span<float> vector)
 
 #### Parameters
 
-`vector` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`vector` [Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 The same span
 
 **Remarks:**
@@ -103,11 +103,11 @@ public static Single[] EuclideanNormalization(Single[] vector)
 
 #### Parameters
 
-`vector` [Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`vector` [Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 #### Returns
 
-[Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The same array
 
 **Remarks:**
@@ -124,11 +124,11 @@ public static Span<float> EuclideanNormalization(Span<float> vector)
 
 #### Parameters
 
-`vector` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`vector` [Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 The same span
 
 **Remarks:**
@@ -145,11 +145,11 @@ public static Single[] EuclideanNormalization(ReadOnlySpan<float> vector)
 
 #### Parameters
 
-`vector` [ReadOnlySpan&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`vector` [ReadOnlySpan&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
 #### Returns
 
-[Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The same span
 
 ### **PNormalization(Single[], Int32)**
@@ -166,13 +166,13 @@ public static Single[] PNormalization(Single[] vector, int p)
 
 #### Parameters
 
-`vector` [Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`vector` [Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
-`p` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`p` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 The same array
 
 ### **PNormalization(Span&lt;Single&gt;, Int32)**
@@ -189,13 +189,13 @@ public static Span<float> PNormalization(Span<float> vector, int p)
 
 #### Parameters
 
-`vector` [Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`vector` [Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
-`p` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`p` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 The same span
 
 ---

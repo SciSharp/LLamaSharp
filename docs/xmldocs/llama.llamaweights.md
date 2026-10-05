@@ -12,9 +12,9 @@ A set of model weights, loaded into memory.
 public sealed class LLamaWeights : System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaWeights](./llama.llamaweights.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [LLamaWeights](./llama.llamaweights.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -44,7 +44,7 @@ public int ContextSize { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **SizeInBytes**
 
@@ -56,7 +56,7 @@ public ulong SizeInBytes { get; }
 
 #### Property Value
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UInt64](https://learn.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
 ### **ParameterCount**
 
@@ -68,7 +68,7 @@ public ulong ParameterCount { get; }
 
 #### Property Value
 
-[UInt64](https://docs.microsoft.com/en-us/dotnet/api/system.uint64)<br>
+[UInt64](https://learn.microsoft.com/en-us/dotnet/api/system.uint64)<br>
 
 ### **EmbeddingSize**
 
@@ -80,7 +80,7 @@ public int EmbeddingSize { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **Vocab**
 
@@ -104,7 +104,7 @@ public IReadOnlyDictionary<string, string> Metadata { get; set; }
 
 #### Property Value
 
-[IReadOnlyDictionary&lt;String, String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlydictionary-2)<br>
+[IReadOnlyDictionary&lt;String, String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlydictionary-2)<br>
 
 ## Methods
 
@@ -129,7 +129,7 @@ public static LLamaWeights LoadFromFile(IModelParams params)
 Load weights into memory
 
 ```csharp
-public static Task<LLamaWeights> LoadFromFileAsync(IModelParams params, CancellationToken token, IProgress<float> progressReporter)
+public static async Task<LLamaWeights> LoadFromFileAsync(IModelParams params, CancellationToken token = null, IProgress<float>? progressReporter = null)
 ```
 
 #### Parameters
@@ -137,22 +137,22 @@ public static Task<LLamaWeights> LoadFromFileAsync(IModelParams params, Cancella
 `params` [IModelParams](./llama.abstractions.imodelparams.md)<br>
 Parameters to use to load the model
 
-`token` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`token` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 A cancellation token that can interrupt model loading
 
-`progressReporter` [IProgress&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iprogress-1)<br>
+`progressReporter` [IProgress&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.iprogress-1)?<br>
 Receives progress updates as the model loads (0 to 1)
 
 #### Returns
 
-[Task&lt;LLamaWeights&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;LLamaWeights&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
 #### Exceptions
 
 [LoadWeightsFailedException](./llama.exceptions.loadweightsfailedexception.md)<br>
 Thrown if weights failed to load for any reason. e.g. Invalid file format or loading cancelled.
 
-[OperationCanceledException](https://docs.microsoft.com/en-us/dotnet/api/system.operationcanceledexception)<br>
+[OperationCanceledException](https://learn.microsoft.com/en-us/dotnet/api/system.operationcanceledexception)<br>
 Thrown if the cancellation token is cancelled.
 
 ### **Dispose()**
@@ -161,23 +161,7 @@ Thrown if the cancellation token is cancelled.
 public void Dispose()
 ```
 
-### **CreateContext(IContextParams, ILogger)**
-
-Create a llama_context using this model
-
-```csharp
-public LLamaContext CreateContext(IContextParams params, ILogger logger)
-```
-
-#### Parameters
-
-`params` [IContextParams](./llama.abstractions.icontextparams.md)<br>
-
-`logger` ILogger<br>
-
-#### Returns
-
-[LLamaContext](./llama.llamacontext.md)<br>
+### **CreateContext**
 
 ### **Tokenize(String, Boolean, Boolean, Encoding)**
 
@@ -189,14 +173,14 @@ public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding e
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`add_bos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.
 
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`encoding` [Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 
 #### Returns
 

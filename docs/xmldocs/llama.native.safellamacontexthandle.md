@@ -12,9 +12,9 @@ A safe wrapper around a llama_context
 public sealed class SafeLLamaContextHandle : SafeLLamaHandleBase, System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [CriticalFinalizerObject](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.constrainedexecution.criticalfinalizerobject) → [SafeHandle](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.safehandle) → [SafeLLamaHandleBase](./llama.native.safellamahandlebase.md) → [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Fields
 
@@ -36,7 +36,7 @@ public uint ContextSize { get; }
 
 #### Property Value
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **EmbeddingSize**
 
@@ -48,7 +48,7 @@ public int EmbeddingSize { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **BatchSize**
 
@@ -60,7 +60,7 @@ public uint BatchSize { get; }
 
 #### Property Value
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **UBatchSize**
 
@@ -72,7 +72,31 @@ public uint UBatchSize { get; }
 
 #### Property Value
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **MaxSeq**
+
+Get the number of maximum sequences allowed
+
+```csharp
+public uint MaxSeq { get; }
+```
+
+#### Property Value
+
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+
+### **RecurrentRollbackSnapshots**
+
+Get the number of recurrent-state snapshots per seq for rollback
+
+```csharp
+public uint RecurrentRollbackSnapshots { get; }
+```
+
+#### Property Value
+
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **GenerationThreads**
 
@@ -84,7 +108,7 @@ public int GenerationThreads { get; set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **BatchThreads**
 
@@ -96,7 +120,7 @@ public int BatchThreads { get; set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **PoolingType**
 
@@ -134,27 +158,27 @@ public Vocabulary Vocab { get; }
 
 [Vocabulary](./llama.native.safellamamodelhandle.vocabulary.md)<br>
 
-### **KvCacheCanShift**
+### **MemoryCanShift**
 
-Check if the context supports KV cache shifting
+Check if the context supports memory shifting
 
 ```csharp
-public bool KvCacheCanShift { get; }
+public bool MemoryCanShift { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsInvalid**
 
 ```csharp
-public bool IsInvalid { get; }
+public override bool IsInvalid { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **IsClosed**
 
@@ -164,7 +188,7 @@ public bool IsClosed { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Constructors
 
@@ -179,12 +203,12 @@ public SafeLLamaContextHandle()
 ### **ReleaseHandle()**
 
 ```csharp
-protected bool ReleaseHandle()
+protected override bool ReleaseHandle()
 ```
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **Create(SafeLlamaModelHandle, LLamaContextParams)**
 
@@ -208,50 +232,46 @@ public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaCon
 
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
 
-### **AddLoraAdapter(LoraAdapter, Single)**
+### **SetCausalAttention(Boolean)**
 
-Add a LoRA adapter to this context
+Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
 
 ```csharp
-public void AddLoraAdapter(LoraAdapter lora, float scale)
+public void SetCausalAttention(bool value)
 ```
 
 #### Parameters
 
-`lora` [LoraAdapter](./llama.native.loraadapter.md)<br>
+`value` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
-`scale` [Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+### **SetEmbeddings(Boolean)**
+
+Set whether the context outputs embeddings or not
+
+```csharp
+public void SetEmbeddings(bool value)
+```
+
+#### Parameters
+
+`value` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+If true, embeddings will be returned but logits will not
+
+### **SetLoraAdapters(Span&lt;(LoraAdapter, Single)&gt;)**
+
+Set the LoRa adapters on the context
+
+```csharp
+public void SetLoraAdapters(Span<(LoraAdapter Adapter, float Scale)> adapters)
+```
+
+#### Parameters
+
+`adapters` [Span&lt;(LoraAdapter, Single)&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 #### Exceptions
 
-[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
-
-[RuntimeError](./llama.exceptions.runtimeerror.md)<br>
-
-### **RemoveLoraAdapter(LoraAdapter)**
-
-Remove a LoRA adapter from this context
-
-```csharp
-public bool RemoveLoraAdapter(LoraAdapter lora)
-```
-
-#### Parameters
-
-`lora` [LoraAdapter](./llama.native.loraadapter.md)<br>
-
-#### Returns
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-Indicates if the lora was in this context and was remove
-
-### **ClearLoraAdapters()**
-
-Remove all LoRA adapters from this context
-
-```csharp
-public void ClearLoraAdapters()
-```
+[ArgumentException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
 
 ### **GetLogits(Int32)**
 
@@ -263,19 +283,19 @@ Token logits obtained from the last call to llama_decode.
  Cols: n_vocab
 
 ```csharp
-public Span<float> GetLogits(int numTokens)
+public Span<float> GetLogits(int numTokens = 1)
 ```
 
 #### Parameters
 
-`numTokens` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`numTokens` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 The amount of tokens whose logits should be retrieved, in [numTokens X n_vocab] format.<br>
  Tokens' order is based on their order in the LlamaBatch (so, first tokens are first, etc).<br>
  This is helpful when requesting logits for many tokens in a sequence, or want to decode multiple sequences in one go.
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 ### **GetLogitsIth(Int32)**
 
@@ -287,11 +307,11 @@ public Span<float> GetLogitsIth(int i)
 
 #### Parameters
 
-`i` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`i` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 
 ### **GetEmbeddingsIth(LLamaPos)**
 
@@ -308,7 +328,7 @@ public Span<float> GetEmbeddingsIth(LLamaPos pos)
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 A pointer to the first float in an embedding, length = ctx.EmbeddingSize
 
 ### **GetEmbeddingsSeq(LLamaSeqId)**
@@ -326,7 +346,7 @@ public Span<float> GetEmbeddingsSeq(LLamaSeqId seq)
 
 #### Returns
 
-[Span&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+[Span&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 A pointer to the first float in an embedding, length = ctx.EmbeddingSize
 
 ### **Tokenize(String, Boolean, Boolean, Encoding)**
@@ -339,16 +359,16 @@ public LLamaToken[] Tokenize(string text, bool add_bos, bool special, Encoding e
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 The text to tokenize
 
-`add_bos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`add_bos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether the "BOS" token should be added
 
-`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.
 
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`encoding` [Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 Encoding to use for the text
 
 #### Returns
@@ -372,12 +392,12 @@ public uint TokenToSpan(LLamaToken token, Span<byte> dest)
 `token` [LLamaToken](./llama.native.llamatoken.md)<br>
 Token to decode
 
-`dest` [Span&lt;Byte&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.span-1)<br>
+`dest` [Span&lt;Byte&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.span-1)<br>
 A span to attempt to write into. If this is too small nothing will be written
 
 #### Returns
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 The size of this token. **nothing will be written** if this is larger than `dest`
 
 ### **Synchronize()**
@@ -405,11 +425,22 @@ public DecodeResult Encode(LLamaBatch batch)
 #### Returns
 
 [DecodeResult](./llama.native.decoderesult.md)<br>
-0 = success <br>&lt; 0 = error (the KV cache state is restored to the state before this call)
+0 = success <br>&lt; 0 = error (the memory state is restored to the state before this call)
 
 ### **Decode(LLamaBatch)**
 
-
+Process a batch of tokens.
+ Requires the context to have a memory.
+ For encode-decoder contexts, processes the batch using the decoder.
+ Positive return values does not mean a fatal error, but rather a warning.
+ Upon fatal-error or abort, the ubatches that managed to be been processed will remain in the memory state of the context
+ To handle this correctly, query the memory state using llama_memory_seq_pos_min() and llama_memory_seq_pos_max()
+ Upon other return values, the memory state is restored to the state before this call
+ 0 - success
+ 1 - could not find a memory slot for the batch (try reducing the size of the batch or increase the context)
+ 2 - aborted (processed ubatches will remain in the context's memory)
+ -1 - invalid input batch
+ &lt; -1 - fatal error (processed ubatches will remain in the context's memory)
 
 ```csharp
 public DecodeResult Decode(LLamaBatch batch)
@@ -422,14 +453,21 @@ public DecodeResult Decode(LLamaBatch batch)
 #### Returns
 
 [DecodeResult](./llama.native.decoderesult.md)<br>
-Positive return values does not mean a fatal error, but rather a warning:<br>
- - 0: success<br>
- - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br>
- - &lt; 0: error (the KV cache state is restored to the state before this call)<br>
 
 ### **Decode(LLamaBatchEmbeddings)**
 
-
+Process a batch of tokens.
+ Requires the context to have a memory.
+ For encode-decoder contexts, processes the batch using the decoder.
+ Positive return values does not mean a fatal error, but rather a warning.
+ Upon fatal-error or abort, the ubatches that managed to be been processed will remain in the memory state of the context
+ To handle this correctly, query the memory state using llama_memory_seq_pos_min() and llama_memory_seq_pos_max()
+ Upon other return values, the memory state is restored to the state before this call
+ 0 - success
+ 1 - could not find a memory slot for the batch (try reducing the size of the batch or increase the context)
+ 2 - aborted (processed ubatches will remain in the context's memory)
+ -1 - invalid input batch
+ &lt; -1 - fatal error (processed ubatches will remain in the context's memory)
 
 ```csharp
 public DecodeResult Decode(LLamaBatchEmbeddings batch)
@@ -442,10 +480,6 @@ public DecodeResult Decode(LLamaBatchEmbeddings batch)
 #### Returns
 
 [DecodeResult](./llama.native.decoderesult.md)<br>
-Positive return values does not mean a fatal error, but rather a warning:<br>
- - 0: success<br>
- - 1: could not find a KV slot for the batch (try reducing the size of the batch or increase the context)<br>
- - &lt; 0: error<br>
 
 ### **GetStateSize()**
 
@@ -457,11 +491,11 @@ public UIntPtr GetStateSize()
 
 #### Returns
 
-[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 
 ### **GetStateSize(LLamaSeqId)**
 
-Get the size of the KV cache for a single sequence ID, when saved as bytes
+Get the size of the memory state for a single sequence ID, when saved as bytes
 
 ```csharp
 public UIntPtr GetStateSize(LLamaSeqId sequence)
@@ -473,7 +507,7 @@ public UIntPtr GetStateSize(LLamaSeqId sequence)
 
 #### Returns
 
-[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 
 ### **GetState(Byte*, UIntPtr)**
 
@@ -485,20 +519,20 @@ public UIntPtr GetState(Byte* dest, UIntPtr size)
 
 #### Parameters
 
-`dest` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
+`dest` [Byte*](https://learn.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 Destination to write to
 
-`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+`size` [UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes available to write to in dest (check required size with `GetStateSize()`)
 
 #### Returns
 
-[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 The number of bytes written to dest
 
 #### Exceptions
 
-[ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
+[ArgumentOutOfRangeException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
 Thrown if dest is too small
 
 ### **GetState(Byte*, UIntPtr, LLamaSeqId)**
@@ -511,10 +545,10 @@ public UIntPtr GetState(Byte* dest, UIntPtr size, LLamaSeqId sequence)
 
 #### Parameters
 
-`dest` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
+`dest` [Byte*](https://learn.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 Destination to write to
 
-`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+`size` [UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes available to write to in dest (check required size with `GetStateSize()`)
 
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
@@ -522,7 +556,7 @@ The sequence to get state data for
 
 #### Returns
 
-[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 The number of bytes written to dest
 
 ### **SetState(Byte*, UIntPtr)**
@@ -535,15 +569,15 @@ public UIntPtr SetState(Byte* src, UIntPtr size)
 
 #### Parameters
 
-`src` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
+`src` [Byte*](https://learn.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 The pointer to read the state from
 
-`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+`size` [UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes that can be safely read from the pointer
 
 #### Returns
 
-[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes read from the src pointer
 
 ### **SetState(Byte*, UIntPtr, LLamaSeqId)**
@@ -556,10 +590,10 @@ public UIntPtr SetState(Byte* src, UIntPtr size, LLamaSeqId sequence)
 
 #### Parameters
 
-`src` [Byte*](https://docs.microsoft.com/en-us/dotnet/api/system.byte*)<br>
+`src` [Byte*](https://learn.microsoft.com/en-us/dotnet/api/system.byte*)<br>
 The pointer to read the state from
 
-`size` [UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+`size` [UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes that can be safely read from the pointer
 
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
@@ -567,7 +601,7 @@ Sequence ID to set
 
 #### Returns
 
-[UIntPtr](https://docs.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
 Number of bytes read from the src pointer
 
 ### **GetTimings()**
@@ -590,79 +624,25 @@ Reset all performance information for this context
 public void ResetTimings()
 ```
 
-### **KvCacheUpdate()**
+### **MemoryClear(Boolean)**
 
-Apply KV cache updates (such as K-shifts, defragmentation, etc.)
-
-```csharp
-public void KvCacheUpdate()
-```
-
-### **KvCacheDefrag()**
-
-Defragment the KV cache. This will be applied:
- - lazily on next llama_decode()
- - explicitly with llama_kv_self_update()
+Clear the memory
 
 ```csharp
-public void KvCacheDefrag()
-```
-
-### **KvCacheGetDebugView(Int32)**
-
-Get a new KV cache view that can be used to debug the KV cache
-
-```csharp
-public LLamaKvCacheViewSafeHandle KvCacheGetDebugView(int maxSequences)
+public void MemoryClear(bool data = true)
 ```
 
 #### Parameters
 
-`maxSequences` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`data` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+If true, the data buffers will also be cleared together with the metadata
 
-#### Returns
-
-[LLamaKvCacheViewSafeHandle](./llama.native.llamakvcacheviewsafehandle.md)<br>
-
-### **KvCacheCountCells()**
-
-Count the number of used cells in the KV cache (i.e. have at least one sequence assigned to them)
-
-```csharp
-public int KvCacheCountCells()
-```
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **KvCacheCountTokens()**
-
-Returns the number of tokens in the KV cache (slow, use only for debug)
- If a KV cell has multiple sequences assigned to it, it will be counted multiple times
-
-```csharp
-public int KvCacheCountTokens()
-```
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **KvCacheClear()**
-
-Clear the KV cache - both cell info is erased and KV data is zeroed
-
-```csharp
-public void KvCacheClear()
-```
-
-### **KvCacheRemove(LLamaSeqId, LLamaPos, LLamaPos)**
+### **MemorySequenceRemove(LLamaSeqId, LLamaPos, LLamaPos)**
 
 Removes all tokens that belong to the specified sequence and have positions in [p0, p1)
 
 ```csharp
-public void KvCacheRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
+public void MemorySequenceRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
 ```
 
 #### Parameters
@@ -673,14 +653,14 @@ public void KvCacheRemove(LLamaSeqId seq, LLamaPos p0, LLamaPos p1)
 
 `p1` [LLamaPos](./llama.native.llamapos.md)<br>
 
-### **KvCacheSequenceCopy(LLamaSeqId, LLamaSeqId, LLamaPos, LLamaPos)**
+### **MemorySequenceCopy(LLamaSeqId, LLamaSeqId, LLamaPos, LLamaPos)**
 
 Copy all tokens that belong to the specified sequence to another sequence. Note that
- this does not allocate extra KV cache memory - it simply assigns the tokens to the
+ this does not allocate extra memory - it simply assigns the tokens to the
  new sequence
 
 ```csharp
-public void KvCacheSequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
+public void MemorySequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LLamaPos p1)
 ```
 
 #### Parameters
@@ -693,26 +673,25 @@ public void KvCacheSequenceCopy(LLamaSeqId src, LLamaSeqId dest, LLamaPos p0, LL
 
 `p1` [LLamaPos](./llama.native.llamapos.md)<br>
 
-### **KvCacheSequenceKeep(LLamaSeqId)**
+### **MemorySequenceKeep(LLamaSeqId)**
 
 Removes all tokens that do not belong to the specified sequence
 
 ```csharp
-public void KvCacheSequenceKeep(LLamaSeqId seq)
+public void MemorySequenceKeep(LLamaSeqId seq)
 ```
 
 #### Parameters
 
 `seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
-### **KvCacheSequenceAdd(LLamaSeqId, LLamaPos, LLamaPos, Int32)**
+### **MemorySequenceAdd(LLamaSeqId, LLamaPos, LLamaPos, Int32)**
 
 Adds relative position "delta" to all tokens that belong to the specified sequence
- and have positions in [p0, p1. If the KV cache is RoPEd, the KV data is updated
- accordingly
+ and have positions in [p0, p1)
 
 ```csharp
-public void KvCacheSequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
+public void MemorySequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int delta)
 ```
 
 #### Parameters
@@ -723,17 +702,16 @@ public void KvCacheSequenceAdd(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int del
 
 `p1` [LLamaPos](./llama.native.llamapos.md)<br>
 
-`delta` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`delta` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **KvCacheSequenceDivide(LLamaSeqId, LLamaPos, LLamaPos, Int32)**
+### **MemorySequenceDivide(LLamaSeqId, LLamaPos, LLamaPos, Int32)**
 
-Integer division of the positions by factor of `d &gt; 1`.
- If the KV cache is RoPEd, the KV data is updated accordingly.<br>
+Integer division of the positions by factor of `d &gt; 1`.<br>
  p0 &lt; 0 : [0, p1]<br>
  p1 &lt; 0 : [p0, inf)
 
 ```csharp
-public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
+public void MemorySequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int divisor)
 ```
 
 #### Parameters
@@ -744,14 +722,30 @@ public void KvCacheSequenceDivide(LLamaSeqId seq, LLamaPos p0, LLamaPos p1, int 
 
 `p1` [LLamaPos](./llama.native.llamapos.md)<br>
 
-`divisor` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`divisor` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **KvCacheMaxPosition(LLamaSeqId)**
+### **MemorySequenceMinPosition(LLamaSeqId)**
 
-Returns the largest position present in the KV cache for the specified sequence
+Returns the smallest position present in memory for the specified sequence
 
 ```csharp
-public LLamaPos KvCacheMaxPosition(LLamaSeqId seq)
+public LLamaPos MemorySequenceMinPosition(LLamaSeqId seq)
+```
+
+#### Parameters
+
+`seq` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+
+#### Returns
+
+[LLamaPos](./llama.native.llamapos.md)<br>
+
+### **MemorySequenceMaxPosition(LLamaSeqId)**
+
+Returns the largest position present in memory for the specified sequence
+
+```csharp
+public LLamaPos MemorySequenceMaxPosition(LLamaSeqId seq)
 ```
 
 #### Parameters

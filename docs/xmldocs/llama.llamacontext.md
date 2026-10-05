@@ -12,9 +12,9 @@ A llama_context, which holds all the context required to interact with a model
 public sealed class LLamaContext : System.IDisposable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaContext](./llama.llamacontext.md)<br>
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [LLamaContext](./llama.llamacontext.md)<br>
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -28,7 +28,7 @@ public uint ContextSize { get; }
 
 #### Property Value
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **EmbeddingSize**
 
@@ -40,7 +40,7 @@ public int EmbeddingSize { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **Params**
 
@@ -80,7 +80,7 @@ public Encoding Encoding { get; }
 
 #### Property Value
 
-[Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+[Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 
 ### **GenerationThreads**
 
@@ -92,7 +92,7 @@ public int GenerationThreads { get; set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **BatchThreads**
 
@@ -104,7 +104,7 @@ public int BatchThreads { get; set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **BatchSize**
 
@@ -116,7 +116,7 @@ public uint BatchSize { get; }
 
 #### Property Value
 
-[UInt32](https://docs.microsoft.com/en-us/dotnet/api/system.uint32)<br>
+[UInt32](https://learn.microsoft.com/en-us/dotnet/api/system.uint32)<br>
 
 ### **Vocab**
 
@@ -132,25 +132,7 @@ public Vocabulary Vocab { get; }
 
 ## Constructors
 
-### **LLamaContext(LLamaWeights, IContextParams, ILogger)**
-
-Create a new LLamaContext for the given LLamaWeights
-
-```csharp
-public LLamaContext(LLamaWeights model, IContextParams params, ILogger logger)
-```
-
-#### Parameters
-
-`model` [LLamaWeights](./llama.llamaweights.md)<br>
-
-`params` [IContextParams](./llama.abstractions.icontextparams.md)<br>
-
-`logger` ILogger<br>
-
-#### Exceptions
-
-[ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/system.objectdisposedexception)<br>
+### **.ctor**
 
 ## Methods
 
@@ -159,17 +141,17 @@ public LLamaContext(LLamaWeights model, IContextParams params, ILogger logger)
 Tokenize a string.
 
 ```csharp
-public LLamaToken[] Tokenize(string text, bool addBos, bool special)
+public LLamaToken[] Tokenize(string text, bool addBos = true, bool special = false)
 ```
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`addBos` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`addBos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether to add a bos to the text.
 
-`special` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.
 
 #### Returns
@@ -192,11 +174,11 @@ public string DeTokenize(IReadOnlyList<LLamaToken> tokens)
 
 #### Parameters
 
-`tokens` [IReadOnlyList&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlylist-1)<br>
+`tokens` [IReadOnlyList&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ireadonlylist-1)<br>
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **SaveState(String)**
 
@@ -208,7 +190,7 @@ public void SaveState(string filename)
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **SaveState(String, LLamaSeqId)**
 
@@ -220,7 +202,7 @@ public void SaveState(string filename, LLamaSeqId sequence)
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
@@ -270,7 +252,7 @@ public void LoadState(string filename)
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **LoadState(String, LLamaSeqId)**
 
@@ -282,7 +264,7 @@ public void LoadState(string filename, LLamaSeqId sequence)
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 `sequence` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
@@ -333,18 +315,18 @@ public EncodeResult Encode(LLamaBatch batch)
 
 
 ```csharp
-public Task<EncodeResult> EncodeAsync(LLamaBatch batch, CancellationToken cancellationToken)
+public Task<EncodeResult> EncodeAsync(LLamaBatch batch, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
 
-`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;EncodeResult&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;EncodeResult&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
 ### **Decode(LLamaBatch)**
 
@@ -367,18 +349,18 @@ public DecodeResult Decode(LLamaBatch batch)
 
 
 ```csharp
-public Task<DecodeResult> DecodeAsync(LLamaBatch batch, CancellationToken cancellationToken)
+public Task<DecodeResult> DecodeAsync(LLamaBatch batch, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
 
-`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;DecodeResult&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;DecodeResult&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
 ### **Decode(LLamaBatchEmbeddings)**
 
@@ -401,40 +383,42 @@ public DecodeResult Decode(LLamaBatchEmbeddings batch)
 
 
 ```csharp
-public Task<DecodeResult> DecodeAsync(LLamaBatchEmbeddings batch, CancellationToken cancellationToken)
+public Task<DecodeResult> DecodeAsync(LLamaBatchEmbeddings batch, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `batch` [LLamaBatchEmbeddings](./llama.native.llamabatchembeddings.md)<br>
 
-`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;DecodeResult&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;DecodeResult&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 
-### **DecodeAsync(List&lt;LLamaToken&gt;, LLamaSeqId, LLamaBatch, Int32)**
+### **DecodeAsync(List&lt;LLamaToken&gt;, LLamaSeqId, LLamaBatch, Int32, CancellationToken)**
 
 
 
 ```csharp
-public Task<ValueTuple<DecodeResult, int, int>> DecodeAsync(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, int n_past)
+public Task<(DecodeResult, int, int)> DecodeAsync(List<LLamaToken> tokens, LLamaSeqId id, LLamaBatch batch, int n_past, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
-`tokens` [List&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+`tokens` [List&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 `id` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
 `batch` [LLamaBatch](./llama.native.llamabatch.md)<br>
 
-`n_past` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`n_past` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;ValueTuple&lt;DecodeResult, Int32, Int32&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;(DecodeResult, Int32, Int32)&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
 A tuple, containing the decode result, the number of tokens that have not been decoded yet and the total number of tokens that have been decoded.
 
 ### **Dispose()**

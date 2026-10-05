@@ -12,30 +12,30 @@ A JSON converter for [MetadataOverride](./llama.abstractions.metadataoverride.md
 public class MetadataOverrideConverter : System.Text.Json.Serialization.JsonConverter`1[[LLama.Abstractions.MetadataOverride, LLamaSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → JsonConverter → JsonConverter&lt;MetadataOverride&gt; → [MetadataOverrideConverter](./llama.abstractions.metadataoverrideconverter.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [JsonConverter](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonconverter) → [JsonConverter&lt;MetadataOverride&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonconverter-1) → [MetadataOverrideConverter](./llama.abstractions.metadataoverrideconverter.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
 ### **HandleNull**
 
 ```csharp
-public bool HandleNull { get; }
+public virtual bool HandleNull { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **Type**
 
 ```csharp
-public Type Type { get; }
+public sealed override Type Type { get; }
 ```
 
 #### Property Value
 
-[Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
+[Type](https://learn.microsoft.com/en-us/dotnet/api/system.type)<br>
 
 ## Constructors
 
@@ -47,19 +47,19 @@ public MetadataOverrideConverter()
 
 ## Methods
 
-### **Read(Utf8JsonReader&, Type, JsonSerializerOptions)**
+### **Read(ref Utf8JsonReader, Type, JsonSerializerOptions)**
 
 ```csharp
-public MetadataOverride Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
+public override MetadataOverride Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 ```
 
 #### Parameters
 
-`reader` Utf8JsonReader&<br>
+`ref` `reader` [Utf8JsonReader](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.utf8jsonreader)<br>
 
-`typeToConvert` [Type](https://docs.microsoft.com/en-us/dotnet/api/system.type)<br>
+`typeToConvert` [Type](https://learn.microsoft.com/en-us/dotnet/api/system.type)<br>
 
-`options` JsonSerializerOptions<br>
+`options` [JsonSerializerOptions](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonserializeroptions)<br>
 
 #### Returns
 
@@ -68,16 +68,16 @@ public MetadataOverride Read(Utf8JsonReader& reader, Type typeToConvert, JsonSer
 ### **Write(Utf8JsonWriter, MetadataOverride, JsonSerializerOptions)**
 
 ```csharp
-public void Write(Utf8JsonWriter writer, MetadataOverride value, JsonSerializerOptions options)
+public override void Write(Utf8JsonWriter writer, MetadataOverride value, JsonSerializerOptions options)
 ```
 
 #### Parameters
 
-`writer` Utf8JsonWriter<br>
+`writer` [Utf8JsonWriter](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.utf8jsonwriter)<br>
 
 `value` [MetadataOverride](./llama.abstractions.metadataoverride.md)<br>
 
-`options` JsonSerializerOptions<br>
+`options` [JsonSerializerOptions](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.jsonserializeroptions)<br>
 
 ---
 

@@ -12,7 +12,7 @@ LLama performance information
 public struct LLamaSamplingTimings
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaSamplingTimings](./llama.native.llamasamplingtimings.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaSamplingTimings](./llama.native.llamasamplingtimings.md)
 
 **Remarks:**
 

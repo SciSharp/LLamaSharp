@@ -13,9 +13,9 @@ A prompt formatter that will use llama.cpp's template formatter
 public class PromptTemplateTransformer : LLama.Abstractions.IHistoryTransform
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [PromptTemplateTransformer](./llama.transformers.prompttemplatetransformer.md)<br>
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [PromptTemplateTransformer](./llama.transformers.prompttemplatetransformer.md)<br>
 Implements [IHistoryTransform](./llama.abstractions.ihistorytransform.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Constructors
 
@@ -25,18 +25,20 @@ A prompt formatter that will use llama.cpp's template formatter
  If your model is not supported, you will need to define your own formatter according the cchat prompt specification for your model
 
 ```csharp
-public PromptTemplateTransformer(LLamaWeights model, bool withAssistant)
+public PromptTemplateTransformer(LLamaWeights model, bool withAssistant = true)
 ```
 
 #### Parameters
 
 `model` [LLamaWeights](./llama.llamaweights.md)<br>
 
-`withAssistant` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`withAssistant` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
 ### **HistoryToText(ChatHistory)**
+
+Convert a ChatHistory instance to plain text.
 
 ```csharp
 public string HistoryToText(ChatHistory history)
@@ -45,12 +47,15 @@ public string HistoryToText(ChatHistory history)
 #### Parameters
 
 `history` [ChatHistory](./llama.common.chathistory.md)<br>
+The ChatHistory instance
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **TextToHistory(AuthorRole, String)**
+
+Converts plain text to a ChatHistory instance.
 
 ```csharp
 public ChatHistory TextToHistory(AuthorRole role, string text)
@@ -59,14 +64,19 @@ public ChatHistory TextToHistory(AuthorRole role, string text)
 #### Parameters
 
 `role` [AuthorRole](./llama.common.authorrole.md)<br>
+The role for the author.
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+The chat history as plain text.
 
 #### Returns
 
 [ChatHistory](./llama.common.chathistory.md)<br>
+The updated history.
 
 ### **Clone()**
+
+Copy the transform.
 
 ```csharp
 public IHistoryTransform Clone()
@@ -90,7 +100,7 @@ public static string ToModelPrompt(LLamaTemplate template)
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 The formatted template string as defined by the model
 
 ---

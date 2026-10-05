@@ -12,8 +12,8 @@ A custom sampler stage for modifying logits or selecting a token
 public interface ICustomSampler : System.IDisposable
 ```
 
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Properties
 
@@ -22,28 +22,28 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 The human readable name of this stage
 
 ```csharp
-public abstract string Name { get; }
+string Name { get; }
 ```
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ## Methods
 
-### **Apply(LLamaTokenDataArrayNative&)**
+### **Apply(ref LLamaTokenDataArrayNative)**
 
 Apply this stage to a set of logits.
  This can modify logits or select a token (or both).
  If logits are modified the Sorted flag must be set to false.
 
 ```csharp
-void Apply(LLamaTokenDataArrayNative& tokenData)
+void Apply(ref LLamaTokenDataArrayNative tokenData)
 ```
 
 #### Parameters
 
-`tokenData` [LLamaTokenDataArrayNative&](./llama.native.llamatokendataarraynative&.md)<br>
+`ref` `tokenData` [LLamaTokenDataArrayNative](./llama.native.llamatokendataarraynative.md)<br>
 
 **Remarks:**
 

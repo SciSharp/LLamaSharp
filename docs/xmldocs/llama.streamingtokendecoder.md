@@ -12,8 +12,8 @@ Decodes a stream of tokens into a stream of characters
 public sealed class StreamingTokenDecoder
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [StreamingTokenDecoder](./llama.streamingtokendecoder.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [StreamingTokenDecoder](./llama.streamingtokendecoder.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -27,7 +27,7 @@ public int AvailableCharacters { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **DecodeSpecialTokens**
 
@@ -39,7 +39,7 @@ public bool DecodeSpecialTokens { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Constructors
 
@@ -53,7 +53,7 @@ public StreamingTokenDecoder(Encoding encoding, LLamaWeights weights)
 
 #### Parameters
 
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`encoding` [Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 Text encoding to use
 
 `weights` [LLamaWeights](./llama.llamaweights.md)<br>
@@ -82,7 +82,7 @@ public StreamingTokenDecoder(Encoding encoding, SafeLLamaContextHandle context)
 
 #### Parameters
 
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`encoding` [Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 Text encoding to use
 
 `context` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
@@ -98,7 +98,7 @@ public StreamingTokenDecoder(Encoding encoding, SafeLlamaModelHandle weights)
 
 #### Parameters
 
-`encoding` [Encoding](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
+`encoding` [Encoding](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding)<br>
 Text encoding to use
 
 `weights` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
@@ -128,14 +128,14 @@ public void Add(int token)
 
 #### Parameters
 
-`token` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`token` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **AddRange&lt;T&gt;(T)**
 
 Add all tokens in the given enumerable
 
 ```csharp
-public void AddRange<T>(T tokens)
+public void AddRange<T>(T tokens) where T : IEnumerable<LLamaToken>
 ```
 
 #### Type Parameters
@@ -156,7 +156,7 @@ public void AddRange(ReadOnlySpan<LLamaToken> tokens)
 
 #### Parameters
 
-`tokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+`tokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 
 ### **Read(List&lt;Char&gt;)**
 
@@ -168,7 +168,7 @@ public void Read(List<char> dest)
 
 #### Parameters
 
-`dest` [List&lt;Char&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+`dest` [List&lt;Char&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
 
 ### **Read()**
 
@@ -180,7 +180,7 @@ public string Read()
 
 #### Returns
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **Reset()**
 

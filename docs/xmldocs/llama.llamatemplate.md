@@ -12,8 +12,8 @@ Converts a sequence of messages into text according to a model template
 public sealed class LLamaTemplate
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [LLamaTemplate](./llama.llamatemplate.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [DefaultMemberAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.defaultmemberattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [LLamaTemplate](./llama.llamatemplate.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [DefaultMemberAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.defaultmemberattribute)
 
 ## Fields
 
@@ -37,17 +37,7 @@ public int Count { get; private set; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **Item**
-
-```csharp
-public TextMessage Item { get; }
-```
-
-#### Property Value
-
-[TextMessage](./llama.llamatemplate.textmessage.md)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **AddAssistant**
 
@@ -59,7 +49,23 @@ public bool AddAssistant { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+## Indexers
+
+### **this[Int32]**
+
+```csharp
+public TextMessage this[int index] { get; }
+```
+
+#### Parameters
+
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+#### Property Value
+
+[TextMessage](./llama.llamatemplate.textmessage.md)<br>
 
 ## Constructors
 
@@ -68,7 +74,7 @@ public bool AddAssistant { get; set; }
 Construct a new template, using the default model template
 
 ```csharp
-public LLamaTemplate(SafeLlamaModelHandle model, string name, bool strict)
+public LLamaTemplate(SafeLlamaModelHandle model, string? name = null, bool strict = true)
 ```
 
 #### Parameters
@@ -76,10 +82,10 @@ public LLamaTemplate(SafeLlamaModelHandle model, string name, bool strict)
 `model` [SafeLlamaModelHandle](./llama.native.safellamamodelhandle.md)<br>
 The native handle of the loaded model.
 
-`name` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`name` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
 The name of the template, in case there are many or differently named. Set to 'null' for the default behaviour of finding an appropriate match.
 
-`strict` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`strict` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Setting this to true will cause the call to throw if no valid templates are found.
 
 ### **LLamaTemplate(LLamaWeights, Boolean)**
@@ -87,7 +93,7 @@ Setting this to true will cause the call to throw if no valid templates are foun
 Construct a new template, using the default model template
 
 ```csharp
-public LLamaTemplate(LLamaWeights weights, bool strict)
+public LLamaTemplate(LLamaWeights weights, bool strict = true)
 ```
 
 #### Parameters
@@ -95,7 +101,7 @@ public LLamaTemplate(LLamaWeights weights, bool strict)
 `weights` [LLamaWeights](./llama.llamaweights.md)<br>
 The handle of the loaded model's weights.
 
-`strict` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`strict` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Setting this to true will cause the call to throw if no valid templates are found.
 
 ### **LLamaTemplate(String)**
@@ -103,12 +109,12 @@ Setting this to true will cause the call to throw if no valid templates are foun
 Construct a new template, using a custom template.
 
 ```csharp
-public LLamaTemplate(string customTemplate)
+public LLamaTemplate(string? customTemplate)
 ```
 
 #### Parameters
 
-`customTemplate` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`customTemplate` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
 
 **Remarks:**
 
@@ -126,9 +132,9 @@ public LLamaTemplate Add(string role, string content)
 
 #### Parameters
 
-`role` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`role` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
-`content` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`content` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
@@ -162,7 +168,7 @@ public LLamaTemplate RemoveAt(int index)
 
 #### Parameters
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
@@ -187,7 +193,7 @@ public ReadOnlySpan<byte> Apply()
 
 #### Returns
 
-[ReadOnlySpan&lt;Byte&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
+[ReadOnlySpan&lt;Byte&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 A span over the buffer that holds the applied template
 
 ---

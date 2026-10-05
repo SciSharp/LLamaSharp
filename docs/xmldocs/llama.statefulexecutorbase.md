@@ -12,9 +12,9 @@ The base class for stateful LLama executors.
 public abstract class StatefulExecutorBase : LLama.Abstractions.ILLamaExecutor
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [StatefulExecutorBase](./llama.statefulexecutorbase.md)<br>
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [StatefulExecutorBase](./llama.statefulexecutorbase.md)<br>
 Implements [ILLamaExecutor](./llama.abstractions.illamaexecutor.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Fields
 
@@ -22,9 +22,7 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 
 The logger used by this executor.
 
-```csharp
-protected ILogger _logger;
-```
+### **_logger**
 
 ### **_pastTokensCount**
 
@@ -44,7 +42,7 @@ protected int _consumedTokensCount;
 
 ### **_n_session_consumed**
 
-
+Number of tokens consumed from the session cache during the current run.
 
 ```csharp
 protected int _n_session_consumed;
@@ -52,7 +50,7 @@ protected int _n_session_consumed;
 
 ### **_n_matching_session_tokens**
 
-
+Number of prompt tokens that match the loaded session cache prefix.
 
 ```csharp
 protected int _n_matching_session_tokens;
@@ -63,7 +61,7 @@ protected int _n_matching_session_tokens;
 The path of the session file.
 
 ```csharp
-protected string _pathSession;
+protected string? _pathSession;
 ```
 
 ### **_embeds**
@@ -84,7 +82,7 @@ protected List<LLamaToken> _embed_inps;
 
 ### **_session_tokens**
 
-
+Tokens recovered from the session file and reused to warm up the KV cache.
 
 ```csharp
 protected List<LLamaToken> _session_tokens;
@@ -112,7 +110,21 @@ public LLamaContext Context { get; }
 
 [LLamaContext](./llama.llamacontext.md)<br>
 
+### **AntipromptProcessor**
+
+Tracks anti-prompts across streamed output.
+
+```csharp
+protected AntipromptProcessor AntipromptProcessor { get; }
+```
+
+#### Property Value
+
+[AntipromptProcessor](./llama.antipromptprocessor.md)<br>
+
 ### **IsMultiModal**
+
+Identify if it's a multi-modal model and there is a image to process.
 
 ```csharp
 public bool IsMultiModal { get; }
@@ -120,65 +132,55 @@ public bool IsMultiModal { get; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **ClipModel**
 
+Multi-Modal Projections / Clip Model weights
+
 ```csharp
-public LLavaWeights ClipModel { get; }
+public MtmdWeights? ClipModel { get; }
 ```
 
 #### Property Value
 
-[LLavaWeights](./llama.llavaweights.md)<br>
+[MtmdWeights](./llama.mtmdweights.md)<br>
 
-### **Images**
+### **Embeds**
+
+List of media: List of media for Multi-Modal models.
 
 ```csharp
-public List<Byte[]> Images { get; }
+public List<SafeMtmdEmbed> Embeds { get; }
 ```
 
 #### Property Value
 
-[List&lt;Byte[]&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;SafeMtmdEmbed&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+### **MtmdChunks**
+
+Pending multimodal chunks produced by the MTMD tokenizer.
+
+```csharp
+protected SafeMtmdInputChunks? MtmdChunks { get; set; }
+```
+
+#### Property Value
+
+[SafeMtmdInputChunks](./llama.native.safemtmdinputchunks.md)<br>
 
 ## Constructors
 
-### **StatefulExecutorBase(LLamaContext, ILogger)**
+### **.ctor**
 
-
-
-```csharp
-protected StatefulExecutorBase(LLamaContext context, ILogger logger)
-```
-
-#### Parameters
-
-`context` [LLamaContext](./llama.llamacontext.md)<br>
-
-`logger` ILogger<br>
-
-### **StatefulExecutorBase(LLamaContext, LLavaWeights, ILogger)**
-
-
-
-```csharp
-public StatefulExecutorBase(LLamaContext context, LLavaWeights lLavaWeights, ILogger logger)
-```
-
-#### Parameters
-
-`context` [LLamaContext](./llama.llamacontext.md)<br>
-
-`lLavaWeights` [LLavaWeights](./llama.llavaweights.md)<br>
-
-`logger` ILogger<br>
+### **.ctor**
 
 ## Methods
 
 ### **WithSessionFile(String)**
 
-This API is currently not verified.
+Attach a session cache file so the executor can reuse previous KV state if compatible.
 
 ```csharp
 public StatefulExecutorBase WithSessionFile(string filename)
@@ -186,21 +188,23 @@ public StatefulExecutorBase WithSessionFile(string filename)
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+Path to the llama.cpp session file.
 
 #### Returns
 
 [StatefulExecutorBase](./llama.statefulexecutorbase.md)<br>
+The current executor instance for fluent configuration.
 
 #### Exceptions
 
-[ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentnullexception)<br>
+[ArgumentNullException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentnullexception)<br>
 
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
 
 ### **SaveSessionFile(String)**
 
-This API has not been verified currently.
+Persist the current session cache to disk.
 
 ```csharp
 public void SaveSessionFile(string filename)
@@ -208,117 +212,270 @@ public void SaveSessionFile(string filename)
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+Destination path for the llama.cpp session file.
 
-### **HandleRunOutOfContext(Int32)**
+### **HandleRunOutOfContext(Int32, IInferenceParams)**
 
 After running out of the context, take some tokens from the original prompt and recompute the logits in batches.
 
 ```csharp
-protected void HandleRunOutOfContext(int tokensToKeep)
+protected virtual Task HandleRunOutOfContext(int tokensToKeep, IInferenceParams inferenceParams)
 ```
 
 #### Parameters
 
-`tokensToKeep` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`tokensToKeep` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+The number of tokens from the initial prompt to preserve (e.g., system prompt).
+
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+The parameters controlling the inference and overflow strategy.
+
+#### Returns
+
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+
+#### Exceptions
+
+[ContextOverflowException](./llama.exceptions.contextoverflowexception.md)<br>
+Thrown when the overflow strategy is set to ThrowException, or if the model does not support native shifting.
+
+[ArgumentOutOfRangeException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentoutofrangeexception)<br>
+Thrown when tokensToKeep is invalid.
 
 ### **TryReuseMatchingPrefix()**
 
-Try to reuse the matching prefix from the session file.
+Try to reuse the matching prompt prefix from the loaded session cache before evaluating new tokens.
 
 ```csharp
-protected void TryReuseMatchingPrefix()
+protected virtual void TryReuseMatchingPrefix()
 ```
 
-### **GetLoopCondition(InferStateArgs)**
+### **DisposeMtmdChunks()**
 
-Decide whether to continue the loop.
+Dispose and clear any queued multimodal chunk collection.
 
 ```csharp
-protected abstract Task<bool> GetLoopCondition(InferStateArgs args)
+protected void DisposeMtmdChunks()
+```
+
+### **DisposeEmbeds()**
+
+Dispose and clear any pending multimodal embeddings.
+
+```csharp
+protected void DisposeEmbeds()
+```
+
+### **GetMtmdMarker()**
+
+Retrieve the marker token used to signal media segments to the tokenizer.
+
+```csharp
+protected string GetMtmdMarker()
+```
+
+#### Returns
+
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **BuildTokensWithFiller(List&lt;LLamaToken&gt;, Int32, LLamaToken)**
+
+Ensure the token list fills all positional slots reported by the MTMD helper.
+
+```csharp
+protected static List<LLamaToken> BuildTokensWithFiller(List<LLamaToken> tokens, int totalPositions, LLamaToken fillerToken)
+```
+
+#### Parameters
+
+`tokens` [List&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+`totalPositions` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`fillerToken` [LLamaToken](./llama.native.llamatoken.md)<br>
+
+#### Returns
+
+[List&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+### **GetFillerToken(String)**
+
+Resolve the fallback token inserted when the tokenizer emits fewer tokens than positions.
+
+```csharp
+protected LLamaToken GetFillerToken(string marker)
+```
+
+#### Parameters
+
+`marker` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+#### Returns
+
+[LLamaToken](./llama.native.llamatoken.md)<br>
+
+### **PreprocessMtmd(String, InferStateArgs, Boolean, Boolean)**
+
+Prepare multimodal inputs by invoking the MTMD tokenizer and aligning filler tokens.
+
+```csharp
+protected Task PreprocessMtmd(string text, InferStateArgs args, bool addBos, bool replaceExisting)
+```
+
+#### Parameters
+
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+`args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+
+`addBos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+`replaceExisting` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
+#### Returns
+
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+
+### **FinalizeMtmdEvaluation(Int32, Int32)**
+
+Apply bookkeeping after successfully evaluating multimodal chunks.
+
+```csharp
+protected void FinalizeMtmdEvaluation(int newNPast, int previousConsumed)
+```
+
+#### Parameters
+
+`newNPast` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`previousConsumed` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **EvaluateMtmdChunks(ref Int32, Int32, String)**
+
+Evaluate the queued MTMD chunks and update executor state.
+
+```csharp
+protected void EvaluateMtmdChunks(ref int nPast, int previousConsumed, string executorName)
+```
+
+#### Parameters
+
+`ref` `nPast` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`previousConsumed` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+`executorName` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+
+### **GetLoopCondition(InferStateArgs, CancellationToken)**
+
+Determine whether the inference loop should continue processing tokens.
+
+```csharp
+protected abstract Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;Boolean&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;Boolean&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+`true` to continue generating; otherwise `false`.
 
-### **PreprocessInputs(String, InferStateArgs)**
+### **PreprocessInputs(String, InferStateArgs, CancellationToken)**
 
-Preprocess the inputs before the inference.
+Prepare the executor for inference by tokenizing input and updating cached state.
 
 ```csharp
-protected abstract Task PreprocessInputs(string text, InferStateArgs args)
+protected abstract Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
+Prompt text to process.
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **PostProcess(IInferenceParams, InferStateArgs)**
+### **PostProcess(IInferenceParams, InferStateArgs, CancellationToken)**
 
-Do some post processing after the inference.
+Perform any post-processing on the generated tokens.
 
 ```csharp
-protected abstract Task<ValueTuple<bool, IReadOnlyList<string>>> PostProcess(IInferenceParams inferenceParams, InferStateArgs args)
+protected abstract Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+Parameters controlling sampling.
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task&lt;ValueTuple&lt;Boolean, IReadOnlyList&lt;String&gt;&gt;&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+[Task&lt;(Boolean, IReadOnlyList&lt;String&gt;)&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1)<br>
+A tuple indicating whether generation should stop and any extra outputs to emit.
 
-### **InferInternal(IInferenceParams, InferStateArgs)**
+### **InferInternal(IInferenceParams, InferStateArgs, CancellationToken)**
 
-The core inference logic.
+Core inference loop that advances the model by one step.
 
 ```csharp
-protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args)
+protected abstract Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+Parameters controlling sampling.
 
 `args` [InferStateArgs](./llama.statefulexecutorbase.inferstateargs.md)<br>
+Mutable state associated with the current inference.
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **SaveState(String)**
+### **SaveState(String, CancellationToken)**
 
-Save the current state to a file.
+Save the executor state to a serialized snapshot file.
 
 ```csharp
-public abstract Task SaveState(string filename)
+public abstract Task SaveState(string filename, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+Destination file for the serialized state.
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
 ### **GetStateData()**
 
-Get the current state data.
+Capture the executor state in a serializable object.
 
 ```csharp
 public abstract ExecutorBaseState GetStateData()
@@ -327,77 +484,89 @@ public abstract ExecutorBaseState GetStateData()
 #### Returns
 
 [ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)<br>
+State snapshot suitable for persistence.
 
-### **LoadState(ExecutorBaseState)**
+### **LoadState(ExecutorBaseState, CancellationToken)**
 
-Load the state from data.
+Restore executor state from a previously captured snapshot.
 
 ```csharp
-public abstract Task LoadState(ExecutorBaseState data)
+public abstract Task LoadState(ExecutorBaseState data, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
 `data` [ExecutorBaseState](./llama.statefulexecutorbase.executorbasestate.md)<br>
+State snapshot created by [StatefulExecutorBase.GetStateData()](./llama.statefulexecutorbase.md#getstatedata).
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
-### **LoadState(String)**
+### **LoadState(String, CancellationToken)**
 
-Load the state from a file.
+Restore executor state from a serialized snapshot file.
 
 ```csharp
-public abstract Task LoadState(string filename)
+public abstract Task LoadState(string filename, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
-`filename` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`filename` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+Path to the snapshot produced by [StatefulExecutorBase.SaveState(String, CancellationToken)](./llama.statefulexecutorbase.md#savestatestring-cancellationtoken).
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
 ### **InferAsync(String, IInferenceParams, CancellationToken)**
 
-Execute the inference.
+Execute an asynchronous inference session.
 
 ```csharp
-public IAsyncEnumerable<string> InferAsync(string text, IInferenceParams inferenceParams, CancellationToken cancellationToken)
+public virtual IAsyncEnumerable<string> InferAsync(string? text, IInferenceParams? inferenceParams = null, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
-`text` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-The prompt. If null, generation will continue where it left off previously.
+`text` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
+Optional prompt; when null generation resumes from prior state.
 
-`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)<br>
+`inferenceParams` [IInferenceParams](./llama.abstractions.iinferenceparams.md)?<br>
+Sampling parameters to apply; defaults are used when null.
 
-`cancellationToken` [CancellationToken](https://docs.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
+Cancellation token for cooperative cancellation.
 
 #### Returns
 
-[IAsyncEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+[IAsyncEnumerable&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1)<br>
+Stream of decoded text segments as they become available.
 
-### **PrefillPromptAsync(String)**
+### **PrefillPromptAsync(String, CancellationToken)**
 
 Asynchronously runs a prompt through the model to compute KV cache without generating any new tokens.
  It could reduce the latency of the first time response if the first input from the user is not immediate.
 
 ```csharp
-public Task PrefillPromptAsync(string prompt)
+public virtual async Task PrefillPromptAsync(string prompt, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
 
-`prompt` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`prompt` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 Prompt to process
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken)<br>
 
 #### Returns
 
-[Task](https://docs.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
+[Task](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task)<br>
 
 ---
 

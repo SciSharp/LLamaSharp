@@ -12,7 +12,7 @@ The parameters for initializing a LLama model.
 public interface IModelParams
 ```
 
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Properties
 
@@ -25,24 +25,24 @@ main_gpu interpretation depends on split_mode:
 - **Layer** - Ignored.
 
 ```csharp
-public abstract int MainGpu { get; set; }
+int MainGpu { get; set; }
 ```
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **SplitMode**
 
 How to split the model across multiple GPUs
 
 ```csharp
-public abstract Nullable<GPUSplitMode> SplitMode { get; }
+GPUSplitMode? SplitMode { get; }
 ```
 
 #### Property Value
 
-[Nullable&lt;GPUSplitMode&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
+[GPUSplitMode?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
 ### **TensorBufferOverrides**
 
@@ -50,67 +50,62 @@ Buffer type overrides for specific tensor patterns, allowing you to specify hard
  Equivalent to --override-tensor or -ot on the llama.cpp command line or tensor_buft_overrides internally.
 
 ```csharp
-public abstract List<TensorBufferOverride> TensorBufferOverrides { get; }
+List<TensorBufferOverride> TensorBufferOverrides { get; }
 ```
 
 #### Property Value
 
-[List&lt;TensorBufferOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;TensorBufferOverride&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+### **Devices**
+
+Names of the backend devices the model may use, in priority order, e.g. "Vulkan1" or "CUDA0" (see [NativeApi.ggml_backend_dev_name(IntPtr)](./llama.native.nativeapi.md#ggml_backend_dev_nameintptr)).
+ Equivalent to --device on the llama.cpp command line or `devices` in `llama_model_params`.
+
+```csharp
+List<string> Devices { get; }
+```
+
+#### Property Value
+
+[List&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+**Remarks:**
+
+When empty, llama.cpp picks the devices itself: all discrete GPUs, or the first integrated GPU when there is no discrete GPU.
+ Setting this list explicitly bypasses that selection, which is the only way to run on an integrated GPU in a machine that also has a discrete GPU.
+ [IModelParams.MainGpu](./llama.abstractions.imodelparams.md#maingpu) is an index into this list when it is non-empty. Names are matched case insensitively; a name that does not match any available device throws [UnknownDeviceException](./llama.exceptions.unknowndeviceexception.md) when the model is loaded.
 
 ### **GpuLayerCount**
 
 Number of layers to run in VRAM / GPU memory (n_gpu_layers)
 
 ```csharp
-public abstract int GpuLayerCount { get; }
+int GpuLayerCount { get; }
 ```
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **UseMemorymap**
-
-Use mmap for faster loads (use_mmap)
-
-```csharp
-public abstract bool UseMemorymap { get; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-### **UseMemoryLock**
-
-Use mlock to keep model in memory (use_mlock)
-
-```csharp
-public abstract bool UseMemoryLock { get; }
-```
-
-#### Property Value
-
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 ### **ModelPath**
 
 Model path (model)
 
 ```csharp
-public abstract string ModelPath { get; }
+string ModelPath { get; }
 ```
 
 #### Property Value
 
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+[String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 ### **TensorSplits**
 
 how split tensors should be distributed across GPUs
 
 ```csharp
-public abstract TensorSplitsCollection TensorSplits { get; }
+TensorSplitsCollection TensorSplits { get; }
 ```
 
 #### Property Value
@@ -122,36 +117,60 @@ public abstract TensorSplitsCollection TensorSplits { get; }
 Load vocab only (no weights)
 
 ```csharp
-public abstract bool VocabOnly { get; }
+bool VocabOnly { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **CheckTensors**
 
 Validate model tensor data before loading
 
 ```csharp
-public abstract bool CheckTensors { get; }
+bool CheckTensors { get; }
 ```
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ### **MetadataOverrides**
 
 Override specific metadata items in the model
 
 ```csharp
-public abstract List<MetadataOverride> MetadataOverrides { get; }
+List<MetadataOverride> MetadataOverrides { get; }
 ```
 
 #### Property Value
 
-[List&lt;MetadataOverride&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+[List&lt;MetadataOverride&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1)<br>
+
+### **LoadMode**
+
+How the load this model
+
+```csharp
+LLamaLoadMode LoadMode { get; }
+```
+
+#### Property Value
+
+[LLamaLoadMode](./llama.native.llamaloadmode.md)<br>
+
+### **LoadMTP**
+
+Whether to load MTP layers
+
+```csharp
+bool LoadMTP { get; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ---
 

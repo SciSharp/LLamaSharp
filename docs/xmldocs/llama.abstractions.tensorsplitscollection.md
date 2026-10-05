@@ -9,12 +9,12 @@ Namespace: LLama.Abstractions
 A fixed size array to set the tensor splits across multiple GPUs
 
 ```csharp
-public sealed class TensorSplitsCollection : System.Collections.Generic.IEnumerable`1[[System.Single, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Collections.IEnumerable
+public sealed class TensorSplitsCollection : System.Collections.Generic.IEnumerable`1[[System.Single, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Collections.IEnumerable
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)<br>
-Implements [IEnumerable&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1), [IEnumerable](https://docs.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [DefaultMemberAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.defaultmemberattribute), JsonConverterAttribute
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [TensorSplitsCollection](./llama.abstractions.tensorsplitscollection.md)<br>
+Implements [IEnumerable&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1), [IEnumerable](https://learn.microsoft.com/en-us/dotnet/api/system.collections.ienumerable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute), [DefaultMemberAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.defaultmemberattribute), [JsonConverterAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonconverterattribute)
 
 ## Properties
 
@@ -28,17 +28,23 @@ public int Length { get; }
 
 #### Property Value
 
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **Item**
+## Indexers
+
+### **this[Int32]**
 
 ```csharp
-public float Item { get; set; }
+public float this[int index] { get; set; }
 ```
+
+#### Parameters
+
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Property Value
 
-[Single](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+[Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 ## Constructors
 
@@ -52,11 +58,11 @@ public TensorSplitsCollection(Single[] splits)
 
 #### Parameters
 
-`splits` [Single[]](https://docs.microsoft.com/en-us/dotnet/api/system.single)<br>
+`splits` [Single[]](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 
 #### Exceptions
 
-[ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
+[ArgumentException](https://learn.microsoft.com/en-us/dotnet/api/system.argumentexception)<br>
 
 ### **TensorSplitsCollection()**
 
@@ -84,7 +90,7 @@ public IEnumerator<float> GetEnumerator()
 
 #### Returns
 
-[IEnumerator&lt;Single&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerator-1)<br>
+[IEnumerator&lt;Single&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerator-1)<br>
 
 ---
 

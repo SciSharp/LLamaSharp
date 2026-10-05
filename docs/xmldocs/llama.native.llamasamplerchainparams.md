@@ -12,7 +12,7 @@ Namespace: LLama.Native
 public struct LLamaSamplerChainParams
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaSamplerChainParams](./llama.native.llamasamplerchainparams.md)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaSamplerChainParams](./llama.native.llamasamplerchainparams.md)
 
 **Remarks:**
 
@@ -30,7 +30,7 @@ public bool NoPerf { get; set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
@@ -39,7 +39,7 @@ public bool NoPerf { get; set; }
 Get the default LLamaSamplerChainParams
 
 ```csharp
-LLamaSamplerChainParams Default()
+public static LLamaSamplerChainParams Default()
 ```
 
 #### Returns

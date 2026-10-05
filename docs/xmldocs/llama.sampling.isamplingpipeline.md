@@ -12,8 +12,8 @@ Convert a span of logits into a single sampled token. This interface can be impl
 public interface ISamplingPipeline : System.IDisposable
 ```
 
-Implements [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
+Implements [IDisposable](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute)
 
 ## Methods
 
@@ -30,7 +30,7 @@ LLamaToken Sample(SafeLLamaContextHandle ctx, int index)
 `ctx` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
 The context being sampled from
 
-`index` [Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
+`index` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 Position to sample logits from
 
 #### Returns

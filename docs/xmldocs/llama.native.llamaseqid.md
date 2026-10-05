@@ -9,11 +9,11 @@ Namespace: LLama.Native
 ID for a sequence in a batch
 
 ```csharp
-public struct LLamaSeqId
+public record struct LLamaSeqId
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://docs.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaSeqId](./llama.native.llamaseqid.md)<br>
-Implements [IEquatable&lt;LLamaSeqId&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.iequatable-1)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [ValueType](https://learn.microsoft.com/en-us/dotnet/api/system.valuetype) → [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+Implements [IEquatable&lt;LLamaSeqId&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.iequatable-1)
 
 ## Fields
 
@@ -33,55 +33,39 @@ LLamaSeqId with value 0
 public static LLamaSeqId Zero;
 ```
 
-## Methods
+## Operators
 
-### **ToString()**
+### **explicit operator int(LLamaSeqId)**
 
-```csharp
-string ToString()
-```
-
-#### Returns
-
-[String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
-
-### **GetHashCode()**
+Convert a LLamaSeqId into an integer (extract the raw value)
 
 ```csharp
-int GetHashCode()
-```
-
-#### Returns
-
-[Int32](https://docs.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **Equals(Object)**
-
-```csharp
-bool Equals(object obj)
+public static explicit operator int(LLamaSeqId pos)
 ```
 
 #### Parameters
 
-`obj` [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object)<br>
+`pos` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **Equals(LLamaSeqId)**
+### **explicit operator LLamaSeqId(Int32)**
+
+Convert an integer into a LLamaSeqId
 
 ```csharp
-bool Equals(LLamaSeqId other)
+public static explicit operator LLamaSeqId(int value)
 ```
 
 #### Parameters
 
-`other` [LLamaSeqId](./llama.native.llamaseqid.md)<br>
+`value` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[LLamaSeqId](./llama.native.llamaseqid.md)<br>
 
 ---
 

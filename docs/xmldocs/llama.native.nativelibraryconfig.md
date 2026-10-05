@@ -13,8 +13,8 @@ Allows configuration of the native llama.cpp libraries to load and use.
 public sealed class NativeLibraryConfig
 ```
 
-Inheritance [Object](https://docs.microsoft.com/en-us/dotnet/api/system.object) → [NativeLibraryConfig](./llama.native.nativelibraryconfig.md)<br>
-Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
+Inheritance [Object](https://learn.microsoft.com/en-us/dotnet/api/system.object) → [NativeLibraryConfig](./llama.native.nativelibraryconfig.md)<br>
+Attributes [NullableContextAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullablecontextattribute), [NullableAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.nullableattribute)
 
 ## Properties
 
@@ -22,11 +22,11 @@ Attributes [NullableContextAttribute](https://docs.microsoft.com/en-us/dotnet/ap
 
 #### Caution
 
-Please use NativeLibraryConfig.All instead, or set configurations for NativeLibraryConfig.LLama and NativeLibraryConfig.LLavaShared respectively.
+Please use NativeLibraryConfig.All instead, or set configurations for NativeLibraryConfig.LLama and NativeLibraryConfig.Mtmd respectively.
 
 ---
 
-Set configurations for all the native libraries, including LLama and LLava
+Set configurations for all the native libraries, including LLama and Multimodal
 
 ```csharp
 public static NativeLibraryConfigContainer Instance { get; }
@@ -38,7 +38,7 @@ public static NativeLibraryConfigContainer Instance { get; }
 
 ### **All**
 
-Set configurations for all the native libraries, including LLama and LLava
+Set configurations for all the native libraries, including LLama and Multimodal
 
 ```csharp
 public static NativeLibraryConfigContainer All { get; }
@@ -60,12 +60,12 @@ public static NativeLibraryConfig LLama { get; }
 
 [NativeLibraryConfig](./llama.native.nativelibraryconfig.md)<br>
 
-### **LLava**
+### **Mtmd**
 
-Configuration for LLava native library
+Configuration for Mtmd native library
 
 ```csharp
-public static NativeLibraryConfig LLava { get; }
+public static NativeLibraryConfig Mtmd { get; }
 ```
 
 #### Property Value
@@ -82,7 +82,7 @@ public bool LibraryHasLoaded { get; internal set; }
 
 #### Property Value
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 ## Methods
 
@@ -92,12 +92,12 @@ Load a specified native library as backend for LLamaSharp.
  When this method is called, all the other configurations will be ignored.
 
 ```csharp
-public NativeLibraryConfig WithLibrary(string libraryPath)
+public NativeLibraryConfig WithLibrary(string? libraryPath)
 ```
 
 #### Parameters
 
-`libraryPath` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`libraryPath` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)?<br>
 The full path to the native library to load.
 
 #### Returns
@@ -106,7 +106,7 @@ The full path to the native library to load.
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 Thrown if `LibraryHasLoaded` is true.
 
 ### **WithCuda(Boolean)**
@@ -114,12 +114,12 @@ Thrown if `LibraryHasLoaded` is true.
 Configure whether to use cuda backend if possible. Default is true.
 
 ```csharp
-public NativeLibraryConfig WithCuda(bool enable)
+public NativeLibraryConfig WithCuda(bool enable = true)
 ```
 
 #### Parameters
 
-`enable` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`enable` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
@@ -127,7 +127,7 @@ public NativeLibraryConfig WithCuda(bool enable)
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 Thrown if `LibraryHasLoaded` is true.
 
 ### **WithVulkan(Boolean)**
@@ -135,12 +135,12 @@ Thrown if `LibraryHasLoaded` is true.
 Configure whether to use vulkan backend if possible. Default is true.
 
 ```csharp
-public NativeLibraryConfig WithVulkan(bool enable)
+public NativeLibraryConfig WithVulkan(bool enable = true)
 ```
 
 #### Parameters
 
-`enable` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`enable` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
@@ -148,12 +148,12 @@ public NativeLibraryConfig WithVulkan(bool enable)
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 Thrown if `LibraryHasLoaded` is true.
 
 ### **WithAvx(AvxLevel)**
 
-Configure the prefferred avx support level of the backend. 
+Configure the preferred AVX support level of the backend. 
  Default value is detected automatically due to your operating system.
 
 ```csharp
@@ -170,7 +170,7 @@ public NativeLibraryConfig WithAvx(AvxLevel level)
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 Thrown if `LibraryHasLoaded` is true.
 
 ### **WithAutoFallback(Boolean)**
@@ -178,12 +178,12 @@ Thrown if `LibraryHasLoaded` is true.
 Configure whether to allow fallback when there's no match for preferred settings. Default is true.
 
 ```csharp
-public NativeLibraryConfig WithAutoFallback(bool enable)
+public NativeLibraryConfig WithAutoFallback(bool enable = true)
 ```
 
 #### Parameters
 
-`enable` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`enable` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
@@ -191,7 +191,7 @@ public NativeLibraryConfig WithAutoFallback(bool enable)
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 Thrown if `LibraryHasLoaded` is true.
 
 ### **SkipCheck(Boolean)**
@@ -201,12 +201,12 @@ Whether to skip the check when you don't allow fallback. This option
  you have your cublas configured but LLamaSharp take it as invalid by mistake. Default is false;
 
 ```csharp
-public NativeLibraryConfig SkipCheck(bool enable)
+public NativeLibraryConfig SkipCheck(bool enable = true)
 ```
 
 #### Parameters
 
-`enable` [Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+`enable` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
 #### Returns
 
@@ -214,7 +214,7 @@ public NativeLibraryConfig SkipCheck(bool enable)
 
 #### Exceptions
 
-[InvalidOperationException](https://docs.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
+[InvalidOperationException](https://learn.microsoft.com/en-us/dotnet/api/system.invalidoperationexception)<br>
 Thrown if `LibraryHasLoaded` is true.
 
 ### **WithSearchDirectories(IEnumerable&lt;String&gt;)**
@@ -229,7 +229,7 @@ public NativeLibraryConfig WithSearchDirectories(IEnumerable<string> directories
 
 #### Parameters
 
-`directories` [IEnumerable&lt;String&gt;](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
+`directories` [IEnumerable&lt;String&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1)<br>
 
 #### Returns
 
@@ -247,7 +247,7 @@ public NativeLibraryConfig WithSearchDirectory(string directory)
 
 #### Parameters
 
-`directory` [String](https://docs.microsoft.com/en-us/dotnet/api/system.string)<br>
+`directory` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
 #### Returns
 
@@ -275,12 +275,12 @@ public NativeLibraryConfig WithSelectingPolicy(INativeLibrarySelectingPolicy pol
 Set the log callback that will be used for all llama.cpp log messages
 
 ```csharp
-public NativeLibraryConfig WithLogCallback(LLamaLogCallback callback)
+public NativeLibraryConfig WithLogCallback(LLamaLogCallback? callback)
 ```
 
 #### Parameters
 
-`callback` [LLamaLogCallback](./llama.native.nativelogconfig.llamalogcallback.md)<br>
+`callback` [LLamaLogCallback](./llama.native.nativelogconfig.llamalogcallback.md)?<br>
 
 #### Returns
 
@@ -288,29 +288,11 @@ public NativeLibraryConfig WithLogCallback(LLamaLogCallback callback)
 
 #### Exceptions
 
-[NotImplementedException](https://docs.microsoft.com/en-us/dotnet/api/system.notimplementedexception)<br>
+[NotImplementedException](https://learn.microsoft.com/en-us/dotnet/api/system.notimplementedexception)<br>
 
-### **WithLogCallback(ILogger)**
+### **WithLogCallback**
 
-Set the log callback that will be used for all llama.cpp log messages
-
-```csharp
-public NativeLibraryConfig WithLogCallback(ILogger logger)
-```
-
-#### Parameters
-
-`logger` ILogger<br>
-
-#### Returns
-
-[NativeLibraryConfig](./llama.native.nativelibraryconfig.md)<br>
-
-#### Exceptions
-
-[NotImplementedException](https://docs.microsoft.com/en-us/dotnet/api/system.notimplementedexception)<br>
-
-### **DryRun(INativeLibrary&)**
+### **DryRun(out INativeLibrary)**
 
 Try to load the native library with the current configurations, 
  but do not actually set it to [NativeApi](./llama.native.nativeapi.md).
@@ -318,18 +300,18 @@ Try to load the native library with the current configurations,
  You can still modify the configuration after this calling but only before any call from [NativeApi](./llama.native.nativeapi.md).
 
 ```csharp
-public bool DryRun(INativeLibrary& loadedLibrary)
+public bool DryRun(out INativeLibrary loadedLibrary)
 ```
 
 #### Parameters
 
-`loadedLibrary` [INativeLibrary&](./llama.abstractions.inativelibrary&.md)<br>
+`out` `loadedLibrary` [INativeLibrary](./llama.abstractions.inativelibrary.md)<br>
 The loaded livrary. When the loading failed, this will be null. 
  However if you are using .NET standard2.0, this will never return null.
 
 #### Returns
 
-[Boolean](https://docs.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 Whether the running is successful.
 
 ---
