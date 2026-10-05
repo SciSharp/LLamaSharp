@@ -51,7 +51,7 @@ namespace LLama.Abstractions
         /// <remarks>
         /// When empty, llama.cpp picks the devices itself: all discrete GPUs, or the first integrated GPU when there is no discrete GPU.
         /// Setting this list explicitly bypasses that selection, which is the only way to run on an integrated GPU in a machine that also has a discrete GPU.
-        /// <see cref="MainGpu"/> is an index into this list when it is non-empty. Names that do not match an available device are ignored.
+        /// <see cref="MainGpu"/> is an index into this list when it is non-empty. Names are matched case insensitively; a name that does not match any available device throws <see cref="Exceptions.UnknownDeviceException"/> when the model is loaded.
         /// </remarks>
         List<string> Devices { get; }
 

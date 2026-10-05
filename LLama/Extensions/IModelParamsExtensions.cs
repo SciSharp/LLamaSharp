@@ -2,6 +2,7 @@ using System.IO;
 using System;
 using System.Text;
 using LLama.Abstractions;
+using LLama.Exceptions;
 using LLama.Native;
 using System.Collections.Generic;
 
@@ -20,6 +21,7 @@ public static class IModelParamsExtensions
     /// <returns></returns>
     /// <exception cref="FileNotFoundException"></exception>
     /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="UnknownDeviceException">Thrown if a name in <see cref="IModelParams.Devices"/> does not match any available device</exception>
     public static IDisposable ToLlamaModelParams(this IModelParams @params, out LLamaModelParams result)
     {
         var supportsMmap = NativeApi.llama_supports_mmap();
@@ -141,8 +143,9 @@ public static class IModelParamsExtensions
         if (deviceNames.Count == 0)
             return null;
 
-        // Map device name -> ggml_backend_dev_t
+        // Map device name -> ggml_backend_dev_t, keeping the names in native order for error messages
         var devicesByName = new Dictionary<string, IntPtr>();
+        var availableNames = new List<string>();
         var deviceCount = NativeApi.ggml_backend_dev_count();
         for (nuint i = 0; i < deviceCount; i++)
         {
@@ -151,27 +154,43 @@ public static class IModelParamsExtensions
                 continue;
 
             var name = NativeApi.ggml_backend_dev_name(device).PtrToString();
-            if (!string.IsNullOrEmpty(name))
-                devicesByName[name!] = device;
+            if (string.IsNullOrEmpty(name))
+                continue;
+
+            devicesByName[name!] = device;
+            availableNames.Add(name!);
         }
 
         // Resolve the requested names in order. One extra slot for the null terminator.
-        var devicesCount = 0;
         var devicesArray = new IntPtr[deviceNames.Count + 1];
-        foreach (var name in deviceNames)
-        {
-            if (!string.IsNullOrEmpty(name) && devicesByName.TryGetValue(name, out var device))
-                devicesArray[devicesCount++] = device;
-        }
-
-        // Early out if none of the names matched
-        if (devicesCount == 0)
-            return null;
+        for (var i = 0; i < deviceNames.Count; i++)
+            devicesArray[i] = ResolveDevice(deviceNames[i], devicesByName, availableNames);
 
         // Pin the array so it can be passed to native code
         var pin = devicesArray.AsMemory().Pin();
         disposer.Add(pin);
         return (IntPtr*)pin.Pointer;
+    }
+
+    /// <summary>
+    /// Find the device with the given name. Tries an exact match first, then a case insensitive match.
+    /// </summary>
+    /// <exception cref="UnknownDeviceException">Thrown if no device matches the name</exception>
+    private static IntPtr ResolveDevice(string name, Dictionary<string, IntPtr> devicesByName, List<string> availableNames)
+    {
+        if (!string.IsNullOrEmpty(name))
+        {
+            if (devicesByName.TryGetValue(name, out var device))
+                return device;
+
+            foreach (var pair in devicesByName)
+            {
+                if (string.Equals(pair.Key, name, StringComparison.OrdinalIgnoreCase))
+                    return pair.Value;
+            }
+        }
+
+        throw new UnknownDeviceException(name ?? "", availableNames);
     }
 
     private static unsafe LLamaModelTensorBufferOverride* ConvertOverrides(List<TensorBufferOverride> overrides, GroupDisposable disposer)
