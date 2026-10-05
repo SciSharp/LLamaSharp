@@ -72,6 +72,17 @@ namespace LLama.Native
                     return _loadedLlamaHandle;
                 }
 
+                if (name == ggmlLibraryName || name == ggmlBaseLibraryName)
+                {
+                    // ggml and ggml-base are loaded by full path as dependencies of llama, so the default runtime
+                    // resolution cannot be relied on to find them by name (it fails on macOS). Make sure llama (and
+                    // therefore its dependencies) has been loaded, then return the dependency handle.
+                    if (_loadedLlamaHandle == IntPtr.Zero)
+                        _loadedLlamaHandle = NativeLibraryUtils.TryLoadLibrary(NativeLibraryConfig.LLama, out _loadedLLamaLibrary);
+
+                    return name == ggmlLibraryName ? NativeLibraryUtils.LoadedGgmlHandle : NativeLibraryUtils.LoadedGgmlBaseHandle;
+                }
+
                 if (name == "mtmd")
                 {
                     // If we've already loaded Mtmd return the handle that was loaded last time.
