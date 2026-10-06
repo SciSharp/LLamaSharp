@@ -131,6 +131,10 @@ namespace LLama.Common
         /// <inheritdoc />
         public bool? KVUnified { get; set; }
 
+        /// <inheritdoc />
+        [JsonIgnore]
+        public IntPtr CtxOther { get; set; } = IntPtr.Zero;
+
         /// <summary>
         /// `Encoding` cannot be directly JSON serialized, instead store the name as a string which can
         /// </summary>

@@ -22,6 +22,12 @@ namespace LLama.Web.Common
 
         LLamaContextType IContextParams.ContextType => LLamaContextType.Default;
 
+        /// <summary>
+        /// A source/target/parent context.
+        /// Utilized by MTP (Multi-Token Prediction) to link the draft context to the target context's hidden states.
+        /// </summary>
+        IntPtr IContextParams.CtxOther { get; set; }
+
         /// <inheritdoc />
         public int MainGpu { get; set; } = 0;
 
