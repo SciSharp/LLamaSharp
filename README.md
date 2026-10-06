@@ -5,6 +5,7 @@
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp?label=LLamaSharp)](https://www.nuget.org/packages/LLamaSharp)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cpu?label=LLamaSharp.Backend.Cpu)](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda12?label=LLamaSharp.Backend.Cuda12)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12)
+[![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Cuda13?label=LLamaSharp.Backend.Cuda13)](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda13)
 [![LLamaSharp Badge](https://img.shields.io/nuget/v/LLamaSharp.Backend.Vulkan?label=LLamaSharp.Backend.Vulkan)](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan)
 
 
@@ -96,6 +97,7 @@ PM> Install-Package LLamaSharp
    - [`LLamaSharp.Backend.Cpu`](https://www.nuget.org/packages/LLamaSharp.Backend.Cpu): Pure CPU for Windows, Linux & Mac. Metal (GPU) support for Mac.
    - [`LLamaSharp.Backend.Cuda11`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda11): CUDA 11 for Windows & Linux.
    - [`LLamaSharp.Backend.Cuda12`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda12): CUDA 12 for Windows & Linux.
+   - [`LLamaSharp.Backend.Cuda13`](https://www.nuget.org/packages/LLamaSharp.Backend.Cuda13): CUDA 13 for Windows & Linux.
    - [`LLamaSharp.Backend.Vulkan`](https://www.nuget.org/packages/LLamaSharp.Backend.Vulkan): Vulkan for Windows & Linux.
 
 ### Model preparation
