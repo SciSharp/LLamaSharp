@@ -15,13 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.13" />
-    <PackageReference Include="NAudio" Version="3.1.0" />
     <PackageReference Include="Spectre.Console" Version="0.57.2" />
-    <PackageReference Include="Whisper.net" Version="1.9.1" />
-    <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
-    <PackageReference Include="Whisper.net.Runtime.Clblast" Version="1.5.0" />
-    <PackageReference Include="Whisper.net.Runtime.CoreML" Version="1.9.1" />
-    <PackageReference Include="Whisper.net.Runtime.Cublas" Version="1.5.0" />
     <PackageReference Include="Microsoft.Agents.AI" Version="*-*" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="*-*" />
     <PackageReference Include="CommunityToolkit.VectorData.SqliteVec" Version="*-*" />
