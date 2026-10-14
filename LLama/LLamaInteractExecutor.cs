@@ -8,10 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using LLama.Abstractions;
 using LLama.Common;
-using LLama;
 using LLama.Exceptions;
 using LLama.Native;
-using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
 
@@ -109,7 +107,7 @@ namespace LLama
         {
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
-            var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs);
+            var state = await JsonSerializer.DeserializeAsync<InteractiveExecutorState>(fs, cancellationToken: cancellationToken);
             await LoadState(state!, cancellationToken);
         }
 
@@ -117,8 +115,9 @@ namespace LLama
         /// Decide whether generation should continue for the current iteration.
         /// </summary>
         /// <param name="args">Mutable inference state.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns><c>true</c> to keep generating; otherwise <c>false</c>.</returns>
-        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
+        protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(args.RemainedTokens != 0 && !args.WaitForInput || _is_prompt_run);
         }
@@ -128,7 +127,8 @@ namespace LLama
         /// </summary>
         /// <param name="text">Prompt text or continuation provided by the caller.</param>
         /// <param name="args">Mutable inference state.</param>
-        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
+        /// <param name="cancellationToken"></param>
+        protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken = default)
         {
             if (_is_prompt_run)
             {

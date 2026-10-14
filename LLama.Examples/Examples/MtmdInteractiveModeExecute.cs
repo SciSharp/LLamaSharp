@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using LLama;
 using LLama.Common;
 using LLama.Exceptions;
-using Spectre.Console;
 using LLama.Native;
 using LLama.Sampling;
 
@@ -17,11 +13,11 @@ namespace LLama.Examples.Examples
     {
         public static async Task Run()
         {
-            string multiModalProj = UserSettings.GetMMProjPath();
-            string modelPath = UserSettings.GetModelPath();
+            var multiModalProj = UserSettings.GetMMProjPath();
+            var modelPath = UserSettings.GetModelPath();
             const int maxTokens = 4096;
 
-            string? prompt = await File.ReadAllTextAsync("Assets/chat-with-bob.json");
+            var prompt = await File.ReadAllTextAsync("Assets/chat-with-bob.json");
 
             var parameters = new ModelParams(modelPath);
 
@@ -164,7 +160,7 @@ namespace LLama.Examples.Examples
                             if (isImage)
                             {
                                 // Keep the raw image data so the caller can reuse or inspect the images later.
-                                imageList.Add(File.ReadAllBytes(mediaPath));
+                                imageList.Add(await File.ReadAllBytesAsync(mediaPath));
                             }
                             else if (isAudio)
                             {
@@ -197,18 +193,7 @@ namespace LLama.Examples.Examples
                     if (imageList.Count > 0)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("Here are the images, that are sent to the chat model in addition to your message.");
-                        Console.WriteLine();
-
-                        foreach (var consoleImage in imageList.Select(image => new CanvasImage(image.ToArray())))
-                        {
-                            consoleImage.MaxWidth = 50;
-                            AnsiConsole.Write(consoleImage);
-                        }
-
-                        Console.WriteLine();
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("The images were scaled down for the console only, the model gets full versions.");
+                        Console.WriteLine($"Loaded images files: {string.Join(", ", imageList)}");
                         Console.WriteLine();
                     }
 

@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using LLama.Common;
 using LLama.Native;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace LLama.Unittest;
 
 [Trait("Category", "NoCI")]
-public class MtmdExecutorTests : IDisposable
+public sealed class MtmdExecutorTests
+    : IDisposable
 {
     private readonly LLamaWeights _weights;
     private readonly MtmdContextParams _mtmdParams;
@@ -49,9 +46,9 @@ public class MtmdExecutorTests : IDisposable
 
         executor.Embeds.Add(_mtmd.LoadMedia(Constants.MtmdImage));
 
-        await foreach (var _ in executor.InferAsync(prompt, new InferenceParams { MaxTokens = 0 }))
+        await foreach (var _ in executor.InferAsync(prompt, new InferenceParams { MaxTokens = 0 }, TestContext.Current.CancellationToken))
         {
-            Assert.True(false, "Prefill should not emit generated text");
+            Assert.Fail("Prefill should not emit generated text");
         }
 
         var diagnostics = executor.GetDiagnostics();
@@ -69,7 +66,7 @@ public class MtmdExecutorTests : IDisposable
 
         var prompt = $"{_mtmdParams.MediaMarker ?? NativeApi.MtmdDefaultMarker() ?? "<media>"} Provide details.";
 
-        await foreach (var _ in executor.InferAsync(prompt, new InferenceParams { MaxTokens = 0 }))
+        await foreach (var _ in executor.InferAsync(prompt, new InferenceParams { MaxTokens = 0 }, TestContext.Current.CancellationToken))
         {
         }
 

@@ -30,12 +30,14 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var result = tokens.TokensEndsWithAnyString(new[]
         {
             "a fish",
             "the mat",
             "this is an improbably long query to be using for this method"
         }, _model.NativeHandle, Encoding.UTF8);
+#pragma warning restore CS0618 // Type or member is obsolete
         Assert.True(result);
     }
 
@@ -44,10 +46,12 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var result = tokens.TokensEndsWithAnyString((IList<string>)new[]
         {
             "at",
         }, _model.NativeHandle, Encoding.UTF8);
+#pragma warning restore CS0618 // Type or member is obsolete
         Assert.True(result);
     }
 
@@ -56,12 +60,14 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var result = tokens.TokensEndsWithAnyString((IList<string>)new[]
         {
             "a fish",
             "The cat sat on the edge of the ma",
             "this is an improbably long query to be using for this method"
         }, _model.NativeHandle, Encoding.UTF8);
+#pragma warning restore CS0618 // Type or member is obsolete
         Assert.False(result);
     }
 
@@ -70,7 +76,9 @@ public sealed class TokenTests
     {
         var tokens = _model.NativeHandle.Tokenize("The cat sat on the edge of the mat", false, true, Encoding.UTF8);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var result = tokens.TokensEndsWithAnyString((IList<string>)Array.Empty<string>(), _model.NativeHandle, Encoding.UTF8);
+#pragma warning restore CS0618 // Type or member is obsolete
         Assert.False(result);
     }
 
@@ -158,7 +166,9 @@ public sealed class TokenTests
             var tokens = _model.NativeHandle.Tokenize(input, false, false, Encoding.UTF8);
 
             // Convert tokens back into characters
+#pragma warning disable CS0618 // Type or member is obsolete
             var chars = _model.NativeHandle.TokensToSpan(tokens, charsArr.AsSpan(), Encoding.UTF8);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // llama.cpp adds a space to the start of strings, remove that
             var output = new string(chars).TrimStart(' ');

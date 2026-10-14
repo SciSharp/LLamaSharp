@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using LLama.Native;
 
 namespace LLama.Extensions
 {

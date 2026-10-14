@@ -203,7 +203,7 @@ namespace LLama.Native
         /// <summary>
         /// Evaluate a batch of chunks using the helper (mirrors mtmd-helper eval logic).
         /// </summary>
-        /// <param name="chunks">Chunk collection produced by <see cref="Tokenize"/>.</param>
+        /// <param name="chunks">Chunk collection produced by <see cref="Tokenize(string,bool,bool,out LLama.Native.SafeMtmdInputChunks?)"/>.</param>
         /// <param name="llamaContext">Context handle that receives the evaluated tokens.</param>
         /// <param name="nPast">Number of past tokens; updated when evaluation succeeds.</param>
         /// <param name="seqId">Sequence identifier used for KV cache management.</param>

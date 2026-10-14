@@ -33,6 +33,10 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long llama_max_devices();
 
+        /// <summary>
+        /// Get the maximum number of tensor buffer-type overrides supported by the framework
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern nint llama_max_tensor_buft_overrides();
 
@@ -472,6 +476,10 @@ namespace LLama.Native
         [DllImport(ggmlBaseLibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ggml_backend_buft_name(IntPtr buft);
 
+        /// <summary>
+        /// Get the current time in microseconds
+        /// </summary>
+        /// <returns></returns>
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern long llama_time_us();
 

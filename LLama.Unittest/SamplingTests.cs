@@ -3,8 +3,6 @@ using LLama.Native;
 using System.Numerics.Tensors;
 using System.Text;
 
-using Xunit.Abstractions;
-
 namespace LLama.Unittest
 {
     public class SamplingTests

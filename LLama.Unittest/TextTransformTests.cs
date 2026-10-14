@@ -1,4 +1,4 @@
-﻿namespace LLama.Unittest
+namespace LLama.Unittest
 {
     public sealed class TextTransformTests
     {
@@ -21,7 +21,10 @@
 
             var transform = new LLamaTransforms.EmptyTextOutputStreamTransform();
 
-            Assert.Equal(input, await transform.TransformAsync(input.ToAsyncEnumerable()).ToArrayAsync());
+            Assert.Equal(
+                input,
+                await transform.TransformAsync(input.ToAsyncEnumerable()).ToArrayAsync(TestContext.Current.CancellationToken)
+            );
         }
     }
 }
