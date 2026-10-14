@@ -38,7 +38,7 @@ jobs:
             os: ubuntu-24.04
             config: release
             name: Linux musl x64 CPU
-            container: mcr.microsoft.com/dotnet/sdk:9.0-alpine
+            container: mcr.microsoft.com/dotnet/sdk:10.0-alpine
     steps:
     - name: Free Disk Space (Ubuntu)
       if: ${{ matrix.build == 'linux-x64-cpu' || matrix.build == 'linux-arm64-cpu' }}
