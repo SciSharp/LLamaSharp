@@ -131,7 +131,7 @@ public static class IModelParamsExtensions
             if (string.IsNullOrEmpty(name))
                 continue;
 
-            result[name] = buft;
+            result[name!] = buft;
         }
 
         return result;

@@ -14,14 +14,18 @@ public sealed class LLamaExecutorChatClientTests
     {
         var executor = new CapturingExecutor();
 
-        await executor.AsChatClient().GetResponseAsync("hello", new ChatOptions
-        {
-            RawRepresentationFactory = _ => new InferenceParams
+        await executor.AsChatClient().GetResponseAsync(
+            "hello",
+            new ChatOptions
             {
-                MaxTokens = 1024,
-                SamplingPipeline = new DefaultSamplingPipeline { Temperature = 0.1f, TopP = 0.5f, TopK = 5, Seed = 42 },
+                RawRepresentationFactory = _ => new InferenceParams
+                {
+                    MaxTokens = 1024,
+                    SamplingPipeline = new DefaultSamplingPipeline { Temperature = 0.1f, TopP = 0.5f, TopK = 5, Seed = 42 },
+                }
             },
-        });
+            cancellationToken: TestContext.Current.CancellationToken
+        );
 
         var pipeline = Assert.IsType<DefaultSamplingPipeline>(executor.InferenceParams?.SamplingPipeline);
         Assert.Equal(1024, executor.InferenceParams!.MaxTokens);
@@ -36,10 +40,14 @@ public sealed class LLamaExecutorChatClientTests
     {
         var executor = new CapturingExecutor();
 
-        await executor.AsChatClient().GetResponseAsync("hello", new ChatOptions
-        {
-            RawRepresentationFactory = _ => new InferenceParams { MaxTokens = -1 },
-        });
+        await executor.AsChatClient().GetResponseAsync(
+            "hello",
+            new ChatOptions
+            {
+                RawRepresentationFactory = _ => new InferenceParams { MaxTokens = -1 },
+            },
+            cancellationToken: TestContext.Current.CancellationToken
+        );
 
         Assert.Equal(-1, executor.InferenceParams!.MaxTokens);
     }
@@ -49,19 +57,23 @@ public sealed class LLamaExecutorChatClientTests
     {
         var executor = new CapturingExecutor();
 
-        await executor.AsChatClient().GetResponseAsync("hello", new ChatOptions
-        {
-            MaxOutputTokens = 64,
-            Temperature = 0.9f,
-            TopP = 0.8f,
-            TopK = 20,
-            Seed = 7,
-            RawRepresentationFactory = _ => new InferenceParams
+        await executor.AsChatClient().GetResponseAsync(
+            "hello",
+            new ChatOptions
             {
-                MaxTokens = 1024,
-                SamplingPipeline = new DefaultSamplingPipeline { Temperature = 0.1f, TopP = 0.5f, TopK = 5, Seed = 42 },
+                MaxOutputTokens = 64,
+                Temperature = 0.9f,
+                TopP = 0.8f,
+                TopK = 20,
+                Seed = 7,
+                RawRepresentationFactory = _ => new InferenceParams
+                {
+                    MaxTokens = 1024,
+                    SamplingPipeline = new DefaultSamplingPipeline { Temperature = 0.1f, TopP = 0.5f, TopK = 5, Seed = 42 },
+                },
             },
-        });
+            cancellationToken: TestContext.Current.CancellationToken
+        );
 
         var pipeline = Assert.IsType<DefaultSamplingPipeline>(executor.InferenceParams?.SamplingPipeline);
         Assert.Equal(64, executor.InferenceParams!.MaxTokens);
@@ -77,10 +89,14 @@ public sealed class LLamaExecutorChatClientTests
         var executor = new CapturingExecutor();
         var greedy = new GreedySamplingPipeline();
 
-        await executor.AsChatClient().GetResponseAsync("hello", new ChatOptions
-        {
-            RawRepresentationFactory = _ => new InferenceParams { SamplingPipeline = greedy },
-        });
+        await executor.AsChatClient().GetResponseAsync(
+            "hello",
+            new ChatOptions
+            {
+                RawRepresentationFactory = _ => new InferenceParams { SamplingPipeline = greedy },
+            },
+            cancellationToken: TestContext.Current.CancellationToken
+        );
 
         Assert.Same(greedy, executor.InferenceParams?.SamplingPipeline);
     }
@@ -90,7 +106,7 @@ public sealed class LLamaExecutorChatClientTests
     {
         var executor = new CapturingExecutor();
 
-        await executor.AsChatClient().GetResponseAsync("hello");
+        await executor.AsChatClient().GetResponseAsync("hello", cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(256, executor.InferenceParams!.MaxTokens);
     }

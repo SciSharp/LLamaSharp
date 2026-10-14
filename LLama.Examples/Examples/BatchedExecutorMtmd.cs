@@ -40,7 +40,6 @@ public class BatchedExecutorMtmd
         var promptText = string.Concat(marker, promptSuffix);
 
         var imagePath = UserSettings.GetImagePath();
-        AnsiConsole.Write(new CanvasImage(imagePath));
 
         var vocab = executor.Context.NativeHandle.ModelHandle.Vocab;
 

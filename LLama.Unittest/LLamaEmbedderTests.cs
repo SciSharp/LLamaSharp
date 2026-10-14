@@ -2,7 +2,6 @@ using LLama.Common;
 using LLama.Extensions;
 using LLama.Native;
 using Microsoft.Extensions.AI;
-using Xunit.Abstractions;
 
 namespace LLama.Unittest;
 

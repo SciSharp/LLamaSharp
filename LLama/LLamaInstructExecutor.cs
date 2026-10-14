@@ -29,7 +29,7 @@ namespace LLama
         private readonly string _instructionSuffix;
 
         /// <summary>
-        /// 
+        /// Construct a new InstructExecutor
         /// </summary>
         /// <param name="context"></param>
         /// <param name="instructionPrefix"></param>
@@ -47,6 +47,14 @@ namespace LLama
             _instructionSuffix = instructionSuffix;
         }
 
+        /// <summary>
+        /// Construct a new InstructExecutor, with multimodal model weights
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="clipModel"></param>
+        /// <param name="instructionPrefix"></param>
+        /// <param name="instructionSuffix"></param>
+        /// <param name="logger"></param>
         public InstructExecutor(LLamaContext context,
                                 MtmdWeights clipModel,
                                 string instructionPrefix = "\n\n### Instruction:\n\n",

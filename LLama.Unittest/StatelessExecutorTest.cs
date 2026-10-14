@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using LLama.Common;
 using LLama.Sampling;
-using Xunit.Abstractions;
 
 namespace LLama.Unittest
 {
@@ -43,8 +42,8 @@ namespace LLama.Unittest
             var timer = new Stopwatch();
             timer.Start();
 
-            var result1 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
-            var result2 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
+            var result1 = string.Join("", await executor.InferAsync(question, @params, TestContext.Current.CancellationToken).ToListAsync(TestContext.Current.CancellationToken));
+            var result2 = string.Join("", await executor.InferAsync(question, @params, TestContext.Current.CancellationToken).ToListAsync(TestContext.Current.CancellationToken));
 
             timer.Stop();
             _testOutputHelper.WriteLine($"{timer.ElapsedMilliseconds}ms");
@@ -74,8 +73,8 @@ namespace LLama.Unittest
                 ContextTruncationPercentage = 0.2f // Drop 20% of tokens when full
             };
 
-            var result1 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
-            var result2 = string.Join("", await executor.InferAsync(question, @params).ToListAsync());
+            var result1 = string.Join("", await executor.InferAsync(question, @params, TestContext.Current.CancellationToken).ToListAsync(TestContext.Current.CancellationToken));
+            var result2 = string.Join("", await executor.InferAsync(question, @params, TestContext.Current.CancellationToken).ToListAsync(TestContext.Current.CancellationToken));
 
             _testOutputHelper.WriteLine(result1);
 
@@ -120,7 +119,7 @@ namespace LLama.Unittest
 
             var exception = await Assert.ThrowsAsync<Exceptions.ContextOverflowException>(async () =>
             {
-                await executor.InferAsync(question, @params).ToListAsync();
+                await executor.InferAsync(question, @params, TestContext.Current.CancellationToken).ToListAsync(TestContext.Current.CancellationToken);
             });
 
             _testOutputHelper.WriteLine($"Successfully caught expected exception: {exception.Message}");
@@ -155,7 +154,7 @@ namespace LLama.Unittest
 
             var exception = await Assert.ThrowsAsync<Exceptions.ContextOverflowException>(async () =>
             {
-                await executor.InferAsync(instruction, @params).ToListAsync();
+                await executor.InferAsync(instruction, @params, TestContext.Current.CancellationToken).ToListAsync(TestContext.Current.CancellationToken);
             });
 
             _testOutputHelper.WriteLine($"Successfully caught expected exception in InstructExecutor: {exception.Message}");

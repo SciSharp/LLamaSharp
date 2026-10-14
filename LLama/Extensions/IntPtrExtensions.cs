@@ -1,9 +1,11 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace LLama.Extensions;
 
+/// <summary>
+/// Extensions for <see cref="IntPtr"/>
+/// </summary>
 public static class IntPtrExtensions
 {
 

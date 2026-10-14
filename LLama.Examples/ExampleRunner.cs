@@ -32,7 +32,7 @@ public class ExampleRunner
         { "Batched Executor: BoolQ Benchmark", BatchedExecutorBoolQ.Run },
         { "Batched Executor: Beam Search", BatchedExecutorBeamSearch.Run },
         { "Custom Sampling Pipeline", CustomSampler.Run },
-        { "Speech Chat: Integration with Whisper.net", SpeechChat.Run },
+        //{ "Speech Chat: Integration with Whisper.net", SpeechChat.Run },
         { "Exit", () => { Environment.Exit(0); return Task.CompletedTask; } }
     };
 
