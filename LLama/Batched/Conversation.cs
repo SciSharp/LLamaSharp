@@ -23,9 +23,6 @@ public sealed class Conversation
     /// </summary>
     private bool _forked;
     private MtmdChunkSequence? _pendingMtmdSequence;
-    private readonly List<LLamaToken> _embed_inps = new();
-    private readonly List<LLamaToken> _session_tokens = new();
-    private int _consumedTokensCount;
 
     /// <summary>
     /// Stores the indices to sample from. Contains <see cref="_batchSampleCount"/> valid items.
@@ -251,6 +248,12 @@ public sealed class Conversation
             throw new AlreadyPromptedConversationException();
     }
 
+    /// <summary>
+    /// Add text to this conversation
+    /// </summary>
+    /// <param name="promptText">Text to tokenize and append</param>
+    /// <param name="addBos">Whether to add a bos to the text.</param>
+    /// <param name="special">Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.</param>
     public void Prompt(string promptText, bool addBos = true, bool special = true)
     {
         var tokens = Executor.Context.Tokenize(promptText, addBos, special);
@@ -498,18 +501,6 @@ public sealed class Conversation
         _requiredEpoch = Executor.Epoch + 1;
         _forked = false;
 
-        if (sequence.TextTokens.Count > 0)
-        {
-            _embed_inps.AddRange(sequence.TextTokens);
-            _session_tokens.AddRange(sequence.TextTokens);
-        }
-
-        var fillerToken = GetFillerToken(Executor.GetMtmdMarker());
-        var fillerCount = Math.Max(0, sequence.TotalPositions - sequence.TotalTokens);
-        for (var i = 0; i < fillerCount; i++)
-            _embed_inps.Add(fillerToken);
-
-        _consumedTokensCount = _embed_inps.Count;
         sequence.Dispose();
     }
 
