@@ -88,7 +88,7 @@ jobs:
     - name: Build
       run: dotnet build LLamaSharp.sln -c ${{ matrix.config }} --no-restore
     - name: Test
-      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }} -l "console;verbosity=detailed" --diag:logs/log.txt --filter Category!=NoCI
+      run: dotnet test LLamaSharp.sln -c ${{ matrix.config }} --filter "Category!=NoCI" -- --diagnostic --diagnostic-verbosity Trace --diagnostic-output-directory logs
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
