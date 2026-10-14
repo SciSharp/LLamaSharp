@@ -11,7 +11,6 @@ using LLama.Abstractions;
 using LLama.Common;
 using LLama.Exceptions;
 using LLama.Native;
-using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 
 namespace LLama

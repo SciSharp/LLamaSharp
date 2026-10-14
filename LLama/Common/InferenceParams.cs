@@ -1,8 +1,6 @@
 using LLama.Abstractions;
 using System.Collections.Generic;
-using LLama.Native;
 using LLama.Sampling;
-using System;
 
 namespace LLama.Common
 {
