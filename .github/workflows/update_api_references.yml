@@ -21,13 +21,12 @@ jobs:
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          8.0.x
           10.0.x
     - name: install_tool_and_generate_api_docs
       run: |
         dotnet tool install -g XMLDoc2Markdown
         dotnet build ./LLama/LLamaSharp.csproj
-        cd LLama/bin/Debug/net8.0
+        cd LLama/bin/Debug/net10.0
         rm -rf ../../../../docs/xmldocs
         xmldoc2md LLamaSharp.dll -o ../../../../docs/xmldocs --back-button
         # XMLDoc2Markdown 6 also writes the compiler's fixed buffer types, named like <key>e__FixedBuffer,
