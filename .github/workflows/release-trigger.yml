@@ -19,4 +19,4 @@ jobs:
     steps:
     # This job does no work. It exists so that "auto-release" has a successful workflow run
     # to fire from, which is what gates the release on the PR labels above.
-    - run: echo "Release triggered by PR #${{ github.event.pull_request.number }}"
+    - run: echo "Release triggered by PR ${{ github.event.pull_request.number }}"
