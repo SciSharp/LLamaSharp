@@ -6,6 +6,8 @@
 
 Namespace: LLama.Extensions
 
+Extensions for [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)
+
 ```csharp
 public static class IntPtrExtensions
 ```

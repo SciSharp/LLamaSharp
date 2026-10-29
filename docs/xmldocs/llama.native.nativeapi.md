@@ -79,6 +79,8 @@ public static long llama_max_devices()
 
 ### **llama_max_tensor_buft_overrides()**
 
+Get the maximum number of tensor buffer-type overrides supported by the framework
+
 ```csharp
 public static IntPtr llama_max_tensor_buft_overrides()
 ```
@@ -667,6 +669,8 @@ Buffer type pointer
 Name of the buffer type
 
 ### **llama_time_us()**
+
+Get the current time in microseconds
 
 ```csharp
 public static long llama_time_us()
