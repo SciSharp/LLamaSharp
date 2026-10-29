@@ -247,7 +247,7 @@ Path to the snapshot produced by [StatefulExecutorBase.SaveState(String, Cancell
 Decide whether generation should continue for the current iteration.
 
 ```csharp
-protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken)
+protected override Task<bool> GetLoopCondition(InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
@@ -267,7 +267,7 @@ Mutable inference state.
 Preprocess the incoming prompt or continuation text before inference.
 
 ```csharp
-protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken)
+protected override Task PreprocessInputs(string? text, InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
@@ -289,7 +289,7 @@ Mutable inference state.
 Decide whether generation should stop based on antiprompts, token limits, or end-of-generation markers.
 
 ```csharp
-protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
+protected override Task<(bool, IReadOnlyList<string>)> PostProcess(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters
@@ -312,7 +312,7 @@ Tuple describing whether to stop and any additional outputs to emit.
 Core inference loop that advances the model by one step.
 
 ```csharp
-protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken)
+protected override async Task InferInternal(IInferenceParams inferenceParams, InferStateArgs args, CancellationToken cancellationToken = null)
 ```
 
 #### Parameters

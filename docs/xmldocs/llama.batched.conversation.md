@@ -197,6 +197,8 @@ Thrown if Infer() must be called on the executor
 
 ### **Prompt(String, Boolean, Boolean)**
 
+Add text to this conversation
+
 ```csharp
 public void Prompt(string promptText, bool addBos = true, bool special = true)
 ```
@@ -204,10 +206,13 @@ public void Prompt(string promptText, bool addBos = true, bool special = true)
 #### Parameters
 
 `promptText` [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
+Text to tokenize and append
 
 `addBos` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Whether to add a bos to the text.
 
 `special` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+Allow tokenizing special and/or control tokens which otherwise are not exposed and treated as plaintext.
 
 ### **Prompt(String, ReadOnlySpan&lt;SafeMtmdEmbed&gt;, Boolean)**
 

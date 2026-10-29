@@ -257,54 +257,6 @@ public int EvaluateChunks(SafeMtmdInputChunks chunks, SafeLLamaContextHandle lla
 
 [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
-### **EvaluateChunk(IntPtr, SafeLLamaContextHandle, ref Int32, Int32, Int32, Boolean)**
-
-```csharp
-public int EvaluateChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, ref int nPast, int seqId, int nBatch, bool logitsLast)
-```
-
-#### Parameters
-
-`chunkPtr` [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-`llamaContext` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`ref` `nPast` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`seqId` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`nBatch` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`logitsLast` [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
-
-#### Returns
-
-[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-### **DecodeImageChunk(IntPtr, SafeLLamaContextHandle, IntPtr, ref Int32, Int32, Int32)**
-
-```csharp
-public int DecodeImageChunk(IntPtr chunkPtr, SafeLLamaContextHandle llamaContext, IntPtr encodedEmbeddings, ref int nPast, int seqId, int nBatch)
-```
-
-#### Parameters
-
-`chunkPtr` [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-`llamaContext` [SafeLLamaContextHandle](./llama.native.safellamacontexthandle.md)<br>
-
-`encodedEmbeddings` [IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
-
-`ref` `nPast` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`seqId` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-`nBatch` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
-#### Returns
-
-[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-
 ### **Dispose()**
 
 ```csharp
