@@ -39,7 +39,7 @@ public class PromptTemplateTransformer(LLamaWeights model,
     public IHistoryTransform Clone()
     {
         // need to preserve history?
-        return new PromptTemplateTransformer(_model);
+        return new PromptTemplateTransformer(_model, _withAssistant);
     }
 
     #region utils

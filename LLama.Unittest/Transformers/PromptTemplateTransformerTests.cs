@@ -39,6 +39,22 @@ public class PromptTemplateTransformerTests
     }
 
     [Fact]
+    public void Clone_PreservesWithAssistant()
+    {
+        var transformer = new PromptTemplateTransformer(_model, withAssistant: false);
+        var history = new ChatHistory
+        {
+            Messages = [new ChatHistory.Message(AuthorRole.User, "userData")]
+        };
+
+        var clone = transformer.Clone();
+
+        const string expected = "<|im_start|>user\nuserData<|im_end|>\n";
+        Assert.Equal(expected, transformer.HistoryToText(history));
+        Assert.Equal(expected, clone.HistoryToText(history));
+    }
+
+    [Fact]
     public void ToModelPrompt_FormatsCorrectly()
     {
         var templater = new LLamaTemplate(_model)
