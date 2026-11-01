@@ -23,7 +23,7 @@ jobs:
             config: release
             name: Linux x64 CPU
           - build: macos-arm64-metal
-            os: macos-14
+            os: macos-15
             config: release
             name: macOS ARM64 Metal
           - build: windows-x64-cpu
