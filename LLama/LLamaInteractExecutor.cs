@@ -190,7 +190,10 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
+            // Only stop on an end-of-generation token that was just sampled. While the prompt is being
+            // fed in BatchSize chunks, _embeds holds a prompt chunk, which may end on an EOG token
+            // (e.g. the end-of-turn marker of a chat template). See #1465.
+            if (args.ReturnValue && _embeds.Count > 0 && _embeds.Last().IsEndOfGeneration(Context.Vocab))
             {
                 return Task.FromResult((true, (IReadOnlyList<string>)[]));
             }
