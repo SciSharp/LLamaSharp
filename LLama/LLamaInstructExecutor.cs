@@ -214,7 +214,8 @@ namespace LLama
                 }
             }
 
-            if (_embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
+            // Only react to an EOS token that was just sampled, not to a prompt chunk that ends on one (#1465).
+            if (args.ReturnValue && _embeds.Count > 0 && _embeds.Last() == Context.Vocab.EOS)
             {
                 args.WaitForInput = true;
             }
