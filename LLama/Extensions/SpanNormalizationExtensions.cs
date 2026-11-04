@@ -128,7 +128,7 @@ public static class SpanNormalizationExtensions
 
         var sum = 0.0;
         for (var i = 0; i < vector.Length; i++)
-            sum += MathF.Pow(vector[i], p);
+            sum += MathF.Pow(MathF.Abs(vector[i]), p);
         var divisor = (float)Math.Pow(sum, 1.0 / p);
 
         TensorPrimitives.Divide(vector, divisor, vector);
