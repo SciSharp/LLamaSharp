@@ -60,5 +60,32 @@ namespace LLama.Unittest
         {
             GetCharCountTest("猫坐在垫子上");
         }
+
+        private static void GetStringFromSpanTest(string str)
+        {
+            var bytes = Encoding.UTF8.GetBytes(str);
+
+            var result = EncodingExtensions.GetStringFromSpan(Encoding.UTF8, bytes);
+
+            Assert.Equal(str, result);
+        }
+
+        [Fact]
+        public void GetStringFromSpanEmptyString()
+        {
+            GetStringFromSpanTest("");
+        }
+
+        [Fact]
+        public void GetStringFromSpanString()
+        {
+            GetStringFromSpanTest("Hello World");
+        }
+
+        [Fact]
+        public void GetStringFromSpanChineseString()
+        {
+            GetStringFromSpanTest("猫坐在垫子上");
+        }
     }
 }
