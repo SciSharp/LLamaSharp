@@ -70,6 +70,9 @@ internal static class EncodingExtensions
 
     internal static string GetStringFromSpan(this Encoding encoding, ReadOnlySpan<byte> bytes)
     {
+        if (bytes.Length == 0)
+            return string.Empty;
+
         unsafe
         {
             fixed (byte* bytesPtr = bytes)
