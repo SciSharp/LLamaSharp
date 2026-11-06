@@ -337,10 +337,9 @@ public sealed class LLamaTemplate
                 // Add to cache for future use.
                 // To ensure the cache cannot grow infinitely add a hard limit to size.
                 if (roleCache.Count < 128)
-                {
                     roleCache.Add(role, rArr);
-                    roleBytes = rArr;
-                }
+
+                roleBytes = rArr;
             }
             RoleBytes = roleBytes;
 
