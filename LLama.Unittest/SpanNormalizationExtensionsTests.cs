@@ -27,4 +27,25 @@ public class SpanNormalizationExtensionsTests
         var norm = MathF.Pow(54f, 1f / 3f);
         Assert.Equal(new[] { 3f / norm, -3f / norm }, vector, (a, b) => Math.Abs(a - b) < 1e-6f);
     }
+
+    [Fact]
+    public void ZeroVectorArrayStaysZero()
+    {
+        Assert.Equal(new float[3], new float[3].MaxAbsoluteNormalization());
+        Assert.Equal(new float[3], new float[3].TaxicabNormalization());
+        Assert.Equal(new float[3], new float[3].EuclideanNormalization());
+        Assert.Equal(new float[3], new float[3].PNormalization(1));
+        Assert.Equal(new float[3], new float[3].PNormalization(2));
+        Assert.Equal(new float[3], new float[3].PNormalization(3));
+    }
+
+    [Fact]
+    public void ZeroVectorSpanStaysZero()
+    {
+        Assert.Equal(new float[3], new float[3].AsSpan().MaxAbsoluteNormalization().ToArray());
+        Assert.Equal(new float[3], new float[3].AsSpan().TaxicabNormalization().ToArray());
+        Assert.Equal(new float[3], new float[3].AsSpan().EuclideanNormalization().ToArray());
+        Assert.Equal(new float[3], new float[3].AsSpan().PNormalization(3).ToArray());
+        Assert.Equal(new float[3], ((ReadOnlySpan<float>)new float[3]).EuclideanNormalization());
+    }
 }

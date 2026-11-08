@@ -26,7 +26,11 @@ public static class SpanNormalizationExtensions
     /// <returns>The same span</returns>
     public static Span<float> MaxAbsoluteNormalization(this Span<float> vector)
     {
-        var factor = 32760 / TensorPrimitives.MaxMagnitude(vector);
+        var maxAbs = TensorPrimitives.MaxMagnitude(vector);
+        if (maxAbs == 0)
+            return vector;
+
+        var factor = 32760 / maxAbs;
         TensorPrimitives.Multiply(vector, factor, vector);
         return vector;
     }
@@ -52,6 +56,9 @@ public static class SpanNormalizationExtensions
     public static Span<float> TaxicabNormalization(this Span<float> vector)
     {
         var sumAbs = TensorPrimitives.SumOfMagnitudes(vector);
+        if (sumAbs == 0)
+            return vector;
+
         TensorPrimitives.Divide(vector, sumAbs, vector);
         return vector;
     }
@@ -77,6 +84,9 @@ public static class SpanNormalizationExtensions
     public static Span<float> EuclideanNormalization(this Span<float> vector)
     {
         var norm = TensorPrimitives.Norm(vector);
+        if (norm == 0)
+            return vector;
+
         TensorPrimitives.Divide(vector, norm, vector);
         return vector;
     }
@@ -89,7 +99,11 @@ public static class SpanNormalizationExtensions
     public static float[] EuclideanNormalization(this ReadOnlySpan<float> vector)
     {
         var result = new float[vector.Length];
-        TensorPrimitives.Divide(vector, TensorPrimitives.Norm(vector), result);
+        var norm = TensorPrimitives.Norm(vector);
+        if (norm == 0)
+            return result;
+
+        TensorPrimitives.Divide(vector, norm, result);
         return result;
     }
 
@@ -130,6 +144,8 @@ public static class SpanNormalizationExtensions
         for (var i = 0; i < vector.Length; i++)
             sum += MathF.Pow(MathF.Abs(vector[i]), p);
         var divisor = (float)Math.Pow(sum, 1.0 / p);
+        if (divisor == 0)
+            return vector;
 
         TensorPrimitives.Divide(vector, divisor, vector);
 
