@@ -17,6 +17,12 @@ public static partial class NativeApi
     internal struct mtmd_context_params
     {
         [MarshalAs(UnmanagedType.I1)] public bool use_gpu;
+
+        /// <summary>
+        /// Device used by the multimodal encoder, or null for automatic selection.
+        /// </summary>
+        public IntPtr device;
+
         [MarshalAs(UnmanagedType.I1)] public bool print_timings;
         public int n_threads;
         public IntPtr image_marker;
@@ -327,24 +333,69 @@ public static partial class NativeApi
         public IntPtr /* mtmd_helper_video* */ video_ctx;
     };
 
+    /// <summary>
+    /// Native video decoding defaults used by bitmap loading helpers.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct mtmd_helper_video_init_params
+    {
+        /// <summary>
+        /// Desired output frame rate.
+        /// </summary>
+        public float fps_target;
+
+        /// <summary>
+        /// Optional directory containing ffmpeg and ffprobe.
+        /// </summary>
+        public IntPtr ffmpeg_bin_dir;
+
+        /// <summary>
+        /// Interval between timestamps in milliseconds.
+        /// </summary>
+        public long timestamp_interval_ms;
+
+        /// <summary>
+        /// Whether to omit the soundtrack.
+        /// </summary>
+        [MarshalAs(UnmanagedType.I1)] public bool no_soundtrack;
+    }
+
+    /// <summary>
+    /// Native options passed by value to bitmap loading helpers.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct mtmd_helper_init_opt
+    {
+        /// <summary>
+        /// Video decoding options.
+        /// </summary>
+        public mtmd_helper_video_init_params video_params;
+    }
+
+    /// <summary>
+    /// Get bitmap loading defaults from the native library.
+    /// </summary>
+    [DllImport(mtmdLibraryName, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern mtmd_helper_init_opt mtmd_helper_init_opt_default();
+
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_test_create_input_chunks", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr mtmd_test_create_input_chunks();
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_file", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname, bool placeholder);
+    private static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname, bool placeholder, mtmd_helper_init_opt opt);
 
     internal static unsafe IntPtr mtmd_helper_bitmap_init_from_file(SafeMtmdModelHandle ctx, string fname)
     {
         using var pinned = PinnedUtf8String.Create(fname) ?? throw new ArgumentNullException(nameof(fname));
-        return mtmd_helper_bitmap_init_from_file_native(ctx, (byte*)pinned.Pointer, false).bitmap;
+        return mtmd_helper_bitmap_init_from_file_native(ctx, (byte*)pinned.Pointer, false, mtmd_helper_init_opt_default()).bitmap;
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_buf", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_buf_native(SafeMtmdModelHandle ctx, byte* buf, nuint len, bool placeholder);
+    internal static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_buf_native(SafeMtmdModelHandle ctx, byte* buf, nuint len, bool placeholder, mtmd_helper_init_opt opt);
 
     internal static unsafe IntPtr mtmd_helper_bitmap_init_from_buf(SafeMtmdModelHandle ctx, byte* buf, nuint len)
     {
-        return mtmd_helper_bitmap_init_from_buf_native(ctx, buf, len, false).bitmap;
+        return mtmd_helper_bitmap_init_from_buf_native(ctx, buf, len, false, mtmd_helper_init_opt_default()).bitmap;
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_get_n_tokens", CallingConvention = CallingConvention.Cdecl)]

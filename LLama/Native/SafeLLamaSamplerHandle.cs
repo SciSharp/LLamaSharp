@@ -489,16 +489,18 @@ public sealed class SafeLLamaSamplerChainHandle
     ///
     /// Avoid using on the full vocabulary as searching for repeated tokens can become slow. For example, apply top-k or top-p sampling first.
     /// </summary>
-    /// <param name="penaltyCount">How many tokens of history to consider when calculating penalties</param>
+    /// <param name="vocabSize">Number of tokens in the model vocabulary</param>
+    /// <param name="penaltyCount">How many tokens of history to consider; 0 disables penalties</param>
     /// <param name="repeat">Repetition penalty</param>
     /// <param name="freq">Frequency penalty</param>
     /// <param name="presence">Presence penalty</param>
     /// <returns></returns>
-    public void AddPenalties(int penaltyCount, float repeat, float freq, float presence)
+    public void AddPenalties(int vocabSize, int penaltyCount, float repeat, float freq, float presence)
     {
         llama_sampler_chain_add(
             this,
             llama_sampler_init_penalties(
+                vocabSize,
                 penaltyCount,
                 repeat,
                 freq,
@@ -509,7 +511,8 @@ public sealed class SafeLLamaSamplerChainHandle
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern IntPtr llama_sampler_init_penalties(
-            int penalty_last_n,     // last n tokens to penalize (0 = disable penalty, -1 = context size)
+            int n_vocab,
+            int penalty_last_n,     // last n tokens to penalize (0 = disable penalty)
             float penalty_repeat,   // 1.0 = disabled
             float penalty_freq,     // 0.0 = disabled
             float penalty_present   // 0.0 = disabled
@@ -526,7 +529,7 @@ public sealed class SafeLLamaSamplerChainHandle
     /// <param name="multiplier">penalty multiplier, 0.0 = disabled</param>
     /// <param name="base">exponential base</param>
     /// <param name="allowedLength">repeated sequences longer than this are penalized</param>
-    /// <param name="penaltyLastN">how many tokens to scan for repetitions (0 = entire context)</param>
+    /// <param name="penaltyLastN">how many tokens to scan for repetitions (0 disables DRY, -1 uses the model's training context length)</param>
     public void AddDry(SafeLlamaModelHandle model, ReadOnlySpan<string> sequenceBreakers, float multiplier = 0.8f, float @base = 1.75f, int allowedLength = 2, int penaltyLastN = 0)
     {
         unsafe
@@ -534,38 +537,42 @@ public sealed class SafeLLamaSamplerChainHandle
             // Convert strings, fix memory in place, build array of pointers
             var handles = new List<MemoryHandle>();
             var breakers = stackalloc byte*[sequenceBreakers.Length];
-            for (var i = 0; i < sequenceBreakers.Length; i++)
+            try
             {
-                var chars = Encoding.Default.GetBytes(sequenceBreakers[i]);
-                handles.Add(chars.AsMemory().Pin());
+                for (var i = 0; i < sequenceBreakers.Length; i++)
+                {
+                    var chars = Encoding.UTF8.GetBytes(sequenceBreakers[i] + '\0');
+                    handles.Add(chars.AsMemory().Pin());
 
-                breakers[i] = (byte*)handles[i].Pointer;
+                    breakers[i] = (byte*)handles[i].Pointer;
+                }
+
+                llama_sampler_chain_add(
+                    this,
+                    llama_sampler_init_dry(
+                        model.Vocab.VocabNative,
+                        multiplier,
+                        @base,
+                        allowedLength,
+                        penaltyLastN == -1 ? model.ContextSize : penaltyLastN,
+                        breakers,
+                        (nuint)sequenceBreakers.Length
+                    )
+                );
             }
-
-            llama_sampler_chain_add(
-                this,
-                llama_sampler_init_dry(
-                    model.Vocab.VocabNative,
-                    model.ContextSize,
-                    multiplier,
-                    @base,
-                    allowedLength,
-                    penaltyLastN,
-                    breakers,
-                    (nuint)sequenceBreakers.Length
-                )
-            );
-
-            // Clear up all the handles fixing the memory in place
-            for (var i = 0; i < handles.Count; i++)
-                handles[i].Dispose();
+            finally
+            {
+                for (var i = 0; i < handles.Count; i++)
+                {
+                    handles[i].Dispose();
+                }
+            }
         }
 
         // ReSharper disable InconsistentNaming
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         static extern unsafe IntPtr llama_sampler_init_dry(
             LLamaVocabNative* vocab,
-            int n_ctx_train,
             float dry_multiplier,
             float dry_base,
             int    dry_allowed_length,
@@ -776,6 +783,16 @@ internal struct LLamaSamplerINative
     public IntPtr BackendAccept;
     public IntPtr BackendApply;
     public IntPtr BackendSetInput;
+
+    /// <summary>
+    /// Clear backend state before rebuilding a sampling graph.
+    /// </summary>
+    public IntPtr BackendReset;
+
+    /// <summary>
+    /// Copy mutable state while preserving references to the sampling graph.
+    /// </summary>
+    public IntPtr CopyState;
 }
 
 /// <summary>

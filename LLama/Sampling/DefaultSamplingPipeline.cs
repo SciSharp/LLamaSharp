@@ -192,7 +192,7 @@ public class DefaultSamplingPipeline
 
         }
 
-        chain.AddPenalties(PenaltyCount, RepeatPenalty, FrequencyPenalty, PresencePenalty);
+        chain.AddPenalties(context.Vocab.Count, PenaltyCount, RepeatPenalty, FrequencyPenalty, PresencePenalty);
 
         chain.AddTopK(TopK);
         chain.AddTypical(TypicalP, MinKeep);

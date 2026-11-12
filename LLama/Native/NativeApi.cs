@@ -11,6 +11,12 @@ namespace LLama.Native
     public static partial class NativeApi
     {
         /// <summary>
+        /// Get a borrowed pointer to the native library's UTF-8 version string.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr llama_version();
+
+        /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
         /// </summary>
         /// <returns></returns>
