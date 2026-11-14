@@ -49,6 +49,11 @@ namespace LLama.Native
         /// max outputs in a ubatch (0 = n_batch)
         /// </summary>
         public uint n_outputs_max;
+
+        /// <summary>
+        /// Maximum outputs per sequence, 0 = n_outputs_max.
+        /// </summary>
+        public uint n_outputs_max_per_seq;
         
         /// <summary>
         /// number of threads to use for generation
@@ -146,6 +151,11 @@ namespace LLama.Native
         /// data type for V cache. <b>EXPERIMENTAL</b>
         /// </summary>
         public GGMLType type_v;
+
+        /// <summary>
+        /// Device cache size in bytes for experts kept in host memory, 0 = disabled.
+        /// </summary>
+        public nuint moe_cache_size;
 
         //todo: implement abort callback support
         /// <summary>

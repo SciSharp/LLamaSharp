@@ -110,6 +110,11 @@ namespace LLama.Native
         public IntPtr prune_layers; // int32 *
 
         /// <summary>
+        /// Maximum bytes of tensor rows held in memory, 0 = native default (8 GiB).
+        /// </summary>
+        public nuint max_buf_size;
+
+        /// <summary>
         /// Create a LLamaModelQuantizeParams with default values
         /// </summary>
         /// <returns></returns>

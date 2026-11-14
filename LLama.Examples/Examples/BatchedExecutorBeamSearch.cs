@@ -27,7 +27,8 @@ public class BatchedExecutorBeamSearch
         var beamsCount = AnsiConsole.Ask("How many parallel beams to keep track of?", 8);
 
         // Create an executor that can evaluate a batch of conversations together
-        using var executor = new BatchedExecutor(model, parameters);
+        // Keep room for all child beams and the last parent while it is being forked.
+        using var executor = new BatchedExecutor(model, parameters with { SeqMax = checked((uint)(beamsCount * beamsCount + 1)) });
 
         // Print some info
         var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");

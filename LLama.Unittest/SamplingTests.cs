@@ -1,3 +1,4 @@
+using LLama.Batched;
 using LLama.Common;
 using LLama.Native;
 using System.Numerics.Tensors;
@@ -89,7 +90,7 @@ namespace LLama.Unittest
         public void BatchedSampling()
         {
             const int batch_count = 4;
-            using var context = new LLamaContext(_model, _params);
+            using var context = new LLamaContext(_model, _params with { SeqMax = batch_count });
             var tokens = _model.NativeHandle.Tokenize("I will repeat this phrase forever.\n", false, false, Encoding.UTF8);
             var logitBias = tokens.Select(x => new LLamaLogitBias() { Token = x, Bias = -1000 }).ToArray();
 
@@ -153,9 +154,115 @@ namespace LLama.Unittest
         }
 
 
+        /// <summary>
+        /// Reject excess conversations before submitting invalid sequence IDs and reuse released IDs.
+        /// </summary>
+        [Fact]
+        public async Task BatchedExecutorRespectsSequenceCapacity()
+        {
+            using var executor = new BatchedExecutor(_model, _params with { SeqMax = 2 });
+            using var first = executor.Create();
+            using var second = executor.Create();
+            Assert.Throws<InvalidOperationException>(() => executor.Create());
+            var releasedId = first.ConversationId;
+            first.Dispose();
+            using var replacement = executor.Create();
+            Assert.Equal(releasedId, replacement.ConversationId);
+            replacement.Prompt(executor.Context.Tokenize("Hello"));
+            second.Prompt(executor.Context.Tokenize("Goodbye"));
+            Assert.Equal(DecodeResult.Ok, await executor.Infer(TestContext.Current.CancellationToken));
+        }
+
+        /// <summary>
+        /// A missing state file must not retain the executor's only sequence slot.
+        /// </summary>
+        [Fact]
+        public void FailedFileLoadReleasesSequenceCapacity()
+        {
+            using var executor = new BatchedExecutor(_model, _params with { SeqMax = 1 });
+            var missingFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.state");
+            Assert.Throws<FileNotFoundException>(() => executor.Load(missingFile));
+            using var replacement = executor.Create();
+            Assert.Equal(LLamaSeqId.Zero, replacement.ConversationId);
+        }
+
+        /// <summary>
+        /// A rejected in-memory state must not retain the executor's only sequence slot.
+        /// </summary>
+        [Fact]
+        public void FailedMemoryLoadReleasesSequenceCapacity()
+        {
+            using var executor = new BatchedExecutor(_model, _params with { SeqMax = 1 });
+            Assert.ThrowsAny<Exception>(() => executor.Load((Conversation.State)null!));
+            using var replacement = executor.Create();
+            Assert.Equal(LLamaSeqId.Zero, replacement.ConversationId);
+        }
+
+        /// <summary>
+        /// Successful loads keep their sequence slot until the returned conversation is disposed.
+        /// </summary>
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SuccessfulLoadRetainsSequenceCapacity(bool fromFile)
+        {
+            using var executor = new BatchedExecutor(_model, _params with { SeqMax = 1 });
+            var filename = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.state");
+            Conversation.State? state = null;
+            try
+            {
+                using (var source = executor.Create())
+                {
+                    if (fromFile)
+                    {
+                        source.Save(filename);
+                    }
+                    else
+                    {
+                        state = source.Save();
+                    }
+                }
+
+                using var loaded = fromFile ? executor.Load(filename) : executor.Load(state!);
+                Assert.False(loaded.IsDisposed);
+                Assert.Throws<InvalidOperationException>(() => executor.Create());
+                loaded.Dispose();
+                using var replacement = executor.Create();
+                Assert.Equal(LLamaSeqId.Zero, replacement.ConversationId);
+            }
+            finally
+            {
+                state?.Dispose();
+                File.Delete(filename);
+            }
+        }
+
+        /// <summary>
+        /// Preserve full-context DRY history while keeping zero history disabled.
+        /// </summary>
+        [Theory]
+        [InlineData(-1, -0.8f)]
+        [InlineData(32, -0.8f)]
+        [InlineData(0, 0f)]
+        public void DryHistoryLengthAppliesExpectedPenalty(int historyLength, float expected)
+        {
+            using var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
+            chain.AddDry(_model.NativeHandle, [], penaltyLastN: historyLength);
+            foreach (LLamaToken token in new[] { 1000, 1001, 1002, 1000, 1001 })
+            {
+                chain.Accept(token);
+            }
+
+            var candidates = LLamaTokenDataArray.Create(new float[_model.Vocab.Count]);
+            using var pin = LLamaTokenDataArrayNative.Create(candidates, out var native);
+            chain.Apply(ref native);
+            Assert.Equal(expected, native.Data[1002].Logit);
+            Assert.Equal(0f, native.Data[1003].Logit);
+        }
+
         private void DecodeAndClear(LLamaContext context)
         {
-            context.Decode(_batch);
+            Assert.Equal(DecodeResult.Ok, context.Decode(_batch));
             _batch.Clear();
         }
 
@@ -164,7 +271,7 @@ namespace LLama.Unittest
             var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
 
             chain.AddPenalties(
-                penaltyCount: 60, repeat: 1, freq: 0, presence: 0
+                vocabSize: context.Vocab.Count, penaltyCount: 60, repeat: 1, freq: 0, presence: 0
             );
 
             if (logit_bias != null) { chain.AddLogitBias(context.Vocab.Count, logit_bias); }

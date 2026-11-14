@@ -71,7 +71,7 @@ public sealed partial class LLamaReranker
             var docTokens = Context.Tokenize(documents[idx] ?? "");
             LLamaToken[] tokens = [.. inputTokens, .. docTokens];
 
-            if (batch.TokenCount + tokens.Length > Context.ContextSize)
+            if (batch.TokenCount + tokens.Length > Context.ContextSize || idx - clearFlag >= Context.NativeHandle.MaxSeq)
             {
                 scores.AddRange(await CalcRelevanceScores(batch, normalize, cancellationToken));
                 batch.Clear();

@@ -11,6 +11,12 @@ namespace LLama.Native
     public static partial class NativeApi
     {
         /// <summary>
+        /// Get a borrowed pointer to the native library's UTF-8 version string.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr llama_version();
+
+        /// <summary>
         /// A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.
         /// </summary>
         /// <returns></returns>
@@ -504,5 +510,111 @@ namespace LLama.Native
             FILE* file,
         struct llama_model_params   params);
         */
+
+        /*
+         * // Extended batch API (added in v0.9.0, not yet wrapped)
+           struct llama_embd {
+               const float * data;
+               size_t n_rows; // number of embedding rows in data
+               size_t n_embd; // size of one row
+           };
+
+           enum llama_process_type {
+               LLAMA_PROCESS_TYPE_ENCODE,
+               LLAMA_PROCESS_TYPE_DECODE,
+           };
+
+           LLAMA_API struct llama_batch_ext * llama_batch_ext_init (struct llama_context * ctx);
+
+           LLAMA_API void                     llama_batch_ext_free (struct llama_batch_ext * batch);
+
+           LLAMA_API void                     llama_batch_ext_clear(struct llama_batch_ext * batch);
+
+           // Add an input token to the batch, with default values:
+           //     id = LLAMA_TOKEN_NULL
+           //     embd = nullptr
+           //     pos = not set, the caller must set it with llama_batch_ext_set_pos()
+           // Returns the batch index (>= 0)
+           // On error:
+           //     -1: batch is full
+           //     -2: token is invalid (id == LLAMA_TOKEN_NULL or invalid embd)
+           //     -3: invalid sequence id
+           LLAMA_API int32_t llama_batch_ext_add      (struct llama_batch_ext * batch, llama_seq_id seq_id);
+
+           // Add an input token to the batch, with a specified token ID or token embedding
+           LLAMA_API int32_t llama_batch_ext_add_token(struct llama_batch_ext * batch, llama_seq_id seq_id, llama_token id);
+
+           // Add the token at index idx in the batch to another sequence id. The position will stays the same.
+           // Note: this should be called before other _set() functions
+           LLAMA_API bool llama_batch_ext_add_seq(
+                                       struct llama_batch_ext * batch,
+                                                      int32_t   idx,
+                                                 llama_seq_id   seq_id);
+
+           LLAMA_API int32_t llama_batch_ext_add_embd (struct llama_batch_ext * batch, llama_seq_id seq_id, struct llama_embd embd);
+
+           // Set custom position for the token at index idx in the batch
+           // For M-RoPE models:
+           //     - Embedding tokens must have n_pos_per_embd positions per token, in order [t, y, x, z]; t is also the KV cache position
+           //     - Text token only requires one single position per token
+           LLAMA_API bool llama_batch_ext_set_pos(
+                                       struct llama_batch_ext * batch,
+                                                      int32_t   idx,
+                                              const llama_pos * pos);
+
+           // Set the token embedding for the token at index idx in the batch
+           // use it after llama_batch_ext_add_token() to have an entry with both a token id and an embedding
+           LLAMA_API bool llama_batch_ext_set_embd_token(
+                                       struct llama_batch_ext * batch,
+                                                      int32_t   idx,
+                                            struct llama_embd   embd);
+
+           // Set the "state" embedding for the token at index idx in the batch
+           // "state" here means extra hidden state carried over from a previous stage, e.g.:
+           //   - MTP: state from N layers of the target model
+           //   - Qwen3 VL (deepstack): state from N layers of the vision encoder
+           //   - LiliCorr: context embeddings for the transformers
+           // Returns false if the context does not take a state embedding (MTP and LiliCorr contexts do)
+           LLAMA_API bool llama_batch_ext_set_embd_state(
+                                       struct llama_batch_ext * batch,
+                                                      int32_t   idx,
+                                            struct llama_embd   embd);
+
+           // Set if output embeddings should be available for the token at index idx in the batch
+           // Note: for now, this is equivalent to setting the output logits
+           LLAMA_API bool llama_batch_ext_set_output_embd(
+                                       struct llama_batch_ext * batch,
+                                                      int32_t  idx,
+                                                         bool  value);
+
+           // Set output logits for the token at index idx in the batch
+           // Note: for now, this is equivalent to setting the output embd
+           LLAMA_API bool llama_batch_ext_set_output_logits(
+                                       struct llama_batch_ext * batch,
+                                                      int32_t  idx,
+                                                         bool  value);
+
+           // Return values are the same as llama_decode()
+           LLAMA_API int32_t llama_process(
+                                       struct llama_context * ctx,
+                                    enum llama_process_type   type,
+                                     struct llama_batch_ext * batch);
+         */
+
+        /*
+         * // Context and sampler helpers (added in v0.9.0, not yet wrapped)
+           // Returns whether the context is currently using causal attention
+           LLAMA_API bool llama_get_causal_attn(const struct llama_context * ctx);
+
+           LLAMA_API void                   llama_sampler_copy  (const struct llama_sampler * src, struct llama_sampler * dst);
+         */
+
+        /*
+         * // Cannot be wrapped, pinvoke doesn't understand FILE (added in v0.9.0)
+           // Load a LoRA adapter from an open FILE pointer, reading from its current position
+           LLAMA_API struct llama_adapter_lora * llama_adapter_lora_init_from_file_ptr(
+                   struct llama_model * model,
+                   FILE * file);
+         */
     }
 }
