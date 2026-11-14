@@ -306,15 +306,6 @@ namespace LLama.Native
             static extern unsafe int llama_model_meta_val_str_native(SafeLlamaModelHandle model, byte* key, byte* buf, nint bufSize);
         }
 
-
-        /// <summary>
-        /// Get the number of tokens in the model vocabulary
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int llama_n_vocab(SafeLlamaModelHandle model);
-
         [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern LLamaRopeType llama_model_rope_type(SafeLlamaModelHandle model);
 
