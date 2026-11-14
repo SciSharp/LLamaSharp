@@ -7,7 +7,7 @@ using Moq;
 namespace LLama.Unittest;
 
 /// <summary>
-/// Exercise the v0.9.0 ABI against the loaded native libraries without model downloads.
+/// Exercise the v1.0.0 ABI against the loaded native libraries without model downloads.
 /// </summary>
 public class NativeCompatibilityTests
 {
@@ -17,7 +17,7 @@ public class NativeCompatibilityTests
     [Fact]
     public void NativeVersionMatchesBindings()
     {
-        Assert.StartsWith("0.9.0", Marshal.PtrToStringUTF8(NativeApi.llama_version()));
+        Assert.StartsWith("1.0.0", Marshal.PtrToStringUTF8(NativeApi.llama_version()));
     }
 
     /// <summary>
@@ -45,6 +45,7 @@ public class NativeCompatibilityTests
         Assert.True(parameters.n_threads > 0);
         Assert.Equal(GGMLType.GGML_TYPE_F16, parameters.type_k);
         Assert.Equal((nuint)0, parameters.moe_cache_size);
+        Assert.Equal(0f, parameters.moe_cache_cpu_share);
         Assert.Equal(IntPtr.Zero, parameters.abort_callback);
         Assert.False(parameters.embeddings);
         Assert.True(parameters.offload_kqv);

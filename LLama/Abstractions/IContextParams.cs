@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using LLama.Native;
 
@@ -119,8 +120,9 @@ public interface IContextParams
     bool? FlashAttention { get; }
     
     /// <summary>
-    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
+    /// No longer supported by llama.cpp; this value is ignored.
     /// </summary>
+    [Obsolete("KV cache defragmentation is no longer supported by llama.cpp; this value is ignored.")]
     float? DefragThreshold { get; }
 
     /// <summary>
