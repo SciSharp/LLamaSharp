@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using LLama.Native;
 
@@ -29,7 +30,7 @@ public interface IContextParams
     uint UBatchSize { get; }
 
     /// <summary>
-    /// max number of sequences (i.e. distinct states for recurrent models)
+    /// Maximum simultaneous sequences. Sequence IDs must be less than this value, including with a unified KV cache.
     /// </summary>
     uint SeqMax { get; }
 
@@ -119,8 +120,9 @@ public interface IContextParams
     bool? FlashAttention { get; }
     
     /// <summary>
-    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
+    /// No longer supported by llama.cpp; this value is ignored.
     /// </summary>
+    [Obsolete("KV cache defragmentation is no longer supported by llama.cpp; this value is ignored.")]
     float? DefragThreshold { get; }
 
     /// <summary>

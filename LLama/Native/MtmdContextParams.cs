@@ -14,6 +14,11 @@ public class MtmdContextParams
     public bool UseGpu { get; set; }
 
     /// <summary>
+    /// Device used by the encoder, or zero for automatic selection.
+    /// </summary>
+    public IntPtr Device { get; set; }
+
+    /// <summary>
     /// Whether timing information should be emitted by the native helper.
     /// </summary>
     public bool PrintTimings { get; set; }
@@ -69,6 +74,7 @@ public class MtmdContextParams
         return new MtmdContextParams
         {
             UseGpu = native.use_gpu,
+            Device = native.device,
             PrintTimings = native.print_timings,
             NThreads = native.n_threads,
             ImageMarker = native.image_marker.PtrToString(),
@@ -101,6 +107,7 @@ public class MtmdContextParams
 
             var native = NativeApi.mtmd_context_params_default();
             native.use_gpu = managed.UseGpu;
+            native.device = managed.Device;
             native.print_timings = managed.PrintTimings;
             native.n_threads = managed.NThreads;
             native.flash_attn_type = managed.FlashAttentionType;

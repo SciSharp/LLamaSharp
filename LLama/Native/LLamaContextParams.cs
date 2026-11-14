@@ -49,6 +49,11 @@ namespace LLama.Native
         /// max outputs in a ubatch (0 = n_batch)
         /// </summary>
         public uint n_outputs_max;
+
+        /// <summary>
+        /// Maximum outputs per sequence, 0 = n_outputs_max.
+        /// </summary>
+        public uint n_outputs_max_per_seq;
         
         /// <summary>
         /// number of threads to use for generation
@@ -120,11 +125,6 @@ namespace LLama.Native
         /// </summary>
         public uint yarn_orig_ctx;
 
-        /// <summary>
-        /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
-        /// </summary>
-        public float defrag_threshold;
-
         //todo: implement cb_eval callback support
         /// <summary>
         /// ggml_backend_sched_eval_callback
@@ -146,6 +146,16 @@ namespace LLama.Native
         /// data type for V cache. <b>EXPERIMENTAL</b>
         /// </summary>
         public GGMLType type_v;
+
+        /// <summary>
+        /// Device cache size in bytes for experts kept in host memory, 0 = disabled.
+        /// </summary>
+        public nuint moe_cache_size;
+
+        /// <summary>
+        /// Share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. <b>EXPERIMENTAL</b>
+        /// </summary>
+        public float moe_cache_cpu_share;
 
         //todo: implement abort callback support
         /// <summary>
