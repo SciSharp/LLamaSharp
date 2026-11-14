@@ -632,11 +632,13 @@ public static partial class NativeApi
        // pad the stream so that all pending rows can be produced
        // end = false: the stream stays open (use it on a pause, to get a partial transcript)
        // end = true:  no more push() is accepted
+       // thread-safe across streams
        // returns 0 on success, 1 if the stream has ended
        MTMD_API int32_t mtmd_audio_stream_flush(mtmd_audio_stream * stream, bool end);
 
        // produce the next decoder rows
        // last_token is the token sampled from the previous row, LLAMA_TOKEN_NULL before the first sample
+       // thread-safe across streams
        // return value:
        //   > 0 number of rows ready, read them with mtmd_audio_stream_get_output_embd()
        //   0   more audio is needed
@@ -673,6 +675,7 @@ public static partial class NativeApi
            MTMD_GEN_AUDIO_TYPE_SOPRANO,
            MTMD_GEN_AUDIO_TYPE_LFM3A,
            MTMD_GEN_AUDIO_TYPE_CHATTERBOX,
+           MTMD_GEN_AUDIO_TYPE_DRAMA3,
        };
 
        struct mtmd_gen_audio_info {
@@ -702,7 +705,7 @@ public static partial class NativeApi
            float * embd;   // the hidden state from backbone, must have n_text_embd elements
            int32_t top_k;
            float   top_p;
-           float   temp; // sampling temperature, or noise scale for flow-matching decoders
+           float   temp; // sampling temperature, or noise scale for flow-matching decoders (0 = no noise)
            float   penalty_repeat; // repetition penalty of the sampled codes, <= 1 is off
            int32_t penalty_last_n; // frames the repetition penalty looks back on
 
@@ -763,6 +766,7 @@ public static partial class NativeApi
 
        // run one step and update the state in place
        // the caller drives the backbone and collects the audio frames
+       // thread-safe across gen states
        MTMD_API int32_t mtmd_gen_audio_process(mtmd_context * ctx,
                                        mtmd_gen_state * state,
                                        const struct mtmd_gen_inp * inp,
@@ -824,6 +828,7 @@ public static partial class NativeApi
 
            int32_t  top_k;
            float    top_p;
+           float    temp; // audio frame temperature if the model supports it, < 0 = model default, 0 = greedy
            uint32_t seed; // UINT32_MAX for random (default: random)
 
            enum mtmd_helper_gen_audio_outtype out_type;
@@ -881,5 +886,17 @@ public static partial class NativeApi
        // forces any buffered codes through code2wav now, regardless of window_frames;
        // call once when generation has ended, before the last get_output() in stream mode
        MTMD_API int32_t mtmd_helper_gen_audio_flush(mtmd_helper_gen_audio * ctx);
+     */
+
+    /*
+     * // Streaming audio resampler (added in v1.0.0, not yet wrapped)
+       // returns NULL on failure
+       MTMD_API mtmd_helper_resampler * mtmd_helper_resampler_init(int32_t rate_in, int32_t rate_out);
+
+       MTMD_API void                    mtmd_helper_resampler_free(mtmd_helper_resampler * ctx);
+
+       // *out is valid until the next call
+       // returns the number of output samples (can be 0), < 0 on error
+       MTMD_API int64_t mtmd_helper_resampler_process(mtmd_helper_resampler * ctx, const float * in, size_t n_in, const float ** out);
      */
 }
