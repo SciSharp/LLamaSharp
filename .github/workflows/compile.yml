@@ -631,7 +631,7 @@ jobs:
             targets: '--target ggml ggml-base ggml-cpu ggml-blas llama mtmd'
     env:
       MACOS_RPATH_DEFINE: "-DCMAKE_INSTALL_RPATH='@loader_path' -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
         with:
