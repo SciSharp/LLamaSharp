@@ -13,8 +13,6 @@ namespace LLama.Native
     /// </summary>
     public sealed partial class NativeLibraryConfig
     {
-        private string? _libraryPath;
-
         private bool _useCuda = true;
         private bool _useVulkan = true;
         private AvxLevel _avxLevel;
@@ -29,20 +27,6 @@ namespace LLama.Native
         internal INativeLibrarySelectingPolicy SelectingPolicy { get; private set; } = new DefaultNativeLibrarySelectingPolicy();
 
         #region configurators
-        /// <summary>
-        /// Load a specified native library as backend for LLamaSharp.
-        /// When this method is called, all the other configurations will be ignored.
-        /// </summary>
-        /// <param name="libraryPath">The full path to the native library to load.</param>
-        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
-        public NativeLibraryConfig WithLibrary(string? libraryPath)
-        {
-            ThrowIfLoaded();
-
-            _libraryPath = libraryPath;
-            return this;
-        }
-
         /// <summary>
         /// Configure whether to use cuda backend if possible. Default is true.
         /// </summary>
@@ -167,8 +151,7 @@ namespace LLama.Native
             if (_allowFallback && _skipCheck)
                 throw new ArgumentException("Cannot skip the check when fallback is allowed.");
 
-            var path = _libraryPath;
-
+            var path = LibraryPath;
 
             return new Description(
                 path,
@@ -324,6 +307,25 @@ namespace LLama.Native
 
         internal NativeLibraryName NativeLibraryName { get; }
 
+        /// <summary>
+        /// The full path to a specific native library to load, set by <see cref="WithLibrary"/>.
+        /// </summary>
+        internal string? LibraryPath { get; private set; }
+
+        /// <summary>
+        /// Load a specified native library as backend for LLamaSharp.
+        /// When this method is called, all the other configurations (that are available on the current target framework) will be ignored.
+        /// </summary>
+        /// <param name="libraryPath">The full path to the native library to load.</param>
+        /// <exception cref="InvalidOperationException">Thrown if `LibraryHasLoaded` is true.</exception>
+        public NativeLibraryConfig WithLibrary(string? libraryPath)
+        {
+            ThrowIfLoaded();
+
+            LibraryPath = libraryPath;
+            return this;
+        }
+
         internal NativeLogConfig.LLamaLogCallback? LogCallback { get; private set; } = null;
 
         private void ThrowIfLoaded()
@@ -370,8 +372,9 @@ namespace LLama.Native
         /// You can still modify the configuration after this calling but only before any call from <see cref="NativeApi"/>.
         /// </summary>
         /// <param name="loadedLibrary">
-        /// The loaded livrary. When the loading failed, this will be null. 
-        /// However if you are using .NET standard2.0, this will never return null.
+        /// The loaded livrary. When the loading failed, this will be null.
+        /// On .NET standard2.0, this will only be non-null if a specific library was configured with <see cref="WithLibrary"/>;
+        /// otherwise it will always be null since no automatic backend detection/loading is performed on that target framework.
         /// </param>
         /// <returns>Whether the running is successful.</returns>
         public bool DryRun(out INativeLibrary? loadedLibrary)
@@ -407,10 +410,9 @@ namespace LLama.Native
 
         #region configurators
 
-#if NET6_0_OR_GREATER
         /// <summary>
         /// Load a specified native library as backend for LLamaSharp.
-        /// When this method is called, all the other configurations will be ignored.
+        /// When this method is called, all the other configurations (that are available on the current target framework) will be ignored.
         /// </summary>
         /// <param name="llamaPath">The full path to the llama library to load.</param>
         /// <param name="mtmdPath">The full path to the mtmd library to load.</param>
@@ -432,6 +434,7 @@ namespace LLama.Native
             return this;
         }
 
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Configure whether to use cuda backend if possible.
         /// </summary>
