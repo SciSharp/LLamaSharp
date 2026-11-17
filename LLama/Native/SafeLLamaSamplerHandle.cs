@@ -466,7 +466,7 @@ public sealed class SafeLLamaSamplerChainHandle
                 llama_sampler_init_grammar_lazy_patterns(
                     model.Vocab.VocabNative,
                     grammar, root,
-                    patterns.ToArray(),
+                    patterns.ToArray(), (nuint)patterns.Length,
                     triggerTokens.ToArray(), (nuint)triggerTokens.Length
                 )
             );
@@ -478,6 +478,7 @@ public sealed class SafeLLamaSamplerChainHandle
             LLamaVocabNative* model,
             string grammar_str, string grammar_root,
             string[] triggerPatterns,
+            nuint num_trigger_patterns,
             LLamaToken[] triggerTokens,
             nuint num_trigger_tokens
         );

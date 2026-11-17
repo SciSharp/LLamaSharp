@@ -382,7 +382,7 @@ public static partial class NativeApi
     internal static extern IntPtr mtmd_test_create_input_chunks();
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_file", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname, bool placeholder, mtmd_helper_init_opt opt);
+    private static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_file_native(SafeMtmdModelHandle ctx, byte* fname, [MarshalAs(UnmanagedType.I1)] bool placeholder, mtmd_helper_init_opt opt);
 
     internal static unsafe IntPtr mtmd_helper_bitmap_init_from_file(SafeMtmdModelHandle ctx, string fname)
     {
@@ -391,7 +391,7 @@ public static partial class NativeApi
     }
 
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_helper_bitmap_init_from_buf", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_buf_native(SafeMtmdModelHandle ctx, byte* buf, nuint len, bool placeholder, mtmd_helper_init_opt opt);
+    internal static extern unsafe mtmd_helper_bitmap_wrapper mtmd_helper_bitmap_init_from_buf_native(SafeMtmdModelHandle ctx, byte* buf, nuint len, [MarshalAs(UnmanagedType.I1)] bool placeholder, mtmd_helper_init_opt opt);
 
     internal static unsafe IntPtr mtmd_helper_bitmap_init_from_buf(SafeMtmdModelHandle ctx, byte* buf, nuint len)
     {

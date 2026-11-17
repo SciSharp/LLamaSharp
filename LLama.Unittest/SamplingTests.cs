@@ -260,6 +260,23 @@ namespace LLama.Unittest
             Assert.Equal(0f, native.Data[1003].Logit);
         }
 
+        [Fact]
+        public void LazyGrammarWaitsForTrigger()
+        {
+            using var chain = SafeLLamaSamplerChainHandle.Create(LLamaSamplerChainParams.Default());
+            chain.AddLazyGrammar(_model.NativeHandle, "root ::= \"a\"", "root", ["<tool>", "<call>"], [(LLamaToken)1000]);
+            Assert.Equal(1, chain.Count);
+
+            // The grammar is not triggered yet, so no candidate may be masked.
+            var candidates = LLamaTokenDataArray.Create(new float[_model.Vocab.Count]);
+            using var pin = LLamaTokenDataArrayNative.Create(candidates, out var native);
+            chain.Apply(ref native);
+            for (var i = 0; i < native.Data.Length; i++)
+            {
+                Assert.Equal(0f, native.Data[i].Logit);
+            }
+        }
+
         private void DecodeAndClear(LLamaContext context)
         {
             Assert.Equal(DecodeResult.Ok, context.Decode(_batch));
