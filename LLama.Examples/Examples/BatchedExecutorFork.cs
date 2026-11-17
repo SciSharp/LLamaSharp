@@ -29,7 +29,8 @@ public class BatchedExecutorFork
         var prompt = AnsiConsole.Ask("Prompt (or ENTER for default):", "Not many people know that");
 
         // Create an executor that can evaluate a batch of conversations together
-        using var executor = new BatchedExecutor(model, parameters);
+        // Each split doubles the leaves and briefly keeps the parent alongside its children.
+        using var executor = new BatchedExecutor(model, parameters with { SeqMax = (1u << ((TokenCount - 1) / ForkTokenCount)) + 1 });
 
         // Print some info
         var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");

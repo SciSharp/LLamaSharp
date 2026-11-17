@@ -43,6 +43,16 @@ public struct LLamaPerfContextTimings
     /// number of times a ggml compute graph had been reused
     /// </summary>
     private int n_reused;
+
+    /// <summary>
+    /// Graph reallocations with an unchanged graph size.
+    /// </summary>
+    private int n_reallocs_same;
+
+    /// <summary>
+    /// Graph reallocations with a changed graph size.
+    /// </summary>
+    private int n_reallocs_diff;
     
     /// <summary>
     /// Timestamp when reset was last called

@@ -33,6 +33,11 @@ namespace LLama.Native
         /// How to load the model
         /// </summary>
         public LLamaLoadMode load_mode;
+
+        /// <summary>
+        /// On-demand reading of tensors marked by the model architecture.
+        /// </summary>
+        public LLamaLazyMode lazy_mode;
         
         /// <summary>
         /// the GPU that is used for the entire model when split_mode is LLAMA_SPLIT_MODE_NONE

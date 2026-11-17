@@ -313,6 +313,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-musl-x64/native/noavx/libggml-cpu.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-noavx/libmtmd.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/noavx/libmtmd.so</Link>
+      </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -329,6 +333,10 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libggml-cpu.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-musl-x64/native/avx/libggml-cpu.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx/libmtmd.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx/libmtmd.so</Link>
       </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx2/libllama.so">
@@ -347,6 +355,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-musl-x64/native/avx2/libggml-cpu.so</Link>
       </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx2/libmtmd.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx2/libmtmd.so</Link>
+      </None>
 
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libllama.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -363,6 +375,10 @@
       <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libggml-cpu.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>runtimes/linux-musl-x64/native/avx512/libggml-cpu.so</Link>
+      </None>
+      <None Include="$(MSBuildThisFileDirectory)runtimes/deps/musl-avx512/libmtmd.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>runtimes/linux-musl-x64/native/avx512/libmtmd.so</Link>
       </None>
 
 

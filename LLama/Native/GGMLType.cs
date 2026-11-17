@@ -88,20 +88,25 @@ public enum GGMLType
     /// <summary>
     /// Integer, 8 bit
     /// </summary>
-    GGML_TYPE_I8 = 16,
+    GGML_TYPE_I8 = 24,
 
     /// <summary>
     /// Integer, 16 bit
     /// </summary>
-    GGML_TYPE_I16 = 17,
+    GGML_TYPE_I16 = 25,
 
     /// <summary>
     /// Integer, 32 bit
     /// </summary>
-    GGML_TYPE_I32 = 18,
+    GGML_TYPE_I32 = 26,
+
+    /// <summary>
+    /// OCP FP8 E4M3 floating point.
+    /// </summary>
+    GGML_TYPE_F8_E4M3 = 43,
 
     /// <summary>
     /// The value of this entry is the count of the number of possible quant types.
     /// </summary>
-    GGML_TYPE_COUNT,
+    GGML_TYPE_COUNT = 44,
 }

@@ -39,5 +39,15 @@ public enum LLamaVocabType
     /// <summary>
     /// PLaMo-2 tokenizer based on Aho-Corasick with dynamic programming
     /// </summary>
-    PLAMO2 = 6
+    PLAMO2 = 6,
+
+    /// <summary>
+    /// Dummy tokenizer for native testing.
+    /// </summary>
+    Test = 7,
+
+    /// <summary>
+    /// PLaMo-3 tokenizer with pre-segmentation and dynamic programming.
+    /// </summary>
+    PLAMO3 = 8,
 }

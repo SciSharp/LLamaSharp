@@ -33,7 +33,7 @@ public sealed class BatchedExecutor
             // Linearly search for the lowest available ID.
             // Because IDs are recycled when conversations are disposed, this will naturally 
             // stay bounded below the host's maximum concurrency limit (SeqMax).
-            for (int i = 0; i < int.MaxValue; i++)
+            for (int i = 0; i < Context.NativeHandle.MaxSeq; i++)
             {
                 if (!_activeSequenceIds.Contains(i))
                 {
@@ -43,8 +43,7 @@ public sealed class BatchedExecutor
             }
         }
 
-        // Fallback safety (practically unreachable unless int.MaxValue concurrent users are active)
-        throw new InvalidOperationException("Failed to allocate a Sequence ID.");
+        throw new InvalidOperationException("The maximum number of concurrent conversations (SeqMax) has been reached.");
     }
 
     /// <summary>
@@ -165,8 +164,16 @@ public sealed class BatchedExecutor
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
         var conversation = Create();
-        conversation.Load(filepath);
-        return conversation;
+        try
+        {
+            conversation.Load(filepath);
+            return conversation;
+        }
+        catch
+        {
+            conversation.Dispose();
+            throw;
+        }
     }
 
     /// <summary>
@@ -181,8 +188,16 @@ public sealed class BatchedExecutor
             throw new ObjectDisposedException(nameof(BatchedExecutor));
 
         var conversation = Create();
-        conversation.Load(state);
-        return conversation;
+        try
+        {
+            conversation.Load(state);
+            return conversation;
+        }
+        catch
+        {
+            conversation.Dispose();
+            throw;
+        }
     }
 
     /// <summary>

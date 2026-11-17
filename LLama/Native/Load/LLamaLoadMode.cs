@@ -7,6 +7,11 @@ namespace LLama.Native;
 public enum LLamaLoadMode
 {
     /// <summary>
+    /// Select a loading mode based on device capabilities.
+    /// </summary>
+    Auto = -1,
+
+    /// <summary>
     /// no special loading mode
     /// </summary>
     None = 0,

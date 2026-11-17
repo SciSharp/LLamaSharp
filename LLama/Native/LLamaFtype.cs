@@ -223,6 +223,11 @@ namespace LLama.Native
         LLAMA_FTYPE_MOSTLY_Q2_0 = 41,
 
         /// <summary>
+        /// OCP FP8 E4M3, except one-dimensional tensors.
+        /// </summary>
+        LLAMA_FTYPE_MOSTLY_F8_E4M3 = 42,
+
+        /// <summary>
         /// File type was not specified
         /// </summary>
         GUESSED = 1024

@@ -23,16 +23,6 @@ public class BatchedExecutorSimple
         var parameters = new ModelParams(UserSettings.GetModelPath());
         using var model = await LLamaWeights.LoadFromFileAsync(parameters);
 
-        // Create an executor that can evaluate a batch of conversations together
-        using var executor = new BatchedExecutor(model, parameters);
-        
-        // we'll need this for evaluating if we are at the end of generation
-        var vocab = executor.Context.NativeHandle.ModelHandle.Vocab;
-        
-        // Print some info
-        var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
-        Console.WriteLine($"Created executor with model: {name}");
-
         // A set of questions to evaluate all at once
         var messages = new[]
         {
@@ -48,6 +38,12 @@ public class BatchedExecutorSimple
             "What color shoes should I wear with dark blue pants?",
             "Wy ae cts btr tn dgs?"
         };
+
+        // Create an executor with one sequence for each question.
+        using var executor = new BatchedExecutor(model, parameters with { SeqMax = (uint)messages.Length });
+        var vocab = executor.Context.NativeHandle.ModelHandle.Vocab;
+        var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
+        Console.WriteLine($"Created executor with model: {name}");
 
         // Create a "Conversation" for each question
         var conversations = new List<ConversationData>();

@@ -24,7 +24,7 @@ public class BatchedExecutorBoolQ
         var hint = AnsiConsole.Ask("Provide hints to model (test reading comprehension instead of knowledge)", true);
 
         // Create an executor that can evaluate a batch of conversations together
-        using var executor = new BatchedExecutor(model, parameters);
+        using var executor = new BatchedExecutor(model, parameters with { SeqMax = checked((uint)batchSize) });
 
         // Print some info
         var name = model.Metadata.GetValueOrDefault("general.name", "unknown model name");
