@@ -84,6 +84,14 @@ Pointer to vector containing layer indices to prune
 public IntPtr prune_layers;
 ```
 
+### **max_buf_size**
+
+Maximum bytes of tensor rows held in memory, 0 = native default (8 GiB).
+
+```csharp
+public UIntPtr max_buf_size;
+```
+
 ## Properties
 
 ### **allow_requantize**

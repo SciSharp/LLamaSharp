@@ -69,6 +69,14 @@ max outputs in a ubatch (0 = n_batch)
 public uint n_outputs_max;
 ```
 
+### **n_outputs_max_per_seq**
+
+Maximum outputs per sequence, 0 = n_outputs_max.
+
+```csharp
+public uint n_outputs_max_per_seq;
+```
+
 ### **n_threads**
 
 number of threads to use for generation
@@ -219,6 +227,14 @@ data type for V cache. EXPERIMENTAL
 
 ```csharp
 public GGMLType type_v;
+```
+
+### **moe_cache_size**
+
+Device cache size in bytes for experts kept in host memory, 0 = disabled.
+
+```csharp
+public UIntPtr moe_cache_size;
 ```
 
 ### **abort_callback**

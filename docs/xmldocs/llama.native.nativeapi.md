@@ -49,6 +49,18 @@ public static LLamaLoadMode llama_load_mode_from_str(string str)
 
 [LLamaLoadMode](./llama.native.llamaloadmode.md)<br>
 
+### **llama_version()**
+
+Get a borrowed pointer to the native library's UTF-8 version string.
+
+```csharp
+public static IntPtr llama_version()
+```
+
+#### Returns
+
+[IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+
 ### **llama_empty_call()**
 
 A method that does nothing. This is a native method, calling it will force the llama native dependencies to be loaded.

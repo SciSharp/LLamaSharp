@@ -23,6 +23,7 @@ llama_load_mode
 
 | Name | Value | Description |
 | --- | --: | --- |
+| Auto | -1 | Select a loading mode based on device capabilities. |
 | None | 0 | no special loading mode |
 | MemoryMap | 1 | memory map the model |
 | MemoryLock | 2 | force system to keep model in RAM rather than swapping or compressing |
