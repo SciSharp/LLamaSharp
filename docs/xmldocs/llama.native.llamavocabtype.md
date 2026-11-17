@@ -30,6 +30,8 @@ llama_vocab_type
 | Unigram | 4 | T5 tokenizer based on Unigram |
 | RWKV | 5 | RWKV tokenizer based on greedy tokenization |
 | PLAMO2 | 6 | PLaMo-2 tokenizer based on Aho-Corasick with dynamic programming |
+| Test | 7 | Dummy tokenizer for native testing. |
+| PLAMO3 | 8 | PLaMo-3 tokenizer with pre-segmentation and dynamic programming. |
 
 ---
 

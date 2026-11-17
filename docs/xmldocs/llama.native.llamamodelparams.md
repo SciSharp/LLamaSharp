@@ -57,6 +57,14 @@ How to load the model
 public LLamaLoadMode load_mode;
 ```
 
+### **lazy_mode**
+
+On-demand reading of tensors marked by the model architecture.
+
+```csharp
+public LLamaLazyMode lazy_mode;
+```
+
 ### **main_gpu**
 
 the GPU that is used for the entire model when split_mode is LLAMA_SPLIT_MODE_NONE

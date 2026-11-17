@@ -502,20 +502,23 @@ A list of patterns that will trigger the grammar sampler. Pattern will be matche
 `triggerTokens` [ReadOnlySpan&lt;LLamaToken&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.readonlyspan-1)<br>
 A list of tokens that will trigger the grammar sampler. Grammar sampler will be fed content starting from the trigger token included..
 
-### **AddPenalties(Int32, Single, Single, Single)**
+### **AddPenalties(Int32, Int32, Single, Single, Single)**
 
 Create a sampler that applies various repetition penalties.
  
  Avoid using on the full vocabulary as searching for repeated tokens can become slow. For example, apply top-k or top-p sampling first.
 
 ```csharp
-public void AddPenalties(int penaltyCount, float repeat, float freq, float presence)
+public void AddPenalties(int vocabSize, int penaltyCount, float repeat, float freq, float presence)
 ```
 
 #### Parameters
 
+`vocabSize` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+Number of tokens in the model vocabulary
+
 `penaltyCount` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-How many tokens of history to consider when calculating penalties
+How many tokens of history to consider; 0 disables penalties
 
 `repeat` [Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
 Repetition penalty
@@ -552,7 +555,7 @@ exponential base
 repeated sequences longer than this are penalized
 
 `penaltyLastN` [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
-how many tokens to scan for repetitions (0 = entire context)
+how many tokens to scan for repetitions (0 disables DRY, -1 uses the model's training context length)
 
 ### **AddAdaptiveP(Single, Single, UInt32)**
 

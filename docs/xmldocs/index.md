@@ -194,6 +194,8 @@
 
 [LLamaFtype](./llama.native.llamaftype.md)
 
+[LLamaLazyMode](./llama.native.llamalazymode.md)
+
 [LLamaLoadMode](./llama.native.llamaloadmode.md)
 
 [LLamaLogitBias](./llama.native.llamalogitbias.md)

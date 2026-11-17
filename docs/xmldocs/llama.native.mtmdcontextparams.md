@@ -41,6 +41,18 @@ public bool UseGpu { get; set; }
 
 [Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
 
+### **Device**
+
+Device used by the encoder, or zero for automatic selection.
+
+```csharp
+public IntPtr Device { get; set; }
+```
+
+#### Property Value
+
+[IntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.intptr)<br>
+
 ### **PrintTimings**
 
 Whether timing information should be emitted by the native helper.

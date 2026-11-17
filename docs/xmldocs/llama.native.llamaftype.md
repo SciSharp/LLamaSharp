@@ -59,6 +59,7 @@ C# representation of llama_ftype
 | LLAMA_FTYPE_MOSTLY_NVFP4 | 39 | Except 1d tensors |
 | LLAMA_FTYPE_MOSTLY_Q1_0 | 40 | Except 1d tensors |
 | LLAMA_FTYPE_MOSTLY_Q2_0 | 41 | Except 1d tensors |
+| LLAMA_FTYPE_MOSTLY_F8_E4M3 | 42 | OCP FP8 E4M3, except one-dimensional tensors. |
 | GUESSED | 1024 | File type was not specified |
 
 ---

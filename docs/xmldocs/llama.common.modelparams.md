@@ -116,7 +116,7 @@ public int GpuLayerCount { get; set; }
 
 ### **SeqMax**
 
-max number of sequences (i.e. distinct states for recurrent models)
+Maximum simultaneous sequences. Sequence IDs must be less than this value, including with a unified KV cache.
 
 ```csharp
 public uint SeqMax { get; set; }
