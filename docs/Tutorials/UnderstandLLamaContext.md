@@ -96,14 +96,19 @@ public interface IContextParams
     GGMLType? TypeV { get; }
 
     /// <summary>
-    /// Whether to disable offloading the KQV cache to the GPU
+    /// Gets the device cache size in bytes for experts kept in host memory, 0 = disabled.
     /// </summary>
-    bool NoKqvOffload { get; }
+    nuint MoeCacheSize { get; }
+
+    /// <summary>
+    /// Gets the share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. <b>EXPERIMENTAL</b>
+    /// </summary>
+    float MoeCacheCpuShare { get; }
 
     /// <summary>
     /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
     /// </summary>
-    float DefragThreshold { get; }
+    bool NoKqvOffload { get; }
 
     /// <summary>
     /// Whether to pool (sum) embedding results by sequence id (ignored if no pooling layer)

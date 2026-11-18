@@ -189,14 +189,6 @@ YaRN original context size
 public uint yarn_orig_ctx;
 ```
 
-### **defrag_threshold**
-
-defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
-
-```csharp
-public float defrag_threshold;
-```
-
 ### **cb_eval**
 
 ggml_backend_sched_eval_callback
@@ -235,6 +227,14 @@ Device cache size in bytes for experts kept in host memory, 0 = disabled.
 
 ```csharp
 public UIntPtr moe_cache_size;
+```
+
+### **moe_cache_cpu_share**
+
+Share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. EXPERIMENTAL
+
+```csharp
+public float moe_cache_cpu_share;
 ```
 
 ### **abort_callback**
