@@ -49,6 +49,8 @@ namespace LLama.Extensions
 
             result.type_k = @params.TypeK ?? GGMLType.GGML_TYPE_F16;
             result.type_v = @params.TypeV ?? GGMLType.GGML_TYPE_F16;
+            result.moe_cache_size = @params.MoeCacheSize;
+            result.moe_cache_cpu_share = @params.MoeCacheCpuShare;
             result.offload_kqv = !@params.NoKqvOffload;
             result.llama_pooling_type = @params.PoolingType;
             result.attention_type = @params.AttentionType;

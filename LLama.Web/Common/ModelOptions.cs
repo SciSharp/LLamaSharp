@@ -107,6 +107,12 @@ namespace LLama.Web.Common
         public GGMLType? TypeV { get; set; }
 
         /// <inheritdoc />
+        public nuint MoeCacheSize { get; set; }
+
+        /// <inheritdoc />
+        public float MoeCacheCpuShare { get; set; }
+
+        /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
 
         /// <inheritdoc />
@@ -126,9 +132,6 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public bool? KVUnified { get; set; }
-
-        /// <inheritdoc />
-        public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; }

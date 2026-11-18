@@ -110,6 +110,16 @@ public interface IContextParams
     GGMLType? TypeV { get; }
 
     /// <summary>
+    /// Gets the device cache size in bytes for experts kept in host memory, 0 = disabled.
+    /// </summary>
+    nuint MoeCacheSize { get; }
+
+    /// <summary>
+    /// Gets the share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. <b>EXPERIMENTAL</b>
+    /// </summary>
+    float MoeCacheCpuShare { get; }
+
+    /// <summary>
     /// Whether to disable offloading the KQV cache to the GPU
     /// </summary>
     bool NoKqvOffload { get; }
@@ -118,12 +128,6 @@ public interface IContextParams
     /// Whether to use flash attention
     /// </summary>
     bool? FlashAttention { get; }
-    
-    /// <summary>
-    /// No longer supported by llama.cpp; this value is ignored.
-    /// </summary>
-    [Obsolete("KV cache defragmentation is no longer supported by llama.cpp; this value is ignored.")]
-    float? DefragThreshold { get; }
 
     /// <summary>
     /// How to pool (sum) embedding results by sequence id (ignored if no pooling layer)
