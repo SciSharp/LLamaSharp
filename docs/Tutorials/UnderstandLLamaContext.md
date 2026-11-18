@@ -106,7 +106,7 @@ public interface IContextParams
     float MoeCacheCpuShare { get; }
 
     /// <summary>
-    /// defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt; 0 to disable (default)
+    /// Whether to disable offloading the KQV cache to the GPU
     /// </summary>
     bool NoKqvOffload { get; }
 
