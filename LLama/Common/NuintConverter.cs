@@ -15,7 +15,8 @@ namespace LLama.Common
         public override nuint Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var value = reader.GetUInt64();
-            if (value > nuint.MaxValue)
+            // nuint.MaxValue is not available on netstandard2.0, check the pointer size instead
+            if (UIntPtr.Size == 4 && value > uint.MaxValue)
                 throw new JsonException($"Value {value} does not fit into nuint on this platform.");
             return (nuint)value;
         }
