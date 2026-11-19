@@ -112,7 +112,7 @@ public interface IContextParams
     /// <summary>
     /// Gets the device cache size in bytes for experts kept in host memory, 0 = disabled.
     /// </summary>
-    ulong MoeCacheSize { get; }
+    nuint MoeCacheSize { get; }
 
     /// <summary>
     /// Gets the share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. <b>EXPERIMENTAL</b>

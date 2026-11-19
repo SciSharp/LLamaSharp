@@ -107,7 +107,7 @@ namespace LLama.Web.Common
         public GGMLType? TypeV { get; set; }
 
         /// <inheritdoc />
-        public ulong MoeCacheSize { get; set; }
+        public nuint MoeCacheSize { get; set; }
 
         /// <inheritdoc />
         public float MoeCacheCpuShare { get; set; }

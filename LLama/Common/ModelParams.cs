@@ -104,7 +104,8 @@ namespace LLama.Common
         public GGMLType? TypeV { get; set; }
 
         /// <inheritdoc />
-        public ulong MoeCacheSize { get; set; }
+        [JsonConverter(typeof(NuintConverter))]
+        public nuint MoeCacheSize { get; set; }
 
         /// <inheritdoc />
         public float MoeCacheCpuShare { get; set; }
