@@ -122,6 +122,18 @@ public int BatchThreads { get; set; }
 
 [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
+### **CausalAttention**
+
+Get or set whether this context uses causal attention
+
+```csharp
+public bool CausalAttention { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
 ### **PoolingType**
 
 Get the pooling type for this context
@@ -233,6 +245,12 @@ public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaCon
 [RuntimeError](./llama.exceptions.runtimeerror.md)<br>
 
 ### **SetCausalAttention(Boolean)**
+
+#### Caution
+
+Use `CausalAttention` property instead
+
+---
 
 Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
 
