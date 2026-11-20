@@ -282,7 +282,7 @@ namespace LLama.Native
 
         #region Native API
         [DllImport(NativeApi.mtmdLibraryName, EntryPoint = "mtmd_bitmap_set_mergeable", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void mtmd_bitmap_set_mergeable(SafeMtmdEmbed embed, bool value);
+internal static extern void mtmd_bitmap_set_mergeable(SafeMtmdEmbed embed, [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.I1)] bool value);
         #endregion
     }
 }
