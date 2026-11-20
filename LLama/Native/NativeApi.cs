@@ -96,15 +96,6 @@ namespace LLama.Native
         [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void llama_backend_init();
 
-        // Note: this is not implemented because we don't have a definition for `ggml_numa_strategy` in C#. That definition doesn't
-        //       exist because it's not in llama.h, it's in ggml.h which we don't currently build a wrapper for. If there's demand
-        //       for better NUMA support that will need adding.
-        ///// <summary>
-        ///// Optional, enable NUMA optimisations
-        ///// </summary>
-        //[DllImport(libraryName, CallingConvention = CallingConvention.Cdecl)]
-        //public static extern void llama_numa_init(ggml_numa_strategy numa);
-
         /// <summary>
         /// Load session file
         /// </summary>
