@@ -92,6 +92,30 @@ public int TokensEvaluated { get; }
 
 [Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
 
+### **ReallocsSame**
+
+number of graph reallocations during inference with an unchanged graph size
+
+```csharp
+public int ReallocsSame { get; }
+```
+
+#### Property Value
+
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
+### **ReallocsDiff**
+
+number of graph reallocations during inference with a changed graph size
+
+```csharp
+public int ReallocsDiff { get; }
+```
+
+#### Property Value
+
+[Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32)<br>
+
 ---
 
 [`< Back`](./)

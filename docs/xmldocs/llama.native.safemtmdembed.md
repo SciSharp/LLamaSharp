@@ -86,6 +86,18 @@ public string? Id { get; set; }
 
 [String](https://learn.microsoft.com/en-us/dotnet/api/system.string)<br>
 
+### **Mergeable**
+
+If true, this bitmap can be merged (temporal merge) with an adjacent mergeable bitmap by certain video input models
+
+```csharp
+public bool Mergeable { get; set; }
+```
+
+#### Property Value
+
+[Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean)<br>
+
 ### **IsInvalid**
 
 ```csharp
