@@ -392,10 +392,10 @@ public GGMLType? TypeV { get; set; }
 
 ### **MoeCacheSize**
 
-Device cache size in bytes for experts kept in host memory, 0 = disabled.
+Gets the device cache size in bytes for experts kept in host memory, 0 = disabled.
 
 ```csharp
-public nuint MoeCacheSize { get; set; }
+public UIntPtr MoeCacheSize { get; set; }
 ```
 
 #### Property Value
@@ -404,7 +404,7 @@ public nuint MoeCacheSize { get; set; }
 
 ### **MoeCacheCpuShare**
 
-Share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. EXPERIMENTAL
+Gets the share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. EXPERIMENTAL
 
 ```csharp
 public float MoeCacheCpuShare { get; set; }

@@ -128,6 +128,8 @@
 
 [ModelParams](./llama.common.modelparams.md)
 
+[NuintConverter](./llama.common.nuintconverter.md)
+
 ## LLama.Exceptions
 
 [ContextOverflowException](./llama.exceptions.contextoverflowexception.md)
