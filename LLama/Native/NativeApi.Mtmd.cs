@@ -21,7 +21,7 @@ public static partial class NativeApi
         /// <summary>
         /// Device used by the multimodal encoder, or null for automatic selection.
         /// </summary>
-        public IntPtr device;
+        public /* ggml_backend_dev_t */ IntPtr device;
 
         [MarshalAs(UnmanagedType.I1)] public bool print_timings;
         public int n_threads;
@@ -144,22 +144,25 @@ public static partial class NativeApi
     [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_get_id", CallingConvention = CallingConvention.Cdecl)]
     internal static extern IntPtr mtmd_bitmap_get_id(SafeMtmdEmbed bitmap);
 
-    [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_set_id", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe void mtmd_bitmap_set_id_native(SafeMtmdEmbed bitmap, byte* id);
-
     /// <summary>
     /// Assign an identifier to a bitmap using a UTF-8 encoded string.
     /// </summary>
-    internal static unsafe void mtmd_bitmap_set_id(SafeMtmdEmbed bitmap, string? id)
+    internal static void mtmd_bitmap_set_id(SafeMtmdEmbed bitmap, string? id)
     {
-        if (id is null)
+        unsafe
         {
-            mtmd_bitmap_set_id_native(bitmap, null);
-            return;
+            if (id is null)
+            {
+                mtmd_bitmap_set_id_native(bitmap, null);
+                return;
+            }
+
+            using var pinned = PinnedUtf8String.Create(id) ?? throw new ArgumentNullException(nameof(id));
+            mtmd_bitmap_set_id_native(bitmap, (byte*)pinned.Pointer);
         }
 
-        using var pinned = PinnedUtf8String.Create(id) ?? throw new ArgumentNullException(nameof(id));
-        mtmd_bitmap_set_id_native(bitmap, (byte*)pinned.Pointer);
+        [DllImport(mtmdLibraryName, EntryPoint = "mtmd_bitmap_set_id", CallingConvention = CallingConvention.Cdecl)]
+        static extern unsafe void mtmd_bitmap_set_id_native(SafeMtmdEmbed bitmap, byte* id);
     }
 
     // input_chunks ------------------------------------------------------
@@ -539,9 +542,6 @@ public static partial class NativeApi
        // on a lazy bitmap: the expanded chunks are one video, wrapped by the model's video begin/end tokens
        //                   with MTMD_VIDEO_TEMPLATE_LFM3_OMNI, its audio bitmaps are the pieces of one soundtrack, in order
        MTMD_API void         mtmd_bitmap_set_is_video(mtmd_bitmap * bitmap, bool is_video);
-
-       // if true, this bitmap can be merged (temporal merge) with an adjacent mergeable bitmap by certain video input models
-       MTMD_API void         mtmd_bitmap_set_mergeable(mtmd_bitmap * bitmap, bool mergeable);
 
        // similar to mtmd_input_chunk_copy, but returns a placeholder chunk
        MTMD_API mtmd_input_chunk * mtmd_input_chunk_get_placeholder(const mtmd_input_chunk * chunk);

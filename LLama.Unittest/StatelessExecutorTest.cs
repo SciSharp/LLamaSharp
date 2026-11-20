@@ -32,7 +32,10 @@ namespace LLama.Unittest
         public async Task Stateless()
         {
             // Create a custom pipeline that mimics the default pipeline
-            var pipeline = new DefaultSamplingPipeline();
+            var pipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0,
+            };
 
             var executor = new StatelessExecutor(_weights, _params);
 

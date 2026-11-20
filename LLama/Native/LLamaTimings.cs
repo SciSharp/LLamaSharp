@@ -83,6 +83,16 @@ public struct LLamaPerfContextTimings
     /// number of eval calls
     /// </summary>
     public readonly int TokensEvaluated => n_eval;
+
+    /// <summary>
+    /// number of graph reallocations during inference with an unchanged graph size
+    /// </summary>
+    public readonly int ReallocsSame => n_reallocs_same;
+
+    /// <summary>
+    /// number of graph reallocations during inference with a changed graph size
+    /// </summary>
+    public readonly int ReallocsDiff => n_reallocs_diff;
 }
 
 /// <summary>

@@ -63,6 +63,15 @@ namespace LLama.Native
         }
 
         /// <summary>
+        /// Get or set whether this context uses causal attention
+        /// </summary>
+        public bool CausalAttention
+        {
+            get => llama_get_causal_attn(this);
+            set => llama_set_causal_attn(this, value);
+        }
+
+        /// <summary>
         /// Get the pooling type for this context
         /// </summary>
         public LLamaPoolingType PoolingType => llama_pooling_type(this);
@@ -114,7 +123,7 @@ namespace LLama.Native
         public static SafeLLamaContextHandle Create(SafeLlamaModelHandle model, LLamaContextParams lparams)
         {
             var ctx = llama_init_from_model(model, lparams);
-            if (ctx == null)
+            if (ctx == null || ctx.IsInvalid)
                 throw new RuntimeError("Failed to create context from model");
 
             // Increment the model reference count while this context exists.
@@ -431,6 +440,15 @@ namespace LLama.Native
         private static extern void llama_set_causal_attn(SafeLLamaContextHandle ctx, [MarshalAs(UnmanagedType.U1)] bool causalAttn);
 
         /// <summary>
+        /// Returns whether the context is currently using causal attention
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        [DllImport(NativeApi.libraryName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool llama_get_causal_attn(SafeLLamaContextHandle ctx);
+
+        /// <summary>
         /// Set whether the context outputs embeddings or not
         /// </summary>
         /// <param name="ctx"></param>
@@ -459,6 +477,7 @@ namespace LLama.Native
         /// <summary>
         /// Set whether to use causal attention or not. If set to true, the model will only attend to the past tokens
         /// </summary>
+        [Obsolete("Use `CausalAttention` property instead")]
         public void SetCausalAttention(bool value)
         {
             llama_set_causal_attn(this, value);

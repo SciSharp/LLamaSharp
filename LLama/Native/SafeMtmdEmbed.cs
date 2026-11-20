@@ -148,6 +148,21 @@ namespace LLama.Native
             set => NativeApi.mtmd_bitmap_set_id(this, value);
         }
 
+        private bool _mergeable;
+
+        /// <summary>
+        /// If true, this bitmap can be merged (temporal merge) with an adjacent mergeable bitmap by certain video input models
+        /// </summary>
+        public bool Mergeable
+        {
+            get => _mergeable;
+            set
+            {
+                mtmd_bitmap_set_mergeable(this, value);
+                _mergeable = value;
+            }
+        }
+
         #region GetData
         /// <summary>
         /// Provides safe zero-copy access to the underlying bitmap bytes.
@@ -264,5 +279,10 @@ namespace LLama.Native
             if (IsClosed || IsInvalid)
                 throw new ObjectDisposedException(nameof(SafeMtmdEmbed));
         }
+
+        #region Native API
+        [DllImport(NativeApi.mtmdLibraryName, EntryPoint = "mtmd_bitmap_set_mergeable", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void mtmd_bitmap_set_mergeable(SafeMtmdEmbed embed, bool value);
+        #endregion
     }
 }
