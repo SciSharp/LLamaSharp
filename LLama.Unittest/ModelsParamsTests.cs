@@ -21,6 +21,7 @@ namespace LLama.Unittest
                 BatchSize = 17,
                 ContextSize = 42,
                 GpuLayerCount = 111,
+                MoeCacheSize = 123456789,
                 TensorSplits = { [0] = 3 },
                 Devices = { "Vulkan1", "CPU" },
                 MetadataOverrides =

@@ -390,6 +390,30 @@ public GGMLType? TypeV { get; set; }
 
 [GGMLType?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
+### **MoeCacheSize**
+
+Device cache size in bytes for experts kept in host memory, 0 = disabled.
+
+```csharp
+public nuint MoeCacheSize { get; set; }
+```
+
+#### Property Value
+
+[UIntPtr](https://learn.microsoft.com/en-us/dotnet/api/system.uintptr)<br>
+
+### **MoeCacheCpuShare**
+
+Share of the MoE cache misses computed on the CPU instead of uploaded, 0 = all uploaded. EXPERIMENTAL
+
+```csharp
+public float MoeCacheCpuShare { get; set; }
+```
+
+#### Property Value
+
+[Single](https://learn.microsoft.com/en-us/dotnet/api/system.single)<br>
+
 ### **NoKqvOffload**
 
 Whether to disable offloading the KQV cache to the GPU
@@ -413,24 +437,6 @@ public bool? FlashAttention { get; set; }
 #### Property Value
 
 [Boolean?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
-
-### **DefragThreshold**
-
-#### Caution
-
-This member is obsolete.
-
----
-
-defragment the KV cache if holes/size &gt; defrag_threshold, Set to &lt;= 0 to disable (default)
-
-```csharp
-public float? DefragThreshold { get; set; }
-```
-
-#### Property Value
-
-[Single?](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1)<br>
 
 ### **PoolingType**
 

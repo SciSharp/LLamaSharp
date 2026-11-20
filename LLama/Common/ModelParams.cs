@@ -104,14 +104,17 @@ namespace LLama.Common
         public GGMLType? TypeV { get; set; }
 
         /// <inheritdoc />
+        [JsonConverter(typeof(NuintConverter))]
+        public nuint MoeCacheSize { get; set; }
+
+        /// <inheritdoc />
+        public float MoeCacheCpuShare { get; set; }
+
+        /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
         
         /// <inheritdoc />
         public bool? FlashAttention { get; set; }
-
-        /// <inheritdoc />
-        [Obsolete]
-        public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; } = LLamaPoolingType.Unspecified;

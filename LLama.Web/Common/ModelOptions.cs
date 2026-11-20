@@ -106,6 +106,20 @@ namespace LLama.Web.Common
         /// <inheritdoc />
         public GGMLType? TypeV { get; set; }
 
+        /// <summary>
+        /// Device cache size in bytes for experts kept in host memory, 0 = disabled.
+        /// </summary>
+        /// <remarks>
+        /// Exposed as <see cref="ulong"/> because the configuration binder cannot convert to <see cref="nuint"/>.
+        /// </remarks>
+        public ulong MoeCacheSize { get; set; }
+
+        /// <inheritdoc />
+        nuint IContextParams.MoeCacheSize => checked((nuint)MoeCacheSize);
+
+        /// <inheritdoc />
+        public float MoeCacheCpuShare { get; set; }
+
         /// <inheritdoc />
         public bool NoKqvOffload { get; set; }
 
@@ -126,9 +140,6 @@ namespace LLama.Web.Common
 
         /// <inheritdoc />
         public bool? KVUnified { get; set; }
-
-        /// <inheritdoc />
-        public float? DefragThreshold { get; set; }
 
         /// <inheritdoc />
         public LLamaPoolingType PoolingType { get; set; }

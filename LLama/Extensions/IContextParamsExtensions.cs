@@ -41,8 +41,6 @@ namespace LLama.Extensions
             result.yarn_orig_ctx = @params.YarnOriginalContext ?? 0;
             result.rope_scaling_type = @params.YarnScalingType ?? RopeScalingType.Unspecified;
             
-            result.defrag_threshold = @params.DefragThreshold ?? -1;
-
             result.cb_eval = IntPtr.Zero;
             result.cb_eval_user_data = IntPtr.Zero;
 
@@ -51,6 +49,8 @@ namespace LLama.Extensions
 
             result.type_k = @params.TypeK ?? GGMLType.GGML_TYPE_F16;
             result.type_v = @params.TypeV ?? GGMLType.GGML_TYPE_F16;
+            result.moe_cache_size = @params.MoeCacheSize;
+            result.moe_cache_cpu_share = @params.MoeCacheCpuShare;
             result.offload_kqv = !@params.NoKqvOffload;
             result.llama_pooling_type = @params.PoolingType;
             result.attention_type = @params.AttentionType;
